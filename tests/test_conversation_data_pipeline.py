@@ -26,6 +26,11 @@ from thesis_s2s.data.episode_prepare import (
 )
 from thesis_s2s.data.ingest import _conversation_candidate
 from thesis_s2s.data.manual_qa import apply_manual_qa, sample_manual_qa
+from thesis_s2s.data.rights import (
+    apply_conversation_rights_review,
+    create_conversation_rights_review,
+    rights_record_verified,
+)
 from thesis_s2s.data.s3_inventory import rclone_process_env
 
 
@@ -418,3 +423,82 @@ def test_manual_qa_handoff_is_stratified_and_fail_closed(tmp_path: Path):
     assert audit["human_verified_windows"] == 3
     assert audit["requirements"]["manual_qa_sample_present"] is True
     assert len(audit["manual_qa_reviewed_strata"]) == 4
+
+
+def test_rights_review_requires_written_complete_source_approval(tmp_path: Path):
+    source = tmp_path / "reviewed.jsonl"
+    source_rows = [
+        {
+            "window_id": "tabaghe-1",
+            "episode_id": "Tabaghe16/one",
+            "channel": "Tabaghe16",
+            "duration": 3600.0,
+            "license": "pending-youtube-rights-review",
+            "license_verified": False,
+        },
+        {
+            "window_id": "zoomit-1",
+            "episode_id": "Zoomit/one",
+            "channel": "Zoomit",
+            "duration": 1800.0,
+            "license": "pending-youtube-rights-review",
+            "license_verified": False,
+        },
+    ]
+    source.write_text(
+        "\n".join(json.dumps(row) for row in source_rows) + "\n",
+        encoding="utf-8",
+    )
+    review_csv = tmp_path / "rights.csv"
+    created = create_conversation_rights_review(source, review_csv)
+    assert created["review_scopes"] == 2
+    with pytest.raises(FileExistsError):
+        create_conversation_rights_review(source, review_csv)
+
+    with review_csv.open("r", encoding="utf-8-sig", newline="") as handle:
+        decisions = list(csv.DictReader(handle))
+        fieldnames = list(decisions[0])
+    for decision in decisions:
+        decision.update(
+            {
+                "approval_status": "approved",
+                "internal_training_allowed": "yes",
+                "thesis_reporting_allowed": "yes",
+                "derived_artifacts_allowed": "yes",
+                "redistribution_allowed": "no",
+                "evidence_reference": "approval-document-1",
+                "approved_by": "authorized-reviewer",
+                "approval_date": "2026-08-23",
+            }
+        )
+    decisions[1]["evidence_reference"] = ""
+    with review_csv.open("w", encoding="utf-8-sig", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(decisions)
+
+    approved = tmp_path / "approved.jsonl"
+    partial = apply_conversation_rights_review(source, review_csv, approved)
+    assert partial["rights_gate_passes"] is False
+    partial_rows = [json.loads(line) for line in approved.read_text(encoding="utf-8").splitlines()]
+    assert sum(row["license_verified"] is True for row in partial_rows) == 1
+    assert all(row["redistribution_allowed"] is False for row in partial_rows)
+
+    decisions[1]["evidence_reference"] = "approval-document-2"
+    with review_csv.open("w", encoding="utf-8-sig", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(decisions)
+    complete = apply_conversation_rights_review(
+        source,
+        review_csv,
+        approved,
+        report_path=tmp_path / "rights-report.json",
+    )
+    assert complete["rights_gate_passes"] is True
+    approved_rows = [json.loads(line) for line in approved.read_text(encoding="utf-8").splitlines()]
+    assert all(row["license"] == "approved-internal-research" for row in approved_rows)
+    assert all(row["license_verified"] is True for row in approved_rows)
+    assert all(rights_record_verified(row) for row in approved_rows)
+    approved_rows[0]["rights_review"]["evidence_reference"] = ""
+    assert rights_record_verified(approved_rows[0]) is False

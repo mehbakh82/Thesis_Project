@@ -124,9 +124,17 @@ export DIARIZATION_TIMEOUT_SECONDS=600
 # Edit data/processed/manifests/conversation_manual_qa.csv
 .venv/bin/python -m thesis_s2s.cli apply-conversation-qa
 
-# Only verified/aligned windows from the reviewed manifest enter this builder.
+# Create the source-level rights form. An authorized reviewer supplies written
+# evidence; the application command cannot infer rights from data possession.
+.venv/bin/python -m thesis_s2s.cli create-conversation-rights-review
+# Edit data/processed/manifests/conversation_rights_review.csv
+.venv/bin/python -m thesis_s2s.cli apply-conversation-rights-review
+.venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
+  --manifest data/processed/manifests/conversation_episode_windows_approved.jsonl
+
+# Only reviewed, licensed, aligned windows enter this builder.
 .venv/bin/python -m thesis_s2s.cli build-conversations \
-  --in-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
+  --in-jsonl data/processed/manifests/conversation_episode_windows_approved.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
 .venv/bin/python -m thesis_s2s.cli export-omni2-data
 ```

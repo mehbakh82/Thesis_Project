@@ -11,6 +11,7 @@ from pathlib import Path
 
 from thesis_s2s import SAMPLE_RATE
 from thesis_s2s.audio import read_wav, write_wav
+from thesis_s2s.data.rights import rights_record_verified
 from thesis_s2s.metrics import write_json
 
 SAFE_PART = re.compile(r"[^A-Za-z0-9_-]+")
@@ -188,12 +189,7 @@ def build_conversation_manifest(
             label_counts[label] += 1
             consumed_until = source_span_end
             license_name = str(row.get("license") or "unknown")
-            license_verified = (
-                bool(row.get("license_verified"))
-                if "license_verified" in row
-                else license_name
-                not in {"unknown", "youtube-internal", "pending-youtube-rights-review"}
-            )
+            license_verified = rights_record_verified(row)
             pairs.append(
                 {
                     "utt_id": pair_id,
@@ -219,6 +215,8 @@ def build_conversation_manifest(
                     "split": _stable_split(session_id),
                     "license": license_name,
                     "license_verified": license_verified,
+                    "redistribution_allowed": bool(row.get("redistribution_allowed", False)),
+                    "rights_review": row.get("rights_review"),
                     "source_audio_filepath": str(source),
                     "source_window_id": row.get("window_id"),
                     "automatic_multi_speaker_verified": row.get(
@@ -291,13 +289,7 @@ def audit_conversation_manifest(manifest: Path, out_json: Path | None = None, *,
             missing_files += sum(not value or not Path(str(value)).is_file() for value in paths)
     labels = Counter(str(row.get("interrupt_label") or "none") for row in rows)
     verified = sum(bool(row.get("human_verified")) for row in rows)
-    licensed = sum(
-        bool(row.get("license_verified"))
-        if "license_verified" in row
-        else str(row.get("license") or "unknown")
-        not in {"unknown", "youtube-internal", "pending-youtube-rights-review"}
-        for row in rows
-    )
+    licensed = sum(rights_record_verified(row) for row in rows)
     overlap_rows = sum(bool(row.get("overlap_intervals")) for row in rows)
     noise_rows = sum(
         str(row.get("noise_condition") or "unspecified").lower()

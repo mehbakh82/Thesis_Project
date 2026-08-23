@@ -27,6 +27,7 @@ SNAPSHOT_FILES = (
     "results/prepared_episode_audit.json",
     "results/conversation_selection_audit.json",
     "results/diarization_smoke_h100.json",
+    "results/conversation_rights_report.json",
     "results/conversation_audit.json",
     "results/bargein/heldout_report.json",
     "results/bargein/recorded_heldout_report.json",

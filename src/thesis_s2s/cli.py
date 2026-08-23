@@ -176,6 +176,37 @@ def main(argv: list[str] | None = None) -> None:
         default=Path("data/processed/manifests/conversation_episode_windows_reviewed.jsonl"),
     )
     p_qa_apply.add_argument("--report", type=Path, default=Path("results/manual_qa_report.json"))
+    p_rights_create = sub.add_parser("create-conversation-rights-review")
+    p_rights_create.add_argument(
+        "--in-jsonl",
+        type=Path,
+        default=p_qa_apply.get_default("out_jsonl"),
+    )
+    p_rights_create.add_argument(
+        "--out",
+        type=Path,
+        default=Path("data/processed/manifests/conversation_rights_review.csv"),
+    )
+    p_rights_create.add_argument("--overwrite", action="store_true")
+    p_rights_apply = sub.add_parser("apply-conversation-rights-review")
+    p_rights_apply.add_argument(
+        "--in-jsonl",
+        type=Path,
+        default=p_qa_apply.get_default("out_jsonl"),
+    )
+    p_rights_apply.add_argument(
+        "--rights-csv",
+        type=Path,
+        default=p_rights_create.get_default("out"),
+    )
+    p_rights_apply.add_argument(
+        "--out-jsonl",
+        type=Path,
+        default=Path("data/processed/manifests/conversation_episode_windows_approved.jsonl"),
+    )
+    p_rights_apply.add_argument(
+        "--report", type=Path, default=Path("results/conversation_rights_report.json")
+    )
     p_scale = sub.add_parser("scale-corpus")
     p_scale.add_argument("--min-hours", type=float, default=100)
     p_scale.add_argument("--max-hours", type=float, default=200)
@@ -419,6 +450,25 @@ def main(argv: list[str] | None = None) -> None:
         report = apply_manual_qa(
             args.in_jsonl,
             args.qa_csv,
+            args.out_jsonl,
+            report_path=args.report,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "create-conversation-rights-review":
+        from thesis_s2s.data.rights import create_conversation_rights_review
+
+        report = create_conversation_rights_review(
+            args.in_jsonl,
+            args.out,
+            overwrite=args.overwrite,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "apply-conversation-rights-review":
+        from thesis_s2s.data.rights import apply_conversation_rights_review
+
+        report = apply_conversation_rights_review(
+            args.in_jsonl,
+            args.rights_csv,
             args.out_jsonl,
             report_path=args.report,
         )

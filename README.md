@@ -49,9 +49,11 @@ rotate it and replace the document with environment-variable placeholders.
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes
 .venv/bin/python -m thesis_s2s.cli sample-conversation-qa
 .venv/bin/python -m thesis_s2s.cli apply-conversation-qa
+.venv/bin/python -m thesis_s2s.cli create-conversation-rights-review
+.venv/bin/python -m thesis_s2s.cli apply-conversation-rights-review
 .venv/bin/python -m thesis_s2s.cli audit-corpus --no-check-files
 .venv/bin/python -m thesis_s2s.cli audit-alignment
-.venv/bin/python -m thesis_s2s.cli build-conversations --in-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
+.venv/bin/python -m thesis_s2s.cli build-conversations --in-jsonl data/processed/manifests/conversation_episode_windows_approved.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
 .venv/bin/python -m thesis_s2s.cli serve --study --retention features
 .venv/bin/python -m thesis_s2s.cli export-recordings
@@ -74,4 +76,4 @@ rotate it and replace the document with environment-variable placeholders.
 - Primary barge-in evidence requires speaker/session-held-out real interactions; lossy aggregate features may be used without retaining WAV, subject to ethics approval.
 - Human evaluation requires 5–10 Persian speakers, at least two aged 60+, with complete ratings.
 
-See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/METRICS.md`, `docs/HUMAN_STUDY.md`, `docs/NO_RECORDING_ALTERNATIVES.md`, `docs/GPU_4090_RUNBOOK.md`, `docs/MANUAL_QA_FA.md`, and `docs/REVIEW.md`.
+See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/METRICS.md`, `docs/HUMAN_STUDY.md`, `docs/NO_RECORDING_ALTERNATIVES.md`, `docs/GPU_4090_RUNBOOK.md`, `docs/MANUAL_QA_FA.md`, `docs/RIGHTS_REVIEW_FA.md`, and `docs/REVIEW.md`.

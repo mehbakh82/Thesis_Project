@@ -60,8 +60,10 @@ The implemented commands are:
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes
 .venv/bin/python -m thesis_s2s.cli sample-conversation-qa
 .venv/bin/python -m thesis_s2s.cli apply-conversation-qa
+.venv/bin/python -m thesis_s2s.cli create-conversation-rights-review
+.venv/bin/python -m thesis_s2s.cli apply-conversation-rights-review
 .venv/bin/python -m thesis_s2s.cli build-conversations \
-  --in-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
+  --in-jsonl data/processed/manifests/conversation_episode_windows_approved.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
 .venv/bin/python -m thesis_s2s.cli export-omni2-data
 ```

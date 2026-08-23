@@ -44,10 +44,13 @@ export DIARIZATION_TIMEOUT_SECONDS=600
 .venv/bin/python -m thesis_s2s.cli sample-conversation-qa
 # A reviewer fills conversation_manual_qa.csv before the next command.
 .venv/bin/python -m thesis_s2s.cli apply-conversation-qa
+.venv/bin/python -m thesis_s2s.cli create-conversation-rights-review
+# An authorized reviewer fills conversation_rights_review.csv.
+.venv/bin/python -m thesis_s2s.cli apply-conversation-rights-review
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
-  --manifest data/processed/manifests/conversation_episode_windows_reviewed.jsonl
+  --manifest data/processed/manifests/conversation_episode_windows_approved.jsonl
 .venv/bin/python -m thesis_s2s.cli build-conversations \
-  --in-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
+  --in-jsonl data/processed/manifests/conversation_episode_windows_approved.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
 .venv/bin/python -m thesis_s2s.cli export-omni2-data
 ```

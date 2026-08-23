@@ -14,6 +14,7 @@ from urllib.error import URLError
 from urllib.request import Request, urlopen
 
 from thesis_s2s.audio import read_wav
+from thesis_s2s.data.rights import rights_record_verified
 from thesis_s2s.metrics import write_json
 
 
@@ -319,7 +320,7 @@ def audit_diarized_windows(
         for row in rows
         if row.get("manual_qa_reviewed")
     }
-    rights_verified = sum(row.get("license_verified") is True for row in rows)
+    rights_verified = sum(rights_record_verified(row) for row in rows)
     requirements = {
         "automatic_multi_speaker_hours_100_to_200": bool(rows)
         and verified_hours > 0
