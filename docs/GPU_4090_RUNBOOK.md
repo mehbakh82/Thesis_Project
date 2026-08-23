@@ -45,8 +45,9 @@ export DIARIZATION_TIMEOUT_SECONDS=600
 .venv/bin/python -m thesis_s2s.cli sample-conversation-qa
 # A reviewer fills conversation_manual_qa.csv before the next command.
 .venv/bin/python -m thesis_s2s.cli apply-conversation-qa
-.venv/bin/python -m thesis_s2s.cli create-conversation-rights-review
-# An authorized reviewer fills conversation_rights_review.csv.
+# The completed supervisor-authorization CSV already exists locally; do not overwrite it.
+# In a fresh environment only, create it once and reproduce the documented decision.
+# .venv/bin/python -m thesis_s2s.cli create-conversation-rights-review
 .venv/bin/python -m thesis_s2s.cli apply-conversation-rights-review
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
   --manifest data/processed/manifests/conversation_episode_windows_approved.jsonl
@@ -58,9 +59,11 @@ export DIARIZATION_TIMEOUT_SECONDS=600
 
 The selector's planning gate is not sufficient evidence. Do not start a long adaptation unless both `results/diarized_episode_audit.json` and `results/conversation_audit.json` pass. Episode-level train/validation/test separation, response audio, reference alignment, and manual QA are mandatory. See `YOUTUBE_CONVERSATION_PIPELINE.md`.
 
-Manual review validates labels, not data rights. The license gate remains false until the authorized owner records explicit approval in the manifest.
+Manual review validates labels, not data rights. Supervisor-approved internal training is now documented and machine-audited separately; the source-license gate intentionally remains false and raw-data redistribution remains prohibited.
 
 ## 3. Direct-model boundary
+
+The required training is response learning, not another ASR fine-tune. Each example contains a user-turn waveform as input and the next different speaker turn as the assistant target. A valid trainer must optimize assistant response text and assistant speech/audio tokens; it must not reconstruct the user waveform or predict the user transcript as its final task. The practical 24 GB plan is to freeze the speech encoder and most of the language/speech backbones, train the speech projector plus LoRA adapters and speech-output head in BF16 with gradient checkpointing, and preserve session-isolated train/validation/test splits. The barge-in classifier is a separate small supervised training run over interruption/backchannel/noise labels.
 
 `configs/llama_omni2_4090.yaml` is a reviewed preparation contract, not a working trainer. The pinned official LLaMA-Omni2 repository lacks the complete trainer needed for assistant speech-token supervision. Before any adaptation is called successful, a reviewed implementation must prove all acceptance tests listed in that config.
 

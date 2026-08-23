@@ -113,7 +113,7 @@ Added:
 
 ## Irreducible path to 10/10
 
-1. Build the definition's 100–200 h genuinely conversational Persian set with response pairs, noise, overlap, and interruption labels. New raw-audio recording is optional unless the supervisor explicitly requires it; licensed natural conversation is the preferred no-recording route.
+1. Build the definition's 100–200 h genuinely conversational Persian set with response pairs, noise, overlap, and interruption labels. New raw-audio recording is optional unless the supervisor explicitly requires it; natural conversation with a verified license or documented internal-research authorization is the preferred no-recording route.
 2. Recruit 5–10 Persian speakers, including at least two aged 60+, and complete all ratings.
 3. Run the live browser protocol on a physical 12–24 GB GPU and export client timing.
 4. Train or adapt a genuine speech-conditioned causal language model with supervised assistant speech tokens; validate Persian output and save every runtime component.

@@ -32,6 +32,7 @@ from thesis_s2s.data.rights import (
     create_conversation_rights_review,
     normalize_pending_rights_metadata,
     rights_record_verified,
+    training_use_authorized,
 )
 from thesis_s2s.data.s3_inventory import rclone_process_env
 
@@ -116,7 +117,7 @@ def test_weighted_selection_is_balanced_whole_episode_and_not_final_evidence(tmp
         target_hours=100,
         max_channel_share=0.55,
     )
-    assert spoofed_report["evidence_requirements"]["licenses_verified_for_selected"] is False
+    assert spoofed_report["evidence_requirements"]["training_authorized_for_selected"] is False
     assert max(item["share"] for item in report["channels"].values()) <= 0.55
     assert all(row["selected_for_conversation_prep"] for row in selected)
     selected_ids = {str(row["episode_id"]) for row in selected}
@@ -219,6 +220,8 @@ def test_episode_window_reconstruction_tracks_chunk_limitations(tmp_path: Path):
     assert windows[0]["cross_chunk_overlap_recoverable"] is False
     assert windows[0]["diarization_status"] == "not_run"
     assert windows[0]["license_verified"] is False
+    assert windows[0]["internal_research_authorized"] is False
+    assert windows[0]["authorization_basis"] == "pending"
     assert windows[0]["redistribution_allowed"] is False
     assert preparation_stats_path(Path("conversation_episode_windows.jsonl")).name == (
         "conversation_episode_prepare_stats.json"
@@ -264,9 +267,10 @@ def test_episode_window_reconstruction_tracks_chunk_limitations(tmp_path: Path):
     assert audit["reconstruction_gate_passes"] is True
     assert audit["legacy_or_implicit_rights_rows"] == 0
     assert audit["requirements"]["rights_metadata_explicit"] is True
-    assert audit["artifact_sha256"]["window_manifest"] == hashlib.sha256(
-        manifest.read_bytes()
-    ).hexdigest()
+    assert (
+        audit["artifact_sha256"]["window_manifest"]
+        == hashlib.sha256(manifest.read_bytes()).hexdigest()
+    )
     legacy_rows = [
         json.loads(line)
         for line in manifest.read_text(encoding="utf-8").splitlines()
@@ -276,6 +280,8 @@ def test_episode_window_reconstruction_tracks_chunk_limitations(tmp_path: Path):
     legacy_rows[0].pop("license_verified")
     legacy_rows[1]["license"] = "pending-youtube-rights-review"
     legacy_rows[1]["license_verified"] = True
+    legacy_rows[1]["internal_research_authorized"] = True
+    legacy_rows[1]["authorization_basis"] = "supervisor-approved-internal-research"
     legacy_rows[1]["redistribution_allowed"] = True
     manifest.write_text(
         "\n".join(json.dumps(row, ensure_ascii=False) for row in legacy_rows) + "\n",
@@ -285,33 +291,33 @@ def test_episode_window_reconstruction_tracks_chunk_limitations(tmp_path: Path):
         selection, manifest, stats_path=stats, min_hours=0, max_hours=1
     )
     assert legacy_audit["legacy_or_implicit_rights_rows"] == 2
-    assert (
-        legacy_audit["requirements"]["rights_metadata_explicit"]
-        is False
-    )
+    assert legacy_audit["requirements"]["rights_metadata_explicit"] is False
     assert legacy_audit["reconstruction_gate_passes"] is False
     normalized = normalize_pending_rights_metadata(manifest)
     assert normalized["changed_rows"] == 2
     assert normalized["normalized_legacy_rows"] == 1
     assert normalized["normalized_invalid_flags"] == 1
+    assert normalized["normalized_authorization_flags"] == 1
     assert normalized["license_approval_inferred"] is False
+    assert normalized["training_authorization_inferred"] is False
     normalized_rows = [
         json.loads(line)
         for line in manifest.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
-    assert all(
-        row["license"] == "pending-youtube-rights-review" for row in normalized_rows
-    )
+    assert all(row["license"] == "pending-youtube-rights-review" for row in normalized_rows)
     assert all(row["license_verified"] is False for row in normalized_rows)
+    assert all(row["internal_research_authorized"] is False for row in normalized_rows)
+    assert all(row["authorization_basis"] == "pending" for row in normalized_rows)
     assert all(row["redistribution_allowed"] is False for row in normalized_rows)
     normalized_audit = audit_prepared_episode_windows(
         selection, manifest, stats_path=stats, min_hours=0, max_hours=1
     )
     assert normalized_audit["reconstruction_gate_passes"] is True
-    assert normalized_audit["artifact_sha256"]["window_manifest"] == hashlib.sha256(
-        manifest.read_bytes()
-    ).hexdigest()
+    assert (
+        normalized_audit["artifact_sha256"]["window_manifest"]
+        == hashlib.sha256(manifest.read_bytes()).hexdigest()
+    )
     assert normalize_pending_rights_metadata(manifest)["changed_rows"] == 0
     stats.write_text(
         '{"finished_at":"old","episodes_failed":0,"episodes_prepared":1,'
@@ -382,7 +388,7 @@ def test_episode_diarization_aligns_and_failed_rows_are_retried(tmp_path: Path, 
     assert audit["automatic_multi_speaker_hours"] > 0
     assert audit["requirements"]["manual_qa_sample_present"] is False
 
-    assert audit["requirements"]["licenses_verified"] is False
+    assert audit["requirements"]["training_use_authorized"] is False
     rows[0]["license"] = "youtube-internal"
     rows[0].pop("license_verified")
     output.write_text(json.dumps(rows[0], ensure_ascii=False) + "\n", encoding="utf-8")
@@ -487,7 +493,9 @@ def test_manual_qa_handoff_is_stratified_and_fail_closed(tmp_path: Path):
     assert len(audit["manual_qa_reviewed_strata"]) == 4
 
 
-def test_rights_review_requires_written_complete_source_approval(tmp_path: Path):
+def test_source_authorization_distinguishes_supervisor_approval_from_license(
+    tmp_path: Path,
+):
     source = tmp_path / "reviewed.jsonl"
     source_rows = [
         {
@@ -497,6 +505,9 @@ def test_rights_review_requires_written_complete_source_approval(tmp_path: Path)
             "duration": 3600.0,
             "license": "pending-youtube-rights-review",
             "license_verified": False,
+            "internal_research_authorized": False,
+            "authorization_basis": "pending",
+            "redistribution_allowed": False,
         },
         {
             "window_id": "zoomit-1",
@@ -505,6 +516,9 @@ def test_rights_review_requires_written_complete_source_approval(tmp_path: Path)
             "duration": 1800.0,
             "license": "pending-youtube-rights-review",
             "license_verified": False,
+            "internal_research_authorized": False,
+            "authorization_basis": "pending",
+            "redistribution_allowed": False,
         },
     ]
     source.write_text(
@@ -520,16 +534,20 @@ def test_rights_review_requires_written_complete_source_approval(tmp_path: Path)
     with review_csv.open("r", encoding="utf-8-sig", newline="") as handle:
         decisions = list(csv.DictReader(handle))
         fieldnames = list(decisions[0])
+    assert "authorization_basis" in fieldnames
+    assert "license_name" in fieldnames
     for decision in decisions:
         decision.update(
             {
                 "approval_status": "approved",
+                "authorization_basis": "supervisor-approved-internal-research",
+                "license_name": "",
                 "internal_training_allowed": "yes",
                 "thesis_reporting_allowed": "yes",
                 "derived_artifacts_allowed": "yes",
                 "redistribution_allowed": "no",
-                "evidence_reference": "approval-document-1",
-                "approved_by": "authorized-reviewer",
+                "evidence_reference": "supervisor-approval-1",
+                "approved_by": "thesis-supervisor",
                 "approval_date": "2026-08-23",
             }
         )
@@ -541,12 +559,13 @@ def test_rights_review_requires_written_complete_source_approval(tmp_path: Path)
 
     approved = tmp_path / "approved.jsonl"
     partial = apply_conversation_rights_review(source, review_csv, approved)
-    assert partial["rights_gate_passes"] is False
-    partial_rows = [json.loads(line) for line in approved.read_text(encoding="utf-8").splitlines()]
-    assert sum(row["license_verified"] is True for row in partial_rows) == 1
+    assert partial["training_authorization_gate_passes"] is False
+    partial_rows = [json.loads(line) for line in approved.read_text().splitlines()]
+    assert sum(row["internal_research_authorized"] is True for row in partial_rows) == 1
+    assert all(row["license_verified"] is False for row in partial_rows)
     assert all(row["redistribution_allowed"] is False for row in partial_rows)
 
-    decisions[1]["evidence_reference"] = "approval-document-2"
+    decisions[1]["evidence_reference"] = "supervisor-approval-2"
     with review_csv.open("w", encoding="utf-8-sig", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
@@ -557,16 +576,50 @@ def test_rights_review_requires_written_complete_source_approval(tmp_path: Path)
         approved,
         report_path=tmp_path / "rights-report.json",
     )
+    assert complete["training_authorization_gate_passes"] is True
     assert complete["rights_gate_passes"] is True
-    approved_rows = [json.loads(line) for line in approved.read_text(encoding="utf-8").splitlines()]
-    assert all(row["license"] == "approved-internal-research" for row in approved_rows)
-    assert all(row["license_verified"] is True for row in approved_rows)
-    assert all(rights_record_verified(row) for row in approved_rows)
+    assert complete["license_gate_passes"] is False
+    assert complete["authorized_hours"] == 1.5
+    assert complete["license_verified_hours"] == 0.0
+    approved_rows = [json.loads(line) for line in approved.read_text().splitlines()]
+    assert all(row["license"] == "pending-youtube-rights-review" for row in approved_rows)
+    assert all(row["license_verified"] is False for row in approved_rows)
+    assert all(row["internal_research_authorized"] is True for row in approved_rows)
+    assert all(
+        row["authorization_basis"] == "supervisor-approved-internal-research"
+        for row in approved_rows
+    )
+    assert all(training_use_authorized(row) for row in approved_rows)
+    assert not any(rights_record_verified(row) for row in approved_rows)
+
     approved_rows[0]["rights_review"]["evidence_reference"] = ""
-    assert rights_record_verified(approved_rows[0]) is False
+    assert training_use_authorized(approved_rows[0]) is False
     spoofed = dict(approved_rows[1])
-    spoofed["license"] = "pending-youtube-rights-review"
-    assert rights_record_verified(spoofed) is False
+    spoofed["redistribution_allowed"] = True
+    assert training_use_authorized(spoofed) is False
     malformed = dict(approved_rows[1])
     malformed["rights_review"] = "approved"
-    assert rights_record_verified(malformed) is False
+    assert training_use_authorized(malformed) is False
+
+    for decision in decisions:
+        decision["authorization_basis"] = "explicit-source-license"
+        decision["license_name"] = "CC-BY-4.0"
+        decision["redistribution_allowed"] = "yes"
+    with review_csv.open("w", encoding="utf-8-sig", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(decisions)
+    explicitly_licensed = tmp_path / "explicitly-licensed.jsonl"
+    licensed_report = apply_conversation_rights_review(
+        source,
+        review_csv,
+        explicitly_licensed,
+    )
+    licensed_rows = [json.loads(line) for line in explicitly_licensed.read_text().splitlines()]
+    assert licensed_report["license_gate_passes"] is True
+    assert all(row["license"] == "CC-BY-4.0" for row in licensed_rows)
+    assert all(row["license_verified"] is True for row in licensed_rows)
+    assert all(row["internal_research_authorized"] is False for row in licensed_rows)
+    assert all(row["redistribution_allowed"] is True for row in licensed_rows)
+    assert all(rights_record_verified(row) for row in licensed_rows)
+    assert all(training_use_authorized(row) for row in licensed_rows)

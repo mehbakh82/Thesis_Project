@@ -1,14 +1,16 @@
 # Data provenance and release register
 
-Every dataset entering training or evaluation must have one row in this register or an equivalent machine-readable manifest. Unknown licenses fail the conversation audit.
+Every dataset entering training or evaluation must have one row in this register or an equivalent machine-readable manifest. Training requires either a verified source license or documented internal-research authorization; the audit reports them separately.
 
 | Source | Role | Access/license | Raw publish? | Current evidence |
 |---|---|---|---|---|
-| University S3 YouTube crawl | Persian acoustics/captions; conversation candidates | Source-specific written rights review required | No | 287/287 selected episodes reconstructed into 947 windows / 201.576 staging h; prepared audit passes. Diarization, response/overlap supervision, manual QA, and authorization remain pending. |
+| University S3 YouTube crawl | Persian acoustics/captions; conversation candidates | Supervisor-approved internal thesis training; source licenses not independently verified | No | 287/287 selected episodes reconstructed into 947 windows / 201.576 staging h; prepared audit passes. Diarization, response/overlap supervision, and manual QA remain pending. |
 | CALLFRIEND Farsi Second Edition (`LDC2014S01`) | Proposed natural telephone conversation | LDC institutional/member license required | No | Not acquired |
 | MATERIAL Farsi-English (`LDC2024S13`) | Proposed natural conversation and varied environments | LDC institutional/member license required | No | Not acquired |
 | Live participants | Usability, latency, interruption | Explicit mode-specific consent and ethics approval | No by default | Not collected |
 | Synthetic harmonic data | Unit/regression tests only | Project-generated | Yes with code-license decision | Present; not scientific speech evidence |
+
+Authorization evidence is summarized in `docs/SUPERVISOR_DECISIONS.md` and machine-checked in `results/conversation_source_authorization_report.json`; neither record asserts an open source-data license.
 
 ## Required per-source fields
 

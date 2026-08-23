@@ -79,6 +79,8 @@ def sample_manual_qa(
                     "overlap_intervals": len(row.get("overlap_intervals") or []),
                     "license": row.get("license"),
                     "license_verified": row.get("license_verified"),
+                    "internal_research_authorized": row.get("internal_research_authorized"),
+                    "authorization_basis": row.get("authorization_basis"),
                     **{field: "" for field in QA_FIELDS},
                 }
             )
@@ -101,6 +103,8 @@ def sample_manual_qa(
             "overlap_intervals",
             "license",
             "license_verified",
+            "internal_research_authorized",
+            "authorization_basis",
             *QA_FIELDS,
         ]
     )

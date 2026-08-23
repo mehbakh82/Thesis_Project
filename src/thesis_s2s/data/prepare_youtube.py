@@ -90,7 +90,13 @@ def prepare(
         split: (manifest_dir / f"{split}_manifest_youtube.jsonl").open("w", encoding="utf-8")
         for split in ("train", "val", "test")
     }
-    stats = {"written": 0, "skipped_short_episode": 0, "skipped_caption": 0, "missing_wav": 0, "hours": 0.0}
+    stats = {
+        "written": 0,
+        "skipped_short_episode": 0,
+        "skipped_caption": 0,
+        "missing_wav": 0,
+        "hours": 0.0,
+    }
     csv_files = sorted(csv_dir.rglob("*.csv"))
     try:
         for csv_path in csv_files:
@@ -149,6 +155,9 @@ def prepare(
                     "snr": None,
                     "license": "pending-youtube-rights-review",
                     "license_verified": False,
+                    "internal_research_authorized": False,
+                    "authorization_basis": "pending",
+                    "redistribution_allowed": False,
                     "age_bin": None,
                     "split": split,
                     "source_csv": str(csv_path),
@@ -164,7 +173,9 @@ def prepare(
         for handle in handles.values():
             handle.close()
     stats["hours"] = round(stats["hours"], 3)
-    (manifest_dir / "prepare_stats.json").write_text(json.dumps(stats, indent=2) + "\n", encoding="utf-8")
+    (manifest_dir / "prepare_stats.json").write_text(
+        json.dumps(stats, indent=2) + "\n", encoding="utf-8"
+    )
     return stats
 
 
@@ -172,7 +183,9 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--csv-dir", type=Path, required=True)
     parser.add_argument("--wav-dir", type=Path, default=None)
-    parser.add_argument("--remote-chunks", type=str, default=None, help="rclone remote e.g. :s3:asr/youtube/chunks")
+    parser.add_argument(
+        "--remote-chunks", type=str, default=None, help="rclone remote e.g. :s3:asr/youtube/chunks"
+    )
     parser.add_argument("--out-dir", type=Path, required=True)
     parser.add_argument("--manifest-dir", type=Path, required=True)
     parser.add_argument("--min-episode-rows", type=int, default=MIN_EPISODE_ROWS)

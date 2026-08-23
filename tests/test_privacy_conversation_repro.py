@@ -106,10 +106,34 @@ def test_conversation_builder_pairs_and_exports(tmp_path: Path):
     }
     raw.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
     manifest = tmp_path / "conversations.jsonl"
-    with pytest.raises(PermissionError, match="verified rights"):
+    with pytest.raises(PermissionError, match="training authorization"):
         build_conversation_manifest(raw, manifest, tmp_path / "clips")
     assert not manifest.exists()
-    row["license_verified"] = True
+    row.update(
+        {
+            "internal_research_authorized": True,
+            "authorization_basis": "supervisor-approved-internal-research",
+            "redistribution_allowed": False,
+            "rights_review": {
+                "scope_type": "channel",
+                "scope_id": "test-source",
+                "status": "approved",
+                "authorization_basis": "supervisor-approved-internal-research",
+                "license_name": "",
+                "decision_complete": True,
+                "permissions": {
+                    "internal_training": True,
+                    "thesis_reporting": True,
+                    "derived_artifacts": True,
+                    "redistribution": False,
+                },
+                "evidence_reference": "supervisor-approval",
+                "approved_by": "thesis-supervisor",
+                "approval_date": "2026-08-23",
+                "notes": "",
+            },
+        }
+    )
     raw.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
     build = build_conversation_manifest(raw, manifest, tmp_path / "clips")
     assert build["pairs"] == 2
@@ -125,13 +149,13 @@ def test_conversation_builder_pairs_and_exports(tmp_path: Path):
 
     exported = export_llama_omni2_questions(manifest, tmp_path / "questions.json")
     assert exported["conversations"] == 2
-    rows[0]["license_verified"] = False
+    rows[0]["internal_research_authorized"] = False
     unlicensed = tmp_path / "unlicensed.jsonl"
     unlicensed.write_text(
         "\n".join(json.dumps(item) for item in rows) + "\n",
         encoding="utf-8",
     )
-    with pytest.raises(PermissionError, match="verified rights"):
+    with pytest.raises(PermissionError, match="training authorization"):
         export_llama_omni2_questions(unlicensed, tmp_path / "must-not-exist.json")
 
 

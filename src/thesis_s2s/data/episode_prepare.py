@@ -39,12 +39,17 @@ def _rights_metadata_is_explicit(row: dict) -> bool:
     license_name = str(row.get("license") or "").strip()
     verified = row.get("license_verified")
     redistribution_allowed = row.get("redistribution_allowed")
+    research_authorized = row.get("internal_research_authorized")
+    authorization_basis = row.get("authorization_basis")
     if license_name in {"", "unknown", "youtube-internal"}:
         return False
     if not isinstance(verified, bool):
         return False
     return license_name != "pending-youtube-rights-review" or (
-        verified is False and redistribution_allowed is False
+        verified is False
+        and research_authorized is False
+        and authorization_basis == "pending"
+        and redistribution_allowed is False
     )
 
 
@@ -172,6 +177,8 @@ def reconstruct_episode_windows(
                 "split": episode.get("split"),
                 "license": str(episode.get("license") or "pending-youtube-rights-review"),
                 "license_verified": bool(episode.get("license_verified", False)),
+                "internal_research_authorized": False,
+                "authorization_basis": "pending",
                 "redistribution_allowed": False,
                 "annotation_source": "provided_csv_plus_pending_diarization",
                 "audio_source_kind": "reconstructed_ordered_caption_chunks",

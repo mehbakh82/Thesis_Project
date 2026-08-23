@@ -77,4 +77,4 @@ rotate it and replace the document with environment-variable placeholders.
 - Primary barge-in evidence requires speaker/session-held-out real interactions; lossy aggregate features may be used without retaining WAV, subject to ethics approval.
 - Human evaluation requires 5–10 Persian speakers, at least two aged 60+, with complete ratings.
 
-See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/METRICS.md`, `docs/HUMAN_STUDY.md`, `docs/NO_RECORDING_ALTERNATIVES.md`, `docs/GPU_4090_RUNBOOK.md`, `docs/MANUAL_QA_FA.md`, `docs/RIGHTS_REVIEW_FA.md`, and `docs/REVIEW.md`.
+See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/METRICS.md`, `docs/HUMAN_STUDY.md`, `docs/NO_RECORDING_ALTERNATIVES.md`, `docs/GPU_4090_RUNBOOK.md`, `docs/MANUAL_QA_FA.md`, `docs/RIGHTS_REVIEW_FA.md`, `docs/SUPERVISOR_DECISIONS.md`, and `docs/REVIEW.md`.

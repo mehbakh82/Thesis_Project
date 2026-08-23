@@ -14,7 +14,7 @@ from urllib.error import URLError
 from urllib.request import Request, urlopen
 
 from thesis_s2s.audio import read_wav
-from thesis_s2s.data.rights import rights_record_verified
+from thesis_s2s.data.rights import rights_record_verified, training_use_authorized
 from thesis_s2s.metrics import write_json
 
 
@@ -321,6 +321,7 @@ def audit_diarized_windows(
         if row.get("manual_qa_reviewed")
     }
     rights_verified = sum(rights_record_verified(row) for row in rows)
+    training_authorized = sum(training_use_authorized(row) for row in rows)
     requirements = {
         "automatic_multi_speaker_hours_100_to_200": bool(rows)
         and verified_hours > 0
@@ -335,7 +336,7 @@ def audit_diarized_windows(
         ),
         "chunk_overlap_limitation_declared": bool(rows)
         and all(row.get("cross_chunk_overlap_recoverable") is False for row in rows),
-        "licenses_verified": bool(rows) and rights_verified == len(rows),
+        "training_use_authorized": bool(rows) and training_authorized == len(rows),
         "manual_qa_sample_present": bool(eligible_qa_strata)
         and eligible_qa_strata <= reviewed_qa_strata,
     }
@@ -355,6 +356,7 @@ def audit_diarized_windows(
             f"{channel}/{status}" for channel, status in sorted(reviewed_qa_strata) if status
         ],
         "license_verified_windows": rights_verified,
+        "training_authorized_windows": training_authorized,
         "requirements": requirements,
         "thesis_evidence_gate_passes": all(requirements.values()),
         "warning": "Automatic diarization is pseudo-label evidence until a manual sample is reviewed.",

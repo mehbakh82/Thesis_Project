@@ -26,6 +26,20 @@ evaluation:
   report_first_audio: [p50, p95, max]
   report_barge_in: [p50, p95, max]
 adaptation:
+  task: user_speech_to_next_speaker_response
+  input: user_turn_waveform
+  targets:
+    - assistant_response_text
+    - assistant_response_speech_tokens
+  explicitly_not_targets:
+    - user_transcript_copy
+    - user_waveform_reconstruction
+  separate_training_task:
+    name: barge_in_classifier
+    labels: [interrupt, backchannel, noise, none]
+  parameter_efficient_4090_plan:
+    freeze: [speech_encoder, most_language_backbone, most_speech_decoder]
+    train: [speech_projector, lora_adapters, speech_output_head]
   trainer_entrypoint: null
   ready: false
   reason: >-

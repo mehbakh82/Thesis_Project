@@ -125,15 +125,15 @@ export DIARIZATION_TIMEOUT_SECONDS=600
 # Edit data/processed/manifests/conversation_manual_qa.csv
 .venv/bin/python -m thesis_s2s.cli apply-conversation-qa
 
-# Create the source-level rights form. An authorized reviewer supplies written
-# evidence; the application command cannot infer rights from data possession.
+# Record either an explicit source license or supervisor-approved internal
+# research use. The application keeps license and authorization claims separate.
 .venv/bin/python -m thesis_s2s.cli create-conversation-rights-review
 # Edit data/processed/manifests/conversation_rights_review.csv
 .venv/bin/python -m thesis_s2s.cli apply-conversation-rights-review
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
   --manifest data/processed/manifests/conversation_episode_windows_approved.jsonl
 
-# Only reviewed, licensed, aligned windows enter this builder.
+# Only reviewed, aligned, and training-authorized windows enter this builder.
 .venv/bin/python -m thesis_s2s.cli build-conversations \
   --in-jsonl data/processed/manifests/conversation_episode_windows_approved.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
@@ -178,8 +178,11 @@ The completed primary reconstruction accounts for all 287 selected episodes,
 947 bounded windows, and 201.576 staging-audio hours. The final prepared-audio
 audit passes every reconstruction requirement with zero schema, split, order,
 duplicate-ID, missing-file, WAV-format, duration, or reported-episode errors.
-All rows explicitly remain `pending-youtube-rights-review`; this is not a claim
-of permission or of verified multi-speaker hours.
+All rows in the immutable prepared manifest explicitly remain
+`pending-youtube-rights-review`; authorization is applied only to a separate derived
+manifest. `results/conversation_source_authorization_report.json` confirms internal
+training authorization for all 947 windows while correctly reporting zero
+source-license-verified hours. Neither manifest claims verified multi-speaker hours.
 A diagnostic H100 service test (not official 4090 evidence) completed both
 windows and aligned 82.85% and 87.72% of their captions. Both were correctly
 rejected as multi-speaker evidence: the secondary speaker occupied only 8.201

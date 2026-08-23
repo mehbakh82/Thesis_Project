@@ -4,7 +4,7 @@
   "preparation_stats": "data/processed/manifests/conversation_episode_prepare_stats.json",
   "artifact_sha256": {
     "selection_manifest": "738ff849eac7762aea9fd9ee2de748be728c1211ab571e4f496a9b9106f2b260",
-    "window_manifest": "0ab2030dca5994caf6a703461d330b1288082aff96d16cd5aac87bd6a4d1800e",
+    "window_manifest": "42bca6ecbe31088478c68820f030330a52723d8ec8f7960efe1aaf727c5ad1f0",
     "preparation_stats": "1c4b51c15db4540da0c981ea0b431592b4623a7aa07f5d466e947952bcfabd91"
   },
   "selected_episodes": 287,

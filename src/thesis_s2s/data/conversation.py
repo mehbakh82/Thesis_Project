@@ -11,7 +11,7 @@ from pathlib import Path
 
 from thesis_s2s import SAMPLE_RATE
 from thesis_s2s.audio import read_wav, write_wav
-from thesis_s2s.data.rights import rights_record_verified
+from thesis_s2s.data.rights import rights_record_verified, training_use_authorized
 from thesis_s2s.metrics import write_json
 
 SAFE_PART = re.compile(r"[^A-Za-z0-9_-]+")
@@ -35,23 +35,27 @@ def _safe_part(value: str) -> str:
     return f"{cleaned or 'session'}-{digest}"
 
 
-def _require_rights_verified(rows: list[dict], operation: str) -> None:
-    """Refuse artifact creation from any row lacking auditable usage rights."""
+def _require_training_authorized(rows: list[dict], operation: str) -> None:
+    """Refuse artifacts from rows lacking documented training authorization."""
 
     unverified = [
         str(row.get("window_id") or row.get("utt_id") or row.get("session_id") or "unknown")
         for row in rows
-        if not rights_record_verified(row)
+        if not training_use_authorized(row)
     ]
     if unverified:
         sample = ", ".join(unverified[:5])
         raise PermissionError(
-            f"{operation} requires verified rights for every input row; unverified: {sample}"
+            f"{operation} requires documented training authorization for every input "
+            f"row; unauthorized: {sample}"
         )
 
 
 def _stable_split(session_id: str) -> str:
-    bucket = int.from_bytes(hashlib.blake2b(session_id.encode("utf-8"), digest_size=2).digest(), "big") % 100
+    bucket = (
+        int.from_bytes(hashlib.blake2b(session_id.encode("utf-8"), digest_size=2).digest(), "big")
+        % 100
+    )
     if bucket < 5:
         return "test"
     if bucket < 10:
@@ -75,10 +79,16 @@ def _segments(row: dict) -> list[SpeakerSegment]:
     return sorted(result, key=lambda item: (item.start, item.end, item.speaker))
 
 
-def _merge_same_speaker(segments: list[SpeakerSegment], max_gap_s: float = 0.5) -> list[SpeakerSegment]:
+def _merge_same_speaker(
+    segments: list[SpeakerSegment], max_gap_s: float = 0.5
+) -> list[SpeakerSegment]:
     merged: list[SpeakerSegment] = []
     for segment in segments:
-        if merged and merged[-1].speaker == segment.speaker and segment.start - merged[-1].end <= max_gap_s:
+        if (
+            merged
+            and merged[-1].speaker == segment.speaker
+            and segment.start - merged[-1].end <= max_gap_s
+        ):
             previous = merged[-1]
             merged[-1] = SpeakerSegment(
                 start=previous.start,
@@ -105,7 +115,10 @@ def _interaction_label(
     if not overlap:
         pair_start, pair_end = min(user.start, assistant.start), max(user.end, assistant.end)
         overlap = [
-            [round(max(pair_start, float(interval[0])), 3), round(min(pair_end, float(interval[1])), 3)]
+            [
+                round(max(pair_start, float(interval[0])), 3),
+                round(min(pair_end, float(interval[1])), 3),
+            ]
             for interval in (known_overlap or [])
             if len(interval) == 2
             and min(pair_end, float(interval[1])) > max(pair_start, float(interval[0]))
@@ -140,7 +153,7 @@ def build_conversation_manifest(
         for line in diarized_jsonl.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
-    _require_rights_verified(source_rows, "conversation pair building")
+    _require_training_authorized(source_rows, "conversation pair building")
     out_jsonl.parent.mkdir(parents=True, exist_ok=True)
     clips_dir.mkdir(parents=True, exist_ok=True)
     pairs: list[dict] = []
@@ -154,7 +167,10 @@ def build_conversation_manifest(
         ):
             skipped["not_verified_multi_speaker"] += 1
             continue
-        if "reference_alignment_status" in row and row.get("reference_alignment_status") != "complete":
+        if (
+            "reference_alignment_status" in row
+            and row.get("reference_alignment_status") != "complete"
+        ):
             skipped["reference_alignment_incomplete"] += 1
             continue
         source = Path(str(row.get("audio_filepath") or row.get("audio_path") or ""))
@@ -186,9 +202,13 @@ def build_conversation_manifest(
             pair_hours = source_span_duration / 3600.0
             if hours + pair_hours > max_hours:
                 break
-            user_audio = audio[max(0, int(user.start * SAMPLE_RATE)) : min(len(audio), int(user.end * SAMPLE_RATE))]
+            user_audio = audio[
+                max(0, int(user.start * SAMPLE_RATE)) : min(len(audio), int(user.end * SAMPLE_RATE))
+            ]
             assistant_audio = audio[
-                max(0, int(assistant.start * SAMPLE_RATE)) : min(len(audio), int(assistant.end * SAMPLE_RATE))
+                max(0, int(assistant.start * SAMPLE_RATE)) : min(
+                    len(audio), int(assistant.end * SAMPLE_RATE)
+                )
             ]
             if len(user_audio) < SAMPLE_RATE // 4 or len(assistant_audio) < SAMPLE_RATE // 4:
                 skipped["empty_clip"] += 1
@@ -208,6 +228,7 @@ def build_conversation_manifest(
             consumed_until = source_span_end
             license_name = str(row.get("license") or "unknown")
             license_verified = rights_record_verified(row)
+            training_authorized = training_use_authorized(row)
             pairs.append(
                 {
                     "utt_id": pair_id,
@@ -221,7 +242,10 @@ def build_conversation_manifest(
                     "source_span_start": round(source_span_start, 3),
                     "source_span_end": round(source_span_end, 3),
                     "source_user_interval": [round(user.start, 3), round(user.end, 3)],
-                    "source_response_interval": [round(assistant.start, 3), round(assistant.end, 3)],
+                    "source_response_interval": [
+                        round(assistant.start, 3),
+                        round(assistant.end, 3),
+                    ],
                     "assistant_duration": round(assistant.duration, 3),
                     "transcript_caption": user.text,
                     "text": user.text,
@@ -233,16 +257,23 @@ def build_conversation_manifest(
                     "split": _stable_split(session_id),
                     "license": license_name,
                     "license_verified": license_verified,
+                    "internal_research_authorized": bool(
+                        row.get("internal_research_authorized", False)
+                    ),
+                    "training_use_authorized": training_authorized,
+                    "authorization_basis": row.get("authorization_basis"),
                     "redistribution_allowed": bool(row.get("redistribution_allowed", False)),
                     "rights_review": row.get("rights_review"),
                     "source_audio_filepath": str(source),
                     "source_window_id": row.get("window_id"),
-                    "automatic_multi_speaker_verified": row.get(
-                        "automatic_multi_speaker_verified"
+                    "automatic_multi_speaker_verified": row.get("automatic_multi_speaker_verified"),
+                    "annotation_source": str(
+                        row.get("annotation_source") or "automatic_diarization_heuristic"
                     ),
-                    "annotation_source": str(row.get("annotation_source") or "automatic_diarization_heuristic"),
                     "human_verified": bool(row.get("human_verified", False)),
-                    "noise_condition": str(row.get("noise_condition") or row.get("room") or "unspecified"),
+                    "noise_condition": str(
+                        row.get("noise_condition") or row.get("room") or "unspecified"
+                    ),
                     "snr": row.get("snr"),
                     "is_natural_dialogue": True,
                 }
@@ -271,7 +302,7 @@ def export_llama_omni2_questions(manifest: Path, out_json: Path) -> dict:
         for line in Path(manifest).read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
-    _require_rights_verified(source_rows, "LLaMA-Omni2 export")
+    _require_training_authorized(source_rows, "LLaMA-Omni2 export")
     conversations = []
     for row in source_rows:
         user_audio = str(row.get("audio_filepath") or "")
@@ -291,16 +322,30 @@ def export_llama_omni2_questions(manifest: Path, out_json: Path) -> dict:
         )
     out_json = Path(out_json)
     out_json.parent.mkdir(parents=True, exist_ok=True)
-    out_json.write_text(json.dumps(conversations, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    return {"out": str(out_json), "conversations": len(conversations), "schema": "llama_omni2_questions_v1"}
+    out_json.write_text(
+        json.dumps(conversations, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    return {
+        "out": str(out_json),
+        "conversations": len(conversations),
+        "schema": "llama_omni2_questions_v1",
+    }
 
 
-def audit_conversation_manifest(manifest: Path, out_json: Path | None = None, *, check_files: bool = True) -> dict:
-    rows = [json.loads(line) for line in Path(manifest).read_text(encoding="utf-8").splitlines() if line.strip()]
+def audit_conversation_manifest(
+    manifest: Path, out_json: Path | None = None, *, check_files: bool = True
+) -> dict:
+    rows = [
+        json.loads(line)
+        for line in Path(manifest).read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
     hours = sum(float(row.get("duration") or 0.0) for row in rows) / 3600.0
     speakers = {
-        str(value) for row in rows
-        for value in (row.get("speaker_id"), row.get("assistant_speaker_id")) if value
+        str(value)
+        for row in rows
+        for value in (row.get("speaker_id"), row.get("assistant_speaker_id"))
+        if value
     }
     sessions = {str(row.get("session_id")) for row in rows if row.get("session_id")}
     missing_files = 0
@@ -311,6 +356,7 @@ def audit_conversation_manifest(manifest: Path, out_json: Path | None = None, *,
     labels = Counter(str(row.get("interrupt_label") or "none") for row in rows)
     verified = sum(bool(row.get("human_verified")) for row in rows)
     licensed = sum(rights_record_verified(row) for row in rows)
+    training_authorized = sum(training_use_authorized(row) for row in rows)
     overlap_rows = sum(bool(row.get("overlap_intervals")) for row in rows)
     noise_rows = sum(
         str(row.get("noise_condition") or "unspecified").lower()
@@ -339,10 +385,14 @@ def audit_conversation_manifest(manifest: Path, out_json: Path | None = None, *,
     reused_spans = 0
     for spans in source_spans.values():
         ordered = sorted(spans)
-        reused_spans += sum(current[0] < previous[1] for previous, current in zip(ordered, ordered[1:], strict=False))
+        reused_spans += sum(
+            current[0] < previous[1]
+            for previous, current in zip(ordered, ordered[1:], strict=False)
+        )
     requirements = {
         "hours_100_to_200": 100.0 <= hours <= 200.0,
-        "response_pairs_present": bool(rows) and all(row.get("response_audio_filepath") and row.get("assistant_text") for row in rows),
+        "response_pairs_present": bool(rows)
+        and all(row.get("response_audio_filepath") and row.get("assistant_text") for row in rows),
         "natural_multi_speaker_sessions": bool(rows)
         and all(len(values) >= 2 for values in session_speakers.values()),
         "session_groups_at_least_2": len(sessions) >= 2,
@@ -351,7 +401,7 @@ def audit_conversation_manifest(manifest: Path, out_json: Path | None = None, *,
         "interruptions_present": labels["interrupt"] > 0,
         "overlap_annotations_present": overlap_rows > 0,
         "noise_conditions_present": noise_rows > 0,
-        "licenses_complete": licensed == len(rows) and bool(rows),
+        "training_authorization_complete": training_authorized == len(rows) and bool(rows),
         "manual_verification_sample_present": verified > 0,
         "files_present": missing_files == 0 if check_files else None,
     }
@@ -368,6 +418,7 @@ def audit_conversation_manifest(manifest: Path, out_json: Path | None = None, *,
         "reused_source_spans": reused_spans,
         "human_verified_rows": verified,
         "licensed_rows": licensed,
+        "training_authorized_rows": training_authorized,
         "missing_files": missing_files if check_files else None,
         "requirements": requirements,
         "thesis_coverage_ok": all(value is True for value in requirements.values()),

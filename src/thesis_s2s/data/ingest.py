@@ -36,7 +36,9 @@ CONVERSATION_TITLE = re.compile(
 
 def rclone_run(args: list[str], check: bool = True) -> subprocess.CompletedProcess:
     cmd = rclone_prefix() + args
-    return subprocess.run(cmd, check=check, capture_output=True, text=True, env=rclone_process_env())
+    return subprocess.run(
+        cmd, check=check, capture_output=True, text=True, env=rclone_process_env()
+    )
 
 
 def rclone_copy(remote: str, dest: Path, include: str | None = None) -> None:
@@ -156,6 +158,9 @@ def inventory_csvs(
                     "audio_source_kind": "ordered_caption_chunks",
                     "license": "pending-youtube-rights-review",
                     "license_verified": False,
+                    "internal_research_authorized": False,
+                    "authorization_basis": "pending",
+                    "redistribution_allowed": False,
                     "split": episode_split(f"{spec.name}/{csv_path.stem}"),
                 }
             )
@@ -210,7 +215,9 @@ def ingest_episodes(
 
     out_dir.mkdir(parents=True, exist_ok=True)
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    seen_ids, done_stems, hours0, written0 = _manifest_progress(manifest_path) if resume else (set(), set(), 0.0, 0)
+    seen_ids, done_stems, hours0, written0 = (
+        _manifest_progress(manifest_path) if resume else (set(), set(), 0.0, 0)
+    )
     stats = {
         "written": written0,
         "hours": hours0,
@@ -271,7 +278,13 @@ def ingest_episodes(
                     if duration < MIN_DURATION or duration > MAX_DURATION:
                         stats["skipped_caption"] += 1
                         continue
-                    dest = out_dir / split / ep["channel"] / ep["stem"] / f"{ep['stem']}_chunk_{i:04d}.wav"
+                    dest = (
+                        out_dir
+                        / split
+                        / ep["channel"]
+                        / ep["stem"]
+                        / f"{ep['stem']}_chunk_{i:04d}.wav"
+                    )
                     utt_id = f"{ep['channel']}_{ep['stem']}_{i:04d}"
                     if resume and (utt_id in seen_ids or dest.is_file()):
                         continue
@@ -290,6 +303,9 @@ def ingest_episodes(
                         "snr": round(estimate_snr_db(audio), 2),
                         "license": "pending-youtube-rights-review",
                         "license_verified": False,
+                        "internal_research_authorized": False,
+                        "authorization_basis": "pending",
+                        "redistribution_allowed": False,
                         "age_bin": None,
                         "split": split,
                         "channel": ep["channel"],
