@@ -262,6 +262,164 @@ def _manifest_progress(path: Path) -> tuple[set[str], int, float]:
     return done, windows, hours
 
 
+def audit_prepared_episode_windows(
+    selection_jsonl: Path,
+    manifest: Path,
+    out_json: Path | None = None,
+    *,
+    stats_path: Path | None = None,
+    min_hours: float = 100.0,
+    max_hours: float = 200.0,
+    max_window_seconds: float = 900.0,
+    check_files: bool = True,
+) -> dict:
+    """Validate reconstruction completeness, provenance, and WAV integrity."""
+
+    selection_jsonl = Path(selection_jsonl)
+    manifest = Path(manifest)
+    selected = load_jsonl(selection_jsonl)
+    rows = load_jsonl(manifest) if manifest.is_file() else []
+    selected_ids = [str(row.get("episode_id") or "") for row in selected]
+    selected_id_set = {value for value in selected_ids if value}
+    prepared_ids = {str(row.get("episode_id") or "") for row in rows if row.get("episode_id")}
+    window_ids = [str(row.get("window_id") or "") for row in rows]
+    total_hours = sum(float(row.get("duration") or 0.0) for row in rows) / 3600.0
+
+    expected_splits = {
+        str(row.get("episode_id") or ""): str(row.get("split") or "")
+        for row in selected
+        if row.get("episode_id")
+    }
+    episode_splits: dict[str, set[str]] = {}
+    episode_indices: dict[str, list[int]] = {}
+    episode_source_rows: dict[str, list[int]] = {}
+    schema_errors = 0
+    for row in rows:
+        episode_id = str(row.get("episode_id") or "")
+        episode_splits.setdefault(episode_id, set()).add(str(row.get("split") or ""))
+        try:
+            episode_indices.setdefault(episode_id, []).append(int(row["window_index"]))
+        except (KeyError, TypeError, ValueError):
+            schema_errors += 1
+        references = list(row.get("reference_segments") or [])
+        if not references:
+            schema_errors += 1
+        for reference in references:
+            try:
+                episode_source_rows.setdefault(episode_id, []).append(int(reference["source_row"]))
+                start = float(reference["start"])
+                end = float(reference["end"])
+            except (KeyError, TypeError, ValueError):
+                schema_errors += 1
+                continue
+            if not 0 <= start < end <= float(row.get("duration") or 0.0) + 0.05:
+                schema_errors += 1
+
+    split_errors = sum(
+        splits != {expected_splits.get(episode_id, "")}
+        for episode_id, splits in episode_splits.items()
+    )
+    index_errors = sum(indices != list(range(len(indices))) for indices in episode_indices.values())
+    source_row_errors = sum(
+        values != sorted(set(values)) for values in episode_source_rows.values()
+    )
+
+    missing_files = 0
+    wav_format_errors = 0
+    duration_mismatches = 0
+    if check_files:
+        for row in rows:
+            path = Path(str(row.get("audio_filepath") or ""))
+            if not path.is_file():
+                missing_files += 1
+                continue
+            try:
+                with wave.open(str(path), "rb") as handle:
+                    sample_rate = handle.getframerate()
+                    channels = handle.getnchannels()
+                    sample_width = handle.getsampwidth()
+                    actual_duration = handle.getnframes() / sample_rate
+            except (OSError, EOFError, wave.Error, ZeroDivisionError):
+                wav_format_errors += 1
+                continue
+            if sample_rate != SAMPLE_RATE or channels != 1 or sample_width != 2:
+                wav_format_errors += 1
+            if abs(actual_duration - float(row.get("duration") or 0.0)) > 0.05:
+                duration_mismatches += 1
+
+    stats_path = Path(stats_path or manifest.with_name("conversation_episode_prepare_stats.json"))
+    stats = json.loads(stats_path.read_text(encoding="utf-8")) if stats_path.is_file() else {}
+    provenance_complete = bool(rows) and all(
+        row.get("audio_source_kind") == "reconstructed_ordered_caption_chunks"
+        and row.get("is_original_episode_audio") is False
+        and row.get("cross_chunk_overlap_recoverable") is False
+        and row.get("reference_transcript_source") == "provided_youtube_csv"
+        for row in rows
+    )
+    legacy_rights_rows = sum(
+        row.get("license") in {None, "", "youtube-internal"} or "license_verified" not in row
+        for row in rows
+    )
+    stats_current = (
+        bool(stats.get("finished_at"))
+        and int(stats.get("windows") or -1) == len(rows)
+        and stats.get("in_progress") in (None, False)
+        and int(stats.get("episodes_prepared") or 0) + int(stats.get("episodes_resumed") or 0)
+        == len(prepared_ids)
+    )
+    requirements = {
+        "prepared_hours_100_to_200": bool(rows) and min_hours <= total_hours <= max_hours,
+        "selection_complete": bool(selected_id_set) and prepared_ids == selected_id_set,
+        "selection_episode_ids_unique": bool(selected_ids)
+        and len(selected_ids) == len(selected_id_set)
+        and all(selected_ids),
+        "no_extra_episodes": prepared_ids <= selected_id_set,
+        "window_ids_unique": bool(window_ids)
+        and len(window_ids) == len(set(window_ids))
+        and all(window_ids),
+        "window_durations_bounded": bool(rows)
+        and all(0 < float(row.get("duration") or 0.0) <= max_window_seconds + 0.05 for row in rows),
+        "reference_schema_valid": schema_errors == 0,
+        "source_rows_ordered_and_unique": source_row_errors == 0,
+        "window_indices_contiguous": index_errors == 0,
+        "episode_splits_preserved": split_errors == 0,
+        "multiple_channels": len({str(row.get("channel") or "") for row in rows}) >= 2,
+        "chunk_limitations_declared": provenance_complete,
+        "preparation_report_current_and_finished": stats_current,
+        "no_reported_failures": stats_current and int(stats.get("episodes_failed") or 0) == 0,
+        "audio_files_present": missing_files == 0 if check_files else None,
+        "wav_format_valid": wav_format_errors == 0 if check_files else None,
+        "manifest_duration_matches_wav": duration_mismatches == 0 if check_files else None,
+    }
+    report = {
+        "selection_manifest": str(selection_jsonl),
+        "window_manifest": str(manifest),
+        "preparation_stats": str(stats_path),
+        "selected_episodes": len(selected_id_set),
+        "prepared_episodes": len(prepared_ids),
+        "missing_selected_episode_count": len(selected_id_set - prepared_ids),
+        "missing_selected_episode_sample": sorted(selected_id_set - prepared_ids)[:50],
+        "extra_episodes": sorted(prepared_ids - selected_id_set),
+        "windows": len(rows),
+        "prepared_audio_hours": round(total_hours, 3),
+        "schema_errors": schema_errors,
+        "split_errors": split_errors,
+        "legacy_or_implicit_rights_rows": legacy_rights_rows,
+        "window_index_errors": index_errors,
+        "source_row_order_errors": source_row_errors,
+        "duplicate_window_ids": len(window_ids) - len(set(window_ids)),
+        "missing_audio_files": missing_files if check_files else None,
+        "wav_format_errors": wav_format_errors if check_files else None,
+        "duration_mismatches": duration_mismatches if check_files else None,
+        "reported_failed_episodes": stats.get("episodes_failed"),
+        "requirements": requirements,
+        "reconstruction_gate_passes": all(value is True for value in requirements.values()),
+    }
+    if out_json is not None:
+        write_json(out_json, report)
+    return report
+
+
 def prepare_selected_episodes(
     selection_jsonl: Path,
     out_root: Path,
@@ -288,6 +446,7 @@ def prepare_selected_episodes(
     out_manifest.parent.mkdir(parents=True, exist_ok=True)
     mode = "a" if resume and out_manifest.is_file() else "w"
     stats: dict = {
+        "started_at": datetime.now(timezone.utc).isoformat(),
         "selected_episodes": len(selected),
         "episodes_prepared": 0,
         "episodes_failed": 0,
@@ -298,6 +457,22 @@ def prepare_selected_episodes(
         "failures": Counter(),
         "episode_reports": [],
     }
+    stats_path = out_manifest.with_name("conversation_episode_prepare_stats.json")
+
+    def write_progress() -> None:
+        snapshot = {key: value for key, value in stats.items() if key != "episode_reports"}
+        snapshot.update(
+            {
+                "in_progress": True,
+                "episode_report_count": len(stats["episode_reports"]),
+                "prepared_audio_hours": round(float(stats["prepared_audio_hours"]), 3),
+                "source_candidate_hours": round(float(stats["source_candidate_hours"]), 3),
+                "failures": dict(stats["failures"]),
+            }
+        )
+        write_json(stats_path, snapshot)
+
+    write_progress()
     with out_manifest.open(mode, encoding="utf-8") as dst:
         for episode in selected:
             if max_episodes is not None and stats["episodes_prepared"] >= max_episodes:
@@ -352,9 +527,11 @@ def prepare_selected_episodes(
                 stats["failures"]["s3_download"] += 1
             finally:
                 shutil.rmtree(tmp, ignore_errors=True)
+                write_progress()
     stats["prepared_audio_hours"] = round(float(stats["prepared_audio_hours"]), 3)
     stats["source_candidate_hours"] = round(float(stats["source_candidate_hours"]), 3)
     stats["failures"] = dict(stats["failures"])
+    stats["in_progress"] = False
     stats["finished_at"] = datetime.now(timezone.utc).isoformat()
-    write_json(out_manifest.with_name("conversation_episode_prepare_stats.json"), stats)
+    write_json(stats_path, stats)
     return stats

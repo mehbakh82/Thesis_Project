@@ -27,6 +27,7 @@ Confirm in the JSON:
 # CSV planning is fast and reproducible; full preparation is resumable I/O.
 .venv/bin/python -m thesis_s2s.cli plan-conversation-corpus
 .venv/bin/python -m thesis_s2s.cli prepare-conversation-episodes
+.venv/bin/python -m thesis_s2s.cli audit-prepared-episodes
 
 # Start the existing offline Community-1 service on the 4090.
 cd /mnt/md0/mehbakh/asr_nemo_soroush

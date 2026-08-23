@@ -44,6 +44,7 @@ rotate it and replace the document with environment-variable placeholders.
 ```bash
 .venv/bin/python -m thesis_s2s.cli plan-conversation-corpus
 .venv/bin/python -m thesis_s2s.cli prepare-conversation-episodes
+.venv/bin/python -m thesis_s2s.cli audit-prepared-episodes
 .venv/bin/python -m thesis_s2s.cli diarize-conversation-episodes
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes
 .venv/bin/python -m thesis_s2s.cli sample-conversation-qa

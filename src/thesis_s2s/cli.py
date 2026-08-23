@@ -101,6 +101,25 @@ def main(argv: list[str] | None = None) -> None:
     p_ep.add_argument("--window-seconds", type=float, default=900.0)
     p_ep.add_argument("--min-chunk-coverage", type=float, default=0.95)
     p_ep.add_argument("--no-resume", action="store_true")
+    p_ep_prepared_audit = sub.add_parser("audit-prepared-episodes")
+    p_ep_prepared_audit.add_argument(
+        "--selection",
+        type=Path,
+        default=p_ep.get_default("selection"),
+    )
+    p_ep_prepared_audit.add_argument(
+        "--manifest",
+        type=Path,
+        default=p_ep.get_default("out_jsonl"),
+    )
+    p_ep_prepared_audit.add_argument(
+        "--out",
+        type=Path,
+        default=Path("results/prepared_episode_audit.json"),
+    )
+    p_ep_prepared_audit.add_argument("--min-hours", type=float, default=100.0)
+    p_ep_prepared_audit.add_argument("--max-hours", type=float, default=200.0)
+    p_ep_prepared_audit.add_argument("--no-check-files", action="store_true")
     p_ep_diar = sub.add_parser("diarize-conversation-episodes")
     p_ep_diar.add_argument(
         "--in-jsonl",
@@ -337,6 +356,18 @@ def main(argv: list[str] | None = None) -> None:
             window_seconds=args.window_seconds,
             min_chunk_coverage=args.min_chunk_coverage,
             resume=not args.no_resume,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "audit-prepared-episodes":
+        from thesis_s2s.data.episode_prepare import audit_prepared_episode_windows
+
+        report = audit_prepared_episode_windows(
+            args.selection,
+            args.manifest,
+            args.out,
+            min_hours=args.min_hours,
+            max_hours=args.max_hours,
+            check_files=not args.no_check_files,
         )
         print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "diarize-conversation-episodes":

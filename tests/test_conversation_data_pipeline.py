@@ -17,6 +17,7 @@ from thesis_s2s.data.diarize import (
     diarize_episode_manifest,
 )
 from thesis_s2s.data.episode_prepare import (
+    audit_prepared_episode_windows,
     rclone_filter_literal,
     reconstruct_episode_windows,
 )
@@ -172,6 +173,53 @@ def test_episode_window_reconstruction_tracks_chunk_limitations(tmp_path: Path):
     assert windows[0]["diarization_status"] == "not_run"
     assert windows[0]["license_verified"] is False
     assert rclone_filter_literal(stem) == r"episode \[one\]"
+    second = dict(windows[0])
+    second.update(
+        {
+            "window_id": "Zoomit/episode-two#window-0000",
+            "episode_id": "Zoomit/episode-two",
+            "session_id": "Zoomit/episode-two",
+            "recording_id": "Zoomit/episode-two",
+            "channel": "Zoomit",
+        }
+    )
+    selection = tmp_path / "selection.jsonl"
+    selection.write_text(
+        "\n".join(
+            json.dumps(item, ensure_ascii=False)
+            for item in (
+                {"episode_id": episode["episode_id"], "split": "train"},
+                {"episode_id": second["episode_id"], "split": "train"},
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    manifest = tmp_path / "prepared.jsonl"
+    manifest.write_text(
+        "\n".join(json.dumps(item, ensure_ascii=False) for item in (windows[0], second)) + "\n",
+        encoding="utf-8",
+    )
+    stats = tmp_path / "conversation_episode_prepare_stats.json"
+    stats.write_text(
+        '{"finished_at":"now","in_progress":false,"episodes_failed":0,'
+        '"episodes_prepared":2,"episodes_resumed":0,"windows":2}\n',
+        encoding="utf-8",
+    )
+    audit = audit_prepared_episode_windows(
+        selection, manifest, stats_path=stats, min_hours=0, max_hours=1
+    )
+    assert audit["reconstruction_gate_passes"] is True
+    stats.write_text(
+        '{"finished_at":"old","episodes_failed":0,"episodes_prepared":1,'
+        '"episodes_resumed":0,"windows":1}\n',
+        encoding="utf-8",
+    )
+    stale = audit_prepared_episode_windows(
+        selection, manifest, stats_path=stats, min_hours=0, max_hours=1
+    )
+    assert stale["requirements"]["preparation_report_current_and_finished"] is False
+    assert stale["reconstruction_gate_passes"] is False
 
 
 def test_episode_diarization_aligns_and_failed_rows_are_retried(tmp_path: Path, monkeypatch):

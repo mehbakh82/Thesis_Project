@@ -24,6 +24,7 @@ SNAPSHOT_FILES = (
     "CITATION.cff",
     "third_party/UPSTREAMS.lock.json",
     "results/corpus_audit.json",
+    "results/prepared_episode_audit.json",
     "results/conversation_selection_audit.json",
     "results/diarization_smoke_h100.json",
     "results/conversation_audit.json",

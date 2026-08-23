@@ -107,6 +107,7 @@ in the repository or command arguments.
 
 # Long I/O job: resumable, one episode at a time, bounded 15-minute windows.
 .venv/bin/python -m thesis_s2s.cli prepare-conversation-episodes
+.venv/bin/python -m thesis_s2s.cli audit-prepared-episodes
 
 # GPU job using the existing offline Community-1 container.
 diar_ip=$(docker inspect asr_nemo_soroush_diarization \
@@ -157,6 +158,11 @@ exports. The source transfer is larger because the stored chunks can use less
 compact encodings and the selected episodes are downloaded before
 reconstruction. The preparation command deletes only its own temporary
 per-episode downloads and is resumable.
+
+The prepared-audio audit verifies selection completeness, 100–200 actual hours,
+unique windows, episode splits, ordered reference rows, bounded duration, WAV
+format, manifest/file duration agreement, and a current—not stale—completion
+report before diarization begins.
 
 The 4090 is most useful for the diarization stage, followed by any approved
 model adaptation and live evaluation. Diarization is performed on bounded
