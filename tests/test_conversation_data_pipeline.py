@@ -16,6 +16,7 @@ from thesis_s2s.data.conversation_selection import (
 from thesis_s2s.data.diarize import (
     align_reference_segments,
     audit_diarized_windows,
+    diarization_stats_path,
     diarize_episode_manifest,
     merge_conversation_window_manifests,
 )
@@ -34,7 +35,11 @@ from thesis_s2s.data.rights import (
     rights_record_verified,
     training_use_authorized,
 )
-from thesis_s2s.data.s3_inventory import rclone_process_env
+from thesis_s2s.data.s3_inventory import (
+    rclone_path,
+    rclone_prefix,
+    rclone_process_env,
+)
 
 
 def test_all_sources_use_2tb_and_s3_credentials_stay_out_of_argv(monkeypatch):
@@ -51,6 +56,17 @@ def test_all_sources_use_2tb_and_s3_credentials_stay_out_of_argv(monkeypatch):
     assert env["RCLONE_S3_ACCESS_KEY_ID"] == "access-test"
     assert env["RCLONE_S3_SECRET_ACCESS_KEY"] == "secret-test"
     assert "RCLONE_CONFIG_S3_ACCESS_KEY_ID" not in env
+
+
+def test_named_rclone_remote_needs_no_exported_credentials(monkeypatch):
+    monkeypatch.setenv("THESIS_RCLONE_REMOTE", "s3")
+    for key in ("S3_ACCESS_KEY_ID", "S3_SECRET_ACCESS_KEY", "S3_ENDPOINT"):
+        monkeypatch.delenv(key, raising=False)
+
+    assert rclone_prefix() == ["rclone"]
+    assert rclone_path(":s3:asr/path") == "s3:asr/path"
+    env = rclone_process_env()
+    assert "RCLONE_S3_SECRET_ACCESS_KEY" not in env
 
 
 def test_monologue_source_is_fail_closed_except_interview_titles():
@@ -267,6 +283,22 @@ def test_episode_window_reconstruction_tracks_chunk_limitations(tmp_path: Path):
     assert audit["reconstruction_gate_passes"] is True
     assert audit["legacy_or_implicit_rights_rows"] == 0
     assert audit["requirements"]["rights_metadata_explicit"] is True
+    assert audit["requirements"]["minimum_channels_present"] is True
+    assert audit["audit_contract"]["min_channels"] == 2
+    strict_channels = audit_prepared_episode_windows(
+        selection,
+        manifest,
+        stats_path=stats,
+        min_hours=0,
+        max_hours=1,
+        min_channels=3,
+    )
+    assert strict_channels["requirements"]["minimum_channels_present"] is False
+    assert strict_channels["reconstruction_gate_passes"] is False
+    with pytest.raises(ValueError, match="min_channels"):
+        audit_prepared_episode_windows(
+            selection, manifest, stats_path=stats, min_hours=0, max_hours=1, min_channels=0
+        )
     assert (
         audit["artifact_sha256"]["window_manifest"]
         == hashlib.sha256(manifest.read_bytes()).hexdigest()
@@ -331,6 +363,17 @@ def test_episode_window_reconstruction_tracks_chunk_limitations(tmp_path: Path):
     assert stale["reconstruction_gate_passes"] is False
 
 
+def test_alternate_diarization_reports_do_not_overwrite_primary(tmp_path: Path):
+    primary = tmp_path / "conversation_episode_windows_diarized.jsonl"
+    reserve = tmp_path / "conversation_reserve_windows_diarized.jsonl"
+
+    assert diarization_stats_path(primary).name == "conversation_episode_diarization_stats.json"
+    assert (
+        diarization_stats_path(reserve).name == "conversation_reserve_windows_diarized_stats.json"
+    )
+    assert diarization_stats_path(primary) != diarization_stats_path(reserve)
+
+
 def test_episode_diarization_aligns_and_failed_rows_are_retried(tmp_path: Path, monkeypatch):
     audio_path = tmp_path / "window.wav"
     write_wav(audio_path, np.zeros(4 * 16000, dtype=np.float32))
@@ -385,6 +428,8 @@ def test_episode_diarization_aligns_and_failed_rows_are_retried(tmp_path: Path, 
     assert rows[0]["automatic_multi_speaker_verified"] is True
     assert [item["speaker"] for item in rows[0]["segments"]] == ["A", "B"]
     audit = audit_diarized_windows(output, min_hours=0.0, max_hours=1.0)
+    assert audit["audit_contract"]["is_thesis_standard_100_to_200"] is False
+    assert audit["thesis_evidence_gate_passes"] is False
     assert audit["automatic_multi_speaker_hours"] > 0
     assert audit["requirements"]["manual_qa_sample_present"] is False
 
@@ -405,20 +450,26 @@ def test_episode_diarization_aligns_and_failed_rows_are_retried(tmp_path: Path, 
     normalized = json.loads(output.read_text(encoding="utf-8"))
     assert normalized["license"] == "pending-youtube-rights-review"
     assert normalized["license_verified"] is False
-    progress = json.loads(
-        (tmp_path / "conversation_episode_diarization_stats.json").read_text(encoding="utf-8")
-    )
+    progress = json.loads(diarization_stats_path(output).read_text(encoding="utf-8"))
     assert progress["in_progress"] is False
     assert progress["output_windows"] == 1
     assert progress["source_manifest_complete"] is True
 
 
-def test_known_diarization_overlap_can_label_an_interruption():
+def test_known_diarization_overlap_is_not_mislabeled_as_an_interruption():
     user = SpeakerSegment(0.0, 0.7, "A", "پرسش")
     assistant = SpeakerSegment(1.0, 2.0, "B", "پاسخ")
     label, overlap = _interaction_label(user, assistant, [[0.8, 0.9]])
-    assert label == "interrupt"
+    assert label == "overlap_unattributed"
     assert overlap == [[0.8, 0.9]]
+
+
+def test_response_turn_overlap_can_label_an_interruption():
+    user = SpeakerSegment(0.0, 1.5, "A", "پرسش")
+    assistant = SpeakerSegment(1.0, 2.5, "B", "پاسخ بلند")
+    label, overlap = _interaction_label(user, assistant)
+    assert label == "interrupt"
+    assert overlap == [[1.0, 1.5]]
 
 
 def test_manual_qa_handoff_is_stratified_and_fail_closed(tmp_path: Path):

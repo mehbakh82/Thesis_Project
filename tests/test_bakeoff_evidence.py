@@ -44,6 +44,8 @@ def test_bakeoff_is_component_only_and_selects_no_model(tmp_path, monkeypatch):
     assert report["official"] is False
     assert report["decision"]["primary"] is None
     assert report["decision"]["status"] == "no_end_to_end_model_winner"
+    assert report["decision"]["implementation_path"].startswith("moshika-7b")
+    assert "moshika-7b" in report["models"]
     assert report["latency"]["official_e2e_eligible"] is False
     assert report["latency"]["t_first_audio_gate_ok"] is False
     assert report["latency"]["component_proxy_gates"]["cached_packet_p50_under_500_ms"] is True

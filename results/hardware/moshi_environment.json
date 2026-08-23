@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "python": "3.12.3",
+  "environment": "/mnt/md0/mehbakh/Thesis_Project/.venv-moshi",
+  "torch_cuda": "12.4",
+  "gpu": "NVIDIA H100 NVL",
+  "packages": {
+    "torch": "2.6.0",
+    "torchaudio": "2.6.0",
+    "triton": "3.2.0",
+    "moshi": "0.2.4a1",
+    "finetune": "0.0.0",
+    "sphn": "0.1.12"
+  },
+  "checkouts": {
+    "Moshi": {
+      "expected": "061cc4c630d9e11722e08b7d02b1836ba58f30e8",
+      "actual": "061cc4c630d9e11722e08b7d02b1836ba58f30e8",
+      "matches": true
+    },
+    "Moshi-Finetune": {
+      "expected": "2acc879fe7c48f885a18f6cc9548bccb2674d87b",
+      "actual": "2acc879fe7c48f885a18f6cc9548bccb2674d87b",
+      "matches": true
+    }
+  },
+  "configs": {
+    "moshi_h100.yaml": {
+      "max_steps": 8000,
+      "duration_sec": 20.0,
+      "lora": {
+        "enable": true,
+        "rank": 64,
+        "scaling": 2.0,
+        "ft_embed": true
+      },
+      "param_dtype": "bfloat16"
+    },
+    "moshi_h100_smoke.yaml": {
+      "max_steps": 1,
+      "duration_sec": 5.0,
+      "lora": {
+        "enable": true,
+        "rank": 8,
+        "scaling": 2.0,
+        "ft_embed": false
+      },
+      "param_dtype": "bfloat16"
+    }
+  },
+  "gates": {
+    "running_in_isolated_venv": true,
+    "cuda_available": true,
+    "bf16_supported": true,
+    "architecture_matches_pinned_loader": true,
+    "checkout_revisions_match": true,
+    "configs_parse": true
+  },
+  "valid": true
+}

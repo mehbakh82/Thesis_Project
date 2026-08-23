@@ -1,0 +1,23 @@
+{
+  "source_manifest": "data/processed/manifests/conversation_reserve_tabaghe16_windows_noise_labeled.jsonl",
+  "source_windows": 182,
+  "estimated_pairs": 1168,
+  "estimated_pair_hours": 28.744,
+  "hours_100_to_200": false,
+  "label_counts": {
+    "overlap_unattributed": 1000,
+    "none": 168
+  },
+  "direct_interruption_pairs": 0,
+  "unattributed_overlap_pairs": 1000,
+  "channel_hours": {
+    "Tabaghe16": 28.744
+  },
+  "skipped": {
+    "not_adjacent_response": 439,
+    "not_verified_multi_speaker": 1
+  },
+  "non_mutating_estimate": true,
+  "training_ready": false,
+  "warning": "This estimate writes no training clips and does not replace manual QA, rights application, file checks, or the final conversation audit. overlap_unattributed is overlap evidence, not an interruption claim."
+}

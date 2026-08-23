@@ -82,69 +82,72 @@
   },
   "latency": {
     "n": 6,
-    "t_first_audio_p50_ms": 0.0026207417249679565,
-    "t_first_audio_p95_ms": 0.0036456622183322906,
-    "t_barge_in_p50_ms": 35.69784760475159,
-    "t_barge_in_p95_ms": 38.0788566544652,
+    "t_first_audio_p50_ms": 0.0020298175513744354,
+    "t_first_audio_p95_ms": 0.003562774509191513,
+    "t_first_audio_max_ms": 0.003754161298274994,
+    "t_barge_in_p50_ms": 47.14633245021105,
+    "t_barge_in_p95_ms": 50.08571851067245,
+    "t_barge_in_max_ms": 50.10751914232969,
     "t_first_audio_gate_ok": false,
+    "t_first_audio_literal_max_gate_ok": true,
     "t_barge_in_gate_ok": false,
     "official_gpu": false,
-    "measurement_scope": "cached_first_packet_and_detector_component",
-    "official_e2e_eligible": false,
-    "component_proxy_gates": {
-      "cached_packet_p50_under_500_ms": true,
-      "detector_call_p95_under_300_ms": true
-    },
     "samples": [
       {
-        "t_first_audio_ms": 0.003353692591190338,
-        "t_barge_in_ms": 38.10230270028114,
+        "t_first_audio_ms": 0.003754161298274994,
+        "t_barge_in_ms": 42.013758793473244,
         "gpu_name": "NVIDIA H100 NVL",
         "vram_gb": 24.0,
         "memory_capped": true,
-        "notes": "FormantTalker first_chunk n=3901 backend=piper"
+        "notes": "FormantTalker first_chunk n=3716 backend=piper"
       },
       {
-        "t_first_audio_ms": 0.003742985427379608,
-        "t_barge_in_ms": 33.95786788314581,
-        "gpu_name": "NVIDIA H100 NVL",
-        "vram_gb": 24.0,
-        "memory_capped": true,
-        "notes": "FormantTalker first_chunk n=4000 backend=piper"
-      },
-      {
-        "t_first_audio_ms": 0.002300366759300232,
-        "t_barge_in_ms": 34.563289023935795,
+        "t_first_audio_ms": 0.0029886141419410706,
+        "t_barge_in_ms": 46.71796411275864,
         "gpu_name": "NVIDIA H100 NVL",
         "vram_gb": 24.0,
         "memory_capped": true,
         "notes": "FormantTalker first_chunk n=4000 backend=piper"
       },
       {
-        "t_first_audio_ms": 0.0026673078536987305,
-        "t_barge_in_ms": 32.762911170721054,
-        "gpu_name": "NVIDIA H100 NVL",
-        "vram_gb": 24.0,
-        "memory_capped": true,
-        "notes": "FormantTalker first_chunk n=3158 backend=piper"
-      },
-      {
-        "t_first_audio_ms": 0.0025741755962371826,
-        "t_barge_in_ms": 38.008518517017365,
+        "t_first_audio_ms": 0.0017313286662101746,
+        "t_barge_in_ms": 45.91958038508892,
         "gpu_name": "NVIDIA H100 NVL",
         "vram_gb": 24.0,
         "memory_capped": true,
         "notes": "FormantTalker first_chunk n=4000 backend=piper"
       },
       {
-        "t_first_audio_ms": 0.0024596229195594788,
-        "t_barge_in_ms": 36.83240618556738,
+        "t_first_audio_ms": 0.0020954757928848267,
+        "t_barge_in_ms": 50.02031661570072,
+        "gpu_name": "NVIDIA H100 NVL",
+        "vram_gb": 24.0,
+        "memory_capped": true,
+        "notes": "FormantTalker first_chunk n=4000 backend=piper"
+      },
+      {
+        "t_first_audio_ms": 0.001964159309864044,
+        "t_barge_in_ms": 47.57470078766346,
+        "gpu_name": "NVIDIA H100 NVL",
+        "vram_gb": 24.0,
+        "memory_capped": true,
+        "notes": "FormantTalker first_chunk n=4000 backend=piper"
+      },
+      {
+        "t_first_audio_ms": 0.0015050172805786133,
+        "t_barge_in_ms": 50.10751914232969,
         "gpu_name": "NVIDIA H100 NVL",
         "vram_gb": 24.0,
         "memory_capped": true,
         "notes": "FormantTalker first_chunk n=4000 backend=piper"
       }
-    ]
+    ],
+    "measurement_scope": "cached_first_packet_and_detector_component",
+    "official_e2e_eligible": false,
+    "component_proxy_gates": {
+      "cached_packet_p50_under_500_ms": true,
+      "detector_call_p95_under_300_ms": true
+    }
   },
   "models": {
     "llama-omni2-0.5b": {
@@ -166,13 +169,13 @@
       "notes": "Scale-up only if 0.5B stays under 500 ms.",
       "empirically_evaluated": false
     },
-    "personaplex-7b": {
+    "moshika-7b": {
       "weights_present": false,
       "zero_shot_persian_out": false,
       "fits_24gb": null,
       "native_full_duplex": true,
       "trainable": null,
-      "notes": "English-only card. Promote if Mimi round-trips Persian. 7B not downloaded on shared H100.",
+      "notes": "Selected engineering path: official streaming Moshi runtime plus the official LoRA trainer. Persian adaptation is not yet empirically evaluated.",
       "empirically_evaluated": false
     },
     "mini-omni": {
@@ -197,6 +200,7 @@
   "decision": {
     "status": "no_end_to_end_model_winner",
     "primary": null,
+    "implementation_path": "moshika-7b-with-official-moshi-finetune",
     "deployable_baseline": "nemo_qwen_piper_cascade",
     "reason": "This command measures codec reconstruction, dependency availability, and formant component timing; it does not fine-tune or compare complete Persian speech-language models.",
     "encodec_persian_ok": true,

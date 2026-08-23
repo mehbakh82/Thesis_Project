@@ -10,18 +10,18 @@ Send the project definition and current evidence status with these questions. As
 2. The definition does not specify 8–15 hours of new recording. Is any minimum newly recorded duration actually required? If yes, what is the exact minimum and purpose?
 3. Does the university have LDC access to CALLFRIEND Farsi (`LDC2014S01`) and MATERIAL Farsi-English (`LDC2024S13`), or funding to obtain them?
 4. May restricted LDC audio remain internal while aggregate results and derived model artifacts are reported in the thesis?
-5. May the existing university-held Persian interviews/podcasts be used for training after license review, ASR, diarization, and response-pair construction?
+5. **Resolved 2026-08-23:** the supervisor approved private thesis training on the student-crawled public YouTube interview/podcast archive; this does not approve redistribution.
 6. What proportion of automatically generated ASR/diarization/overlap labels is acceptable, and how many hours or rows must be manually verified?
 7. May read speech and synthetic overlap/noise be used only as supplements, while the 100–200-hour requirement is counted from natural conversational material?
 
-### Decisions about the existing YouTube archive
+### Existing YouTube archive: resolved and remaining decisions
 
-- The verified pool has 1,442 long episodes and 775.887 caption-speech hours; a balanced 180.043-hour selection uses Tabaghe16, Mehran, Digiato, and Zoomit. After diarization, caption alignment, and manual QA, may this satisfy the 100–200-hour requirement, with LDC only as a fallback?
-- Is internal research use of the crawled YouTube audio and reporting derived results acceptable under university policy, and what provenance/permission evidence is required?
-- May the existing caption CSVs be the transcript target if a stratified sample is manually reviewed and NeMo is used only for quality screening? What sample size and error threshold are required?
-- Pre-cut caption chunks may lose overlap crossing a chunk boundary. Must untouched episode audio be obtained for interruption/overlap evidence, or are within-chunk overlap plus explicitly labeled supplements acceptable?
-- May a supervisor, lab member, or approved annotator manually review archived data without the student recording new speech?
-- Should the 100–200-hour gate count verified multi-speaker window hours or only the final exported user/response spans?
+- **Resolved:** supervisor-approved private thesis training, automatic annotation, aggregate reporting, and internal derived checkpoints cover the selected and reserve channels. Raw audio/captions and credentials remain non-redistributable.
+- The measured final plan has **196.546 candidate h / 296 episodes**, **181.824 automatic multi-speaker h**, and **6,017 estimated response pairs / 105.727 pair h**. Which hour measure is binding for the 100–200-hour definition: selected candidate speech, verified multi-speaker windows, aligned staging context, or exported user/response spans?
+- The generated 40-row listening sample covers every channel × automatic pass/reject stratum. Is five windows per stratum sufficient, and what rejection/error threshold is acceptable?
+- The existing caption CSVs are the response text; NeMo is only a baseline/quality screen. Is that acceptable after the stratified listening sample passes?
+- Pre-cut caption boundaries make cross-boundary interaction unrecoverable. All **4,787** overlap-bearing estimated pairs are now labeled `overlap_unattributed`, with **zero direct response-turn interruptions** claimed. Must we obtain untouched episode audio, add an explicitly labeled synthetic/licensed supplement, or document a written scope amendment for interruption supervision?
+- May the supervisor, a lab member, or another approved annotator complete the archive listening QA without the student recording new speech?
 
 ## Human study without stored voice
 
@@ -36,8 +36,8 @@ Send the project definition and current evidence status with these questions. As
 ## Model requirement
 
 15. Must the final system include a genuinely adapted direct speech-to-speech language model, or is an honest low-latency ASR→LLM→TTS full-duplex cascade plus a documented direct-model feasibility experiment acceptable?
-16. The inspected official LLaMA-Omni2 release has no complete training entrypoint and does not train on target speech units in its released forward path. Is rebuilding and validating a trainer within the BSc scope?
-17. Which backbone/revision should be approved before GPU work: LLaMA-Omni2-0.5B, Mini-Omni2, Freeze-Omni, or another model with an actually released trainer and suitable license?
+16. The implemented engineering path is Moshika 7B with the official Apache-2.0 Moshi-Finetune LoRA trainer, which supervises response text and assistant Mimi audio tokens. Is this direct full-duplex training objective acceptable for the thesis?
+17. May the final run use the exact pinned Moshika/Moshi/Moshi-Finetune revisions recorded in `third_party/UPSTREAMS.lock.json`, train on the H100, and reserve the physical RTX 4090 for final fit and latency evaluation?
 18. What minimum evidence makes the model “adapted”: Persian speech conditioning, Persian speech-token generation, runtime-loadable checkpoint, held-out intelligibility, and no external TTS substitution?
 
 ## Metrics and hardware
@@ -56,4 +56,4 @@ Send the project definition and current evidence status with these questions. As
 
 ## Short message to send
 
-“I cannot create or retain new raw voice recordings, but I can implement no-WAV live processing and use licensed conversational corpora. May I use licensed/archive natural Persian conversation for the 100–200-hour corpus and run the 5–10-person study with feature-only or metrics-only retention? If live recruitment is impossible, which written scope amendment do you approve? Please also clarify whether the 500 ms gate means max, p95, or median, whether an RTX 4090 is acceptable, and whether a genuine direct S2S adaptation is mandatory despite the selected upstream release lacking a complete trainer.”
+“The internal archive-training approval is recorded. The final measured plan has 196.546 candidate hours and an estimated 105.727 response-pair hours, but pre-cut boundaries leave 4,787 overlaps unattributed and zero direct interruption pairs. Please confirm which hour measure is binding, whether the 40-row listening QA is sufficient, and which approved interruption supplement or scope amendment to use. I also need decisions on feature/metrics-only human sessions, the 500 ms statistic, RTX 4090 target evaluation, and the pinned Moshika + official Moshi-Finetune adaptation path.”

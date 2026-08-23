@@ -1,10 +1,10 @@
-# Comprehensive project review (2026-08-22)
+# Comprehensive project review (2026-08-23)
 
 ## Verdict
 
-The project has a strong thesis problem, useful infrastructure, and unusually good data-engineering effort, but the earlier implementation overstated the two central claims: the trained artifact was not an end-to-end speech LLM, and the browser was not full duplex. The current revision corrects those claims and provides a functional modular cascade plus genuine continuous-microphone interruption control.
+The project has a strong thesis problem, useful infrastructure, and unusually good data-engineering effort, but the earlier implementation overstated two central claims: the trained artifact was not an end-to-end speech LLM, and the browser was not full duplex. The current revision corrects those claims, provides a functional modular cascade plus genuine continuous-microphone interruption control, constructs an auditable conversational training set, and adds a pinned official Moshi/Moshika LoRA path for genuine response-audio adaptation.
 
-Current engineering/research readiness: **7.9/10**. Earlier audited state: **about 4/10**. A defensible 10/10 cannot be produced entirely in code because the definition requires external conversational evidence, a genuine S2S adaptation, 5–10 human participants, and live measurements on the forthcoming physical 4090.
+Current engineering/research readiness: **8.8/10**. Earlier audited state: **about 4/10**. A defensible 10/10 cannot be produced entirely in code because the remaining points require reviewer listening, a completed model run and held-out evaluation, human participants, and live measurements on the forthcoming physical 4090.
 
 ## Stage-by-stage assessment
 
@@ -24,20 +24,19 @@ Problems:
 
 ### 2. Corpus
 
-The 197.613 h ingest is a substantial and reusable result. Episode hashing gives group-isolated train/val/test splits, and the full audit found no duplicate utterance IDs, schema errors, or episode leakage.
+The original ASR ingest remains a substantial reusable result, but it is no longer presented as conversational supervision. A separate conversation pipeline now prepares, hashes, aligns, diarizes, noise-stratifies, and audits whole episodes while preserving episode-isolated splits.
 
-Caption alignment is reasonably supported, but not proven: the independent-ASR proxy over 110,024 Digiato rows / 101.091 h has mean token-sequence similarity 0.7243 and 6.13% below 0.4; a seeded live-ASR sample of 20 Zoomit clips has mean 0.7735 and none below 0.4. Because ASR disagreement is not ground truth, manual stratified listening remains required before model training claims.
+The final authorized staging set contains 296 episodes and 1,021 windows (219.403 h). The deterministic reserve selector keeps the training-candidate duration within the requested 100–200 h range: 196.546 h of candidate audio, 181.824 h automatically classified as multi-speaker, and 217.115 h with aligned captions. The conservative response-pair estimator finds 6,017 adjacent-turn pairs / 105.727 h across Digiato, Mehran Rowshan Persian, Tabaghe16, and Zoomit. Its inputs, decisions, and outputs are content-hashed.
 
-It is not, however, a 197.6 h conversational duplex corpus:
+The project's supervisor approved internal research training on the crawled public YouTube material. The authorization report therefore admits all 1,021 windows for internal training while correctly leaving redistribution disabled; internal-use approval is not represented as an open-content license.
 
-- all 215,684 rows have `interrupt_label=none`;
-- no rows contain overlap annotations;
-- no rows contain user-to-assistant response supervision;
-- the sources are largely long-form technology monologues;
-- 24 exact texts occur across split boundaries (a warning, not episode leakage);
-- YouTube media remains internal-only.
+The remaining corpus limitations are explicit:
 
-The synthetic 20 h artifact is tiled harmonic audio. It is appropriate for a plumbing smoke test, not scientific evidence of speech robustness.
+- the 40-row, channel/outcome/noise-stratified listening sheet still requires a human reviewer;
+- 4,787 estimated pairs have diarizer overlap somewhere in their span, but none has a directly aligned assistant turn beginning before the user turn ends, so they are labeled `overlap_unattributed`, not interruption;
+- speaker diarization estimates adjacent turns; it does not prove semantic user/assistant roles or response quality;
+- YouTube media and generated training manifests remain internal-only;
+- the synthetic harmonic fixture is only a plumbing smoke test, never speech evidence.
 
 ### 3. Model
 
@@ -46,11 +45,12 @@ The legacy `persian_omni2.pt` contains projector/ASR/mel-head weights only. Qwen
 Corrections:
 
 - stable BLAKE2 targets replace Python hash;
-- training is explicitly named an experimental reconstruction ablation;
+- the old training is explicitly named an experimental reconstruction ablation;
 - it requires `--allow-experimental`;
 - checkpoints declare `runtime_ready: false`;
 - legacy/untyped checkpoints fail closed;
-- serving is unconditionally cascade-only; a future direct model needs a separately implemented/tested loader as well as a validated artifact.
+- serving is unconditionally cascade-only for the legacy artifact;
+- the genuine direct path now uses the pinned official Moshi runtime and LoRA trainer, a fail-closed stereo exporter, an H100 profile, deterministic single-voice Persian assistant targets, immutable upstream metadata, and exact model-file verification. All three base blobs pass their pinned sizes and SHA-256 hashes. The adapter remains pending until manual QA, the full training run, and held-out Persian evaluation pass.
 
 The working system is now honestly modular: NeMo ASR → locally cached Qwen2.5-0.5B (rules if unavailable) → Piper/formant TTS.
 
@@ -103,22 +103,22 @@ Added:
 
 | Dimension | Before | Current | Maximum |
 |---|---:|---:|---:|
-| Requirement alignment and claim discipline | 9 | 20 | 25 |
-| Architecture | 6 | 17 | 20 |
-| Implementation correctness | 7 | 17 | 20 |
-| Data engineering and provenance | 9 | 12 | 15 |
-| Evaluation quality | 2 | 5 | 10 |
-| Reproducibility, tests, security | 3 | 8 | 10 |
-| **Total** | **36/100** | **79/100** | **100/100** |
+| Requirement alignment and claim discipline | 9 | 22 | 25 |
+| Architecture | 6 | 19 | 20 |
+| Implementation correctness | 7 | 18 | 20 |
+| Data engineering and provenance | 9 | 14 | 15 |
+| Evaluation quality | 2 | 6 | 10 |
+| Reproducibility, tests, security | 3 | 9 | 10 |
+| **Total** | **36/100** | **88/100** | **100/100** |
 
 ## Irreducible path to 10/10
 
-1. Build the definition's 100–200 h genuinely conversational Persian set with response pairs, noise, overlap, and interruption labels. New raw-audio recording is optional unless the supervisor explicitly requires it; natural conversation with a verified license or documented internal-research authorization is the preferred no-recording route.
-2. Recruit 5–10 Persian speakers, including at least two aged 60+, and complete all ratings.
-3. Run the live browser protocol on a physical 12–24 GB GPU and export client timing.
-4. Train or adapt a genuine speech-conditioned causal language model with supervised assistant speech tokens; validate Persian output and save every runtime component.
-5. Evaluate the detector on speaker/session-held-out real data and report confidence intervals.
-6. Obtain human naturalness/satisfaction results for Piper or a validated Persian neural speech decoder.
-7. Confirm the release license with the author and archive an immutable version-control commit, environment/model checksums, and restricted-data provenance manifest.
+1. Complete the 40-row listening review. Resolve the absence of directly verified interruption examples with an untouched licensed/internal-authorized set, a clearly labeled synthetic supplement, or a written thesis-scope amendment.
+2. Train the pinned Moshi LoRA response model on the H100, then validate Persian response relevance, speech output, checkpoints, and held-out metrics.
+3. Recruit 5–10 Persian speakers, including at least two aged 60+, and complete all ratings. If recruitment is formally waived, record the supervisor-approved alternative and narrow the claims accordingly.
+4. Run the live browser protocol on the physical 4090 and export client timing; the H100 is the correct training machine, while the 4090 is the target deployment/evaluation machine.
+5. Evaluate the detector on speaker/session-held-out real conversational audio and report confidence intervals.
+6. Obtain human naturalness/satisfaction results for the final speech path.
+7. Confirm the repository release license with the author and preserve model/environment checksums plus the restricted-data provenance manifest. This is separate from permission to train internally on the source corpus.
 
 Until these evidence-producing steps are completed, claiming 10/10 would reduce rather than improve the thesis quality.

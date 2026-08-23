@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -15,7 +16,33 @@ def _load_alias_into_env(alias: str = "s3-2t") -> None:
     )
 
 
+def configured_remote() -> str | None:
+    value = os.environ.get("THESIS_RCLONE_REMOTE", "").strip()
+    if not value:
+        return None
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", value):
+        raise ValueError("THESIS_RCLONE_REMOTE must be a simple configured remote name")
+    return value
+
+
+def rclone_path(path: str) -> str:
+    remote = configured_remote()
+    if remote and path.startswith(":s3:"):
+        return f"{remote}:{path.removeprefix(':s3:')}"
+    return path
+
+
 def rclone_env() -> dict[str, str]:
+    remote = configured_remote()
+    if remote:
+        return {
+            "endpoint": "configured-rclone-remote",
+            "access": "",
+            "secret": "",
+            "bucket": os.environ.get("S3_BUCKET", "asr"),
+            "provider": "configured",
+            "remote": remote,
+        }
     required = ["S3_ACCESS_KEY_ID", "S3_SECRET_ACCESS_KEY", "S3_ENDPOINT"]
     missing = [name for name in required if not os.environ.get(name)]
     if missing:
@@ -34,7 +61,10 @@ def rclone_env() -> dict[str, str]:
 
 
 def rclone_prefix() -> list[str]:
-    # Validate credentials, but never put them in argv (visible via ps/procfs).
+    # A named remote uses rclone's existing protected config. Otherwise validate
+    # environment credentials, but never put them in argv (visible via ps/procfs).
+    if configured_remote():
+        return ["rclone"]
     rclone_env()
     return ["rclone", "--config", "/dev/null"]
 
@@ -42,6 +72,8 @@ def rclone_prefix() -> list[str]:
 def rclone_process_env() -> dict[str, str]:
     cfg = rclone_env()
     env = os.environ.copy()
+    if configured_remote():
+        return env
     # On-the-fly backends such as :s3:bucket/path read RCLONE_S3_*.
     # Keep credentials in the child environment so they never appear in argv.
     env.update(
@@ -57,7 +89,7 @@ def rclone_process_env() -> dict[str, str]:
 
 
 def lsd(path: str) -> str:
-    cmd = rclone_prefix() + ["lsd", path]
+    cmd = rclone_prefix() + ["lsd", rclone_path(path)]
     result = subprocess.run(
         cmd, check=True, capture_output=True, text=True, env=rclone_process_env()
     )
@@ -65,7 +97,7 @@ def lsd(path: str) -> str:
 
 
 def ls(path: str, include: str | None = None) -> str:
-    cmd = rclone_prefix() + ["ls", path]
+    cmd = rclone_prefix() + ["ls", rclone_path(path)]
     if include:
         cmd.extend(["--include", include])
     result = subprocess.run(
@@ -76,7 +108,7 @@ def ls(path: str, include: str | None = None) -> str:
 
 def inventory(out_json: str | Path, extra_prefixes: list[str] | None = None) -> dict:
     cfg = rclone_env()
-    bucket = f":s3:{cfg['bucket']}"
+    bucket = rclone_path(f":s3:{cfg['bucket']}")
     prefixes = extra_prefixes or []
     listing = lsd(bucket)
     extra: dict[str, object] = {}

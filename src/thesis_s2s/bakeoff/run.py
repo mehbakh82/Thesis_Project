@@ -119,13 +119,16 @@ def run_bakeoff(out_dir: Path | None = None, allow_hf: bool = True) -> dict:
             "trainable": True,
             "notes": "Scale-up only if 0.5B stays under 500 ms.",
         },
-        "personaplex-7b": {
+        "moshika-7b": {
             "weights_present": False,
             "zero_shot_persian_out": False,
             "fits_24gb": True,
             "native_full_duplex": True,
             "trainable": True,
-            "notes": "English-only card. Promote if Mimi round-trips Persian. 7B not downloaded on shared H100.",
+            "notes": (
+                "Selected engineering path: official streaming Moshi runtime plus the "
+                "official LoRA trainer. Persian adaptation is not yet empirically evaluated."
+            ),
         },
         "mini-omni": {
             "weights_present": False,
@@ -151,6 +154,7 @@ def run_bakeoff(out_dir: Path | None = None, allow_hf: bool = True) -> dict:
     decision = {
         "status": "no_end_to_end_model_winner",
         "primary": None,
+        "implementation_path": "moshika-7b-with-official-moshi-finetune",
         "deployable_baseline": "nemo_qwen_piper_cascade",
         "reason": (
             "This command measures codec reconstruction, dependency availability, and formant component timing; "
@@ -189,7 +193,10 @@ def run_bakeoff(out_dir: Path | None = None, allow_hf: bool = True) -> dict:
         "This command did not fine-tune or compare the candidate speech-language models.\n\n"
         f"Encodec proxy: {enc_ok}. Mimi proxy: {mimi_ok}. "
         f"CosyVoice2 available: {decision['cosyvoice2_installed']}.\n\n"
-        "Current deployable baseline: NeMo ASR → local Qwen/rules → Piper. Select a direct model only after controlled Persian end-to-end evaluation.\n",
+        "Selected implementation path: Moshika 7B with the official Moshi-Finetune LoRA trainer. "
+        "This is an engineering selection, not an empirical winner.\n\n"
+        "Current deployable baseline: NeMo ASR → local Qwen/rules → Piper. Promote the "
+        "direct model only after controlled Persian end-to-end evaluation.\n",
         encoding="utf-8",
     )
     return payload

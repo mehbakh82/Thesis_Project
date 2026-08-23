@@ -1,10 +1,24 @@
 {
-  "generated_at": "2026-08-23T07:03:43.054066+00:00",
+  "generated_at": "2026-08-23T17:25:18.831936+00:00",
   "gpu": {
     "device": "NVIDIA H100 NVL",
     "total_gb": 93.09,
     "official_size": false,
     "path_b_possible": false
+  },
+  "nvidia_smi": {
+    "available": true,
+    "fields": [
+      "name",
+      "driver_version",
+      "memory_total_mib",
+      "memory_used_mib",
+      "memory_free_mib",
+      "utilization_gpu_percent"
+    ],
+    "rows": [
+      "NVIDIA H100 NVL, 595.71.05, 95830, 78659, 16664, 100"
+    ]
   },
   "torch": {
     "version": "2.12.0+cu130",
@@ -21,28 +35,58 @@
         "name": "LLaMA-Omni2",
         "revision": "c8afa9061a9c2d2c1919f7293f5492d946869752",
         "pin_valid": true,
-        "checkout_present": null,
+        "checkout_present": false,
         "checkout_matches": null
       },
       {
         "name": "Mini-Omni2",
         "revision": "75f450ea4e7dc1e52a7fc0e4dcf45b4c3d45ab98",
         "pin_valid": true,
-        "checkout_present": null,
+        "checkout_present": false,
         "checkout_matches": null
       },
       {
         "name": "BayLing-Speech",
         "revision": "c63fd7221d1e6c2d22c85e781bc61e842835ed53",
         "pin_valid": true,
-        "checkout_present": null,
+        "checkout_present": false,
         "checkout_matches": null
       },
       {
         "name": "Freeze-Omni",
         "revision": "163a24880e533b2a07038fb8dcfe02dbbb8457e6",
         "pin_valid": true,
-        "checkout_present": null,
+        "checkout_present": false,
+        "checkout_matches": null
+      },
+      {
+        "name": "Moshi",
+        "revision": "061cc4c630d9e11722e08b7d02b1836ba58f30e8",
+        "pin_valid": true,
+        "checkout_present": true,
+        "checkout_matches": true,
+        "checkout_head": "061cc4c630d9e11722e08b7d02b1836ba58f30e8"
+      },
+      {
+        "name": "Moshi-Finetune",
+        "revision": "2acc879fe7c48f885a18f6cc9548bccb2674d87b",
+        "pin_valid": true,
+        "checkout_present": true,
+        "checkout_matches": true,
+        "checkout_head": "2acc879fe7c48f885a18f6cc9548bccb2674d87b"
+      },
+      {
+        "name": "Moshika-PyTorch-BF16",
+        "revision": "a49141e28b3d9c947cf9aa5314431e1b11cbd2f5",
+        "pin_valid": true,
+        "checkout_present": false,
+        "checkout_matches": null
+      },
+      {
+        "name": "Mana-Persian-Piper",
+        "revision": "ad9dd8518bedf517bd7cbc9f63b8e5c844bf5bc0",
+        "pin_valid": true,
+        "checkout_present": false,
         "checkout_matches": null
       }
     ]
@@ -50,18 +94,84 @@
   "conversation_data": {
     "present": false,
     "thesis_coverage_ok": false,
-    "path": "/mnt/md0/mehbakh/Thesis_Project/results/conversation_audit.json"
+    "path": "/mnt/md0/mehbakh/Thesis_Project/results/conversation_audit.json",
+    "staging_audit_path": "/mnt/md0/mehbakh/Thesis_Project/results/diarized_episode_audit_combined_authorized.json",
+    "yield_estimate_path": "/mnt/md0/mehbakh/Thesis_Project/results/conversation_yield_estimate_combined.json",
+    "staging": {
+      "present": true,
+      "windows": 1021,
+      "episodes": 296,
+      "automatic_multi_speaker_hours": 181.824,
+      "reference_aligned_hours": 217.115,
+      "automatic_gates_pass": true,
+      "manual_qa_complete": false
+    },
+    "yield_estimate": {
+      "present": true,
+      "pairs": 6017,
+      "hours": 105.727,
+      "hours_100_to_200": true,
+      "non_mutating": true
+    }
   },
-  "gates": {
-    "physical_gpu_12_to_24_gb": false,
+  "training_config": "/mnt/md0/mehbakh/Thesis_Project/configs/moshi_h100.yaml",
+  "training_base_model": "kyutai/moshika-pytorch-bf16",
+  "official_upstream_training_entrypoint_available": true,
+  "configured_trainer_entrypoint": "/mnt/md0/mehbakh/Thesis_Project/third_party/checkouts/moshi-finetune/train.py",
+  "base_model": {
+    "revision": "a49141e28b3d9c947cf9aa5314431e1b11cbd2f5",
+    "files": {
+      "model.safetensors": {
+        "path": "/mnt/md0/mehbakh/Thesis_Project/hf_cache/pinned/moshika-pytorch-bf16-a49141e/model.safetensors",
+        "expected_bytes": 15375500136,
+        "actual_bytes": 15375500136,
+        "expected_sha256": "e0a5a1c79010680eb916adb940ee8567978c78902c5a6b743c79202e75858712",
+        "actual_sha256": "e0a5a1c79010680eb916adb940ee8567978c78902c5a6b743c79202e75858712",
+        "matches_pin": true
+      },
+      "tokenizer-e351c8d8-checkpoint125.safetensors": {
+        "path": "/mnt/md0/mehbakh/Thesis_Project/hf_cache/pinned/moshika-pytorch-bf16-a49141e/tokenizer-e351c8d8-checkpoint125.safetensors",
+        "expected_bytes": 384644900,
+        "actual_bytes": 384644900,
+        "expected_sha256": "09b782f0629851a271227fb9d36db65c041790365f11bbe5d3d59369cf863f50",
+        "actual_sha256": "09b782f0629851a271227fb9d36db65c041790365f11bbe5d3d59369cf863f50",
+        "matches_pin": true
+      },
+      "tokenizer_spm_32k_3.model": {
+        "path": "/mnt/md0/mehbakh/Thesis_Project/hf_cache/pinned/moshika-pytorch-bf16-a49141e/tokenizer_spm_32k_3.model",
+        "expected_bytes": 552778,
+        "actual_bytes": 552778,
+        "expected_sha256": "78d4336533ddc26f9acf7250d7fb83492152196c6ea4212c841df76933f18d2d",
+        "actual_sha256": "78d4336533ddc26f9acf7250d7fb83492152196c6ea4212c841df76933f18d2d",
+        "matches_pin": true
+      }
+    },
+    "architecture_config": "/mnt/md0/mehbakh/Thesis_Project/configs/moshika_7b_legacy.json",
+    "architecture_config_present": true,
+    "valid": true
+  },
+  "assistant_voice_target": {
+    "path": "/mnt/md0/mehbakh/Thesis_Project/models/piper/fa_IR-mana-medium.onnx",
+    "expected_sha256": "e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126",
+    "actual_sha256": "e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126",
+    "matches_pin": true
+  },
+  "training_gates": {
     "cuda_available": true,
     "bf16_supported": true,
     "upstream_revisions_pinned": true,
     "conversational_data_audit_passes": false,
-    "official_upstream_training_entrypoint_available": false
+    "reviewed_training_entrypoint_available": true,
+    "base_model_files_pinned": true,
+    "assistant_voice_target_pinned": true
   },
+  "evaluation_gates": {
+    "physical_gpu_12_to_24_gb": false,
+    "cuda_available": true
+  },
+  "training_hardware_ready": true,
   "evaluation_hardware_ready": false,
   "adaptation_run_ready": false,
-  "adaptation_status": "blocked_by_missing_official_trainer_and/or_data",
-  "note": "A 4090 is eligible physical evaluation hardware. The pinned LLaMA-Omni2 release does not provide a complete language-model training entrypoint, so this report must not be interpreted as a completed or reproducible Persian adaptation."
+  "adaptation_status": "blocked_by_failed_training_gates",
+  "note": "The H100 is valid training hardware. A physical 12–24 GB GPU is required only for the final target-hardware fit and live-latency evidence. Moshi-Finetune is the pinned genuine response-audio trainer; data/QA gates still apply."
 }

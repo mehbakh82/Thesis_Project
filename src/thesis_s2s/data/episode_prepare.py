@@ -308,11 +308,14 @@ def audit_prepared_episode_windows(
     stats_path: Path | None = None,
     min_hours: float = 100.0,
     max_hours: float = 240.0,
+    min_channels: int = 2,
     max_window_seconds: float = 900.0,
     check_files: bool = True,
 ) -> dict:
     """Validate reconstruction completeness, provenance, and WAV integrity."""
 
+    if min_channels < 1:
+        raise ValueError("min_channels must be positive")
     selection_jsonl = Path(selection_jsonl)
     manifest = Path(manifest)
     selected = load_jsonl(selection_jsonl)
@@ -404,9 +407,9 @@ def audit_prepared_episode_windows(
         == len(prepared_ids)
     )
     requirements = {
-        "selected_candidate_hours_100_to_200": bool(selected)
+        "selected_candidate_hours_in_contract": bool(selected)
         and min_hours <= selected_candidate_hours <= 200.0,
-        "prepared_audio_hours_at_least_100": bool(rows) and total_hours >= min_hours,
+        "prepared_audio_hours_meets_minimum": bool(rows) and total_hours >= min_hours,
         "prepared_audio_hours_within_safety_cap": total_hours <= max_hours,
         "selection_complete": bool(selected_id_set) and prepared_ids == selected_id_set,
         "selection_episode_ids_unique": bool(selected_ids)
@@ -422,7 +425,8 @@ def audit_prepared_episode_windows(
         "source_rows_ordered_and_unique": source_row_errors == 0,
         "window_indices_contiguous": index_errors == 0,
         "episode_splits_preserved": split_errors == 0,
-        "multiple_channels": len({str(row.get("channel") or "") for row in rows}) >= 2,
+        "minimum_channels_present": len({str(row.get("channel") or "") for row in rows})
+        >= min_channels,
         "chunk_limitations_declared": provenance_complete,
         "rights_metadata_explicit": legacy_rights_rows == 0,
         "preparation_report_current_and_finished": stats_current,
@@ -435,6 +439,12 @@ def audit_prepared_episode_windows(
         "selection_manifest": str(selection_jsonl),
         "window_manifest": str(manifest),
         "preparation_stats": str(stats_path),
+        "audit_contract": {
+            "min_candidate_and_prepared_hours": min_hours,
+            "max_selected_candidate_hours": 200.0,
+            "max_prepared_audio_hours": max_hours,
+            "min_channels": min_channels,
+        },
         "artifact_sha256": {
             "selection_manifest": _sha256_file(selection_jsonl),
             "window_manifest": _sha256_file(manifest) if manifest.is_file() else None,

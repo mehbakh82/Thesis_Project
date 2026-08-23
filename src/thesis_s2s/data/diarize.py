@@ -63,12 +63,16 @@ def diarize_file(wav_path: Path, base: str | None = None) -> dict:
     turns = payload.get("turns") or []
     exclusive_turns = payload.get("exclusive_turns") or []
     overlap = _overlap_intervals(turns)
+    from thesis_s2s.data.noise import estimate_noise_condition
+
+    noise = estimate_noise_condition(audio, sample_rate, exclusive_turns or turns)
     return {
         "available": True,
         "overlap_intervals": overlap,
         "n_turns": len(turns),
         "speaker_turns": turns,
         "exclusive_speaker_turns": exclusive_turns,
+        **noise,
         "raw_keys": sorted(payload.keys()),
     }
 
@@ -323,10 +327,10 @@ def audit_diarized_windows(
     rights_verified = sum(rights_record_verified(row) for row in rows)
     training_authorized = sum(training_use_authorized(row) for row in rows)
     requirements = {
-        "automatic_multi_speaker_hours_100_to_200": bool(rows)
+        "automatic_multi_speaker_hours_in_contract": bool(rows)
         and verified_hours > 0
         and min_hours <= verified_hours <= max_hours,
-        "reference_aligned_hours_100_to_200": bool(rows)
+        "reference_aligned_hours_in_contract": bool(rows)
         and aligned_hours > 0
         and min_hours <= aligned_hours <= max_hours,
         "multiple_episodes": len(episodes) >= 2,
@@ -340,7 +344,14 @@ def audit_diarized_windows(
         "manual_qa_sample_present": bool(eligible_qa_strata)
         and eligible_qa_strata <= reviewed_qa_strata,
     }
+    contract_is_thesis_standard = min_hours == 100.0 and max_hours == 200.0
+    contract_gate_passes = all(requirements.values())
     report = {
+        "audit_contract": {
+            "min_hours": min_hours,
+            "max_hours": max_hours,
+            "is_thesis_standard_100_to_200": contract_is_thesis_standard,
+        },
         "windows": len(rows),
         "episodes": len(episodes),
         "channels": dict(channels),
@@ -358,7 +369,8 @@ def audit_diarized_windows(
         "license_verified_windows": rights_verified,
         "training_authorized_windows": training_authorized,
         "requirements": requirements,
-        "thesis_evidence_gate_passes": all(requirements.values()),
+        "audit_contract_gate_passes": contract_gate_passes,
+        "thesis_evidence_gate_passes": contract_is_thesis_standard and contract_gate_passes,
         "warning": "Automatic diarization is pseudo-label evidence until a manual sample is reviewed.",
     }
     if out_json is not None:
@@ -366,6 +378,15 @@ def audit_diarized_windows(
 
         write_json(out_json, report)
     return report
+
+
+def diarization_stats_path(manifest: Path) -> Path:
+    """Preserve the historical primary name and isolate alternate reports."""
+
+    manifest = Path(manifest)
+    if manifest.name == "conversation_episode_windows_diarized.jsonl":
+        return manifest.with_name("conversation_episode_diarization_stats.json")
+    return manifest.with_name(f"{manifest.stem}_stats.json")
 
 
 def diarize_episode_manifest(
@@ -421,9 +442,7 @@ def diarize_episode_manifest(
         "aligned_hours": sum(float(row.get("duration") or 0.0) / 3600.0 for row in resumed_aligned),
         "resumed_windows": len(done),
     }
-    stats_path = Path(
-        stats_path or out_jsonl.with_name("conversation_episode_diarization_stats.json")
-    )
+    stats_path = Path(stats_path or diarization_stats_path(out_jsonl))
 
     def write_progress(*, in_progress: bool) -> None:
         snapshot = dict(stats)
@@ -493,6 +512,9 @@ def diarize_episode_manifest(
                         "complete" if alignment_complete else "insufficient_coverage"
                     ),
                     "speaker_evidence": speakers,
+                    "noise_condition": result.get("noise_condition") or "unestimated",
+                    "snr": result.get("snr"),
+                    "noise_evidence": result.get("noise_evidence"),
                     "diarization_status": "complete",
                     "automatic_multi_speaker_verified": verified,
                     "conversation_verified": bool(row.get("human_verified")),

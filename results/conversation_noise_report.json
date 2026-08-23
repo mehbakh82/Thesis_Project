@@ -1,0 +1,14 @@
+{
+  "source_manifest": "data/processed/manifests/conversation_episode_windows_diarized.jsonl",
+  "out_manifest": "data/processed/manifests/conversation_episode_windows_noise_labeled.jsonl",
+  "windows": 947,
+  "condition_counts": {
+    "background-moderate": 243,
+    "background-clean": 639,
+    "background-noisy": 59,
+    "unestimated": 6
+  },
+  "estimated_windows": 941,
+  "method": "speech_nonspeech_rms_v1",
+  "warning": "Automatic acoustic condition labels require stratified listening QA."
+}

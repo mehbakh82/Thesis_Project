@@ -1,4 +1,5 @@
-status: preparation_only
+status: superseded_preparation_only
+superseded_by: configs/moshi_h100.yaml
 candidate:
   name: LLaMA-Omni2-0.5B
   repository: https://github.com/ictnlp/LLaMA-Omni2.git

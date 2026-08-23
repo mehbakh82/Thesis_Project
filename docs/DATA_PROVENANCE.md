@@ -4,13 +4,14 @@ Every dataset entering training or evaluation must have one row in this register
 
 | Source | Role | Access/license | Raw publish? | Current evidence |
 |---|---|---|---|---|
-| University S3 YouTube crawl | Persian acoustics/captions; conversation candidates | Supervisor-approved internal thesis training; source licenses not independently verified | No | 287/287 selected episodes reconstructed into 947 windows / 201.576 staging h; prepared audit passes. Diarization, response/overlap supervision, and manual QA remain pending. |
+| University S3 YouTube crawl | Persian acoustics/captions; conversation candidates | Supervisor-approved internal thesis training; source licenses not independently verified | No | Final measured plan: 296 episodes / 1,021 windows / 196.546 candidate h / 219.403 staging h; 181.824 automatic multi-speaker h and 6,017 estimated response pairs / 105.727 pair h. All 1,021 windows are internally authorized; 40-row listening QA is pending. Diarizer overlap is `overlap_unattributed`, not claimed interruption. |
 | CALLFRIEND Farsi Second Edition (`LDC2014S01`) | Proposed natural telephone conversation | LDC institutional/member license required | No | Not acquired |
 | MATERIAL Farsi-English (`LDC2024S13`) | Proposed natural conversation and varied environments | LDC institutional/member license required | No | Not acquired |
 | Live participants | Usability, latency, interruption | Explicit mode-specific consent and ethics approval | No by default | Not collected |
+| Mana-Persian-Piper synthetic assistant targets | Consistent system channel for Moshi; natural user audio and reference response text remain from the approved crawl | Model card MIT; Mana-TTS declared CC0; exact revision/weight hash pinned | No model weight or generated corpus | Local voice verified; deterministic synthesis/export implemented |
 | Synthetic harmonic data | Unit/regression tests only | Project-generated | Yes with code-license decision | Present; not scientific speech evidence |
 
-Authorization evidence is summarized in `docs/SUPERVISOR_DECISIONS.md` and machine-checked in `results/conversation_source_authorization_report.json`; neither record asserts an open source-data license.
+Authorization evidence is summarized in `docs/SUPERVISOR_DECISIONS.md` and machine-checked for the final plan in `results/conversation_source_authorization_report_combined.json`; neither record asserts an open source-data license.
 
 ## Required per-source fields
 

@@ -41,6 +41,64 @@
       "allowed_use": "Non-commercial academic, research, and educational use only",
       "training_entrypoint": null,
       "notes": "Inference-oriented 7B release; not selected for the 24 GB thesis path."
+    },
+    {
+      "name": "Moshi",
+      "repository": "https://github.com/kyutai-labs/moshi.git",
+      "revision": "061cc4c630d9e11722e08b7d02b1836ba58f30e8",
+      "checkout_dir": "moshi",
+      "license": "MIT for Python/client code and Apache-2.0 for Rust; released weights are CC-BY-4.0",
+      "allowed_use": "Subject to the code licenses and the selected model-weight terms",
+      "training_entrypoint": null,
+      "notes": "Official streaming full-duplex runtime; paired with the separately released LoRA trainer below."
+    },
+    {
+      "name": "Moshi-Finetune",
+      "repository": "https://github.com/kyutai-labs/moshi-finetune.git",
+      "revision": "2acc879fe7c48f885a18f6cc9548bccb2674d87b",
+      "checkout_dir": "moshi-finetune",
+      "license": "Apache-2.0",
+      "allowed_use": "Open-source LoRA fine-tuning subject to base-model and dataset terms",
+      "training_entrypoint": "torchrun --nproc-per-node 1 -m train <config.yaml>",
+      "notes": "Consumes stereo user/assistant conversations and supervises text plus Mimi assistant-audio tokens."
+    },
+    {
+      "name": "Moshika-PyTorch-BF16",
+      "repository": "https://huggingface.co/kyutai/moshika-pytorch-bf16",
+      "revision": "a49141e28b3d9c947cf9aa5314431e1b11cbd2f5",
+      "checkout_dir": "moshika-pytorch-bf16",
+      "license": "CC-BY-4.0",
+      "allowed_use": "Model adaptation and inference with attribution under CC-BY-4.0",
+      "training_entrypoint": null,
+      "weights": {
+        "model.safetensors": {
+          "sha256": "e0a5a1c79010680eb916adb940ee8567978c78902c5a6b743c79202e75858712",
+          "bytes": 15375500136
+        },
+        "tokenizer-e351c8d8-checkpoint125.safetensors": {
+          "sha256": "09b782f0629851a271227fb9d36db65c041790365f11bbe5d3d59369cf863f50",
+          "bytes": 384644900
+        },
+        "tokenizer_spm_32k_3.model": {
+          "sha256": "78d4336533ddc26f9acf7250d7fb83492152196c6ea4212c841df76933f18d2d",
+          "bytes": 552778
+        }
+      },
+      "notes": "English base adapted to Persian; exact Hugging Face revision and all training-time blobs are pinned."
+    },
+    {
+      "name": "Mana-Persian-Piper",
+      "repository": "https://huggingface.co/MahtaFetrat/Mana-Persian-Piper",
+      "revision": "ad9dd8518bedf517bd7cbc9f63b8e5c844bf5bc0",
+      "checkout_dir": "mana-persian-piper",
+      "license": "MIT model card; training dataset Mana-TTS declares CC0",
+      "allowed_use": "Speech synthesis and derived research artifacts subject to the model and dataset terms",
+      "training_entrypoint": null,
+      "weights": {
+        "file": "fa_IR-mana-medium.onnx",
+        "sha256": "e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126"
+      },
+      "notes": "Pinned single-speaker Persian voice used deterministically for Moshi's assistant channel; the weight itself is not committed."
     }
   ]
 }

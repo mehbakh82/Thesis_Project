@@ -8,6 +8,15 @@
 - `src/thesis_s2s/runtime/session_log.py` — consent-gated, path-safe session WAV/JSONL storage and evidence-readiness summary.
 - `src/thesis_s2s/bargein/` — energy/F0/MFCC features, GBDT training, energy baseline, and rolling real-time playback controller.
 
+## Direct model training path
+
+- `estimate-conversation-yield` and `select-conversation-reserve` — non-mutating pair-yield estimation plus deterministic minimum whole-episode reserve selection under an explicit candidate-hour cap; neither claims training readiness.
+- `src/thesis_s2s/data/noise.py` — deterministic speech/nonspeech RMS estimate for real archived background-noise conditions; labels remain automatic until listening QA.
+- `src/thesis_s2s/data/moshi.py` — fail-closed conversion from authorized non-reused Persian response pairs to the official Moshi stereo dialogue schema, using a deterministic pinned Persian assistant voice for the primary run and source responses only as an ablation.
+- `configs/moshi_h100.yaml` — single-H100 LoRA profile for text and Mimi assistant-speech-token losses.
+- `third_party/UPSTREAMS.lock.json` — immutable Moshi runtime/trainer revisions and license boundaries.
+- `docs/MOSHI_H100_RUNBOOK.md` — environment, data, H100 training, runtime, and 4090 handoff procedure.
+
 ## Experimental model path
 
 - `src/thesis_s2s/model/llama_omni2.py` — encoder/reconstruction ablation. It is **not** a speech-conditioned conversational LLM and its artifacts are not runtime-ready.
@@ -16,11 +25,12 @@
 
 ## Data and evaluation
 
-- `src/thesis_s2s/data/ingest.py` — CSV inventory and per-episode rclone streaming.
+- `src/thesis_s2s/data/ingest.py` and `data/s3_inventory.py` — CSV inventory and per-episode rclone streaming through either protected named remotes or environment-only credentials; no credentials enter argv.
 - `src/thesis_s2s/data/prepare_youtube.py` — Tabaghe16 caption/audio join and 16 kHz WAV preparation.
 - `src/thesis_s2s/data/batch_reasr.py` — optional diagnostic NeMo/Whisper re-ASR; never overwrites canonical captions.
 - `src/thesis_s2s/data/verbatim.py` — Persian normalization while retaining source-caption provenance.
 - `src/thesis_s2s/data/filter_corpus.py` — quality filters and synthetic plumbing data.
+- `src/thesis_s2s/data/diarize.py`, `manual_qa.py`, and `conversation.py` — collision-free primary/reserve report paths, transcript-aligned speaker evidence, stratified archive listening QA, honest `overlap_unattributed` semantics, fail-closed reviewed rejection, response-pair building, and final coverage audits.
 - `src/thesis_s2s/data/audit.py` — manifest integrity, split leakage, conversational-supervision coverage, and caption/independent-ASR alignment-risk audits.
 - `src/thesis_s2s/data/factory.py` — data pipeline orchestration.
 - `src/thesis_s2s/bakeoff/codecs.py` — codec/component probes, not a comparative full-model benchmark.

@@ -1,4 +1,5 @@
 .venv-omni2/
+.venv-moshi/
 .venv/
 __pycache__/
 *.pyc

@@ -61,8 +61,28 @@ def sample_manual_qa(
         strata[(str(row.get("channel") or "unknown"), status)].append(row)
 
     sampled: list[dict] = []
+    sampled_per_stratum: dict[str, int] = {}
     for (channel, status), candidates in sorted(strata.items()):
-        for row in sorted(candidates, key=_stable_key)[:per_stratum]:
+        by_noise: dict[str, list[dict]] = defaultdict(list)
+        for row in sorted(candidates, key=_stable_key):
+            by_noise[str(row.get("noise_condition") or "unestimated")].append(row)
+        selected: list[dict] = []
+        positions = {noise: 0 for noise in by_noise}
+        while len(selected) < min(per_stratum, len(candidates)):
+            added = False
+            for noise in sorted(by_noise):
+                position = positions[noise]
+                if position < len(by_noise[noise]):
+                    selected.append(by_noise[noise][position])
+                    positions[noise] += 1
+                    added = True
+                    if len(selected) >= per_stratum:
+                        break
+            if not added:
+                break
+        sampled_per_stratum[f"{channel}/{status}"] = len(selected)
+        for row in selected:
+            noise = str(row.get("noise_condition") or "unestimated")
             alignment = row.get("reference_alignment") or {}
             speakers = row.get("speaker_evidence") or {}
             sampled.append(
@@ -71,6 +91,8 @@ def sample_manual_qa(
                     "episode_id": row.get("episode_id"),
                     "channel": channel,
                     "automatic_status": status,
+                    "noise_condition": noise,
+                    "estimated_snr_db": row.get("snr"),
                     "audio_filepath": row.get("audio_filepath"),
                     "duration": row.get("duration"),
                     "n_speakers": speakers.get("n_speakers"),
@@ -95,6 +117,8 @@ def sample_manual_qa(
             "episode_id",
             "channel",
             "automatic_status",
+            "noise_condition",
+            "estimated_snr_db",
             "audio_filepath",
             "duration",
             "n_speakers",
@@ -116,10 +140,8 @@ def sample_manual_qa(
         "out_csv": str(out_csv),
         "eligible_windows": len(rows),
         "sampled_windows": len(sampled),
-        "strata": {
-            f"{channel}/{status}": min(per_stratum, len(candidates))
-            for (channel, status), candidates in sorted(strata.items())
-        },
+        "strata": sampled_per_stratum,
+        "sampled_noise_conditions": dict(Counter(str(row["noise_condition"]) for row in sampled)),
         "instruction": (
             "Set review_status=pass or fail; pass also requires all four correctness "
             "fields=yes and a non-empty reviewer_id."

@@ -6,4 +6,6 @@ This command did not fine-tune or compare the candidate speech-language models.
 
 Encodec proxy: True. Mimi proxy: False. CosyVoice2 available: False.
 
-Current deployable baseline: NeMo ASR → local Qwen/rules → Piper. Select a direct model only after controlled Persian end-to-end evaluation.
+Selected implementation path: Moshika 7B with the official Moshi-Finetune LoRA trainer. This is an engineering selection, not an empirical winner.
+
+Current deployable baseline: NeMo ASR → local Qwen/rules → Piper. Promote the direct model only after controlled Persian end-to-end evaluation.

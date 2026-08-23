@@ -21,53 +21,53 @@ Confirm in the JSON:
 - upstream commits match `third_party/UPSTREAMS.lock.json`;
 - the conversation audit is present and passes before adaptation is attempted.
 
-## 2. Prepare conversational supervision
+## 2. Verify the H100 preparation handoff
+
+Corpus preparation, diarization, QA application, Moshi export, and adaptation
+belong on the H100. They are prerequisites for this later 4090 run, not work
+that must be repeated on the target card. The H100 sequence is:
 
 ```bash
-# CSV planning is fast and reproducible; full preparation is resumable I/O.
-.venv/bin/python -m thesis_s2s.cli plan-conversation-corpus
-.venv/bin/python -m thesis_s2s.cli prepare-conversation-episodes
-.venv/bin/python -m thesis_s2s.cli normalize-conversation-rights-metadata
-.venv/bin/python -m thesis_s2s.cli audit-prepared-episodes
-
-# Start the existing offline Community-1 service on the 4090.
-cd /mnt/md0/mehbakh/asr_nemo_soroush
-docker compose --profile gpu up -d diarization-gpu
-diar_ip=$(docker inspect asr_nemo_soroush_diarization \
-  --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
-curl -f "http://${diar_ip}:8081/health/ready"
-cd /mnt/md0/mehbakh/Thesis_Project
-export DIARIZATION_SERVICE_URL="http://${diar_ip}:8081"
-export DIARIZATION_TIMEOUT_SECONDS=600
-.venv/bin/python -m thesis_s2s.cli diarize-conversation-episodes
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes
-
+.venv/bin/python -m thesis_s2s.cli annotate-conversation-noise
+.venv/bin/python -m thesis_s2s.cli estimate-conversation-yield
 .venv/bin/python -m thesis_s2s.cli sample-conversation-qa
-# A reviewer fills conversation_manual_qa.csv before the next command.
+# A reviewer fills conversation_manual_qa.csv.
 .venv/bin/python -m thesis_s2s.cli apply-conversation-qa
-# The completed supervisor-authorization CSV already exists locally; do not overwrite it.
-# In a fresh environment only, create it once and reproduce the documented decision.
-# .venv/bin/python -m thesis_s2s.cli create-conversation-rights-review
 .venv/bin/python -m thesis_s2s.cli apply-conversation-rights-review
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
   --manifest data/processed/manifests/conversation_episode_windows_approved.jsonl
 .venv/bin/python -m thesis_s2s.cli build-conversations \
   --in-jsonl data/processed/manifests/conversation_episode_windows_approved.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
-.venv/bin/python -m thesis_s2s.cli export-omni2-data
+.venv/bin/python -m thesis_s2s.cli export-moshi-data --assistant-audio-mode piper
 ```
 
-The selector's planning gate is not sufficient evidence. Do not start a long adaptation unless both `results/diarized_episode_audit.json` and `results/conversation_audit.json` pass. Episode-level train/validation/test separation, response audio, reference alignment, and manual QA are mandatory. See `YOUTUBE_CONVERSATION_PIPELINE.md`.
-
-Manual review validates labels, not data rights. Supervisor-approved internal training is now documented and machine-audited separately; the source-license gate intentionally remains false and raw-data redistribution remains prohibited.
+When the 4090 becomes available, copy or mount the immutable base files,
+adapter, checkpoint config, and evidence reports. Confirm their SHA-256 values;
+do not re-diarize the corpus or retrain merely because the evaluation GPU
+changed. Manual review validates labels, not data rights. Supervisor-approved
+internal training is machine-audited separately, while raw-data redistribution
+remains prohibited.
 
 ## 3. Direct-model boundary
 
-The required training is response learning, not another ASR fine-tune. Each example contains a user-turn waveform as input and the next different speaker turn as the assistant target. A valid trainer must optimize assistant response text and assistant speech/audio tokens; it must not reconstruct the user waveform or predict the user transcript as its final task. The practical 24 GB plan is to freeze the speech encoder and most of the language/speech backbones, train the speech projector plus LoRA adapters and speech-output head in BF16 with gradient checkpointing, and preserve session-isolated train/validation/test splits. The barge-in classifier is a separate small supervised training run over interruption/backchannel/noise labels.
+Train the direct model on the H100 before this run. The selected engineering
+path is Kyutai's pinned Moshi LoRA trainer with
+`configs/moshi_h100.yaml`; see `MOSHI_H100_RUNBOOK.md`. It learns from stereo
+user/assistant conversations and supervises assistant text plus Mimi speech
+tokens. This is response learning, not another ASR fine-tune.
 
-`configs/llama_omni2_4090.yaml` is a reviewed preparation contract, not a working trainer. The pinned official LLaMA-Omni2 repository lacks the complete trainer needed for assistant speech-token supervision. Before any adaptation is called successful, a reviewed implementation must prove all acceptance tests listed in that config.
+The 4090 is used here to prove that the resulting base model plus Persian LoRA
+adapter fits a physical 24 GB device and meets live browser latency. It does not
+need to perform the expensive adaptation itself. Archive the exact Moshi base
+revision, adapter hash, configuration, and H100 training logs before copying
+the artifact to the 4090.
 
-Never use `train-s2s --allow-experimental` as the direct-model result: it is an input reconstruction ablation and its checkpoints are deliberately runtime-ineligible.
+`configs/llama_omni2_4090.yaml` remains a superseded preparation record because
+the pinned LLaMA-Omni2 release lacks the required trainer. Never use
+`train-s2s --allow-experimental` as the direct-model result: it reconstructs
+the input and its checkpoints are deliberately runtime-ineligible.
 
 ## 4. Live official evaluation without raw-audio retention
 

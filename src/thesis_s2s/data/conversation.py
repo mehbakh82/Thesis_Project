@@ -5,7 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from collections import Counter
+import tempfile
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -107,10 +108,9 @@ def _interaction_label(
     known_overlap: list[list[float]] | None = None,
 ) -> tuple[str, list[list[float]]]:
     overlap_end = min(user.end, assistant.end)
+    response_starts_during_user = assistant.start < overlap_end
     overlap = (
-        [[round(assistant.start, 3), round(overlap_end, 3)]]
-        if assistant.start < overlap_end
-        else []
+        [[round(assistant.start, 3), round(overlap_end, 3)]] if response_starts_during_user else []
     )
     if not overlap:
         pair_start, pair_end = min(user.start, assistant.start), max(user.end, assistant.end)
@@ -125,9 +125,286 @@ def _interaction_label(
         ]
     if not overlap:
         return "none", []
+    if not response_starts_during_user:
+        return "overlap_unattributed", overlap
     if assistant.duration <= 1.2 and assistant.end <= user.end + 0.2:
         return "backchannel", overlap
     return "interrupt", overlap
+
+
+def estimate_conversation_pair_yield(
+    diarized_jsonl: Path,
+    out_json: Path | None = None,
+    *,
+    max_response_gap_s: float = 3.0,
+) -> dict:
+    """Estimate builder yield without exporting clips or bypassing later gates."""
+
+    rows = [
+        json.loads(line)
+        for line in Path(diarized_jsonl).read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    pairs = 0
+    seconds = 0.0
+    labels: Counter[str] = Counter()
+    by_channel_seconds: defaultdict[str, float] = defaultdict(float)
+    skipped: Counter[str] = Counter()
+    for row in rows:
+        if (
+            "automatic_multi_speaker_verified" in row
+            and row.get("automatic_multi_speaker_verified") is not True
+        ):
+            skipped["not_verified_multi_speaker"] += 1
+            continue
+        if (
+            "reference_alignment_status" in row
+            and row.get("reference_alignment_status") != "complete"
+        ):
+            skipped["reference_alignment_incomplete"] += 1
+            continue
+        if row.get("manual_qa_reviewed") is True and row.get("human_verified") is not True:
+            skipped["manual_qa_rejected"] += 1
+            continue
+        segments = _merge_same_speaker(_segments(row))
+        if len({segment.speaker for segment in segments}) < 2:
+            skipped["not_multi_speaker"] += 1
+            continue
+        consumed_until = -1.0
+        index = 0
+        while index + 1 < len(segments):
+            user, assistant = segments[index], segments[index + 1]
+            index += 2
+            gap = assistant.start - user.end
+            if user.speaker == assistant.speaker or gap > max_response_gap_s:
+                skipped["not_adjacent_response"] += 1
+                continue
+            span_start = min(user.start, assistant.start)
+            span_end = max(user.end, assistant.end)
+            if span_start < consumed_until:
+                skipped["source_interval_reuse"] += 1
+                continue
+            span_seconds = span_end - span_start
+            if user.duration < 0.25 or assistant.duration < 0.25:
+                skipped["empty_clip"] += 1
+                continue
+            label, _ = _interaction_label(
+                user,
+                assistant,
+                list(row.get("overlap_intervals") or []),
+            )
+            labels[label] += 1
+            seconds += span_seconds
+            by_channel_seconds[str(row.get("channel") or "unknown")] += span_seconds
+            pairs += 1
+            consumed_until = span_end
+    hours = seconds / 3600.0
+    report = {
+        "source_manifest": str(diarized_jsonl),
+        "source_windows": len(rows),
+        "estimated_pairs": pairs,
+        "estimated_pair_hours": round(hours, 3),
+        "hours_100_to_200": 100.0 <= hours <= 200.0,
+        "label_counts": dict(labels),
+        "direct_interruption_pairs": labels["interrupt"],
+        "unattributed_overlap_pairs": labels["overlap_unattributed"],
+        "channel_hours": {
+            channel: round(value / 3600.0, 3)
+            for channel, value in sorted(by_channel_seconds.items())
+        },
+        "skipped": dict(skipped),
+        "non_mutating_estimate": True,
+        "training_ready": False,
+        "warning": (
+            "This estimate writes no training clips and does not replace manual QA, "
+            "rights application, file checks, or the final conversation audit. "
+            "overlap_unattributed is overlap evidence, not an interruption claim."
+        ),
+    }
+    if out_json is not None:
+        write_json(out_json, report)
+    return report
+
+
+def _sha256_path(path: Path) -> str:
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def select_conversation_reserve_by_yield(
+    primary_manifest: Path,
+    reserve_manifest: Path,
+    primary_selection: Path,
+    reserve_selection: Path,
+    out_jsonl: Path,
+    *,
+    report_path: Path | None = None,
+    target_pair_hours: float = 105.0,
+    max_candidate_hours: float = 200.0,
+) -> dict:
+    """Select the minimum whole-episode reserve prefix needed for safe yield."""
+
+    if target_pair_hours <= 0:
+        raise ValueError("target_pair_hours must be positive")
+    if max_candidate_hours <= 0:
+        raise ValueError("max_candidate_hours must be positive")
+    primary_manifest = Path(primary_manifest)
+    reserve_manifest = Path(reserve_manifest)
+    primary_selection = Path(primary_selection)
+    reserve_selection = Path(reserve_selection)
+    out_jsonl = Path(out_jsonl)
+    selection_rows = [
+        json.loads(line)
+        for line in reserve_selection.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    selection_ids = [str(row.get("episode_id") or "") for row in selection_rows]
+    if not selection_ids or any(not value for value in selection_ids):
+        raise ValueError("reserve selection must contain non-empty episode_id values")
+    if len(selection_ids) != len(set(selection_ids)):
+        raise ValueError("reserve selection contains duplicate episode_id values")
+    primary_selection_rows = [
+        json.loads(line)
+        for line in primary_selection.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    primary_candidate_hours = sum(
+        float(row.get("csv_hours") or 0.0) for row in primary_selection_rows
+    )
+    if primary_candidate_hours > max_candidate_hours:
+        raise ValueError(
+            "primary candidate hours already exceed max_candidate_hours: "
+            f"{primary_candidate_hours:.3f} > {max_candidate_hours:.3f}"
+        )
+    reserve_rows = [
+        json.loads(line)
+        for line in reserve_manifest.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    grouped: defaultdict[str, list[dict]] = defaultdict(list)
+    for row in reserve_rows:
+        grouped[str(row.get("episode_id") or "")].append(row)
+    primary_report = estimate_conversation_pair_yield(primary_manifest)
+    running_pair_hours = float(primary_report["estimated_pair_hours"])
+    running_candidate_hours = primary_candidate_hours
+    selected_rows: list[dict] = []
+    selected_details: list[dict] = []
+    skipped: Counter[str] = Counter()
+    with tempfile.TemporaryDirectory(prefix="conversation-yield-selection-") as directory:
+        for index, episode in enumerate(selection_rows):
+            if running_pair_hours >= target_pair_hours:
+                break
+            episode_id = str(episode["episode_id"])
+            episode_rows = grouped.get(episode_id, [])
+            if not episode_rows:
+                skipped["missing_diarized_episode"] += 1
+                continue
+            candidate_hours = float(episode.get("csv_hours") or 0.0)
+            if candidate_hours <= 0:
+                skipped["invalid_candidate_hours"] += 1
+                continue
+            if running_candidate_hours + candidate_hours > max_candidate_hours:
+                skipped["candidate_hour_cap"] += 1
+                continue
+            temporary_manifest = Path(directory) / f"episode-{index:04d}.jsonl"
+            temporary_manifest.write_text(
+                "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in episode_rows),
+                encoding="utf-8",
+            )
+            episode_report = estimate_conversation_pair_yield(temporary_manifest)
+            pair_hours = float(episode_report["estimated_pair_hours"])
+            if pair_hours <= 0:
+                skipped["zero_pair_yield"] += 1
+                continue
+            selected_rows.extend(episode_rows)
+            running_candidate_hours += candidate_hours
+            running_pair_hours += pair_hours
+            selected_details.append(
+                {
+                    "episode_id": episode_id,
+                    "candidate_hours": round(candidate_hours, 4),
+                    "estimated_pair_hours": round(pair_hours, 3),
+                    "windows": len(episode_rows),
+                    "cumulative_candidate_hours": round(running_candidate_hours, 3),
+                    "cumulative_pair_hours": round(running_pair_hours, 3),
+                }
+            )
+    window_ids = [str(row.get("window_id") or "") for row in selected_rows]
+    if any(not value for value in window_ids) or len(window_ids) != len(set(window_ids)):
+        raise ValueError("selected reserve rows must have unique non-empty window_id values")
+    out_jsonl.parent.mkdir(parents=True, exist_ok=True)
+    temporary: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=out_jsonl.parent,
+            prefix=f".{out_jsonl.name}.",
+            suffix=".partial",
+            delete=False,
+        ) as handle:
+            temporary = Path(handle.name)
+            for row in selected_rows:
+                handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+        assert temporary is not None
+        temporary.replace(out_jsonl)
+    except BaseException:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+        raise
+    selected_report = (
+        estimate_conversation_pair_yield(out_jsonl)
+        if selected_rows
+        else {"estimated_pair_hours": 0.0, "estimated_pairs": 0}
+    )
+    combined_pair_hours = float(primary_report["estimated_pair_hours"]) + float(
+        selected_report["estimated_pair_hours"]
+    )
+    selected_candidate_hours = running_candidate_hours - primary_candidate_hours
+    allowed_ids = set(selection_ids)
+    report = {
+        "primary_manifest": str(primary_manifest),
+        "reserve_manifest": str(reserve_manifest),
+        "primary_selection": str(primary_selection),
+        "reserve_selection": str(reserve_selection),
+        "out_manifest": str(out_jsonl),
+        "target_pair_hours": target_pair_hours,
+        "max_candidate_hours": max_candidate_hours,
+        "primary_candidate_hours": round(primary_candidate_hours, 3),
+        "primary_estimated_pair_hours": primary_report["estimated_pair_hours"],
+        "selected_reserve_episodes": len(selected_details),
+        "selected_reserve_windows": len(selected_rows),
+        "selected_reserve_candidate_hours": round(selected_candidate_hours, 3),
+        "selected_reserve_estimated_pair_hours": selected_report["estimated_pair_hours"],
+        "combined_candidate_hours": round(running_candidate_hours, 3),
+        "combined_estimated_pair_hours": round(combined_pair_hours, 3),
+        "target_reached": combined_pair_hours >= target_pair_hours,
+        "candidate_cap_passes": running_candidate_hours <= max_candidate_hours,
+        "selected_episodes": selected_details,
+        "skipped": dict(skipped),
+        "reserve_rows_outside_selection": sum(
+            str(row.get("episode_id") or "") not in allowed_ids for row in reserve_rows
+        ),
+        "artifact_sha256": {
+            "primary_manifest": _sha256_path(primary_manifest),
+            "reserve_manifest": _sha256_path(reserve_manifest),
+            "primary_selection": _sha256_path(primary_selection),
+            "reserve_selection": _sha256_path(reserve_selection),
+            "out_manifest": _sha256_path(out_jsonl),
+        },
+        "non_mutating_audio_selection": True,
+        "training_ready": False,
+        "warning": (
+            "This deterministic selector chooses whole episodes using automatic estimated "
+            "yield. Manual QA, rights application, final pair export, and audits still apply."
+        ),
+    }
+    if report_path is not None:
+        write_json(report_path, report)
+    return report
 
 
 def build_conversation_manifest(
@@ -172,6 +449,9 @@ def build_conversation_manifest(
             and row.get("reference_alignment_status") != "complete"
         ):
             skipped["reference_alignment_incomplete"] += 1
+            continue
+        if row.get("manual_qa_reviewed") is True and row.get("human_verified") is not True:
+            skipped["manual_qa_rejected"] += 1
             continue
         source = Path(str(row.get("audio_filepath") or row.get("audio_path") or ""))
         if not source.is_file():
@@ -359,8 +639,11 @@ def audit_conversation_manifest(
     training_authorized = sum(training_use_authorized(row) for row in rows)
     overlap_rows = sum(bool(row.get("overlap_intervals")) for row in rows)
     noise_rows = sum(
-        str(row.get("noise_condition") or "unspecified").lower()
-        not in {"", "unspecified", "none", "quiet", "clean"}
+        (
+            (condition := str(row.get("noise_condition") or "unspecified").lower())
+            not in {"", "unestimated", "unspecified", "none", "quiet", "clean"}
+            and not condition.endswith("-clean")
+        )
         or str(row.get("interrupt_label") or "") == "noise"
         for row in rows
     )

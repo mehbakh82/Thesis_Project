@@ -1,0 +1,53 @@
+# Genuine response-audio adaptation using Kyutai's official Moshi LoRA trainer.
+# Training may run on the H100. Final latency/fit evidence must be repeated on
+# the physical 12–24 GB target GPU.
+data:
+  train_data: data/processed/moshi_finetune/train.jsonl
+  eval_data: data/processed/moshi_finetune/val.jsonl
+  shuffle: true
+
+moshi_paths:
+  hf_repo_id: kyutai/moshika-pytorch-bf16
+  # All runtime files are resolved locally from the exact revision and hashes
+  # recorded in third_party/UPSTREAMS.lock.json. The repository id is retained
+  # only because the pinned trainer's schema requires it; no file is fetched by
+  # moving branch name when these overrides are present.
+  moshi_path: hf_cache/pinned/moshika-pytorch-bf16-a49141e/model.safetensors
+  mimi_path: hf_cache/pinned/moshika-pytorch-bf16-a49141e/tokenizer-e351c8d8-checkpoint125.safetensors
+  tokenizer_path: hf_cache/pinned/moshika-pytorch-bf16-a49141e/tokenizer_spm_32k_3.model
+  config_path: configs/moshika_7b_legacy.json
+
+full_finetuning: false
+lora:
+  enable: true
+  rank: 64
+  scaling: 2.0
+  # Persian is byte-tokenized by the English SentencePiece model. Updating
+  # embeddings is intentional and is covered by held-out Persian evaluation.
+  ft_embed: true
+
+first_codebook_weight_multiplier: 100.0
+text_padding_weight: 0.5
+
+# The official example uses 100 s × batch 16 and about 39.6 GB on one H100.
+# This profile trades context and throughput for coexistence on the shared GPU.
+duration_sec: 20
+batch_size: 1
+num_microbatches: 4
+max_steps: 8000
+gradient_checkpointing: true
+optim:
+  lr: 2.0e-6
+  weight_decay: 0.1
+  pct_start: 0.05
+
+seed: 20260823
+log_freq: 10
+eval_freq: 250
+do_eval: true
+do_ckpt: true
+ckpt_freq: 500
+num_ckpt_keep: 3
+save_adapters: true
+run_dir: checkpoints/moshi_fa
+overwrite_run_dir: false

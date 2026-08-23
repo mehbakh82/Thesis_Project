@@ -66,17 +66,23 @@
 ## اعمال و ممیزی
 
 ```bash
-.venv/bin/python -m thesis_s2s.cli apply-conversation-rights-review
+.venv/bin/python -m thesis_s2s.cli apply-conversation-rights-review \
+  --in-jsonl data/processed/manifests/conversation_episode_windows_noise_labeled_combined.jsonl \
+  --out-jsonl data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl \
+  --report results/conversation_source_authorization_report_combined.json
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
-  --manifest data/processed/manifests/conversation_episode_windows_approved.jsonl
+  --manifest data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl \
+  --min-hours 100 --max-hours 240
 ```
 
 دستور اعمال، منیفست ورودی را تغییر نمی‌دهد. تصمیم ناقص، تاریخ نامعتبر، مدرک
 خالی، کانال ناشناخته، مبنای نامعتبر یا اجازهٔ ناکافی به‌صورت محافظه‌کارانه رد
-می‌شود. گزارش، ساعت‌های مجاز برای آموزش و ساعت‌های دارای مجوز صریح را جداگانه
-ثبت می‌کند.
+می‌شود. گزارش نهایی اکنون هر ۱۰۲۱ پنجره و ۲۱۹٫۴۰۳ ساعت مرحله‌بندی‌شده را برای
+آموزش داخلی مجاز، و صفر ساعت را دارای مجوز صریح منبع ثبت می‌کند؛ انتشار همچنان
+غیرفعال است. این اجازه برای آموزش ASR و Moshi ماهیت متفاوتی ندارد و صرفاً رد
+ممیزی‌شدنیِ همان تصمیم استفاده از منبع است.
 
-ساخت جفت مکالمه و خروجی LLaMA-Omni2 فقط با مجوز صریح منبع **یا** اجازهٔ
+ساخت جفت مکالمه و خروجی‌های آموزشی Moshi یا آزمایش قدیمی LLaMA-Omni2 فقط با مجوز صریح منبع **یا** اجازهٔ
 پژوهشی داخلی کامل انجام می‌شود. هیچ‌کدام بدون مجوز صریح، انتشار دادهٔ خام را
 فعال نمی‌کنند.
 

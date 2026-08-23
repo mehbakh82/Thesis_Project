@@ -222,7 +222,12 @@ def _piper_voice():
         return None
 
 
-def piper_synthesize(text: str, sr: int = SAMPLE_RATE) -> np.ndarray | None:
+def piper_synthesize(
+    text: str,
+    sr: int = SAMPLE_RATE,
+    *,
+    deterministic: bool = False,
+) -> np.ndarray | None:
     model = os_piper_model()
     if model is None or not text.strip():
         return None
@@ -237,15 +242,24 @@ def piper_synthesize(text: str, sr: int = SAMPLE_RATE) -> np.ndarray | None:
                 wav_handle.setnchannels(1)
                 wav_handle.setsampwidth(2)
                 wav_handle.setframerate(getattr(voice, "sample_rate", 22050))
+                syn_config = None
+                if deterministic:
+                    from piper.config import SynthesisConfig
+
+                    syn_config = SynthesisConfig(noise_scale=0.0, noise_w_scale=0.0)
                 if hasattr(voice, "synthesize_wav"):
-                    voice.synthesize_wav(text, wav_handle)
+                    voice.synthesize_wav(text, wav_handle, syn_config=syn_config)
                 else:
+                    if deterministic:
+                        return None
                     voice.synthesize(text, wav_handle)
             audio = _pcm_from_wav_bytes(buf.getvalue(), sr)
             if audio is not None and len(audio) > 0:
                 return audio
         except Exception:
             pass
+    if deterministic:
+        return None
     exe = shutil.which("piper")
     if not exe:
         return None

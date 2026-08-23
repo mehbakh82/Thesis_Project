@@ -39,13 +39,15 @@ A listening-only study can measure naturalness and preference but cannot, by its
 The preferred route is now the verified internal YouTube archive:
 
 - 775.887 caption-speech hours are available across 1,442 long episodes;
-- a balanced 180.043-hour whole-episode candidate set is already selected from Tabaghe16, Mehran Rowshan Persian, Digiato, and Zoomit;
-- the provided CSV captions supply text, while diarization supplies speaker timing;
+- the deterministic primary + minimum-reserve plan uses 196.546 candidate hours / 296 episodes from Tabaghe16, Mehran Rowshan Persian, Digiato, and Zoomit;
+- H100 processing found 181.824 automatic multi-speaker hours and 6,017 estimated response pairs / 105.727 pair hours;
+- the provided CSV captions supply text, while diarization supplies speaker timing and deterministic archived-noise evidence;
+- internal thesis training is supervisor-approved for all 1,021 final staging windows; redistribution is not;
 - Kooshiar remains inventory/acoustic data and is excluded from the default conversation set.
 
-This route avoids new recording, but it is not automatically requirement-complete. Confirm that internal YouTube use is permitted, run diarization/alignment, reject single-speaker windows, and manually review a stratified sample. The pre-cut chunks may lose cross-boundary overlap, which the manifests explicitly declare.
+This route avoids new recording, but listening QA remains: the generated 40-row sample can be reviewed by the supervisor, a lab member, or another approved annotator. Pre-cut boundaries make cross-chunk interaction unrecoverable. The 4,787 overlap-bearing pairs are therefore `overlap_unattributed`, with zero direct interruption pairs claimed. Untouched audio, an approved labeled supplement, or a written scope amendment is still needed for interruption supervision.
 
-LDC is now a fallback if licensing, audio quality, or verified multi-speaker yield leaves fewer than 100 hours:
+LDC is now a fallback if listening QA, licensing policy, or attributable-interruption coverage invalidates the archive route:
 
 - [CALLFRIEND Farsi Second Edition Speech](https://catalog.ldc.upenn.edu/LDC2014S01): about 42 hours of two-channel natural telephone conversations.
 - [MATERIAL Farsi-English Language Pack](https://catalog.ldc.upenn.edu/LDC2024S13): about 61 hours of conversational telephone speech, with speakers aged 16–67 and varied environments; only part is transcribed.
@@ -59,14 +61,17 @@ The implemented commands are:
 .venv/bin/python -m thesis_s2s.cli audit-prepared-episodes
 .venv/bin/python -m thesis_s2s.cli diarize-conversation-episodes
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes
+.venv/bin/python -m thesis_s2s.cli annotate-conversation-noise
+.venv/bin/python -m thesis_s2s.cli estimate-conversation-yield
+.venv/bin/python -m thesis_s2s.cli select-conversation-reserve
 .venv/bin/python -m thesis_s2s.cli sample-conversation-qa
 .venv/bin/python -m thesis_s2s.cli apply-conversation-qa
 .venv/bin/python -m thesis_s2s.cli create-conversation-rights-review
 .venv/bin/python -m thesis_s2s.cli apply-conversation-rights-review
 .venv/bin/python -m thesis_s2s.cli build-conversations \
-  --in-jsonl data/processed/manifests/conversation_episode_windows_approved.jsonl
+  --in-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
-.venv/bin/python -m thesis_s2s.cli export-omni2-data
+.venv/bin/python -m thesis_s2s.cli export-moshi-data --assistant-audio-mode piper
 ```
 
 The conversation audit fails closed unless hours, response audio/text, multi-speaker provenance, licenses, interruption/backchannel coverage, a manual-verification sample, and source files are present.

@@ -55,6 +55,52 @@ def main(argv: list[str] | None = None) -> None:
     p_alignment.add_argument(
         "--out", type=Path, default=Path("results/caption_alignment_audit.json")
     )
+    p_conv_estimate = sub.add_parser("estimate-conversation-yield")
+    p_conv_estimate.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("data/processed/manifests/conversation_episode_windows_noise_labeled.jsonl"),
+    )
+    p_conv_estimate.add_argument(
+        "--out", type=Path, default=Path("results/conversation_yield_estimate.json")
+    )
+    p_conv_reserve = sub.add_parser("select-conversation-reserve")
+    p_conv_reserve.add_argument(
+        "--primary-manifest",
+        type=Path,
+        default=p_conv_estimate.get_default("manifest"),
+    )
+    p_conv_reserve.add_argument(
+        "--reserve-manifest",
+        type=Path,
+        default=Path(
+            "data/processed/manifests/conversation_reserve_tabaghe16_windows_noise_labeled.jsonl"
+        ),
+    )
+    p_conv_reserve.add_argument(
+        "--primary-selection",
+        type=Path,
+        default=Path("data/processed/manifests/youtube_conversation_selection.jsonl"),
+    )
+    p_conv_reserve.add_argument(
+        "--reserve-selection",
+        type=Path,
+        default=Path("data/processed/manifests/youtube_conversation_reserve_tabaghe16_40h.jsonl"),
+    )
+    p_conv_reserve.add_argument(
+        "--out-jsonl",
+        type=Path,
+        default=Path(
+            "data/processed/manifests/conversation_reserve_tabaghe16_windows_selected.jsonl"
+        ),
+    )
+    p_conv_reserve.add_argument(
+        "--report",
+        type=Path,
+        default=Path("results/conversation_reserve_yield_selection.json"),
+    )
+    p_conv_reserve.add_argument("--target-pair-hours", type=float, default=105.0)
+    p_conv_reserve.add_argument("--max-candidate-hours", type=float, default=200.0)
     p_conv = sub.add_parser("build-conversations")
     p_conv.add_argument("--in-jsonl", type=Path, required=True)
     p_conv.add_argument(
@@ -76,6 +122,29 @@ def main(argv: list[str] | None = None) -> None:
         "--out",
         type=Path,
         default=Path("data/processed/manifests/llama_omni2_questions.json"),
+    )
+    p_moshi_export = sub.add_parser("export-moshi-data")
+    p_moshi_export.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("data/processed/manifests/conversations.jsonl"),
+    )
+    p_moshi_export.add_argument(
+        "--out-dir",
+        type=Path,
+        default=Path("data/processed/moshi_finetune"),
+    )
+    p_moshi_export.add_argument(
+        "--report",
+        type=Path,
+        default=Path("results/moshi_export_report.json"),
+    )
+    p_moshi_export.add_argument("--max-pairs", type=int, default=None)
+    p_moshi_export.add_argument(
+        "--assistant-audio-mode",
+        choices=("piper", "source"),
+        default="piper",
+        help="Use one pinned Persian assistant voice (primary) or original multi-voice replies (ablation).",
     )
     p_conv_plan = sub.add_parser("plan-conversation-corpus")
     p_conv_plan.add_argument("--target-hours", type=float, default=180.0)
@@ -119,6 +188,7 @@ def main(argv: list[str] | None = None) -> None:
     )
     p_ep_prepared_audit.add_argument("--min-hours", type=float, default=100.0)
     p_ep_prepared_audit.add_argument("--max-hours", type=float, default=240.0)
+    p_ep_prepared_audit.add_argument("--min-channels", type=int, default=2)
     p_ep_prepared_audit.add_argument("--no-check-files", action="store_true")
     p_ep_diar = sub.add_parser("diarize-conversation-episodes")
     p_ep_diar.add_argument(
@@ -133,6 +203,22 @@ def main(argv: list[str] | None = None) -> None:
     )
     p_ep_diar.add_argument("--limit", type=int, default=None)
     p_ep_diar.add_argument("--no-resume", action="store_true")
+    p_noise = sub.add_parser("annotate-conversation-noise")
+    p_noise.add_argument(
+        "--in-jsonl",
+        type=Path,
+        default=p_ep_diar.get_default("out_jsonl"),
+    )
+    p_noise.add_argument(
+        "--out-jsonl",
+        type=Path,
+        default=Path("data/processed/manifests/conversation_episode_windows_noise_labeled.jsonl"),
+    )
+    p_noise.add_argument(
+        "--report",
+        type=Path,
+        default=Path("results/conversation_noise_report.json"),
+    )
     p_ep_merge = sub.add_parser("merge-conversation-windows")
     p_ep_merge.add_argument("--inputs", type=Path, nargs="+", required=True)
     p_ep_merge.add_argument(
@@ -151,7 +237,7 @@ def main(argv: list[str] | None = None) -> None:
     p_qa_sample.add_argument(
         "--in-jsonl",
         type=Path,
-        default=p_ep_diar.get_default("out_jsonl"),
+        default=p_noise.get_default("out_jsonl"),
     )
     p_qa_sample.add_argument(
         "--out",
@@ -163,7 +249,7 @@ def main(argv: list[str] | None = None) -> None:
     p_qa_apply.add_argument(
         "--in-jsonl",
         type=Path,
-        default=p_ep_diar.get_default("out_jsonl"),
+        default=p_noise.get_default("out_jsonl"),
     )
     p_qa_apply.add_argument(
         "--qa-csv",
@@ -356,6 +442,25 @@ def main(argv: list[str] | None = None) -> None:
 
         report = audit_caption_alignment(args.manifest, args.out)
         print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "estimate-conversation-yield":
+        from thesis_s2s.data.conversation import estimate_conversation_pair_yield
+
+        report = estimate_conversation_pair_yield(args.manifest, args.out)
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "select-conversation-reserve":
+        from thesis_s2s.data.conversation import select_conversation_reserve_by_yield
+
+        report = select_conversation_reserve_by_yield(
+            args.primary_manifest,
+            args.reserve_manifest,
+            args.primary_selection,
+            args.reserve_selection,
+            args.out_jsonl,
+            report_path=args.report,
+            target_pair_hours=args.target_pair_hours,
+            max_candidate_hours=args.max_candidate_hours,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "build-conversations":
         from thesis_s2s.data.conversation import build_conversation_manifest
 
@@ -383,6 +488,17 @@ def main(argv: list[str] | None = None) -> None:
                 export_llama_omni2_questions(args.manifest, args.out), indent=2, ensure_ascii=False
             )
         )
+    elif args.cmd == "export-moshi-data":
+        from thesis_s2s.data.moshi import export_moshi_finetune_dataset
+
+        report = export_moshi_finetune_dataset(
+            args.manifest,
+            args.out_dir,
+            report_path=args.report,
+            max_pairs=args.max_pairs,
+            assistant_audio_mode=args.assistant_audio_mode,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "plan-conversation-corpus":
         from thesis_s2s.data.conversation_selection import run_conversation_selection
 
@@ -418,6 +534,7 @@ def main(argv: list[str] | None = None) -> None:
             args.out,
             min_hours=args.min_hours,
             max_hours=args.max_hours,
+            min_channels=args.min_channels,
             check_files=not args.no_check_files,
         )
         print(json.dumps(report, indent=2, ensure_ascii=False))
@@ -429,6 +546,15 @@ def main(argv: list[str] | None = None) -> None:
             args.out_jsonl,
             limit=args.limit,
             resume=not args.no_resume,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "annotate-conversation-noise":
+        from thesis_s2s.data.noise import annotate_noise_conditions
+
+        report = annotate_noise_conditions(
+            args.in_jsonl,
+            args.out_jsonl,
+            report_path=args.report,
         )
         print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "merge-conversation-windows":

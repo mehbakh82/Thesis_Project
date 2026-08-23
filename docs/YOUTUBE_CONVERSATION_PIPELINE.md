@@ -56,7 +56,7 @@ all five CSV pools
   -> weighted whole-episode candidate selection (180 h)
   -> download one episode's ordered chunks at a time
   -> reconstruct <=15-minute windows with CSV-to-window time mapping
-  -> automatic diarization on the 4090
+  -> automatic diarization on the H100
   -> maximum-overlap assignment of each CSV segment to a speaker
   -> reject low-confidence and single-speaker windows
   -> create non-reused adjacent user/response pairs
@@ -97,8 +97,16 @@ permitted, it should replace reconstructed windows for overlap experiments.
 
 ## Commands
 
-Provide credentials through the `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`,
-`S3_ENDPOINT`, and `S3_BUCKET=asr` environment variables. Never place them
+Prefer a protected preconfigured rclone remote when available:
+
+```bash
+export THESIS_RCLONE_REMOTE=your_remote_name
+```
+
+The code validates the remote name and maps internal `:s3:` paths without
+reading, copying, or printing credentials from rclone configuration. The
+alternative is ephemeral `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`,
+`S3_ENDPOINT`, and `S3_BUCKET=asr` environment variables. Never place secrets
 in the repository or command arguments.
 
 ```bash
@@ -118,26 +126,41 @@ export DIARIZATION_SERVICE_URL="http://${diar_ip}:8081"
 export DIARIZATION_TIMEOUT_SECONDS=600
 .venv/bin/python -m thesis_s2s.cli diarize-conversation-episodes
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes
+.venv/bin/python -m thesis_s2s.cli annotate-conversation-noise
+.venv/bin/python -m thesis_s2s.cli estimate-conversation-yield
 
-# Create a deterministic channel/pass-reject sample. A reviewer listens to the
-# referenced internal clips, fills the CSV, then applies the decisions.
-.venv/bin/python -m thesis_s2s.cli sample-conversation-qa
+# The non-mutating estimate decides whether reserve is needed; it is not a
+# training-ready audit. After the final merge, apply the recorded internal-use
+# decision to a derived manifest. License and authorization remain separate.
+.venv/bin/python -m thesis_s2s.cli apply-conversation-rights-review \
+  --in-jsonl data/processed/manifests/conversation_episode_windows_noise_labeled_combined.jsonl \
+  --out-jsonl data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl \
+  --report results/conversation_source_authorization_report_combined.json
+
+# A reviewer listens to the referenced archive clips; no recording is needed.
+.venv/bin/python -m thesis_s2s.cli sample-conversation-qa \
+  --in-jsonl data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl
 # Edit data/processed/manifests/conversation_manual_qa.csv
-.venv/bin/python -m thesis_s2s.cli apply-conversation-qa
-
-# Record either an explicit source license or supervisor-approved internal
-# research use. The application keeps license and authorization claims separate.
-.venv/bin/python -m thesis_s2s.cli create-conversation-rights-review
-# Edit data/processed/manifests/conversation_rights_review.csv
-.venv/bin/python -m thesis_s2s.cli apply-conversation-rights-review
+.venv/bin/python -m thesis_s2s.cli apply-conversation-qa \
+  --in-jsonl data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl \
+  --out-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
-  --manifest data/processed/manifests/conversation_episode_windows_approved.jsonl
+  --manifest data/processed/manifests/conversation_episode_windows_reviewed.jsonl \
+  --min-hours 100 --max-hours 240
 
 # Only reviewed, aligned, and training-authorized windows enter this builder.
+# An explicitly reviewed failure is always excluded.
 .venv/bin/python -m thesis_s2s.cli build-conversations \
-  --in-jsonl data/processed/manifests/conversation_episode_windows_approved.jsonl
+  --in-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
-.venv/bin/python -m thesis_s2s.cli export-omni2-data
+# Primary direct-model export: natural user audio and reference response text,
+# rendered in one pinned Persian assistant voice.
+.venv/bin/python -m thesis_s2s.cli export-moshi-data --assistant-audio-mode piper
+# Optional multi-voice ablation only:
+.venv/bin/python -m thesis_s2s.cli export-moshi-data \
+  --assistant-audio-mode source \
+  --out-dir data/processed/moshi_finetune_source_ablation \
+  --report results/moshi_source_ablation_report.json
 ```
 
 Use `--max-episodes 1` for an I/O smoke test and
@@ -154,40 +177,44 @@ If verified primary yield is too low, add a bounded reserve batch:
 .venv/bin/python -m thesis_s2s.cli diarize-conversation-episodes \
   --in-jsonl data/processed/manifests/conversation_reserve_episode_windows.jsonl \
   --out-jsonl data/processed/manifests/conversation_reserve_episode_windows_diarized.jsonl
+.venv/bin/python -m thesis_s2s.cli annotate-conversation-noise \
+  --in-jsonl data/processed/manifests/conversation_reserve_episode_windows_diarized.jsonl \
+  --out-jsonl data/processed/manifests/conversation_reserve_episode_windows_noise_labeled.jsonl
+
+# Use the minimum whole-episode reserve prefix needed for a 105 h pair-yield
+# safety target while keeping selected candidate hours at or below 200.
+.venv/bin/python -m thesis_s2s.cli select-conversation-reserve
 
 .venv/bin/python -m thesis_s2s.cli merge-conversation-windows \
   --inputs \
-    data/processed/manifests/conversation_episode_windows_diarized.jsonl \
-    data/processed/manifests/conversation_reserve_episode_windows_diarized.jsonl
+    data/processed/manifests/conversation_episode_windows_noise_labeled.jsonl \
+    data/processed/manifests/conversation_reserve_tabaghe16_windows_selected.jsonl \
+  --out-jsonl data/processed/manifests/conversation_episode_windows_noise_labeled_combined.jsonl
 
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
-  --manifest data/processed/manifests/conversation_episode_windows_diarized_combined.jsonl
+  --manifest data/processed/manifests/conversation_episode_windows_noise_labeled_combined.jsonl \
+  --out results/diarized_episode_audit_combined.json \
+  --min-hours 100 --max-hours 240
 ```
 
-Keep primary and reserve preparation/diarization manifests separate. The merge
-command writes atomically and rejects every duplicate `window_id`. Increase
-`--max-source-hours` cumulatively (20, 40, 60, …) only until the combined
-automatic multi-speaker yield reaches the required band. Pass the combined
-manifest explicitly to the manual-QA sampler when reserve data is used.
+Keep primary and reserve preparation/diarization manifests separate. Alternate
+jobs now receive distinct progress-report paths. The merge command writes
+atomically and rejects every duplicate `window_id`; the yield selector records
+input/output hashes and stops on whole-episode boundaries.
 
+Measured final state:
 
-The completed real-data preparation smoke test downloaded one Mehran episode:
-296/296 caption chunks decoded, two windows, 0.307 reconstructed audio hours,
-and no errors.
-The completed primary reconstruction accounts for all 287 selected episodes,
-947 bounded windows, and 201.576 staging-audio hours. The final prepared-audio
-audit passes every reconstruction requirement with zero schema, split, order,
-duplicate-ID, missing-file, WAV-format, duration, or reported-episode errors.
-All rows in the immutable prepared manifest explicitly remain
-`pending-youtube-rights-review`; authorization is applied only to a separate derived
-manifest. `results/conversation_source_authorization_report.json` confirms internal
-training authorization for all 947 windows while correctly reporting zero
-source-license-verified hours. Neither manifest claims verified multi-speaker hours.
-A diagnostic H100 service test (not official 4090 evidence) completed both
-windows and aligned 82.85% and 87.72% of their captions. Both were correctly
-rejected as multi-speaker evidence: the secondary speaker occupied only 8.201
-seconds/1.34% and 3.915 seconds/2.63%, respectively. This confirms both the live
-service contract and the need for episode-level filtering plus a reserve pool.
+- primary: 287 episodes, 947 windows, 201.576 staging h, 164.247 automatic multi-speaker h, 199.288 aligned h, zero diarization failures;
+- audited reserve pool: 22 episodes, 182 windows, 43.156 staging h, 42.907 automatic multi-speaker h, zero failures;
+- selected reserve: 9 episodes, 74 windows, 16.503 candidate h and 10.676 estimated pair h;
+- final plan: 196.546 candidate h, 296 episodes, 1,021 windows, 181.824 automatic multi-speaker h, and 6,017 estimated response pairs / 105.727 pair h;
+- authorization: all 1,021 windows approved for internal thesis training, zero source-license-verified hours, redistribution disabled;
+- noise evidence: primary 639 clean / 243 moderate / 59 noisy / 6 unestimated windows; the selected reserve inherits deterministic labels from its fully estimated reserve pool;
+- interaction evidence: 4,787 pairs contain diarizer overlap, but it is `overlap_unattributed`; zero direct response-turn interruptions are claimed.
+
+The final 40-row QA handoff covers five windows from every channel × automatic
+pass/reject stratum and balances clean, moderate, noisy, and unestimated
+conditions. It is the only remaining corpus-side human gate.
 
 
 ## Storage and runtime expectations
@@ -207,13 +234,15 @@ are subject to the strict thesis maximum of 200.
 The report also records SHA-256 checksums for the selection manifest, prepared
 window manifest, and completion statistics.
 
-The 4090 is most useful for the diarization stage, followed by any approved
-model adaptation and live evaluation. Diarization is performed on bounded
-windows so an entire multi-hour podcast is never sent as one request.
-The diarizer writes
+The H100 is the correct machine for diarization and approved model adaptation.
+The 4090 is reserved for the final physical 24 GB fit and live-browser latency
+run. Diarization is performed on bounded windows so an entire multi-hour
+podcast is never sent as one request.
+The primary diarizer writes
 `data/processed/manifests/conversation_episode_diarization_stats.json` after
-every attempted window. Resumed runs retain aggregate verified/aligned hours
-and never repeat completed GPU requests.
+every attempted window. Alternate outputs derive distinct `*_stats.json`
+filenames, so reserve jobs cannot overwrite primary evidence. Resumed runs
+retain aggregate verified/aligned hours and never repeat completed GPU requests.
 
 
 ## Evidence gates and manual QA
@@ -236,6 +265,6 @@ require the student to record new speech. A supervisor, lab member, or paid
 annotator can perform it under the approved data-access rules. The required
 sample size and acceptance thresholds remain supervisor decisions. The
 `sample-conversation-qa` command samples every available channel × automatic
-pass/reject stratum deterministically; `apply-conversation-qa` fails incomplete
+pass/reject stratum deterministically and balances noise conditions within each stratum; `apply-conversation-qa` fails incomplete
 or incorrect checks closed and never marks licensing as approved. See
 `SUPERVISOR_QUESTIONS_FA.md` and `MANUAL_QA_FA.md`.

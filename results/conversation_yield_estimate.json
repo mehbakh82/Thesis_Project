@@ -1,0 +1,26 @@
+{
+  "source_manifest": "data/processed/manifests/conversation_episode_windows_noise_labeled.jsonl",
+  "source_windows": 947,
+  "estimated_pairs": 5586,
+  "estimated_pair_hours": 95.051,
+  "hours_100_to_200": false,
+  "label_counts": {
+    "none": 1175,
+    "overlap_unattributed": 4411
+  },
+  "direct_interruption_pairs": 0,
+  "unattributed_overlap_pairs": 4411,
+  "channel_hours": {
+    "Digiato": 7.945,
+    "Mehran Rowshan Persian": 17.996,
+    "Tabaghe16": 64.038,
+    "Zoomit": 5.072
+  },
+  "skipped": {
+    "not_verified_multi_speaker": 233,
+    "not_adjacent_response": 2840
+  },
+  "non_mutating_estimate": true,
+  "training_ready": false,
+  "warning": "This estimate writes no training clips and does not replace manual QA, rights application, file checks, or the final conversation audit. overlap_unattributed is overlap evidence, not an interruption claim."
+}

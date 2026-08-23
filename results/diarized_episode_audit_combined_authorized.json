@@ -1,0 +1,46 @@
+{
+  "audit_contract": {
+    "min_hours": 100.0,
+    "max_hours": 240.0,
+    "is_thesis_standard_100_to_200": false
+  },
+  "windows": 1021,
+  "episodes": 296,
+  "channels": {
+    "Mehran Rowshan Persian": 289,
+    "Tabaghe16": 507,
+    "Digiato": 108,
+    "Zoomit": 117
+  },
+  "prepared_hours": 219.403,
+  "automatic_multi_speaker_hours": 181.824,
+  "reference_aligned_hours": 217.115,
+  "manual_qa_reviewed_windows": 0,
+  "human_verified_windows": 0,
+  "manual_qa_expected_strata": [
+    "Digiato/automatic_pass",
+    "Digiato/automatic_reject",
+    "Mehran Rowshan Persian/automatic_pass",
+    "Mehran Rowshan Persian/automatic_reject",
+    "Tabaghe16/automatic_pass",
+    "Tabaghe16/automatic_reject",
+    "Zoomit/automatic_pass",
+    "Zoomit/automatic_reject"
+  ],
+  "manual_qa_reviewed_strata": [],
+  "license_verified_windows": 0,
+  "training_authorized_windows": 1021,
+  "requirements": {
+    "automatic_multi_speaker_hours_in_contract": true,
+    "reference_aligned_hours_in_contract": true,
+    "multiple_episodes": true,
+    "multiple_channels": true,
+    "episode_group_splits_present": true,
+    "chunk_overlap_limitation_declared": true,
+    "training_use_authorized": true,
+    "manual_qa_sample_present": false
+  },
+  "audit_contract_gate_passes": false,
+  "thesis_evidence_gate_passes": false,
+  "warning": "Automatic diarization is pseudo-label evidence until a manual sample is reviewed."
+}

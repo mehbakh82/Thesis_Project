@@ -1,5 +1,8 @@
+import hashlib
 import json
+import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -11,10 +14,18 @@ from thesis_s2s.bargein.train import feature_rows_from_jsonl, train_feature_dete
 from thesis_s2s.data.conversation import (
     audit_conversation_manifest,
     build_conversation_manifest,
+    estimate_conversation_pair_yield,
     export_llama_omni2_questions,
+    select_conversation_reserve_by_yield,
 )
 from thesis_s2s.data.diarize import _overlap_intervals, diarize_file
-from thesis_s2s.repro import load_upstream_lock, release_snapshot, verify_upstream_lock
+from thesis_s2s.repro import (
+    _conversation_status,
+    gpu_preflight,
+    load_upstream_lock,
+    release_snapshot,
+    verify_upstream_lock,
+)
 from thesis_s2s.runtime.session_log import SessionMeta, SessionStore
 
 
@@ -135,8 +146,11 @@ def test_conversation_builder_pairs_and_exports(tmp_path: Path):
         }
     )
     raw.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
+    estimate = estimate_conversation_pair_yield(raw)
     build = build_conversation_manifest(raw, manifest, tmp_path / "clips")
-    assert build["pairs"] == 2
+    assert estimate["estimated_pairs"] == build["pairs"] == 2
+    assert estimate["estimated_pair_hours"] == build["hours"]
+    assert estimate["training_ready"] is False
     assert build["label_counts"]["backchannel"] == 1
     rows = [json.loads(line) for line in manifest.read_text(encoding="utf-8").splitlines()]
     assert len({item["split"] for item in rows}) == 1
@@ -149,6 +163,17 @@ def test_conversation_builder_pairs_and_exports(tmp_path: Path):
 
     exported = export_llama_omni2_questions(manifest, tmp_path / "questions.json")
     assert exported["conversations"] == 2
+    rejected = dict(row)
+    rejected["manual_qa_reviewed"] = True
+    rejected["human_verified"] = False
+    raw.write_text(json.dumps(rejected, ensure_ascii=False) + "\n", encoding="utf-8")
+    rejected_estimate = estimate_conversation_pair_yield(raw)
+    rejected_build = build_conversation_manifest(
+        raw, tmp_path / "rejected.jsonl", tmp_path / "rejected-clips"
+    )
+    assert rejected_estimate["estimated_pairs"] == rejected_build["pairs"] == 0
+    assert rejected_estimate["skipped"] == {"manual_qa_rejected": 1}
+    assert rejected_build["skipped"] == {"manual_qa_rejected": 1}
     rows[0]["internal_research_authorized"] = False
     unlicensed = tmp_path / "unlicensed.jsonl"
     unlicensed.write_text(
@@ -157,6 +182,60 @@ def test_conversation_builder_pairs_and_exports(tmp_path: Path):
     )
     with pytest.raises(PermissionError, match="training authorization"):
         export_llama_omni2_questions(unlicensed, tmp_path / "must-not-exist.json")
+
+
+def test_reserve_selector_uses_minimum_whole_episode_prefix(tmp_path: Path):
+    def row(episode_id: str, index: int) -> dict:
+        return {
+            "window_id": f"{episode_id}-window-{index}",
+            "episode_id": episode_id,
+            "channel": "Podcast",
+            "automatic_multi_speaker_verified": True,
+            "reference_alignment_status": "complete",
+            "segments": [
+                {"start": 0.0, "end": 10.0, "speaker": "A", "text": "پرسش"},
+                {"start": 10.0, "end": 20.0, "speaker": "B", "text": "پاسخ"},
+            ],
+        }
+
+    def write_jsonl(path: Path, rows: list[dict]) -> None:
+        path.write_text(
+            "\n".join(json.dumps(item, ensure_ascii=False) for item in rows) + "\n",
+            encoding="utf-8",
+        )
+
+    primary = tmp_path / "primary.jsonl"
+    reserve = tmp_path / "reserve.jsonl"
+    primary_selection = tmp_path / "primary-selection.jsonl"
+    reserve_selection = tmp_path / "reserve-selection.jsonl"
+    write_jsonl(primary, [row("primary", 0)])
+    reserve_rows = [row(f"reserve-{index}", index) for index in range(3)]
+    write_jsonl(reserve, reserve_rows)
+    write_jsonl(primary_selection, [{"episode_id": "primary", "csv_hours": 0.009}])
+    write_jsonl(
+        reserve_selection,
+        [{"episode_id": f"reserve-{index}", "csv_hours": 0.009} for index in range(3)],
+    )
+    selected = tmp_path / "selected.jsonl"
+    report = select_conversation_reserve_by_yield(
+        primary,
+        reserve,
+        primary_selection,
+        reserve_selection,
+        selected,
+        report_path=tmp_path / "selection-report.json",
+        target_pair_hours=0.017,
+        max_candidate_hours=0.028,
+    )
+
+    assert report["selected_reserve_episodes"] == 2
+    assert report["selected_reserve_windows"] == 2
+    assert report["target_reached"] is True
+    assert report["candidate_cap_passes"] is True
+    assert report["combined_candidate_hours"] == 0.027
+    selected_rows = [json.loads(line) for line in selected.read_text().splitlines()]
+    assert [item["episode_id"] for item in selected_rows] == ["reserve-0", "reserve-1"]
+    assert (tmp_path / "selection-report.json").is_file()
 
 
 def test_diarization_contract_uses_float32_and_derives_overlap(tmp_path: Path, monkeypatch):
@@ -235,3 +314,151 @@ def test_upstream_lock_and_release_snapshot(tmp_path: Path, monkeypatch):
     assert report["files"]["README.md"]["sha256"]
     assert "src/generated.egg-info/PKG-INFO" not in report["files"]
     assert (tmp_path / "snapshot.json").is_file()
+
+
+def test_conversation_status_reports_staging_without_claiming_final_readiness(tmp_path: Path):
+    results = tmp_path / "results"
+    results.mkdir()
+    (results / "diarized_episode_audit_combined_authorized.json").write_text(
+        json.dumps(
+            {
+                "windows": 1021,
+                "episodes": 296,
+                "automatic_multi_speaker_hours": 181.824,
+                "reference_aligned_hours": 217.115,
+                "requirements": {
+                    "automatic_multi_speaker_hours_in_contract": True,
+                    "reference_aligned_hours_in_contract": True,
+                    "training_use_authorized": True,
+                    "manual_qa_sample_present": False,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    (results / "conversation_yield_estimate_combined.json").write_text(
+        json.dumps(
+            {
+                "estimated_pairs": 6017,
+                "estimated_pair_hours": 105.727,
+                "hours_100_to_200": True,
+                "non_mutating_estimate": True,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    status = _conversation_status(tmp_path)
+
+    assert status["present"] is False
+    assert status["thesis_coverage_ok"] is False
+    assert status["staging"]["automatic_gates_pass"] is True
+    assert status["staging"]["manual_qa_complete"] is False
+    assert status["yield_estimate"]["hours"] == 105.727
+
+
+def test_h100_training_readiness_is_independent_of_target_gpu(tmp_path: Path, monkeypatch):
+    (tmp_path / "configs").mkdir()
+    base_blob = tmp_path / "hf_cache" / "pinned" / "model.bin"
+    base_blob.parent.mkdir(parents=True)
+    base_blob.write_bytes(b"pinned base model")
+    (tmp_path / "configs" / "moshika_7b_legacy.json").write_text("{}\n", encoding="utf-8")
+    (tmp_path / "configs" / "moshi_h100.yaml").write_text(
+        "moshi_paths:\n"
+        "  hf_repo_id: kyutai/moshika-pytorch-bf16\n"
+        "  moshi_path: hf_cache/pinned/model.bin\n"
+        "  config_path: configs/moshika_7b_legacy.json\n",
+        encoding="utf-8",
+    )
+    trainer = tmp_path / "third_party" / "checkouts" / "moshi-finetune" / "train.py"
+    trainer.parent.mkdir(parents=True)
+    trainer.write_text("# pinned trainer\n", encoding="utf-8")
+    lock = tmp_path / "third_party" / "UPSTREAMS.lock.json"
+    lock.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "upstreams": [
+                    {
+                        "name": "Moshi-Finetune",
+                        "repository": "https://example.invalid/moshi-finetune.git",
+                        "revision": "b" * 40,
+                        "license": "Apache-2.0",
+                        "checkout_dir": "moshi-finetune",
+                        "training_entrypoint": "torchrun -m train",
+                    },
+                    {
+                        "name": "Moshika-PyTorch-BF16",
+                        "repository": "https://example.invalid/moshika",
+                        "revision": "d" * 40,
+                        "license": "CC-BY-4.0",
+                        "checkout_dir": "moshika",
+                        "weights": {
+                            "model.bin": {
+                                "bytes": len(base_blob.read_bytes()),
+                                "sha256": hashlib.sha256(base_blob.read_bytes()).hexdigest(),
+                            }
+                        },
+                    },
+                    {
+                        "name": "Mana-Persian-Piper",
+                        "repository": "https://example.invalid/mana-piper",
+                        "revision": "c" * 40,
+                        "license": "MIT",
+                        "checkout_dir": "mana-piper",
+                        "weights": {
+                            "file": "voice.onnx",
+                            "sha256": "PLACEHOLDER_VOICE_SHA256",
+                        },
+                    },
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    voice = tmp_path / "models" / "piper" / "voice.onnx"
+    voice.parent.mkdir(parents=True)
+    voice.write_bytes(b"pinned voice")
+    lock.write_text(
+        lock.read_text(encoding="utf-8").replace(
+            "PLACEHOLDER_VOICE_SHA256", hashlib.sha256(voice.read_bytes()).hexdigest()
+        ),
+        encoding="utf-8",
+    )
+    results = tmp_path / "results"
+    results.mkdir()
+    (results / "conversation_audit.json").write_text(
+        json.dumps({"thesis_coverage_ok": True, "pairs": 10, "hours": 100.0}),
+        encoding="utf-8",
+    )
+    fake_cuda = SimpleNamespace(is_available=lambda: True, is_bf16_supported=lambda: True)
+    fake_torch = SimpleNamespace(
+        __version__="2.6.0",
+        version=SimpleNamespace(cuda="12.4"),
+        cuda=fake_cuda,
+    )
+    monkeypatch.setitem(sys.modules, "torch", fake_torch)
+    monkeypatch.setattr("thesis_s2s.repro.project_root", lambda: tmp_path)
+    monkeypatch.setattr(
+        "thesis_s2s.repro.verify_upstream_lock",
+        lambda **_: {"schema_version": 1, "valid": True, "checks": []},
+    )
+    monkeypatch.setattr(
+        "thesis_s2s.repro.gpu_inventory",
+        lambda: {
+            "device": "NVIDIA H100 NVL",
+            "total_gb": 93.09,
+            "official_size": False,
+        },
+    )
+    monkeypatch.setattr("thesis_s2s.repro._nvidia_smi", lambda: {"available": True})
+
+    report = gpu_preflight()
+
+    assert report["training_hardware_ready"] is True
+    assert report["evaluation_hardware_ready"] is False
+    assert report["adaptation_run_ready"] is True
+    assert report["training_gates"]["reviewed_training_entrypoint_available"] is True
+    assert report["training_gates"]["base_model_files_pinned"] is True
+    assert report["training_gates"]["assistant_voice_target_pinned"] is True
+    assert report["evaluation_gates"]["physical_gpu_12_to_24_gb"] is False

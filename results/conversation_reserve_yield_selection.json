@@ -1,0 +1,105 @@
+{
+  "primary_manifest": "data/processed/manifests/conversation_episode_windows_noise_labeled.jsonl",
+  "reserve_manifest": "data/processed/manifests/conversation_reserve_tabaghe16_windows_noise_labeled.jsonl",
+  "primary_selection": "data/processed/manifests/youtube_conversation_selection.jsonl",
+  "reserve_selection": "data/processed/manifests/youtube_conversation_reserve_tabaghe16_40h.jsonl",
+  "out_manifest": "data/processed/manifests/conversation_reserve_tabaghe16_windows_selected.jsonl",
+  "target_pair_hours": 105.0,
+  "max_candidate_hours": 200.0,
+  "primary_candidate_hours": 180.043,
+  "primary_estimated_pair_hours": 95.051,
+  "selected_reserve_episodes": 9,
+  "selected_reserve_windows": 74,
+  "selected_reserve_candidate_hours": 16.503,
+  "selected_reserve_estimated_pair_hours": 10.676,
+  "combined_candidate_hours": 196.546,
+  "combined_estimated_pair_hours": 105.727,
+  "target_reached": true,
+  "candidate_cap_passes": true,
+  "selected_episodes": [
+    {
+      "episode_id": "Tabaghe16/Episode 7 - زندگی جدید و کلی غرغر ｜ محی سنیسل",
+      "candidate_hours": 1.5539,
+      "estimated_pair_hours": 1.507,
+      "windows": 7,
+      "cumulative_candidate_hours": 181.597,
+      "cumulative_pair_hours": 96.558
+    },
+    {
+      "episode_id": "Tabaghe16/Episode 39 - نیما طباطبایی",
+      "candidate_hours": 1.0497,
+      "estimated_pair_hours": 0.866,
+      "windows": 5,
+      "cumulative_candidate_hours": 182.647,
+      "cumulative_pair_hours": 97.424
+    },
+    {
+      "episode_id": "Tabaghe16/EP 185 - Mohsen Majidikhah ｜ Founder of Sam Coffee",
+      "candidate_hours": 1.8289,
+      "estimated_pair_hours": 1.383,
+      "windows": 8,
+      "cumulative_candidate_hours": 184.476,
+      "cumulative_pair_hours": 98.807
+    },
+    {
+      "episode_id": "Tabaghe16/Episode 8 - الگو برداری و خودشناسی ｜ دانیال شیدوش",
+      "candidate_hours": 1.5279,
+      "estimated_pair_hours": 1.292,
+      "windows": 7,
+      "cumulative_candidate_hours": 186.004,
+      "cumulative_pair_hours": 100.099
+    },
+    {
+      "episode_id": "Tabaghe16/Episode 22 - فلسفه کار و زندگی ｜ رخام فرد",
+      "candidate_hours": 1.8157,
+      "estimated_pair_hours": 1.209,
+      "windows": 8,
+      "cumulative_candidate_hours": 187.819,
+      "cumulative_pair_hours": 101.308
+    },
+    {
+      "episode_id": "Tabaghe16/Episode 15 - از موسیقی سنتی تا الکترونیک ｜ رضا مقدس",
+      "candidate_hours": 1.861,
+      "estimated_pair_hours": 1.443,
+      "windows": 8,
+      "cumulative_candidate_hours": 189.68,
+      "cumulative_pair_hours": 102.751
+    },
+    {
+      "episode_id": "Tabaghe16/EP 88 - Kooshiar Azimian ｜ هوش مصنوعی؛ هرآنچه پیشرو داریم",
+      "candidate_hours": 1.3452,
+      "estimated_pair_hours": 1.087,
+      "windows": 6,
+      "cumulative_candidate_hours": 191.025,
+      "cumulative_pair_hours": 103.838
+    },
+    {
+      "episode_id": "Tabaghe16/EP 133 - Hessam Armandehi ｜ کافه بازار، دیوار، کارنامه و بلد",
+      "candidate_hours": 2.5972,
+      "estimated_pair_hours": 1.027,
+      "windows": 12,
+      "cumulative_candidate_hours": 193.623,
+      "cumulative_pair_hours": 104.865
+    },
+    {
+      "episode_id": "Tabaghe16/EP 100  - Said Rahmani ｜ سرآوا",
+      "candidate_hours": 2.9231,
+      "estimated_pair_hours": 0.861,
+      "windows": 13,
+      "cumulative_candidate_hours": 196.546,
+      "cumulative_pair_hours": 105.726
+    }
+  ],
+  "skipped": {},
+  "reserve_rows_outside_selection": 0,
+  "artifact_sha256": {
+    "primary_manifest": "3d99e7f4b9d1b2e64f834798920832e5596840d9e621322feda383dccd34cbc8",
+    "reserve_manifest": "24ef94969737e5980767f657ad3301774e55b56b27828ed263edc1c6693ecdd5",
+    "primary_selection": "738ff849eac7762aea9fd9ee2de748be728c1211ab571e4f496a9b9106f2b260",
+    "reserve_selection": "d7e6a1a12b0417abbb271f7c7138b172e8389367d415690f6c634cbe0c1e4e5f",
+    "out_manifest": "9733e5d8aa25eb8ec54f663ad23cba1921671c35f3263ede2770196c488406ec"
+  },
+  "non_mutating_audio_selection": true,
+  "training_ready": false,
+  "warning": "This deterministic selector chooses whole episodes using automatic estimated yield. Manual QA, rights application, final pair export, and audits still apply."
+}

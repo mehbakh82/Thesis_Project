@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Persian full-duplex speech-to-speech thesis prototype"
 readme = "README.md"
 requires-python = ">=3.10"
-authors = [{ name = "str19" }]
+authors = [{ name = "Mehran Bakhtiari" }]
 dependencies = [
   "numpy>=1.24",
   "scipy>=1.10",

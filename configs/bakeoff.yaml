@@ -5,11 +5,11 @@ n_english_controls: 10
 models:
   - id: llama-omni2-0.5b
     hf: ICTNLP/LLaMA-Omni2-0.5B
-    default: true
   - id: llama-omni2-1.5b-bilingual
     hf: ICTNLP/LLaMA-Omni2-1.5B-Bilingual
-  - id: personaplex-7b
-    hf: nvidia/personaplex-7b-v1
+  - id: moshika-7b
+    hf: kyutai/moshika-pytorch-bf16
+    implementation_path: true
   - id: mini-omni
     hf: gpt-omni/mini-omni
   - id: qwen2.5-omni-3b
@@ -17,4 +17,6 @@ models:
 decision_rule: >
   Pick the smallest model that (a) can emit intelligible Persian after a
   cheap adapter probe or whose codec round-trips Persian, and (b) stays
-  under 500 ms T_first_audio on a 24 GB profile. Default: LLaMA-Omni2-0.5B.
+  under 500 ms T_first_audio on a physical 12–24 GB GPU. Until that empirical
+  comparison is complete, Moshi is the engineering implementation path rather
+  than a claimed winner.

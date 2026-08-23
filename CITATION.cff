@@ -3,7 +3,8 @@ message: "If you use this software, please cite the final BSc thesis and archive
 title: "Persian Full-Duplex Speech-to-Speech Thesis Prototype"
 type: software
 authors:
-  - family-names: "str19"
+  - given-names: "Mehran"
+    family-names: "Bakhtiari"
 version: 0.1.0
 date-released: 2026-08-23
 abstract: >-

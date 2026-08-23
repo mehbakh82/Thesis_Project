@@ -6,18 +6,20 @@
 
 ## ساخت نمونه
 
-پس از پایان تفکیک گویندگان:
+پس از پایان تفکیک گویندگان، ابتدا برچسب خودکار وضعیت نویز را از نسبت RMS بازه‌های گفتار و غیرگفتار بسازید و سپس نمونه را ایجاد کنید:
 
 ```bash
+.venv/bin/python -m thesis_s2s.cli annotate-conversation-noise
 .venv/bin/python -m thesis_s2s.cli sample-conversation-qa
 ```
 
 فایل
 `data/processed/manifests/conversation_manual_qa.csv`
-به‌صورت قطعی از هر ترکیب موجودِ کانال و نتیجه خودکار
-(`automatic_pass` یا `automatic_reject`) نمونه می‌گیرد. مقدار پیش‌فرض پنج
-پنجره از هر طبقه است. اندازه نهایی نمونه و آستانه پذیرش باید به تأیید استاد
-راهنما برسد.
+اکنون برای منیفست نهایی ساخته شده است: ۴۰ پنجره، شامل پنج نمونه از هر ترکیب
+چهار کانال و نتیجه خودکار (`automatic_pass` یا `automatic_reject`). ترکیب نویز
+نمونه شامل ۱۶ پاک، ۱۳ متوسط، ۷ نویزی و ۴ برآوردنشده است. انتخاب قطعی است و
+درون هر طبقه، وضعیت‌های نویز موجود را به‌صورت چرخشی متوازن می‌کند. اندازه نهایی
+نمونه و آستانه پذیرش باید به تأیید استاد راهنما برسد.
 
 ## روش بررسی هر ردیف
 
@@ -42,13 +44,17 @@
 ## اعمال تصمیم‌ها و ممیزی
 
 ```bash
-.venv/bin/python -m thesis_s2s.cli apply-conversation-qa
+.venv/bin/python -m thesis_s2s.cli apply-conversation-qa \
+  --in-jsonl data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl \
+  --out-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
-  --manifest data/processed/manifests/conversation_episode_windows_reviewed.jsonl
+  --manifest data/processed/manifests/conversation_episode_windows_reviewed.jsonl \
+  --min-hours 100 --max-hours 240
 ```
 
 دستور اول منیفست خودکار را تغییر نمی‌دهد و یک منیفست بازبینی‌شده و گزارش
-`results/manual_qa_report.json` می‌سازد. ممیزی فقط زمانی پوشش نمونه را قبول
+`results/manual_qa_report.json` می‌سازد. هر پنجره‌ای که صریحاً رد شود، در سازنده
+زوج پاسخ نیز به‌صورت بسته حذف می‌شود. ممیزی فقط زمانی پوشش نمونه را قبول
 می‌کند که تمام طبقه‌های موجود بازبینی شده باشند.
 
 فایل صوت، CSV بازبینی و منیفست‌های دارای مسیر داخلی نباید در مخزن عمومی قرار
