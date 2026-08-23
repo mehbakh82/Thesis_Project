@@ -180,10 +180,12 @@ compact encodings and the selected episodes are downloaded before
 reconstruction. The preparation command deletes only its own temporary
 per-episode downloads and is resumable.
 
-The prepared-audio audit verifies selection completeness, 100–200 actual hours,
-unique windows, episode splits, ordered reference rows, bounded duration, WAV
-format, manifest/file duration agreement, and a current—not stale—completion
-report before diarization begins.
+The prepared-audio audit verifies that selected caption hours remain in the
+100–200 band, reconstructed staging audio stays below a 240-hour safety cap,
+and windows have unique IDs, preserved episode splits, ordered reference rows,
+bounded durations, valid WAV format, matching manifest/file durations, and a
+current—not stale—completion report. Only final verified multi-speaker hours
+are subject to the strict thesis maximum of 200.
 
 The 4090 is most useful for the diarization stage, followed by any approved
 model adaptation and live evaluation. Diarization is performed on bounded

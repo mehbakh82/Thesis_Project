@@ -278,7 +278,7 @@ def audit_prepared_episode_windows(
     *,
     stats_path: Path | None = None,
     min_hours: float = 100.0,
-    max_hours: float = 200.0,
+    max_hours: float = 240.0,
     max_window_seconds: float = 900.0,
     check_files: bool = True,
 ) -> dict:
@@ -293,6 +293,7 @@ def audit_prepared_episode_windows(
     prepared_ids = {str(row.get("episode_id") or "") for row in rows if row.get("episode_id")}
     window_ids = [str(row.get("window_id") or "") for row in rows]
     total_hours = sum(float(row.get("duration") or 0.0) for row in rows) / 3600.0
+    selected_candidate_hours = sum(float(row.get("csv_hours") or 0.0) for row in selected)
 
     expected_splits = {
         str(row.get("episode_id") or ""): str(row.get("split") or "")
@@ -377,7 +378,10 @@ def audit_prepared_episode_windows(
         == len(prepared_ids)
     )
     requirements = {
-        "prepared_hours_100_to_200": bool(rows) and min_hours <= total_hours <= max_hours,
+        "selected_candidate_hours_100_to_200": bool(selected)
+        and min_hours <= selected_candidate_hours <= 200.0,
+        "prepared_audio_hours_at_least_100": bool(rows) and total_hours >= min_hours,
+        "prepared_audio_hours_within_safety_cap": total_hours <= max_hours,
         "selection_complete": bool(selected_id_set) and prepared_ids == selected_id_set,
         "selection_episode_ids_unique": bool(selected_ids)
         and len(selected_ids) == len(selected_id_set)
@@ -411,6 +415,7 @@ def audit_prepared_episode_windows(
         "extra_episodes": sorted(prepared_ids - selected_id_set),
         "windows": len(rows),
         "prepared_audio_hours": round(total_hours, 3),
+        "selected_candidate_hours": round(selected_candidate_hours, 3),
         "schema_errors": schema_errors,
         "split_errors": split_errors,
         "legacy_or_implicit_rights_rows": legacy_rights_rows,

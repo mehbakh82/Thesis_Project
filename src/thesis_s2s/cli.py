@@ -118,7 +118,7 @@ def main(argv: list[str] | None = None) -> None:
         default=Path("results/prepared_episode_audit.json"),
     )
     p_ep_prepared_audit.add_argument("--min-hours", type=float, default=100.0)
-    p_ep_prepared_audit.add_argument("--max-hours", type=float, default=200.0)
+    p_ep_prepared_audit.add_argument("--max-hours", type=float, default=240.0)
     p_ep_prepared_audit.add_argument("--no-check-files", action="store_true")
     p_ep_diar = sub.add_parser("diarize-conversation-episodes")
     p_ep_diar.add_argument(
