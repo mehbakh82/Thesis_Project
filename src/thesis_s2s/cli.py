@@ -133,6 +133,15 @@ def main(argv: list[str] | None = None) -> None:
     )
     p_ep_diar.add_argument("--limit", type=int, default=None)
     p_ep_diar.add_argument("--no-resume", action="store_true")
+    p_ep_merge = sub.add_parser("merge-conversation-windows")
+    p_ep_merge.add_argument("--inputs", type=Path, nargs="+", required=True)
+    p_ep_merge.add_argument(
+        "--out-jsonl",
+        type=Path,
+        default=Path(
+            "data/processed/manifests/conversation_episode_windows_diarized_combined.jsonl"
+        ),
+    )
     p_ep_audit = sub.add_parser("audit-diarized-episodes")
     p_ep_audit.add_argument("--manifest", type=Path, default=p_ep_diar.get_default("out_jsonl"))
     p_ep_audit.add_argument("--out", type=Path, default=Path("results/diarized_episode_audit.json"))
@@ -379,6 +388,11 @@ def main(argv: list[str] | None = None) -> None:
             limit=args.limit,
             resume=not args.no_resume,
         )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "merge-conversation-windows":
+        from thesis_s2s.data.diarize import merge_conversation_window_manifests
+
+        report = merge_conversation_window_manifests(args.inputs, args.out_jsonl)
         print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "audit-diarized-episodes":
         from thesis_s2s.data.diarize import audit_diarized_windows

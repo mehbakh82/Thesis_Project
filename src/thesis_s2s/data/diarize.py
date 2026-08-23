@@ -207,6 +207,65 @@ def _speaker_evidence(turns: list[dict]) -> dict:
     }
 
 
+def merge_conversation_window_manifests(
+    inputs: list[Path],
+    out_jsonl: Path,
+) -> dict:
+    """Merge disjoint primary/reserve window manifests without hiding duplicates."""
+
+    if not inputs:
+        raise ValueError("at least one input manifest is required")
+    paths = [Path(path) for path in inputs]
+    out_jsonl = Path(out_jsonl)
+    if any(path.resolve() == out_jsonl.resolve() for path in paths):
+        raise ValueError("output manifest must differ from every input manifest")
+
+    rows: list[dict] = []
+    seen: set[str] = set()
+    duplicates: list[str] = []
+    by_input: dict[str, int] = {}
+    for path in paths:
+        input_rows = [
+            json.loads(line)
+            for line in path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        by_input[str(path)] = len(input_rows)
+        for row in input_rows:
+            window_id = str(row.get("window_id") or "")
+            if not window_id:
+                raise ValueError(f"row without window_id in {path}")
+            if window_id in seen:
+                duplicates.append(window_id)
+                continue
+            seen.add(window_id)
+            rows.append(row)
+    if duplicates:
+        sample = ", ".join(sorted(set(duplicates))[:5])
+        raise ValueError(f"duplicate window_id values across inputs: {sample}")
+
+    out_jsonl.parent.mkdir(parents=True, exist_ok=True)
+    temporary = out_jsonl.with_name(f".{out_jsonl.name}.partial")
+    with temporary.open("w", encoding="utf-8") as handle:
+        for row in rows:
+            handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+    temporary.replace(out_jsonl)
+    verified_hours = sum(
+        float(row.get("duration") or 0.0) / 3600.0
+        for row in rows
+        if row.get("automatic_multi_speaker_verified") is True
+    )
+    return {
+        "inputs": by_input,
+        "out_manifest": str(out_jsonl),
+        "windows": len(rows),
+        "episodes": len({str(row.get("episode_id")) for row in rows if row.get("episode_id")}),
+        "channels": dict(Counter(str(row.get("channel") or "unknown") for row in rows)),
+        "automatic_multi_speaker_hours": round(verified_hours, 3),
+        "duplicate_window_ids": 0,
+    }
+
+
 def audit_diarized_windows(
     manifest: Path,
     out_json: Path | None = None,

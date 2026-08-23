@@ -138,8 +138,28 @@ If verified primary yield is too low, add a bounded reserve batch:
 ```bash
 .venv/bin/python -m thesis_s2s.cli prepare-conversation-episodes \
   --selection data/processed/manifests/youtube_conversation_reserve.jsonl \
+  --out-root data/processed/conversation_reserve_windows \
+  --out-jsonl data/processed/manifests/conversation_reserve_episode_windows.jsonl \
   --max-source-hours 20
+
+.venv/bin/python -m thesis_s2s.cli diarize-conversation-episodes \
+  --in-jsonl data/processed/manifests/conversation_reserve_episode_windows.jsonl \
+  --out-jsonl data/processed/manifests/conversation_reserve_episode_windows_diarized.jsonl
+
+.venv/bin/python -m thesis_s2s.cli merge-conversation-windows \
+  --inputs \
+    data/processed/manifests/conversation_episode_windows_diarized.jsonl \
+    data/processed/manifests/conversation_reserve_episode_windows_diarized.jsonl
+
+.venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
+  --manifest data/processed/manifests/conversation_episode_windows_diarized_combined.jsonl
 ```
+
+Keep primary and reserve preparation/diarization manifests separate. The merge
+command writes atomically and rejects every duplicate `window_id`. Increase
+`--max-source-hours` cumulatively (20, 40, 60, …) only until the combined
+automatic multi-speaker yield reaches the required band. Pass the combined
+manifest explicitly to the manual-QA sampler when reserve data is used.
 
 
 The completed real-data preparation smoke test downloaded one Mehran episode:

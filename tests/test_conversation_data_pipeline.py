@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from thesis_s2s.audio import write_wav
 from thesis_s2s.data.channels import TABAGHE16, YOUTUBE_CHANNELS, remote_csv
@@ -15,9 +16,11 @@ from thesis_s2s.data.diarize import (
     align_reference_segments,
     audit_diarized_windows,
     diarize_episode_manifest,
+    merge_conversation_window_manifests,
 )
 from thesis_s2s.data.episode_prepare import (
     audit_prepared_episode_windows,
+    preparation_stats_path,
     rclone_filter_literal,
     reconstruct_episode_windows,
 )
@@ -122,6 +125,35 @@ def test_weighted_selection_is_balanced_whole_episode_and_not_final_evidence(tmp
     assert selected_ids.isdisjoint(str(row["episode_id"]) for row in reserve)
 
 
+def test_primary_and_reserve_window_merge_is_atomic_and_rejects_duplicates(tmp_path: Path):
+    primary = tmp_path / "primary.jsonl"
+    reserve = tmp_path / "reserve.jsonl"
+    out = tmp_path / "combined.jsonl"
+    primary.write_text(
+        json.dumps(
+            {
+                "window_id": "primary-1",
+                "episode_id": "primary",
+                "channel": "Tabaghe16",
+                "duration": 3600.0,
+                "automatic_multi_speaker_verified": True,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    reserve.write_text(
+        json.dumps({"window_id": "reserve-1", "episode_id": "reserve", "channel": "Zoomit"}) + "\n",
+        encoding="utf-8",
+    )
+    report = merge_conversation_window_manifests([primary, reserve], out)
+    assert report["windows"] == 2
+    assert report["automatic_multi_speaker_hours"] == 1.0
+    assert len(out.read_text(encoding="utf-8").splitlines()) == 2
+    with pytest.raises(ValueError, match="duplicate window_id"):
+        merge_conversation_window_manifests([primary, primary], out)
+
+
 def test_reference_alignment_is_temporal_and_fail_closed():
     references = [
         {"start": 0.0, "end": 2.0, "text": "سلام دوست من"},
@@ -172,6 +204,10 @@ def test_episode_window_reconstruction_tracks_chunk_limitations(tmp_path: Path):
     assert windows[0]["cross_chunk_overlap_recoverable"] is False
     assert windows[0]["diarization_status"] == "not_run"
     assert windows[0]["license_verified"] is False
+    assert preparation_stats_path(Path("conversation_episode_windows.jsonl")).name == (
+        "conversation_episode_prepare_stats.json"
+    )
+    assert preparation_stats_path(Path("reserve.jsonl")).name == "reserve_prepare_stats.json"
     assert rclone_filter_literal(stem) == r"episode \[one\]"
     second = dict(windows[0])
     second.update(

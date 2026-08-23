@@ -245,6 +245,15 @@ def reconstruct_episode_windows(
     return windows, report
 
 
+def preparation_stats_path(manifest: Path) -> Path:
+    """Keep the historical primary name but isolate alternate selections."""
+
+    manifest = Path(manifest)
+    if manifest.name == "conversation_episode_windows.jsonl":
+        return manifest.with_name("conversation_episode_prepare_stats.json")
+    return manifest.with_name(f"{manifest.stem}_prepare_stats.json")
+
+
 def _manifest_progress(path: Path) -> tuple[set[str], int, float]:
     done: set[str] = set()
     windows = 0
@@ -347,7 +356,7 @@ def audit_prepared_episode_windows(
             if abs(actual_duration - float(row.get("duration") or 0.0)) > 0.05:
                 duration_mismatches += 1
 
-    stats_path = Path(stats_path or manifest.with_name("conversation_episode_prepare_stats.json"))
+    stats_path = Path(stats_path or preparation_stats_path(manifest))
     stats = json.loads(stats_path.read_text(encoding="utf-8")) if stats_path.is_file() else {}
     provenance_complete = bool(rows) and all(
         row.get("audio_source_kind") == "reconstructed_ordered_caption_chunks"
@@ -457,7 +466,7 @@ def prepare_selected_episodes(
         "failures": Counter(),
         "episode_reports": [],
     }
-    stats_path = out_manifest.with_name("conversation_episode_prepare_stats.json")
+    stats_path = preparation_stats_path(out_manifest)
 
     def write_progress() -> None:
         snapshot = {key: value for key, value in stats.items() if key != "episode_reports"}
