@@ -246,7 +246,10 @@ def release_snapshot(out_json: Path | None = None) -> dict:
         if base.is_dir():
             paths.update(
                 path for path in base.rglob("*")
-                if path.is_file() and "__pycache__" not in path.parts and path.suffix not in {".pyc", ".orig", ".rej"}
+                if path.is_file()
+                and "__pycache__" not in path.parts
+                and not any(part.endswith(".egg-info") for part in path.parts)
+                and path.suffix not in {".pyc", ".orig", ".rej"}
             )
     paths.update(root / name for name in SNAPSHOT_FILES if (root / name).is_file())
     for pattern in SNAPSHOT_GLOBS:
