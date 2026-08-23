@@ -14,6 +14,15 @@ Send the project definition and current evidence status with these questions. As
 6. What proportion of automatically generated ASR/diarization/overlap labels is acceptable, and how many hours or rows must be manually verified?
 7. May read speech and synthetic overlap/noise be used only as supplements, while the 100–200-hour requirement is counted from natural conversational material?
 
+### Decisions about the existing YouTube archive
+
+- The verified pool has 1,442 long episodes and 775.887 caption-speech hours; a balanced 180.043-hour selection uses Tabaghe16, Mehran, Digiato, and Zoomit. After diarization, caption alignment, and manual QA, may this satisfy the 100–200-hour requirement, with LDC only as a fallback?
+- Is internal research use of the crawled YouTube audio and reporting derived results acceptable under university policy, and what provenance/permission evidence is required?
+- May the existing caption CSVs be the transcript target if a stratified sample is manually reviewed and NeMo is used only for quality screening? What sample size and error threshold are required?
+- Pre-cut caption chunks may lose overlap crossing a chunk boundary. Must untouched episode audio be obtained for interruption/overlap evidence, or are within-chunk overlap plus explicitly labeled supplements acceptable?
+- May a supervisor, lab member, or approved annotator manually review archived data without the student recording new speech?
+- Should the 100–200-hour gate count verified multi-speaker window hours or only the final exported user/response spans?
+
 ## Human study without stored voice
 
 8. May I run the required 5–10-person study with raw audio processed live but never stored, retaining only timing, stop events, ratings, age bin, and pseudonymous IDs?

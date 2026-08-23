@@ -75,11 +75,27 @@ def _merge_same_speaker(segments: list[SpeakerSegment], max_gap_s: float = 0.5) 
     return merged
 
 
-def _interaction_label(user: SpeakerSegment, assistant: SpeakerSegment) -> tuple[str, list[list[float]]]:
+def _interaction_label(
+    user: SpeakerSegment,
+    assistant: SpeakerSegment,
+    known_overlap: list[list[float]] | None = None,
+) -> tuple[str, list[list[float]]]:
     overlap_end = min(user.end, assistant.end)
-    if assistant.start >= overlap_end:
+    overlap = (
+        [[round(assistant.start, 3), round(overlap_end, 3)]]
+        if assistant.start < overlap_end
+        else []
+    )
+    if not overlap:
+        pair_start, pair_end = min(user.start, assistant.start), max(user.end, assistant.end)
+        overlap = [
+            [round(max(pair_start, float(interval[0])), 3), round(min(pair_end, float(interval[1])), 3)]
+            for interval in (known_overlap or [])
+            if len(interval) == 2
+            and min(pair_end, float(interval[1])) > max(pair_start, float(interval[0]))
+        ]
+    if not overlap:
         return "none", []
-    overlap = [[round(assistant.start, 3), round(overlap_end, 3)]]
     if assistant.duration <= 1.2 and assistant.end <= user.end + 0.2:
         return "backchannel", overlap
     return "interrupt", overlap
@@ -113,6 +129,15 @@ def build_conversation_manifest(
         if not line.strip():
             continue
         row = json.loads(line)
+        if (
+            "automatic_multi_speaker_verified" in row
+            and row.get("automatic_multi_speaker_verified") is not True
+        ):
+            skipped["not_verified_multi_speaker"] += 1
+            continue
+        if "reference_alignment_status" in row and row.get("reference_alignment_status") != "complete":
+            skipped["reference_alignment_incomplete"] += 1
+            continue
         source = Path(str(row.get("audio_filepath") or row.get("audio_path") or ""))
         if not source.is_file():
             skipped["missing_audio"] += 1
@@ -155,10 +180,20 @@ def build_conversation_manifest(
             assistant_path = clips_dir / f"{pair_id}_assistant.wav"
             write_wav(user_path, user_audio)
             write_wav(assistant_path, assistant_audio)
-            label, overlap = _interaction_label(user, assistant)
+            label, overlap = _interaction_label(
+                user,
+                assistant,
+                list(row.get("overlap_intervals") or []),
+            )
             label_counts[label] += 1
             consumed_until = source_span_end
             license_name = str(row.get("license") or "unknown")
+            license_verified = (
+                bool(row.get("license_verified"))
+                if "license_verified" in row
+                else license_name
+                not in {"unknown", "youtube-internal", "pending-youtube-rights-review"}
+            )
             pairs.append(
                 {
                     "utt_id": pair_id,
@@ -183,7 +218,12 @@ def build_conversation_manifest(
                     "response_gap_s": round(gap, 3),
                     "split": _stable_split(session_id),
                     "license": license_name,
+                    "license_verified": license_verified,
                     "source_audio_filepath": str(source),
+                    "source_window_id": row.get("window_id"),
+                    "automatic_multi_speaker_verified": row.get(
+                        "automatic_multi_speaker_verified"
+                    ),
                     "annotation_source": str(row.get("annotation_source") or "automatic_diarization_heuristic"),
                     "human_verified": bool(row.get("human_verified", False)),
                     "noise_condition": str(row.get("noise_condition") or row.get("room") or "unspecified"),
@@ -251,7 +291,13 @@ def audit_conversation_manifest(manifest: Path, out_json: Path | None = None, *,
             missing_files += sum(not value or not Path(str(value)).is_file() for value in paths)
     labels = Counter(str(row.get("interrupt_label") or "none") for row in rows)
     verified = sum(bool(row.get("human_verified")) for row in rows)
-    licensed = sum(str(row.get("license") or "unknown") != "unknown" for row in rows)
+    licensed = sum(
+        bool(row.get("license_verified"))
+        if "license_verified" in row
+        else str(row.get("license") or "unknown")
+        not in {"unknown", "youtube-internal", "pending-youtube-rights-review"}
+        for row in rows
+    )
     overlap_rows = sum(bool(row.get("overlap_intervals")) for row in rows)
     noise_rows = sum(
         str(row.get("noise_condition") or "unspecified").lower()

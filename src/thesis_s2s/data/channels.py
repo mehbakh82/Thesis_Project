@@ -1,4 +1,4 @@
-"""YouTube channel prefixes on the 2TB `asr` bucket (and 1TB Tabaghe16)."""
+"""YouTube channel prefixes and conversation-selection priors on the 2TB bucket."""
 
 from __future__ import annotations
 
@@ -12,35 +12,70 @@ class ChannelSpec:
     chunks_prefix: str
     bucket: str = "asr"
     skip_shorts: bool = True
+    source_kind: str = "mixed"
+    conversation_priority: int = 2
+    expected_multi_speaker: bool | None = None
+    selection_weight: float = 0.0
 
 
-# 2TB MinIO bucket `asr`. Do not embed credentials here.
+# All sources are on the 2TB MinIO bucket. Do not embed credentials here.
+
+TABAGHE16 = ChannelSpec(
+    name="Tabaghe16",
+    csv_prefix="STT/YT_PodCast_Chunks/CSVs/طبقه 16",
+    chunks_prefix="STT/YT_PodCast_Chunks/Audio_Chunks/طبقه 16",
+    source_kind="interview_podcast",
+    conversation_priority=1,
+    expected_multi_speaker=True,
+    selection_weight=0.50,
+)
+
+# Weights are priors, not labels; diarization confirms speakers per episode.
 YOUTUBE_CHANNELS: tuple[ChannelSpec, ...] = (
-    ChannelSpec("Digiato", "Digiato/CSVs", "Digiato/Audio_Chunks"),
-    ChannelSpec("Zoomit", "Zoomit/CSVs", "Zoomit/Audio_Chunks"),
-    ChannelSpec("Kooshiar", "Kooshiar/CSVs", "Kooshiar/Audio_Chunks"),
+    TABAGHE16,
     ChannelSpec(
         "Mehran Rowshan Persian",
         "Mehran Rowshan Persian/CSVs",
         "Mehran Rowshan Persian/Audio_Chunks",
+        source_kind="interview_podcast",
+        conversation_priority=1,
+        expected_multi_speaker=True,
+        selection_weight=0.28,
+    ),
+    ChannelSpec(
+        "Digiato",
+        "Digiato/CSVs",
+        "Digiato/Audio_Chunks",
+        source_kind="technology_mixed",
+        conversation_priority=2,
+        expected_multi_speaker=None,
+        selection_weight=0.10,
+    ),
+    ChannelSpec(
+        "Zoomit",
+        "Zoomit/CSVs",
+        "Zoomit/Audio_Chunks",
+        source_kind="technology_mixed",
+        conversation_priority=2,
+        expected_multi_speaker=None,
+        selection_weight=0.10,
+    ),
+    ChannelSpec(
+        "Kooshiar",
+        "Kooshiar/CSVs",
+        "Kooshiar/Audio_Chunks",
+        source_kind="primarily_monologue",
+        conversation_priority=3,
+        expected_multi_speaker=False,
+        selection_weight=0.02,
     ),
 )
 
-TABAGHE16 = ChannelSpec(
-    name="Tabaghe16",
-    csv_prefix="asr-gpu/Tabaghe16/Tabaghe16_CSVs",
-    chunks_prefix="asr-gpu/Tabaghe16/Tabaghe16_Audio_Chunks",
-    bucket="asr-gpu",
-)
 
 
 def remote_csv(spec: ChannelSpec) -> str:
-    if spec.bucket == "asr-gpu":
-        return f":s3:{spec.csv_prefix}"
     return f":s3:{spec.bucket}/{spec.csv_prefix}"
 
 
 def remote_chunks(spec: ChannelSpec) -> str:
-    if spec.bucket == "asr-gpu":
-        return f":s3:{spec.chunks_prefix}"
     return f":s3:{spec.bucket}/{spec.chunks_prefix}"

@@ -40,14 +40,17 @@ def rclone_prefix() -> list[str]:
 def rclone_process_env() -> dict[str, str]:
     cfg = rclone_env()
     env = os.environ.copy()
-    env.update({
-        "RCLONE_CONFIG_S3_TYPE": "s3",
-        "RCLONE_CONFIG_S3_PROVIDER": cfg["provider"],
-        "RCLONE_CONFIG_S3_ACCESS_KEY_ID": cfg["access"],
-        "RCLONE_CONFIG_S3_SECRET_ACCESS_KEY": cfg["secret"],
-        "RCLONE_CONFIG_S3_ENDPOINT": cfg["endpoint"],
-        "RCLONE_CONFIG_S3_FORCE_PATH_STYLE": "true",
-    })
+    # On-the-fly backends such as :s3:bucket/path read RCLONE_S3_*.
+    # Keep credentials in the child environment so they never appear in argv.
+    env.update(
+        {
+            "RCLONE_S3_PROVIDER": cfg["provider"],
+            "RCLONE_S3_ACCESS_KEY_ID": cfg["access"],
+            "RCLONE_S3_SECRET_ACCESS_KEY": cfg["secret"],
+            "RCLONE_S3_ENDPOINT": cfg["endpoint"],
+            "RCLONE_S3_FORCE_PATH_STYLE": "true",
+        }
+    )
     return env
 
 
@@ -76,8 +79,8 @@ def inventory(out_json: str | Path, extra_prefixes: list[str] | None = None) -> 
         "endpoint": cfg["endpoint"],
         "top_level": listing.splitlines(),
         "note": (
-            "Join WAV/CSV using prepare_youtube. Historical Tabaghe16 on 1TB: "
-            "asr-gpu/Tabaghe16/Tabaghe16_Audio_Chunks and Tabaghe16_CSVs."
+            "All five YouTube sources are on the 2TB asr bucket. Tabaghe16 is under "
+            "STT/YT_PodCast_Chunks/{Audio_Chunks,CSVs}/طبقه 16."
         ),
         "extra": extra,
     }

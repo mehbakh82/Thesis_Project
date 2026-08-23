@@ -1,0 +1,360 @@
+"""Reconstruct bounded episode windows from ordered YouTube caption chunks."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import re
+import shutil
+import subprocess
+import tempfile
+import wave
+from collections import Counter
+from datetime import datetime, timezone
+from pathlib import Path
+
+import numpy as np
+
+from thesis_s2s import SAMPLE_RATE
+from thesis_s2s.audio import to_float32_mono
+from thesis_s2s.data.conversation_selection import load_jsonl
+from thesis_s2s.data.ingest import _parse_clock, rclone_copy
+from thesis_s2s.data.prepare_youtube import caption_ok, chunk_name, iter_csv_rows, load_wav_mono16k
+from thesis_s2s.data.verbatim import verbatim_normalize
+from thesis_s2s.metrics import write_json
+
+FILTER_SPECIAL = re.compile(r"([\\*?\[\]{}])")
+SAFE_NAME = re.compile(r"[^A-Za-z0-9_-]+")
+
+
+def rclone_filter_literal(value: str) -> str:
+    """Escape literal text embedded in an rclone include pattern."""
+
+    return FILTER_SPECIAL.sub(r"\\\1", value)
+
+
+def _safe_name(value: str) -> str:
+    readable = SAFE_NAME.sub("-", value).strip("-")[:28]
+    digest = hashlib.blake2b(value.encode("utf-8"), digest_size=8).hexdigest()
+    return f"{readable or 'item'}-{digest}"
+
+
+def _pcm16(audio: np.ndarray) -> bytes:
+    pcm = np.clip(to_float32_mono(audio) * 32767.0, -32768, 32767).astype("<i2")
+    return pcm.tobytes()
+
+
+def _chunk_candidates(chunk_root: Path) -> dict[str, Path]:
+    result: dict[str, Path] = {}
+    for path in sorted(chunk_root.rglob("*")):
+        if path.is_file() and path.suffix.lower() in {".wav", ".mp3"}:
+            result.setdefault(path.name, path)
+    return result
+
+
+def _chunk_path(files: dict[str, Path], stem: str, index: int) -> Path | None:
+    wav_name = chunk_name(stem, index)
+    return files.get(wav_name) or files.get(wav_name.removesuffix(".wav") + ".mp3")
+
+
+def reconstruct_episode_windows(
+    episode: dict,
+    chunk_root: Path,
+    out_root: Path,
+    *,
+    window_seconds: float = 900.0,
+    max_preserved_gap_s: float = 2.0,
+    min_chunk_coverage: float = 0.95,
+) -> tuple[list[dict], dict]:
+    """Create <=15-minute analysis windows and preserve caption order.
+
+    The source consists of pre-cut caption chunks, not the untouched episode.
+    This limitation is carried into every output row and cross-chunk overlap is
+    never fabricated.
+    """
+
+    if window_seconds < 60:
+        raise ValueError("window_seconds must be at least 60")
+    if not 0 < min_chunk_coverage <= 1:
+        raise ValueError("min_chunk_coverage must be in (0, 1]")
+
+    episode_id = str(episode.get("episode_id") or "")
+    stem = str(episode.get("stem") or "")
+    csv_path = Path(str(episode.get("csv_path") or ""))
+    if not episode_id or not stem or not csv_path.is_file():
+        return [], {"episode_id": episode_id, "status": "invalid_episode_record"}
+
+    source_rows = iter_csv_rows(csv_path)
+    eligible = [
+        (index, row, caption_ok(str(row.get("text") or row.get("transcript") or "")))
+        for index, row in enumerate(source_rows, start=1)
+    ]
+    eligible = [(index, row, text) for index, row, text in eligible if text is not None]
+    files = _chunk_candidates(Path(chunk_root))
+    out_root = Path(out_root)
+    out_root.mkdir(parents=True, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix=".episode-partial-", dir=out_root))
+    channel_dir = _safe_name(str(episode.get("channel") or "unknown"))
+    episode_dir = _safe_name(episode_id)
+    final_dir = out_root / str(episode.get("split") or "train") / channel_dir / episode_dir
+
+    windows: list[dict] = []
+    refs: list[dict] = []
+    handle: wave.Wave_write | None = None
+    cursor_samples = 0
+    window_index = 0
+    found = 0
+    decode_errors = 0
+    previous_source_end: float | None = None
+
+    def open_window() -> None:
+        nonlocal handle, cursor_samples
+        path = staging / f"window_{window_index:04d}.wav"
+        handle = wave.open(str(path), "wb")
+        handle.setnchannels(1)
+        handle.setsampwidth(2)
+        handle.setframerate(SAMPLE_RATE)
+        cursor_samples = 0
+
+    def close_window() -> None:
+        nonlocal handle, refs, window_index
+        if handle is None:
+            return
+        handle.close()
+        handle = None
+        if not refs:
+            return
+        final_path = final_dir / f"window_{window_index:04d}.wav"
+        windows.append(
+            {
+                "window_id": f"{episode_id}#window-{window_index:04d}",
+                "session_id": episode_id,
+                "recording_id": episode_id,
+                "episode_id": episode_id,
+                "window_index": window_index,
+                "audio_filepath": str(final_path),
+                "audio_path": str(final_path),
+                "duration": round(cursor_samples / SAMPLE_RATE, 3),
+                "reference_segments": refs,
+                "segments": [],
+                "channel": episode.get("channel"),
+                "source_kind": episode.get("source_kind"),
+                "expected_multi_speaker": episode.get("expected_multi_speaker"),
+                "conversation_candidate_reason": episode.get("conversation_candidate_reason"),
+                "source_csv": str(csv_path),
+                "reference_transcript_source": "provided_youtube_csv",
+                "reference_alignment_status": "pending_diarization",
+                "diarization_status": "not_run",
+                "automatic_multi_speaker_verified": False,
+                "conversation_verified": False,
+                "human_verified": False,
+                "split": episode.get("split"),
+                "license": str(episode.get("license") or "pending-youtube-rights-review"),
+                "license_verified": bool(episode.get("license_verified", False)),
+                "annotation_source": "provided_csv_plus_pending_diarization",
+                "audio_source_kind": "reconstructed_ordered_caption_chunks",
+                "is_original_episode_audio": False,
+                "cross_chunk_overlap_recoverable": False,
+                "overlap_limitation": (
+                    "pre-existing caption chunk boundaries may remove cross-boundary overlap"
+                ),
+            }
+        )
+        refs = []
+        window_index += 1
+
+    try:
+        open_window()
+        for row_index, row, text in eligible:
+            chunk = _chunk_path(files, stem, row_index)
+            if chunk is None:
+                continue
+            try:
+                audio, sample_rate = load_wav_mono16k(chunk)
+            except Exception:
+                decode_errors += 1
+                continue
+            if sample_rate != SAMPLE_RATE or not len(audio):
+                decode_errors += 1
+                continue
+            source_start = _parse_clock(str(row.get("start_time") or "0"))
+            source_end = _parse_clock(str(row.get("end_time") or "0"))
+            gap_s = (
+                min(max_preserved_gap_s, max(0.0, source_start - previous_source_end))
+                if previous_source_end is not None
+                else 0.0
+            )
+            gap_samples = int(round(gap_s * SAMPLE_RATE))
+            projected = cursor_samples + gap_samples + len(audio)
+            if refs and projected / SAMPLE_RATE > window_seconds:
+                close_window()
+                open_window()
+                gap_samples = 0
+            assert handle is not None
+            if gap_samples:
+                handle.writeframesraw(b"\x00\x00" * gap_samples)
+                cursor_samples += gap_samples
+            start = cursor_samples / SAMPLE_RATE
+            handle.writeframesraw(_pcm16(audio))
+            cursor_samples += len(audio)
+            end = cursor_samples / SAMPLE_RATE
+            refs.append(
+                {
+                    "start": round(start, 3),
+                    "end": round(end, 3),
+                    "text": verbatim_normalize(str(text)),
+                    "raw_text": str(text),
+                    "speaker": None,
+                    "source_start": round(source_start, 3),
+                    "source_end": round(source_end, 3),
+                    "source_row": row_index,
+                    "source_chunk": chunk.name,
+                }
+            )
+            previous_source_end = source_end if source_end > source_start else source_start
+            found += 1
+        close_window()
+    finally:
+        if handle is not None:
+            handle.close()
+
+    expected = len(eligible)
+    coverage = found / expected if expected else 0.0
+    report = {
+        "episode_id": episode_id,
+        "expected_caption_chunks": expected,
+        "decoded_chunks": found,
+        "decode_errors": decode_errors,
+        "chunk_coverage": round(coverage, 5),
+        "windows": len(windows),
+        "hours": round(sum(float(row["duration"]) for row in windows) / 3600.0, 4),
+        "status": "complete" if windows and coverage >= min_chunk_coverage else "failed_coverage",
+    }
+    if not windows or coverage < min_chunk_coverage:
+        shutil.rmtree(staging, ignore_errors=True)
+        return [], report
+    if final_dir.exists():
+        shutil.rmtree(staging, ignore_errors=True)
+        report["status"] = "failed_existing_untracked_output"
+        return [], report
+    final_dir.mkdir(parents=True)
+    for row in windows:
+        source = staging / Path(str(row["audio_filepath"])).name
+        shutil.move(str(source), str(Path(str(row["audio_filepath"]))))
+    shutil.rmtree(staging, ignore_errors=True)
+    return windows, report
+
+
+def _manifest_progress(path: Path) -> tuple[set[str], int, float]:
+    done: set[str] = set()
+    windows = 0
+    hours = 0.0
+    if not path.is_file():
+        return done, windows, hours
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        row = json.loads(line)
+        if row.get("episode_id"):
+            done.add(str(row["episode_id"]))
+        windows += 1
+        hours += float(row.get("duration") or 0.0) / 3600.0
+    return done, windows, hours
+
+
+def prepare_selected_episodes(
+    selection_jsonl: Path,
+    out_root: Path,
+    out_manifest: Path,
+    *,
+    max_episodes: int | None = None,
+    max_source_hours: float | None = None,
+    window_seconds: float = 900.0,
+    min_chunk_coverage: float = 0.95,
+    resume: bool = True,
+) -> dict:
+    selected = load_jsonl(Path(selection_jsonl))
+    done, window_count, prepared_hours = (
+        _manifest_progress(Path(out_manifest)) if resume else (set(), 0, 0.0)
+    )
+    selected_ids = {str(episode.get("episode_id") or "") for episode in selected}
+    resumed_ids = done & selected_ids
+    resumed_source_hours = sum(
+        float(episode.get("csv_hours") or 0.0)
+        for episode in selected
+        if str(episode.get("episode_id") or "") in resumed_ids
+    )
+    out_manifest = Path(out_manifest)
+    out_manifest.parent.mkdir(parents=True, exist_ok=True)
+    mode = "a" if resume and out_manifest.is_file() else "w"
+    stats: dict = {
+        "selected_episodes": len(selected),
+        "episodes_prepared": 0,
+        "episodes_failed": 0,
+        "episodes_resumed": len(resumed_ids),
+        "windows": window_count,
+        "prepared_audio_hours": prepared_hours,
+        "source_candidate_hours": resumed_source_hours,
+        "failures": Counter(),
+        "episode_reports": [],
+    }
+    with out_manifest.open(mode, encoding="utf-8") as dst:
+        for episode in selected:
+            if max_episodes is not None and stats["episodes_prepared"] >= max_episodes:
+                break
+            episode_id = str(episode.get("episode_id") or "")
+            if episode_id in done:
+                continue
+            source_hours = float(episode.get("csv_hours") or 0.0)
+            if (
+                max_source_hours is not None
+                and stats["source_candidate_hours"] + source_hours > max_source_hours
+                and stats["episodes_prepared"] > 0
+            ):
+                continue
+            tmp = Path(tempfile.mkdtemp(prefix="conversation-episode-"))
+            try:
+                escaped_stem = rclone_filter_literal(str(episode.get("stem") or ""))
+                rclone_copy(
+                    str(episode["chunks_remote"]),
+                    tmp,
+                    include=f"{escaped_stem}_chunk_*.wav",
+                )
+                if not any(tmp.rglob("*.wav")):
+                    rclone_copy(
+                        str(episode["chunks_remote"]),
+                        tmp,
+                        include=f"{escaped_stem}_chunk_*.mp3",
+                    )
+                windows, report = reconstruct_episode_windows(
+                    episode,
+                    tmp,
+                    Path(out_root),
+                    window_seconds=window_seconds,
+                    min_chunk_coverage=min_chunk_coverage,
+                )
+                stats["episode_reports"].append(report)
+                if not windows:
+                    stats["episodes_failed"] += 1
+                    stats["failures"][str(report.get("status"))] += 1
+                    continue
+                for row in windows:
+                    dst.write(json.dumps(row, ensure_ascii=False) + "\n")
+                dst.flush()
+                stats["episodes_prepared"] += 1
+                stats["windows"] += len(windows)
+                stats["source_candidate_hours"] += source_hours
+                stats["prepared_audio_hours"] += (
+                    sum(float(row.get("duration") or 0.0) for row in windows) / 3600.0
+                )
+            except subprocess.CalledProcessError:
+                stats["episodes_failed"] += 1
+                stats["failures"]["s3_download"] += 1
+            finally:
+                shutil.rmtree(tmp, ignore_errors=True)
+    stats["prepared_audio_hours"] = round(float(stats["prepared_audio_hours"]), 3)
+    stats["source_candidate_hours"] = round(float(stats["source_candidate_hours"]), 3)
+    stats["failures"] = dict(stats["failures"])
+    stats["finished_at"] = datetime.now(timezone.utc).isoformat()
+    write_json(out_manifest.with_name("conversation_episode_prepare_stats.json"), stats)
+    return stats

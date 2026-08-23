@@ -39,30 +39,115 @@ def main(argv: list[str] | None = None) -> None:
     p_filt.add_argument("--out-jsonl", type=Path, required=True)
     p_filt.add_argument("--min-hours", type=float, default=100)
     p_filt.add_argument("--max-hours", type=float, default=200)
+    p_filt.add_argument("--require-teacher", action="store_true")
     p_audit = sub.add_parser("audit-corpus")
-    p_audit.add_argument("--manifest", type=Path, default=Path("data/processed/manifests/filtered.jsonl"))
+    p_audit.add_argument(
+        "--manifest", type=Path, default=Path("data/processed/manifests/filtered.jsonl")
+    )
     p_audit.add_argument("--out", type=Path, default=Path("results/corpus_audit.json"))
     p_audit.add_argument("--no-check-files", action="store_true")
     p_alignment = sub.add_parser("audit-alignment")
-    p_alignment.add_argument("--manifest", type=Path, default=Path("data/processed/manifests/filtered_nemo_teacher.jsonl"))
-    p_alignment.add_argument("--out", type=Path, default=Path("results/caption_alignment_audit.json"))
+    p_alignment.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("data/processed/manifests/filtered_nemo_teacher.jsonl"),
+    )
+    p_alignment.add_argument(
+        "--out", type=Path, default=Path("results/caption_alignment_audit.json")
+    )
     p_conv = sub.add_parser("build-conversations")
     p_conv.add_argument("--in-jsonl", type=Path, required=True)
-    p_conv.add_argument("--out-jsonl", type=Path, default=Path("data/processed/manifests/conversations.jsonl"))
+    p_conv.add_argument(
+        "--out-jsonl", type=Path, default=Path("data/processed/manifests/conversations.jsonl")
+    )
     p_conv.add_argument("--clips-dir", type=Path, default=Path("data/processed/conversations"))
     p_conv.add_argument("--max-hours", type=float, default=200.0)
     p_conv_audit = sub.add_parser("audit-conversations")
-    p_conv_audit.add_argument("--manifest", type=Path, default=Path("data/processed/manifests/conversations.jsonl"))
+    p_conv_audit.add_argument(
+        "--manifest", type=Path, default=Path("data/processed/manifests/conversations.jsonl")
+    )
     p_conv_audit.add_argument("--out", type=Path, default=Path("results/conversation_audit.json"))
     p_conv_audit.add_argument("--no-check-files", action="store_true")
     p_omni_export = sub.add_parser("export-omni2-data")
-    p_omni_export.add_argument("--manifest", type=Path, default=Path("data/processed/manifests/conversations.jsonl"))
+    p_omni_export.add_argument(
+        "--manifest", type=Path, default=Path("data/processed/manifests/conversations.jsonl")
+    )
     p_omni_export.add_argument(
         "--out",
         type=Path,
         default=Path("data/processed/manifests/llama_omni2_questions.json"),
     )
-    p_filt.add_argument("--require-teacher", action="store_true")
+    p_conv_plan = sub.add_parser("plan-conversation-corpus")
+    p_conv_plan.add_argument("--target-hours", type=float, default=180.0)
+    p_conv_plan.add_argument("--min-hours", type=float, default=100.0)
+    p_conv_plan.add_argument("--max-hours", type=float, default=200.0)
+    p_conv_plan.add_argument("--max-channel-share", type=float, default=0.55)
+    p_conv_plan.add_argument("--reserve-hours", type=float, default=120.0)
+    p_conv_plan.add_argument("--reserve-max-hours", type=float, default=150.0)
+    p_ep = sub.add_parser("prepare-conversation-episodes")
+    p_ep.add_argument(
+        "--selection",
+        type=Path,
+        default=Path("data/processed/manifests/youtube_conversation_selection.jsonl"),
+    )
+    p_ep.add_argument("--out-root", type=Path, default=Path("data/processed/conversation_windows"))
+    p_ep.add_argument(
+        "--out-jsonl",
+        type=Path,
+        default=Path("data/processed/manifests/conversation_episode_windows.jsonl"),
+    )
+    p_ep.add_argument("--max-episodes", type=int, default=None)
+    p_ep.add_argument("--max-source-hours", type=float, default=None)
+    p_ep.add_argument("--window-seconds", type=float, default=900.0)
+    p_ep.add_argument("--min-chunk-coverage", type=float, default=0.95)
+    p_ep.add_argument("--no-resume", action="store_true")
+    p_ep_diar = sub.add_parser("diarize-conversation-episodes")
+    p_ep_diar.add_argument(
+        "--in-jsonl",
+        type=Path,
+        default=Path("data/processed/manifests/conversation_episode_windows.jsonl"),
+    )
+    p_ep_diar.add_argument(
+        "--out-jsonl",
+        type=Path,
+        default=Path("data/processed/manifests/conversation_episode_windows_diarized.jsonl"),
+    )
+    p_ep_diar.add_argument("--limit", type=int, default=None)
+    p_ep_diar.add_argument("--no-resume", action="store_true")
+    p_ep_audit = sub.add_parser("audit-diarized-episodes")
+    p_ep_audit.add_argument("--manifest", type=Path, default=p_ep_diar.get_default("out_jsonl"))
+    p_ep_audit.add_argument("--out", type=Path, default=Path("results/diarized_episode_audit.json"))
+    p_ep_audit.add_argument("--min-hours", type=float, default=100.0)
+    p_ep_audit.add_argument("--max-hours", type=float, default=200.0)
+    p_qa_sample = sub.add_parser("sample-conversation-qa")
+    p_qa_sample.add_argument(
+        "--in-jsonl",
+        type=Path,
+        default=p_ep_diar.get_default("out_jsonl"),
+    )
+    p_qa_sample.add_argument(
+        "--out",
+        type=Path,
+        default=Path("data/processed/manifests/conversation_manual_qa.csv"),
+    )
+    p_qa_sample.add_argument("--per-stratum", type=int, default=5)
+    p_qa_apply = sub.add_parser("apply-conversation-qa")
+    p_qa_apply.add_argument(
+        "--in-jsonl",
+        type=Path,
+        default=p_ep_diar.get_default("out_jsonl"),
+    )
+    p_qa_apply.add_argument(
+        "--qa-csv",
+        type=Path,
+        default=p_qa_sample.get_default("out"),
+    )
+    p_qa_apply.add_argument(
+        "--out-jsonl",
+        type=Path,
+        default=Path("data/processed/manifests/conversation_episode_windows_reviewed.jsonl"),
+    )
+    p_qa_apply.add_argument("--report", type=Path, default=Path("results/manual_qa_report.json"))
     p_scale = sub.add_parser("scale-corpus")
     p_scale.add_argument("--min-hours", type=float, default=100)
     p_scale.add_argument("--max-hours", type=float, default=200)
@@ -151,7 +236,11 @@ def main(argv: list[str] | None = None) -> None:
 
         print(
             json.dumps(
-                run_ingest(max_hours=args.max_hours, max_episodes=args.max_episodes, resume=not args.no_resume),
+                run_ingest(
+                    max_hours=args.max_hours,
+                    max_episodes=args.max_episodes,
+                    resume=not args.no_resume,
+                ),
                 indent=2,
                 default=str,
             )[:5000]
@@ -219,13 +308,84 @@ def main(argv: list[str] | None = None) -> None:
     elif args.cmd == "export-omni2-data":
         from thesis_s2s.data.conversation import export_llama_omni2_questions
 
-        print(json.dumps(export_llama_omni2_questions(args.manifest, args.out), indent=2, ensure_ascii=False))
+        print(
+            json.dumps(
+                export_llama_omni2_questions(args.manifest, args.out), indent=2, ensure_ascii=False
+            )
+        )
+    elif args.cmd == "plan-conversation-corpus":
+        from thesis_s2s.data.conversation_selection import run_conversation_selection
+
+        report = run_conversation_selection(
+            target_hours=args.target_hours,
+            min_hours=args.min_hours,
+            max_hours=args.max_hours,
+            max_channel_share=args.max_channel_share,
+            reserve_hours=args.reserve_hours,
+            reserve_max_hours=args.reserve_max_hours,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "prepare-conversation-episodes":
+        from thesis_s2s.data.episode_prepare import prepare_selected_episodes
+
+        report = prepare_selected_episodes(
+            args.selection,
+            args.out_root,
+            args.out_jsonl,
+            max_episodes=args.max_episodes,
+            max_source_hours=args.max_source_hours,
+            window_seconds=args.window_seconds,
+            min_chunk_coverage=args.min_chunk_coverage,
+            resume=not args.no_resume,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "diarize-conversation-episodes":
+        from thesis_s2s.data.diarize import diarize_episode_manifest
+
+        report = diarize_episode_manifest(
+            args.in_jsonl,
+            args.out_jsonl,
+            limit=args.limit,
+            resume=not args.no_resume,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "audit-diarized-episodes":
+        from thesis_s2s.data.diarize import audit_diarized_windows
+
+        report = audit_diarized_windows(
+            args.manifest,
+            args.out,
+            min_hours=args.min_hours,
+            max_hours=args.max_hours,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "sample-conversation-qa":
+        from thesis_s2s.data.manual_qa import sample_manual_qa
+
+        report = sample_manual_qa(
+            args.in_jsonl,
+            args.out,
+            per_stratum=args.per_stratum,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "apply-conversation-qa":
+        from thesis_s2s.data.manual_qa import apply_manual_qa
+
+        report = apply_manual_qa(
+            args.in_jsonl,
+            args.qa_csv,
+            args.out_jsonl,
+            report_path=args.report,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "scale-corpus":
         from thesis_s2s.data.factory import scale_corpus
 
         print(
             json.dumps(
-                scale_corpus(min_hours=args.min_hours, max_hours=args.max_hours, reasr_limit=args.reasr_limit),
+                scale_corpus(
+                    min_hours=args.min_hours, max_hours=args.max_hours, reasr_limit=args.reasr_limit
+                ),
                 indent=2,
                 default=str,
             )[:8000]
@@ -263,7 +423,12 @@ def main(argv: list[str] | None = None) -> None:
     elif args.cmd == "train-bargein":
         from thesis_s2s.bargein.train import train_and_eval
 
-        print(json.dumps(train_and_eval(n_per_class=args.n_per_class, recorded_jsonl=args.recorded_jsonl), indent=2))
+        print(
+            json.dumps(
+                train_and_eval(n_per_class=args.n_per_class, recorded_jsonl=args.recorded_jsonl),
+                indent=2,
+            )
+        )
     elif args.cmd == "train-s2s-smoke":
         from thesis_s2s.model.llama_omni2 import train_smoke
 
@@ -301,7 +466,13 @@ def main(argv: list[str] | None = None) -> None:
         interrupt = run_interrupt_bench()
         wer_report = run_reply_wer()
         write_eval_summary(latency, interrupt, wer_report)
-        print(json.dumps({"latency": latency, "interrupt": interrupt, "wer": wer_report}, indent=2, default=str)[:6000])
+        print(
+            json.dumps(
+                {"latency": latency, "interrupt": interrupt, "wer": wer_report},
+                indent=2,
+                default=str,
+            )[:6000]
+        )
     elif args.cmd == "serve":
         import uvicorn
 

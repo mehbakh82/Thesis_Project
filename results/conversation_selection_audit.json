@@ -1,0 +1,100 @@
+{
+  "selection_is_candidate_data_not_final_evidence": true,
+  "selected_episodes": 287,
+  "selected_candidate_hours": 180.043,
+  "target_hours": 180.0,
+  "min_hours": 100.0,
+  "max_hours": 200.0,
+  "channels": {
+    "Digiato": {
+      "episodes": 50,
+      "hours": 18.119,
+      "share": 0.1006
+    },
+    "Mehran Rowshan Persian": {
+      "episodes": 108,
+      "hours": 50.999,
+      "share": 0.2833
+    },
+    "Tabaghe16": {
+      "episodes": 56,
+      "hours": 92.469,
+      "share": 0.5136
+    },
+    "Zoomit": {
+      "episodes": 73,
+      "hours": 18.456,
+      "share": 0.1025
+    }
+  },
+  "candidate_reasons": {
+    "podcast_prior_needs_diarization": 164,
+    "mixed_channel_needs_diarization": 123
+  },
+  "largest_channel_share": 0.5136,
+  "diarized_episodes": 0,
+  "automatic_multi_speaker_hours": 0,
+  "reference_aligned_hours": 0,
+  "human_verified_episodes": 0,
+  "planning_requirements": {
+    "candidate_hours_100_to_200": true,
+    "selection_target_reached": true,
+    "whole_episode_selection": true,
+    "episode_ids_unique": true,
+    "at_least_two_channels": true,
+    "both_podcast_sources_present": true,
+    "channel_share_within_cap": true,
+    "likely_monologues_excluded": true,
+    "reference_csv_available": true,
+    "episode_group_split_present": true
+  },
+  "planning_gate_passes": true,
+  "evidence_requirements": {
+    "diarization_complete_for_selected": false,
+    "automatic_multi_speaker_hours_100_to_200": false,
+    "reference_alignment_hours_100_to_200": false,
+    "manual_qa_sample_present": false,
+    "licenses_verified_for_selected": false
+  },
+  "thesis_evidence_gate_passes": false,
+  "next_stage": "prepare episode windows, diarize, align provided CSV text, then review a sample",
+  "inventory_stats": {
+    "channels": {
+      "Tabaghe16": {
+        "episodes_ok": 195,
+        "shorts_skipped": 185,
+        "csv_hours": 320.134
+      },
+      "Mehran Rowshan Persian": {
+        "episodes_ok": 185,
+        "shorts_skipped": 1645,
+        "csv_hours": 87.308
+      },
+      "Digiato": {
+        "episodes_ok": 414,
+        "shorts_skipped": 548,
+        "csv_hours": 148.086
+      },
+      "Zoomit": {
+        "episodes_ok": 524,
+        "shorts_skipped": 1334,
+        "csv_hours": 132.535
+      },
+      "Kooshiar": {
+        "episodes_ok": 124,
+        "shorts_skipped": 8,
+        "csv_hours": 87.824
+      }
+    },
+    "csv_hours": 775.887,
+    "episodes_ok": 1442,
+    "shorts_skipped": 3720,
+    "n_episode_records": 1442
+  },
+  "inventory_manifest": "/mnt/md0/mehbakh/Thesis_Project/data/processed/manifests/youtube_episode_inventory.jsonl",
+  "selection_manifest": "/mnt/md0/mehbakh/Thesis_Project/data/processed/manifests/youtube_conversation_selection.jsonl",
+  "reserve_manifest": "/mnt/md0/mehbakh/Thesis_Project/data/processed/manifests/youtube_conversation_reserve.jsonl",
+  "reserve_episodes": 172,
+  "reserve_candidate_hours": 120.327,
+  "reserve_note": "prepare in small batches only if verified primary yield is below 100 h"
+}

@@ -6,9 +6,15 @@
   "filtered_caption_utts": 215684,
   "nemo_reasr_hours_unused": 120.005,
   "recorded_hours": 0.0,
-  "csv_hours": 455.753,
+  "csv_hours": 775.887,
   "caption_band_ok": true,
   "thesis_coverage_ok": false,
+  "conversation_candidate_hours": 180.043,
+  "conversation_candidate_episodes": 287,
+  "conversation_reserve_hours": 120.327,
+  "conversation_reserve_episodes": 172,
+  "conversation_planning_gate": true,
+  "conversation_evidence_gate": false,
   "corpus_audit": {
     "manifest": "/mnt/md0/mehbakh/Thesis_Project/data/processed/manifests/filtered.jsonl",
     "n": 215684,
@@ -220,6 +226,6 @@
     "evidence_scope": "Small deterministic live-ASR screening sample, not ground truth or a confidence-powered validation set. The complete row-level output was inspected during the 2026-08-22 audit."
   },
   "s2s_text": "transcript_caption",
-  "updated_at": "2026-08-22T15:58:03.633996+00:00",
+  "updated_at": "2026-08-23T09:37:26.680781+00:00",
   "factory": null
 }

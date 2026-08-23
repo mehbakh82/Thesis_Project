@@ -24,13 +24,35 @@ Confirm in the JSON:
 ## 2. Prepare conversational supervision
 
 ```bash
+# CSV planning is fast and reproducible; full preparation is resumable I/O.
+.venv/bin/python -m thesis_s2s.cli plan-conversation-corpus
+.venv/bin/python -m thesis_s2s.cli prepare-conversation-episodes
+
+# Start the existing offline Community-1 service on the 4090.
+cd /mnt/md0/mehbakh/asr_nemo_soroush
+docker compose --profile gpu up -d diarization-gpu
+diar_ip=$(docker inspect asr_nemo_soroush_diarization \
+  --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
+curl -f "http://${diar_ip}:8081/health/ready"
+cd /mnt/md0/mehbakh/Thesis_Project
+export DIARIZATION_SERVICE_URL="http://${diar_ip}:8081"
+.venv/bin/python -m thesis_s2s.cli diarize-conversation-episodes
+.venv/bin/python -m thesis_s2s.cli audit-diarized-episodes
+
+.venv/bin/python -m thesis_s2s.cli sample-conversation-qa
+# A reviewer fills conversation_manual_qa.csv before the next command.
+.venv/bin/python -m thesis_s2s.cli apply-conversation-qa
+.venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
+  --manifest data/processed/manifests/conversation_episode_windows_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli build-conversations \
-  --in-jsonl data/processed/manifests/full_diarized.jsonl
+  --in-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
 .venv/bin/python -m thesis_s2s.cli export-omni2-data
 ```
 
-Do not start a long adaptation if `results/conversation_audit.json` fails. Session-level train/validation/test separation and response audio are mandatory.
+The selector's planning gate is not sufficient evidence. Do not start a long adaptation unless both `results/diarized_episode_audit.json` and `results/conversation_audit.json` pass. Episode-level train/validation/test separation, response audio, reference alignment, and manual QA are mandatory. See `YOUTUBE_CONVERSATION_PIPELINE.md`.
+
+Manual review validates labels, not data rights. The license gate remains false until the authorized owner records explicit approval in the manifest.
 
 ## 3. Direct-model boundary
 

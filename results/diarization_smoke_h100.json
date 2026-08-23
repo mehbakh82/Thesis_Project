@@ -1,0 +1,56 @@
+{
+  "evidence_class": "diagnostic_h100_not_official_4090",
+  "date": "2026-08-23",
+  "service": {
+    "implementation": "pyannote-speaker-diarization-community-1",
+    "health_ready": true,
+    "device": "cuda",
+    "http_contract_validated": true
+  },
+  "episode_id": "Mehran Rowshan Persian/ترس و اضطراب جنگ ایران و اسرائیل",
+  "windows": [
+    {
+      "window_index": 0,
+      "duration_seconds": 899.291,
+      "diarization_status": "complete",
+      "reference_alignment_status": "complete",
+      "reference_segments": 239,
+      "usable_segments": 198,
+      "usable_coverage": 0.8285,
+      "mean_alignment_confidence": 0.7374,
+      "speaker_seconds": {
+        "SPEAKER_01": 603.939,
+        "SPEAKER_00": 8.201
+      },
+      "secondary_speaker_share": 0.0134,
+      "overlap_intervals": 0,
+      "automatic_multi_speaker_verified": false,
+      "rejection_reason": "secondary speaker below 20 seconds and 3 percent"
+    },
+    {
+      "window_index": 1,
+      "duration_seconds": 206.094,
+      "diarization_status": "complete",
+      "reference_alignment_status": "complete",
+      "reference_segments": 57,
+      "usable_segments": 50,
+      "usable_coverage": 0.8772,
+      "mean_alignment_confidence": 0.7667,
+      "speaker_seconds": {
+        "SPEAKER_00": 144.737,
+        "SPEAKER_01": 3.915
+      },
+      "secondary_speaker_share": 0.0263,
+      "overlap_intervals": 0,
+      "automatic_multi_speaker_verified": false,
+      "rejection_reason": "secondary speaker below 20 seconds and 3 percent"
+    }
+  ],
+  "conclusions": [
+    "The real diarization HTTP contract, speaker turns, and CSV alignment work end to end.",
+    "Channel-level podcast priors are not conversational labels; episode windows must be filtered.",
+    "The fail-closed thresholds rejected a predominantly single-speaker episode.",
+    "A disjoint reserve pool is required to replace rejected primary candidates.",
+    "These measurements cannot be used as official 4090 latency or memory evidence."
+  ]
+}

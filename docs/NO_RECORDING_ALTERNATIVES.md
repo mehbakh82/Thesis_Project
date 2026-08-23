@@ -36,25 +36,31 @@ A listening-only study can measure naturalness and preference but cannot, by its
 
 ## Conversational-data alternatives that do not require new recording
 
-Preferred route, if the university has the necessary LDC membership/license:
+The preferred route is now the verified internal YouTube archive:
+
+- 775.887 caption-speech hours are available across 1,442 long episodes;
+- a balanced 180.043-hour whole-episode candidate set is already selected from Tabaghe16, Mehran Rowshan Persian, Digiato, and Zoomit;
+- the provided CSV captions supply text, while diarization supplies speaker timing;
+- Kooshiar remains inventory/acoustic data and is excluded from the default conversation set.
+
+This route avoids new recording, but it is not automatically requirement-complete. Confirm that internal YouTube use is permitted, run diarization/alignment, reject single-speaker windows, and manually review a stratified sample. The pre-cut chunks may lose cross-boundary overlap, which the manifests explicitly declare.
+
+LDC is now a fallback if licensing, audio quality, or verified multi-speaker yield leaves fewer than 100 hours:
 
 - [CALLFRIEND Farsi Second Edition Speech](https://catalog.ldc.upenn.edu/LDC2014S01): about 42 hours of two-channel natural telephone conversations.
 - [MATERIAL Farsi-English Language Pack](https://catalog.ldc.upenn.edu/LDC2024S13): about 61 hours of conversational telephone speech, with speakers aged 16–67 and varied environments; only part is transcribed.
 
-Together they provide roughly 103 hours of genuine conversational speech. Keep restricted media internal, generate missing transcripts with the NeMo service, diarize, construct response pairs with `build-conversations`, and manually verify a stratified label sample. Confirm that each license permits the intended training and thesis reporting.
-
-If LDC access is unavailable:
-
-- prioritize full multi-speaker interviews/podcasts already in university storage, not isolated monologue chunks;
-- reconstruct full episodes where legally permitted, run ASR plus diarization, then create response-pair clips;
-- supplement acoustics with Common Voice/read speech and synthetic noise/overlap, but do not count those supplements as proof of natural conversation;
-- use conversational transcripts for text/SFT only when corresponding audio is absent.
-
-The new commands are:
+The implemented commands are:
 
 ```bash
+.venv/bin/python -m thesis_s2s.cli plan-conversation-corpus
+.venv/bin/python -m thesis_s2s.cli prepare-conversation-episodes
+.venv/bin/python -m thesis_s2s.cli diarize-conversation-episodes
+.venv/bin/python -m thesis_s2s.cli audit-diarized-episodes
+.venv/bin/python -m thesis_s2s.cli sample-conversation-qa
+.venv/bin/python -m thesis_s2s.cli apply-conversation-qa
 .venv/bin/python -m thesis_s2s.cli build-conversations \
-  --in-jsonl data/processed/manifests/full_diarized.jsonl
+  --in-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
 .venv/bin/python -m thesis_s2s.cli export-omni2-data
 ```

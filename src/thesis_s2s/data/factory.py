@@ -69,6 +69,15 @@ def refresh_dataset_card(report: dict | None = None) -> Path:
     if csv_path.is_file():
         csv_inv = json.loads(csv_path.read_text(encoding="utf-8"))
     csv_hours = (csv_inv.get("stats") or {}).get("csv_hours")
+    conversation_selection: dict = {}
+    selection_path = root / "results" / "conversation_selection_audit.json"
+    if selection_path.is_file():
+        conversation_selection = json.loads(selection_path.read_text(encoding="utf-8"))
+        full_inventory_stats = conversation_selection.get("inventory_stats") or {}
+        if full_inventory_stats.get("csv_hours") is not None:
+            csv_hours = full_inventory_stats["csv_hours"]
+    selected_hours = conversation_selection.get("selected_candidate_hours")
+    selected_episodes = conversation_selection.get("selected_episodes")
     synth_stats = {}
     synth_path = manifests / "synthetic_stats.json"
     if synth_path.is_file():
@@ -108,10 +117,11 @@ def refresh_dataset_card(report: dict | None = None) -> Path:
         "| Split | Source | License | Publish? | Status |",
         "|---|---|---|---|---|",
         (
-            f"| Internal 100–200 h | 2TB S3 YouTube | YouTube ToS — research-internal | No raw audio | "
-            f"CSV long-form inventory **{csv_hours} h**. Audio ingested **{h_all:.2f} h** ({n_all} clips). "
-            f"Caption-filtered speech mix **{h_filt:.3f} h** / {n_filt} utterances "
-            f"({'in 100–200 h band' if caption_hours_ok else 'below 100 h'}). It contains no assistant response supervision. |"
+            "| Internal conversation candidates | 2TB S3 YouTube | YouTube ToS — "
+            "research-internal, pending explicit confirmation | No raw audio | "
+            f"Full five-source inventory **{csv_hours} h**. Whole-episode plan "
+            f"**{selected_hours} h / {selected_episodes} episodes**. Candidates remain "
+            "unverified until diarization, alignment, and manual QA. |"
         ),
         (
             f"| Synthetic duplex | tiled harmonic overlap mixer | synthetic | Yes, clearly labeled | "
@@ -132,6 +142,11 @@ def refresh_dataset_card(report: dict | None = None) -> Path:
         f"NeMo HTTP remains the cascade ASR baseline only. Optional `youtube_reasr.jsonl` ({h_nemo:.2f} h) is diagnostic.",
         "",
         "## Audit snapshot",
+        "",
+        "`results/conversation_selection_audit.json` is authoritative for the episode-level plan. "
+        f"Planning gate: **{bool(conversation_selection.get('planning_gate_passes', False))}**; "
+        f"thesis evidence gate: **{bool(conversation_selection.get('thesis_evidence_gate_passes', False))}**. "
+        "The older flat-clip audit below remains acoustic/caption evidence only.",
         "",
         "`results/corpus_audit.json` is authoritative. The latest in-process audit reports:",
         "",
@@ -157,13 +172,15 @@ def refresh_dataset_card(report: dict | None = None) -> Path:
         "",
         "Where the Tabaghe16 layout holds, `{stem}_chunk_NNNN.wav` is 1:1 with CSV row N (1-indexed). Episodes with fewer than 50 rows are treated as Shorts and skipped.",
         "",
-        "Channels (2TB `asr`): Digiato, Zoomit, Kooshiar, Mehran Rowshan Persian — each `CSVs/` + `Audio_Chunks/`.",
+        "Channels (2TB `asr`): Digiato, Zoomit, Kooshiar, and Mehran Rowshan Persian use top-level prefixes. "
+        "Tabaghe16 uses `STT/YT_PodCast_Chunks/{CSVs,Audio_Chunks}/طبقه 16`.",
         "",
         "## Collection notes",
         "",
         "Chunk audio is time-aligned to YouTube caption CSVs from the existing crawl (`--write-auto-subs` → VTT → CSV). "
         "SFT uses those captions, not a second ASR pass. Optional leftover `batch-reasr` / `youtube_reasr.jsonl` is not the training target. "
-        "Diarization (Community-1) is optional on a podcast subset (`DIARIZATION_SERVICE_URL`).",
+        "Diarization is required before selected episodes count as conversational supervision. "
+        "Reconstructed windows declare that cross-chunk overlap may be unrecoverable.",
         "",
         "Filter: duration 1–20 s, Persian script ratio, music-caption drop, SNR p90−p10, LID `language_status` when present. "
         "TTS/SFT uses the caption-filtered mix (`filtered.jsonl` / `filtered_caption.jsonl`), not `--require-teacher`.",
@@ -188,6 +205,12 @@ def refresh_dataset_card(report: dict | None = None) -> Path:
         "csv_hours": csv_hours,
         "caption_band_ok": caption_hours_ok,
         "thesis_coverage_ok": bool(audit.get("thesis_coverage_ok", False)),
+        "conversation_candidate_hours": selected_hours,
+        "conversation_candidate_episodes": selected_episodes,
+        "conversation_reserve_hours": conversation_selection.get("reserve_candidate_hours"),
+        "conversation_reserve_episodes": conversation_selection.get("reserve_episodes"),
+        "conversation_planning_gate": bool(conversation_selection.get("planning_gate_passes")),
+        "conversation_evidence_gate": bool(conversation_selection.get("thesis_evidence_gate_passes")),
         "corpus_audit": audit,
         "caption_alignment_audit": alignment,
         "zoomit_alignment_sample": zoomit_alignment,
