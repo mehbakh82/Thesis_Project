@@ -1,0 +1,23 @@
+sample_rate: 16000
+min_duration_s: 1.0
+max_duration_s: 20.0
+min_episode_rows: 50
+min_words: 2
+val_pct: 3
+test_pct: 5
+target_hours_min: 100
+target_hours_max: 200
+synthetic_duplex_hours: 20
+optional_local_audio_hours_min: 8
+optional_local_audio_hours_max: 15
+s3:
+  # Credentials MUST come from the environment. Never commit keys.
+  # 2TB: S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_BUCKET=asr
+  # Channel prefixes: Digiato, Kooshiar, Zoomit, Mehran Rowshan Persian
+  #   each has Audio_Chunks/ and CSVs/
+  # Also: STT/YT_PodCast_Chunks, STT/our_youtube
+  # 1TB Tabaghe16: asr-gpu/Tabaghe16/{Tabaghe16_Audio_Chunks,Tabaghe16_CSVs}
+  provider: Minio
+  force_path_style: true
+verbatim_version: fa-verbatim-2
+use_asr_normalise_for_s2s: false

@@ -1,0 +1,87 @@
+{
+  "evidence_class": "historical_proxy_summary",
+  "official": false,
+  "superseded_by": "results/eval/EVIDENCE_STATUS.json",
+  "path_a": {
+    "official_gpu": false,
+    "memory_capped": true,
+    "t_first_audio_p50_ms": 60.2427301928401,
+    "t_barge_in_p95_ms": 18.207045597955585,
+    "talker": "OmniTalker",
+    "tts_backend": "piper",
+    "gate_ok": true
+  },
+  "path_b": {
+    "official_gpu": false,
+    "hardware_present": false,
+    "t_first_audio_p50_ms": 44.81114586815238,
+    "t_barge_in_p95_ms": 16.01965115405619,
+    "note": "Official Path B when the physical GPU is 12–24 GB and uncapped. This host is not that card; numbers are still recorded."
+  },
+  "gpu_inventory": {
+    "device": "NVIDIA H100 NVL",
+    "total_gb": 93.09,
+    "official_size": false,
+    "path_b_possible": false
+  },
+  "bargein_synthetic": {
+    "accuracy": 1.0,
+    "interrupt_f1": 1.0,
+    "far": 0.0,
+    "frr": 0.0,
+    "target_ok": true,
+    "n": 29,
+    "labels": [
+      "other",
+      "interrupt"
+    ],
+    "matrix": [
+      [
+        17,
+        0
+      ],
+      [
+        0,
+        12
+      ]
+    ]
+  },
+  "energy_vad": {
+    "accuracy": 0.41379310344827586,
+    "interrupt_f1": 0.5853658536585366,
+    "far": 1.0,
+    "frr": 0.0,
+    "target_ok": false,
+    "n": 29,
+    "labels": [
+      "other",
+      "interrupt"
+    ],
+    "matrix": [
+      [
+        0,
+        17
+      ],
+      [
+        0,
+        12
+      ]
+    ]
+  },
+  "recorded_eval": false,
+  "study": {
+    "n_target": [
+      5,
+      10
+    ],
+    "elderly_min": 2,
+    "status": "not_collected",
+    "serve": "python3 -m thesis_s2s.cli serve --record --study --age-bin 60plus",
+    "rating_endpoint": "POST /study/rating",
+    "docs": [
+      "docs/HUMAN_STUDY.md",
+      "docs/MOS_SHEET.md",
+      "docs/PROMPT_SHEET.md"
+    ]
+  }
+}

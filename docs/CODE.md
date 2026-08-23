@@ -1,0 +1,30 @@
+# Code map
+
+## Deployable path
+
+- `src/thesis_s2s/runtime/duplex.py` — FastAPI UI, continuous 16 kHz microphone stream, WebSocket protocol, browser playback acknowledgements, and study endpoints.
+- `src/thesis_s2s/runtime/cascade.py` — bounded NeMo HTTP ASR → local Qwen/rules response → Piper/formant TTS. This is the current working speech-to-speech path.
+- `src/thesis_s2s/runtime/tts.py` — Piper synthesis with a formant fallback for development only.
+- `src/thesis_s2s/runtime/session_log.py` — consent-gated, path-safe session WAV/JSONL storage and evidence-readiness summary.
+- `src/thesis_s2s/bargein/` — energy/F0/MFCC features, GBDT training, energy baseline, and rolling real-time playback controller.
+
+## Experimental model path
+
+- `src/thesis_s2s/model/llama_omni2.py` — encoder/reconstruction ablation. It is **not** a speech-conditioned conversational LLM and its artifacts are not runtime-ready.
+- `train_s2s()` in `src/thesis_s2s/model/llama_omni2.py` — split-aware experimental training, gated by `--allow-experimental`.
+- `checkpoint_runtime_status()` in `src/thesis_s2s/model/llama_omni2.py` — fail-closed artifact validation for health/evidence reporting. Serving remains cascade-only until a direct runtime is separately implemented and tested.
+
+## Data and evaluation
+
+- `src/thesis_s2s/data/ingest.py` — CSV inventory and per-episode rclone streaming.
+- `src/thesis_s2s/data/prepare_youtube.py` — Tabaghe16 caption/audio join and 16 kHz WAV preparation.
+- `src/thesis_s2s/data/batch_reasr.py` — optional diagnostic NeMo/Whisper re-ASR; never overwrites canonical captions.
+- `src/thesis_s2s/data/verbatim.py` — Persian normalization while retaining source-caption provenance.
+- `src/thesis_s2s/data/filter_corpus.py` — quality filters and synthetic plumbing data.
+- `src/thesis_s2s/data/audit.py` — manifest integrity, split leakage, conversational-supervision coverage, and caption/independent-ASR alignment-risk audits.
+- `src/thesis_s2s/data/factory.py` — data pipeline orchestration.
+- `src/thesis_s2s/bakeoff/codecs.py` — codec/component probes, not a comparative full-model benchmark.
+- `src/thesis_s2s/eval/bench.py` — component proxy measurements and evidence metadata. Official end-to-end latency comes only from live browser telemetry on eligible physical hardware.
+- `src/thesis_s2s/metrics.py` — validated latency, detector, and hardware-gate calculations.
+
+See `docs/REVIEW.md` for the audit verdict and the remaining evidence required by the thesis definition.

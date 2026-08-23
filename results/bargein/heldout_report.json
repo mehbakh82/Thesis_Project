@@ -1,0 +1,47 @@
+{
+  "proposed": {
+    "accuracy": 1.0,
+    "interrupt_f1": 1.0,
+    "far": 0.0,
+    "frr": 0.0,
+    "target_ok": true,
+    "n": 16,
+    "labels": [
+      "other",
+      "interrupt"
+    ],
+    "matrix": [
+      [
+        13,
+        0
+      ],
+      [
+        0,
+        3
+      ]
+    ]
+  },
+  "energy_vad_baseline": {
+    "accuracy": 0.1875,
+    "interrupt_f1": 0.3157894736842105,
+    "far": 1.0,
+    "frr": 0.0,
+    "target_ok": false,
+    "n": 16,
+    "labels": [
+      "other",
+      "interrupt"
+    ],
+    "matrix": [
+      [
+        0,
+        13
+      ],
+      [
+        0,
+        3
+      ]
+    ]
+  },
+  "classification_report_proposed": "              precision    recall  f1-score   support\n\n       other       1.00      1.00      1.00        13\n   interrupt       1.00      1.00      1.00         3\n\n    accuracy                           1.00        16\n   macro avg       1.00      1.00      1.00        16\nweighted avg       1.00      1.00      1.00        16\n"
+}

@@ -1,0 +1,53 @@
+.venv-omni2/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+*.egg-info/
+dist/
+build/
+
+# secrets and local rclone config
+.env
+.env.*
+!.env.example
+*.pem
+rclone.conf
+
+# large data
+data/raw/
+data/processed/
+data/s3-cache/
+data/recordings/
+*.flac
+*.mp3
+*.mp4
+!data/samples/**
+
+# model checkpoints
+checkpoints/
+*.onnx
+third_party/checkouts/
+hf_cache/
+*.nemo
+*.ckpt
+*.safetensors
+*.bin
+*.pt
+results/release/*.json
+!tests/fixtures/**
+
+# experiment dumps
+results/**/*.wav
+results/**/*.pt
+results/**/*.pkl
+results/**/*.joblib
+!results/.gitkeep
+
+# editor/patch debris
+*.orig
+*.rej

@@ -1,0 +1,24 @@
+{
+  "pulled_7b": false,
+  "modules": {
+    "cosyvoice": {
+      "available": false,
+      "persian_phones_preserved": null,
+      "notes": "not installed"
+    },
+    "cosyvoice2": {
+      "available": false,
+      "persian_phones_preserved": null,
+      "notes": "not installed"
+    },
+    "matcha_tts": {
+      "available": false,
+      "persian_phones_preserved": null,
+      "notes": "not installed"
+    }
+  },
+  "tokenizer_for_omni2": "encodec_24khz_24kbps",
+  "persian_tokens": null,
+  "available": false,
+  "note": "CosyVoice 2 not installed. Keep Encodec 24 kHz @ 24 kbps as the speech tokenizer (bake-off CER 0.087). Do not pull 7B on the busy H100."
+}

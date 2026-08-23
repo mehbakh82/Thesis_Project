@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "verified_at": "2026-08-23",
+  "upstreams": [
+    {
+      "name": "LLaMA-Omni2",
+      "repository": "https://github.com/ictnlp/LLaMA-Omni2.git",
+      "revision": "c8afa9061a9c2d2c1919f7293f5492d946869752",
+      "checkout_dir": "LLaMA-Omni2",
+      "license": "No repository-level license file observed at the pinned revision",
+      "allowed_use": "Inspection and interoperability only until the owner clarifies licensing",
+      "training_entrypoint": null,
+      "notes": "Inference-oriented release; its language-model forward path does not consume target speech units."
+    },
+    {
+      "name": "Mini-Omni2",
+      "repository": "https://github.com/gpt-omni/mini-omni2.git",
+      "revision": "75f450ea4e7dc1e52a7fc0e4dcf45b4c3d45ab98",
+      "checkout_dir": "mini-omni2",
+      "license": "MIT",
+      "allowed_use": "Subject to repository and model-weight terms",
+      "training_entrypoint": null,
+      "notes": "Released inference/demo path; documented speech output is English."
+    },
+    {
+      "name": "BayLing-Speech",
+      "repository": "https://github.com/BayLing-Models/BayLing-Speech.git",
+      "revision": "c63fd7221d1e6c2d22c85e781bc61e842835ed53",
+      "checkout_dir": "BayLing-Speech",
+      "license": "Apache-2.0 for repository code; model/data terms must be checked separately",
+      "allowed_use": "Subject to repository, dependency, model, and dataset terms",
+      "training_entrypoint": null,
+      "notes": "Useful released components but no complete trainer entrypoint was found."
+    },
+    {
+      "name": "Freeze-Omni",
+      "repository": "https://github.com/VITA-MLLM/Freeze-Omni.git",
+      "revision": "163a24880e533b2a07038fb8dcfe02dbbb8457e6",
+      "checkout_dir": "Freeze-Omni",
+      "license": "Custom academic/research/education-only license",
+      "allowed_use": "Non-commercial academic, research, and educational use only",
+      "training_entrypoint": null,
+      "notes": "Inference-oriented 7B release; not selected for the 24 GB thesis path."
+    }
+  ]
+}

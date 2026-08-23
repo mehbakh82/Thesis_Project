@@ -1,0 +1,19 @@
+backbone: Qwen/Qwen2.5-0.5B-Instruct
+whisper_encoder: openai/whisper-small
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+freeze_whisper: true
+freeze_llm_base: true
+lr: 2.0e-4
+batch_size: 4
+max_audio_seconds: 16
+max_text_tokens: 256
+stages:
+  - name: asr_adapter
+    epochs: 1
+  - name: tts_tokens
+    epochs: 1
+  - name: spoken_qa
+    epochs: 1
+output_dir: checkpoints/llama_omni2_fa

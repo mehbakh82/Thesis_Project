@@ -1,0 +1,31 @@
+{
+  "bucket": "asr",
+  "endpoint": "https://s3.cloud.mohaymen.ir",
+  "credentials": "environment / rclone alias only; not stored in this repo",
+  "top_level": [
+    "Digiato",
+    "Kooshiar",
+    "Mehran Rowshan Persian",
+    "Models",
+    "ObjDet",
+    "STT",
+    "TTS",
+    "Text",
+    "Zoomit",
+    "gpt-oss-20b",
+    "mehbakh"
+  ],
+  "youtube_channel_layout": {
+    "Digiato": ["Audio_Chunks", "CSVs"],
+    "Kooshiar": ["Audio_Chunks", "CSVs"],
+    "Mehran Rowshan Persian": ["Audio_Chunks", "CSVs"],
+    "Zoomit": ["Audio_Chunks", "CSVs"]
+  },
+  "other_speech": {
+    "STT/YT_PodCast_Chunks": "duplicate tree with Audio_Chunks/<channel>/",
+    "STT/our_youtube": ["dataset", "wav", "Audio_Chunks", "CSVs"],
+    "1TB asr-gpu/Tabaghe16": ["Tabaghe16_Audio_Chunks", "Tabaghe16_CSVs"]
+  },
+  "join_rule": "{stem}_chunk_NNNN.wav is 1:1 with CSV row N (1-indexed)",
+  "demo_processed": "data/processed/youtube from Digiato episode sample (8 chunks)"
+}

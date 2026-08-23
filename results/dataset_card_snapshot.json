@@ -1,0 +1,225 @@
+{
+  "audio_hours": 200.004,
+  "audio_n": 219617,
+  "caption_filter_hours": 197.613,
+  "filtered_caption_hours": 197.613,
+  "filtered_caption_utts": 215684,
+  "nemo_reasr_hours_unused": 120.005,
+  "recorded_hours": 0.0,
+  "csv_hours": 455.753,
+  "caption_band_ok": true,
+  "thesis_coverage_ok": false,
+  "corpus_audit": {
+    "manifest": "/mnt/md0/mehbakh/Thesis_Project/data/processed/manifests/filtered.jsonl",
+    "n": 215684,
+    "hours": 197.613,
+    "split_counts": {
+      "train": 200203,
+      "test": 11006,
+      "val": 4475
+    },
+    "split_hours": {
+      "train": 183.425,
+      "test": 10.085,
+      "val": 4.103
+    },
+    "label_counts": {
+      "none": 215684
+    },
+    "duplicate_utt_ids": 0,
+    "files_checked": false,
+    "missing_audio": null,
+    "schema_errors": 0,
+    "group_split_leaks": 0,
+    "text_cross_split_duplicates": 24,
+    "overlap_rows": 0,
+    "response_supervision_rows": 0,
+    "integrity_ok": true,
+    "thesis_coverage": {
+      "hours_100_to_200": true,
+      "interrupt_labels_present": false,
+      "overlap_annotations_present": false,
+      "response_supervision_present": false,
+      "all_three_splits_present": true
+    },
+    "thesis_coverage_ok": false
+  },
+  "caption_alignment_audit": {
+    "manifest": "data/processed/manifests/filtered_nemo_teacher.jsonl",
+    "rows_scanned": 110024,
+    "paired_rows": 110024,
+    "pair_coverage": 1.0,
+    "paired_hours": 101.091,
+    "teacher_counts": {
+      "nemo-soroush-http": 109630,
+      "openai/whisper-small": 394
+    },
+    "token_sequence_similarity": {
+      "mean": 0.7243,
+      "median": 0.75,
+      "p10": 0.4615,
+      "p25": 0.6,
+      "high_ge_0_7_fraction": 0.6166,
+      "low_lt_0_4_fraction": 0.0613,
+      "exact_fraction": 0.1112
+    },
+    "repetitive_teacher_rows": 35,
+    "repetitive_teacher_fraction": 0.0003,
+    "by_channel": {
+      "Digiato": {
+        "n": 110024,
+        "mean_similarity": 0.7243,
+        "low_similarity_fraction": 0.0613
+      }
+    },
+    "low_similarity_samples": [
+      {
+        "utt_id": "Digiato_تک‌تاک اکسترا اپیزود ۴۴؛ ۱۰ سال با شما خاطره‌بازی کردیم!_0948",
+        "similarity": 0.381,
+        "caption": "یک ن ش یه چیز چیه حس توشون روشن بشه گفتم",
+        "teacher": "یک درصد توی یه چیزی چه حسی توششون روشن بشه"
+      },
+      {
+        "utt_id": "Digiato_بهترین لپ‌تاپ‌هایی که الان می‌تونیم بخریم_0206",
+        "similarity": 0.2105,
+        "caption": "هلیوس نئو ۶ که پردازنده ۱۳ ۷۰۰ اچ ایکه",
+        "teacher": "طور هیلیوس نو شانزده که پردازندهش سیزده هفتصد اچ ایکسه"
+      },
+      {
+        "utt_id": "Digiato_تک‌تاک اپیزود ۷۷؛ ممنوعیت استفاده از فیلترشکن، اینستاگرام قهوه‌ای و یک هک دیگه!_0253",
+        "similarity": 0.2,
+        "caption": "او قیمت ۱۶ ۵۱۲ ۹۷۳ دلار که این قیمت",
+        "teacher": "قیمت شانزده پانصد و دوازده نهصد و هفتاد و سه دلار"
+      },
+      {
+        "utt_id": "Digiato_تک‌تاک اپیزود ۵۴؛ به زودی همه وی‌پی‌ان‌ها جمع می‌شوند!_0056",
+        "similarity": 0.3,
+        "caption": "دانلود بکنی خب های وب سرعتهای ۵۱۲ ی مگ د",
+        "teacher": "دانلود بکنیم سرعت‌های پانصد و دوازده یه میک د"
+      },
+      {
+        "utt_id": "Digiato_ری‌اکت اپیزود ۱؛ آیفون ۱۴ رجیستر شده فقط ۲۶ میلیون!_0139",
+        "similarity": 0.3478,
+        "caption": "فرمودید رم دوش ۵۰۰ ها رام د ۶ ۴ پرو ۵۵۰۰",
+        "teacher": "فرمودید رم دو پنج پانصد‌ها رم دو شانزده چهارده پرو پنج"
+      },
+      {
+        "utt_id": "Digiato_از خط و خش آیفون 17 تا شیائومی پرومکس | سیلیکن_0569",
+        "similarity": 0.2857,
+        "caption": "نسل پ نیمگ اکسپلیند خبر خودکام که ما",
+        "teacher": "نسل پنج نینگ اکسپلند خبر خوداموش"
+      },
+      {
+        "utt_id": "Digiato_آیفون ۱۶ پرو مکس: هزاران دلیل برای خرید!_0685",
+        "similarity": 0.24,
+        "caption": "هست ۱۶ پرو مکس ۲۵۶ که ظرفیت پایشه ۱د و۵",
+        "teacher": "هست شانزده پروکسس دویست و پنجاه و شش که ظرفیت پای شه صد و پنج"
+      },
+      {
+        "utt_id": "Digiato_از کامپیوتر کوانتومی وطنی تا دست به یکی انویدیا و مدیاتک | سیلیکون_0047",
+        "similarity": 0.1905,
+        "caption": "پیوش کر اولرا ۲۸۵ بوده ۲۸۵ کی که میشه و",
+        "teacher": "پیش ک ناین دویست و هشتاد و پنج بوده هشتاد میشه"
+      },
+      {
+        "utt_id": "Digiato_بهترین گوشی ها برای همه_0290",
+        "similarity": 0.2727,
+        "caption": "خیلی مطمئنی ۸ ۱۲ ۲۵ شش و باقی مشخصاتش م",
+        "teacher": "خیلی مطمین هشت دوازده دویست و پنجاه و ششش و بقیه مشخصاتش"
+      },
+      {
+        "utt_id": "Digiato_برداشتن فیلترینگ کار یک دکمه‌ست | تک‌تاک_0597",
+        "similarity": 0.2963,
+        "caption": "۲۵۲۵ تومنه تتر ۱۰۳۸۵۰ تومنه بیتکوین ۱۱",
+        "teacher": "هزار و پانصد و بیست و پنج تومنه تتر صد و سه هزار و هشتصد و پنجاه تومنه بیتکوین یازده"
+      },
+      {
+        "utt_id": "Digiato_آیفون ۱۶ پرو با دکمه شاتر و اپل واچ سری ۱۰ معرفی شدند_0207",
+        "similarity": 0.2857,
+        "caption": "دقیقه و ۵ ۹ دقیقه و ۵۰ ۵۱ ۵۲ ۵۳ ۵۴ خیلی",
+        "teacher": "نه دقیقه پنجاه پنجاه و یک پنجاه و دو پنجاه و سه پنجاه و چهار خیلی"
+      },
+      {
+        "utt_id": "Digiato_تک‌تاک اکسترا اپیزود ۴۴؛ ۱۰ سال با شما خاطره‌بازی کردیم!_0947",
+        "similarity": 0.1739,
+        "caption": "پیشو ک دش بتی شید فردی که از تو نک نشد",
+        "teacher": "خودتو نشون بدی شد دو نفر دیگه از تو نگاه کن بی"
+      },
+      {
+        "utt_id": "Digiato_اپل با این محصولات همه رو غافل‌گیر کرد_0425",
+        "similarity": 0.3158,
+        "caption": "س شیم بقیش مک ام وان چ بقیش برام مهم نست",
+        "teacher": "شیمانی بقیش مک امان چهار بقیهقیش برام مهمه"
+      },
+      {
+        "utt_id": "Digiato_تک‌تاک اکسترا اپیزود ۴۴؛ ۱۰ سال با شما خاطره‌بازی کردیم!_0969",
+        "similarity": 0.0952,
+        "caption": "باشی ب وا که اشتبا نکن یه کش ک م دقیقا ع",
+        "teacher": "رفتی بله من اشتباه نمیتون تو بگی کلی دقیقا"
+      },
+      {
+        "utt_id": "Digiato_تک‌تاک اپیزود ۷۶؛ کوروش کمپانی، قرمه‌سبزی و هک سایت مجلس_0359",
+        "similarity": 0.3077,
+        "caption": "۱۳۳۶ آره ۳۹ خر حالا کلاً بیا عرضم خدمتت",
+        "teacher": "حالا کلا عرضم خدمت"
+      },
+      {
+        "utt_id": "Digiato_تک‌تاک اپیزود ۶۱؛ چیزی نیست فقط اینترنت ۱۵۲ کشور از ما سریع‌تره!_0178",
+        "similarity": 0.3333,
+        "caption": "موتور ای افو چیجوری باید بگیم اف ه اف ه",
+        "teacher": "ای اف رو چهجوری باید بگیم هفت هفت"
+      },
+      {
+        "utt_id": "Digiato_اپل با این محصولات همه رو غافل‌گیر کرد_0331",
+        "similarity": 0.2857,
+        "caption": "دیگه مثلاً بشناس ب بیا باز شد بیا آ آ",
+        "teacher": "که دیگه مثلا بشناس"
+      },
+      {
+        "utt_id": "Digiato_تک‌تاک اکسترا اپیزود ۲۳؛ سیم‌کارت گردشگری یعنی ما شهروند درجه دوم هستیم!_0392",
+        "similarity": 0.0,
+        "caption": "میذارم ایگل یاتو عقاب سل عقاب سل سیم",
+        "teacher": "ایگلیات عقابصل عقابصل"
+      },
+      {
+        "utt_id": "Digiato_رقابت سامسونگ، اینتل و علی‌بابا در المپیک | تک‌تاک اکسترا_0592",
+        "similarity": 0.0,
+        "caption": "دیگه ج ژک روز لئون هاتو اومگا لانگ اینس",
+        "teacher": "فوت ژکت در لون هاتوگا لانین"
+      },
+      {
+        "utt_id": "Digiato_راهنمای خرید لپ‌تاپ از ۱۵ تا ۱۵۰ میلیون تومن!_0282",
+        "similarity": 0.381,
+        "caption": "ایسوز جی ۶۳ چ جی زد که یا همون استریکس",
+        "teacher": "جی ششصد و سی و چهار جیز که یا همون استریک"
+      }
+    ],
+    "alignment_risk": false,
+    "evidence_scope": "Independent-ASR agreement is a screening proxy, not ground-truth alignment. Low-similarity rows require manual audio review; ASR hallucination can also lower agreement."
+  },
+  "zoomit_alignment_sample": {
+    "as_of": "2026-08-22",
+    "manifest": "data/processed/manifests/filtered.jsonl",
+    "channel": "Zoomit",
+    "population_rows": 36502,
+    "sampling": {
+      "method": "seeded reservoir",
+      "seed": 20260822,
+      "n": 20
+    },
+    "asr": {
+      "service": "nemo-soroush-http",
+      "endpoint": "http://127.0.0.1:8090/transcribe/binary?align=true",
+      "window_seconds": 8
+    },
+    "token_sequence_similarity": {
+      "mean": 0.7735,
+      "low_lt_0_4_fraction": 0.0,
+      "empty_asr_rows": 0
+    },
+    "evidence_scope": "Small deterministic live-ASR screening sample, not ground truth or a confidence-powered validation set. The complete row-level output was inspected during the 2026-08-22 audit."
+  },
+  "s2s_text": "transcript_caption",
+  "updated_at": "2026-08-22T15:58:03.633996+00:00",
+  "factory": null
+}

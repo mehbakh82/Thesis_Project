@@ -1,0 +1,20 @@
+sample_rate: 16000
+frame_ms: 20
+context_ms: 400
+n_mfcc: 13
+f0_min_hz: 60
+f0_max_hz: 400
+energy_vad_db: -35.0
+energy_vad_zcr_max: 0.25
+gbdt:
+  n_estimators: 200
+  max_depth: 4
+  learning_rate: 0.08
+  min_samples_leaf: 8
+realtime_budget_ms: 20
+labels:
+  - none
+  - interrupt
+  - backchannel
+  - noise
+positive_label: interrupt

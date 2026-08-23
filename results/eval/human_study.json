@@ -1,0 +1,27 @@
+{
+  "status": "not_collected_or_incomplete",
+  "participants": 1,
+  "elderly_participants": 1,
+  "turns": 0,
+  "ratings": 1,
+  "complete_ratings": 0,
+  "rating_means": {
+    "naturalness": 4.0,
+    "latency": null,
+    "interrupt_success": 5.0,
+    "satisfaction": null
+  },
+  "t_first_audio_p50_ms": null,
+  "t_first_audio_p95_ms": null,
+  "t_barge_in_p95_ms": null,
+  "requirements": {
+    "participants_5_to_10": false,
+    "elderly_participants_at_least_2": false,
+    "complete_ratings_cover_participants": false,
+    "client_first_audio_present": false,
+    "client_barge_in_present": false,
+    "physical_gpu_12_to_24_gb": false
+  },
+  "official_ready": false,
+  "generated_at": "2026-08-22T14:56:05.613602+00:00"
+}

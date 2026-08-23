@@ -1,0 +1,41 @@
+status: preparation_only
+candidate:
+  name: LLaMA-Omni2-0.5B
+  repository: https://github.com/ictnlp/LLaMA-Omni2.git
+  revision: c8afa9061a9c2d2c1919f7293f5492d946869752
+  base_model: ICTNLP/LLaMA-Omni2-0.5B
+hardware:
+  target: NVIDIA GeForce RTX 4090
+  physical_vram_gb: 24
+  precision: bf16
+  gradient_checkpointing: true
+  gradient_accumulation_steps: 16
+  micro_batch_size: 1
+data:
+  manifest: data/processed/manifests/conversations.jsonl
+  audit: results/conversation_audit.json
+  export: data/processed/manifests/llama_omni2_questions.json
+  split_unit: session_id
+  required_hours: [100, 200]
+  require_response_audio: true
+  require_manual_verification_sample: true
+evaluation:
+  require_live_browser_telemetry: true
+  require_physical_vram_gb: [12, 24]
+  first_audio_statistic_pending_supervisor: true
+  report_first_audio: [p50, p95, max]
+  report_barge_in: [p50, p95, max]
+adaptation:
+  trainer_entrypoint: null
+  ready: false
+  reason: >-
+    The pinned official repository has no complete language-model training
+    entrypoint. Do not substitute the local reconstruction ablation or mark a
+    run complete until a reviewed trainer consumes user speech, assistant text,
+    and assistant speech-token targets and saves a loadable runtime artifact.
+  minimum_acceptance_tests:
+    - loss_changes_when_assistant_speech_targets_change
+    - heldout_persian_speech_conditioning_changes_response
+    - checkpoint_loads_in_runtime_without_piper_substitution
+    - generated_speech_is_persian_and_not_input_reconstruction
+    - live_4090_memory_and_latency_report_is_saved

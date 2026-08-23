@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the final BSc thesis and archived release."
+title: "Persian Full-Duplex Speech-to-Speech Thesis Prototype"
+type: software
+authors:
+  - family-names: "str19"
+version: 0.1.0
+date-released: 2026-08-23
+abstract: >-
+  Evidence-first Persian full-duplex speech prototype with a continuous
+  microphone, classical barge-in control, conversational-data audits, and
+  privacy-reduced human-study telemetry.
+keywords:
+  - Persian speech
+  - full duplex
+  - speech-to-speech
+  - barge-in

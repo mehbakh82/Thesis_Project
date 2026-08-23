@@ -1,0 +1,35 @@
+{
+  "manifest": "data/processed/manifests/filtered.jsonl",
+  "n": 215684,
+  "hours": 197.613,
+  "split_counts": {
+    "train": 200203,
+    "test": 11006,
+    "val": 4475
+  },
+  "split_hours": {
+    "train": 183.425,
+    "test": 10.085,
+    "val": 4.103
+  },
+  "label_counts": {
+    "none": 215684
+  },
+  "duplicate_utt_ids": 0,
+  "files_checked": false,
+  "missing_audio": null,
+  "schema_errors": 0,
+  "group_split_leaks": 0,
+  "text_cross_split_duplicates": 24,
+  "overlap_rows": 0,
+  "response_supervision_rows": 0,
+  "integrity_ok": true,
+  "thesis_coverage": {
+    "hours_100_to_200": true,
+    "interrupt_labels_present": false,
+    "overlap_annotations_present": false,
+    "response_supervision_present": false,
+    "all_three_splits_present": true
+  },
+  "thesis_coverage_ok": false
+}

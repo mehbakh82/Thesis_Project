@@ -1,0 +1,174 @@
+{
+  "evidence_class": "server_component",
+  "official_e2e_eligible": false,
+  "superseded_by": "results/eval/EVIDENCE_STATUS.json",
+  "n": 16,
+  "t_first_audio_p50_ms": 60.2427301928401,
+  "t_first_audio_p95_ms": 121.86638335697353,
+  "t_barge_in_p50_ms": 17.710277810692787,
+  "t_barge_in_p95_ms": 18.207045597955585,
+  "t_first_audio_gate_ok": true,
+  "t_barge_in_gate_ok": true,
+  "official_gpu": false,
+  "samples": [
+    {
+      "t_first_audio_ms": 108.64281468093395,
+      "t_barge_in_ms": null,
+      "gpu_name": "NVIDIA H100 NVL",
+      "vram_gb": 24.0,
+      "memory_capped": true,
+      "notes": "noise:OmniTalker:piper"
+    },
+    {
+      "t_first_audio_ms": 81.25061262398958,
+      "t_barge_in_ms": null,
+      "gpu_name": "NVIDIA H100 NVL",
+      "vram_gb": 24.0,
+      "memory_capped": true,
+      "notes": "none:OmniTalker:piper"
+    },
+    {
+      "t_first_audio_ms": 46.36926110833883,
+      "t_barge_in_ms": null,
+      "gpu_name": "NVIDIA H100 NVL",
+      "vram_gb": 24.0,
+      "memory_capped": true,
+      "notes": "noise:OmniTalker:piper"
+    },
+    {
+      "t_first_audio_ms": 60.329766012728214,
+      "t_barge_in_ms": 18.257983960211277,
+      "gpu_name": "NVIDIA H100 NVL",
+      "vram_gb": 24.0,
+      "memory_capped": true,
+      "notes": "interrupt:OmniTalker:piper"
+    },
+    {
+      "t_first_audio_ms": 54.36115525662899,
+      "t_barge_in_ms": 17.502160742878914,
+      "gpu_name": "NVIDIA H100 NVL",
+      "vram_gb": 24.0,
+      "memory_capped": true,
+      "notes": "interrupt:OmniTalker:piper"
+    },
+    {
+      "t_first_audio_ms": 64.47739899158478,
+      "t_barge_in_ms": null,
+      "gpu_name": "NVIDIA H100 NVL",
+      "vram_gb": 24.0,
+      "memory_capped": true,
+      "notes": "backchannel:OmniTalker:piper"
+    },
+    {
+      "t_first_audio_ms": 49.650498665869236,
+      "t_barge_in_ms": null,
+      "gpu_name": "NVIDIA H100 NVL",
+      "vram_gb": 24.0,
+      "memory_capped": true,
+      "notes": "none:OmniTalker:piper"
+    },
+    {
+      "t_first_audio_ms": 43.74212026596069,
+      "t_barge_in_ms": null,
+      "gpu_name": "NVIDIA H100 NVL",
+      "vram_gb": 24.0,
+      "memory_capped": true,
+      "notes": "backchannel:OmniTalker:piper"
+    },
+    {
+      "t_first_audio_ms": 48.187955282628536,
+      "t_barge_in_ms": null,
+      "gpu_name": "NVIDIA H100 NVL",
+      "vram_gb": 24.0,
+      "memory_capped": true,
+      "notes": "noise:OmniTalker:piper"
+    },
+    {
+      "t_first_audio_ms": 47.419268637895584,
+      "t_barge_in_ms": null,
+      "gpu_name": "NVIDIA H100 NVL",
+      "vram_gb": 24.0,
+      "memory_capped": true,
+      "notes": "backchannel:OmniTalker:piper"
+    },
+    {
+      "t_first_audio_ms": 108.87849889695644,
+      "t_barge_in_ms": null,
+      "gpu_name": "NVIDIA H100 NVL",
+      "vram_gb": 24.0,
+      "memory_capped": true,
+      "notes": "none:OmniTalker:piper"
+    },
+    {
+      "t_first_audio_ms": 70.52036002278328,
+      "t_barge_in_ms": 17.91839487850666,
+      "gpu_name": "NVIDIA H100 NVL",
+      "vram_gb": 24.0,
+      "memory_capped": true,
+      "notes": "interrupt:OmniTalker:piper"
+    },
+    {
+      "t_first_audio_ms": 64.7983867675066,
+      "t_barge_in_ms": 16.28227438777685,
+      "gpu_name": "NVIDIA H100 NVL",
+      "vram_gb": 24.0,
+      "memory_capped": true,
+      "notes": "interrupt:OmniTalker:piper"
+    },
+    {
+      "t_first_audio_ms": 160.83003673702478,
+      "t_barge_in_ms": null,
+      "gpu_name": "NVIDIA H100 NVL",
+      "vram_gb": 24.0,
+      "memory_capped": true,
+      "notes": "none:OmniTalker:piper"
+    },
+    {
+      "t_first_audio_ms": 41.72307252883911,
+      "t_barge_in_ms": null,
+      "gpu_name": "NVIDIA H100 NVL",
+      "vram_gb": 24.0,
+      "memory_capped": true,
+      "notes": "noise:OmniTalker:piper"
+    },
+    {
+      "t_first_audio_ms": 60.155694372951984,
+      "t_barge_in_ms": null,
+      "gpu_name": "NVIDIA H100 NVL",
+      "vram_gb": 24.0,
+      "memory_capped": true,
+      "notes": "backchannel:OmniTalker:piper"
+    }
+  ],
+  "gpu_profile": {
+    "requested_cap_gb": 24.0,
+    "applied": true,
+    "device": "NVIDIA H100 NVL",
+    "total_gb": 93.09,
+    "fraction": 0.25782255029367757,
+    "memory_capped": true,
+    "path": "A"
+  },
+  "gpu_inventory": {
+    "device": "NVIDIA H100 NVL",
+    "total_gb": 93.09,
+    "official_size": false,
+    "path_b_possible": false
+  },
+  "talker": "OmniTalker",
+  "tts_backend": "piper",
+  "piper_installed": true,
+  "cascade": {
+    "system": "nemo_cascade",
+    "transcript": "سلام",
+    "reply_text": "سلام، چطورید؟",
+    "tts_backend": "piper",
+    "t_first_audio_ms": 2405.559143051505,
+    "reply_samples": 4000,
+    "asr_error": null,
+    "note": "Piper used if PIPER_MODEL is set; else Persian formant TTS. Sortformer off the S2S hot path.",
+    "sample_rate": 16000
+  },
+  "path": "A_h100_memory_capped",
+  "note": "Path A: H100 with 24 GB cap. Unofficial for the thesis table."
+}

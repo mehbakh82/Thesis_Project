@@ -1,0 +1,54 @@
+{
+  "historical": true,
+  "superseded_by": "results/corpus_audit.json and results/dataset_card_snapshot.json",
+  "ingest_hours": 200.004,
+  "caption_filter": {
+    "n": 215684,
+    "hours": 197.613,
+    "min_hours_ok": true,
+    "max_hours": 200,
+    "min_hours_target": 100,
+    "require_teacher": false,
+    "skipped": {
+      "no_text": 0,
+      "no_teacher": 0,
+      "duration": 0,
+      "lid": 0,
+      "music": 5,
+      "not_persian": 94,
+      "short_text": 3834,
+      "low_snr": 0
+    },
+    "note": "Caption filter is an intermediate mix; re-ASR before TTS/SFT."
+  },
+  "reasr_teacher_hours_pre_filter": null,
+  "filtered_teacher": {
+    "n": 110024,
+    "hours": 101.091,
+    "min_hours_ok": true,
+    "max_hours": 200,
+    "min_hours_target": 100,
+    "require_teacher": true,
+    "skipped": {
+      "no_text": 0,
+      "no_teacher": 892,
+      "duration": 0,
+      "lid": 0,
+      "music": 397,
+      "not_persian": 0,
+      "short_text": 2639,
+      "low_snr": 0
+    },
+    "note": "Target is 100–200 h after full S3 ingest + re-ASR. Teacher hours use transcript_nemo (never raw captions for TTS)."
+  },
+  "diarization": {
+    "attempted": 0,
+    "ok": 0,
+    "limit": 32,
+    "channels": [
+      "Zoomit",
+      "Kooshiar"
+    ]
+  },
+  "note": "YouTube internal. Teacher is nemo-soroush-http (live ASR) after SpeechService VAD/LID missing locally. Public release is synthetic + consented recordings."
+}

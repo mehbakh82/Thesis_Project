@@ -1,0 +1,207 @@
+{
+  "evidence_class": "component_survey",
+  "end_to_end_models_compared": false,
+  "official": false,
+  "clips": [
+    "/mnt/md0/mehbakh/Thesis_Project/data/samples/shakoori_3s.wav",
+    "/mnt/md0/mehbakh/Thesis_Project/data/samples/per_sample.wav"
+  ],
+  "codecs": {
+    "clip": "/mnt/md0/mehbakh/Thesis_Project/data/samples/shakoori_3s.wav",
+    "n_samples": 48000,
+    "mulaw8": {
+      "available": true,
+      "notes": "waveform mu-law; not a speech tokenizer",
+      "snr_db": 99.33085115442489
+    },
+    "mel_griffin": {
+      "available": true,
+      "notes": "80-mel Griffin-Lim; CosyVoice2-like spectral bottleneck",
+      "snr_db": -21.59214805012565
+    },
+    "encodec_24k": {
+      "available": true,
+      "notes": "facebook/encodec_24khz neural speech tokenizer via model.forward; CosyVoice2 substitute when CosyVoice is not installed",
+      "codebook_frames": 225,
+      "snr_db": 14.433865100717087,
+      "persian_phones_preserved": true
+    },
+    "cosyvoice2": {
+      "pulled_7b": false,
+      "modules": {
+        "cosyvoice": {
+          "available": false,
+          "persian_phones_preserved": null,
+          "notes": "not installed"
+        },
+        "cosyvoice2": {
+          "available": false,
+          "persian_phones_preserved": null,
+          "notes": "not installed"
+        },
+        "matcha_tts": {
+          "available": false,
+          "persian_phones_preserved": null,
+          "notes": "not installed"
+        }
+      },
+      "tokenizer_for_omni2": "encodec_24khz_24kbps",
+      "persian_tokens": null,
+      "available": false,
+      "note": "CosyVoice 2 not installed. Keep Encodec 24 kHz @ 24 kbps as the speech tokenizer (bake-off CER 0.087). Do not pull 7B on the busy H100."
+    },
+    "snac": {
+      "available": false,
+      "persian_phones_preserved": null,
+      "notes": "not installed"
+    },
+    "moshi_mimi": {
+      "available": false,
+      "persian_phones_preserved": null,
+      "notes": "not installed"
+    },
+    "whisper_intelligibility": {
+      "available": true,
+      "orig_text": " امو قابل از این که بزان گزندی",
+      "recon_text": " امو قابل از این که بزنگ زندگی",
+      "cer": 0.08695652173913043,
+      "persian_phones_preserved": true
+    }
+  },
+  "whisper_probe": {
+    "available": false,
+    "notes": "skipped"
+  },
+  "gpu_profile": {
+    "requested_cap_gb": 24.0,
+    "applied": true,
+    "device": "NVIDIA H100 NVL",
+    "total_gb": 93.09,
+    "fraction": 0.25782255029367757,
+    "memory_capped": true
+  },
+  "latency": {
+    "n": 6,
+    "t_first_audio_p50_ms": 0.0026207417249679565,
+    "t_first_audio_p95_ms": 0.0036456622183322906,
+    "t_barge_in_p50_ms": 35.69784760475159,
+    "t_barge_in_p95_ms": 38.0788566544652,
+    "t_first_audio_gate_ok": false,
+    "t_barge_in_gate_ok": false,
+    "official_gpu": false,
+    "measurement_scope": "cached_first_packet_and_detector_component",
+    "official_e2e_eligible": false,
+    "component_proxy_gates": {
+      "cached_packet_p50_under_500_ms": true,
+      "detector_call_p95_under_300_ms": true
+    },
+    "samples": [
+      {
+        "t_first_audio_ms": 0.003353692591190338,
+        "t_barge_in_ms": 38.10230270028114,
+        "gpu_name": "NVIDIA H100 NVL",
+        "vram_gb": 24.0,
+        "memory_capped": true,
+        "notes": "FormantTalker first_chunk n=3901 backend=piper"
+      },
+      {
+        "t_first_audio_ms": 0.003742985427379608,
+        "t_barge_in_ms": 33.95786788314581,
+        "gpu_name": "NVIDIA H100 NVL",
+        "vram_gb": 24.0,
+        "memory_capped": true,
+        "notes": "FormantTalker first_chunk n=4000 backend=piper"
+      },
+      {
+        "t_first_audio_ms": 0.002300366759300232,
+        "t_barge_in_ms": 34.563289023935795,
+        "gpu_name": "NVIDIA H100 NVL",
+        "vram_gb": 24.0,
+        "memory_capped": true,
+        "notes": "FormantTalker first_chunk n=4000 backend=piper"
+      },
+      {
+        "t_first_audio_ms": 0.0026673078536987305,
+        "t_barge_in_ms": 32.762911170721054,
+        "gpu_name": "NVIDIA H100 NVL",
+        "vram_gb": 24.0,
+        "memory_capped": true,
+        "notes": "FormantTalker first_chunk n=3158 backend=piper"
+      },
+      {
+        "t_first_audio_ms": 0.0025741755962371826,
+        "t_barge_in_ms": 38.008518517017365,
+        "gpu_name": "NVIDIA H100 NVL",
+        "vram_gb": 24.0,
+        "memory_capped": true,
+        "notes": "FormantTalker first_chunk n=4000 backend=piper"
+      },
+      {
+        "t_first_audio_ms": 0.0024596229195594788,
+        "t_barge_in_ms": 36.83240618556738,
+        "gpu_name": "NVIDIA H100 NVL",
+        "vram_gb": 24.0,
+        "memory_capped": true,
+        "notes": "FormantTalker first_chunk n=4000 backend=piper"
+      }
+    ]
+  },
+  "models": {
+    "llama-omni2-0.5b": {
+      "weights_present": true,
+      "zero_shot_persian_out": false,
+      "fits_24gb": null,
+      "native_full_duplex": false,
+      "trainable": null,
+      "codec_proxy": "encodec_24k",
+      "notes": "Architectural reference only. The local 7 MB artifact is legacy/untyped and not a deployable S2S checkpoint.",
+      "empirically_evaluated": false
+    },
+    "llama-omni2-1.5b-bilingual": {
+      "weights_present": false,
+      "zero_shot_persian_out": false,
+      "fits_24gb": null,
+      "native_full_duplex": false,
+      "trainable": null,
+      "notes": "Scale-up only if 0.5B stays under 500 ms.",
+      "empirically_evaluated": false
+    },
+    "personaplex-7b": {
+      "weights_present": false,
+      "zero_shot_persian_out": false,
+      "fits_24gb": null,
+      "native_full_duplex": true,
+      "trainable": null,
+      "notes": "English-only card. Promote if Mimi round-trips Persian. 7B not downloaded on shared H100.",
+      "empirically_evaluated": false
+    },
+    "mini-omni": {
+      "weights_present": false,
+      "zero_shot_persian_out": false,
+      "fits_24gb": null,
+      "native_full_duplex": false,
+      "trainable": null,
+      "notes": "Named in the definition. English SNAC out. Baseline only.",
+      "empirically_evaluated": false
+    },
+    "qwen2.5-omni-3b": {
+      "weights_present": false,
+      "zero_shot_persian_out": false,
+      "fits_24gb": null,
+      "native_full_duplex": false,
+      "trainable": null,
+      "notes": "Near-duplex EN/ZH talker. Bake-off row, not default. Not downloaded.",
+      "empirically_evaluated": false
+    }
+  },
+  "decision": {
+    "status": "no_end_to_end_model_winner",
+    "primary": null,
+    "deployable_baseline": "nemo_qwen_piper_cascade",
+    "reason": "This command measures codec reconstruction, dependency availability, and formant component timing; it does not fine-tune or compare complete Persian speech-language models.",
+    "encodec_persian_ok": true,
+    "mimi_persian_ok": false,
+    "cosyvoice2_installed": false,
+    "official_latency": false
+  }
+}

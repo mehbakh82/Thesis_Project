@@ -1,0 +1,9 @@
+"""Persian full-duplex speech-to-speech thesis package."""
+
+__version__ = "0.1.0"
+
+SAMPLE_RATE = 16_000
+OFFICIAL_VRAM_GB = (12, 24)
+T_FIRST_AUDIO_P50_MS = 500.0
+T_BARGE_IN_P95_MS = 300.0
+BARGEIN_ACCURACY_TARGET = 0.80
