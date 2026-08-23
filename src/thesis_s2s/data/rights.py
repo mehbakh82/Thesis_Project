@@ -10,6 +10,13 @@ from pathlib import Path
 
 from thesis_s2s.metrics import write_json
 
+UNVERIFIED_LICENSES = {
+    "",
+    "unknown",
+    "youtube-internal",
+    "pending-youtube-rights-review",
+}
+
 DECISION_FIELDS = (
     "approval_status",
     "internal_training_allowed",
@@ -49,10 +56,17 @@ def rights_record_verified(row: dict) -> bool:
 
     if row.get("license_verified") is not True:
         return False
-    if row.get("license") != "approved-internal-research":
+    license_name = str(row.get("license") or "").strip()
+    if license_name in UNVERIFIED_LICENSES:
+        return False
+    if license_name != "approved-internal-research":
         return True
-    review = row.get("rights_review") or {}
-    permissions = review.get("permissions") or {}
+    review = row.get("rights_review")
+    if not isinstance(review, dict):
+        return False
+    permissions = review.get("permissions")
+    if not isinstance(permissions, dict):
+        return False
     return bool(
         review.get("decision_complete") is True
         and review.get("status") == "approved"
@@ -255,7 +269,7 @@ def apply_conversation_rights_review(
     approved_hours = sum(
         float(row.get("duration") or 0.0) / 3600.0
         for row in output
-        if row.get("license_verified") is True
+        if rights_record_verified(row)
     )
     report = {
         "source_manifest": str(in_jsonl),

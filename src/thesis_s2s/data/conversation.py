@@ -35,6 +35,21 @@ def _safe_part(value: str) -> str:
     return f"{cleaned or 'session'}-{digest}"
 
 
+def _require_rights_verified(rows: list[dict], operation: str) -> None:
+    """Refuse artifact creation from any row lacking auditable usage rights."""
+
+    unverified = [
+        str(row.get("window_id") or row.get("utt_id") or row.get("session_id") or "unknown")
+        for row in rows
+        if not rights_record_verified(row)
+    ]
+    if unverified:
+        sample = ", ".join(unverified[:5])
+        raise PermissionError(
+            f"{operation} requires verified rights for every input row; unverified: {sample}"
+        )
+
+
 def _stable_split(session_id: str) -> str:
     bucket = int.from_bytes(hashlib.blake2b(session_id.encode("utf-8"), digest_size=2).digest(), "big") % 100
     if bucket < 5:
@@ -120,16 +135,19 @@ def build_conversation_manifest(
     diarized_jsonl = Path(diarized_jsonl)
     out_jsonl = Path(out_jsonl)
     clips_dir = Path(clips_dir)
+    source_rows = [
+        json.loads(line)
+        for line in diarized_jsonl.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    _require_rights_verified(source_rows, "conversation pair building")
     out_jsonl.parent.mkdir(parents=True, exist_ok=True)
     clips_dir.mkdir(parents=True, exist_ok=True)
     pairs: list[dict] = []
     label_counts: Counter[str] = Counter()
     hours = 0.0
     skipped: Counter[str] = Counter()
-    for line in diarized_jsonl.read_text(encoding="utf-8").splitlines():
-        if not line.strip():
-            continue
-        row = json.loads(line)
+    for row in source_rows:
         if (
             "automatic_multi_speaker_verified" in row
             and row.get("automatic_multi_speaker_verified") is not True
@@ -248,11 +266,14 @@ def build_conversation_manifest(
 def export_llama_omni2_questions(manifest: Path, out_json: Path) -> dict:
     """Export the official LLaMA-Omni2 inference conversation schema."""
 
+    source_rows = [
+        json.loads(line)
+        for line in Path(manifest).read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    _require_rights_verified(source_rows, "LLaMA-Omni2 export")
     conversations = []
-    for line in Path(manifest).read_text(encoding="utf-8").splitlines():
-        if not line.strip():
-            continue
-        row = json.loads(line)
+    for row in source_rows:
         user_audio = str(row.get("audio_filepath") or "")
         assistant_audio = str(row.get("response_audio_filepath") or "")
         user_text = str(row.get("text") or row.get("transcript_caption") or "")

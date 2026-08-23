@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from thesis_s2s.audio import write_wav
 from thesis_s2s.bargein.detector import DetectorConfig
@@ -94,6 +95,7 @@ def test_conversation_builder_pairs_and_exports(tmp_path: Path):
         "session_id": "natural-session-1",
         "audio_filepath": str(source),
         "license": "test-license",
+        "license_verified": False,
         "human_verified": True,
         "segments": [
             {"start": 0.0, "end": 0.9, "speaker": "A", "text": "سلام حال شما چطور است"},
@@ -104,6 +106,11 @@ def test_conversation_builder_pairs_and_exports(tmp_path: Path):
     }
     raw.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
     manifest = tmp_path / "conversations.jsonl"
+    with pytest.raises(PermissionError, match="verified rights"):
+        build_conversation_manifest(raw, manifest, tmp_path / "clips")
+    assert not manifest.exists()
+    row["license_verified"] = True
+    raw.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
     build = build_conversation_manifest(raw, manifest, tmp_path / "clips")
     assert build["pairs"] == 2
     assert build["label_counts"]["backchannel"] == 1
@@ -118,6 +125,14 @@ def test_conversation_builder_pairs_and_exports(tmp_path: Path):
 
     exported = export_llama_omni2_questions(manifest, tmp_path / "questions.json")
     assert exported["conversations"] == 2
+    rows[0]["license_verified"] = False
+    unlicensed = tmp_path / "unlicensed.jsonl"
+    unlicensed.write_text(
+        "\n".join(json.dumps(item) for item in rows) + "\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(PermissionError, match="verified rights"):
+        export_llama_omni2_questions(unlicensed, tmp_path / "must-not-exist.json")
 
 
 def test_diarization_contract_uses_float32_and_derives_overlap(tmp_path: Path, monkeypatch):

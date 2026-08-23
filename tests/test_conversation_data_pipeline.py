@@ -502,3 +502,9 @@ def test_rights_review_requires_written_complete_source_approval(tmp_path: Path)
     assert all(rights_record_verified(row) for row in approved_rows)
     approved_rows[0]["rights_review"]["evidence_reference"] = ""
     assert rights_record_verified(approved_rows[0]) is False
+    spoofed = dict(approved_rows[1])
+    spoofed["license"] = "pending-youtube-rights-review"
+    assert rights_record_verified(spoofed) is False
+    malformed = dict(approved_rows[1])
+    malformed["rights_review"] = "approved"
+    assert rights_record_verified(malformed) is False
