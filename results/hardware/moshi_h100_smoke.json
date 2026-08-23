@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "completed_at": "2026-08-23T18:29:17.003895",
+  "purpose": "one-step trainer/model/loss wiring validation only",
+  "scientific_evidence": false,
+  "persian_training_claim_allowed": false,
+  "hardware": {
+    "gpu": "NVIDIA H100 NVL",
+    "torch_cuda": "12.4",
+    "peak_allocated_gb": 15.258,
+    "allocated_gb_after_step": 15.123
+  },
+  "step": {
+    "number": 1,
+    "loss": 4.614331,
+    "words_per_second": 50.438,
+    "duration_sec": 5.0,
+    "batch_size": 1,
+    "lora": {
+      "enable": true,
+      "ft_embed": false,
+      "rank": 8,
+      "scaling": 2.0
+    }
+  },
+  "launcher": {
+    "entry_point": "scripts/moshi_train_entry.py",
+    "world_size": 1,
+    "backend": "gloo",
+    "backend_scope": "single-GPU compatibility fallback only",
+    "reason": "The bundled NCCL 2.21.5 reproducibly SIGSEGVs in libnccl during a minimal one-rank communicator init on this host. Gloo CUDA all-reduce passed and the trainer's world-size-one path is unsharded.",
+    "command": "MOSHI_DISTRIBUTED_BACKEND=gloo .venv-moshi/bin/torchrun --standalone --nproc-per-node 1 scripts/moshi_train_entry.py configs/moshi_h100_smoke.yaml"
+  },
+  "requirements": {
+    "fixture_is_non_scientific": true,
+    "environment_valid": true,
+    "one_optimizer_step_completed": true,
+    "finite_loss": true,
+    "real_model_memory_allocated": true,
+    "checkpointing_disabled": true,
+    "evaluation_disabled": true
+  },
+  "wiring_gate_passes": true,
+  "artifacts": {
+    "fixture_report_sha256": "4c6bbb13ca1b80b9ef28031b3bd6a32a2d19710827c01ef3c87c262c74a44e30",
+    "metrics_sha256": "0efca3eb1ea13c5eca68676d8996a7963d64d70ee82f022a5adb262b9b0b253f",
+    "resolved_args_sha256": "989a4aefcbb99eab3e22e8352eeedc690ecd0ba93bd95b732980c898961f8012",
+    "source_config_sha256": "0c987ffbaa7058e6d4e65cd6fb396731622cae117ebbaedef629b57ca4de37e3",
+    "environment_report_sha256": "cf3b2ec8c81ef30fbafac24722e892b64a9a81e60ece3a3ba387452041283aba"
+  },
+  "note": "This proves pinned model/Mimi loading, LoRA initialization, data tokenization, loss, backward pass, and optimizer wiring only. It is not Persian quality, convergence, held-out, or target-GPU evidence."
+}

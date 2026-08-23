@@ -8,7 +8,13 @@ import pytest
 
 from thesis_s2s.audio import write_wav
 from thesis_s2s.data.channels import TABAGHE16, YOUTUBE_CHANNELS, remote_csv
-from thesis_s2s.data.conversation import SpeakerSegment, _interaction_label
+from thesis_s2s.data.conversation import (
+    SpeakerSegment,
+    _automatic_interaction_candidate,
+    _interaction_label,
+    audit_conversation_manifest,
+    build_conversation_manifest,
+)
 from thesis_s2s.data.conversation_selection import (
     audit_episode_selection,
     select_conversation_episodes,
@@ -27,6 +33,7 @@ from thesis_s2s.data.episode_prepare import (
     reconstruct_episode_windows,
 )
 from thesis_s2s.data.ingest import _conversation_candidate
+from thesis_s2s.data.interaction_qa import apply_interaction_qa, sample_interaction_qa
 from thesis_s2s.data.manual_qa import apply_manual_qa, sample_manual_qa
 from thesis_s2s.data.rights import (
     apply_conversation_rights_review,
@@ -524,6 +531,8 @@ def test_manual_qa_handoff_is_stratified_and_fail_closed(tmp_path: Path):
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(decisions)
+    with pytest.raises(FileExistsError, match="reviewer data"):
+        sample_manual_qa(source, qa_csv, per_stratum=1)
 
     reviewed = tmp_path / "reviewed.jsonl"
     report = apply_manual_qa(
@@ -674,3 +683,155 @@ def test_source_authorization_distinguishes_supervisor_approval_from_license(
     assert all(row["redistribution_allowed"] is True for row in licensed_rows)
     assert all(rights_record_verified(row) for row in licensed_rows)
     assert all(training_use_authorized(row) for row in licensed_rows)
+
+
+def _interaction_window(window_id: str, channel: str, audio_path: str) -> dict:
+    return {
+        "window_id": window_id,
+        "episode_id": f"{channel}/episode",
+        "session_id": f"{channel}/episode",
+        "channel": channel,
+        "audio_filepath": audio_path,
+        "duration": 3.0,
+        "diarization_status": "complete",
+        "automatic_multi_speaker_verified": True,
+        "reference_alignment_status": "complete",
+        "segments": [
+            {"start": 0.0, "end": 1.0, "speaker": "A", "text": "پرسش گوینده"},
+            {"start": 1.0, "end": 2.1, "speaker": "B", "text": "پاسخ مهمان"},
+        ],
+        "speaker_turns": [
+            {"start": 0.0, "end": 1.4, "speaker": "A"},
+            {"start": 0.8, "end": 2.2, "speaker": "B"},
+        ],
+        "overlap_intervals": [[0.8, 1.4]],
+        "license": "CC-BY-4.0",
+        "license_verified": True,
+        "internal_research_authorized": False,
+        "authorization_basis": "explicit-source-license",
+        "redistribution_allowed": True,
+    }
+
+
+def test_raw_boundary_candidates_are_separate_from_verified_labels():
+    row = _interaction_window("window-1", "Tabaghe16", "/internal/window.wav")
+    user = SpeakerSegment(0.0, 1.0, "A", "پرسش گوینده")
+    response = SpeakerSegment(1.0, 2.1, "B", "پاسخ مهمان")
+
+    candidate = _automatic_interaction_candidate(row, user, response)
+
+    assert candidate is not None
+    assert candidate["automatic_label"] == "interrupt"
+    assert candidate["overlap_seconds"] == 0.6
+    assert candidate["human_verified"] is False
+    assert candidate["raw_user_interval"] == [0.0, 1.4]
+    assert candidate["raw_response_interval"] == [0.8, 2.2]
+
+
+def test_interaction_qa_is_balanced_tamper_resistant_and_fail_closed(tmp_path: Path):
+    source = tmp_path / "windows.jsonl"
+    rows = [
+        _interaction_window("tabaghe-1", "Tabaghe16", "/internal/tabaghe.wav"),
+        _interaction_window("zoomit-1", "Zoomit", "/internal/zoomit.wav"),
+    ]
+    source.write_text(
+        "\n".join(json.dumps(row, ensure_ascii=False) for row in rows) + "\n",
+        encoding="utf-8",
+    )
+    qa_csv = tmp_path / "interaction-qa.csv"
+    sampled = sample_interaction_qa(source, qa_csv, per_channel=1)
+    assert sampled["automatic_candidates"] == 2
+    assert sampled["sampled_per_channel"] == {"Tabaghe16": 1, "Zoomit": 1}
+    assert sampled["new_recordings_required"] is False
+
+    with qa_csv.open("r", encoding="utf-8-sig", newline="") as handle:
+        decisions = list(csv.DictReader(handle))
+        fieldnames = list(decisions[0])
+    for decision in decisions:
+        decision.update(
+            {
+                "review_status": "pass",
+                "speakers_distinct_correct": "yes",
+                "user_turn_boundary_correct": "yes",
+                "response_turn_boundary_correct": "yes",
+                "audible_overlap_correct": "yes",
+                "corrected_label": "interrupt",
+                "reviewer_id": "reviewer-1",
+                "overlap_seconds": "999",
+            }
+        )
+    decisions[0]["audible_overlap_correct"] = "no"
+    with qa_csv.open("w", encoding="utf-8-sig", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(decisions)
+    with pytest.raises(FileExistsError, match="reviewer data"):
+        sample_interaction_qa(source, qa_csv, per_channel=1)
+
+    reviewed = tmp_path / "reviewed.jsonl"
+    report = apply_interaction_qa(source, qa_csv, reviewed)
+    assert report["counts"]["approved"] == 1
+    assert report["counts"]["rejected"] == 1
+    reviewed_rows = [json.loads(line) for line in reviewed.read_text().splitlines()]
+    reviews = [review for row in reviewed_rows for review in row["interaction_reviews"]]
+    assert sum(review["human_verified"] is True for review in reviews) == 1
+    assert all(review["automatic_label"] == "interrupt" for review in reviews)
+
+
+def test_reviewed_interaction_retimes_export_and_audit(tmp_path: Path):
+    audio_path = tmp_path / "conversation.wav"
+    write_wav(audio_path, np.zeros(3 * 16000, dtype=np.float32))
+    row = _interaction_window("window-1", "Tabaghe16", str(audio_path))
+    user = SpeakerSegment(0.0, 1.0, "A", "پرسش گوینده")
+    response = SpeakerSegment(1.0, 2.1, "B", "پاسخ مهمان")
+    candidate = _automatic_interaction_candidate(row, user, response)
+    assert candidate is not None
+    row["interaction_reviews"] = [
+        {
+            "candidate_id": candidate["candidate_id"],
+            "label": "interrupt",
+            "human_verified": True,
+            "reviewer_id": "reviewer-1",
+        }
+    ]
+    source = tmp_path / "reviewed-windows.jsonl"
+    source.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
+    manifest = tmp_path / "pairs.jsonl"
+
+    report = build_conversation_manifest(source, manifest, tmp_path / "clips")
+
+    assert report["human_verified_interaction_counts"] == {"interrupt": 1}
+    pair = json.loads(manifest.read_text(encoding="utf-8"))
+    assert pair["source_user_interval"] == [0.0, 1.4]
+    assert pair["source_response_interval"] == [0.8, 2.2]
+    assert pair["human_verified_interaction_label"] is True
+    audit = audit_conversation_manifest(manifest, check_files=True)
+    assert audit["requirements"]["interruptions_present"] is True
+    assert audit["human_verified_interaction_label_counts"] == {"interrupt": 1}
+
+
+def test_unverified_interrupt_label_does_not_pass_interruption_audit(tmp_path: Path):
+    manifest = tmp_path / "pairs.jsonl"
+    manifest.write_text(
+        json.dumps(
+            {
+                "session_id": "s1",
+                "speaker_id": "s1:A",
+                "assistant_speaker_id": "s1:B",
+                "duration": 360000.0,
+                "interrupt_label": "interrupt",
+                "human_verified_interaction_label": False,
+                "response_audio_filepath": "response.wav",
+                "assistant_text": "پاسخ",
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = audit_conversation_manifest(manifest, check_files=False)
+
+    assert report["requirements"]["interruptions_present"] is False
+    assert report["label_counts"] == {"interrupt": 1}
+    assert report["human_verified_interaction_label_counts"] == {}

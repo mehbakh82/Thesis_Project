@@ -8,9 +8,9 @@ An evidence-first Persian speech prototype that keeps the microphone active duri
 |---|---|
 | Working spoken conversation | Implemented as NeMo Persian ASR → local Qwen2.5-0.5B (rule fallback) → Piper Persian TTS |
 | Full-duplex control | Continuous browser PCM16 stream, rolling energy/F0/MFCC detector, server stop event, client stop acknowledgement |
-| Direct speech LLM | Official Moshi LoRA trainer, pinned runtime, Persian stereo-response exporter, isolated environment, and H100 profiles are implemented and tested; all three exact-revision base blobs pass byte/SHA-256 verification. Final adapter training is gated by the 40-row listening QA and adequate shared-H100 headroom. The old 7 MB reconstruction artifact stays runtime-ineligible |
+| Direct speech LLM | Official Moshi LoRA trainer, pinned runtime, Persian stereo-response exporter, isolated environment, and H100 profiles are implemented and tested; all three exact-revision base blobs pass byte/SHA-256 verification. A real one-step H100 smoke passed end to end (loss 4.614331, 15.258 GB peak). Full adapter training is gated by the window/pair listening QA and adequate shared-H100 headroom. The old 7 MB reconstruction artifact stays runtime-ineligible |
 | 100–200 h conversation candidates | Full inventory: **775.887 h / 1,442 long episodes**. The measured final plan is **196.546 candidate h / 296 episodes** across four channels; 1,021 windows contain **181.824 automatically verified multi-speaker h** and an estimated **6,017 response pairs / 105.727 pair h** |
-| Conversational interruption supervision | Preparation, H100 diarization/alignment, real archived-noise labels, response-pair estimation, and fail-closed audits are implemented. The 4,787 overlap-bearing pairs are explicitly `overlap_unattributed`; **zero direct response-turn interruptions** are claimed until reviewed/supplemental evidence exists |
+| Conversational interruption supervision | Raw speaker boundaries recover **712 conservative candidates** (669 interruption-like, 43 backchannel-like) from the 6,017 pairs. A deterministic 24-row sheet covers all four channels and only **168.3 seconds** of excerpt audio. They remain automatic candidates; **zero human-verified direct interruptions** are claimed until that listening review passes |
 | Barge-in >80% | Met only on harmonic synthetic held-out data; real speaker/session-held-out evidence is pending |
 | ≤500 ms and 12–24 GB official test | Pending live browser measurements on a physical 12–24 GB GPU |
 | Human study | Incomplete; 5–10 participants and at least two aged 60+ are still required. Raw WAV retention is optional |
@@ -60,11 +60,13 @@ rotate it and replace the document with environment-variable placeholders.
 .venv/bin/python -m thesis_s2s.cli select-conversation-reserve
 .venv/bin/python -m thesis_s2s.cli sample-conversation-qa
 .venv/bin/python -m thesis_s2s.cli apply-conversation-qa
+.venv/bin/python -m thesis_s2s.cli sample-interruption-qa
+.venv/bin/python -m thesis_s2s.cli apply-interruption-qa
 .venv/bin/python -m thesis_s2s.cli create-conversation-rights-review
 .venv/bin/python -m thesis_s2s.cli apply-conversation-rights-review
 .venv/bin/python -m thesis_s2s.cli audit-corpus --no-check-files
 .venv/bin/python -m thesis_s2s.cli audit-alignment
-.venv/bin/python -m thesis_s2s.cli build-conversations --in-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
+.venv/bin/python -m thesis_s2s.cli build-conversations --in-jsonl data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
 .venv/bin/python -m thesis_s2s.cli export-moshi-data --assistant-audio-mode piper
 .venv/bin/python -m thesis_s2s.cli serve --study --retention features
@@ -88,4 +90,4 @@ rotate it and replace the document with environment-variable placeholders.
 - Primary barge-in evidence requires speaker/session-held-out real interactions; lossy aggregate features may be used without retaining WAV, subject to ethics approval.
 - Human evaluation requires 5–10 Persian speakers, at least two aged 60+, with complete ratings.
 
-See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/MOSHI_H100_RUNBOOK.md`, `docs/METRICS.md`, `docs/HUMAN_STUDY.md`, `docs/NO_RECORDING_ALTERNATIVES.md`, `docs/GPU_4090_RUNBOOK.md`, `docs/MANUAL_QA_FA.md`, `docs/RIGHTS_REVIEW_FA.md`, `docs/SUPERVISOR_DECISIONS.md`, and `docs/REVIEW.md`.
+See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/MOSHI_H100_RUNBOOK.md`, `docs/METRICS.md`, `docs/HUMAN_STUDY.md`, `docs/NO_RECORDING_ALTERNATIVES.md`, `docs/GPU_4090_RUNBOOK.md`, `docs/MANUAL_QA_FA.md`, `docs/INTERRUPTION_QA_FA.md`, `docs/RIGHTS_REVIEW_FA.md`, `docs/SUPERVISOR_DECISIONS.md`, and `docs/REVIEW.md`.

@@ -33,7 +33,7 @@ The project's supervisor approved internal research training on the crawled publ
 The remaining corpus limitations are explicit:
 
 - the 40-row, channel/outcome/noise-stratified listening sheet still requires a human reviewer;
-- 4,787 estimated pairs have diarizer overlap somewhere in their span, but none has a directly aligned assistant turn beginning before the user turn ends, so they are labeled `overlap_unattributed`, not interruption;
+- 4,787 estimated pairs retain the conservative `overlap_unattributed` label; raw speaker boundaries additionally expose 712 strict review candidates (669 interruption-like, 43 backchannel-like), but zero count as human-verified interruption until the generated 24-row/168.3-second listening sheet passes;
 - speaker diarization estimates adjacent turns; it does not prove semantic user/assistant roles or response quality;
 - YouTube media and generated training manifests remain internal-only;
 - the synthetic harmonic fixture is only a plumbing smoke test, never speech evidence.
@@ -50,7 +50,7 @@ Corrections:
 - checkpoints declare `runtime_ready: false`;
 - legacy/untyped checkpoints fail closed;
 - serving is unconditionally cascade-only for the legacy artifact;
-- the genuine direct path now uses the pinned official Moshi runtime and LoRA trainer, a fail-closed stereo exporter, an H100 profile, deterministic single-voice Persian assistant targets, immutable upstream metadata, and exact model-file verification. All three base blobs pass their pinned sizes and SHA-256 hashes. The adapter remains pending until manual QA, the full training run, and held-out Persian evaluation pass.
+- the genuine direct path now uses the pinned official Moshi runtime and LoRA trainer, a fail-closed stereo exporter, an H100 profile, deterministic single-voice Persian assistant targets, immutable upstream metadata, and exact model-file verification. All three base blobs pass their pinned sizes and SHA-256 hashes. A real one-step H100 smoke completed the model/Mimi/data/loss/backward/optimizer path at 15.258 GB peak; it is wiring evidence only. The adapter remains pending until manual QA, the full training run, and held-out Persian evaluation pass.
 
 The working system is now honestly modular: NeMo ASR → locally cached Qwen2.5-0.5B (rules if unavailable) → Piper/formant TTS.
 
@@ -113,7 +113,7 @@ Added:
 
 ## Irreducible path to 10/10
 
-1. Complete the 40-row listening review. Resolve the absence of directly verified interruption examples with an untouched licensed/internal-authorized set, a clearly labeled synthetic supplement, or a written thesis-scope amendment.
+1. Complete the 40-row window review and the 24-row interaction-candidate review. The latter uses existing internal-authorized audio and requires no recording; use a supplement or scope amendment only if its measured precision is unacceptable.
 2. Train the pinned Moshi LoRA response model on the H100, then validate Persian response relevance, speech output, checkpoints, and held-out metrics.
 3. Recruit 5–10 Persian speakers, including at least two aged 60+, and complete all ratings. If recruitment is formally waived, record the supervisor-approved alternative and narrow the claims accordingly.
 4. Run the live browser protocol on the physical 4090 and export client timing; the H100 is the correct training machine, while the 4090 is the target deployment/evaluation machine.

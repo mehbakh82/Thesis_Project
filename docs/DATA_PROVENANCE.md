@@ -4,7 +4,7 @@ Every dataset entering training or evaluation must have one row in this register
 
 | Source | Role | Access/license | Raw publish? | Current evidence |
 |---|---|---|---|---|
-| University S3 YouTube crawl | Persian acoustics/captions; conversation candidates | Supervisor-approved internal thesis training; source licenses not independently verified | No | Final measured plan: 296 episodes / 1,021 windows / 196.546 candidate h / 219.403 staging h; 181.824 automatic multi-speaker h and 6,017 estimated response pairs / 105.727 pair h. All 1,021 windows are internally authorized; 40-row listening QA is pending. Diarizer overlap is `overlap_unattributed`, not claimed interruption. |
+| University S3 YouTube crawl | Persian acoustics/captions; conversation candidates | Supervisor-approved internal thesis training; source licenses not independently verified | No | Final measured plan: 296 episodes / 1,021 windows / 196.546 candidate h / 219.403 staging h; 181.824 automatic multi-speaker h and 6,017 estimated response pairs / 105.727 pair h. All 1,021 windows are internally authorized. The 40-row window QA and 24-row interaction QA are pending. Raw speaker boundaries produce 712 automatic candidates, but none counts as a verified interruption before listening review. |
 | CALLFRIEND Farsi Second Edition (`LDC2014S01`) | Proposed natural telephone conversation | LDC institutional/member license required | No | Not acquired |
 | MATERIAL Farsi-English (`LDC2024S13`) | Proposed natural conversation and varied environments | LDC institutional/member license required | No | Not acquired |
 | Live participants | Usability, latency, interruption | Explicit mode-specific consent and ethics approval | No by default | Not collected |

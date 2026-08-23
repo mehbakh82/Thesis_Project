@@ -30,7 +30,7 @@
 - `src/thesis_s2s/data/batch_reasr.py` — optional diagnostic NeMo/Whisper re-ASR; never overwrites canonical captions.
 - `src/thesis_s2s/data/verbatim.py` — Persian normalization while retaining source-caption provenance.
 - `src/thesis_s2s/data/filter_corpus.py` — quality filters and synthetic plumbing data.
-- `src/thesis_s2s/data/diarize.py`, `manual_qa.py`, and `conversation.py` — collision-free primary/reserve report paths, transcript-aligned speaker evidence, stratified archive listening QA, honest `overlap_unattributed` semantics, fail-closed reviewed rejection, response-pair building, and final coverage audits.
+- `src/thesis_s2s/data/diarize.py`, `manual_qa.py`, `interaction_qa.py`, and `conversation.py` — collision-free primary/reserve reports, transcript-aligned speakers, stratified window QA, conservative raw-boundary interaction candidates, fail-closed pair review, overlap-preserving response-pair building, and verified-only interruption audits.
 - `src/thesis_s2s/data/audit.py` — manifest integrity, split leakage, conversational-supervision coverage, and caption/independent-ASR alignment-risk audits.
 - `src/thesis_s2s/data/factory.py` — data pipeline orchestration.
 - `src/thesis_s2s/bakeoff/codecs.py` — codec/component probes, not a comparative full-model benchmark.

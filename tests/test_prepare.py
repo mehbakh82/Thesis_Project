@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from thesis_s2s.data.channels import YOUTUBE_CHANNELS, remote_csv
+from thesis_s2s.data.factory import refresh_dataset_card
 from thesis_s2s.data.filter_corpus import filter_hours, write_synthetic_duplex
 from thesis_s2s.data.prepare_youtube import caption_ok, chunk_name, episode_split
 from thesis_s2s.data.quality import conversational_ok, looks_persian
@@ -78,3 +79,82 @@ def test_formant_tts_phones():
     assert phones
     audio = formant_synthesize("سلام")
     assert len(audio) > 800
+
+
+def test_dataset_card_refresh_preserves_final_authorized_conversation_evidence(
+    tmp_path: Path, monkeypatch
+):
+    (tmp_path / "docs").mkdir()
+    results = tmp_path / "results"
+    results.mkdir()
+    reports = {
+        "conversation_selection_audit.json": {
+            "inventory_stats": {"csv_hours": 775.887},
+            "selected_candidate_hours": 180.043,
+            "selected_episodes": 287,
+            "planning_gate_passes": True,
+        },
+        "prepared_episode_audit.json": {
+            "prepared_episodes": 287,
+            "selected_episodes": 287,
+            "windows": 947,
+            "prepared_audio_hours": 201.576,
+            "reconstruction_gate_passes": True,
+        },
+        "prepared_reserve_tabaghe16_audit.json": {
+            "prepared_episodes": 22,
+            "windows": 182,
+            "prepared_audio_hours": 43.156,
+        },
+        "conversation_reserve_yield_selection.json": {
+            "combined_candidate_hours": 196.546,
+            "selected_reserve_episodes": 9,
+        },
+        "diarized_episode_audit_combined_authorized.json": {
+            "episodes": 296,
+            "windows": 1021,
+            "prepared_hours": 219.403,
+            "automatic_multi_speaker_hours": 181.824,
+            "reference_aligned_hours": 217.115,
+            "requirements": {"manual_qa_sample_present": False},
+        },
+        "conversation_yield_estimate_combined.json": {
+            "estimated_pairs": 6017,
+            "estimated_pair_hours": 105.727,
+            "label_counts": {"none": 1230, "overlap_unattributed": 4787},
+            "direct_interruption_pairs": 0,
+        },
+        "interaction_candidate_report.json": {
+            "automatic_candidates": 712,
+            "automatic_candidate_counts": {"interrupt": 669, "backchannel": 43},
+            "sampled_candidates": 24,
+        },
+        "conversation_source_authorization_report_combined.json": {
+            "counts": {"authorized_windows": 1021},
+            "training_authorization_gate_passes": True,
+        },
+    }
+    for name, report in reports.items():
+        (results / name).write_text(json.dumps(report), encoding="utf-8")
+    monkeypatch.setattr("thesis_s2s.data.factory.project_root", lambda: tmp_path)
+    monkeypatch.setattr(
+        "thesis_s2s.data.factory.SessionStore.export_manifest",
+        lambda _self: {"hours": 0.0, "n": 0, "elderly_turns": 0},
+    )
+
+    card_path = refresh_dataset_card()
+    card = card_path.read_text(encoding="utf-8")
+    snapshot = json.loads((results / "dataset_card_snapshot.json").read_text())
+
+    assert "Supervisor-approved internal thesis use" in card
+    assert "196.546 candidate h / 296 episodes / 1021 windows" in card
+    assert "105.727 estimated response-pair h / 6017 pairs" in card
+    assert "overlap_unattributed" in card
+    assert "712 conservative interaction candidates" in card
+    assert "automatic candidates—not interruption claims" in card
+    assert "pending explicit confirmation" not in card
+    assert snapshot["conversation_training_authorization_gate"] is True
+    assert snapshot["conversation_training_authorized_windows"] == 1021
+    assert snapshot["conversation_direct_interruption_pairs"] == 0
+    assert snapshot["conversation_automatic_interaction_candidates"] == 712
+    assert snapshot["conversation_interaction_qa_sampled_candidates"] == 24

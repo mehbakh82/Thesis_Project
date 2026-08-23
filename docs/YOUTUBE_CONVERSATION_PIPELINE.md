@@ -140,18 +140,22 @@ export DIARIZATION_TIMEOUT_SECONDS=600
 # A reviewer listens to the referenced archive clips; no recording is needed.
 .venv/bin/python -m thesis_s2s.cli sample-conversation-qa \
   --in-jsonl data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl
-# Edit data/processed/manifests/conversation_manual_qa.csv
+# Edit data/processed/manifests/conversation_manual_qa.csv and the already
+# generated 24-row conversation_interruption_qa.csv.
 .venv/bin/python -m thesis_s2s.cli apply-conversation-qa \
   --in-jsonl data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl \
   --out-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
+.venv/bin/python -m thesis_s2s.cli apply-interruption-qa \
+  --in-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl \
+  --out-jsonl data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
-  --manifest data/processed/manifests/conversation_episode_windows_reviewed.jsonl \
+  --manifest data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl \
   --min-hours 100 --max-hours 240
 
 # Only reviewed, aligned, and training-authorized windows enter this builder.
 # An explicitly reviewed failure is always excluded.
 .venv/bin/python -m thesis_s2s.cli build-conversations \
-  --in-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
+  --in-jsonl data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
 # Primary direct-model export: natural user audio and reference response text,
 # rendered in one pinned Persian assistant voice.
@@ -210,11 +214,13 @@ Measured final state:
 - final plan: 196.546 candidate h, 296 episodes, 1,021 windows, 181.824 automatic multi-speaker h, and 6,017 estimated response pairs / 105.727 pair h;
 - authorization: all 1,021 windows approved for internal thesis training, zero source-license-verified hours, redistribution disabled;
 - noise evidence: primary 639 clean / 243 moderate / 59 noisy / 6 unestimated windows; the selected reserve inherits deterministic labels from its fully estimated reserve pool;
-- interaction evidence: 4,787 pairs contain diarizer overlap, but it is `overlap_unattributed`; zero direct response-turn interruptions are claimed.
+- interaction evidence: 4,787 pairs remain conservatively `overlap_unattributed`; raw speaker boundaries expose 712 stricter automatic candidates (669 interruption-like / 43 backchannel-like) across all four channels, with zero human-verified direct interruptions until listening review.
 
-The final 40-row QA handoff covers five windows from every channel × automatic
+The 40-row window QA handoff covers five windows from every channel × automatic
 pass/reject stratum and balances clean, moderate, noisy, and unestimated
-conditions. It is the only remaining corpus-side human gate.
+conditions. A second deterministic sheet samples six interaction candidates per
+channel (24 rows, 168.3 seconds of excerpt audio). These are the remaining
+corpus-side human gates; neither requires new recording.
 
 
 ## Storage and runtime expectations

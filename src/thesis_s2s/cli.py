@@ -245,6 +245,7 @@ def main(argv: list[str] | None = None) -> None:
         default=Path("data/processed/manifests/conversation_manual_qa.csv"),
     )
     p_qa_sample.add_argument("--per-stratum", type=int, default=5)
+    p_qa_sample.add_argument("--overwrite", action="store_true")
     p_qa_apply = sub.add_parser("apply-conversation-qa")
     p_qa_apply.add_argument(
         "--in-jsonl",
@@ -262,6 +263,47 @@ def main(argv: list[str] | None = None) -> None:
         default=Path("data/processed/manifests/conversation_episode_windows_reviewed.jsonl"),
     )
     p_qa_apply.add_argument("--report", type=Path, default=Path("results/manual_qa_report.json"))
+    p_interaction_sample = sub.add_parser("sample-interruption-qa")
+    p_interaction_sample.add_argument(
+        "--in-jsonl",
+        type=Path,
+        default=p_qa_apply.get_default("out_jsonl"),
+    )
+    p_interaction_sample.add_argument(
+        "--out",
+        type=Path,
+        default=Path("data/processed/manifests/conversation_interruption_qa.csv"),
+    )
+    p_interaction_sample.add_argument("--per-channel", type=int, default=6)
+    p_interaction_sample.add_argument("--overwrite", action="store_true")
+    p_interaction_sample.add_argument(
+        "--report",
+        type=Path,
+        default=Path("results/interaction_candidate_report.json"),
+    )
+    p_interaction_apply = sub.add_parser("apply-interruption-qa")
+    p_interaction_apply.add_argument(
+        "--in-jsonl",
+        type=Path,
+        default=p_interaction_sample.get_default("in_jsonl"),
+    )
+    p_interaction_apply.add_argument(
+        "--qa-csv",
+        type=Path,
+        default=p_interaction_sample.get_default("out"),
+    )
+    p_interaction_apply.add_argument(
+        "--out-jsonl",
+        type=Path,
+        default=Path(
+            "data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl"
+        ),
+    )
+    p_interaction_apply.add_argument(
+        "--report",
+        type=Path,
+        default=Path("results/interaction_qa_report.json"),
+    )
     p_rights_create = sub.add_parser("create-conversation-rights-review")
     p_rights_create.add_argument(
         "--in-jsonl",
@@ -579,12 +621,34 @@ def main(argv: list[str] | None = None) -> None:
             args.in_jsonl,
             args.out,
             per_stratum=args.per_stratum,
+            overwrite=args.overwrite,
         )
         print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "apply-conversation-qa":
         from thesis_s2s.data.manual_qa import apply_manual_qa
 
         report = apply_manual_qa(
+            args.in_jsonl,
+            args.qa_csv,
+            args.out_jsonl,
+            report_path=args.report,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "sample-interruption-qa":
+        from thesis_s2s.data.interaction_qa import sample_interaction_qa
+
+        report = sample_interaction_qa(
+            args.in_jsonl,
+            args.out,
+            per_channel=args.per_channel,
+            report_path=args.report,
+            overwrite=args.overwrite,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "apply-interruption-qa":
+        from thesis_s2s.data.interaction_qa import apply_interaction_qa
+
+        report = apply_interaction_qa(
             args.in_jsonl,
             args.qa_csv,
             args.out_jsonl,

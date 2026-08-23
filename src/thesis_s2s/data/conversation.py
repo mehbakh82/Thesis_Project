@@ -16,6 +16,9 @@ from thesis_s2s.data.rights import rights_record_verified, training_use_authoriz
 from thesis_s2s.metrics import write_json
 
 SAFE_PART = re.compile(r"[^A-Za-z0-9_-]+")
+RAW_TURN_MATCH_RATIO = 0.5
+RAW_BOUNDARY_TOLERANCE_S = 0.5
+MIN_RAW_OVERLAP_S = 0.2
 
 
 @dataclass(frozen=True)
@@ -132,6 +135,147 @@ def _interaction_label(
     return "interrupt", overlap
 
 
+def _interval_overlap(start_a: float, end_a: float, start_b: float, end_b: float) -> float:
+    return max(0.0, min(end_a, end_b) - max(start_a, start_b))
+
+
+def _automatic_interaction_candidate(
+    row: dict,
+    user: SpeakerSegment,
+    assistant: SpeakerSegment,
+) -> dict | None:
+    """Recover conservative cross-speaker boundary candidates from raw diarization.
+
+    Caption-aligned segments are intentionally sequential, so their boundaries can
+    hide overlap retained in ``speaker_turns``. This helper only proposes a
+    candidate when both raw turns strongly match their caption speaker, occur at
+    the shared caption boundary, and overlap for at least 200 ms. Human review is
+    still required before the candidate becomes a training/evaluation label.
+    """
+
+    raw_turns: list[tuple[float, float, str]] = []
+    for item in row.get("speaker_turns") or []:
+        try:
+            start = float(item.get("start"))
+            end = float(item.get("end"))
+        except (AttributeError, TypeError, ValueError):
+            continue
+        speaker = str(item.get("speaker") or item.get("speaker_id") or "").strip()
+        if speaker and 0 <= start < end:
+            raw_turns.append((start, end, speaker))
+
+    def matches(
+        segment: SpeakerSegment,
+        raw_start: float,
+        raw_end: float,
+    ) -> float:
+        overlap = _interval_overlap(segment.start, segment.end, raw_start, raw_end)
+        denominator = min(segment.duration, raw_end - raw_start)
+        return overlap / denominator if denominator > 0 else 0.0
+
+    user_turns = [
+        (start, end, matches(user, start, end))
+        for start, end, speaker in raw_turns
+        if speaker == user.speaker
+        and matches(user, start, end) >= RAW_TURN_MATCH_RATIO
+        and end >= user.end - RAW_BOUNDARY_TOLERANCE_S
+    ]
+    assistant_turns = [
+        (start, end, matches(assistant, start, end))
+        for start, end, speaker in raw_turns
+        if speaker == assistant.speaker
+        and matches(assistant, start, end) >= RAW_TURN_MATCH_RATIO
+        and start <= assistant.start + RAW_BOUNDARY_TOLERANCE_S
+    ]
+    candidates: list[tuple[float, float, float, float, float, float, float]] = []
+    for user_start, user_end, user_match in user_turns:
+        for response_start, response_end, response_match in assistant_turns:
+            overlap = min(user_end, response_end) - max(user_start, response_start)
+            if response_start > user_start and overlap >= MIN_RAW_OVERLAP_S:
+                candidates.append(
+                    (
+                        overlap,
+                        min(user_match, response_match),
+                        user_start,
+                        user_end,
+                        response_start,
+                        response_end,
+                        response_match,
+                    )
+                )
+    if not candidates:
+        return None
+
+    (
+        overlap_seconds,
+        _minimum_match,
+        raw_user_start,
+        raw_user_end,
+        raw_response_start,
+        raw_response_end,
+        response_match,
+    ) = max(candidates)
+    user_match = matches(user, raw_user_start, raw_user_end)
+    automatic_label = (
+        "backchannel"
+        if raw_response_end - raw_response_start <= 1.2 and raw_response_end <= raw_user_end + 0.2
+        else "interrupt"
+    )
+    identity = json.dumps(
+        {
+            "window_id": row.get("window_id") or row.get("session_id"),
+            "user": [user.start, user.end, user.speaker],
+            "response": [assistant.start, assistant.end, assistant.speaker],
+        },
+        ensure_ascii=False,
+        sort_keys=True,
+    )
+    candidate_id = (
+        "interaction-" + hashlib.blake2b(identity.encode("utf-8"), digest_size=12).hexdigest()
+    )
+    overlap_start = max(raw_user_start, raw_response_start)
+    overlap_end = min(raw_user_end, raw_response_end)
+    duration = float(row.get("duration") or max(user.end, assistant.end))
+    return {
+        "candidate_id": candidate_id,
+        "method": "caption_speaker_plus_raw_boundary_v1",
+        "automatic_label": automatic_label,
+        "human_verified": False,
+        "aligned_user_interval": [round(user.start, 3), round(user.end, 3)],
+        "aligned_response_interval": [round(assistant.start, 3), round(assistant.end, 3)],
+        "raw_user_interval": [round(raw_user_start, 3), round(raw_user_end, 3)],
+        "raw_response_interval": [round(raw_response_start, 3), round(raw_response_end, 3)],
+        "overlap_interval": [round(overlap_start, 3), round(overlap_end, 3)],
+        "overlap_seconds": round(overlap_seconds, 3),
+        "user_match_ratio": round(user_match, 4),
+        "response_match_ratio": round(response_match, 4),
+        "listen_interval": [
+            round(max(0.0, overlap_start - 3.0), 3),
+            round(min(duration, overlap_end + 3.0), 3),
+        ],
+        "thresholds": {
+            "minimum_raw_turn_match_ratio": RAW_TURN_MATCH_RATIO,
+            "caption_boundary_tolerance_s": RAW_BOUNDARY_TOLERANCE_S,
+            "minimum_raw_overlap_s": MIN_RAW_OVERLAP_S,
+        },
+    }
+
+
+def _verified_interaction_review(row: dict, candidate: dict | None) -> dict | None:
+    if candidate is None:
+        return None
+    candidate_id = str(candidate["candidate_id"])
+    for review in row.get("interaction_reviews") or []:
+        if (
+            isinstance(review, dict)
+            and str(review.get("candidate_id") or "") == candidate_id
+            and review.get("human_verified") is True
+            and str(review.get("label") or "") in {"interrupt", "backchannel"}
+        ):
+            return review
+    return None
+
+
 def estimate_conversation_pair_yield(
     diarized_jsonl: Path,
     out_json: Path | None = None,
@@ -148,6 +292,8 @@ def estimate_conversation_pair_yield(
     pairs = 0
     seconds = 0.0
     labels: Counter[str] = Counter()
+    automatic_candidates: Counter[str] = Counter()
+    verified_interactions: Counter[str] = Counter()
     by_channel_seconds: defaultdict[str, float] = defaultdict(float)
     skipped: Counter[str] = Counter()
     for row in rows:
@@ -175,24 +321,37 @@ def estimate_conversation_pair_yield(
         while index + 1 < len(segments):
             user, assistant = segments[index], segments[index + 1]
             index += 2
-            gap = assistant.start - user.end
-            if user.speaker == assistant.speaker or gap > max_response_gap_s:
+            if user.speaker == assistant.speaker or assistant.start - user.end > max_response_gap_s:
                 skipped["not_adjacent_response"] += 1
                 continue
-            span_start = min(user.start, assistant.start)
-            span_end = max(user.end, assistant.end)
-            if span_start < consumed_until:
-                skipped["source_interval_reuse"] += 1
-                continue
-            span_seconds = span_end - span_start
             if user.duration < 0.25 or assistant.duration < 0.25:
                 skipped["empty_clip"] += 1
                 continue
-            label, _ = _interaction_label(
+
+            candidate = _automatic_interaction_candidate(row, user, assistant)
+            review = _verified_interaction_review(row, candidate)
+            user_start, user_end = user.start, user.end
+            response_start, response_end = assistant.start, assistant.end
+            label, _overlap = _interaction_label(
                 user,
                 assistant,
                 list(row.get("overlap_intervals") or []),
             )
+            if review is not None and candidate is not None:
+                user_start, user_end = map(float, candidate["raw_user_interval"])
+                response_start, response_end = map(float, candidate["raw_response_interval"])
+                label = str(review["label"])
+
+            span_start = min(user_start, response_start)
+            span_end = max(user_end, response_end)
+            if span_start < consumed_until:
+                skipped["source_interval_reuse"] += 1
+                continue
+            span_seconds = span_end - span_start
+            if candidate is not None:
+                automatic_candidates[str(candidate["automatic_label"])] += 1
+            if review is not None:
+                verified_interactions[label] += 1
             labels[label] += 1
             seconds += span_seconds
             by_channel_seconds[str(row.get("channel") or "unknown")] += span_seconds
@@ -206,19 +365,32 @@ def estimate_conversation_pair_yield(
         "estimated_pair_hours": round(hours, 3),
         "hours_100_to_200": 100.0 <= hours <= 200.0,
         "label_counts": dict(labels),
-        "direct_interruption_pairs": labels["interrupt"],
+        "automatic_interaction_candidate_counts": dict(automatic_candidates),
+        "automatic_interaction_candidates": sum(automatic_candidates.values()),
+        "automatic_direct_interruption_candidates": automatic_candidates["interrupt"],
+        "automatic_backchannel_candidates": automatic_candidates["backchannel"],
+        "human_verified_interaction_counts": dict(verified_interactions),
+        "human_verified_direct_interruption_pairs": verified_interactions["interrupt"],
+        "direct_interruption_pairs": verified_interactions["interrupt"],
         "unattributed_overlap_pairs": labels["overlap_unattributed"],
         "channel_hours": {
             channel: round(value / 3600.0, 3)
             for channel, value in sorted(by_channel_seconds.items())
         },
         "skipped": dict(skipped),
+        "candidate_rule": {
+            "method": "caption_speaker_plus_raw_boundary_v1",
+            "minimum_raw_turn_match_ratio": RAW_TURN_MATCH_RATIO,
+            "caption_boundary_tolerance_s": RAW_BOUNDARY_TOLERANCE_S,
+            "minimum_raw_overlap_s": MIN_RAW_OVERLAP_S,
+        },
         "non_mutating_estimate": True,
         "training_ready": False,
         "warning": (
             "This estimate writes no training clips and does not replace manual QA, "
             "rights application, file checks, or the final conversation audit. "
-            "overlap_unattributed is overlap evidence, not an interruption claim."
+            "Automatic interaction candidates and overlap_unattributed are not "
+            "human-verified interruption claims."
         ),
     }
     if out_json is not None:
@@ -417,9 +589,10 @@ def build_conversation_manifest(
 ) -> dict:
     """Extract non-overlapping user/response pairs from full diarized recordings.
 
-    Input rows contain ``audio_filepath``, ``session_id``, ``license``, and a
-    ``segments`` (or ``speaker_turns``) list with start/end/speaker/text.
-    Consecutive source segments are consumed once, preventing duration inflation.
+    Consecutive caption-aligned source segments are consumed once. A reviewed
+    interaction candidate uses its raw diarizer boundaries so the exported clips
+    and stereo timing preserve the verified overlap; unreviewed candidates remain
+    conservative metadata and never become interruption claims.
     """
 
     diarized_jsonl = Path(diarized_jsonl)
@@ -435,6 +608,8 @@ def build_conversation_manifest(
     clips_dir.mkdir(parents=True, exist_ok=True)
     pairs: list[dict] = []
     label_counts: Counter[str] = Counter()
+    automatic_candidate_counts: Counter[str] = Counter()
+    verified_interaction_counts: Counter[str] = Counter()
     hours = 0.0
     skipped: Counter[str] = Counter()
     for row in source_rows:
@@ -469,12 +644,27 @@ def build_conversation_manifest(
         while i + 1 < len(segments):
             user, assistant = segments[i], segments[i + 1]
             i += 2
-            gap = assistant.start - user.end
-            if user.speaker == assistant.speaker or gap > max_response_gap_s:
+            if user.speaker == assistant.speaker or assistant.start - user.end > max_response_gap_s:
                 skipped["not_adjacent_response"] += 1
                 continue
-            source_span_start = min(user.start, assistant.start)
-            source_span_end = max(user.end, assistant.end)
+
+            candidate = _automatic_interaction_candidate(row, user, assistant)
+            review = _verified_interaction_review(row, candidate)
+            user_start, user_end = user.start, user.end
+            response_start, response_end = assistant.start, assistant.end
+            label, overlap = _interaction_label(
+                user,
+                assistant,
+                list(row.get("overlap_intervals") or []),
+            )
+            if review is not None and candidate is not None:
+                user_start, user_end = map(float, candidate["raw_user_interval"])
+                response_start, response_end = map(float, candidate["raw_response_interval"])
+                label = str(review["label"])
+                overlap = [list(candidate["overlap_interval"])]
+
+            source_span_start = min(user_start, response_start)
+            source_span_end = max(user_end, response_end)
             if source_span_start < consumed_until:
                 skipped["source_interval_reuse"] += 1
                 continue
@@ -483,11 +673,11 @@ def build_conversation_manifest(
             if hours + pair_hours > max_hours:
                 break
             user_audio = audio[
-                max(0, int(user.start * SAMPLE_RATE)) : min(len(audio), int(user.end * SAMPLE_RATE))
+                max(0, int(user_start * SAMPLE_RATE)) : min(len(audio), int(user_end * SAMPLE_RATE))
             ]
             assistant_audio = audio[
-                max(0, int(assistant.start * SAMPLE_RATE)) : min(
-                    len(audio), int(assistant.end * SAMPLE_RATE)
+                max(0, int(response_start * SAMPLE_RATE)) : min(
+                    len(audio), int(response_end * SAMPLE_RATE)
                 )
             ]
             if len(user_audio) < SAMPLE_RATE // 4 or len(assistant_audio) < SAMPLE_RATE // 4:
@@ -499,12 +689,11 @@ def build_conversation_manifest(
             assistant_path = clips_dir / f"{pair_id}_assistant.wav"
             write_wav(user_path, user_audio)
             write_wav(assistant_path, assistant_audio)
-            label, overlap = _interaction_label(
-                user,
-                assistant,
-                list(row.get("overlap_intervals") or []),
-            )
+            if candidate is not None:
+                automatic_candidate_counts[str(candidate["automatic_label"])] += 1
             label_counts[label] += 1
+            if review is not None:
+                verified_interaction_counts[label] += 1
             consumed_until = source_span_end
             license_name = str(row.get("license") or "unknown")
             license_verified = rights_record_verified(row)
@@ -518,22 +707,30 @@ def build_conversation_manifest(
                     "audio_filepath": str(user_path),
                     "response_audio_filepath": str(assistant_path),
                     "duration": round(source_span_duration, 3),
-                    "user_duration": round(user.duration, 3),
+                    "user_duration": round(user_end - user_start, 3),
                     "source_span_start": round(source_span_start, 3),
                     "source_span_end": round(source_span_end, 3),
-                    "source_user_interval": [round(user.start, 3), round(user.end, 3)],
+                    "source_user_interval": [round(user_start, 3), round(user_end, 3)],
                     "source_response_interval": [
-                        round(assistant.start, 3),
-                        round(assistant.end, 3),
+                        round(response_start, 3),
+                        round(response_end, 3),
                     ],
-                    "assistant_duration": round(assistant.duration, 3),
+                    "assistant_duration": round(response_end - response_start, 3),
                     "transcript_caption": user.text,
                     "text": user.text,
                     "assistant_text": assistant.text,
                     "response_text": assistant.text,
                     "interrupt_label": label,
                     "overlap_intervals": overlap,
-                    "response_gap_s": round(gap, 3),
+                    "response_gap_s": round(response_start - user_end, 3),
+                    "automatic_interaction_candidate": candidate,
+                    "interaction_review": review,
+                    "human_verified_interaction_label": review is not None,
+                    "interaction_annotation_source": (
+                        "human_reviewed_raw_diarizer_boundary"
+                        if review is not None
+                        else "automatic_candidate_or_caption_boundary"
+                    ),
                     "split": _stable_split(session_id),
                     "license": license_name,
                     "license_verified": license_verified,
@@ -569,8 +766,13 @@ def build_conversation_manifest(
         "pairs": len(pairs),
         "hours": round(hours, 3),
         "label_counts": dict(label_counts),
+        "automatic_interaction_candidate_counts": dict(automatic_candidate_counts),
+        "human_verified_interaction_counts": dict(verified_interaction_counts),
         "skipped": dict(skipped),
-        "evidence_scope": "natural human-human response pairs with automatic labels until manually verified",
+        "evidence_scope": (
+            "natural human-human response pairs; interruption/backchannel claims require "
+            "pair-level human verification"
+        ),
     }
 
 
@@ -634,6 +836,14 @@ def audit_conversation_manifest(
             paths = (row.get("audio_filepath"), row.get("response_audio_filepath"))
             missing_files += sum(not value or not Path(str(value)).is_file() for value in paths)
     labels = Counter(str(row.get("interrupt_label") or "none") for row in rows)
+    verified_interaction_labels = Counter(
+        str(row.get("interrupt_label") or "none")
+        for row in rows
+        if row.get("human_verified_interaction_label") is True
+    )
+    automatic_interaction_candidates = sum(
+        isinstance(row.get("automatic_interaction_candidate"), dict) for row in rows
+    )
     verified = sum(bool(row.get("human_verified")) for row in rows)
     licensed = sum(rights_record_verified(row) for row in rows)
     training_authorized = sum(training_use_authorized(row) for row in rows)
@@ -681,7 +891,8 @@ def audit_conversation_manifest(
         "session_groups_at_least_2": len(sessions) >= 2,
         "session_group_split_clean": split_leaks == 0,
         "source_intervals_not_reused": reused_spans == 0,
-        "interruptions_present": labels["interrupt"] > 0,
+        "interruptions_present": verified_interaction_labels["interrupt"] > 0,
+        "interaction_verification_sample_present": sum(verified_interaction_labels.values()) > 0,
         "overlap_annotations_present": overlap_rows > 0,
         "noise_conditions_present": noise_rows > 0,
         "training_authorization_complete": training_authorized == len(rows) and bool(rows),
@@ -695,6 +906,8 @@ def audit_conversation_manifest(
         "speakers": len(speakers),
         "sessions": len(sessions),
         "label_counts": dict(labels),
+        "human_verified_interaction_label_counts": dict(verified_interaction_labels),
+        "automatic_interaction_candidates": automatic_interaction_candidates,
         "overlap_rows": overlap_rows,
         "noise_condition_rows": noise_rows,
         "session_group_split_leaks": split_leaks,
@@ -705,7 +918,10 @@ def audit_conversation_manifest(
         "missing_files": missing_files if check_files else None,
         "requirements": requirements,
         "thesis_coverage_ok": all(value is True for value in requirements.values()),
-        "warning": "Automatic diarization/overlap heuristics are pseudo-labels until a manual sample is reviewed.",
+        "warning": (
+            "Automatic diarization/overlap candidates are pseudo-labels. The "
+            "interruptions_present gate counts only pair-level human-verified labels."
+        ),
     }
     if out_json is not None:
         write_json(out_json, report)

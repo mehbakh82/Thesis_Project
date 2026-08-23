@@ -11,34 +11,25 @@
 
 | Split | Source | License | Publish? | Status |
 |---|---|---|---|---|
-| Internal conversation candidates | University S3 YouTube archive | Supervisor-approved internal thesis use; source licenses not independently verified | No raw audio | Full inventory **775.887 caption h**. Final deterministic plan: **196.546 candidate h / 296 episodes / 1,021 windows / 219.403 staging h**; H100 processing found **181.824 automatic multi-speaker h** and **105.727 estimated response-pair h / 6,017 pairs**. Authorization passes; 40-row listening QA remains pending. |
+| Internal conversation candidates | University S3 YouTube archive | Supervisor-approved internal thesis use; source licenses not independently verified | No raw audio | Full inventory **775.887 caption h**. Final deterministic plan: **196.546 candidate h / 296 episodes / 1021 windows / 219.403 staging h**; **181.824 automatic multi-speaker h** and **105.727 estimated response-pair h / 6017 pairs**. Authorization passes for all 1021 windows; 40-row window QA and 24-row/short-excerpt interaction QA remain pending. |
 | Synthetic duplex | tiled harmonic overlap mixer | synthetic | Yes, clearly labeled | **20.0 h**; plumbing and regression use only, not evidence of conversational speech quality. |
 | Optional local audio | Lab/home interactions | consent | Only if separately approved | **not_collected; not definition-required** (0.000 h, 0 turns, elderly_turns=0). Default study kit is `serve --study --retention features`; it stores no WAV. |
 | Pointers | Common Voice fa | CC-0 | Pointers only | Not downloaded here |
 
-The internal-use decision is recorded in `docs/SUPERVISOR_DECISIONS.md`; `results/conversation_source_authorization_report_combined.json` separately reports authorization for all 1,021 final staging windows and zero verified-license coverage. Redistribution remains disabled.
+The internal-use decision is recorded in `docs/SUPERVISOR_DECISIONS.md`; `results/conversation_source_authorization_report_combined.json` separately reports authorization for 1021 final staging windows and zero verified-license coverage. Redistribution remains disabled.
 
 S2S/TTS text = YouTube **CSV caption** (`transcript_caption`) after **fa-verbatim-2**. Those CSVs are the same reference transcripts used to fine-tune Soroush; NeMo is not a teacher for this mix. ASR training orthography (`prepare_tabaghe16.normalise`) is not used as the spoken target. NeMo HTTP remains the cascade ASR baseline only. Optional `youtube_reasr.jsonl` (120.00 h) is diagnostic.
 
 ## Audit snapshot
 
-`results/prepared_episode_audit.json` is authoritative for the primary
-reconstruction: **287/287 episodes**, **947 windows**, **201.576 h**, and zero
-schema/split/order/ID/file/WAV/duration/failure errors. The bounded reserve audit
-also passes for **22/22 episodes / 182 windows / 43.156 h**. The deterministic
-yield selector then uses only nine reserve episodes; its hashes and stopping
-proof are in `results/conversation_reserve_yield_selection.json`.
+`results/prepared_episode_audit.json` reports the primary reconstruction: **287/287 episodes**, **947 windows / 201.576 h**, reconstruction gate **True**.
+The bounded reserve audit reports **22 episodes / 182 windows / 43.156 h**; the deterministic selector uses 9 reserve episodes.
 
-The final automatic evidence is split deliberately:
+`results/diarized_episode_audit_combined_authorized.json`: **296 episodes / 1021 windows / 181.824 multi-speaker h / 217.115 aligned h**; automatic and authorization gates pass, while manual QA remains open.
+`results/conversation_yield_estimate_combined.json`: **6017 estimated non-reused pairs / 105.727 pair h**. Labels: {"none": 1230, "overlap_unattributed": 4787}; human-verified direct interruption pairs: 0.
+Raw speaker boundaries recover **712 conservative interaction candidates** ({"backchannel": 43, "interrupt": 669}). The generated 24-row sheet covers all four channels and about three minutes of excerpt audio. These are automatic candidates—not interruption claims—until pair-level listening review passes.
 
-- `results/diarized_episode_audit_combined_authorized.json`: **296 episodes / 1,021 windows / 181.824 multi-speaker h / 217.115 aligned staging h**, all internally authorized; only manual QA fails under the explicitly relaxed 100–240 h staging contract;
-- `results/conversation_yield_estimate_combined.json`: **6,017 pairs / 105.727 pair h** within the 100–200 h final-pair band;
-- `results/conversation_selection_audit.json`: the original episode-level planning audit. Planning passes; it is not final training evidence.
-
-The staging and final-pair hour contracts are reported separately because the
-reconstructed windows preserve context and gaps. The supervisor must confirm
-which measurement is binding for the definition. The older flat-clip audit
-below remains acoustic/caption evidence only.
+Staging hours preserve conversational context and gaps, whereas pair hours count only non-reused adjacent-turn spans. They are intentionally audited as different measures; the final pair set is inside the 100–200 h thesis band.
 
 The older flat-clip acoustic/caption audit in `results/corpus_audit.json` reports:
 
@@ -76,11 +67,4 @@ All participants sign the mode-specific `docs/CONSENT.md` and explicitly opt int
 
 ## Moshi direct-model derivative
 
-After diarization, deterministic speech/nonspeech RMS assigns an automatic background-noise condition that is included in stratified listening QA. After QA and rights application, non-reused adjacent
-turns are exported in the official Moshi stereo schema. The user channel keeps
-the natural archive audio. The primary assistant channel is deterministically
-synthesized from the approved reference response text with the pinned
-MIT-licensed Mana-Persian-Piper voice (revision and SHA-256 in
-`third_party/UPSTREAMS.lock.json`). This follows Moshi's consistent-system-voice
-training design. Original podcast response audio is retained only as an explicit
-multi-voice ablation. Neither derivative is redistributed.
+After reviewer QA, non-reused adjacent turns are exported in the official Moshi stereo schema. The user channel retains authorized natural archive audio. The primary assistant channel is synthesized deterministically from the approved next-turn text with the pinned Mana-Persian-Piper voice. Original podcast response audio is an explicit multi-voice ablation. Neither derivative corpus is redistributed.

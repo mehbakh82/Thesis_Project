@@ -39,6 +39,7 @@ def sample_manual_qa(
     out_csv: Path,
     *,
     per_stratum: int = 5,
+    overwrite: bool = False,
 ) -> dict:
     """Sample by channel and automatic pass/reject status.
 
@@ -108,6 +109,13 @@ def sample_manual_qa(
             )
 
     out_csv = Path(out_csv)
+    if out_csv.is_file() and not overwrite:
+        with out_csv.open("r", encoding="utf-8-sig", newline="") as handle:
+            existing = list(csv.DictReader(handle))
+        if any(str(row.get(field) or "").strip() for row in existing for field in QA_FIELDS):
+            raise FileExistsError(
+                f"QA CSV contains reviewer data and will not be overwritten: {out_csv}"
+            )
     out_csv.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = (
         list(sampled[0])

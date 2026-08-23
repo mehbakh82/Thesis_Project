@@ -109,15 +109,19 @@ processing is complete: the candidate-capped primary + reserve plan estimates
 authorized. The remaining data command sequence starts with the reviewer:
 
 ```bash
-# A reviewer completes the already generated 40-row conversation_manual_qa.csv.
+# A reviewer completes the generated 40-row window sheet and 24-row
+# conversation_interruption_qa.csv (168.3 seconds of short excerpts).
 .venv/bin/python -m thesis_s2s.cli apply-conversation-qa \
   --in-jsonl data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl \
   --out-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
+.venv/bin/python -m thesis_s2s.cli apply-interruption-qa \
+  --in-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl \
+  --out-jsonl data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
-  --manifest data/processed/manifests/conversation_episode_windows_reviewed.jsonl \
+  --manifest data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl \
   --min-hours 100 --max-hours 240
 .venv/bin/python -m thesis_s2s.cli build-conversations \
-  --in-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
+  --in-jsonl data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
 .venv/bin/python -m thesis_s2s.cli export-moshi-data \
   --assistant-audio-mode piper
@@ -130,12 +134,17 @@ official adjacent transcript JSON, keeps session-level splits, rejects
 unauthorized rows, and reports whether the 100–200 h and manual-QA gates pass.
 It pins and hashes the assistant voice.
 
-The pre-cut archive does not provide attributable response-turn overlap:
-4,787 estimated pairs contain diarizer overlap, but all are
-`overlap_unattributed`, and zero are claimed as direct interruptions. Therefore
-the final conversation audit must continue to fail interruption coverage until
-an approved labeled supplement or live/feature-only evidence supplies it. This
-limitation does not justify relabeling generic overlap as interruption.
+Caption-aligned turns remain conservative: 4,787 pairs are still
+`overlap_unattributed`. The retained raw speaker boundaries now recover 712
+stricter review candidates (669 interruption-like and 43 backchannel-like) using
+a 50% speaker-turn match, a 0.5 s caption-boundary tolerance, and at least 0.2 s
+of cross-speaker overlap. The 24-row, four-channel listening sheet is only 168.3
+seconds in total. Automatic candidates never pass the interruption gate. A
+complete passing row is attached to the source window, and the builder then
+uses its reviewed raw boundaries so clip/stereo timing preserves the overlap.
+If the sample has unacceptable precision, use an approved supplement or narrow
+the claim; never promote the remaining candidates automatically.
+
 These files remain internal and gitignored. Use `--assistant-audio-mode source`
 only for the disclosed original multi-voice ablation.
 
@@ -148,21 +157,32 @@ fine-tuning and uses only five seconds to minimize shared-H100 pressure:
 
 ```bash
 .venv/bin/python scripts/prepare_moshi_smoke_fixture.py
-.venv-moshi/bin/torchrun --nproc-per-node 1 -m train \
-  configs/moshi_h100_smoke.yaml
+MOSHI_DISTRIBUTED_BACKEND=gloo \
+  .venv-moshi/bin/torchrun --standalone --nproc-per-node 1 \
+  scripts/moshi_train_entry.py configs/moshi_h100_smoke.yaml
+.venv/bin/python scripts/record_moshi_smoke_result.py
 ```
 
 The fixture's `REPORT.json` records `scientific_evidence: false`. A successful
 smoke proves wiring only. It is not evidence of Persian model
 quality, convergence, corpus coverage, or target-GPU performance.
 
-On 2026-08-23 the fixture and all three hash-verified model blobs were ready, but
-the smoke process was deliberately not launched: the shared H100 had only
-16,664 MiB free and was at 100% utilization, while the BF16 language-model file
-alone is 15,375,500,136 bytes before Mimi, activations, LoRA state, and CUDA
-workspace. No unrelated service was terminated. Run the command above when
-safe headroom becomes available. This is a transient shared-machine scheduling
-condition, not a requirement to train on the 4090.
+On 2026-08-23 the shared H100 later became idle with 30,431 MiB free, so the
+one-step official smoke was run without stopping any unrelated service. It
+completed in 21 seconds with loss 4.614331 and 15.258 GB peak allocated memory.
+`results/hardware/moshi_h100_smoke.json` validates and hashes the fixture,
+resolved arguments, metrics, source config, and model-environment report. This
+proves the real pinned model/Mimi/data/loss/backward/optimizer wiring, not
+Persian quality or convergence.
+
+The pinned Torch 2.6 environment bundles NCCL 2.21.5. On this host, both the
+trainer and an isolated one-rank probe reproducibly SIGSEGV inside `libnccl`
+during communicator initialization; the kernel log confirms it occurs before
+model loading. A one-rank Gloo CUDA all-reduce probe passed. The project-owned
+`scripts/moshi_train_entry.py` therefore supports an explicit
+`MOSHI_DISTRIBUTED_BACKEND=gloo` fallback **only for world size 1**; it leaves
+the pinned checkout unchanged and fails if that fallback is requested for
+multiple ranks. Multi-GPU work still requires a healthy NCCL installation.
 
 ## Train
 
@@ -173,14 +193,21 @@ unrelated GPU jobs to make room; wait for headroom or reduce `duration_sec` for
 a smoke test.
 
 ```bash
-.venv-moshi/bin/torchrun --nproc-per-node 1 -m train \
-  configs/moshi_h100.yaml
+MOSHI_DISTRIBUTED_BACKEND=gloo \
+  .venv-moshi/bin/torchrun --standalone --nproc-per-node 1 \
+  scripts/moshi_train_entry.py configs/moshi_h100.yaml
 ```
+
+The pinned upstream trainer writes periodic adapters but does not persist the
+optimizer, scheduler, data-loader, and `TrainState` needed for exact resume.
+Run the full job in a persistent terminal/service, keep `overwrite_run_dir: false`, and do not describe an interrupted restart as a resume. If a run fails,
+archive its run directory and restart from the immutable base/config; never
+delete the only adapter evidence.
 
 A final run is acceptable only when:
 
 - the Moshi export report passes every gate;
-- training and validation losses are finite and checkpoints are resumable;
+- training and validation losses are finite and periodic adapters are runtime-loadable;
 - changing assistant speech targets changes the audio-token loss;
 - the adapter produces intelligible Persian on held-out sessions;
 - the checkpoint loads in the official Moshi server without Piper substitution.

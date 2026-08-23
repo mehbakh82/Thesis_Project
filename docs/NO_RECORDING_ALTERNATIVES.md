@@ -45,7 +45,7 @@ The preferred route is now the verified internal YouTube archive:
 - internal thesis training is supervisor-approved for all 1,021 final staging windows; redistribution is not;
 - Kooshiar remains inventory/acoustic data and is excluded from the default conversation set.
 
-This route avoids new recording, but listening QA remains: the generated 40-row sample can be reviewed by the supervisor, a lab member, or another approved annotator. Pre-cut boundaries make cross-chunk interaction unrecoverable. The 4,787 overlap-bearing pairs are therefore `overlap_unattributed`, with zero direct interruption pairs claimed. Untouched audio, an approved labeled supplement, or a written scope amendment is still needed for interruption supervision.
+This route avoids new recording, but two listening checks remain. The generated 40-row window sample verifies speaker/alignment/noise quality. Raw diarizer boundaries also recover 712 strict interaction candidates; the generated 24-row sheet covers six short excerpts per channel and only 168.3 seconds of audio. Either sheet may be completed by the supervisor, a lab member, or another approved annotator. Automatic candidates never count as interruption claims. If the pair-level sample has acceptable precision, reviewed existing clips supply the needed evidence; a supplement or written scope amendment is needed only if the review fails.
 
 LDC is now a fallback if listening QA, licensing policy, or attributable-interruption coverage invalidates the archive route:
 
@@ -66,15 +66,17 @@ The implemented commands are:
 .venv/bin/python -m thesis_s2s.cli select-conversation-reserve
 .venv/bin/python -m thesis_s2s.cli sample-conversation-qa
 .venv/bin/python -m thesis_s2s.cli apply-conversation-qa
+.venv/bin/python -m thesis_s2s.cli sample-interruption-qa
+.venv/bin/python -m thesis_s2s.cli apply-interruption-qa
 .venv/bin/python -m thesis_s2s.cli create-conversation-rights-review
 .venv/bin/python -m thesis_s2s.cli apply-conversation-rights-review
 .venv/bin/python -m thesis_s2s.cli build-conversations \
-  --in-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
+  --in-jsonl data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
 .venv/bin/python -m thesis_s2s.cli export-moshi-data --assistant-audio-mode piper
 ```
 
-The conversation audit fails closed unless hours, response audio/text, multi-speaker provenance, licenses, interruption/backchannel coverage, a manual-verification sample, and source files are present.
+The conversation audit fails closed unless hours, response audio/text, multi-speaker provenance, training authorization, human-verified interruption coverage, a window-level manual-verification sample, and source files are present.
 
 ## Recommended decision
 

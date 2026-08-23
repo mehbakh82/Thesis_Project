@@ -1,0 +1,25 @@
+{
+  "source_manifest": "data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl",
+  "out_csv": "data/processed/manifests/conversation_interruption_qa.csv",
+  "source_windows": 1021,
+  "automatic_candidates": 712,
+  "automatic_candidate_counts": {
+    "interrupt": 669,
+    "backchannel": 43
+  },
+  "candidate_channels": {
+    "Digiato": 255,
+    "Mehran Rowshan Persian": 96,
+    "Tabaghe16": 299,
+    "Zoomit": 62
+  },
+  "sampled_candidates": 24,
+  "sampled_per_channel": {
+    "Digiato": 6,
+    "Mehran Rowshan Persian": 6,
+    "Tabaghe16": 6,
+    "Zoomit": 6
+  },
+  "new_recordings_required": false,
+  "instruction": "Listen only between listen_start_s and listen_end_s. Set review_status=pass or fail. A pass requires all four checks=yes, corrected_label=interrupt or backchannel, and reviewer_id. Automatic labels are not claims."
+}
