@@ -10,7 +10,9 @@ from pathlib import Path
 
 def _load_alias_into_env(alias: str = "s3-2t") -> None:
     """Aliases are intentionally unsupported because their commands expose keys."""
-    raise RuntimeError(f"shell alias credential extraction is disabled ({alias}); set S3_* variables")
+    raise RuntimeError(
+        f"shell alias credential extraction is disabled ({alias}); set S3_* variables"
+    )
 
 
 def rclone_env() -> dict[str, str]:
@@ -56,7 +58,9 @@ def rclone_process_env() -> dict[str, str]:
 
 def lsd(path: str) -> str:
     cmd = rclone_prefix() + ["lsd", path]
-    result = subprocess.run(cmd, check=True, capture_output=True, text=True, env=rclone_process_env())
+    result = subprocess.run(
+        cmd, check=True, capture_output=True, text=True, env=rclone_process_env()
+    )
     return result.stdout
 
 
@@ -64,7 +68,9 @@ def ls(path: str, include: str | None = None) -> str:
     cmd = rclone_prefix() + ["ls", path]
     if include:
         cmd.extend(["--include", include])
-    result = subprocess.run(cmd, check=True, capture_output=True, text=True, env=rclone_process_env())
+    result = subprocess.run(
+        cmd, check=True, capture_output=True, text=True, env=rclone_process_env()
+    )
     return result.stdout
 
 
@@ -90,5 +96,7 @@ def inventory(out_json: str | Path, extra_prefixes: list[str] | None = None) -> 
         except subprocess.CalledProcessError as exc:
             extra[prefix] = {"error": exc.stderr}
     Path(out_json).parent.mkdir(parents=True, exist_ok=True)
-    Path(out_json).write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    Path(out_json).write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
     return payload

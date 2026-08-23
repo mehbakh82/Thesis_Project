@@ -11,7 +11,9 @@ from thesis_s2s.bargein.detector import LABELS
 from thesis_s2s.bargein.features import FeatureConfig
 
 
-def _harmonic(duration_s: float, f0: float, sr: int = SAMPLE_RATE, rng: np.random.Generator | None = None) -> np.ndarray:
+def _harmonic(
+    duration_s: float, f0: float, sr: int = SAMPLE_RATE, rng: np.random.Generator | None = None
+) -> np.ndarray:
     rng = rng or np.random.default_rng(0)
     t = np.arange(int(duration_s * sr), dtype=np.float64) / sr
     signal = 0.35 * np.sin(2 * np.pi * f0 * t)

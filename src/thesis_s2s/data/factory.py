@@ -210,7 +210,9 @@ def refresh_dataset_card(report: dict | None = None) -> Path:
         "conversation_reserve_hours": conversation_selection.get("reserve_candidate_hours"),
         "conversation_reserve_episodes": conversation_selection.get("reserve_episodes"),
         "conversation_planning_gate": bool(conversation_selection.get("planning_gate_passes")),
-        "conversation_evidence_gate": bool(conversation_selection.get("thesis_evidence_gate_passes")),
+        "conversation_evidence_gate": bool(
+            conversation_selection.get("thesis_evidence_gate_passes")
+        ),
         "corpus_audit": audit,
         "caption_alignment_audit": alignment,
         "zoomit_alignment_sample": zoomit_alignment,
@@ -260,7 +262,10 @@ def scale_corpus(
         "caption_filter": caption,
         "filtered": filt,
         "s2s_text": "transcript_caption",
-        "reasr": {"skipped": True, "reason": "CSV captions are the S2S labels; NeMo is cascade-only"},
+        "reasr": {
+            "skipped": True,
+            "reason": "CSV captions are the S2S labels; NeMo is cascade-only",
+        },
         "diarization": diar,
         "recording": SessionStore().export_manifest(),
     }
@@ -285,7 +290,9 @@ def run_factory(
     filtered = manifests / "filtered.jsonl"
     caption_out = manifests / "filtered_caption.jsonl"
     if src.is_file() and src.stat().st_size > 0:
-        filt = filter_hours(src, caption_out, min_hours=100, max_hours=filter_max_hours, require_teacher=False)
+        filt = filter_hours(
+            src, caption_out, min_hours=100, max_hours=filter_max_hours, require_teacher=False
+        )
         if caption_out.is_file():
             shutil.copy2(caption_out, filtered)
     else:

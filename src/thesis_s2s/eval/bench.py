@@ -61,7 +61,11 @@ def run_latency_bench(out_dir: Path | None = None, path: str = "A") -> dict:
         session.on_user_end(clip.audio)
         t_first = session.log.server_generation_ms or (1000 * (time.perf_counter() - t0))
         session.on_mic_while_playing(clip.audio, interrupt_onset=clip.kind == "interrupt")
-        vram = gpu.get("total_gb") if path.upper() == "B" else (24.0 if gpu.get("memory_capped") else gpu.get("total_gb"))
+        vram = (
+            gpu.get("total_gb")
+            if path.upper() == "B"
+            else (24.0 if gpu.get("memory_capped") else gpu.get("total_gb"))
+        )
         samples.append(
             LatencySample(
                 t_first_audio_ms=t_first,
@@ -88,10 +92,14 @@ def run_latency_bench(out_dir: Path | None = None, path: str = "A") -> dict:
     if path.upper() == "B":
         payload["path"] = "B"
         payload["path_b_hardware_present"] = bool(inv.get("path_b_possible"))
-        payload["note"] = "Path B hardware profile; still unofficial until measured from live browser events."
+        payload["note"] = (
+            "Path B hardware profile; still unofficial until measured from live browser events."
+        )
     else:
         payload["path"] = "A_h100_memory_capped"
-        payload["note"] = "Path A: H100 component proxy with 24 GB cap; never an official E2E table."
+        payload["note"] = (
+            "Path A: H100 component proxy with 24 GB cap; never an official E2E table."
+        )
     name = "latency_bench_path_b.json" if path.upper() == "B" else "latency_bench.json"
     write_json(out_dir / name, payload)
     if path.upper() != "B":
@@ -101,10 +109,16 @@ def run_latency_bench(out_dir: Path | None = None, path: str = "A") -> dict:
 
 def run_interrupt_bench(out_dir: Path | None = None, n_per_class: int = 40) -> dict:
     out_dir = Path(out_dir or project_root() / "results" / "eval")
-    report = train_and_eval(n_per_class=n_per_class, seed=3, out_dir=project_root() / "results" / "bargein")
-    report["measurement_scope"] = "recorded_group_heldout" if report.get("recorded_eval") else "synthetic_proxy"
+    report = train_and_eval(
+        n_per_class=n_per_class, seed=3, out_dir=project_root() / "results" / "bargein"
+    )
+    report["measurement_scope"] = (
+        "recorded_group_heldout" if report.get("recorded_eval") else "synthetic_proxy"
+    )
     report["official_detector_eligible"] = bool(report.get("recorded_eval"))
-    report["note"] = report.get("note") or "Synthetic evidence cannot satisfy the thesis detector gate."
+    report["note"] = (
+        report.get("note") or "Synthetic evidence cannot satisfy the thesis detector gate."
+    )
     write_json(out_dir / "interrupt_bench.json", report)
     return report
 
@@ -132,7 +146,9 @@ def run_reply_wer(out_dir: Path | None = None) -> dict:
             audio, backend = synthesize(text)
             tmp = Path(tempfile.mkstemp(suffix=".wav")[1])
             write_wav(tmp, audio)
-            asr_result = asr(str(tmp), generate_kwargs={"language": "persian", "task": "transcribe"})
+            asr_result = asr(
+                str(tmp), generate_kwargs={"language": "persian", "task": "transcribe"}
+            )
             asr_payload: dict[str, Any] = asr_result if isinstance(asr_result, dict) else {}
             hyp = str(asr_payload.get("text") or "")
             tmp.unlink(missing_ok=True)
@@ -144,7 +160,11 @@ def run_reply_wer(out_dir: Path | None = None) -> dict:
         "official_quality_eligible": False,
         "n": len(rows),
         "rows": rows,
-        "mean_wer": float(np.mean([r["wer"] for r in rows if "wer" in r]) if any("wer" in r for r in rows) else float("nan")),
+        "mean_wer": float(
+            np.mean([r["wer"] for r in rows if "wer" in r])
+            if any("wer" in r for r in rows)
+            else float("nan")
+        ),
         "note": "MOS is not measured on formant. Piper/CosyVoice is the talker for the study sheet.",
     }
     write_json(out_dir / "reply_wer.json", payload)

@@ -44,10 +44,16 @@ class DummySpeechLM(nn.Module):
     def forward(self, audio: torch.Tensor) -> dict[str, torch.Tensor]:
         h = self.encoder(audio.unsqueeze(1))
         pooled = h.mean(dim=-1)
-        return {"asr_logits": self.asr_head(pooled), "tts_logits": self.tts_head(pooled), "hidden": pooled}
+        return {
+            "asr_logits": self.asr_head(pooled),
+            "tts_logits": self.tts_head(pooled),
+            "hidden": pooled,
+        }
 
 
-def log_mel(audio: np.ndarray, sr: int = SAMPLE_RATE, n_mels: int = 80, n_fft: int = 400, hop: int = 160) -> np.ndarray:
+def log_mel(
+    audio: np.ndarray, sr: int = SAMPLE_RATE, n_mels: int = 80, n_fft: int = 400, hop: int = 160
+) -> np.ndarray:
     from scipy.fft import rfft
 
     if len(audio) < n_fft:
@@ -125,7 +131,9 @@ class PersianOmni2(nn.Module):
                 try:
                     from peft import LoraConfig, get_peft_model
 
-                    lora = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05, target_modules=["q_proj", "v_proj"])
+                    lora = LoraConfig(
+                        r=16, lora_alpha=32, lora_dropout=0.05, target_modules=["q_proj", "v_proj"]
+                    )
                     llm = get_peft_model(llm, lora)
                 except Exception:
                     for p in llm.parameters():
@@ -139,7 +147,9 @@ class PersianOmni2(nn.Module):
             hidden = self.whisper.encoder(input_features=input_features).last_hidden_state
         return self.proj(hidden.float())
 
-    def forward(self, input_features: torch.Tensor, mel_target: torch.Tensor | None = None) -> dict[str, torch.Tensor]:
+    def forward(
+        self, input_features: torch.Tensor, mel_target: torch.Tensor | None = None
+    ) -> dict[str, torch.Tensor]:
         speech = self.encode_audio(input_features)
         pooled = speech.mean(dim=1)
         asr_logits = self.asr_head(pooled)
@@ -152,8 +162,14 @@ class PersianOmni2(nn.Module):
 
 
 class JsonlSpeechDataset(Dataset):
-    def __init__(self, jsonl: Path, max_seconds: float = 8.0, n_mels: int = 80, split: str | None = None):
-        rows = [json.loads(line) for line in jsonl.read_text(encoding="utf-8").splitlines() if line.strip()]
+    def __init__(
+        self, jsonl: Path, max_seconds: float = 8.0, n_mels: int = 80, split: str | None = None
+    ):
+        rows = [
+            json.loads(line)
+            for line in jsonl.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
         if split is not None and any(row.get("split") for row in rows):
             rows = [row for row in rows if row.get("split") == split]
         if not rows:
@@ -214,7 +230,7 @@ def write_tiny_manifest(path: Path, n: int = 8) -> Path:
         for i in range(n):
             audio = formant_synthesize(texts[i % len(texts)])
             wav = wav_dir / f"utt_{i}.wav"
-            write_wav(wav, audio[: SAMPLE_RATE])
+            write_wav(wav, audio[:SAMPLE_RATE])
             handle.write(
                 json.dumps(
                     {
@@ -406,9 +422,15 @@ def train_s2s(
         "speech_tokenizer": tokenizer_note,
         "s2s_text": "transcript_caption",
         "published_model": None,
-        "limitations": ["Qwen is not in forward()", "target mel reconstructs input speech", "no response-speech supervision"],
+        "limitations": [
+            "Qwen is not in forward()",
+            "target mel reconstructs input speech",
+            "no response-speech supervision",
+        ],
     }
-    (out_dir / "train_s2s.json").write_text(json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8")
+    (out_dir / "train_s2s.json").write_text(
+        json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8"
+    )
     return report
 
 
@@ -423,9 +445,13 @@ def checkpoint_runtime_status(path: str | Path) -> dict:
         return {"exists": True, "runtime_ready": False, "reason": f"unreadable:{exc}"}
     kind = bundle.get("artifact_kind", "legacy_untyped")
     ready = bool(bundle.get("runtime_ready")) and kind == "deployable_s2s_v1"
-    return {"exists": True, "runtime_ready": ready, "artifact_kind": kind,
-            "format_version": bundle.get("format_version"),
-            "reason": "validated" if ready else "not_a_deployable_s2s_checkpoint"}
+    return {
+        "exists": True,
+        "runtime_ready": ready,
+        "artifact_kind": kind,
+        "format_version": bundle.get("format_version"),
+        "reason": "validated" if ready else "not_a_deployable_s2s_checkpoint",
+    }
 
 
 class OmniTalker:
@@ -446,7 +472,9 @@ class OmniTalker:
         try:
             bundle = torch.load(path, map_location="cpu", weights_only=False)
             device = "cuda" if torch.cuda.is_available() else "cpu"
-            model = PersianOmni2(whisper_name=bundle.get("whisper_name", "openai/whisper-small"), load_llm=False)
+            model = PersianOmni2(
+                whisper_name=bundle.get("whisper_name", "openai/whisper-small"), load_llm=False
+            )
             model.proj.load_state_dict(bundle["proj"])
             model.tts_head.load_state_dict(bundle["tts_head"])
             model.eval()
@@ -454,7 +482,9 @@ class OmniTalker:
             self.device = device
             from transformers import WhisperProcessor
 
-            self.processor = WhisperProcessor.from_pretrained(bundle.get("whisper_name", "openai/whisper-small"))
+            self.processor = WhisperProcessor.from_pretrained(
+                bundle.get("whisper_name", "openai/whisper-small")
+            )
             from thesis_s2s.runtime.tts import warm_piper
 
             if warm_piper():
@@ -475,7 +505,9 @@ class OmniTalker:
         wav = user_audio.astype(np.float32)
         if len(wav) < 400:
             wav = np.pad(wav, (0, 400 - len(wav)))
-        feats = self.processor(wav, sampling_rate=SAMPLE_RATE, return_tensors="pt").input_features.to(self.device)
+        feats = self.processor(
+            wav, sampling_rate=SAMPLE_RATE, return_tensors="pt"
+        ).input_features.to(self.device)
         with torch.no_grad():
             out = self.model(feats)
             mel = out["tts_mel"][0].detach().cpu().numpy()
@@ -490,7 +522,7 @@ class OmniTalker:
 def _mel_to_wave(mel: np.ndarray, sr: int = SAMPLE_RATE) -> np.ndarray:
     """Cheap inverse: treat mel bands as harmonic amplitudes (first packet, not MOS-grade)."""
 
-    n_mels, = (mel.shape[1],) if mel.ndim == 2 else (80,)
+    (n_mels,) = (mel.shape[1],) if mel.ndim == 2 else (80,)
     hop = 160
     t = np.arange(mel.shape[0] * hop) / sr
     audio = np.zeros_like(t, dtype=np.float64)

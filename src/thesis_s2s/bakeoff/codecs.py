@@ -30,12 +30,14 @@ def _snr_db(ref: np.ndarray, rec: np.ndarray) -> float:
 def mulaw_roundtrip(audio: np.ndarray) -> tuple[np.ndarray, dict]:
     mu = np.sign(audio) * np.log1p(255 * np.abs(audio)) / np.log1p(255)
     rec = np.sign(mu) * (1 / 255.0) * ((1 + 255) ** np.abs(mu) - 1)
-    return rec.astype(np.float32), {"available": True, "notes": "waveform mu-law; not a speech tokenizer"}
+    return rec.astype(np.float32), {
+        "available": True,
+        "notes": "waveform mu-law; not a speech tokenizer",
+    }
 
 
 def mel_griffin_roundtrip(audio: np.ndarray, sr: int = SAMPLE_RATE) -> tuple[np.ndarray, dict]:
     """Speech-aware proxy: 80-mel → Griffin-Lim. Stand-in when CosyVoice 2 is absent."""
-
 
     n_fft, hop, n_mels = 512, 160, 80
     if len(audio) < n_fft:
@@ -44,6 +46,7 @@ def mel_griffin_roundtrip(audio: np.ndarray, sr: int = SAMPLE_RATE) -> tuple[np.
     n_frames = 1 + (len(audio) - n_fft) // hop
     frames = np.stack([audio[i * hop : i * hop + n_fft] * window for i in range(n_frames)])
     spec = np.abs(rfft(frames, n=n_fft, axis=1))
+
     # triangular mel bank
     def hz_to_mel(hz):
         return 2595.0 * np.log10(1.0 + np.asarray(hz) / 700.0)
@@ -76,11 +79,16 @@ def mel_griffin_roundtrip(audio: np.ndarray, sr: int = SAMPLE_RATE) -> tuple[np.
             rebuilt[sl] += fr * window
             wsum[sl] += window**2
         rebuilt = rebuilt / np.maximum(wsum, 1e-8)
-        new_frames = np.stack([rebuilt[i * hop : i * hop + n_fft] * window for i in range(n_frames)])
+        new_frames = np.stack(
+            [rebuilt[i * hop : i * hop + n_fft] * window for i in range(n_frames)]
+        )
         new_stft = rfft(new_frames, n=n_fft, axis=1)
         phase = np.angle(new_stft)
     rec = rebuilt[: len(audio)].astype(np.float32)
-    return rec, {"available": True, "notes": "80-mel Griffin-Lim; CosyVoice2-like spectral bottleneck"}
+    return rec, {
+        "available": True,
+        "notes": "80-mel Griffin-Lim; CosyVoice2-like spectral bottleneck",
+    }
 
 
 def encodec_roundtrip(audio: np.ndarray, sr: int = SAMPLE_RATE) -> tuple[np.ndarray | None, dict]:
@@ -105,7 +113,11 @@ def encodec_roundtrip(audio: np.ndarray, sr: int = SAMPLE_RATE) -> tuple[np.ndar
         with torch.no_grad():
             out = model(**inputs, bandwidth=24.0)
         rec24 = out.audio_values.squeeze().detach().cpu().numpy().astype(np.float32)
-        n_codes = int(out.audio_codes.shape[-1]) if getattr(out, "audio_codes", None) is not None else None
+        n_codes = (
+            int(out.audio_codes.shape[-1])
+            if getattr(out, "audio_codes", None) is not None
+            else None
+        )
         from thesis_s2s.audio import resample
 
         rec = resample(rec24, 24000, sr)
@@ -141,7 +153,9 @@ def probe_cosyvoice2() -> dict:
     payload["available"] = any_cv
     if any_cv:
         payload["tokenizer_for_omni2"] = "cosyvoice2_if_persian_tokenizes"
-        payload["note"] = "CosyVoice import succeeded; train Omni2 TTS head on those tokens only if encode() accepts Persian."
+        payload["note"] = (
+            "CosyVoice import succeeded; train Omni2 TTS head on those tokens only if encode() accepts Persian."
+        )
     else:
         payload["note"] = (
             "CosyVoice 2 not installed. Keep Encodec 24 kHz @ 24 kbps as the speech tokenizer "
@@ -153,12 +167,18 @@ def probe_cosyvoice2() -> dict:
 def try_module_codec(name: str, module: str) -> dict:
     try:
         __import__(module)
-        return {"available": True, "persian_phones_preserved": None, "notes": "installed; encode/decode not wired"}
+        return {
+            "available": True,
+            "persian_phones_preserved": None,
+            "notes": "installed; encode/decode not wired",
+        }
     except Exception:
         return {"available": False, "persian_phones_preserved": None, "notes": "not installed"}
 
 
-def whisper_intelligibility(original: np.ndarray, reconstructed: np.ndarray, sr: int = SAMPLE_RATE) -> dict:
+def whisper_intelligibility(
+    original: np.ndarray, reconstructed: np.ndarray, sr: int = SAMPLE_RATE
+) -> dict:
     """CER between Whisper transcripts of original vs reconstructed audio."""
 
     try:
@@ -189,7 +209,7 @@ def whisper_intelligibility(original: np.ndarray, reconstructed: np.ndarray, sr:
         a = transcribe(original)
         b = transcribe(reconstructed)
         cer = _cer(a, b)
-        has_fa = any("\u0600" <= ch <= "\u06FF" for ch in a)
+        has_fa = any("\u0600" <= ch <= "\u06ff" for ch in a)
         return {
             "available": True,
             "orig_text": a[:180],

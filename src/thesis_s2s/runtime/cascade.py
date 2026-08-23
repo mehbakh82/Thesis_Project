@@ -45,7 +45,9 @@ class TextResponder:
     """Local Persian Qwen responder with a deterministic rule fallback."""
 
     def __init__(self, model_name: str | None = None):
-        self.model_name = model_name or os.environ.get("TEXT_LLM_MODEL", "Qwen/Qwen2.5-0.5B-Instruct")
+        self.model_name = model_name or os.environ.get(
+            "TEXT_LLM_MODEL", "Qwen/Qwen2.5-0.5B-Instruct"
+        )
         self.backend = "rules"
         self.model: Any = None
         self.tokenizer: Any = None
@@ -58,11 +60,12 @@ class TextResponder:
 
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, local_files_only=True)
-            self.model = AutoModelForCausalLM.from_pretrained(
+            loaded_model: Any = AutoModelForCausalLM.from_pretrained(
                 self.model_name,
                 local_files_only=True,
                 torch_dtype=torch.bfloat16 if self.device == "cuda" else torch.float32,
-            ).to(self.device).eval()  # type: ignore[arg-type]
+            )
+            self.model = loaded_model.to(self.device).eval()
             self.backend = self.model_name
         except Exception:
             self.model = None
@@ -81,10 +84,13 @@ class TextResponder:
             )
             tokens = tokens.to(self.device)
             output = self.model.generate(tokens, max_new_tokens=64, do_sample=False)
-            answer = str(self.tokenizer.decode(output[0, tokens.shape[-1]:], skip_special_tokens=True)).strip()
+            answer = str(
+                self.tokenizer.decode(output[0, tokens.shape[-1] :], skip_special_tokens=True)
+            ).strip()
             return answer or _reply_text(user_text)
         except Exception:
             return _reply_text(user_text)
+
 
 class CascadeTalker:
     """Working Persian ASR -> text responder -> full Piper/formant speech baseline."""

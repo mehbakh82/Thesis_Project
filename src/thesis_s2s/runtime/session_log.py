@@ -22,9 +22,21 @@ from thesis_s2s.metrics import (
 
 PROMPTS = [
     {"id": "warmup_time", "fa": "ساعت چند است؟", "expect": "none"},
-    {"id": "interrupt_story", "fa": "یک داستان بلند بگو، وسط آن حرفم را قطع می‌کنم.", "expect": "interrupt"},
-    {"id": "backchannel", "fa": "حرف بزن؛ من فقط «آها» یا «بله» می‌گویم و نباید قطع شود.", "expect": "backchannel"},
-    {"id": "noise", "fa": "در اتاق کمی نویز باشد (تلویزیون/ظرف‌ها) و یک سؤال بپرس.", "expect": "noise"},
+    {
+        "id": "interrupt_story",
+        "fa": "یک داستان بلند بگو، وسط آن حرفم را قطع می‌کنم.",
+        "expect": "interrupt",
+    },
+    {
+        "id": "backchannel",
+        "fa": "حرف بزن؛ من فقط «آها» یا «بله» می‌گویم و نباید قطع شود.",
+        "expect": "backchannel",
+    },
+    {
+        "id": "noise",
+        "fa": "در اتاق کمی نویز باشد (تلویزیون/ظرف‌ها) و یک سؤال بپرس.",
+        "expect": "noise",
+    },
     {"id": "free", "fa": "سه دقیقه گفت‌وگوی آزاد.", "expect": "none"},
 ]
 VALID_PROMPTS = frozenset(prompt["id"] for prompt in PROMPTS)
@@ -89,7 +101,11 @@ class SessionStore:
         meta_path = folder / "meta.json"
         if meta_path.is_file():
             previous = json.loads(meta_path.read_text(encoding="utf-8"))
-            identity = (previous.get("speaker_id"), previous.get("age_bin"), previous.get("retention", "audio"))
+            identity = (
+                previous.get("speaker_id"),
+                previous.get("age_bin"),
+                previous.get("retention", "audio"),
+            )
             if identity != (meta.speaker_id, meta.age_bin, meta.retention):
                 raise ValueError("existing session has different speaker, age group, or retention")
         else:
@@ -120,13 +136,19 @@ class SessionStore:
         if interrupt_label not in VALID_LABELS:
             raise ValueError(f"unknown interrupt_label: {interrupt_label}")
         folder = self.start(meta)
-        n = sum(1 for _ in (folder / "turns.jsonl").open("r", encoding="utf-8") if _.strip()) if (folder / "turns.jsonl").is_file() else 0
+        n = (
+            sum(1 for _ in (folder / "turns.jsonl").open("r", encoding="utf-8") if _.strip())
+            if (folder / "turns.jsonl").is_file()
+            else 0
+        )
         utt_id = f"{meta.session_id}_{n:04d}"
         wav: Path | None = None
         interaction_wav: Path | None = None
         feature_vector: list[float] = []
         feature_schema: str | None = None
-        interaction = np.asarray(interaction_audio if interaction_audio is not None else [], dtype=np.float32)
+        interaction = np.asarray(
+            interaction_audio if interaction_audio is not None else [], dtype=np.float32
+        )
         if meta.retention == "audio":
             wav = folder / f"{utt_id}.wav"
             write_wav(wav, user_audio, SAMPLE_RATE)
@@ -164,7 +186,9 @@ class SessionStore:
                         "license": "consent",
                         "transcript_caption": None,
                         "transcript_nemo": None,
-                        "feature_privacy_note": "lossy aggregate; no waveform retained" if feature_vector else None,
+                        "feature_privacy_note": "lossy aggregate; no waveform retained"
+                        if feature_vector
+                        else None,
                     },
                     ensure_ascii=False,
                 )
@@ -173,7 +197,9 @@ class SessionStore:
         return rec
 
     def export_manifest(self, out_jsonl: Path | None = None) -> dict:
-        out_jsonl = Path(out_jsonl or project_root() / "data" / "processed" / "manifests" / "recorded.jsonl")
+        out_jsonl = Path(
+            out_jsonl or project_root() / "data" / "processed" / "manifests" / "recorded.jsonl"
+        )
         n = 0
         hours = 0.0
         elderly = 0
@@ -181,7 +207,9 @@ class SessionStore:
         with out_jsonl.open("w", encoding="utf-8") as dst:
             for turns in sorted(self.root.glob("*/turns.jsonl")):
                 meta_path = turns.parent / "meta.json"
-                meta = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.is_file() else {}
+                meta = (
+                    json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.is_file() else {}
+                )
                 for line in turns.read_text(encoding="utf-8").splitlines():
                     if not line.strip():
                         continue
@@ -275,7 +303,8 @@ class SessionStore:
         rating_ci95 = {}
         required_rating_keys = ("naturalness", "latency", "interrupt_success", "satisfaction")
         complete_ratings = [
-            row for row in ratings
+            row
+            for row in ratings
             if all(isinstance(row.get(key), (int, float)) for key in required_rating_keys)
         ]
         complete_rating_speakers = {
@@ -307,7 +336,8 @@ class SessionStore:
         requirements = {
             "participants_5_to_10": 5 <= len(participants) <= 10,
             "elderly_participants_at_least_2": len(elderly) >= 2,
-            "complete_ratings_cover_participants": bool(participants) and participants <= complete_rating_speakers,
+            "complete_ratings_cover_participants": bool(participants)
+            and participants <= complete_rating_speakers,
             "eligible_client_first_audio_present": bool(eligible_first_audio),
             "eligible_client_barge_in_present": bool(eligible_barge_in),
             "physical_gpu_12_to_24_gb": any(hardware_flags),
@@ -327,10 +357,18 @@ class SessionStore:
             "t_first_audio_max_ms": max(first_audio) if first_audio else None,
             "t_barge_in_p95_ms": float(np.percentile(barge_in, 95)) if barge_in else None,
             "t_barge_in_max_ms": max(barge_in) if barge_in else None,
-            "official_t_first_audio_p50_ms": float(np.percentile(eligible_first_audio, 50)) if eligible_first_audio else None,
-            "official_t_first_audio_p95_ms": float(np.percentile(eligible_first_audio, 95)) if eligible_first_audio else None,
-            "official_t_first_audio_max_ms": max(eligible_first_audio) if eligible_first_audio else None,
-            "official_t_barge_in_p95_ms": float(np.percentile(eligible_barge_in, 95)) if eligible_barge_in else None,
+            "official_t_first_audio_p50_ms": float(np.percentile(eligible_first_audio, 50))
+            if eligible_first_audio
+            else None,
+            "official_t_first_audio_p95_ms": float(np.percentile(eligible_first_audio, 95))
+            if eligible_first_audio
+            else None,
+            "official_t_first_audio_max_ms": max(eligible_first_audio)
+            if eligible_first_audio
+            else None,
+            "official_t_barge_in_p95_ms": float(np.percentile(eligible_barge_in, 95))
+            if eligible_barge_in
+            else None,
             "official_t_barge_in_max_ms": max(eligible_barge_in) if eligible_barge_in else None,
             "live_interrupt": live_scores.__dict__ if live_scores is not None else None,
             "live_interrupt_ci95": (
@@ -341,7 +379,8 @@ class SessionStore:
             ),
             "official_live_interrupt_ci95": (
                 binary_score_confidence_intervals(eligible_live_truth, eligible_live_pred)
-                if eligible_live_truth else None
+                if eligible_live_truth
+                else None
             ),
             "retention_counts": retention_counts,
             "requirements": requirements,

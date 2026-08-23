@@ -98,7 +98,7 @@ FORMANTS = {
 def g2p(text: str) -> list[str]:
     phones: list[str] = []
     for ch in text:
-        phones.append(G2P.get(ch, "a" if "\u0600" <= ch <= "\u06FF" else " "))
+        phones.append(G2P.get(ch, "a" if "\u0600" <= ch <= "\u06ff" else " "))
     if not phones:
         phones = ["a"]
     return phones

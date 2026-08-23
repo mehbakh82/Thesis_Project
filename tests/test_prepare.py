@@ -19,13 +19,16 @@ def test_caption_filter_and_verbatim():
     assert caption_ok("سلام خوبی") is not None
     out = verbatim_normalize("سلام  كجايي")
     assert "  " not in out
-    assert s2s_text(
-        {
-            "transcript_caption": "از سی اس وی",
-            "text": "بازنویسی شده",
-            "transcript_nemo": "فرضیه نمو",
-        }
-    ) == "از سی اس وی"
+    assert (
+        s2s_text(
+            {
+                "transcript_caption": "از سی اس وی",
+                "text": "بازنویسی شده",
+                "transcript_nemo": "فرضیه نمو",
+            }
+        )
+        == "از سی اس وی"
+    )
     assert s2s_text({"text": "فقط متن", "transcript_nemo": "نمو"}) == "فقط متن"
 
 
@@ -64,7 +67,9 @@ def test_filter_and_synthetic(tmp_path: Path):
     kept = json.loads(out.read_text(encoding="utf-8").splitlines()[0])
     assert kept["text"] == "این یک جمله فارسی آزمایشی است"
     assert "نباید" not in kept["text"]
-    synth = write_synthetic_duplex(tmp_path / "syn", tmp_path / "syn.jsonl", n_per_class=1, clip_seconds=1.2)
+    synth = write_synthetic_duplex(
+        tmp_path / "syn", tmp_path / "syn.jsonl", n_per_class=1, clip_seconds=1.2
+    )
     assert synth["n"] == 4
 
 

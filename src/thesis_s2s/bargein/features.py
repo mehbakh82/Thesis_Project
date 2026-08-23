@@ -144,13 +144,9 @@ def context_vector(feats: np.ndarray, end_index: int, context_frames: int) -> np
     window = feats[start : end_index + 1]
     if len(window) == 0:
         return np.zeros(feats.shape[1] * 3, dtype=np.float32)
-    stats = np.concatenate(
-        [window.mean(axis=0), window.std(axis=0), window.max(axis=0)]
-    )
+    stats = np.concatenate([window.mean(axis=0), window.std(axis=0), window.max(axis=0)])
     return stats.astype(np.float32)
 
 
 def streaming_context_vectors(feats: np.ndarray, context_frames: int) -> np.ndarray:
-    return np.stack(
-        [context_vector(feats, i, context_frames) for i in range(len(feats))]
-    )
+    return np.stack([context_vector(feats, i, context_frames) for i in range(len(feats))])

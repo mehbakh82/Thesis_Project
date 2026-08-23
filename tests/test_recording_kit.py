@@ -38,7 +38,12 @@ def test_filter_require_teacher(tmp_path: Path):
 
     jsonl = tmp_path / "in.jsonl"
     rows = [
-        {"duration": 3.0, "text": "این یک جمله فارسی آزمایشی است", "transcript_nemo": "", "snr": 15.0},
+        {
+            "duration": 3.0,
+            "text": "این یک جمله فارسی آزمایشی است",
+            "transcript_nemo": "",
+            "snr": 15.0,
+        },
         {
             "duration": 3.0,
             "text": "این یک جمله فارسی آزمایشی است",
@@ -46,9 +51,25 @@ def test_filter_require_teacher(tmp_path: Path):
             "snr": 15.0,
         },
     ]
-    jsonl.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n", encoding="utf-8")
-    cap = filter_hours(jsonl, tmp_path / "cap.jsonl", min_hours=0, max_hours=1, compute_snr=False, require_teacher=False)
-    tea = filter_hours(jsonl, tmp_path / "tea.jsonl", min_hours=0, max_hours=1, compute_snr=False, require_teacher=True)
+    jsonl.write_text(
+        "\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n", encoding="utf-8"
+    )
+    cap = filter_hours(
+        jsonl,
+        tmp_path / "cap.jsonl",
+        min_hours=0,
+        max_hours=1,
+        compute_snr=False,
+        require_teacher=False,
+    )
+    tea = filter_hours(
+        jsonl,
+        tmp_path / "tea.jsonl",
+        min_hours=0,
+        max_hours=1,
+        compute_snr=False,
+        require_teacher=True,
+    )
     assert cap["n"] == 2
     assert tea["n"] == 1
     assert tea["require_teacher"] is True
@@ -64,9 +85,19 @@ def test_study_rating_endpoint(tmp_path: Path, monkeypatch):
     monkeypatch.setattr(session_log, "project_root", lambda: tmp_path)
     monkeypatch.setattr(duplex_mod, "default_talker", lambda: DummyTalker())
     monkeypatch.setattr("thesis_s2s.config.project_root", lambda: tmp_path)
-    app = build_app(EnergyVadBaseline(), record=True, study=True, session_id="Srate", age_bin="60plus")
+    app = build_app(
+        EnergyVadBaseline(), record=True, study=True, session_id="Srate", age_bin="60plus"
+    )
     client = TestClient(app)
-    r = client.post("/study/rating", json={"naturalness": 4, "interrupt_success": 5, "elderly_notes": "pause ok", "consent": True})
+    r = client.post(
+        "/study/rating",
+        json={
+            "naturalness": 4,
+            "interrupt_success": 5,
+            "elderly_notes": "pause ok",
+            "consent": True,
+        },
+    )
     assert r.status_code == 200
     assert r.json()["ok"] is True
     h = client.get("/health")
@@ -77,6 +108,8 @@ def test_study_rating_endpoint(tmp_path: Path, monkeypatch):
     assert h.json()["record"] is True
     p = client.get("/prompts")
     assert len(p.json()["prompts"]) >= 4
+
+
 def test_websocket_records_client_observed_timing(tmp_path: Path, monkeypatch):
     import numpy as np
     from fastapi.testclient import TestClient

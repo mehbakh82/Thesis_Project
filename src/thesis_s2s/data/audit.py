@@ -59,7 +59,11 @@ def audit_manifest(manifest: Path, out_json: Path | None = None, check_files: bo
             except (TypeError, ValueError):
                 duration = 0.0
                 schema_errors += 1
-            if not utt_id or duration <= 0 or (split != "unspecified" and split not in VALID_SPLITS):
+            if (
+                not utt_id
+                or duration <= 0
+                or (split != "unspecified" and split not in VALID_SPLITS)
+            ):
                 schema_errors += 1
             if label not in VALID_LABELS:
                 schema_errors += 1
@@ -77,14 +81,20 @@ def audit_manifest(manifest: Path, out_json: Path | None = None, check_files: bo
                 text_splits[digest].add(split)
             if row.get("overlap_intervals"):
                 overlap_rows += 1
-            if row.get("response_text") or row.get("assistant_text") or row.get("response_audio_filepath"):
+            if (
+                row.get("response_text")
+                or row.get("assistant_text")
+                or row.get("response_audio_filepath")
+            ):
                 response_pairs += 1
             audio = str(row.get("audio_filepath") or row.get("audio_path") or "")
             if check_files and (not audio or not Path(audio).is_file()):
                 missing_audio += 1
 
     group_leaks = sum(1 for splits in groups.values() if len(splits - {"unspecified"}) > 1)
-    text_cross_split = sum(1 for splits in text_splits.values() if len(splits - {"unspecified"}) > 1)
+    text_cross_split = sum(
+        1 for splits in text_splits.values() if len(splits - {"unspecified"}) > 1
+    )
     requirements = {
         "hours_100_to_200": 100.0 <= hours <= 200.0,
         "interrupt_labels_present": label_counts["interrupt"] > 0,
@@ -199,9 +209,13 @@ def audit_caption_alignment(manifest: Path, out_json: Path | None = None) -> dic
             "median": round(_percentile(similarities, 0.5) or 0.0, 4) if similarities else None,
             "p10": round(_percentile(similarities, 0.1) or 0.0, 4) if similarities else None,
             "p25": round(_percentile(similarities, 0.25) or 0.0, 4) if similarities else None,
-            "high_ge_0_7_fraction": round(sum(value >= 0.7 for value in similarities) / paired, 4) if paired else 0.0,
+            "high_ge_0_7_fraction": round(sum(value >= 0.7 for value in similarities) / paired, 4)
+            if paired
+            else 0.0,
             "low_lt_0_4_fraction": round(low_fraction, 4),
-            "exact_fraction": round(sum(value == 1.0 for value in similarities) / paired, 4) if paired else 0.0,
+            "exact_fraction": round(sum(value == 1.0 for value in similarities) / paired, 4)
+            if paired
+            else 0.0,
         },
         "repetitive_teacher_rows": repetitive_teacher_rows,
         "repetitive_teacher_fraction": round(repetitive_fraction, 4),

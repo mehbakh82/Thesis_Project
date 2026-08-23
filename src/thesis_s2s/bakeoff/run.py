@@ -23,7 +23,9 @@ PERSIAN_PROMPTS = [
 def _load_or_synth_clips(sample_dir: Path, n_persian: int = 8) -> list[Path]:
     wavs = sorted(sample_dir.glob("*.wav"))
     if wavs:
-        preferred = [p for p in wavs if "shakoori" in p.name.lower()] + [p for p in wavs if "shakoori" not in p.name.lower()]
+        preferred = [p for p in wavs if "shakoori" in p.name.lower()] + [
+            p for p in wavs if "shakoori" not in p.name.lower()
+        ]
         return preferred[:n_persian]
     out = sample_dir
     out.mkdir(parents=True, exist_ok=True)
@@ -52,7 +54,7 @@ def try_whisper_probe(path: Path) -> dict:
         )
         out = asr(str(path), generate_kwargs={"language": "persian", "task": "transcribe"})
         text = str(out.get("text") or "")
-        has_fa = any("\u0600" <= ch <= "\u06FF" for ch in text)
+        has_fa = any("\u0600" <= ch <= "\u06ff" for ch in text)
         return {"available": True, "text": text[:200], "contains_arabic_script": has_fa}
     except Exception as exc:
         return {"available": False, "error": str(exc)}
@@ -99,7 +101,9 @@ def run_bakeoff(out_dir: Path | None = None, allow_hf: bool = True) -> dict:
     enc_ok = bool(enc.get("available")) and bool(intel.get("persian_phones_preserved"))
     models = {
         "llama-omni2-0.5b": {
-            "weights_present": (root / "checkpoints" / "llama_omni2_fa" / "persian_omni2.pt").is_file(),
+            "weights_present": (
+                root / "checkpoints" / "llama_omni2_fa" / "persian_omni2.pt"
+            ).is_file(),
             "zero_shot_persian_out": False,
             "fits_24gb": True,
             "native_full_duplex": False,

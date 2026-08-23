@@ -72,7 +72,6 @@ YOUTUBE_CHANNELS: tuple[ChannelSpec, ...] = (
 )
 
 
-
 def remote_csv(spec: ChannelSpec) -> str:
     return f":s3:{spec.bucket}/{spec.csv_prefix}"
 

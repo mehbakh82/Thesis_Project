@@ -22,7 +22,11 @@ def filter_hours(
     compute_snr: bool = True,
     require_teacher: bool = False,
 ) -> dict:
-    rows = [json.loads(line) for line in in_jsonl.read_text(encoding="utf-8").splitlines() if line.strip()]
+    rows = [
+        json.loads(line)
+        for line in in_jsonl.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
     rows.sort(key=lambda r: float(r.get("duration") or 0), reverse=True)
     kept = []
     hours = 0.0

@@ -40,15 +40,22 @@ class EnergyVadBaseline:
         self.feat_cfg = cfg or FeatureConfig()
         self.det = det or DetectorConfig()
 
-    def predict_frames(self, audio: np.ndarray, assistant_mask: np.ndarray | None = None) -> np.ndarray:
+    def predict_frames(
+        self, audio: np.ndarray, assistant_mask: np.ndarray | None = None
+    ) -> np.ndarray:
         feats = frame_feature_matrix(audio, self.feat_cfg)
         energy = feats[:, 0]
         zcr = feats[:, 1]
-        pred = ((energy > self.det.energy_vad_db) & (zcr < self.det.energy_vad_zcr_max)).astype(np.int32)
+        pred = ((energy > self.det.energy_vad_db) & (zcr < self.det.energy_vad_zcr_max)).astype(
+            np.int32
+        )
         if assistant_mask is not None:
             hop = self.feat_cfg.hop
             mask = np.array(
-                [assistant_mask[min(len(assistant_mask) - 1, i * hop)] > 0.5 for i in range(len(pred))]
+                [
+                    assistant_mask[min(len(assistant_mask) - 1, i * hop)] > 0.5
+                    for i in range(len(pred))
+                ]
             )
             pred = pred * mask.astype(np.int32)
         return pred
@@ -92,12 +99,16 @@ class BargeinDetector:
         if x.ndim != 2 or len(x) != len(y) or len(x) == 0:
             raise ValueError("vectors must be a non-empty 2-D array aligned with labels")
         if not np.isfinite(x).all() or not np.isin(y, range(len(LABELS))).all():
-            raise ValueError("feature vectors must be finite and labels must use the detector schema")
+            raise ValueError(
+                "feature vectors must be finite and labels must use the detector schema"
+            )
         self.pipeline.fit(x, y)
         self.fitted = True
         return self
 
-    def fit(self, audios: Sequence[np.ndarray], frame_labels: Sequence[np.ndarray]) -> BargeinDetector:
+    def fit(
+        self, audios: Sequence[np.ndarray], frame_labels: Sequence[np.ndarray]
+    ) -> BargeinDetector:
         xs = []
         ys = []
         for audio, labels in zip(audios, frame_labels, strict=True):
@@ -142,7 +153,9 @@ class BargeinDetector:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("wb") as handle:
-            pickle.dump({"feat_cfg": self.feat_cfg, "det": self.det, "pipeline": self.pipeline}, handle)
+            pickle.dump(
+                {"feat_cfg": self.feat_cfg, "det": self.det, "pipeline": self.pipeline}, handle
+            )
         self.fitted = True
 
     @classmethod
@@ -168,7 +181,9 @@ def evaluate_detectors(
 ) -> dict:
     y = list(binary_labels)
     pred_p = [proposed.predict_binary(a) for a in audios]
-    masks: Sequence[np.ndarray | None] = assistant_masks if assistant_masks is not None else [None] * len(audios)
+    masks: Sequence[np.ndarray | None] = (
+        assistant_masks if assistant_masks is not None else [None] * len(audios)
+    )
     pred_b = [baseline.predict_binary(a, m) for a, m in zip(audios, masks, strict=True)]
     proposed_scores = binary_scores(y, pred_p)
     baseline_scores = binary_scores(y, pred_b)

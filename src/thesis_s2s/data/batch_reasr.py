@@ -57,7 +57,7 @@ class WhisperTeacher:
             generate_kwargs={"language": "persian", "task": "transcribe"},
         )
         text = verbatim_normalize(str(out.get("text") or ""))
-        has_fa = any("\u0600" <= ch <= "\u06FF" for ch in text)
+        has_fa = any("\u0600" <= ch <= "\u06ff" for ch in text)
         return {
             "transcript_nemo": text,
             "language_status": "ok" if has_fa else "language_uncertain",
@@ -78,7 +78,9 @@ def reasr_one(service, transcribe_chunks, audio_slice, wav_path: Path) -> dict:
         }
     chunks = [audio_slice(prepared.asr_audio, c.start, c.end, sr) for c in prepared.chunks]
     starts = [c.start for c in prepared.chunks]
-    result = transcribe_chunks(chunks, starts, sample_rate=sr, enable_alignment=True, use_ngram=False)
+    result = transcribe_chunks(
+        chunks, starts, sample_rate=sr, enable_alignment=True, use_ngram=False
+    )
     text = verbatim_normalize(str(result.get("persian") or ""))
     return {
         "transcript_nemo": text,
@@ -112,7 +114,7 @@ class FasterWhisperTeacher:
     def transcribe(self, wav_path: Path) -> dict:
         segments, _info = self.model.transcribe(str(wav_path), language="fa", vad_filter=False)
         text = verbatim_normalize("".join(seg.text for seg in segments))
-        has_fa = any("\u0600" <= ch <= "\u06FF" for ch in text)
+        has_fa = any("\u0600" <= ch <= "\u06ff" for ch in text)
         return {
             "transcript_nemo": text,
             "language_status": "ok" if has_fa else "language_uncertain",
@@ -135,7 +137,7 @@ class HttpNemoTeacher:
         if asr.get("error"):
             raise RuntimeError(str(asr["error"]))
         text = verbatim_normalize(str(asr.get("persian") or asr.get("text") or ""))
-        has_fa = any("\u0600" <= ch <= "\u06FF" for ch in text)
+        has_fa = any("\u0600" <= ch <= "\u06ff" for ch in text)
         return {
             "transcript_nemo": text or None,
             "language_status": "ok" if has_fa else "language_uncertain",
@@ -173,7 +175,9 @@ def _make_local_teacher(*, allow_whisper: bool, prefer_http_nemo: bool):
     return None, errors
 
 
-def _transcribe_row(row: dict, service, transcribe_chunks, audio_slice, teacher) -> tuple[dict, str | None]:
+def _transcribe_row(
+    row: dict, service, transcribe_chunks, audio_slice, teacher
+) -> tuple[dict, str | None]:
     wav = Path(row.get("audio_filepath") or row.get("audio_path") or "")
     try:
         if service is not None:
@@ -248,7 +252,9 @@ def run_manifest(
                 probe_wav = cand
                 break
     if service is not None and probe_wav is not None:
-        ok = _probe_teacher(lambda p: reasr_one(service, transcribe_chunks, audio_slice, p), probe_wav)
+        ok = _probe_teacher(
+            lambda p: reasr_one(service, transcribe_chunks, audio_slice, p), probe_wav
+        )
         if not ok:
             stats["nemo_prepare_unusable"] = True
             service = None
@@ -265,7 +271,11 @@ def run_manifest(
             stats["teacher"] = None
         else:
             stats["teacher"] = teacher.model_name
-        if teacher is not None and probe_wav is not None and not _probe_teacher(teacher.transcribe, probe_wav):
+        if (
+            teacher is not None
+            and probe_wav is not None
+            and not _probe_teacher(teacher.transcribe, probe_wav)
+        ):
             stats["teacher_probe_error"] = f"{teacher.model_name} failed the input-audio probe"
             teacher, fallback_errors = _make_local_teacher(
                 allow_whisper=allow_whisper_fallback,
@@ -304,10 +314,17 @@ def run_manifest(
                 return
             if pool is None:
                 for row in pending:
-                    extra, err = _transcribe_row(row, service, transcribe_chunks, audio_slice, teacher)
+                    extra, err = _transcribe_row(
+                        row, service, transcribe_chunks, audio_slice, teacher
+                    )
                     dst.write(json.dumps(apply_result(row, extra, err), ensure_ascii=False) + "\n")
             else:
-                futs = [pool.submit(_transcribe_row, row, service, transcribe_chunks, audio_slice, teacher) for row in pending]
+                futs = [
+                    pool.submit(
+                        _transcribe_row, row, service, transcribe_chunks, audio_slice, teacher
+                    )
+                    for row in pending
+                ]
                 for row, fut in zip(pending, futs, strict=True):
                     extra, err = fut.result()
                     dst.write(json.dumps(apply_result(row, extra, err), ensure_ascii=False) + "\n")
@@ -337,7 +354,9 @@ def run_manifest(
                     flush_pending()
                     dst.flush()
                     shutil.copyfile(tmp_out, out_jsonl)
-                    write_json(out_jsonl.with_name("reasr_stats.json"), {**stats, "in_progress": True})
+                    write_json(
+                        out_jsonl.with_name("reasr_stats.json"), {**stats, "in_progress": True}
+                    )
             flush_pending()
     finally:
         dst.close()

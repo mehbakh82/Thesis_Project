@@ -75,7 +75,9 @@ def load_upstream_lock(path: Path | None = None) -> dict:
         if not all(isinstance(entry.get(key), str) and entry[key] for key in required):
             raise ValueError(f"upstream entry is incomplete: {entry!r}")
         if not SHA256_RE.fullmatch(entry["revision"]):
-            raise ValueError(f"upstream revision must be a full 40-character commit: {entry['name']}")
+            raise ValueError(
+                f"upstream revision must be a full 40-character commit: {entry['name']}"
+            )
         if entry["name"] in names:
             raise ValueError(f"duplicate upstream name: {entry['name']}")
         names.add(entry["name"])
@@ -249,7 +251,8 @@ def release_snapshot(out_json: Path | None = None) -> dict:
         base = root / directory
         if base.is_dir():
             paths.update(
-                path for path in base.rglob("*")
+                path
+                for path in base.rglob("*")
                 if path.is_file()
                 and "__pycache__" not in path.parts
                 and not any(part.endswith(".egg-info") for part in path.parts)

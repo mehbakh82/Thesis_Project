@@ -92,7 +92,11 @@ class DuplexSession:
         if callable(reply_audio):
             chunk = reply_audio(user_audio, text)
         else:
-            chunk = full_reply(text) if callable(full_reply) else self.talker.first_chunk(user_audio, text)
+            chunk = (
+                full_reply(text)
+                if callable(full_reply)
+                else self.talker.first_chunk(user_audio, text)
+            )
         self.log.server_generation_ms = 1000.0 * (time.perf_counter() - t0)
         self.log.t_first_audio_ms = None
         self.log.talker = type(self.talker).__name__
@@ -356,7 +360,9 @@ def build_app(
     if retention is not None and retention not in {"audio", "features", "metrics"}:
         raise ValueError("retention must be 'audio', 'features', or 'metrics'")
     if record and retention not in {None, "audio"}:
-        raise ValueError("--record is an audio-retention alias and conflicts with another retention mode")
+        raise ValueError(
+            "--record is an audio-retention alias and conflicts with another retention mode"
+        )
     effective_retention = retention or ("audio" if record else "features" if study else "metrics")
     talker = default_talker()
     det: BargeinDetector | EnergyVadBaseline
@@ -380,7 +386,9 @@ def build_app(
             "t_first_audio_budget_ms": T_FIRST_AUDIO_P50_MS,
             "talker": type(talker).__name__,
             "tts_backend": getattr(talker, "backend", ""),
-            "omni_checkpoint": checkpoint_runtime_status(project_root() / "checkpoints" / "llama_omni2_fa" / "persian_omni2.pt"),
+            "omni_checkpoint": checkpoint_runtime_status(
+                project_root() / "checkpoints" / "llama_omni2_fa" / "persian_omni2.pt"
+            ),
             "record": record,
             "study": study,
             "retention": effective_retention if store is not None else "disabled",
@@ -441,12 +449,14 @@ def build_app(
             raise HTTPException(status_code=422, detail=str(exc)) from exc
         path = folder / "mos.jsonl"
         row = payload.model_dump()
-        row.update({
-            "session_id": sid,
-            "speaker_id": rating_meta.speaker_id,
-            "age_bin": rating_meta.age_bin,
-            "detector": payload.detector or detector_name,
-        })
+        row.update(
+            {
+                "session_id": sid,
+                "speaker_id": rating_meta.speaker_id,
+                "age_bin": rating_meta.age_bin,
+                "detector": payload.detector or detector_name,
+            }
+        )
         with path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(row, ensure_ascii=False) + "\n")
         return {"ok": True, "path": str(path)}
@@ -509,7 +519,9 @@ def build_app(
                 if "bytes" in message and message["bytes"] is not None:
                     raw = message["bytes"]
                     if len(raw) % 2:
-                        await ws.send_json({"event": "error", "message": "invalid PCM16 byte count"})
+                        await ws.send_json(
+                            {"event": "error", "message": "invalid PCM16 byte count"}
+                        )
                         continue
                     pcm = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768.0
                     if collecting:
@@ -517,17 +529,25 @@ def build_app(
                     if session.controller.playing:
                         session.on_mic_while_playing(pcm)
                         if not session.controller.playing:
-                            await ws.send_json({
-                                "event": "stopped",
-                                "server_detection_ms": session.log.t_barge_in_ms,
-                            })
+                            await ws.send_json(
+                                {
+                                    "event": "stopped",
+                                    "server_detection_ms": session.log.t_barge_in_ms,
+                                }
+                            )
                 elif "text" in message and message["text"]:
                     try:
                         payload = json.loads(message["text"])
                     except json.JSONDecodeError:
                         await ws.send_json({"event": "error", "message": "invalid JSON event"})
                         continue
-                    for key in ("prompt_id", "interrupt_label", "session_id", "speaker_id", "age_bin"):
+                    for key in (
+                        "prompt_id",
+                        "interrupt_label",
+                        "session_id",
+                        "speaker_id",
+                        "age_bin",
+                    ):
                         if payload.get(key):
                             turn_meta[key] = payload[key]
                     if "consent" in payload:
@@ -536,13 +556,19 @@ def build_app(
                         session_id=str(turn_meta["session_id"]),
                         speaker_id=str(turn_meta["speaker_id"]),
                         gpu_name=str(host_gpu.get("device") or "cpu"),
-                        vram_gb=float(host_gpu["total_gb"]) if host_gpu.get("total_gb") is not None else None,
+                        vram_gb=float(host_gpu["total_gb"])
+                        if host_gpu.get("total_gb") is not None
+                        else None,
                         age_bin=str(turn_meta["age_bin"]),
                         consent=bool(turn_meta["consent"]),
                         retention=effective_retention,
                     )
                     event = payload.get("event")
-                    if event in {"hello", "begin_utterance"} and store is not None and local_meta.consent:
+                    if (
+                        event in {"hello", "begin_utterance"}
+                        and store is not None
+                        and local_meta.consent
+                    ):
                         try:
                             store.start(local_meta)
                         except (ValueError, PermissionError) as exc:
@@ -559,14 +585,18 @@ def build_app(
                         session.controller.stop_playback("client")
                         session.log.stopped = True
                         session.log.t_barge_in_ms = session.controller.t_barge_in_ms()
-                        await ws.send_json({
-                            "event": "stopped",
-                            "server_detection_ms": session.log.t_barge_in_ms,
-                        })
+                        await ws.send_json(
+                            {
+                                "event": "stopped",
+                                "server_detection_ms": session.log.t_barge_in_ms,
+                            }
+                        )
                     elif event == "end_of_speech":
                         collecting = False
                         if not buf:
-                            await ws.send_json({"event": "error", "message": "no microphone audio received"})
+                            await ws.send_json(
+                                {"event": "error", "message": "no microphone audio received"}
+                            )
                             continue
                         user = np.concatenate(buf)
                         reply = session.on_user_end(user)
@@ -578,17 +608,19 @@ def build_app(
                         }
                         pcm16 = np.clip(reply * 32767, -32768, 32767).astype(np.int16)
                         await ws.send_bytes(pcm16.tobytes())
-                        await ws.send_json({
-                            "event": "reply_ready",
-                            "server_generation_ms": session.log.server_generation_ms,
-                            "talker": session.log.talker,
-                            "tts_backend": session.log.tts_backend,
-                            "reply_samples": int(len(reply)),
-                            "transcript": getattr(talker, "last_transcript", None),
-                            "reply_text": getattr(talker, "last_reply_text", None),
-                            "asr_error": getattr(talker, "last_asr_error", None),
-                            "responder_backend": getattr(talker, "responder_backend", None),
-                        })
+                        await ws.send_json(
+                            {
+                                "event": "reply_ready",
+                                "server_generation_ms": session.log.server_generation_ms,
+                                "talker": session.log.talker,
+                                "tts_backend": session.log.tts_backend,
+                                "reply_samples": int(len(reply)),
+                                "transcript": getattr(talker, "last_transcript", None),
+                                "reply_text": getattr(talker, "last_reply_text", None),
+                                "asr_error": getattr(talker, "last_asr_error", None),
+                                "responder_backend": getattr(talker, "responder_backend", None),
+                            }
+                        )
                         buf = []
                     elif event == "playback_started":
                         session.log.t_first_audio_ms = valid_ms(payload.get("t_first_audio_ms"))

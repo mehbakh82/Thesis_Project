@@ -19,7 +19,9 @@ def test_duplex_session_first_audio():
     user = _harmonic(0.5, 200)
     reply = session.on_user_end(user)
     assert len(reply) > 0
-    assert session.log.t_first_audio_ms is None  # populated only by browser playback acknowledgement
+    assert (
+        session.log.t_first_audio_ms is None
+    )  # populated only by browser playback acknowledgement
     assert session.log.server_generation_ms is not None
     assert session.log.server_generation_ms < 500
 

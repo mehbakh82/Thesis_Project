@@ -171,8 +171,15 @@ def binary_score_confidence_intervals(
         proportion = successes / total
         denominator = 1.0 + z * z / total
         centre = (proportion + z * z / (2.0 * total)) / denominator
-        margin = z * np.sqrt(proportion * (1.0 - proportion) / total + z * z / (4.0 * total**2)) / denominator
-        return [round(float(max(0.0, centre - margin)), 4), round(float(min(1.0, centre + margin)), 4)]
+        margin = (
+            z
+            * np.sqrt(proportion * (1.0 - proportion) / total + z * z / (4.0 * total**2))
+            / denominator
+        )
+        return [
+            round(float(max(0.0, centre - margin)), 4),
+            round(float(min(1.0, centre + margin)), 4),
+        ]
 
     tp = int(np.sum((yt == 1) & (yp == 1)))
     fp = int(np.sum((yt == 0) & (yp == 1)))
@@ -185,7 +192,9 @@ def binary_score_confidence_intervals(
         f1_samples.append(binary_scores(yt[indices].tolist(), yp[indices].tolist()).interrupt_f1)
     return {
         "accuracy": wilson(tp + tn, len(yt)),
-        "interrupt_f1": [round(float(value), 4) for value in np.percentile(f1_samples, [2.5, 97.5])],
+        "interrupt_f1": [
+            round(float(value), 4) for value in np.percentile(f1_samples, [2.5, 97.5])
+        ],
         "far": wilson(fp, fp + tn),
         "frr": wilson(fn, fn + tp),
     }
@@ -219,7 +228,12 @@ def write_json(path: str | Path, payload: dict) -> None:
 def gpu_inventory() -> dict:
     """Physical GPU vs official 12–24 GB thesis table."""
 
-    info: dict[str, object] = {"device": None, "total_gb": None, "official_size": False, "path_b_possible": False}
+    info: dict[str, object] = {
+        "device": None,
+        "total_gb": None,
+        "official_size": False,
+        "path_b_possible": False,
+    }
     try:
         import torch
 
@@ -241,7 +255,12 @@ def cuda_memory_cap_gb(cap_gb: float = 24.0) -> dict:
     """Best-effort 24 GB profile on a larger GPU. Disclose this in the thesis."""
 
     os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
-    info: dict[str, object] = {"requested_cap_gb": cap_gb, "applied": False, "device": None, "total_gb": None}
+    info: dict[str, object] = {
+        "requested_cap_gb": cap_gb,
+        "applied": False,
+        "device": None,
+        "total_gb": None,
+    }
     try:
         import torch
 

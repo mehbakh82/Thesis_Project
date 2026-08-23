@@ -30,7 +30,9 @@ def _hop_cpu_ms(detector: BargeinDetector, audio) -> float:
     return 1000.0 * (time.perf_counter() - t0)
 
 
-def clip_from_labeled_wav(audio: np.ndarray, kind: str, feat_cfg: FeatureConfig | None = None, group_id: str | None = None) -> DuplexClip:
+def clip_from_labeled_wav(
+    audio: np.ndarray, kind: str, feat_cfg: FeatureConfig | None = None, group_id: str | None = None
+) -> DuplexClip:
     feat_cfg = feat_cfg or FeatureConfig()
     if kind not in LABELS:
         kind = "none"
@@ -52,6 +54,7 @@ def clip_from_labeled_wav(audio: np.ndarray, kind: str, feat_cfg: FeatureConfig 
         group_id=group_id,
     )
 
+
 def clips_from_jsonl(jsonl: Path, *, max_clips: int | None = None) -> list[DuplexClip]:
     clips: list[DuplexClip] = []
     if not jsonl.is_file():
@@ -60,7 +63,11 @@ def clips_from_jsonl(jsonl: Path, *, max_clips: int | None = None) -> list[Duple
         if not line.strip():
             continue
         row = json.loads(line)
-        path = row.get("interaction_audio_filepath") or row.get("audio_filepath") or row.get("audio_path")
+        path = (
+            row.get("interaction_audio_filepath")
+            or row.get("audio_filepath")
+            or row.get("audio_path")
+        )
         if not path or not Path(path).is_file():
             continue
         kind = str(row.get("interrupt_label") or "none")
@@ -68,7 +75,9 @@ def clips_from_jsonl(jsonl: Path, *, max_clips: int | None = None) -> list[Duple
             audio, _ = read_wav(path)
         except Exception:
             continue
-        group_id = str(row.get("speaker_id") or row.get("session_id") or row.get("utt_id") or "unknown")
+        group_id = str(
+            row.get("speaker_id") or row.get("session_id") or row.get("utt_id") or "unknown"
+        )
         clips.append(clip_from_labeled_wav(audio, kind, group_id=group_id))
         if max_clips is not None and len(clips) >= max_clips:
             break
@@ -87,7 +96,12 @@ def feature_rows_from_jsonl(jsonl: Path) -> list[dict]:
         row = json.loads(line)
         vector = np.asarray(row.get("privacy_feature_vector") or [], dtype=np.float32)
         kind = str(row.get("interrupt_label") or "none")
-        if vector.ndim != 1 or vector.size == 0 or not np.isfinite(vector).all() or kind not in LABELS:
+        if (
+            vector.ndim != 1
+            or vector.size == 0
+            or not np.isfinite(vector).all()
+            or kind not in LABELS
+        ):
             continue
         rows.append(
             {
@@ -187,11 +201,15 @@ def train_and_eval(
 ) -> dict:
     rng = np.random.default_rng(seed)
     synth = make_dataset(n_per_class=n_per_class, seed=seed)
-    recorded_jsonl = Path(recorded_jsonl) if recorded_jsonl is not None else default_recorded_jsonl()
+    recorded_jsonl = (
+        Path(recorded_jsonl) if recorded_jsonl is not None else default_recorded_jsonl()
+    )
     resolved_out_dir = Path(out_dir or project_root() / "results" / "bargein")
     feature_rows = feature_rows_from_jsonl(recorded_jsonl)
     if feature_rows:
-        return train_feature_detector(feature_rows, seed=seed, out_dir=resolved_out_dir, detector_config=detector_config)
+        return train_feature_detector(
+            feature_rows, seed=seed, out_dir=resolved_out_dir, detector_config=detector_config
+        )
     recorded = clips_from_jsonl(recorded_jsonl)
     split_s = int(0.8 * len(synth))
     train_s, test_s = synth[:split_s], synth[split_s:]
@@ -228,7 +246,9 @@ def train_and_eval(
     report["n_test"] = len(test_s)
     report["n_recorded"] = len(recorded)
     report["recorded_split_unit"] = "speaker_or_session"
-    report["recorded_group_overlap"] = bool({c.group_id for c in train_r} & {c.group_id for c in test_r})
+    report["recorded_group_overlap"] = bool(
+        {c.group_id for c in train_r} & {c.group_id for c in test_r}
+    )
     report["hop_cpu_ms"] = round(sum(hops) / max(1, len(hops)), 3)
     report["hop_budget_ok"] = report["hop_cpu_ms"] < 20.0
     report["recorded_eval"] = False
@@ -250,8 +270,12 @@ def train_and_eval(
         report["recorded_eval"] = True
         report["recorded_heldout"] = rec_prop
         report["recorded_target_ok"] = bool(rec_prop.get("target_ok"))
-        report["note"] = "Thesis table uses real speaker/session-held-out evidence, not synthetic 1.00."
+        report["note"] = (
+            "Thesis table uses real speaker/session-held-out evidence, not synthetic 1.00."
+        )
     else:
-        report["note"] = "No real audio or privacy-feature held-out fold is available; synthetic evidence only."
+        report["note"] = (
+            "No real audio or privacy-feature held-out fold is available; synthetic evidence only."
+        )
     write_json(out_dir / "heldout_report.json", report)
     return report

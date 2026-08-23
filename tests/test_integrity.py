@@ -54,12 +54,26 @@ def test_session_requires_safe_ids_consent_and_preserves_turns(tmp_path: Path):
 def test_manifest_audit_detects_group_leakage(tmp_path: Path):
     manifest = tmp_path / "data.jsonl"
     rows = [
-        {"utt_id": "a", "duration": 2, "split": "train", "source_csv": "same.csv",
-         "interrupt_label": "none", "text": "سلام"},
-        {"utt_id": "b", "duration": 2, "split": "test", "source_csv": "same.csv",
-         "interrupt_label": "interrupt", "text": "سلام"},
+        {
+            "utt_id": "a",
+            "duration": 2,
+            "split": "train",
+            "source_csv": "same.csv",
+            "interrupt_label": "none",
+            "text": "سلام",
+        },
+        {
+            "utt_id": "b",
+            "duration": 2,
+            "split": "test",
+            "source_csv": "same.csv",
+            "interrupt_label": "interrupt",
+            "text": "سلام",
+        },
     ]
-    manifest.write_text("\n".join(json.dumps(row, ensure_ascii=False) for row in rows) + "\n", encoding="utf-8")
+    manifest.write_text(
+        "\n".join(json.dumps(row, ensure_ascii=False) for row in rows) + "\n", encoding="utf-8"
+    )
     report = audit_manifest(manifest, check_files=False)
     assert report["group_split_leaks"] == 1
     assert report["text_cross_split_duplicates"] == 1
