@@ -9,6 +9,7 @@ from pathlib import Path
 
 from thesis_s2s.config import project_root
 from thesis_s2s.data.ingest import inventory_csvs
+from thesis_s2s.data.rights import rights_record_verified
 from thesis_s2s.metrics import write_json
 
 
@@ -191,7 +192,7 @@ def audit_episode_selection(
         "reference_alignment_hours_100_to_200": min_hours <= aligned_hours <= max_hours,
         "manual_qa_sample_present": manual_episodes > 0,
         "licenses_verified_for_selected": bool(selected)
-        and all(row.get("license_verified") is True for row in selected),
+        and all(map(rights_record_verified, selected)),
     }
     return {
         "selection_is_candidate_data_not_final_evidence": True,

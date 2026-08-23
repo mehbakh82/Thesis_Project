@@ -107,6 +107,14 @@ def test_weighted_selection_is_balanced_whole_episode_and_not_final_evidence(tmp
     assert report["selected_candidate_hours"] == 100
     assert report["planning_gate_passes"] is True
     assert report["thesis_evidence_gate_passes"] is False
+    spoofed_report = audit_episode_selection(
+        [{**row, "license_verified": True} for row in selected],
+        min_hours=100,
+        max_hours=120,
+        target_hours=100,
+        max_channel_share=0.55,
+    )
+    assert spoofed_report["evidence_requirements"]["licenses_verified_for_selected"] is False
     assert max(item["share"] for item in report["channels"].values()) <= 0.55
     assert all(row["selected_for_conversation_prep"] for row in selected)
     selected_ids = {str(row["episode_id"]) for row in selected}
