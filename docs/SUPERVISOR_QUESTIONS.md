@@ -2,6 +2,8 @@
 
 Send the project definition and current evidence status with these questions. Ask for the answers in writing so the thesis can cite the agreed interpretation.
 
+[نسخه فارسی](SUPERVISOR_QUESTIONS_FA.md)
+
 ## Scope and data
 
 1. Does “collect and label 100–200 hours” allow existing, properly licensed natural Persian conversations, or must any portion be newly recorded by me?
