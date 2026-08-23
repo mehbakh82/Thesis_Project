@@ -18,6 +18,10 @@ build/
 *.pem
 rclone.conf
 
+# local thesis planning and source-definition documents
+/cursor_bsc_thesis_project_planning.md
+/تعریف پروژه.docx
+
 # large data
 data/raw/
 data/processed/
