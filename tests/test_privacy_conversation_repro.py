@@ -370,9 +370,14 @@ def test_h100_training_readiness_is_independent_of_target_gpu(tmp_path: Path, mo
         "  config_path: configs/moshika_7b_legacy.json\n",
         encoding="utf-8",
     )
+    smoke_config = tmp_path / "configs" / "moshi_h100_smoke.yaml"
+    smoke_config.write_text("max_steps: 1\n", encoding="utf-8")
     trainer = tmp_path / "third_party" / "checkouts" / "moshi-finetune" / "train.py"
     trainer.parent.mkdir(parents=True)
     trainer.write_text("# pinned trainer\n", encoding="utf-8")
+    launcher = tmp_path / "scripts" / "moshi_train_entry.py"
+    launcher.parent.mkdir()
+    launcher.write_text("# reviewed launcher\n", encoding="utf-8")
     lock = tmp_path / "third_party" / "UPSTREAMS.lock.json"
     lock.write_text(
         json.dumps(
@@ -431,6 +436,88 @@ def test_h100_training_readiness_is_independent_of_target_gpu(tmp_path: Path, mo
         json.dumps({"thesis_coverage_ok": True, "pairs": 10, "hours": 100.0}),
         encoding="utf-8",
     )
+    hardware = results / "hardware"
+    hardware.mkdir()
+    environment = hardware / "moshi_environment.json"
+    environment.write_text(
+        json.dumps(
+            {
+                "valid": True,
+                "gpu": "NVIDIA H100 NVL",
+                "torch_cuda": "12.4",
+                "gates": {"isolated": True, "assets": True},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (hardware / "moshi_h100_smoke.json").write_text(
+        json.dumps(
+            {
+                "status": "passed",
+                "wiring_gate_passes": True,
+                "scientific_evidence": False,
+                "hardware": {"peak_allocated_gb": 15.0},
+                "artifacts": {
+                    "environment_report_sha256": hashlib.sha256(
+                        environment.read_bytes()
+                    ).hexdigest(),
+                    "source_config_sha256": hashlib.sha256(
+                        smoke_config.read_bytes()
+                    ).hexdigest(),
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    manifests = tmp_path / "data" / "processed" / "manifests"
+    manifests.mkdir(parents=True)
+    (manifests / "conversation_manual_qa.csv").write_text(
+        "window_id,review_status,speaker_count_correct,speaker_assignment_correct,"
+        "caption_acceptable,overlap_annotation_correct,reviewer_id\n"
+        "w1,pass,yes,yes,yes,yes,R1\n",
+        encoding="utf-8",
+    )
+    (manifests / "conversation_interruption_qa.csv").write_text(
+        "candidate_id,review_status,speakers_distinct_correct,user_turn_boundary_correct,"
+        "response_turn_boundary_correct,audible_overlap_correct,corrected_label,reviewer_id\n"
+        "c1,pass,yes,yes,yes,yes,interrupt,R1\n",
+        encoding="utf-8",
+    )
+    (results / "manual_qa_report.json").write_text(
+        json.dumps(
+            {
+                "fail_closed": True,
+                "counts": {"qa_decisions": 1, "incomplete": 0, "unknown_window_ids": 0},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (results / "interaction_qa_report.json").write_text(
+        json.dumps(
+            {
+                "fail_closed": True,
+                "qa_complete": True,
+                "verified_interruption_present": True,
+                "counts": {
+                    "qa_decisions": 1,
+                    "incomplete": 0,
+                    "unknown_candidate_ids": 0,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    (results / "moshi_export_report.json").write_text(
+        json.dumps(
+            {
+                "final_training_ready": True,
+                "exported_pairs": 10,
+                "exported_hours": 100.0,
+                "requirements": {"coverage": True, "authorization": True},
+            }
+        ),
+        encoding="utf-8",
+    )
     fake_cuda = SimpleNamespace(is_available=lambda: True, is_bf16_supported=lambda: True)
     fake_torch = SimpleNamespace(
         __version__="2.6.0",
@@ -458,7 +545,11 @@ def test_h100_training_readiness_is_independent_of_target_gpu(tmp_path: Path, mo
     assert report["training_hardware_ready"] is True
     assert report["evaluation_hardware_ready"] is False
     assert report["adaptation_run_ready"] is True
+    assert report["adaptation_launch_safe_now"] is False
+    assert report["trainer_stack_ready"] is True
+    assert report["training_data_ready"] is True
     assert report["training_gates"]["reviewed_training_entrypoint_available"] is True
+    assert report["training_gates"]["one_step_official_wiring_smoke_passes"] is True
     assert report["training_gates"]["base_model_files_pinned"] is True
     assert report["training_gates"]["assistant_voice_target_pinned"] is True
     assert report["evaluation_gates"]["physical_gpu_12_to_24_gb"] is False

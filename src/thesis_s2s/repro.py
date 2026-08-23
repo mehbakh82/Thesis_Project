@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import csv
 import hashlib
 import json
 import platform
@@ -31,6 +32,8 @@ SNAPSHOT_FILES = (
     "results/diarization_smoke_h100.json",
     "results/hardware/current_preflight.json",
     "results/hardware/moshi_environment.json",
+    "results/hardware/moshi_h100_smoke.json",
+    "results/hardware/moshi_h100_profile_probe.json",
     "results/conversation_rights_report.json",
     "results/conversation_source_authorization_report_combined.json",
     "results/conversation_noise_report.json",
@@ -69,6 +72,19 @@ PACKAGE_NAMES = (
     "soundfile",
     "piper-tts",
 )
+WINDOW_QA_CHECK_FIELDS = (
+    "speaker_count_correct",
+    "speaker_assignment_correct",
+    "caption_acceptable",
+    "overlap_annotation_correct",
+)
+INTERACTION_QA_CHECK_FIELDS = (
+    "speakers_distinct_correct",
+    "user_turn_boundary_correct",
+    "response_turn_boundary_correct",
+    "audible_overlap_correct",
+)
+YES_VALUES = {"1", "true", "yes", "y", "بله"}
 
 
 def sha256_file(path: Path) -> str:
@@ -205,6 +221,139 @@ def _conversation_status(root: Path) -> dict:
     return status
 
 
+def _json_report(path: Path) -> dict:
+    """Load a JSON evidence object without turning malformed evidence into a pass."""
+
+    status: dict[str, object] = {"path": str(path), "present": path.is_file()}
+    if not path.is_file():
+        return status
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        status["error"] = str(exc)[:200]
+        return status
+    if not isinstance(payload, dict):
+        status["error"] = "expected a JSON object"
+        return status
+    status["report"] = payload
+    return status
+
+
+def _qa_sheet_status(path: Path, *, interaction: bool) -> dict:
+    """Count complete reviewer decisions in an internal QA sheet."""
+
+    status: dict[str, object] = {
+        "path": str(path),
+        "present": path.is_file(),
+        "kind": "interaction_boundary" if interaction else "window",
+        "rows": 0,
+        "completed_rows": 0,
+        "pending_or_invalid_rows": 0,
+        "duplicate_ids": 0,
+        "complete": False,
+    }
+    if not path.is_file():
+        return status
+    try:
+        with path.open("r", encoding="utf-8-sig", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+    except (OSError, csv.Error) as exc:
+        status["error"] = str(exc)[:200]
+        return status
+
+    identifier = "candidate_id" if interaction else "window_id"
+    check_fields = INTERACTION_QA_CHECK_FIELDS if interaction else WINDOW_QA_CHECK_FIELDS
+    seen: set[str] = set()
+    completed = 0
+    duplicate_ids = 0
+    passing_interruptions = 0
+    status_counts: dict[str, int] = {}
+    for row in rows:
+        row_id = str(row.get(identifier) or "").strip()
+        if row_id in seen or not row_id:
+            duplicate_ids += 1
+        seen.add(row_id)
+        decision = str(row.get("review_status") or "").strip().lower()
+        status_counts[decision or "blank"] = status_counts.get(decision or "blank", 0) + 1
+        reviewer = str(row.get("reviewer_id") or "").strip()
+        checks_supplied = all(str(row.get(field) or "").strip() for field in check_fields)
+        if interaction:
+            label = str(row.get("corrected_label") or "").strip().lower()
+            complete = bool(reviewer) and (
+                decision == "fail"
+                or (decision == "pass" and checks_supplied and label in {"interrupt", "backchannel"})
+            )
+            if (
+                complete
+                and decision == "pass"
+                and label == "interrupt"
+                and all(
+                    str(row.get(field) or "").strip().lower() in YES_VALUES
+                    for field in check_fields
+                )
+            ):
+                passing_interruptions += 1
+        else:
+            complete = bool(reviewer) and decision in {"pass", "fail"} and (
+                decision == "fail" or checks_supplied
+            )
+        completed += int(complete)
+
+    status.update(
+        {
+            "rows": len(rows),
+            "completed_rows": completed,
+            "pending_or_invalid_rows": len(rows) - completed,
+            "duplicate_ids": duplicate_ids,
+            "status_counts": status_counts,
+            "complete": bool(rows)
+            and completed == len(rows)
+            and duplicate_ids == 0,
+        }
+    )
+    if interaction:
+        status["passing_interruption_rows"] = passing_interruptions
+    return status
+
+
+def _application_status(path: Path, sheet: dict, *, interaction: bool) -> dict:
+    """Validate that a completed QA sheet was applied by the fail-closed pipeline."""
+
+    loaded = _json_report(path)
+    payload = loaded.pop("report", None)
+    loaded["valid"] = False
+    if not isinstance(payload, dict):
+        return loaded
+    counts = payload.get("counts") or {}
+    rows = int(sheet.get("rows") or 0)
+    common_valid = (
+        payload.get("fail_closed") is True
+        and sheet.get("complete") is True
+        and counts.get("incomplete", 0) == 0
+        and counts.get("qa_decisions") == rows
+        and rows > 0
+    )
+    unknown_field = "unknown_candidate_ids" if interaction else "unknown_window_ids"
+    valid = common_valid and counts.get(unknown_field, 0) == 0
+    if interaction:
+        valid = (
+            valid
+            and payload.get("qa_complete") is True
+            and payload.get("verified_interruption_present") is True
+        )
+    loaded.update(
+        {
+            "valid": valid,
+            "qa_complete": payload.get("qa_complete") if interaction else common_valid,
+            "verified_interruption_present": (
+                payload.get("verified_interruption_present") if interaction else None
+            ),
+            "counts": counts,
+        }
+    )
+    return loaded
+
+
 def _nvidia_smi() -> dict:
     try:
         output = subprocess.run(
@@ -218,17 +367,32 @@ def _nvidia_smi() -> dict:
             text=True,
             timeout=10,
         ).stdout.strip()
+        fields = [
+            "name",
+            "driver_version",
+            "memory_total_mib",
+            "memory_used_mib",
+            "memory_free_mib",
+            "utilization_gpu_percent",
+        ]
+        rows = output.splitlines()
+        devices = []
+        for row in rows:
+            values = [value.strip() for value in row.split(",")]
+            if len(values) != len(fields):
+                continue
+            parsed: dict[str, object] = dict(zip(fields, values, strict=True))
+            for field in fields[2:]:
+                try:
+                    parsed[field] = int(str(parsed[field]))
+                except ValueError:
+                    pass
+            devices.append(parsed)
         return {
             "available": True,
-            "fields": [
-                "name",
-                "driver_version",
-                "memory_total_mib",
-                "memory_used_mib",
-                "memory_free_mib",
-                "utilization_gpu_percent",
-            ],
-            "rows": output.splitlines(),
+            "fields": fields,
+            "rows": rows,
+            "devices": devices,
         }
     except (OSError, subprocess.SubprocessError) as exc:
         return {"available": False, "error": str(exc)[:200]}
@@ -318,35 +482,250 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
         and voice_actual_sha256 == voice_expected_sha256
     )
     trainer_path = root / "third_party" / "checkouts" / "moshi-finetune" / "train.py"
+    launcher_path = root / "scripts" / "moshi_train_entry.py"
     official_trainer_declared = bool(
         moshi_entry and str(moshi_entry.get("training_entrypoint") or "").strip()
     )
     reviewed_trainer_available = official_trainer_declared and trainer_path.is_file()
-    training_gates = {
+
+    environment_path = root / "results" / "hardware" / "moshi_environment.json"
+    environment = _json_report(environment_path)
+    environment_payload = environment.pop("report", None)
+    environment_gates = (
+        environment_payload.get("gates") if isinstance(environment_payload, dict) else {}
+    ) or {}
+    environment.update(
+        {
+            "valid": isinstance(environment_payload, dict)
+            and environment_payload.get("valid") is True
+            and bool(environment_gates)
+            and all(value is True for value in environment_gates.values()),
+            "gpu": environment_payload.get("gpu")
+            if isinstance(environment_payload, dict)
+            else None,
+            "torch_cuda": environment_payload.get("torch_cuda")
+            if isinstance(environment_payload, dict)
+            else None,
+            "gates": environment_gates,
+        }
+    )
+
+    smoke_path = root / "results" / "hardware" / "moshi_h100_smoke.json"
+    smoke = _json_report(smoke_path)
+    smoke_payload = smoke.pop("report", None)
+    smoke_artifacts = smoke_payload.get("artifacts") if isinstance(smoke_payload, dict) else {}
+    smoke_artifacts = smoke_artifacts or {}
+    smoke_hashes_current = (
+        smoke_artifacts.get("environment_report_sha256") == sha256_file(environment_path)
+        if environment_path.is_file()
+        else False
+    ) and (
+        smoke_artifacts.get("source_config_sha256")
+        == sha256_file(root / "configs" / "moshi_h100_smoke.yaml")
+        if (root / "configs" / "moshi_h100_smoke.yaml").is_file()
+        else False
+    )
+    smoke.update(
+        {
+            "valid": isinstance(smoke_payload, dict)
+            and smoke_payload.get("status") == "passed"
+            and smoke_payload.get("wiring_gate_passes") is True
+            and smoke_payload.get("scientific_evidence") is False
+            and smoke_hashes_current,
+            "status": smoke_payload.get("status")
+            if isinstance(smoke_payload, dict)
+            else None,
+            "wiring_gate_passes": smoke_payload.get("wiring_gate_passes")
+            if isinstance(smoke_payload, dict)
+            else None,
+            "scientific_evidence": smoke_payload.get("scientific_evidence")
+            if isinstance(smoke_payload, dict)
+            else None,
+            "hardware": smoke_payload.get("hardware")
+            if isinstance(smoke_payload, dict)
+            else None,
+            "launcher": smoke_payload.get("launcher")
+            if isinstance(smoke_payload, dict)
+            else None,
+            "recorded_hashes_match_current_inputs": smoke_hashes_current,
+        }
+    )
+
+    window_sheet = _qa_sheet_status(
+        root / "data" / "processed" / "manifests" / "conversation_manual_qa.csv",
+        interaction=False,
+    )
+    interaction_sheet = _qa_sheet_status(
+        root / "data" / "processed" / "manifests" / "conversation_interruption_qa.csv",
+        interaction=True,
+    )
+    window_application = _application_status(
+        root / "results" / "manual_qa_report.json",
+        window_sheet,
+        interaction=False,
+    )
+    interaction_application = _application_status(
+        root / "results" / "interaction_qa_report.json",
+        interaction_sheet,
+        interaction=True,
+    )
+    export = _json_report(root / "results" / "moshi_export_report.json")
+    export_payload = export.pop("report", None)
+    export_requirements = (
+        export_payload.get("requirements") if isinstance(export_payload, dict) else {}
+    ) or {}
+    export.update(
+        {
+            "valid": isinstance(export_payload, dict)
+            and export_payload.get("final_training_ready") is True
+            and bool(export_requirements)
+            and all(value is True for value in export_requirements.values()),
+            "final_training_ready": export_payload.get("final_training_ready")
+            if isinstance(export_payload, dict)
+            else None,
+            "exported_pairs": export_payload.get("exported_pairs")
+            if isinstance(export_payload, dict)
+            else None,
+            "exported_hours": export_payload.get("exported_hours")
+            if isinstance(export_payload, dict)
+            else None,
+            "requirements": export_requirements,
+        }
+    )
+
+    nvidia_smi = _nvidia_smi()
+    devices = nvidia_smi.get("devices") or []
+    current_device = devices[0] if devices else {}
+    free_memory_mib = current_device.get("memory_free_mib")
+    profile_probe = _json_report(
+        root / "results" / "hardware" / "moshi_h100_profile_probe.json"
+    )
+    profile_payload = profile_probe.pop("report", None)
+    profile_hardware = (
+        profile_payload.get("hardware") if isinstance(profile_payload, dict) else {}
+    ) or {}
+    profile_artifacts = (
+        profile_payload.get("artifacts") if isinstance(profile_payload, dict) else {}
+    ) or {}
+    profile_inputs = {
+        "probe_config_sha256": root / "configs" / "moshi_h100_profile_probe.yaml",
+        "full_config_sha256": root / "configs" / "moshi_h100.yaml",
+        "environment_report_sha256": environment_path,
+        "export_report_sha256": root / "results" / "moshi_export_report.json",
+    }
+    profile_hashes_current = all(
+        path.is_file() and profile_artifacts.get(key) == sha256_file(path)
+        for key, path in profile_inputs.items()
+    )
+    profile_peak_gb = profile_hardware.get("peak_allocated_gb")
+    profile_valid = (
+        isinstance(profile_payload, dict)
+        and profile_payload.get("status") == "passed"
+        and profile_payload.get("full_profile_gate_passes") is True
+        and profile_payload.get("scientific_evidence") is False
+        and profile_hashes_current
+    )
+    try:
+        if not isinstance(free_memory_mib, (int, float, str)):
+            raise ValueError("current free-memory evidence is incomplete")
+        free_memory_gb = round(float(free_memory_mib) / 1024, 3)
+    except (TypeError, ValueError):
+        free_memory_gb = None
+    try:
+        if not isinstance(profile_peak_gb, (int, float, str)):
+            raise ValueError("profile peak-memory evidence is incomplete")
+        required_with_margin_gb = round(float(profile_peak_gb) + 4.0, 3)
+        current_headroom_sufficient = (
+            profile_valid
+            and free_memory_gb is not None
+            and free_memory_gb >= required_with_margin_gb
+        )
+    except (TypeError, ValueError):
+        required_with_margin_gb = None
+        current_headroom_sufficient = False
+    profile_probe.update(
+        {
+            "valid": profile_valid,
+            "status": profile_payload.get("status")
+            if isinstance(profile_payload, dict)
+            else None,
+            "peak_allocated_gb": profile_peak_gb,
+            "recorded_hashes_match_current_inputs": profile_hashes_current,
+        }
+    )
+    scheduling = {
+        "full_profile_probe": profile_probe,
+        "current_free_memory_gb": free_memory_gb,
+        "required_free_memory_gb_including_4gb_margin": required_with_margin_gb,
+        "current_headroom_sufficient": current_headroom_sufficient,
+        "note": (
+            "The 5-second rank-8 wiring smoke is a lower bound, not a memory certificate "
+            "for the 20-second rank-64 embedding-tuning profile. Run the full-profile "
+            "one-step probe after final data export and only while the shared H100 has "
+            "sufficient free memory."
+        ),
+    }
+
+    hardware_gates = {
         "cuda_available": torch_info.get("cuda_available") is True,
         "bf16_supported": torch_info.get("bf16_supported") is True,
+    }
+    infrastructure_gates = {
         "upstream_revisions_pinned": upstream["valid"],
-        "conversational_data_audit_passes": conversation["thesis_coverage_ok"],
         "reviewed_training_entrypoint_available": reviewed_trainer_available,
+        "project_training_launcher_available": launcher_path.is_file(),
         "base_model_files_pinned": base_model["valid"],
         "assistant_voice_target_pinned": voice_pinned,
+        "isolated_moshi_environment_valid": environment["valid"],
+        "one_step_official_wiring_smoke_passes": smoke["valid"],
     }
+    data_gates = {
+        "window_qa_sheet_complete": window_sheet["complete"],
+        "window_qa_applied_fail_closed": window_application["valid"],
+        "interaction_qa_sheet_complete": interaction_sheet["complete"],
+        "interaction_qa_applied_with_verified_interruption": interaction_application["valid"],
+        "conversational_data_audit_passes": conversation["thesis_coverage_ok"],
+        "moshi_export_final_training_ready": export["valid"],
+    }
+    training_gates = {**hardware_gates, **infrastructure_gates, **data_gates}
     evaluation_gates = {
         "physical_gpu_12_to_24_gb": physical_eligible,
         "cuda_available": torch_info.get("cuda_available") is True,
     }
+    failed_adaptation_gates = [name for name, passed in training_gates.items() if not passed]
+    adaptation_run_ready = all(training_gates.values())
+    adaptation_launch_safe_now = adaptation_run_ready and current_headroom_sufficient
     report = {
+        "schema_version": 2,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "gpu": gpu,
-        "nvidia_smi": _nvidia_smi(),
+        "nvidia_smi": nvidia_smi,
         "torch": torch_info,
         "is_rtx_4090": "4090" in device,
         "upstreams": upstream,
         "conversation_data": conversation,
+        "human_review": {
+            "window_sheet": window_sheet,
+            "window_application": window_application,
+            "interaction_sheet": interaction_sheet,
+            "interaction_application": interaction_application,
+        },
+        "moshi_environment": environment,
+        "moshi_wiring_smoke": smoke,
+        "moshi_export": export,
+        "scheduling": scheduling,
         "training_config": str(root / "configs" / "moshi_h100.yaml"),
         "training_base_model": (training_config.get("moshi_paths") or {}).get("hf_repo_id"),
+        "training_objective": {
+            "model": "Moshika 7B LoRA via pinned Moshi-Finetune",
+            "input": "timed stereo user/assistant conversations",
+            "supervision": "assistant text tokens and Mimi assistant-speech tokens",
+            "learns": "Persian response generation, response audio, turn timing, and overlap behavior",
+            "not_asr": True,
+        },
         "official_upstream_training_entrypoint_available": official_trainer_declared,
         "configured_trainer_entrypoint": str(trainer_path),
+        "configured_project_launcher": str(launcher_path),
         "base_model": base_model,
         "assistant_voice_target": {
             "path": str(voice_path) if voice_path is not None else None,
@@ -354,20 +733,31 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
             "actual_sha256": voice_actual_sha256,
             "matches_pin": voice_pinned,
         },
+        "hardware_gates": hardware_gates,
+        "infrastructure_gates": infrastructure_gates,
+        "data_gates": data_gates,
         "training_gates": training_gates,
         "evaluation_gates": evaluation_gates,
-        "training_hardware_ready": bool(
-            training_gates["cuda_available"] and training_gates["bf16_supported"]
-        ),
+        "training_hardware_ready": all(hardware_gates.values()),
+        "trainer_stack_ready": all(infrastructure_gates.values()),
+        "training_data_ready": all(data_gates.values()),
         "evaluation_hardware_ready": all(evaluation_gates.values()),
-        "adaptation_run_ready": all(training_gates.values()),
+        "adaptation_run_ready": adaptation_run_ready,
+        "adaptation_launch_safe_now": adaptation_launch_safe_now,
+        "failed_adaptation_gates": failed_adaptation_gates,
         "adaptation_status": (
-            "ready" if all(training_gates.values()) else "blocked_by_failed_training_gates"
+            "ready_to_launch"
+            if adaptation_launch_safe_now
+            else "prerequisites_ready_waiting_for_safe_gpu_headroom"
+            if adaptation_run_ready
+            else "blocked_by_failed_training_gates"
         ),
         "note": (
             "The H100 is valid training hardware. A physical 12–24 GB GPU is required only "
             "for the final target-hardware fit and live-latency evidence. Moshi-Finetune is "
-            "the pinned genuine response-audio trainer; data/QA gates still apply."
+            "the pinned genuine response-audio trainer. Supervisor-approved internal "
+            "training is recorded separately from raw-data redistribution, which remains "
+            "disabled."
         ),
     }
     if out_json is not None:

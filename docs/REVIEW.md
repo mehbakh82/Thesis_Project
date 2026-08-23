@@ -50,7 +50,7 @@ Corrections:
 - checkpoints declare `runtime_ready: false`;
 - legacy/untyped checkpoints fail closed;
 - serving is unconditionally cascade-only for the legacy artifact;
-- the genuine direct path now uses the pinned official Moshi runtime and LoRA trainer, a fail-closed stereo exporter, an H100 profile, deterministic single-voice Persian assistant targets, immutable upstream metadata, and exact model-file verification. All three base blobs pass their pinned sizes and SHA-256 hashes. A real one-step H100 smoke completed the model/Mimi/data/loss/backward/optimizer path at 15.258 GB peak; it is wiring evidence only. The adapter remains pending until manual QA, the full training run, and held-out Persian evaluation pass.
+- the genuine direct path now uses the pinned official Moshi runtime and LoRA trainer, a fail-closed stereo exporter, an H100 profile, deterministic single-voice Persian assistant targets, immutable upstream metadata, and exact model-file verification. All three base blobs pass their pinned sizes and SHA-256 hashes. A real one-step H100 smoke completed the model/Mimi/data/loss/backward/optimizer path at 15.258 GB peak; it is wiring evidence only. A separate exact-shape one-step probe is defined so the light smoke cannot be misrepresented as full-profile memory evidence. The adapter remains pending until manual QA, that post-export probe, the full training run, and held-out Persian evaluation pass.
 
 The working system is now honestly modular: NeMo ASR → locally cached Qwen2.5-0.5B (rules if unavailable) → Piper/formant TTS.
 

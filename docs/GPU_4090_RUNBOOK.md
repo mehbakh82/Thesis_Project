@@ -19,7 +19,14 @@ Confirm in the JSON:
 - CUDA is available and BF16 is supported;
 - no `memory_capped: true` proxy is used;
 - upstream commits match `third_party/UPSTREAMS.lock.json`;
-- the conversation audit is present and passes before adaptation is attempted.
+- the H100 environment and one-step wiring reports pass their current hashes;
+- `human_review` shows both the 40-row window sheet and 24-row interaction
+  sheet as complete and applied fail-closed;
+- the conversation audit and Moshi export pass before adaptation is attempted.
+
+`evaluation_hardware_ready` is the 4090 gate. The separate
+`adaptation_run_ready` and `adaptation_launch_safe_now` fields describe the
+H100 training handoff and do not require the 4090.
 
 ## 2. Verify the H100 preparation handoff
 
@@ -32,15 +39,22 @@ that must be repeated on the target card. The H100 sequence is:
 .venv/bin/python -m thesis_s2s.cli annotate-conversation-noise
 .venv/bin/python -m thesis_s2s.cli estimate-conversation-yield
 .venv/bin/python -m thesis_s2s.cli sample-conversation-qa
-# A reviewer fills conversation_manual_qa.csv.
+# A reviewer fills conversation_manual_qa.csv and the already generated
+# conversation_interruption_qa.csv; no new recording is required.
 .venv/bin/python -m thesis_s2s.cli apply-conversation-qa
-.venv/bin/python -m thesis_s2s.cli apply-conversation-rights-review
+.venv/bin/python -m thesis_s2s.cli apply-interruption-qa
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
-  --manifest data/processed/manifests/conversation_episode_windows_approved.jsonl
+  --manifest data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli build-conversations \
-  --in-jsonl data/processed/manifests/conversation_episode_windows_approved.jsonl
+  --in-jsonl data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
 .venv/bin/python -m thesis_s2s.cli export-moshi-data --assistant-audio-mode piper
+MOSHI_DISTRIBUTED_BACKEND=gloo \
+  .venv-moshi/bin/torchrun --standalone --nproc-per-node 1 \
+  scripts/moshi_train_entry.py configs/moshi_h100_profile_probe.yaml
+.venv/bin/python scripts/record_moshi_profile_probe.py
+.venv/bin/python -m thesis_s2s.cli gpu-preflight \
+  --out results/hardware/current_preflight.json
 ```
 
 When the 4090 becomes available, copy or mount the immutable base files,

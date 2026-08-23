@@ -1,5 +1,6 @@
 {
-  "generated_at": "2026-08-23T17:25:18.831936+00:00",
+  "schema_version": 2,
+  "generated_at": "2026-08-23T18:51:24.642721+00:00",
   "gpu": {
     "device": "NVIDIA H100 NVL",
     "total_gb": 93.09,
@@ -17,7 +18,17 @@
       "utilization_gpu_percent"
     ],
     "rows": [
-      "NVIDIA H100 NVL, 595.71.05, 95830, 78659, 16664, 100"
+      "NVIDIA H100 NVL, 595.71.05, 95830, 64891, 30431, 100"
+    ],
+    "devices": [
+      {
+        "name": "NVIDIA H100 NVL",
+        "driver_version": "595.71.05",
+        "memory_total_mib": 95830,
+        "memory_used_mib": 64891,
+        "memory_free_mib": 30431,
+        "utilization_gpu_percent": 100
+      }
     ]
   },
   "torch": {
@@ -114,10 +125,120 @@
       "non_mutating": true
     }
   },
+  "human_review": {
+    "window_sheet": {
+      "path": "/mnt/md0/mehbakh/Thesis_Project/data/processed/manifests/conversation_manual_qa.csv",
+      "present": true,
+      "kind": "window",
+      "rows": 40,
+      "completed_rows": 0,
+      "pending_or_invalid_rows": 40,
+      "duplicate_ids": 0,
+      "complete": false,
+      "status_counts": {
+        "blank": 40
+      }
+    },
+    "window_application": {
+      "path": "/mnt/md0/mehbakh/Thesis_Project/results/manual_qa_report.json",
+      "present": false,
+      "valid": false
+    },
+    "interaction_sheet": {
+      "path": "/mnt/md0/mehbakh/Thesis_Project/data/processed/manifests/conversation_interruption_qa.csv",
+      "present": true,
+      "kind": "interaction_boundary",
+      "rows": 24,
+      "completed_rows": 0,
+      "pending_or_invalid_rows": 24,
+      "duplicate_ids": 0,
+      "complete": false,
+      "status_counts": {
+        "blank": 24
+      },
+      "passing_interruption_rows": 0
+    },
+    "interaction_application": {
+      "path": "/mnt/md0/mehbakh/Thesis_Project/results/interaction_qa_report.json",
+      "present": false,
+      "valid": false
+    }
+  },
+  "moshi_environment": {
+    "path": "/mnt/md0/mehbakh/Thesis_Project/results/hardware/moshi_environment.json",
+    "present": true,
+    "valid": true,
+    "gpu": "NVIDIA H100 NVL",
+    "torch_cuda": "12.4",
+    "gates": {
+      "running_in_isolated_venv": true,
+      "cuda_available": true,
+      "bf16_supported": true,
+      "architecture_matches_pinned_loader": true,
+      "checkout_revisions_match": true,
+      "configs_parse": true,
+      "model_assets_load_and_schema_match": true,
+      "single_gpu_training_launcher_available": true
+    }
+  },
+  "moshi_wiring_smoke": {
+    "path": "/mnt/md0/mehbakh/Thesis_Project/results/hardware/moshi_h100_smoke.json",
+    "present": true,
+    "valid": true,
+    "status": "passed",
+    "wiring_gate_passes": true,
+    "scientific_evidence": false,
+    "hardware": {
+      "gpu": "NVIDIA H100 NVL",
+      "torch_cuda": "12.4",
+      "peak_allocated_gb": 15.258,
+      "allocated_gb_after_step": 15.123
+    },
+    "launcher": {
+      "entry_point": "scripts/moshi_train_entry.py",
+      "world_size": 1,
+      "backend": "gloo",
+      "backend_scope": "single-GPU compatibility fallback only",
+      "reason": "The bundled NCCL 2.21.5 reproducibly SIGSEGVs in libnccl during a minimal one-rank communicator init on this host. Gloo CUDA all-reduce passed and the trainer's world-size-one path is unsharded.",
+      "command": "MOSHI_DISTRIBUTED_BACKEND=gloo .venv-moshi/bin/torchrun --standalone --nproc-per-node 1 scripts/moshi_train_entry.py configs/moshi_h100_smoke.yaml"
+    },
+    "recorded_hashes_match_current_inputs": true
+  },
+  "moshi_export": {
+    "path": "/mnt/md0/mehbakh/Thesis_Project/results/moshi_export_report.json",
+    "present": false,
+    "valid": false,
+    "final_training_ready": null,
+    "exported_pairs": null,
+    "exported_hours": null,
+    "requirements": {}
+  },
+  "scheduling": {
+    "full_profile_probe": {
+      "path": "/mnt/md0/mehbakh/Thesis_Project/results/hardware/moshi_h100_profile_probe.json",
+      "present": false,
+      "valid": false,
+      "status": null,
+      "peak_allocated_gb": null,
+      "recorded_hashes_match_current_inputs": false
+    },
+    "current_free_memory_gb": 29.718,
+    "required_free_memory_gb_including_4gb_margin": null,
+    "current_headroom_sufficient": false,
+    "note": "The 5-second rank-8 wiring smoke is a lower bound, not a memory certificate for the 20-second rank-64 embedding-tuning profile. Run the full-profile one-step probe after final data export and only while the shared H100 has sufficient free memory."
+  },
   "training_config": "/mnt/md0/mehbakh/Thesis_Project/configs/moshi_h100.yaml",
   "training_base_model": "kyutai/moshika-pytorch-bf16",
+  "training_objective": {
+    "model": "Moshika 7B LoRA via pinned Moshi-Finetune",
+    "input": "timed stereo user/assistant conversations",
+    "supervision": "assistant text tokens and Mimi assistant-speech tokens",
+    "learns": "Persian response generation, response audio, turn timing, and overlap behavior",
+    "not_asr": true
+  },
   "official_upstream_training_entrypoint_available": true,
   "configured_trainer_entrypoint": "/mnt/md0/mehbakh/Thesis_Project/third_party/checkouts/moshi-finetune/train.py",
+  "configured_project_launcher": "/mnt/md0/mehbakh/Thesis_Project/scripts/moshi_train_entry.py",
   "base_model": {
     "revision": "a49141e28b3d9c947cf9aa5314431e1b11cbd2f5",
     "files": {
@@ -156,22 +277,62 @@
     "actual_sha256": "e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126",
     "matches_pin": true
   },
+  "hardware_gates": {
+    "cuda_available": true,
+    "bf16_supported": true
+  },
+  "infrastructure_gates": {
+    "upstream_revisions_pinned": true,
+    "reviewed_training_entrypoint_available": true,
+    "project_training_launcher_available": true,
+    "base_model_files_pinned": true,
+    "assistant_voice_target_pinned": true,
+    "isolated_moshi_environment_valid": true,
+    "one_step_official_wiring_smoke_passes": true
+  },
+  "data_gates": {
+    "window_qa_sheet_complete": false,
+    "window_qa_applied_fail_closed": false,
+    "interaction_qa_sheet_complete": false,
+    "interaction_qa_applied_with_verified_interruption": false,
+    "conversational_data_audit_passes": false,
+    "moshi_export_final_training_ready": false
+  },
   "training_gates": {
     "cuda_available": true,
     "bf16_supported": true,
     "upstream_revisions_pinned": true,
-    "conversational_data_audit_passes": false,
     "reviewed_training_entrypoint_available": true,
+    "project_training_launcher_available": true,
     "base_model_files_pinned": true,
-    "assistant_voice_target_pinned": true
+    "assistant_voice_target_pinned": true,
+    "isolated_moshi_environment_valid": true,
+    "one_step_official_wiring_smoke_passes": true,
+    "window_qa_sheet_complete": false,
+    "window_qa_applied_fail_closed": false,
+    "interaction_qa_sheet_complete": false,
+    "interaction_qa_applied_with_verified_interruption": false,
+    "conversational_data_audit_passes": false,
+    "moshi_export_final_training_ready": false
   },
   "evaluation_gates": {
     "physical_gpu_12_to_24_gb": false,
     "cuda_available": true
   },
   "training_hardware_ready": true,
+  "trainer_stack_ready": true,
+  "training_data_ready": false,
   "evaluation_hardware_ready": false,
   "adaptation_run_ready": false,
+  "adaptation_launch_safe_now": false,
+  "failed_adaptation_gates": [
+    "window_qa_sheet_complete",
+    "window_qa_applied_fail_closed",
+    "interaction_qa_sheet_complete",
+    "interaction_qa_applied_with_verified_interruption",
+    "conversational_data_audit_passes",
+    "moshi_export_final_training_ready"
+  ],
   "adaptation_status": "blocked_by_failed_training_gates",
-  "note": "The H100 is valid training hardware. A physical 12–24 GB GPU is required only for the final target-hardware fit and live-latency evidence. Moshi-Finetune is the pinned genuine response-audio trainer; data/QA gates still apply."
+  "note": "The H100 is valid training hardware. A physical 12–24 GB GPU is required only for the final target-hardware fit and live-latency evidence. Moshi-Finetune is the pinned genuine response-audio trainer. Supervisor-approved internal training is recorded separately from raw-data redistribution, which remains disabled."
 }

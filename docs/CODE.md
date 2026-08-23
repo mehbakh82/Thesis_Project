@@ -13,9 +13,10 @@
 - `estimate-conversation-yield` and `select-conversation-reserve` — non-mutating pair-yield estimation plus deterministic minimum whole-episode reserve selection under an explicit candidate-hour cap; neither claims training readiness.
 - `src/thesis_s2s/data/noise.py` — deterministic speech/nonspeech RMS estimate for real archived background-noise conditions; labels remain automatic until listening QA.
 - `src/thesis_s2s/data/moshi.py` — fail-closed conversion from authorized non-reused Persian response pairs to the official Moshi stereo dialogue schema, using a deterministic pinned Persian assistant voice for the primary run and source responses only as an ablation.
-- `configs/moshi_h100.yaml` — single-H100 LoRA profile for text and Mimi assistant-speech-token losses.
+- `configs/moshi_h100.yaml` — single-H100 LoRA profile for text and Mimi assistant-speech-token losses; `configs/moshi_h100_profile_probe.yaml` measures the exact training shape for one non-scientific step before launch.
 - `third_party/UPSTREAMS.lock.json` — immutable Moshi runtime/trainer revisions and license boundaries.
 - `docs/MOSHI_H100_RUNBOOK.md` — environment, data, H100 training, runtime, and 4090 handoff procedure.
+- `src/thesis_s2s/repro.py` — fail-closed readiness report separating H100 hardware, trainer stack, two listening-QA stages, final Moshi export, transient full-profile headroom, and physical 4090 evaluation.
 
 ## Experimental model path
 

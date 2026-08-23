@@ -192,6 +192,25 @@ microbatches so it can coexist more safely on a shared H100. Never terminate
 unrelated GPU jobs to make room; wait for headroom or reduce `duration_sec` for
 a smoke test.
 
+After the final reviewed Moshi export exists, first run one step with the exact
+full-training shape. Unlike the earlier five-second rank-8 smoke, this probe
+uses 20 seconds, rank 64, embedding tuning, and four microbatches. It records a
+memory certificate but is still explicitly non-scientific:
+
+```bash
+MOSHI_DISTRIBUTED_BACKEND=gloo \
+  .venv-moshi/bin/torchrun --standalone --nproc-per-node 1 \
+  scripts/moshi_train_entry.py configs/moshi_h100_profile_probe.yaml
+.venv/bin/python scripts/record_moshi_profile_probe.py
+.venv/bin/python -m thesis_s2s.cli gpu-preflight \
+  --out results/hardware/current_preflight.json
+```
+
+Launch only when `adaptation_run_ready`, `adaptation_launch_safe_now`, and the
+profile probe's hash checks all pass. The launch gate requires the measured
+peak plus 4 GB of currently free headroom. This scheduling check is transient;
+it does not make the H100 a target-hardware result.
+
 ```bash
 MOSHI_DISTRIBUTED_BACKEND=gloo \
   .venv-moshi/bin/torchrun --standalone --nproc-per-node 1 \

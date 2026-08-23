@@ -122,7 +122,12 @@ def main() -> int:
     )
     model_type = legacy.pop("model_type", None)
     configs = {}
-    for filename in ("moshi_h100.yaml", "moshi_h100_smoke.yaml"):
+    config_filenames = (
+        "moshi_h100.yaml",
+        "moshi_h100_smoke.yaml",
+        "moshi_h100_profile_probe.yaml",
+    )
+    for filename in config_filenames:
         parsed = TrainArgs.load(str(PROJECT_ROOT / "configs" / filename), drop_extra_fields=False)
         configs[filename] = {
             "max_steps": parsed.max_steps,
@@ -144,7 +149,7 @@ def main() -> int:
         "architecture_matches_pinned_loader": model_type == "moshi"
         and legacy == loaders._lm_kwargs,
         "checkout_revisions_match": all(row["matches"] for row in checkouts.values()),
-        "configs_parse": len(configs) == 2,
+        "configs_parse": len(configs) == len(config_filenames),
         "model_assets_load_and_schema_match": base_model_schema["valid"] is True,
         "single_gpu_training_launcher_available": (
             CHECKOUTS["Moshi-Finetune"] / "train.py"

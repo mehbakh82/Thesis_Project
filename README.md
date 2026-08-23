@@ -8,7 +8,7 @@ An evidence-first Persian speech prototype that keeps the microphone active duri
 |---|---|
 | Working spoken conversation | Implemented as NeMo Persian ASR → local Qwen2.5-0.5B (rule fallback) → Piper Persian TTS |
 | Full-duplex control | Continuous browser PCM16 stream, rolling energy/F0/MFCC detector, server stop event, client stop acknowledgement |
-| Direct speech LLM | Official Moshi LoRA trainer, pinned runtime, Persian stereo-response exporter, isolated environment, and H100 profiles are implemented and tested; all three exact-revision base blobs pass byte/SHA-256 verification. A real one-step H100 smoke passed end to end (loss 4.614331, 15.258 GB peak). Full adapter training is gated by the window/pair listening QA and adequate shared-H100 headroom. The old 7 MB reconstruction artifact stays runtime-ineligible |
+| Direct speech LLM | Official Moshi LoRA trainer, pinned runtime, Persian stereo-response exporter, isolated environment, and H100 profiles are implemented and tested; all three exact-revision base blobs pass byte/SHA-256 verification. A real one-step H100 smoke passed end to end (loss 4.614331, 15.258 GB peak). Full adapter training is gated by the window/pair listening QA, final export, an exact-shape one-step memory probe, and adequate shared-H100 headroom. The old 7 MB reconstruction artifact stays runtime-ineligible |
 | 100–200 h conversation candidates | Full inventory: **775.887 h / 1,442 long episodes**. The measured final plan is **196.546 candidate h / 296 episodes** across four channels; 1,021 windows contain **181.824 automatically verified multi-speaker h** and an estimated **6,017 response pairs / 105.727 pair h** |
 | Conversational interruption supervision | Raw speaker boundaries recover **712 conservative candidates** (669 interruption-like, 43 backchannel-like) from the 6,017 pairs. A deterministic 24-row sheet covers all four channels and only **168.3 seconds** of excerpt audio. They remain automatic candidates; **zero human-verified direct interruptions** are claimed until that listening review passes |
 | Barge-in >80% | Met only on harmonic synthetic held-out data; real speaker/session-held-out evidence is pending |
@@ -78,6 +78,10 @@ rotate it and replace the document with environment-variable placeholders.
 .venv/bin/ruff check src tests
 .venv/bin/python -m pytest -q
 ```
+
+`gpu-preflight` reports H100 hardware, the isolated Moshi stack, human-reviewed
+data/export readiness, current full-profile memory headroom, and physical 4090
+evaluation as separate gates. A 4090 is never required to train the adapter.
 
 `train-s2s` is retained only for ablation work and refuses to run unless `--allow-experimental` is supplied. It must not be cited as a trained end-to-end S2S model.
 

@@ -52,6 +52,17 @@
         "ft_embed": false
       },
       "param_dtype": "bfloat16"
+    },
+    "moshi_h100_profile_probe.yaml": {
+      "max_steps": 1,
+      "duration_sec": 20.0,
+      "lora": {
+        "enable": true,
+        "rank": 64,
+        "scaling": 2.0,
+        "ft_embed": true
+      },
+      "param_dtype": "bfloat16"
     }
   },
   "base_model_schema": {
