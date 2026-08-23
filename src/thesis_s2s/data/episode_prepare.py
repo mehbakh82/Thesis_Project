@@ -27,6 +27,27 @@ FILTER_SPECIAL = re.compile(r"([\\*?\[\]{}])")
 SAFE_NAME = re.compile(r"[^A-Za-z0-9_-]+")
 
 
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _rights_metadata_is_explicit(row: dict) -> bool:
+    license_name = str(row.get("license") or "").strip()
+    verified = row.get("license_verified")
+    redistribution_allowed = row.get("redistribution_allowed")
+    if license_name in {"", "unknown", "youtube-internal"}:
+        return False
+    if not isinstance(verified, bool):
+        return False
+    return license_name != "pending-youtube-rights-review" or (
+        verified is False and redistribution_allowed is False
+    )
+
+
 def rclone_filter_literal(value: str) -> str:
     """Escape literal text embedded in an rclone include pattern."""
 
@@ -151,6 +172,7 @@ def reconstruct_episode_windows(
                 "split": episode.get("split"),
                 "license": str(episode.get("license") or "pending-youtube-rights-review"),
                 "license_verified": bool(episode.get("license_verified", False)),
+                "redistribution_allowed": False,
                 "annotation_source": "provided_csv_plus_pending_diarization",
                 "audio_source_kind": "reconstructed_ordered_caption_chunks",
                 "is_original_episode_audio": False,
@@ -366,10 +388,7 @@ def audit_prepared_episode_windows(
         and row.get("reference_transcript_source") == "provided_youtube_csv"
         for row in rows
     )
-    legacy_rights_rows = sum(
-        row.get("license") in {None, "", "youtube-internal"} or "license_verified" not in row
-        for row in rows
-    )
+    legacy_rights_rows = sum(not _rights_metadata_is_explicit(row) for row in rows)
     stats_current = (
         bool(stats.get("finished_at"))
         and int(stats.get("windows") or -1) == len(rows)
@@ -398,6 +417,7 @@ def audit_prepared_episode_windows(
         "episode_splits_preserved": split_errors == 0,
         "multiple_channels": len({str(row.get("channel") or "") for row in rows}) >= 2,
         "chunk_limitations_declared": provenance_complete,
+        "rights_metadata_explicit": legacy_rights_rows == 0,
         "preparation_report_current_and_finished": stats_current,
         "no_reported_failures": stats_current and int(stats.get("episodes_failed") or 0) == 0,
         "audio_files_present": missing_files == 0 if check_files else None,
@@ -408,6 +428,11 @@ def audit_prepared_episode_windows(
         "selection_manifest": str(selection_jsonl),
         "window_manifest": str(manifest),
         "preparation_stats": str(stats_path),
+        "artifact_sha256": {
+            "selection_manifest": _sha256_file(selection_jsonl),
+            "window_manifest": _sha256_file(manifest) if manifest.is_file() else None,
+            "preparation_stats": _sha256_file(stats_path) if stats_path.is_file() else None,
+        },
         "selected_episodes": len(selected_id_set),
         "prepared_episodes": len(prepared_ids),
         "missing_selected_episode_count": len(selected_id_set - prepared_ids),

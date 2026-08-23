@@ -1,4 +1,5 @@
 import csv
+import hashlib
 import json
 from pathlib import Path
 
@@ -29,6 +30,7 @@ from thesis_s2s.data.manual_qa import apply_manual_qa, sample_manual_qa
 from thesis_s2s.data.rights import (
     apply_conversation_rights_review,
     create_conversation_rights_review,
+    normalize_pending_rights_metadata,
     rights_record_verified,
 )
 from thesis_s2s.data.s3_inventory import rclone_process_env
@@ -217,6 +219,7 @@ def test_episode_window_reconstruction_tracks_chunk_limitations(tmp_path: Path):
     assert windows[0]["cross_chunk_overlap_recoverable"] is False
     assert windows[0]["diarization_status"] == "not_run"
     assert windows[0]["license_verified"] is False
+    assert windows[0]["redistribution_allowed"] is False
     assert preparation_stats_path(Path("conversation_episode_windows.jsonl")).name == (
         "conversation_episode_prepare_stats.json"
     )
@@ -259,6 +262,57 @@ def test_episode_window_reconstruction_tracks_chunk_limitations(tmp_path: Path):
         selection, manifest, stats_path=stats, min_hours=0, max_hours=1
     )
     assert audit["reconstruction_gate_passes"] is True
+    assert audit["legacy_or_implicit_rights_rows"] == 0
+    assert audit["requirements"]["rights_metadata_explicit"] is True
+    assert audit["artifact_sha256"]["window_manifest"] == hashlib.sha256(
+        manifest.read_bytes()
+    ).hexdigest()
+    legacy_rows = [
+        json.loads(line)
+        for line in manifest.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    legacy_rows[0]["license"] = "unknown"
+    legacy_rows[0].pop("license_verified")
+    legacy_rows[1]["license"] = "pending-youtube-rights-review"
+    legacy_rows[1]["license_verified"] = True
+    legacy_rows[1]["redistribution_allowed"] = True
+    manifest.write_text(
+        "\n".join(json.dumps(row, ensure_ascii=False) for row in legacy_rows) + "\n",
+        encoding="utf-8",
+    )
+    legacy_audit = audit_prepared_episode_windows(
+        selection, manifest, stats_path=stats, min_hours=0, max_hours=1
+    )
+    assert legacy_audit["legacy_or_implicit_rights_rows"] == 2
+    assert (
+        legacy_audit["requirements"]["rights_metadata_explicit"]
+        is False
+    )
+    assert legacy_audit["reconstruction_gate_passes"] is False
+    normalized = normalize_pending_rights_metadata(manifest)
+    assert normalized["changed_rows"] == 2
+    assert normalized["normalized_legacy_rows"] == 1
+    assert normalized["normalized_invalid_flags"] == 1
+    assert normalized["license_approval_inferred"] is False
+    normalized_rows = [
+        json.loads(line)
+        for line in manifest.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert all(
+        row["license"] == "pending-youtube-rights-review" for row in normalized_rows
+    )
+    assert all(row["license_verified"] is False for row in normalized_rows)
+    assert all(row["redistribution_allowed"] is False for row in normalized_rows)
+    normalized_audit = audit_prepared_episode_windows(
+        selection, manifest, stats_path=stats, min_hours=0, max_hours=1
+    )
+    assert normalized_audit["reconstruction_gate_passes"] is True
+    assert normalized_audit["artifact_sha256"]["window_manifest"] == hashlib.sha256(
+        manifest.read_bytes()
+    ).hexdigest()
+    assert normalize_pending_rights_metadata(manifest)["changed_rows"] == 0
     stats.write_text(
         '{"finished_at":"old","episodes_failed":0,"episodes_prepared":1,'
         '"episodes_resumed":0,"windows":1}\n',

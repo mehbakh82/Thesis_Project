@@ -207,6 +207,17 @@ def main(argv: list[str] | None = None) -> None:
     p_rights_apply.add_argument(
         "--report", type=Path, default=Path("results/conversation_rights_report.json")
     )
+    p_rights_normalize = sub.add_parser("normalize-conversation-rights-metadata")
+    p_rights_normalize.add_argument(
+        "--in-jsonl",
+        type=Path,
+        default=p_ep.get_default("out_jsonl"),
+    )
+    p_rights_normalize.add_argument(
+        "--out-jsonl",
+        type=Path,
+        default=None,
+    )
     p_scale = sub.add_parser("scale-corpus")
     p_scale.add_argument("--min-hours", type=float, default=100)
     p_scale.add_argument("--max-hours", type=float, default=200)
@@ -471,6 +482,14 @@ def main(argv: list[str] | None = None) -> None:
             args.rights_csv,
             args.out_jsonl,
             report_path=args.report,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "normalize-conversation-rights-metadata":
+        from thesis_s2s.data.rights import normalize_pending_rights_metadata
+
+        report = normalize_pending_rights_metadata(
+            args.in_jsonl,
+            args.out_jsonl,
         )
         print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "scale-corpus":

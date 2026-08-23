@@ -4,7 +4,7 @@ Every dataset entering training or evaluation must have one row in this register
 
 | Source | Role | Access/license | Raw publish? | Current evidence |
 |---|---|---|---|---|
-| University S3 YouTube crawl | Persian acoustics/captions; possible interview subset | Internal; source-specific rights review required | No | 197.613 h filtered, but current set lacks response/overlap supervision |
+| University S3 YouTube crawl | Persian acoustics/captions; conversation candidates | Source-specific written rights review required | No | 287/287 selected episodes reconstructed into 947 windows / 201.576 staging h; prepared audit passes. Diarization, response/overlap supervision, manual QA, and authorization remain pending. |
 | CALLFRIEND Farsi Second Edition (`LDC2014S01`) | Proposed natural telephone conversation | LDC institutional/member license required | No | Not acquired |
 | MATERIAL Farsi-English (`LDC2024S13`) | Proposed natural conversation and varied environments | LDC institutional/member license required | No | Not acquired |
 | Live participants | Usability, latency, interruption | Explicit mode-specific consent and ethics approval | No by default | Not collected |
@@ -35,6 +35,8 @@ Every dataset entering training or evaluation must have one row in this register
 ## Machine checks
 
 ```bash
+.venv/bin/python -m thesis_s2s.cli normalize-conversation-rights-metadata
+.venv/bin/python -m thesis_s2s.cli audit-prepared-episodes
 .venv/bin/python -m thesis_s2s.cli audit-corpus
 .venv/bin/python -m thesis_s2s.cli audit-conversations
 .venv/bin/python -m thesis_s2s.cli release-snapshot

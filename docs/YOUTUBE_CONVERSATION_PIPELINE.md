@@ -107,6 +107,7 @@ in the repository or command arguments.
 
 # Long I/O job: resumable, one episode at a time, bounded 15-minute windows.
 .venv/bin/python -m thesis_s2s.cli prepare-conversation-episodes
+.venv/bin/python -m thesis_s2s.cli normalize-conversation-rights-metadata
 .venv/bin/python -m thesis_s2s.cli audit-prepared-episodes
 
 # GPU job using the existing offline Community-1 container.
@@ -173,6 +174,12 @@ manifest explicitly to the manual-QA sampler when reserve data is used.
 The completed real-data preparation smoke test downloaded one Mehran episode:
 296/296 caption chunks decoded, two windows, 0.307 reconstructed audio hours,
 and no errors.
+The completed primary reconstruction accounts for all 287 selected episodes,
+947 bounded windows, and 201.576 staging-audio hours. The final prepared-audio
+audit passes every reconstruction requirement with zero schema, split, order,
+duplicate-ID, missing-file, WAV-format, duration, or reported-episode errors.
+All rows explicitly remain `pending-youtube-rights-review`; this is not a claim
+of permission or of verified multi-speaker hours.
 A diagnostic H100 service test (not official 4090 evidence) completed both
 windows and aligned 82.85% and 87.72% of their captions. Both were correctly
 rejected as multi-speaker evidence: the secondary speaker occupied only 8.201
@@ -194,6 +201,8 @@ and windows have unique IDs, preserved episode splits, ordered reference rows,
 bounded durations, valid WAV format, matching manifest/file durations, and a
 current—not stale—completion report. Only final verified multi-speaker hours
 are subject to the strict thesis maximum of 200.
+The report also records SHA-256 checksums for the selection manifest, prepared
+window manifest, and completion statistics.
 
 The 4090 is most useful for the diarization stage, followed by any approved
 model adaptation and live evaluation. Diarization is performed on bounded

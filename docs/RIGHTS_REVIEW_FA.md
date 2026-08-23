@@ -39,6 +39,20 @@
 مستقل است؛ `redistribution_allowed=no` مانع استفاده داخلیِ تأییدشده نمی‌شود
 اما انتشار صوت/کپشن را ممنوع نگه می‌دارد.
 
+## پاک‌سازی متادیتای قدیمی
+
+اگر منیفست آماده‌شدهٔ قدیمی دارای مقدار `youtube-internal` یا فاقد
+`license_verified` است، پیش از ممیزی این دستور را یک بار اجرا کنید:
+
+```bash
+.venv/bin/python -m thesis_s2s.cli normalize-conversation-rights-metadata
+```
+
+این دستور اتمیک و تکرارپذیر است و فقط وضعیت را به
+`pending-youtube-rights-review` با `license_verified=false` و
+`redistribution_allowed=false` تبدیل می‌کند؛ هیچ مجوزی را استنباط یا تأیید
+نمی‌کند.
+
 ## اعمال و ممیزی
 
 ```bash

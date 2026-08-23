@@ -55,6 +55,7 @@ The implemented commands are:
 ```bash
 .venv/bin/python -m thesis_s2s.cli plan-conversation-corpus
 .venv/bin/python -m thesis_s2s.cli prepare-conversation-episodes
+.venv/bin/python -m thesis_s2s.cli normalize-conversation-rights-metadata
 .venv/bin/python -m thesis_s2s.cli audit-prepared-episodes
 .venv/bin/python -m thesis_s2s.cli diarize-conversation-episodes
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes

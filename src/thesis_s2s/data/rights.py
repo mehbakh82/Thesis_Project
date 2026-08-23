@@ -287,3 +287,61 @@ def apply_conversation_rights_review(
     if report_path is not None:
         write_json(report_path, report)
     return report
+
+
+def normalize_pending_rights_metadata(
+    in_jsonl: Path,
+    out_jsonl: Path | None = None,
+) -> dict:
+    """Atomically make legacy/pending rights metadata explicit without approving it."""
+
+    in_jsonl = Path(in_jsonl)
+    out_jsonl = Path(out_jsonl or in_jsonl)
+    rows = _read_jsonl(in_jsonl)
+    changed_rows = 0
+    normalized_legacy_rows = 0
+    normalized_invalid_flags = 0
+    output: list[dict] = []
+    for source_row in rows:
+        row = dict(source_row)
+        changed = False
+        license_name = str(row.get("license") or "").strip()
+        if license_name in {"", "unknown", "youtube-internal"}:
+            row["license"] = "pending-youtube-rights-review"
+            row["license_verified"] = False
+            row["redistribution_allowed"] = False
+            normalized_legacy_rows += 1
+            changed = True
+        elif (
+            not isinstance(row.get("license_verified"), bool)
+            or (
+                license_name == "pending-youtube-rights-review"
+                and (
+                    row.get("license_verified") is not False
+                    or row.get("redistribution_allowed") is not False
+                )
+            )
+        ):
+            row["license_verified"] = False
+            row["redistribution_allowed"] = False
+            normalized_invalid_flags += 1
+            changed = True
+        if changed:
+            changed_rows += 1
+        output.append(row)
+
+    out_jsonl.parent.mkdir(parents=True, exist_ok=True)
+    temporary = out_jsonl.with_name(f".{out_jsonl.name}.partial")
+    with temporary.open("w", encoding="utf-8") as handle:
+        for row in output:
+            handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+    temporary.replace(out_jsonl)
+    return {
+        "source_manifest": str(in_jsonl),
+        "out_manifest": str(out_jsonl),
+        "rows": len(output),
+        "changed_rows": changed_rows,
+        "normalized_legacy_rows": normalized_legacy_rows,
+        "normalized_invalid_flags": normalized_invalid_flags,
+        "license_approval_inferred": False,
+    }

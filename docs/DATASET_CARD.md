@@ -11,7 +11,7 @@
 
 | Split | Source | License | Publish? | Status |
 |---|---|---|---|---|
-| Internal conversation candidates | 2TB S3 YouTube | YouTube ToS — research-internal, pending explicit confirmation | No raw audio | Full five-source inventory **775.887 h**. Whole-episode plan **180.043 h / 287 episodes**. Candidates remain unverified until diarization, alignment, and manual QA. |
+| Internal conversation candidates | 2TB S3 YouTube | Source-specific internal use pending written confirmation | No raw audio | Full inventory **775.887 caption h**; plan **180.043 caption h / 287 episodes**; completed reconstruction **201.576 staging h / 947 windows / 287 episodes**. Prepared audit passes; conversation, rights, and manual-QA gates remain pending. |
 | Synthetic duplex | tiled harmonic overlap mixer | synthetic | Yes, clearly labeled | **20.0 h**; plumbing and regression use only, not evidence of conversational speech quality. |
 | Optional local audio | Lab/home interactions | consent | Only if separately approved | **not_collected; not definition-required** (0.000 h, 0 turns, elderly_turns=0). Default study kit is `serve --study --retention features`; it stores no WAV. |
 | Pointers | Common Voice fa | CC-0 | Pointers only | Not downloaded here |
@@ -19,6 +19,12 @@
 S2S/TTS text = YouTube **CSV caption** (`transcript_caption`) after **fa-verbatim-2**. Those CSVs are the same reference transcripts used to fine-tune Soroush; NeMo is not a teacher for this mix. ASR training orthography (`prepare_tabaghe16.normalise`) is not used as the spoken target. NeMo HTTP remains the cascade ASR baseline only. Optional `youtube_reasr.jsonl` (120.00 h) is diagnostic.
 
 ## Audit snapshot
+
+`results/prepared_episode_audit.json` is authoritative for reconstructed
+staging audio: **287/287 episodes**, **947 windows**, **201.576 h**, zero
+schema/split/order/ID/file/WAV/duration/failure errors, and an explicit pending
+rights marker on every row. It records SHA-256 hashes for all three source
+manifests/reports. These are not yet verified multi-speaker hours.
 
 `results/conversation_selection_audit.json` is authoritative for the episode-level plan. Planning gate: **True**; thesis evidence gate: **False**. The older flat-clip audit below remains acoustic/caption evidence only.
 
