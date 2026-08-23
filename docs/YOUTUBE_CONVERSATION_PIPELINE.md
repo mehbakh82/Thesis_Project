@@ -114,6 +114,7 @@ diar_ip=$(docker inspect asr_nemo_soroush_diarization \
   --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
 curl -f "http://${diar_ip}:8081/health/ready"
 export DIARIZATION_SERVICE_URL="http://${diar_ip}:8081"
+export DIARIZATION_TIMEOUT_SECONDS=600
 .venv/bin/python -m thesis_s2s.cli diarize-conversation-episodes
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes
 
@@ -167,6 +168,11 @@ report before diarization begins.
 The 4090 is most useful for the diarization stage, followed by any approved
 model adaptation and live evaluation. Diarization is performed on bounded
 windows so an entire multi-hour podcast is never sent as one request.
+The diarizer writes
+`data/processed/manifests/conversation_episode_diarization_stats.json` after
+every attempted window. Resumed runs retain aggregate verified/aligned hours
+and never repeat completed GPU requests.
+
 
 ## Evidence gates and manual QA
 

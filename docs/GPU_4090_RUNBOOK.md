@@ -37,6 +37,7 @@ diar_ip=$(docker inspect asr_nemo_soroush_diarization \
 curl -f "http://${diar_ip}:8081/health/ready"
 cd /mnt/md0/mehbakh/Thesis_Project
 export DIARIZATION_SERVICE_URL="http://${diar_ip}:8081"
+export DIARIZATION_TIMEOUT_SECONDS=600
 .venv/bin/python -m thesis_s2s.cli diarize-conversation-episodes
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes
 

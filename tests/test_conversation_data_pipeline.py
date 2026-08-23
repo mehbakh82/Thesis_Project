@@ -280,6 +280,28 @@ def test_episode_diarization_aligns_and_failed_rows_are_retried(tmp_path: Path, 
     assert audit["requirements"]["manual_qa_sample_present"] is False
 
     assert audit["requirements"]["licenses_verified"] is False
+    rows[0]["license"] = "youtube-internal"
+    rows[0].pop("license_verified")
+    output.write_text(json.dumps(rows[0], ensure_ascii=False) + "\n", encoding="utf-8")
+
+    def unexpected_diarization(*args, **kwargs):
+        raise AssertionError("completed windows must be resumed without another GPU request")
+
+    monkeypatch.setattr("thesis_s2s.data.diarize.diarize_file", unexpected_diarization)
+    resumed = diarize_episode_manifest(source, output)
+    assert resumed["attempted"] == 0
+    assert resumed["complete"] == 1
+    assert resumed["completed_this_run"] == 0
+    assert resumed["automatic_multi_speaker_hours"] > 0
+    normalized = json.loads(output.read_text(encoding="utf-8"))
+    assert normalized["license"] == "pending-youtube-rights-review"
+    assert normalized["license_verified"] is False
+    progress = json.loads(
+        (tmp_path / "conversation_episode_diarization_stats.json").read_text(encoding="utf-8")
+    )
+    assert progress["in_progress"] is False
+    assert progress["output_windows"] == 1
+    assert progress["source_manifest_complete"] is True
 
 
 def test_known_diarization_overlap_can_label_an_interruption():
