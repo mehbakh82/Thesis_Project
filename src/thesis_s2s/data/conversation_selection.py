@@ -7,7 +7,7 @@ import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from thesis_s2s.config import project_root
+from thesis_s2s.config import portable_path, project_root
 from thesis_s2s.data.ingest import inventory_csvs
 from thesis_s2s.data.rights import training_use_authorized
 from thesis_s2s.metrics import write_json
@@ -273,9 +273,9 @@ def run_conversation_selection(
     audit.update(
         {
             "inventory_stats": inventory["stats"],
-            "inventory_manifest": str(inventory_path),
-            "selection_manifest": str(selection_path),
-            "reserve_manifest": str(reserve_path),
+            "inventory_manifest": portable_path(inventory_path, root=root),
+            "selection_manifest": portable_path(selection_path, root=root),
+            "reserve_manifest": portable_path(reserve_path, root=root),
             "reserve_episodes": len(reserve),
             "reserve_candidate_hours": round(
                 sum(_episode_hours(row) for row in reserve),

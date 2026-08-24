@@ -12,6 +12,7 @@ import numpy as np
 
 from thesis_s2s import SAMPLE_RATE
 from thesis_s2s.audio import read_wav
+from thesis_s2s.config import portable_project_values
 from thesis_s2s.data.qa_policy import load_qa_waiver, row_matches_waiver
 from thesis_s2s.data.rights import training_use_authorized
 
@@ -67,6 +68,54 @@ def _sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+def _existing_export_record(
+    wav_path: Path,
+    json_path: Path,
+    *,
+    pair_id: str,
+    response_text: str,
+    assistant_audio_mode: str,
+    piper_model_sha256: str | None,
+    qa_waiver_sha256: str | None,
+) -> dict | None:
+    """Return a hash-verified manifest row only for an exact reusable export."""
+
+    if not wav_path.is_file() or not json_path.is_file():
+        return None
+    try:
+        metadata = json.loads(json_path.read_text(encoding="utf-8"))
+        alignments = metadata.get("alignments") or []
+        if (
+            metadata.get("source_pair_id") != pair_id
+            or metadata.get("assistant_audio_mode") != assistant_audio_mode
+            or metadata.get("assistant_voice_model_sha256") != piper_model_sha256
+            or metadata.get("qa_waiver_sha256") != qa_waiver_sha256
+            or not alignments
+            or not alignments[0]
+            or alignments[0][0] != response_text
+        ):
+            return None
+        with wave.open(str(wav_path), "rb") as handle:
+            channels = handle.getnchannels()
+            sample_rate = handle.getframerate()
+            frames = handle.getnframes()
+            sample_width = handle.getsampwidth()
+        if channels != 2 or sample_rate != SAMPLE_RATE or sample_width != 2 or frames <= 0:
+            return None
+        return {
+            "path": str(wav_path.resolve()),
+            "duration": frames / SAMPLE_RATE,
+            "frames": frames,
+            "sample_rate": sample_rate,
+            "channels": channels,
+            "bytes": wav_path.stat().st_size,
+            "sha256": _sha256(wav_path),
+            "metadata_sha256": _sha256(json_path),
+        }
+    except (OSError, TypeError, ValueError, json.JSONDecodeError, wave.Error):
+        return None
+
 
 
 def export_moshi_finetune_dataset(
@@ -161,6 +210,31 @@ def export_moshi_finetune_dataset(
             counts["missing_response_text"] += 1
             continue
 
+        safe_name = _safe_pair_name(pair_id)
+        wav_path = out_dir / "audio" / split / f"{safe_name}.wav"
+        json_path = wav_path.with_suffix(".json")
+        qa_waiver_sha256 = str(row.get("qa_waiver_sha256") or "") or None
+        existing = _existing_export_record(
+            wav_path,
+            json_path,
+            pair_id=pair_id,
+            response_text=response_text,
+            assistant_audio_mode=assistant_audio_mode,
+            piper_model_sha256=piper_model_sha256,
+            qa_waiver_sha256=qa_waiver_sha256,
+        )
+        if existing is not None:
+            split_records[split].append(existing)
+            exported_seconds += float(existing["duration"])
+            counts["exported_pairs"] += 1
+            counts["resumed_pairs"] += 1
+            counts[f"{split}_pairs"] += 1
+            if row.get("human_verified") is True:
+                counts["human_verified_pairs"] += 1
+            continue
+        if wav_path.exists() or json_path.exists():
+            counts["invalid_existing_outputs_rebuilt"] += 1
+
         user_audio, _ = read_wav(user_path)
         if assistant_audio_mode == "piper":
             from thesis_s2s.runtime.tts import piper_synthesize
@@ -169,7 +243,9 @@ def export_moshi_finetune_dataset(
                 response_text,
                 SAMPLE_RATE,
                 deterministic=True,
+                isolated=True,
             )
+            counts["isolated_piper_processes"] += 1
             if response_audio is None:
                 counts["piper_synthesis_failed"] += 1
                 continue
@@ -180,13 +256,10 @@ def export_moshi_finetune_dataset(
             continue
         user_start, response_start = _relative_starts(row, len(user_audio))
         total_samples = max(user_start + len(user_audio), response_start + len(response_audio))
-        stereo = np.zeros((total_samples, 2), dtype=np.float32)
+        stereo: np.ndarray = np.zeros((total_samples, 2), dtype=np.float32)
         stereo[response_start : response_start + len(response_audio), 0] = response_audio
         stereo[user_start : user_start + len(user_audio), 1] = user_audio
 
-        safe_name = _safe_pair_name(pair_id)
-        wav_path = out_dir / "audio" / split / f"{safe_name}.wav"
-        json_path = wav_path.with_suffix(".json")
         _write_stereo_wav(wav_path, stereo)
         response_start_s = response_start / SAMPLE_RATE
         response_end_s = (response_start + len(response_audio)) / SAMPLE_RATE
@@ -213,10 +286,21 @@ def export_moshi_finetune_dataset(
             json.dumps(metadata, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
-        duration = total_samples / SAMPLE_RATE
-        split_records[split].append({"path": str(wav_path.resolve()), "duration": duration})
-        exported_seconds += duration
+        exported = _existing_export_record(
+            wav_path,
+            json_path,
+            pair_id=pair_id,
+            response_text=response_text,
+            assistant_audio_mode=assistant_audio_mode,
+            piper_model_sha256=piper_model_sha256,
+            qa_waiver_sha256=qa_waiver_sha256,
+        )
+        if exported is None:
+            raise RuntimeError(f"new Moshi export failed validation: {pair_id}")
+        split_records[split].append(exported)
+        exported_seconds += float(exported["duration"])
         counts["exported_pairs"] += 1
+        counts["newly_exported_pairs"] += 1
         counts[f"{split}_pairs"] += 1
         if row.get("human_verified") is True:
             counts["human_verified_pairs"] += 1
@@ -235,11 +319,17 @@ def export_moshi_finetune_dataset(
     exported_pairs = counts["exported_pairs"]
     training_hours = exported_seconds / 3600.0
     manual_sample_present = counts["human_verified_pairs"] > 0
+    immutable_file_hashes_present = exported_pairs > 0 and all(
+        record.get("sha256") and record.get("metadata_sha256")
+        for records in split_records.values()
+        for record in records
+    )
     requirements = {
         "response_pairs_exported": exported_pairs > 0,
         "all_selected_pairs_exported": exported_pairs == len(rows),
         "train_validation_test_present": all(split_records[split] for split in split_records),
         "training_hours_100_to_200": 100.0 <= training_hours <= 200.0,
+        "immutable_file_hashes_present": immutable_file_hashes_present,
         "manual_verification_sample_present": manual_sample_present,
         "training_authorization_complete": True,
         "consistent_assistant_voice": assistant_audio_mode == "piper",
@@ -291,6 +381,13 @@ def export_moshi_finetune_dataset(
         "source_pairs": len(rows),
         "exported_pairs": exported_pairs,
         "exported_hours": round(training_hours, 3),
+        "resume": {
+            "validated_existing_pairs": counts["resumed_pairs"],
+            "newly_exported_pairs": counts["newly_exported_pairs"],
+            "invalid_existing_outputs_rebuilt": counts[
+                "invalid_existing_outputs_rebuilt"
+            ],
+        },
         "counts": dict(counts),
         "source_rows_permitting_redistribution": sum(
             bool(row.get("redistribution_allowed")) for row in rows
@@ -322,6 +419,7 @@ def export_moshi_finetune_dataset(
             )
         ),
     }
+    report = portable_project_values(report)
     if report_path is not None:
         report_path = Path(report_path)
         report_path.parent.mkdir(parents=True, exist_ok=True)

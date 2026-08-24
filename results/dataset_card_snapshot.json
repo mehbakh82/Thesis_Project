@@ -32,7 +32,7 @@
   "conversation_planning_gate": true,
   "conversation_evidence_gate": false,
   "corpus_audit": {
-    "manifest": "/mnt/md0/mehbakh/Thesis_Project/data/processed/manifests/filtered.jsonl",
+    "manifest": "data/processed/manifests/filtered.jsonl",
     "n": 215684,
     "hours": 197.613,
     "split_counts": {

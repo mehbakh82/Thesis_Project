@@ -47,7 +47,9 @@ eval_freq: 250
 do_eval: true
 do_ckpt: true
 ckpt_freq: 500
-num_ckpt_keep: 3
+# Preserve every 500-step candidate so the predeclared validation-loss
+# selector can evaluate the complete run rather than only the final three.
+num_ckpt_keep: 16
 save_adapters: true
 run_dir: checkpoints/moshi_fa
 overwrite_run_dir: false

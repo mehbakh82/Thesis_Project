@@ -36,8 +36,8 @@ natural Persian user audio + approved next-turn text
 ## Setup
 
 ```bash
-cd /mnt/md0/mehbakh/Thesis_Project
-python3 -m venv --system-site-packages .venv
+cd Thesis_Project
+python3 -m venv .venv
 .venv/bin/python -m pip install -e ".[dev]"
 export PYTHONPATH=src
 ```
@@ -75,17 +75,19 @@ rotate it and replace the document with environment-variable placeholders.
 .venv/bin/python -m thesis_s2s.cli gpu-preflight
 .venv/bin/python -m thesis_s2s.cli release-snapshot
 .venv/bin/python -m thesis_s2s.cli eval --path both
-.venv/bin/ruff check src tests
+.venv/bin/ruff check src tests scripts
 .venv/bin/python -m pytest -q
 ```
 
 Conversation commands are strict by default. The active time-constrained,
+.venv/bin/python -m thesis_s2s.cli audit-moshi-data
 automatic-only training path must pass the same explicit
 `--qa-waiver configs/conversation_qa_waiver.yaml` to pair building, audit, and
 Moshi export. See `docs/QA_WAIVER.md`; the waiver never creates human-verified
 or strict-coverage evidence.
 
 `gpu-preflight` reports H100 hardware, the isolated Moshi stack, strict and
+.venv/bin/python scripts/select_moshi_checkpoint.py
 waiver-limited data/export readiness, current full-profile memory headroom, and
 physical 4090 evaluation as separate gates. A 4090 is never required to train
 the adapter.
@@ -101,7 +103,13 @@ the adapter.
 - Primary barge-in evidence requires speaker/session-held-out real interactions; lossy aggregate features may be used without retaining WAV, subject to ethics approval.
 - Human evaluation requires 5–10 Persian speakers, at least two aged 60+, with complete ratings.
 
-See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/MOSHI_H100_RUNBOOK.md`, `docs/METRICS.md`, `docs/HUMAN_STUDY.md`, `docs/NO_RECORDING_ALTERNATIVES.md`, `docs/GPU_4090_RUNBOOK.md`, `docs/MANUAL_QA_FA.md`, `docs/INTERRUPTION_QA_FA.md`, `docs/RIGHTS_REVIEW_FA.md`, `docs/SUPERVISOR_DECISIONS.md`, and `docs/REVIEW.md`.
+See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/MOSHI_H100_RUNBOOK.md`,
+`docs/MOSHI_SELECTION_PROTOCOL.md`, `docs/QA_WAIVER.md`,
+`docs/REPOSITORY_SECURITY.md`, `docs/METRICS.md`, `docs/HUMAN_STUDY.md`,
+`docs/NO_RECORDING_ALTERNATIVES.md`, `docs/GPU_4090_RUNBOOK.md`,
+`docs/MANUAL_QA_FA.md`, `docs/INTERRUPTION_QA_FA.md`,
+`docs/RIGHTS_REVIEW_FA.md`, `docs/SUPERVISOR_DECISIONS.md`, and
+`docs/REVIEW.md`.
 
 The ordered evidence and delivery path to a fully complete project is tracked
 in `docs/PROJECT_10_OF_10_CHECKLIST.md`.

@@ -64,7 +64,7 @@ def _mel_filterbank(n_mels: int, n_fft: int, sample_rate: int) -> np.ndarray:
     mels = np.linspace(hz_to_mel(0), hz_to_mel(sample_rate / 2), n_mels + 2)
     hz = mel_to_hz(mels)
     bins = np.floor((n_fft + 1) * hz / sample_rate).astype(int)
-    bank = np.zeros((n_mels, n_fft // 2 + 1), dtype=np.float64)
+    bank: np.ndarray = np.zeros((n_mels, n_fft // 2 + 1), dtype=np.float64)
     for i in range(1, n_mels + 1):
         left, center, right = bins[i - 1], bins[i], bins[i + 1]
         right = min(right, bank.shape[1] - 1)

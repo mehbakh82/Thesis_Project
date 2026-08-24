@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "python": "3.12.3",
-  "environment": "/mnt/md0/mehbakh/Thesis_Project/.venv-moshi",
+  "environment": ".venv-moshi",
   "torch_cuda": "12.4",
   "gpu": "NVIDIA H100 NVL",
   "nccl": "2.21.5",
@@ -66,7 +66,7 @@
     }
   },
   "base_model_schema": {
-    "model_file": "/mnt/md0/mehbakh/Thesis_Project/hf_cache/pinned/moshika-pytorch-bf16-a49141e/model.safetensors",
+    "model_file": "hf_cache/pinned/moshika-pytorch-bf16-a49141e/model.safetensors",
     "file_tensor_keys": 355,
     "model_state_keys_after_legacy_expansion": 439,
     "model_parameters": 7687729152,

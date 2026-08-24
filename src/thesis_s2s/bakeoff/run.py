@@ -9,7 +9,7 @@ import numpy as np
 
 from thesis_s2s.audio import read_wav, write_wav
 from thesis_s2s.bakeoff.codecs import roundtrip_all
-from thesis_s2s.config import project_root
+from thesis_s2s.config import portable_path, portable_project_values, project_root
 from thesis_s2s.metrics import LatencySample, cuda_memory_cap_gb, summarize_latency, write_json
 from thesis_s2s.runtime.tts import FormantTalker
 
@@ -169,7 +169,7 @@ def run_bakeoff(out_dir: Path | None = None, allow_hf: bool = True) -> dict:
         "evidence_class": "component_survey",
         "end_to_end_models_compared": False,
         "official": False,
-        "clips": [str(p) for p in clips],
+        "clips": [portable_path(p, root=root) for p in clips],
         "codecs": codecs,
         "whisper_probe": whisper,
         "gpu_profile": gpu_info,
@@ -187,6 +187,7 @@ def run_bakeoff(out_dir: Path | None = None, allow_hf: bool = True) -> dict:
     payload["latency"]["t_first_audio_gate_ok"] = False
     payload["latency"]["t_barge_in_gate_ok"] = False
     write_json(out_dir / "bakeoff_report.json", payload)
+    payload = portable_project_values(payload, root=root)
     (out_dir / "DECISION.md").write_text(
         "# Bake-off result\n\n"
         "**Evidence status: component survey; no end-to-end model winner.**\n\n"

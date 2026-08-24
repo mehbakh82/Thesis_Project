@@ -2,7 +2,7 @@
   "promote": {
     "copied": true,
     "archived_nemo_mix": true,
-    "source": "/mnt/md0/mehbakh/Thesis_Project/data/processed/manifests/filtered_caption.jsonl"
+    "source": "data/processed/manifests/filtered_caption.jsonl"
   },
   "filtered_n": 215684,
   "filtered_hours": 197.613,

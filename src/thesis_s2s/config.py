@@ -134,5 +134,38 @@ def project_root() -> Path:
     return Path.cwd()
 
 
+def portable_path(path: str | Path, *, root: str | Path | None = None) -> str:
+    """Serialize project-local paths without leaking a workstation prefix."""
+
+    candidate = Path(path)
+    project = Path(root or project_root())
+    try:
+        return candidate.resolve().relative_to(project.resolve()).as_posix()
+    except ValueError:
+        return candidate.as_posix()
+
+
+def portable_project_values(value: Any, *, root: str | Path | None = None) -> Any:
+    """Recursively make absolute paths inside the project repository portable."""
+
+    project = Path(root or project_root()).resolve()
+    if isinstance(value, dict):
+        return {
+            key: portable_project_values(item, root=project)
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [portable_project_values(item, root=project) for item in value]
+    if isinstance(value, tuple):
+        return tuple(portable_project_values(item, root=project) for item in value)
+    if isinstance(value, Path):
+        return portable_path(value, root=project)
+    if isinstance(value, str):
+        prefix = project.as_posix().rstrip("/") + "/"
+        if value.startswith(prefix):
+            return value.removeprefix(prefix)
+    return value
+
+
 def config_path(name: str) -> Path:
     return project_root() / "configs" / name

@@ -141,6 +141,7 @@ is not represented as supervisor approval of the waiver.
 .venv/bin/python -m thesis_s2s.cli export-moshi-data \
   --assistant-audio-mode piper \
   --qa-waiver configs/conversation_qa_waiver.yaml
+.venv/bin/python -m thesis_s2s.cli audit-moshi-data
 ```
 
 Only `training_ready_under_qa_waiver=true` permits this limited run;
@@ -153,6 +154,15 @@ as the natural user turn, preserves the aligned response timing, creates the
 official adjacent transcript JSON, keeps session-level splits, rejects
 unauthorized rows, and reports whether the 100–200 h and manual-QA gates pass.
 It pins and hashes the assistant voice.
+
+For long Piper exports, every new assistant render runs in a short-lived
+process so ONNX allocator growth cannot exhaust host RAM. Re-running the same
+command validates the pair ID, transcript, voice hash, waiver hash, WAV header,
+metadata, and content hashes before reusing an existing pair; stale or partial
+outputs are rebuilt. Every final manifest row contains WAV/metadata SHA-256,
+size, frame count, sample rate, channels, and duration. The independent audit
+recomputes all of them and prepares a 24-row stratified but explicitly
+unreviewed listening sheet.
 
 Caption-aligned turns remain conservative: 4,787 pairs are still
 `overlap_unattributed`. The retained raw speaker boundaries now recover 712
@@ -242,6 +252,16 @@ optimizer, scheduler, data-loader, and `TrainState` needed for exact resume.
 Run the full job in a persistent terminal/service, keep `overwrite_run_dir: false`, and do not describe an interrupted restart as a resume. If a run fails,
 archive its run directory and restart from the immutable base/config; never
 delete the only adapter evidence.
+
+All 16 saved 500-step candidates are retained. After the complete run, apply
+the criterion frozen in `docs/MOSHI_SELECTION_PROTOCOL.md`:
+
+```bash
+.venv/bin/python scripts/select_moshi_checkpoint.py
+```
+
+The selector uses validation loss only, fails on incomplete logs/checkpoints,
+hashes every candidate, and never consults held-out or subjective output.
 
 A final run is acceptable only when:
 

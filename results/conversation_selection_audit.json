@@ -91,9 +91,9 @@
     "shorts_skipped": 3720,
     "n_episode_records": 1442
   },
-  "inventory_manifest": "/mnt/md0/mehbakh/Thesis_Project/data/processed/manifests/youtube_episode_inventory.jsonl",
-  "selection_manifest": "/mnt/md0/mehbakh/Thesis_Project/data/processed/manifests/youtube_conversation_selection.jsonl",
-  "reserve_manifest": "/mnt/md0/mehbakh/Thesis_Project/data/processed/manifests/youtube_conversation_reserve.jsonl",
+  "inventory_manifest": "data/processed/manifests/youtube_episode_inventory.jsonl",
+  "selection_manifest": "data/processed/manifests/youtube_conversation_selection.jsonl",
+  "reserve_manifest": "data/processed/manifests/youtube_conversation_reserve.jsonl",
   "reserve_episodes": 172,
   "reserve_candidate_hours": 120.327,
   "reserve_note": "prepare in small batches only if verified primary yield is below 100 h"

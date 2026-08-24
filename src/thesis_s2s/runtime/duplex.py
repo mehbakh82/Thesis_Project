@@ -83,7 +83,7 @@ class DuplexSession:
         self.controller = PlaybackController(detector)
         self.talker = talker or default_talker()
         self.log = TurnLog()
-        self.mic_buffer = np.zeros(0, dtype=np.float32)
+        self.mic_buffer: np.ndarray = np.zeros(0, dtype=np.float32)
 
     def on_user_end(self, user_audio: np.ndarray, text: str | None = None) -> np.ndarray:
         t0 = time.perf_counter()

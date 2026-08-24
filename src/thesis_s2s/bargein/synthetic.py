@@ -51,8 +51,8 @@ def make_clip(
     duration = float(rng.uniform(1.2, 2.2))
     assistant = _harmonic(duration, f0=float(rng.uniform(90, 140)), sr=sr, rng=rng)
     mix = assistant.copy()
-    labels = np.zeros(1 + (len(mix) - feat_cfg.win) // feat_cfg.hop, dtype=np.int32)
-    assistant_mask = np.ones(len(mix), dtype=np.float32)
+    labels: np.ndarray = np.zeros(1 + (len(mix) - feat_cfg.win) // feat_cfg.hop, dtype=np.int32)
+    assistant_mask: np.ndarray = np.ones(len(mix), dtype=np.float32)
 
     def mark(start_s: float, end_s: float, label: int) -> None:
         for i in range(len(labels)):

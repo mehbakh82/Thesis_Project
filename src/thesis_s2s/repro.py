@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from importlib import metadata
 from pathlib import Path
 
-from thesis_s2s.config import load_yaml, project_root
+from thesis_s2s.config import load_yaml, portable_project_values, project_root
 from thesis_s2s.data.qa_policy import load_qa_waiver
 from thesis_s2s.metrics import gpu_inventory, write_json
 
@@ -47,6 +47,8 @@ SNAPSHOT_FILES = (
     "results/diarized_episode_audit_combined.json",
     "results/diarized_episode_audit_combined_authorized.json",
     "results/conversation_audit.json",
+    "results/moshi_export_audit.json",
+    "results/moshi_checkpoint_selection.json",
     "results/moshi_export_report.json",
     "results/bargein/heldout_report.json",
     "results/bargein/recorded_heldout_report.json",
@@ -855,6 +857,7 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
             "are actually completed."
         ),
     }
+    report = portable_project_values(report, root=root)
     if out_json is not None:
         write_json(out_json, report)
     return report

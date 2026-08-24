@@ -128,7 +128,7 @@ def _resonator(x: np.ndarray, freq: float, sr: int, bw: float = 80.0) -> np.ndar
 
 def formant_synthesize(text: str, sr: int = SAMPLE_RATE, f0: float = 140.0) -> np.ndarray:
     rng = np.random.default_rng(abs(hash(text)) % (2**31))
-    chunks = []
+    chunks: list[np.ndarray] = []
     for phone in g2p(text):
         f1, f2, dur_ms = FORMANTS.get(phone, (500, 1500, 60))
         n = max(1, int(sr * dur_ms / 1000.0))
@@ -138,7 +138,7 @@ def formant_synthesize(text: str, sr: int = SAMPLE_RATE, f0: float = 140.0) -> n
         src = _buzz(n, f0 + rng.uniform(-8, 8), sr, rng)
         y = 0.6 * _resonator(src, f1, sr) + 0.4 * _resonator(src, f2, sr, bw=120)
         fade = min(40, n // 4)
-        env = np.ones(n, dtype=np.float32)
+        env: np.ndarray = np.ones(n, dtype=np.float32)
         env[:fade] = np.linspace(0, 1, fade)
         env[-fade:] = np.linspace(1, 0, fade)
         chunks.append((y * env).astype(np.float32))
@@ -222,15 +222,53 @@ def _piper_voice():
         return None
 
 
+def _piper_subprocess_synthesize(
+    text: str,
+    model: Path,
+    sr: int,
+    *,
+    deterministic: bool,
+) -> np.ndarray | None:
+    """Render in a short-lived process so ONNX arenas return to the OS."""
+
+    exe = shutil.which("piper")
+    if not exe:
+        return None
+    with tempfile.TemporaryDirectory() as tmp:
+        wav_path = Path(tmp) / "out.wav"
+        command = [exe, "--model", str(model), "--output_file", str(wav_path)]
+        if deterministic:
+            command.extend(
+                [
+                    "--noise-scale",
+                    "0",
+                    "--noise-w-scale",
+                    "0",
+                ]
+            )
+        proc = subprocess.run(
+            command,
+            input=(text + "\n").encode("utf-8"),
+            capture_output=True,
+        )
+        if proc.returncode != 0 or not wav_path.is_file():
+            return None
+        audio, _ = read_wav(wav_path, sr)
+        return audio
+
+
 def piper_synthesize(
     text: str,
     sr: int = SAMPLE_RATE,
     *,
     deterministic: bool = False,
+    isolated: bool = False,
 ) -> np.ndarray | None:
     model = os_piper_model()
     if model is None or not text.strip():
         return None
+    if isolated:
+        return _piper_subprocess_synthesize(text, model, sr, deterministic=deterministic)
     voice = _piper_voice()
     if voice is not None:
         try:
@@ -258,22 +296,7 @@ def piper_synthesize(
                 return audio
         except Exception:
             pass
-    if deterministic:
-        return None
-    exe = shutil.which("piper")
-    if not exe:
-        return None
-    with tempfile.TemporaryDirectory() as tmp:
-        wav_path = Path(tmp) / "out.wav"
-        proc = subprocess.run(
-            [exe, "--model", str(model), "--output_file", str(wav_path)],
-            input=text.encode("utf-8"),
-            capture_output=True,
-        )
-        if proc.returncode != 0 or not wav_path.is_file():
-            return None
-        audio, _ = read_wav(wav_path, sr)
-        return audio
+    return _piper_subprocess_synthesize(text, model, sr, deterministic=deterministic)
 
 
 def first_packet(audio: np.ndarray, sr: int = SAMPLE_RATE, seconds: float = 0.25) -> np.ndarray:

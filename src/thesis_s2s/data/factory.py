@@ -7,7 +7,7 @@ import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
-from thesis_s2s.config import project_root
+from thesis_s2s.config import portable_path, portable_project_values, project_root
 from thesis_s2s.data.audit import audit_manifest
 from thesis_s2s.data.diarize import annotate_manifest
 from thesis_s2s.data.filter_corpus import filter_hours, write_synthetic_duplex
@@ -61,7 +61,7 @@ def promote_caption_training_mix() -> dict:
     if caption.is_file() and caption.stat().st_size > 0:
         shutil.copy2(caption, filtered)
         report["copied"] = True
-        report["source"] = str(caption)
+        report["source"] = portable_path(caption, root=project_root())
     return report
 
 
@@ -337,7 +337,10 @@ def refresh_dataset_card(report: dict | None = None) -> Path:
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "factory": report,
     }
-    write_json(root / "results" / "dataset_card_snapshot.json", snapshot)
+    write_json(
+        root / "results" / "dataset_card_snapshot.json",
+        portable_project_values(snapshot, root=root),
+    )
     return path
 
 

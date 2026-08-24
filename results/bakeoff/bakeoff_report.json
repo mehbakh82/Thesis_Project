@@ -3,11 +3,11 @@
   "end_to_end_models_compared": false,
   "official": false,
   "clips": [
-    "/mnt/md0/mehbakh/Thesis_Project/data/samples/shakoori_3s.wav",
-    "/mnt/md0/mehbakh/Thesis_Project/data/samples/per_sample.wav"
+    "data/samples/shakoori_3s.wav",
+    "data/samples/per_sample.wav"
   ],
   "codecs": {
-    "clip": "/mnt/md0/mehbakh/Thesis_Project/data/samples/shakoori_3s.wav",
+    "clip": "data/samples/shakoori_3s.wav",
     "n_samples": 48000,
     "mulaw8": {
       "available": true,

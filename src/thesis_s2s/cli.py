@@ -149,6 +149,33 @@ def main(argv: list[str] | None = None) -> None:
         help="Use one pinned Persian assistant voice (primary) or original multi-voice replies (ablation).",
     )
     p_moshi_export.add_argument("--qa-waiver", type=Path, default=None)
+    p_moshi_audit = sub.add_parser("audit-moshi-data")
+    p_moshi_audit.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("data/processed/manifests/conversations.jsonl"),
+    )
+    p_moshi_audit.add_argument(
+        "--export-dir",
+        type=Path,
+        default=Path("data/processed/moshi_finetune"),
+    )
+    p_moshi_audit.add_argument(
+        "--export-report",
+        type=Path,
+        default=Path("results/moshi_export_report.json"),
+    )
+    p_moshi_audit.add_argument(
+        "--out",
+        type=Path,
+        default=Path("results/moshi_export_audit.json"),
+    )
+    p_moshi_audit.add_argument(
+        "--sample-csv",
+        type=Path,
+        default=Path("data/processed/manifests/moshi_export_listening_sample.csv"),
+    )
+    p_moshi_audit.add_argument("--sample-size", type=int, default=24)
     p_conv_plan = sub.add_parser("plan-conversation-corpus")
     p_conv_plan.add_argument("--target-hours", type=float, default=180.0)
     p_conv_plan.add_argument("--min-hours", type=float, default=100.0)
@@ -545,6 +572,18 @@ def main(argv: list[str] | None = None) -> None:
             max_pairs=args.max_pairs,
             assistant_audio_mode=args.assistant_audio_mode,
             qa_waiver_path=args.qa_waiver,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "audit-moshi-data":
+        from thesis_s2s.data.moshi_audit import audit_moshi_finetune_dataset
+
+        report = audit_moshi_finetune_dataset(
+            args.manifest,
+            args.export_dir,
+            args.export_report,
+            out_path=args.out,
+            sample_csv_path=args.sample_csv,
+            sample_size=args.sample_size,
         )
         print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "plan-conversation-corpus":

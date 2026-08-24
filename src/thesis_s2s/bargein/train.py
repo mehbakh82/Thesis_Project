@@ -19,7 +19,7 @@ from thesis_s2s.bargein.detector import (
 )
 from thesis_s2s.bargein.features import FeatureConfig
 from thesis_s2s.bargein.synthetic import DuplexClip, make_dataset
-from thesis_s2s.config import project_root
+from thesis_s2s.config import portable_path, project_root
 from thesis_s2s.metrics import binary_score_confidence_intervals, binary_scores, write_json
 
 
@@ -37,7 +37,7 @@ def clip_from_labeled_wav(
     if kind not in LABELS:
         kind = "none"
     n = max(1, 1 + (len(audio) - feat_cfg.win) // feat_cfg.hop)
-    labels = np.zeros(n, dtype=np.int32)
+    labels: np.ndarray = np.zeros(n, dtype=np.int32)
     if kind == "interrupt":
         labels[n // 3 :] = LABELS.index("interrupt")
     elif kind == "backchannel":
@@ -183,7 +183,7 @@ def train_feature_detector(
     out_dir.mkdir(parents=True, exist_ok=True)
     model_path = out_dir / "bargein_gbdt.pkl"
     detector.save(model_path)
-    report["model_path"] = str(model_path)
+    report["model_path"] = portable_path(model_path, root=project_root())
     write_json(out_dir / "feature_heldout_report.json", report)
     return report
 
@@ -240,7 +240,7 @@ def train_and_eval(
     )
     hops = [_hop_cpu_ms(detector, c.audio) for c in test_s[:8]]
     report["evidence_class"] = "synthetic_proxy"
-    report["model_path"] = str(model_path)
+    report["model_path"] = portable_path(model_path, root=project_root())
     report["n_train"] = len(train)
     report["n_test_synthetic"] = len(test_s)
     report["n_test"] = len(test_s)

@@ -190,11 +190,10 @@ def binary_score_confidence_intervals(
     for _ in range(max(1, bootstrap_samples)):
         indices = rng.integers(0, len(yt), len(yt))
         f1_samples.append(binary_scores(yt[indices].tolist(), yp[indices].tolist()).interrupt_f1)
+    f1_interval: np.ndarray = np.asarray(np.percentile(f1_samples, [2.5, 97.5]))
     return {
         "accuracy": wilson(tp + tn, len(yt)),
-        "interrupt_f1": [
-            round(float(value), 4) for value in np.percentile(f1_samples, [2.5, 97.5])
-        ],
+        "interrupt_f1": [round(float(value), 4) for value in f1_interval],
         "far": wilson(fp, fp + tn),
         "frr": wilson(fn, fn + tp),
     }

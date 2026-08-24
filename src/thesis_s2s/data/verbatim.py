@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 from typing import Any
 
 
 def _try_serving_normalizer():
-    roots = [
-        Path("/mnt/md0/mehbakh/asr_nemo_soroush/asr_api"),
-        Path(__file__).resolve().parents[3] / "asr_nemo_soroush" / "asr_api",
-    ]
+    configured = os.environ.get("THESIS_NEMO_ASR_API_ROOT", "").strip()
+    roots = [Path(configured)] if configured else []
+    roots.append(Path(__file__).resolve().parents[3] / "asr_nemo_soroush" / "asr_api")
     for root in roots:
         if not (root / "postprocessing.py").exists():
             continue

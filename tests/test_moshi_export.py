@@ -9,6 +9,7 @@ import pytest
 from thesis_s2s import SAMPLE_RATE
 from thesis_s2s.audio import write_wav
 from thesis_s2s.data.moshi import export_moshi_finetune_dataset
+from thesis_s2s.data.moshi_audit import audit_moshi_finetune_dataset
 
 
 def _authorized_pair(tmp_path: Path, split: str, index: int) -> dict:
@@ -96,6 +97,64 @@ def test_moshi_export_writes_stereo_response_training_schema(tmp_path: Path):
     assert metadata["alignments"][0][2] == "SPEAKER_MAIN"
 
 
+    audit = audit_moshi_finetune_dataset(
+        source,
+        out_dir,
+        tmp_path / "report.json",
+        out_path=tmp_path / "audit.json",
+        sample_csv_path=tmp_path / "sample.csv",
+        sample_size=3,
+    )
+    assert audit["audit_passes"] is True
+    assert audit["verified_export_pairs"] == 3
+    assert audit["requirements"]["all_file_header_metadata_and_hash_checks_pass"] is True
+    assert audit["sample"]["rows"] == 3
+    assert audit["sample"]["human_review_complete"] is False
+    assert (tmp_path / "sample.csv").read_text(encoding="utf-8-sig").count("\n") == 4
+
+
+def test_moshi_export_resumes_only_hashable_exact_outputs(tmp_path: Path, monkeypatch):
+    source = tmp_path / "conversations.jsonl"
+    rows = [
+        _authorized_pair(tmp_path, "train", 0),
+        _authorized_pair(tmp_path, "val", 1),
+        _authorized_pair(tmp_path, "test", 2),
+    ]
+    source.write_text(
+        "\n".join(json.dumps(row, ensure_ascii=False) for row in rows) + "\n",
+        encoding="utf-8",
+    )
+    out_dir = tmp_path / "moshi"
+    first = export_moshi_finetune_dataset(
+        source,
+        out_dir,
+        assistant_audio_mode="source",
+    )
+    assert first["requirements"]["immutable_file_hashes_present"] is True
+    monkeypatch.setattr(
+        "thesis_s2s.data.moshi.read_wav",
+        lambda *_args, **_kwargs: pytest.fail("validated exports must not be decoded again"),
+    )
+    resumed = export_moshi_finetune_dataset(
+        source,
+        out_dir,
+        assistant_audio_mode="source",
+    )
+    assert resumed["resume"] == {
+        "validated_existing_pairs": 3,
+        "newly_exported_pairs": 0,
+        "invalid_existing_outputs_rebuilt": 0,
+    }
+    records = [
+        json.loads(line)
+        for name in ("train.jsonl", "val.jsonl", "test.jsonl")
+        for line in (out_dir / name).read_text(encoding="utf-8").splitlines()
+    ]
+    assert all(record["sha256"] and record["metadata_sha256"] for record in records)
+    assert all(record["channels"] == 2 for record in records)
+    assert all(record["sample_rate"] == SAMPLE_RATE for record in records)
+
+
 def test_moshi_export_rejects_unauthorized_pairs(tmp_path: Path):
     row = _authorized_pair(tmp_path, "train", 0)
     row["internal_research_authorized"] = False
@@ -128,7 +187,13 @@ def test_moshi_primary_export_uses_one_pinned_piper_voice(tmp_path: Path, monkey
     )
     rendered = np.full(SAMPLE_RATE // 4, 0.1, dtype=np.float32)
     monkeypatch.setattr("thesis_s2s.runtime.tts.os_piper_model", lambda: fake_model)
-    monkeypatch.setattr("thesis_s2s.runtime.tts.piper_synthesize", lambda _text, _sr, **_: rendered)
+    synthesis_options = []
+
+    def render(_text, _sr, **options):
+        synthesis_options.append(options)
+        return rendered
+
+    monkeypatch.setattr("thesis_s2s.runtime.tts.piper_synthesize", render)
 
     report = export_moshi_finetune_dataset(source, tmp_path / "moshi-piper")
 
@@ -136,6 +201,7 @@ def test_moshi_primary_export_uses_one_pinned_piper_voice(tmp_path: Path, monkey
     assert report["requirements"]["consistent_assistant_voice"] is True
     assert report["requirements"]["assistant_voice_model_pinned"] is True
     assert report["assistant_voice_model"]["sha256"]
+    assert synthesis_options == [{"deterministic": True, "isolated": True}]
     record = json.loads((tmp_path / "moshi-piper" / "train.jsonl").read_text())
     metadata = json.loads(Path(record["path"]).with_suffix(".json").read_text())
     assert metadata["assistant_audio_mode"] == "piper"

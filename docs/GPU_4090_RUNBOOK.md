@@ -7,7 +7,7 @@ The 4090 is a physical 24 GB card and should satisfy the thesis hardware-size co
 Use explicit executables; terminal auto-activation is disabled for this workspace.
 
 ```bash
-cd /mnt/md0/mehbakh/Thesis_Project
+cd Thesis_Project
 .venv/bin/python -m thesis_s2s.cli gpu-preflight \
   --out results/hardware/4090_preflight.json
 .venv/bin/python -m thesis_s2s.cli verify-upstreams

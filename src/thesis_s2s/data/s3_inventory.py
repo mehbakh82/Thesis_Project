@@ -48,8 +48,8 @@ def rclone_env() -> dict[str, str]:
     if missing:
         raise RuntimeError(
             "S3 credentials must come from environment variables "
-            f"(missing {missing}). See /mnt/md0/utils/s3_utils/s3-cheatsheet.md; "
-            "do not copy keys into this repo."
+            f"(missing {missing}). Use your administrator-provided S3/rclone setup; "
+            "do not copy keys into this repository."
         )
     return {
         "endpoint": os.environ["S3_ENDPOINT"],

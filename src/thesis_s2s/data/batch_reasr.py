@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -17,7 +18,10 @@ from thesis_s2s.metrics import write_json
 
 
 def _load_speech_service():
-    root = Path("/mnt/md0/mehbakh/asr_nemo_soroush/asr_api")
+    configured = os.environ.get("THESIS_NEMO_ASR_API_ROOT", "").strip()
+    if not configured:
+        return None
+    root = Path(configured)
     if not root.exists():
         return None
     if str(root) not in sys.path:

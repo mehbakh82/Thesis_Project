@@ -502,7 +502,7 @@ class OmniTalker:
             return first_packet(piper)
         if self.model is None or self.processor is None:
             return self.fallback.first_chunk(user_audio, text)
-        wav = user_audio.astype(np.float32)
+        wav: np.ndarray = user_audio.astype(np.float32)
         if len(wav) < 400:
             wav = np.pad(wav, (0, 400 - len(wav)))
         feats = self.processor(
@@ -528,7 +528,7 @@ def _mel_to_wave(mel: np.ndarray, sr: int = SAMPLE_RATE) -> np.ndarray:
     audio = np.zeros_like(t, dtype=np.float64)
     for k in range(min(n_mels, mel.shape[1])):
         freq = 80 + k * 40
-        env = np.repeat(np.exp(np.clip(mel[:, k], -5, 5)), hop)[: len(t)]
+        env: np.ndarray = np.repeat(np.exp(np.clip(mel[:, k], -5, 5)), hop)[: len(t)]
         audio += env * np.sin(2 * np.pi * freq * t)
     audio = audio.astype(np.float32)
     peak = np.max(np.abs(audio)) + 1e-9

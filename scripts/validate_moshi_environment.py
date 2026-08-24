@@ -24,6 +24,19 @@ CHECKOUTS = {
 }
 
 
+def portable_project_values(value):
+    """Keep evidence portable while all validation still uses resolved paths."""
+
+    prefix = PROJECT_ROOT.resolve().as_posix().rstrip("/") + "/"
+    if isinstance(value, dict):
+        return {key: portable_project_values(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [portable_project_values(item) for item in value]
+    if isinstance(value, str) and value.startswith(prefix):
+        return value.removeprefix(prefix)
+    return value
+
+
 def git_head(path: Path) -> str | None:
     try:
         return subprocess.run(
@@ -176,6 +189,7 @@ def main() -> int:
         "valid": all(gates.values()),
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
+    report = portable_project_values(report)
     args.out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
     return 0 if report["valid"] else 1
