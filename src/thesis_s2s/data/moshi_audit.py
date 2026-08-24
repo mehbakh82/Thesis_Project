@@ -106,6 +106,90 @@ def _stratified_sample(rows: list[dict], size: int) -> list[dict]:
     return selected
 
 
+
+def _assistant_resynthesis_audit(
+    sample: list[dict],
+    source_by_id: dict[str, dict],
+    *,
+    assistant_audio_mode: str,
+    expected_voice_sha256: str | None,
+) -> dict:
+    if assistant_audio_mode != "piper":
+        return {
+            "applicable": False,
+            "rows": 0,
+            "matches": None,
+            "failures": [],
+            "passes": True,
+        }
+
+    from thesis_s2s.runtime.tts import os_piper_model, piper_synthesize
+
+    voice_model = os_piper_model()
+    if (
+        voice_model is None
+        or not voice_model.is_file()
+        or _sha256(voice_model) != expected_voice_sha256
+    ):
+        return {
+            "applicable": True,
+            "rows": len(sample),
+            "matches": 0,
+            "failures": ["assistant_voice_model_missing_or_hash_mismatch"],
+            "passes": False,
+        }
+
+    failure_ids: list[str] = []
+    for descriptor in sample:
+        pair_id = str(descriptor["pair_id"])
+        source = source_by_id[pair_id]
+        response_text = str(
+            source.get("response_text") or source.get("assistant_text") or ""
+        ).strip()
+        rendered = piper_synthesize(
+            response_text,
+            SAMPLE_RATE,
+            deterministic=True,
+            isolated=True,
+        )
+        if rendered is None:
+            failure_ids.append(pair_id)
+            continue
+        expected_pcm = np.clip(rendered, -1.0, 1.0)
+        expected_pcm = np.clip(
+            expected_pcm * 32767.0, -32768, 32767
+        ).astype("<i2")
+        try:
+            response_start = round(
+                max(
+                    0.0,
+                    float(source["source_response_interval"][0])
+                    - float(source["source_span_start"]),
+                )
+                * SAMPLE_RATE
+            )
+            with wave.open(str(descriptor["wav_path"]), "rb") as handle:
+                frames = handle.getnframes()
+                pcm = np.frombuffer(handle.readframes(frames), dtype="<i2").reshape(-1, 2)
+        except (KeyError, TypeError, ValueError, IndexError, OSError, wave.Error):
+            failure_ids.append(pair_id)
+            continue
+        response_end = response_start + len(expected_pcm)
+        if (
+            response_end > len(pcm)
+            or not np.array_equal(pcm[response_start:response_end, 0], expected_pcm)
+            or np.any(pcm[:response_start, 0])
+            or np.any(pcm[response_end:, 0])
+        ):
+            failure_ids.append(pair_id)
+    return {
+        "applicable": True,
+        "rows": len(sample),
+        "matches": len(sample) - len(failure_ids),
+        "failures": failure_ids[:20],
+        "passes": not failure_ids and bool(sample),
+    }
+
 def audit_moshi_finetune_dataset(
     conversation_manifest: Path,
     export_dir: Path,
@@ -241,6 +325,16 @@ def audit_moshi_finetune_dataset(
         if pair_id in source_by_id
     ]
     sample = _stratified_sample(descriptors, min(sample_size, len(descriptors)))
+    assistant_resynthesis = _assistant_resynthesis_audit(
+        sample,
+        source_by_id,
+        assistant_audio_mode=str(export_report.get("assistant_audio_mode") or ""),
+        expected_voice_sha256=(export_report.get("assistant_voice_model") or {}).get("sha256"),
+    )
+    if not assistant_resynthesis["passes"]:
+        failures["assistant_resynthesis_sample_mismatch"] += max(
+            1, len(assistant_resynthesis["failures"])
+        )
     sample_csv_path.parent.mkdir(parents=True, exist_ok=True)
     fields = list(sample[0]) if sample else [
         "pair_id",
@@ -291,6 +385,7 @@ def audit_moshi_finetune_dataset(
         "actual_channel_order_and_user_audio_match": not any(
             failures[name] for name in channel_content_failure_names
         ),
+        "assistant_resynthesis_sample_matches": assistant_resynthesis["passes"] is True,
         "unreviewed_stratified_sample_prepared": len(sample)
         == min(sample_size, len(descriptors)),
     }
@@ -308,6 +403,7 @@ def audit_moshi_finetune_dataset(
             "path": str(sample_csv_path),
             "rows": len(sample),
             "human_review_complete": False,
+            "assistant_resynthesis": assistant_resynthesis,
             "coverage": {
                 field: dict(Counter(str(row[field]) for row in sample))
                 for field in (

@@ -114,6 +114,8 @@ def test_moshi_export_writes_stereo_response_training_schema(tmp_path: Path):
     assert audit["requirements"]["all_file_header_metadata_and_hash_checks_pass"] is True
     assert audit["sample"]["rows"] == 3
     assert audit["sample"]["human_review_complete"] is False
+    assert audit["sample"]["assistant_resynthesis"]["applicable"] is False
+    assert audit["sample"]["assistant_resynthesis"]["passes"] is True
     assert (tmp_path / "sample.csv").read_text(encoding="utf-8-sig").count("\n") == 4
 
 
@@ -232,9 +234,16 @@ def test_moshi_export_validates_pair_limit(tmp_path: Path):
 
 
 def test_moshi_primary_export_uses_one_pinned_piper_voice(tmp_path: Path, monkeypatch):
-    row = _authorized_pair(tmp_path, "train", 0)
+    rows = [
+        _authorized_pair(tmp_path, "train", 0),
+        _authorized_pair(tmp_path, "val", 1),
+        _authorized_pair(tmp_path, "test", 2),
+    ]
     source = tmp_path / "piper.jsonl"
-    source.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
+    source.write_text(
+        "\n".join(json.dumps(row, ensure_ascii=False) for row in rows) + "\n",
+        encoding="utf-8",
+    )
     fake_model = tmp_path / "voice.onnx"
     fake_model.write_bytes(b"pinned-voice")
     monkeypatch.setattr(
@@ -251,17 +260,34 @@ def test_moshi_primary_export_uses_one_pinned_piper_voice(tmp_path: Path, monkey
 
     monkeypatch.setattr("thesis_s2s.runtime.tts.piper_synthesize", render)
 
-    report = export_moshi_finetune_dataset(source, tmp_path / "moshi-piper")
+    out_dir = tmp_path / "moshi-piper"
+    report_path = tmp_path / "piper-report.json"
+    report = export_moshi_finetune_dataset(source, out_dir, report_path=report_path)
 
     assert report["assistant_audio_mode"] == "piper"
     assert report["requirements"]["consistent_assistant_voice"] is True
     assert report["requirements"]["assistant_voice_model_pinned"] is True
     assert report["assistant_voice_model"]["sha256"]
-    assert synthesis_options == [{"deterministic": True, "isolated": True}]
-    record = json.loads((tmp_path / "moshi-piper" / "train.jsonl").read_text())
+    assert synthesis_options == [{"deterministic": True, "isolated": True}] * 3
+    record = json.loads((out_dir / "train.jsonl").read_text())
     metadata = json.loads(Path(record["path"]).with_suffix(".json").read_text())
     assert metadata["assistant_audio_mode"] == "piper"
     assert metadata["assistant_voice_model_sha256"]
+
+    audit = audit_moshi_finetune_dataset(
+        source,
+        out_dir,
+        report_path,
+        out_path=tmp_path / "piper-audit.json",
+        sample_csv_path=tmp_path / "piper-sample.csv",
+        sample_size=3,
+    )
+    resynthesis = audit["sample"]["assistant_resynthesis"]
+    assert audit["audit_passes"] is True
+    assert resynthesis["applicable"] is True
+    assert resynthesis["matches"] == 3
+    assert resynthesis["passes"] is True
+    assert synthesis_options == [{"deterministic": True, "isolated": True}] * 6
 
 
 def test_moshi_primary_export_rejects_unpinned_voice(tmp_path: Path, monkeypatch):
