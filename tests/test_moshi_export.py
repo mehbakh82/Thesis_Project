@@ -12,6 +12,10 @@ from thesis_s2s.data.moshi import export_moshi_finetune_dataset
 from thesis_s2s.data.moshi_audit import audit_moshi_finetune_dataset
 
 
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def _authorized_pair(tmp_path: Path, split: str, index: int) -> dict:
     user = 0.2 * np.sin(2 * np.pi * 180 * np.arange(SAMPLE_RATE, dtype=np.float32) / SAMPLE_RATE)
     response = 0.2 * np.sin(
@@ -111,6 +115,58 @@ def test_moshi_export_writes_stereo_response_training_schema(tmp_path: Path):
     assert audit["sample"]["rows"] == 3
     assert audit["sample"]["human_review_complete"] is False
     assert (tmp_path / "sample.csv").read_text(encoding="utf-8-sig").count("\n") == 4
+
+
+def test_moshi_audit_rejects_rehashed_swapped_channels(tmp_path: Path) -> None:
+    source = tmp_path / "conversations.jsonl"
+    rows = [
+        _authorized_pair(tmp_path, "train", 0),
+        _authorized_pair(tmp_path, "val", 1),
+        _authorized_pair(tmp_path, "test", 2),
+    ]
+    source.write_text(
+        "\n".join(json.dumps(row, ensure_ascii=False) for row in rows) + "\n",
+        encoding="utf-8",
+    )
+    out_dir = tmp_path / "moshi"
+    report_path = tmp_path / "report.json"
+    export_moshi_finetune_dataset(
+        source,
+        out_dir,
+        report_path=report_path,
+        assistant_audio_mode="source",
+    )
+
+    manifest_path = out_dir / "train.jsonl"
+    record = json.loads(manifest_path.read_text(encoding="utf-8"))
+    wav_path = Path(record["path"])
+    with wave.open(str(wav_path), "rb") as handle:
+        params = handle.getparams()
+        pcm = np.frombuffer(handle.readframes(handle.getnframes()), dtype="<i2").reshape(-1, 2)
+    with wave.open(str(wav_path), "wb") as handle:
+        handle.setparams(params)
+        handle.writeframes(pcm[:, ::-1].copy().tobytes())
+
+    record["sha256"] = _sha256(wav_path)
+    manifest_path.write_text(json.dumps(record, ensure_ascii=False) + "\n", encoding="utf-8")
+    export_report = json.loads(report_path.read_text(encoding="utf-8"))
+    export_report["manifest_sha256"]["train"] = _sha256(manifest_path)
+    report_path.write_text(
+        json.dumps(export_report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
+    audit = audit_moshi_finetune_dataset(
+        source,
+        out_dir,
+        report_path,
+        out_path=tmp_path / "audit.json",
+        sample_csv_path=tmp_path / "sample.csv",
+        sample_size=3,
+    )
+
+    assert audit["audit_passes"] is False
+    assert audit["requirements"]["actual_channel_order_and_user_audio_match"] is False
+    assert audit["failure_counts"]["user_channel_content_mismatch"] == 1
 
 
 def test_moshi_export_resumes_only_hashable_exact_outputs(tmp_path: Path, monkeypatch):

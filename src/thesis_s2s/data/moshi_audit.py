@@ -9,7 +9,10 @@ import wave
 from collections import Counter, defaultdict
 from pathlib import Path
 
+import numpy as np
+
 from thesis_s2s import SAMPLE_RATE
+from thesis_s2s.audio import read_wav
 from thesis_s2s.config import portable_project_values
 from thesis_s2s.metrics import write_json
 
@@ -147,6 +150,7 @@ def audit_moshi_finetune_dataset(
                     sample_rate = handle.getframerate()
                     sample_width = handle.getsampwidth()
                     frames = handle.getnframes()
+                    raw_pcm = handle.readframes(frames)
                 metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
             except (OSError, ValueError, json.JSONDecodeError, wave.Error):
                 failures["unreadable_export_file"] += 1
@@ -172,6 +176,42 @@ def audit_moshi_finetune_dataset(
                 or metadata.get("qa_waiver_sha256") != source.get("qa_waiver_sha256")
             ):
                 failures["metadata_policy_or_voice_mismatch"] += 1
+            try:
+                pcm = np.frombuffer(raw_pcm, dtype="<i2").reshape(-1, 2)
+            except ValueError:
+                failures["wav_pcm_shape_mismatch"] += 1
+                continue
+            user_path = Path(str(source.get("audio_filepath") or ""))
+            if not user_path.is_file():
+                failures["missing_source_user_audio"] += 1
+            else:
+                try:
+                    expected_user, expected_rate = read_wav(user_path)
+                except (OSError, ValueError):
+                    failures["unreadable_source_user_audio"] += 1
+                else:
+                    try:
+                        span_start = float(source["source_span_start"])
+                        source_user_interval = source["source_user_interval"]
+                        user_start = round(
+                            max(0.0, float(source_user_interval[0]) - span_start)
+                            * SAMPLE_RATE
+                        )
+                    except (KeyError, TypeError, ValueError, IndexError):
+                        user_start = 0
+                    user_end = user_start + len(expected_user)
+                    expected_pcm = np.clip(expected_user, -1.0, 1.0)
+                    expected_pcm = np.clip(
+                        expected_pcm * 32767.0, -32768, 32767
+                    ).astype("<i2")
+                    if expected_rate != SAMPLE_RATE or user_end > len(pcm):
+                        failures["user_channel_bounds_or_rate_mismatch"] += 1
+                    elif not np.array_equal(pcm[user_start:user_end, 1], expected_pcm):
+                        failures["user_channel_content_mismatch"] += 1
+                    elif np.any(pcm[:user_start, 1]) or np.any(pcm[user_end:, 1]):
+                        failures["user_channel_unexpected_audio"] += 1
+            if not np.any(pcm[:, 0]):
+                failures["assistant_channel_empty"] += 1
             if channels != 2 or sample_rate != SAMPLE_RATE or sample_width != 2 or frames <= 0:
                 failures["wav_format_mismatch"] += 1
             if record.get("sha256") != _sha256(path):
@@ -222,6 +262,15 @@ def audit_moshi_finetune_dataset(
         writer.writerows(sample)
 
     computed_hours = exported_seconds / 3600.0
+    channel_content_failure_names = {
+        "wav_pcm_shape_mismatch",
+        "missing_source_user_audio",
+        "unreadable_source_user_audio",
+        "user_channel_bounds_or_rate_mismatch",
+        "user_channel_content_mismatch",
+        "user_channel_unexpected_audio",
+        "assistant_channel_empty",
+    }
     requirements = {
         "source_manifest_hash_current": export_report.get("source_manifest_sha256")
         == _sha256(conversation_manifest),
@@ -239,6 +288,9 @@ def audit_moshi_finetune_dataset(
         <= 0.001,
         "channel_order_declared_assistant_0_user_1": export_report.get("assistant_channel") == 0
         and export_report.get("user_channel") == 1,
+        "actual_channel_order_and_user_audio_match": not any(
+            failures[name] for name in channel_content_failure_names
+        ),
         "unreviewed_stratified_sample_prepared": len(sample)
         == min(sample_size, len(descriptors)),
     }
