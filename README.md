@@ -79,9 +79,16 @@ rotate it and replace the document with environment-variable placeholders.
 .venv/bin/python -m pytest -q
 ```
 
-`gpu-preflight` reports H100 hardware, the isolated Moshi stack, human-reviewed
-data/export readiness, current full-profile memory headroom, and physical 4090
-evaluation as separate gates. A 4090 is never required to train the adapter.
+Conversation commands are strict by default. The active time-constrained,
+automatic-only training path must pass the same explicit
+`--qa-waiver configs/conversation_qa_waiver.yaml` to pair building, audit, and
+Moshi export. See `docs/QA_WAIVER.md`; the waiver never creates human-verified
+or strict-coverage evidence.
+
+`gpu-preflight` reports H100 hardware, the isolated Moshi stack, strict and
+waiver-limited data/export readiness, current full-profile memory headroom, and
+physical 4090 evaluation as separate gates. A 4090 is never required to train
+the adapter.
 
 `train-s2s` is retained only for ablation work and refuses to run unless `--allow-experimental` is supplied. It must not be cited as a trained end-to-end S2S model.
 

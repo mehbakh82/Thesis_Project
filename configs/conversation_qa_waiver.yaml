@@ -1,0 +1,24 @@
+schema_version: 1
+status: acknowledged
+policy: automatic_only_documented_waiver
+decision_date: "2026-08-24"
+decision_authority: student_project_owner
+supervisor_approval_claimed: false
+reason: insufficient_time_and_no_available_delegate
+scope:
+  window_manual_qa: waived
+  interaction_manual_qa: waived
+  internal_training: allowed_under_waiver
+claims:
+  human_verified_data: false
+  human_verified_interruptions: false
+  strict_thesis_data_coverage: false
+preservation:
+  qa_sheets: true
+  reviewer_guides: true
+  playback_helper: true
+  future_review_supported: true
+note: >
+  Best-practice QA artifacts are preserved, but no blank decision is promoted
+  to human evidence. Automatic labels may be used for an explicitly limited
+  internal training run under the existing supervisor-approved data-use scope.

@@ -12,6 +12,7 @@ import numpy as np
 
 from thesis_s2s import SAMPLE_RATE
 from thesis_s2s.audio import read_wav
+from thesis_s2s.data.qa_policy import load_qa_waiver, row_matches_waiver
 from thesis_s2s.data.rights import training_use_authorized
 
 MANA_PIPER_REVISION = "ad9dd8518bedf517bd7cbc9f63b8e5c844bf5bc0"
@@ -75,6 +76,7 @@ def export_moshi_finetune_dataset(
     report_path: Path | None = None,
     max_pairs: int | None = None,
     assistant_audio_mode: str = "piper",
+    qa_waiver_path: Path | None = None,
 ) -> dict:
     """Create Moshi's stereo dialogue format from non-reused response pairs.
 
@@ -85,6 +87,7 @@ def export_moshi_finetune_dataset(
 
     conversation_manifest = Path(conversation_manifest)
     out_dir = Path(out_dir)
+    qa_waiver = load_qa_waiver(qa_waiver_path)
     if assistant_audio_mode not in {"piper", "source"}:
         raise ValueError("assistant_audio_mode must be 'piper' or 'source'")
     piper_model: Path | None = None
@@ -111,6 +114,15 @@ def export_moshi_finetune_dataset(
         rows = rows[:max_pairs]
     if not rows:
         raise ValueError(f"no conversation pairs in {conversation_manifest}")
+
+    waiver_rows_match = qa_waiver is not None and all(
+        row_matches_waiver(row, qa_waiver) for row in rows
+    )
+    if qa_waiver is not None and not waiver_rows_match:
+        raise ValueError(
+            "Moshi QA-waiver export requires every pair to carry the exact "
+            "documented waiver and no human-verification claims"
+        )
 
     unauthorized = [
         str(row.get("utt_id") or "unknown") for row in rows if not training_use_authorized(row)
@@ -192,6 +204,10 @@ def export_moshi_finetune_dataset(
             "assistant_audio_mode": assistant_audio_mode,
             "source_response_audio_filepath": str(response_path),
             "assistant_voice_model_sha256": piper_model_sha256,
+            "qa_policy": row.get("qa_policy") or "strict",
+            "qa_waiver_sha256": row.get("qa_waiver_sha256"),
+            "human_verified": row.get("human_verified") is True,
+            "human_verified_interaction_label": row.get("human_verified_interaction_label") is True,
         }
         json_path.write_text(
             json.dumps(metadata, ensure_ascii=False, indent=2) + "\n",
@@ -232,6 +248,26 @@ def export_moshi_finetune_dataset(
         else False,
         "raw_redistribution_disabled": True,
     }
+    waiver_requirements = {
+        key: value
+        for key, value in requirements.items()
+        if key != "manual_verification_sample_present"
+    }
+    waiver_requirements.update(
+        {
+            "documented_qa_waiver_valid": qa_waiver is not None,
+            "all_pairs_declare_same_waiver": waiver_rows_match,
+            "human_verified_claims_disabled": qa_waiver is not None
+            and not any(
+                row.get("human_verified") is True
+                or row.get("human_verified_interaction_label") is True
+                for row in rows
+            ),
+        }
+    )
+    training_ready_under_qa_waiver = qa_waiver is not None and all(
+        value is True for value in waiver_requirements.values()
+    )
     report = {
         "schema": "kyutai_moshi_finetune_stereo_v1",
         "source_manifest": str(conversation_manifest),
@@ -260,13 +296,30 @@ def export_moshi_finetune_dataset(
             bool(row.get("redistribution_allowed")) for row in rows
         ),
         "manifest_sha256": manifest_hashes,
+        "qa_policy": qa_waiver or {"policy": "strict", "valid": True},
         "requirements": requirements,
         "final_training_ready": all(requirements.values()),
+        "waiver_requirements": waiver_requirements,
+        "training_ready_under_qa_waiver": training_ready_under_qa_waiver,
+        "claims": {
+            "human_verified_data": manual_sample_present,
+            "human_verified_interruptions": any(
+                row.get("human_verified_interaction_label") is True for row in rows
+            ),
+            "strict_thesis_data_coverage": all(requirements.values()),
+        },
         "note": (
             "Internal research artifact; audio and transcripts are not redistributable. "
             "The official Moshi trainer learns text and assistant-audio token losses. "
             "The primary Piper mode follows Moshi's consistent-system-voice design; "
-            "source response audio is retained only as a multi-voice ablation."
+            "source response audio is retained only as a multi-voice ablation. "
+            + (
+                "The documented student QA waiver permits a limited automatic-label "
+                "training run, but it does not establish human verification, verified "
+                "interruptions, or strict thesis data coverage."
+                if qa_waiver is not None
+                else ""
+            )
         ),
     }
     if report_path is not None:

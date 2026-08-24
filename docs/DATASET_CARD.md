@@ -5,7 +5,7 @@
 - Name: `fa-s2s-duplex-mix` (working title)
 - Language: Persian (fa-IR)
 - Intended use: train/evaluate a full-duplex speech-to-speech prototype
-- Last updated: 2026-08-23
+- Last updated: 2026-08-24
 
 ## Splits (status)
 
@@ -18,6 +18,12 @@
 
 The internal-use decision is recorded in `docs/SUPERVISOR_DECISIONS.md`; `results/conversation_source_authorization_report_combined.json` separately reports authorization for 1021 final staging windows and zero verified-license coverage. Redistribution remains disabled.
 
+The active limited-training policy is the documented student QA waiver in
+`docs/QA_WAIVER.md`; it is not supervisor approval of the waiver. The two QA
+sheets remain 0/40 and 0/24 and are preserved for later review. Waiver outputs
+must report zero human-verified rows/interruptions and false strict thesis
+coverage.
+
 S2S/TTS text = YouTube **CSV caption** (`transcript_caption`) after **fa-verbatim-2**. Those CSVs are the same reference transcripts used to fine-tune Soroush; NeMo is not a teacher for this mix. ASR training orthography (`prepare_tabaghe16.normalise`) is not used as the spoken target. NeMo HTTP remains the cascade ASR baseline only. Optional `youtube_reasr.jsonl` (120.00 h) is diagnostic.
 
 ## Audit snapshot
@@ -28,6 +34,14 @@ The bounded reserve audit reports **22 episodes / 182 windows / 43.156 h**; the 
 `results/diarized_episode_audit_combined_authorized.json`: **296 episodes / 1021 windows / 181.824 multi-speaker h / 217.115 aligned h**; automatic and authorization gates pass, while manual QA remains open.
 `results/conversation_yield_estimate_combined.json`: **6017 estimated non-reused pairs / 105.727 pair h**. Labels: {"none": 1230, "overlap_unattributed": 4787}; human-verified direct interruption pairs: 0.
 Raw speaker boundaries recover **712 conservative interaction candidates** ({"backchannel": 43, "interrupt": 669}). The generated 24-row sheet covers all four channels and about three minutes of excerpt audio. These are automatic candidates—not interruption claims—until pair-level listening review passes.
+`results/conversation_audit.json` now verifies the built waiver-bound corpus:
+**6017 pairs / 105.727 h / 149 sessions / 371 speaker IDs**, with zero missing
+files, reused spans, or session-split leaks. The limited waiver gate passes;
+strict coverage and every human-verification claim are false.
+
+Under the waiver, these 712 candidates may remain training pseudo-label
+metadata but none becomes a human-verified label. The strict audit fields remain
+false even when the separate limited-training waiver field passes.
 
 Staging hours preserve conversational context and gaps, whereas pair hours count only non-reused adjacent-turn spans. They are intentionally audited as different measures; the final pair set is inside the 100–200 h thesis band.
 
@@ -67,4 +81,4 @@ All participants sign the mode-specific `docs/CONSENT.md` and explicitly opt int
 
 ## Moshi direct-model derivative
 
-After reviewer QA, non-reused adjacent turns are exported in the official Moshi stereo schema. The user channel retains authorized natural archive audio. The primary assistant channel is synthesized deterministically from the approved next-turn text with the pinned Mana-Persian-Piper voice. Original podcast response audio is an explicit multi-voice ablation. Neither derivative corpus is redistributed.
+After either completed strict QA or validation of the explicit limited-training waiver, non-reused adjacent turns are exported in the official Moshi stereo schema. The user channel retains authorized natural archive audio. The primary assistant channel is synthesized deterministically from the approved next-turn text with the pinned Mana-Persian-Piper voice. Original podcast response audio is an explicit multi-voice ablation. Neither derivative corpus is redistributed; waiver-derived data is not represented as human-verified.

@@ -266,6 +266,15 @@ thesis-compliance claim until:
 5. a stratified sample of diarization, speaker assignment, captions, and
    interaction labels is manually reviewed.
 
+For the current limited run, item 5 is explicitly waived by the student because
+the review cannot be completed or delegated within the available schedule. The
+automatic-only path is hash-bound by `configs/conversation_qa_waiver.yaml` and
+may satisfy only `training_ready_under_qa_waiver`; it cannot satisfy strict
+thesis coverage or create human-verified interruption evidence. The blank
+sheets, Persian instructions, and playback helper are preserved for later use.
+See `docs/QA_WAIVER.md` for commands, permitted claims, thesis disclosure, and
+the strict recovery path.
+
 Manual QA means listening to and checking existing archive clips; it does not
 require the student to record new speech. A supervisor, lab member, or paid
 annotator can perform it under the approved data-access rules. The required

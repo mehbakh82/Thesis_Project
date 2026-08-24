@@ -61,9 +61,33 @@ def main() -> None:
     ):
         raise ValueError("probe must contain one metric row and valid argument/config mappings")
     metric = metric_rows[0]
+    strict_export_valid = export.get("final_training_ready") is True
+    export_policy = export.get("qa_policy") or {"policy": "strict"}
+    export_claims = export.get("claims") or {}
+    waiver_path = ROOT / "configs" / "conversation_qa_waiver.yaml"
+    waiver_policy_matches_current = (
+        isinstance(export_policy, dict)
+        and export_policy.get("valid") is True
+        and export_policy.get("supervisor_approval_claimed") is False
+        and waiver_path.is_file()
+        and export_policy.get("sha256") == _sha256(waiver_path)
+    )
+    waiver_claims_disabled = all(
+        export_claims.get(key) is False
+        for key in (
+            "human_verified_data",
+            "human_verified_interruptions",
+            "strict_thesis_data_coverage",
+        )
+    )
+    waiver_export_valid = (
+        export.get("training_ready_under_qa_waiver") is True
+        and waiver_policy_matches_current
+        and waiver_claims_disabled
+    )
     requirements = {
         "environment_valid": environment.get("valid") is True,
-        "final_training_export_valid": export.get("final_training_ready") is True,
+        "training_export_valid_for_selected_policy": strict_export_valid or waiver_export_valid,
         "one_optimizer_step_completed": metric.get("step") == 1 and args.get("max_steps") == 1,
         "finite_loss": math.isfinite(float(metric.get("loss"))),
         "full_training_shape_matches": _comparable_profile(probe_config)
@@ -75,12 +99,20 @@ def main() -> None:
         "real_model_memory_allocated": float(metric.get("peak_allocated_mem") or 0.0) > 10.0,
     }
     report = {
-        "schema_version": 1,
+        "schema_version": 2,
         "status": "passed" if all(requirements.values()) else "failed",
         "completed_at": metric.get("at") or datetime.now(timezone.utc).isoformat(),
         "purpose": "one-step exact-full-profile memory and optimizer probe only",
         "scientific_evidence": False,
         "persian_training_claim_allowed": False,
+        "training_data_policy": export_policy,
+        "strict_export_ready": strict_export_valid,
+        "training_export_ready_under_qa_waiver": waiver_export_valid,
+        "waiver_policy_matches_current": waiver_policy_matches_current,
+        "waiver_claims_disabled": waiver_claims_disabled,
+        "human_verification_claim_allowed": False
+        if waiver_export_valid and not strict_export_valid
+        else strict_export_valid,
         "hardware": {
             "gpu": environment.get("gpu"),
             "torch_cuda": environment.get("torch_cuda"),
@@ -105,7 +137,9 @@ def main() -> None:
         },
         "note": (
             "This measures peak memory for one optimizer step with the full training shape. "
-            "It is not convergence, Persian quality, held-out, or target-GPU evidence."
+            "It is not convergence, Persian quality, held-out, or target-GPU evidence. "
+            "A QA-waiver export validates only the limited training path and never turns "
+            "automatic labels into human-verified evidence."
         ),
     }
     if not report["full_profile_gate_passes"]:

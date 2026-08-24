@@ -103,10 +103,11 @@ version of the model from `main`. Recheck offline at any time with
 
 ## Prepare final training data
 
-Do not train on an immutable pending or unreviewed manifest. Automatic
-processing is complete: the candidate-capped primary + reserve plan estimates
-6,017 pairs / 105.727 pair h, and all 1,021 staging windows are internally
-authorized. The remaining data command sequence starts with the reviewer:
+Do not train unless either the strict human-QA path or the validated documented
+waiver path passes. Automatic processing is complete: the candidate-capped
+primary + reserve plan estimates 6,017 pairs / 105.727 pair h, and all 1,021
+staging windows are internally authorized. The original strict data command
+sequence starts with the reviewer:
 
 ```bash
 # A reviewer completes the generated 40-row window sheet and 24-row
@@ -126,6 +127,25 @@ authorized. The remaining data command sequence starts with the reviewer:
 .venv/bin/python -m thesis_s2s.cli export-moshi-data \
   --assistant-audio-mode piper
 ```
+
+For the current time-constrained limited run, leave the blank QA sheets intact
+and use the student waiver instead of running either `apply-*-qa` command. This
+is not represented as supervisor approval of the waiver.
+
+```bash
+.venv/bin/python -m thesis_s2s.cli build-conversations \
+  --in-jsonl data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl \
+  --qa-waiver configs/conversation_qa_waiver.yaml
+.venv/bin/python -m thesis_s2s.cli audit-conversations \
+  --qa-waiver configs/conversation_qa_waiver.yaml
+.venv/bin/python -m thesis_s2s.cli export-moshi-data \
+  --assistant-audio-mode piper \
+  --qa-waiver configs/conversation_qa_waiver.yaml
+```
+
+Only `training_ready_under_qa_waiver=true` permits this limited run;
+`final_training_ready`, strict coverage, and human-verification claims remain
+false. The complete policy and thesis disclosure are in `docs/QA_WAIVER.md`.
 
 The builder excludes every explicitly reviewed failure. `export-moshi-data`
 writes channel 0 as the deterministic Persian assistant response and channel 1

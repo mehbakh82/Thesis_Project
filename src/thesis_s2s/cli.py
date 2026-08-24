@@ -108,12 +108,14 @@ def main(argv: list[str] | None = None) -> None:
     )
     p_conv.add_argument("--clips-dir", type=Path, default=Path("data/processed/conversations"))
     p_conv.add_argument("--max-hours", type=float, default=200.0)
+    p_conv.add_argument("--qa-waiver", type=Path, default=None)
     p_conv_audit = sub.add_parser("audit-conversations")
     p_conv_audit.add_argument(
         "--manifest", type=Path, default=Path("data/processed/manifests/conversations.jsonl")
     )
     p_conv_audit.add_argument("--out", type=Path, default=Path("results/conversation_audit.json"))
     p_conv_audit.add_argument("--no-check-files", action="store_true")
+    p_conv_audit.add_argument("--qa-waiver", type=Path, default=None)
     p_omni_export = sub.add_parser("export-omni2-data")
     p_omni_export.add_argument(
         "--manifest", type=Path, default=Path("data/processed/manifests/conversations.jsonl")
@@ -146,6 +148,7 @@ def main(argv: list[str] | None = None) -> None:
         default="piper",
         help="Use one pinned Persian assistant voice (primary) or original multi-voice replies (ablation).",
     )
+    p_moshi_export.add_argument("--qa-waiver", type=Path, default=None)
     p_conv_plan = sub.add_parser("plan-conversation-corpus")
     p_conv_plan.add_argument("--target-hours", type=float, default=180.0)
     p_conv_plan.add_argument("--min-hours", type=float, default=100.0)
@@ -511,6 +514,7 @@ def main(argv: list[str] | None = None) -> None:
             args.out_jsonl,
             args.clips_dir,
             max_hours=args.max_hours,
+            qa_waiver_path=args.qa_waiver,
         )
         print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "audit-conversations":
@@ -520,6 +524,7 @@ def main(argv: list[str] | None = None) -> None:
             args.manifest,
             args.out,
             check_files=not args.no_check_files,
+            qa_waiver_path=args.qa_waiver,
         )
         print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "export-omni2-data":
@@ -539,6 +544,7 @@ def main(argv: list[str] | None = None) -> None:
             report_path=args.report,
             max_pairs=args.max_pairs,
             assistant_audio_mode=args.assistant_audio_mode,
+            qa_waiver_path=args.qa_waiver,
         )
         print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "plan-conversation-corpus":

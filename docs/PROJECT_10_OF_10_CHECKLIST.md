@@ -12,9 +12,16 @@ an item explicitly says they are.
 - `[x]` means completed and supported by an artifact or test.
 - `[ ]` means incomplete, even if its supporting code is implemented.
 - Items owned by a reviewer, supervisor, participant, or hardware provider
-  cannot be fabricated or silently waived by code.
+  cannot be fabricated or silently waived by code. A documented student waiver
+  may narrow the active training scope, but it does not complete the original
+  item or authorize the corresponding strict claim.
 - A written supervisor-approved scope amendment can replace a requirement; an
   informal assumption cannot.
+
+The active conversation-data policy is the transparent, student-authorized
+automatic-only waiver in `docs/QA_WAIVER.md`. It permits limited internal
+training but does not make this a strict 10/10 project. Strict 10/10 still
+requires the reviews or a formal supervisor-approved scope amendment.
 
 The project is 10/10 only when every formal requirement in the traceability
 table passes, every critical-path item below is closed, all numbers reproduce
@@ -43,22 +50,26 @@ Verified now:
   raw-data redistribution remains prohibited.
 - [x] 712 conservative interaction candidates recovered: 669
   interruption-like and 43 backchannel-like.
-- [x] Ruff, mypy on 45 source files, and 65 tests pass.
+- [x] Best-practice QA sheets, Persian guides, stratified samples, and playback
+  helper were prepared and are preserved unchanged.
+- [x] Student QA waiver is machine-readable, hash-bound, fail-closed, and tested;
+  it explicitly disables human-verification, verified-interruption, strict
+  coverage, and supervisor-waiver-approval claims.
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
+- [x] Ruff, mypy on 46 source files, and all 69 tests pass.
 - [ ] Window QA: 0/40 reviewed.
 - [ ] Interaction QA: 0/24 reviewed.
-- [ ] Final conversation audit/export, full-profile probe, scientific adapter,
+- [ ] Moshi export, full-profile probe, scientific adapter,
   held-out model evaluation, 4090 evidence, real detector evidence, and human
   study are pending.
-- [ ] Local commits are not pushed because this server has no GitHub HTTPS
-  credentials.
+- [x] GitHub CLI authentication is persistent for `mehbakh82`; the remote is
+  configured without placing credentials in the repository.
 
 ## Critical path
 
-Supervisor decisions and participant recruitment may run in parallel with QA.
-Everything else follows this order:
+The original strict path remains:
 
 ```text
 40-row + 24-row review
@@ -69,6 +80,16 @@ Everything else follows this order:
         -> held-out model validation and direct-runtime integration
         -> physical-4090 live evaluation and human study
         -> final analysis, evidence freeze, thesis, and release
+```
+
+The active limited-scope path is:
+
+```text
+documented student QA waiver + preserved QA assets
+        -> automatic-only pair build/audit with false strict claims
+        -> waiver-bound Moshi export and exact-shape probe
+        -> limited internal training/evaluation with explicit limitation
+        -> 4090 evidence, remaining thesis evidence, and release
 ```
 
 ## 1. Freeze supervisor decisions before viewing final outcomes
@@ -86,6 +107,9 @@ Owner: student and supervisor. Record dated answers in
   precision, and the minimum verified-interruption count.
 - [ ] Confirm that reviewed existing podcast/interview interactions satisfy the
   interruption-data requirement without new student recordings.
+- [x] Record the student’s time/no-delegate QA waiver separately from supervisor
+  data-use approval; explicitly state that supervisor approval of the waiver is
+  not claimed.
 - [ ] Confirm pinned Moshika 7B + official Moshi-Finetune LoRA as the accepted
   open-base adaptation path.
 - [ ] Decide whether 500 ms binds maximum, p95, or median. Until then, use the
@@ -145,6 +169,10 @@ speech recording is required.
 
 Window QA:
 
+Status for the current limited run: deliberately waived, **not completed**.
+All items and artifacts below remain available for later strict recovery. See
+`docs/QA_WAIVER.md`.
+
 - [ ] Read `docs/MANUAL_QA_FA.md`.
 - [ ] Review all rows in
   `data/processed/manifests/conversation_manual_qa.csv`.
@@ -175,6 +203,23 @@ fail-closed preflight parser.
 ## 4. Apply QA and construct the final corpus
 
 Owner: Codex after section 3.
+
+Active waiver alternative:
+
+- [x] Preserve both blank QA sheets, both reviewer guides, and the playback
+  helper; do not synthesize reviewer IDs or decisions.
+- [x] Validate `configs/conversation_qa_waiver.yaml` and bind its hash to every
+  output pair.
+- [x] Build 6,017 pairs / 105.727 hours from the authorized automatic manifest
+  with `--qa-waiver configs/conversation_qa_waiver.yaml`.
+- [x] Run `audit-conversations` with the same waiver and file checks enabled:
+  149 sessions, 371 speakers, zero missing files, zero split leaks, and zero
+  reused spans.
+- [x] Require `training_ready_under_qa_waiver=true`, while requiring
+  `thesis_coverage_ok=false` and all three human/strict claims false.
+- [ ] Freeze the waiver, input, output, and audit hashes used by training.
+
+The following is the preserved strict path and remains incomplete:
 
 - [ ] Apply window review:
 
@@ -218,6 +263,11 @@ not estimated, duration satisfies the supervisor-approved 100–200-hour measure
 Owner: Codex after section 4.
 
 - [ ] Export the primary set:
+
+For the active waiver path, append
+`--qa-waiver configs/conversation_qa_waiver.yaml` and require
+`training_ready_under_qa_waiver=true`. The strict requirements below remain
+open and must not be marked complete from the waiver result.
 
   ```bash
   .venv/bin/python -m thesis_s2s.cli export-moshi-data \

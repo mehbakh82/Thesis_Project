@@ -19,6 +19,7 @@ from thesis_s2s.data.conversation import (
     select_conversation_reserve_by_yield,
 )
 from thesis_s2s.data.diarize import _overlap_intervals, diarize_file
+from thesis_s2s.data.qa_policy import load_qa_waiver
 from thesis_s2s.repro import (
     _conversation_status,
     gpu_preflight,
@@ -461,9 +462,7 @@ def test_h100_training_readiness_is_independent_of_target_gpu(tmp_path: Path, mo
                     "environment_report_sha256": hashlib.sha256(
                         environment.read_bytes()
                     ).hexdigest(),
-                    "source_config_sha256": hashlib.sha256(
-                        smoke_config.read_bytes()
-                    ).hexdigest(),
+                    "source_config_sha256": hashlib.sha256(smoke_config.read_bytes()).hexdigest(),
                 },
             }
         ),
@@ -553,3 +552,82 @@ def test_h100_training_readiness_is_independent_of_target_gpu(tmp_path: Path, mo
     assert report["training_gates"]["base_model_files_pinned"] is True
     assert report["training_gates"]["assistant_voice_target_pinned"] is True
     assert report["evaluation_gates"]["physical_gpu_12_to_24_gb"] is False
+    assert report["training_data_policy"] == "strict"
+    assert report["strict_training_data_ready"] is True
+    assert report["training_data_ready_under_qa_waiver"] is False
+
+    waiver_path = tmp_path / "configs" / "conversation_qa_waiver.yaml"
+    waiver_path.write_text(
+        """schema_version: 1
+status: acknowledged
+policy: automatic_only_documented_waiver
+decision_date: "2026-08-24"
+decision_authority: student_project_owner
+supervisor_approval_claimed: false
+reason: insufficient_time_and_no_available_delegate
+scope:
+  window_manual_qa: waived
+  interaction_manual_qa: waived
+  internal_training: allowed_under_waiver
+claims:
+  human_verified_data: false
+  human_verified_interruptions: false
+  strict_thesis_data_coverage: false
+preservation:
+  qa_sheets: true
+  reviewer_guides: true
+  playback_helper: true
+  future_review_supported: true
+""",
+        encoding="utf-8",
+    )
+    waiver = load_qa_waiver(waiver_path)
+    claims = {
+        "human_verified_data": False,
+        "human_verified_interruptions": False,
+        "strict_thesis_data_coverage": False,
+    }
+    (results / "conversation_audit.json").write_text(
+        json.dumps(
+            {
+                "thesis_coverage_ok": False,
+                "training_ready_under_qa_waiver": True,
+                "qa_policy": waiver,
+                "claims": claims,
+                "pairs": 10,
+                "hours": 100.0,
+            }
+        ),
+        encoding="utf-8",
+    )
+    (results / "moshi_export_report.json").write_text(
+        json.dumps(
+            {
+                "final_training_ready": False,
+                "training_ready_under_qa_waiver": True,
+                "requirements": {"manual_verification": False},
+                "waiver_requirements": {"automatic_coverage": True},
+                "qa_policy": waiver,
+                "claims": claims,
+                "exported_pairs": 10,
+                "exported_hours": 100.0,
+            }
+        ),
+        encoding="utf-8",
+    )
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    for name in ("MANUAL_QA_FA.md", "INTERRUPTION_QA_FA.md"):
+        (docs / name).write_text("preserved\n", encoding="utf-8")
+    (tmp_path / "scripts" / "review_interaction_candidate.py").write_text(
+        "# preserved helper\n", encoding="utf-8"
+    )
+
+    waiver_report = gpu_preflight()
+
+    assert waiver_report["qa_waiver"]["selected_for_training"] is True
+    assert waiver_report["training_data_policy"] == "automatic_only_documented_waiver"
+    assert waiver_report["training_data_ready_under_qa_waiver"] is True
+    assert waiver_report["training_data_ready"] is True
+    assert waiver_report["strict_training_data_ready"] is False
+    assert waiver_report["adaptation_run_ready"] is True

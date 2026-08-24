@@ -13,6 +13,13 @@ Every dataset entering training or evaluation must have one row in this register
 
 Authorization evidence is summarized in `docs/SUPERVISOR_DECISIONS.md` and machine-checked for the final plan in `results/conversation_source_authorization_report_combined.json`; neither record asserts an open source-data license.
 
+Conversation listening QA is deliberately waived by the student for the active
+limited run because it cannot be completed or delegated within the schedule;
+this is separate from the supervisor-approved data-use basis. Every resulting
+pair must carry the exact waiver hash, all interaction candidates remain
+automatic pseudo-labels, and no human-verification or strict-coverage claim is
+permitted. See `docs/QA_WAIVER.md`.
+
 ## Required per-source fields
 
 - immutable source ID and acquisition date;
@@ -44,6 +51,12 @@ Authorization evidence is summarized in `docs/SUPERVISOR_DECISIONS.md` and machi
 .venv/bin/python -m thesis_s2s.cli audit-conversations
 .venv/bin/python -m thesis_s2s.cli release-snapshot
 ```
+
+For the limited path, pass the same
+`--qa-waiver configs/conversation_qa_waiver.yaml` to pair building,
+`audit-conversations`, and `export-moshi-data`. Omitting the flag selects the
+strict path; supplying a missing, changed, invalid, or mismatched waiver fails
+closed.
 
 `audit-corpus` validates the current acoustic manifest. `audit-conversations` is the binding supervision audit for natural response pairs. Neither replaces legal review or human listening.
 

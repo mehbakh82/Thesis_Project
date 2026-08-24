@@ -12,6 +12,7 @@ from pathlib import Path
 
 from thesis_s2s import SAMPLE_RATE
 from thesis_s2s.audio import read_wav, write_wav
+from thesis_s2s.data.qa_policy import load_qa_waiver, row_matches_waiver
 from thesis_s2s.data.rights import rights_record_verified, training_use_authorized
 from thesis_s2s.metrics import write_json
 
@@ -586,6 +587,7 @@ def build_conversation_manifest(
     *,
     max_hours: float = 200.0,
     max_response_gap_s: float = 3.0,
+    qa_waiver_path: Path | None = None,
 ) -> dict:
     """Extract non-overlapping user/response pairs from full diarized recordings.
 
@@ -598,6 +600,7 @@ def build_conversation_manifest(
     diarized_jsonl = Path(diarized_jsonl)
     out_jsonl = Path(out_jsonl)
     clips_dir = Path(clips_dir)
+    qa_waiver = load_qa_waiver(qa_waiver_path)
     source_rows = [
         json.loads(line)
         for line in diarized_jsonl.read_text(encoding="utf-8").splitlines()
@@ -649,7 +652,7 @@ def build_conversation_manifest(
                 continue
 
             candidate = _automatic_interaction_candidate(row, user, assistant)
-            review = _verified_interaction_review(row, candidate)
+            review = None if qa_waiver is not None else _verified_interaction_review(row, candidate)
             user_start, user_end = user.start, user.end
             response_start, response_end = assistant.start, assistant.end
             label, overlap = _interaction_label(
@@ -747,7 +750,12 @@ def build_conversation_manifest(
                     "annotation_source": str(
                         row.get("annotation_source") or "automatic_diarization_heuristic"
                     ),
-                    "human_verified": bool(row.get("human_verified", False)),
+                    "human_verified": (
+                        False if qa_waiver is not None else bool(row.get("human_verified", False))
+                    ),
+                    "manual_qa_waived": qa_waiver is not None,
+                    "qa_policy": (qa_waiver["policy"] if qa_waiver is not None else "strict"),
+                    "qa_waiver_sha256": (qa_waiver["sha256"] if qa_waiver is not None else None),
                     "noise_condition": str(
                         row.get("noise_condition") or row.get("room") or "unspecified"
                     ),
@@ -769,9 +777,13 @@ def build_conversation_manifest(
         "automatic_interaction_candidate_counts": dict(automatic_candidate_counts),
         "human_verified_interaction_counts": dict(verified_interaction_counts),
         "skipped": dict(skipped),
+        "qa_policy": qa_waiver or {"policy": "strict", "valid": True},
         "evidence_scope": (
-            "natural human-human response pairs; interruption/backchannel claims require "
-            "pair-level human verification"
+            "automatic-only natural response pairs under a documented QA waiver; no "
+            "human-verification or verified-interruption claim"
+            if qa_waiver is not None
+            else "natural human-human response pairs; interruption/backchannel claims "
+            "require pair-level human verification"
         ),
     }
 
@@ -815,8 +827,13 @@ def export_llama_omni2_questions(manifest: Path, out_json: Path) -> dict:
 
 
 def audit_conversation_manifest(
-    manifest: Path, out_json: Path | None = None, *, check_files: bool = True
+    manifest: Path,
+    out_json: Path | None = None,
+    *,
+    check_files: bool = True,
+    qa_waiver_path: Path | None = None,
 ) -> dict:
+    qa_waiver = load_qa_waiver(qa_waiver_path)
     rows = [
         json.loads(line)
         for line in Path(manifest).read_text(encoding="utf-8").splitlines()
@@ -899,6 +916,28 @@ def audit_conversation_manifest(
         "manual_verification_sample_present": verified > 0,
         "files_present": missing_files == 0 if check_files else None,
     }
+    automatic_requirements = {
+        key: value
+        for key, value in requirements.items()
+        if key
+        not in {
+            "interruptions_present",
+            "interaction_verification_sample_present",
+            "manual_verification_sample_present",
+        }
+    }
+    waiver_requirements = {
+        **automatic_requirements,
+        "documented_qa_waiver_valid": qa_waiver is not None,
+        "all_pairs_declare_same_waiver": bool(rows)
+        and qa_waiver is not None
+        and all(row_matches_waiver(row, qa_waiver) for row in rows),
+        "automatic_interaction_candidates_present": automatic_interaction_candidates > 0,
+        "human_verified_claims_disabled": qa_waiver is not None,
+    }
+    training_ready_under_qa_waiver = qa_waiver is not None and all(
+        value is True for value in waiver_requirements.values()
+    )
     report = {
         "manifest": str(manifest),
         "pairs": len(rows),
@@ -908,6 +947,8 @@ def audit_conversation_manifest(
         "label_counts": dict(labels),
         "human_verified_interaction_label_counts": dict(verified_interaction_labels),
         "automatic_interaction_candidates": automatic_interaction_candidates,
+        "manifest_sha256": _sha256_path(Path(manifest)),
+        "qa_waiver_sha256": (qa_waiver["sha256"] if qa_waiver is not None else None),
         "overlap_rows": overlap_rows,
         "noise_condition_rows": noise_rows,
         "session_group_split_leaks": split_leaks,
@@ -918,8 +959,21 @@ def audit_conversation_manifest(
         "missing_files": missing_files if check_files else None,
         "requirements": requirements,
         "thesis_coverage_ok": all(value is True for value in requirements.values()),
+        "qa_policy": qa_waiver or {"policy": "strict", "valid": True},
+        "waiver_requirements": waiver_requirements,
+        "training_ready_under_qa_waiver": training_ready_under_qa_waiver,
+        "claims": {
+            "human_verified_data": verified > 0,
+            "human_verified_interruptions": verified_interaction_labels["interrupt"] > 0,
+            "strict_thesis_data_coverage": all(value is True for value in requirements.values()),
+        },
         "warning": (
-            "Automatic diarization/overlap candidates are pseudo-labels. The "
+            "Manual QA was deliberately waived under a student time-constraint "
+            "decision. Automatic labels remain pseudo-labels; this report permits "
+            "limited internal training but does not claim strict thesis data coverage "
+            "or human-verified interruptions."
+            if qa_waiver is not None
+            else "Automatic diarization/overlap candidates are pseudo-labels. The "
             "interruptions_present gate counts only pair-level human-verified labels."
         ),
     }

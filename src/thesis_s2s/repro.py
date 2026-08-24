@@ -13,6 +13,7 @@ from importlib import metadata
 from pathlib import Path
 
 from thesis_s2s.config import load_yaml, project_root
+from thesis_s2s.data.qa_policy import load_qa_waiver
 from thesis_s2s.metrics import gpu_inventory, write_json
 
 SHA256_RE = re.compile(r"^[0-9a-f]{40}$")
@@ -164,6 +165,7 @@ def _conversation_status(root: Path) -> dict:
     status: dict[str, object] = {
         "present": final_path.is_file(),
         "thesis_coverage_ok": False,
+        "training_ready_under_qa_waiver": False,
         "path": str(final_path),
         "staging_audit_path": str(staging_path),
         "yield_estimate_path": str(yield_path),
@@ -174,8 +176,12 @@ def _conversation_status(root: Path) -> dict:
             status.update(
                 {
                     "thesis_coverage_ok": report.get("thesis_coverage_ok") is True,
+                    "training_ready_under_qa_waiver": report.get("training_ready_under_qa_waiver")
+                    is True,
+                    "qa_policy": report.get("qa_policy"),
                     "pairs": report.get("pairs"),
                     "hours": report.get("hours"),
+                    "claims": report.get("claims") or {},
                 }
             )
         except json.JSONDecodeError as exc:
@@ -281,7 +287,9 @@ def _qa_sheet_status(path: Path, *, interaction: bool) -> dict:
             label = str(row.get("corrected_label") or "").strip().lower()
             complete = bool(reviewer) and (
                 decision == "fail"
-                or (decision == "pass" and checks_supplied and label in {"interrupt", "backchannel"})
+                or (
+                    decision == "pass" and checks_supplied and label in {"interrupt", "backchannel"}
+                )
             )
             if (
                 complete
@@ -294,8 +302,10 @@ def _qa_sheet_status(path: Path, *, interaction: bool) -> dict:
             ):
                 passing_interruptions += 1
         else:
-            complete = bool(reviewer) and decision in {"pass", "fail"} and (
-                decision == "fail" or checks_supplied
+            complete = (
+                bool(reviewer)
+                and decision in {"pass", "fail"}
+                and (decision == "fail" or checks_supplied)
             )
         completed += int(complete)
 
@@ -306,9 +316,7 @@ def _qa_sheet_status(path: Path, *, interaction: bool) -> dict:
             "pending_or_invalid_rows": len(rows) - completed,
             "duplicate_ids": duplicate_ids,
             "status_counts": status_counts,
-            "complete": bool(rows)
-            and completed == len(rows)
-            and duplicate_ids == 0,
+            "complete": bool(rows) and completed == len(rows) and duplicate_ids == 0,
         }
     )
     if interaction:
@@ -454,6 +462,19 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
     physical_eligible = bool(gpu.get("official_size"))
     upstream = verify_upstream_lock(checkouts_root=root / "third_party" / "checkouts")
     conversation = _conversation_status(root)
+    qa_waiver_path = root / "configs" / "conversation_qa_waiver.yaml"
+    qa_waiver: dict | None = None
+    qa_waiver_status: dict[str, object] = {
+        "path": str(qa_waiver_path),
+        "present": qa_waiver_path.is_file(),
+        "valid": False,
+    }
+    if qa_waiver_path.is_file():
+        try:
+            qa_waiver = load_qa_waiver(qa_waiver_path)
+            qa_waiver_status.update(qa_waiver or {})
+        except (OSError, TypeError, ValueError) as exc:
+            qa_waiver_status["error"] = str(exc)[:200]
     training_config = load_yaml(root / "configs" / "moshi_h100.yaml")
     locked_upstreams = load_upstream_lock()["upstreams"]
     moshi_entry = next(
@@ -532,21 +553,15 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
             and smoke_payload.get("wiring_gate_passes") is True
             and smoke_payload.get("scientific_evidence") is False
             and smoke_hashes_current,
-            "status": smoke_payload.get("status")
-            if isinstance(smoke_payload, dict)
-            else None,
+            "status": smoke_payload.get("status") if isinstance(smoke_payload, dict) else None,
             "wiring_gate_passes": smoke_payload.get("wiring_gate_passes")
             if isinstance(smoke_payload, dict)
             else None,
             "scientific_evidence": smoke_payload.get("scientific_evidence")
             if isinstance(smoke_payload, dict)
             else None,
-            "hardware": smoke_payload.get("hardware")
-            if isinstance(smoke_payload, dict)
-            else None,
-            "launcher": smoke_payload.get("launcher")
-            if isinstance(smoke_payload, dict)
-            else None,
+            "hardware": smoke_payload.get("hardware") if isinstance(smoke_payload, dict) else None,
+            "launcher": smoke_payload.get("launcher") if isinstance(smoke_payload, dict) else None,
             "recorded_hashes_match_current_inputs": smoke_hashes_current,
         }
     )
@@ -574,6 +589,9 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
     export_requirements = (
         export_payload.get("requirements") if isinstance(export_payload, dict) else {}
     ) or {}
+    export_waiver_requirements = (
+        export_payload.get("waiver_requirements") if isinstance(export_payload, dict) else {}
+    ) or {}
     export.update(
         {
             "valid": isinstance(export_payload, dict)
@@ -589,7 +607,19 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
             "exported_hours": export_payload.get("exported_hours")
             if isinstance(export_payload, dict)
             else None,
+            "valid_under_qa_waiver": isinstance(export_payload, dict)
+            and export_payload.get("training_ready_under_qa_waiver") is True
+            and bool(export_waiver_requirements)
+            and all(value is True for value in export_waiver_requirements.values()),
+            "training_ready_under_qa_waiver": export_payload.get("training_ready_under_qa_waiver")
+            if isinstance(export_payload, dict)
+            else None,
+            "qa_policy": export_payload.get("qa_policy")
+            if isinstance(export_payload, dict)
+            else None,
             "requirements": export_requirements,
+            "waiver_requirements": export_waiver_requirements,
+            "claims": export_payload.get("claims") if isinstance(export_payload, dict) else {},
         }
     )
 
@@ -597,9 +627,7 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
     devices = nvidia_smi.get("devices") or []
     current_device = devices[0] if devices else {}
     free_memory_mib = current_device.get("memory_free_mib")
-    profile_probe = _json_report(
-        root / "results" / "hardware" / "moshi_h100_profile_probe.json"
-    )
+    profile_probe = _json_report(root / "results" / "hardware" / "moshi_h100_profile_probe.json")
     profile_payload = profile_probe.pop("report", None)
     profile_hardware = (
         profile_payload.get("hardware") if isinstance(profile_payload, dict) else {}
@@ -646,9 +674,7 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
     profile_probe.update(
         {
             "valid": profile_valid,
-            "status": profile_payload.get("status")
-            if isinstance(profile_payload, dict)
-            else None,
+            "status": profile_payload.get("status") if isinstance(profile_payload, dict) else None,
             "peak_allocated_gb": profile_peak_gb,
             "recorded_hashes_match_current_inputs": profile_hashes_current,
         }
@@ -679,7 +705,7 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
         "isolated_moshi_environment_valid": environment["valid"],
         "one_step_official_wiring_smoke_passes": smoke["valid"],
     }
-    data_gates = {
+    strict_data_gates = {
         "window_qa_sheet_complete": window_sheet["complete"],
         "window_qa_applied_fail_closed": window_application["valid"],
         "interaction_qa_sheet_complete": interaction_sheet["complete"],
@@ -687,16 +713,73 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
         "conversational_data_audit_passes": conversation["thesis_coverage_ok"],
         "moshi_export_final_training_ready": export["valid"],
     }
+    conversation_policy = conversation.get("qa_policy") or {}
+    export_policy = export.get("qa_policy") or {}
+    conversation_claims = conversation.get("claims") or {}
+    export_claims = export.get("claims") or {}
+    waiver_hash = qa_waiver.get("sha256") if qa_waiver is not None else None
+    conversation_uses_current_waiver = isinstance(conversation_policy, dict) and (
+        conversation_policy.get("sha256") == waiver_hash
+    )
+    export_uses_current_waiver = isinstance(export_policy, dict) and (
+        export_policy.get("sha256") == waiver_hash
+    )
+    waiver_selected = qa_waiver is not None and (
+        conversation_uses_current_waiver or export_uses_current_waiver
+    )
+    qa_waiver_status["selected_for_training"] = waiver_selected
+    waiver_assets_preserved = all(
+        path.is_file()
+        for path in (
+            root / "data" / "processed" / "manifests" / "conversation_manual_qa.csv",
+            root / "data" / "processed" / "manifests" / "conversation_interruption_qa.csv",
+            root / "docs" / "MANUAL_QA_FA.md",
+            root / "docs" / "INTERRUPTION_QA_FA.md",
+            root / "scripts" / "review_interaction_candidate.py",
+        )
+    )
+    waiver_data_gates = {
+        "documented_qa_waiver_valid": qa_waiver is not None,
+        "best_practice_qa_assets_preserved": waiver_assets_preserved,
+        "conversation_audit_ready_under_qa_waiver": conversation.get(
+            "training_ready_under_qa_waiver"
+        )
+        is True,
+        "conversation_audit_uses_current_waiver": conversation_uses_current_waiver,
+        "moshi_export_ready_under_qa_waiver": export.get("valid_under_qa_waiver") is True,
+        "moshi_export_uses_current_waiver": export_uses_current_waiver,
+        "human_verification_claims_disabled": qa_waiver is not None
+        and all(
+            claims.get(key) is False
+            for claims in (conversation_claims, export_claims)
+            for key in (
+                "human_verified_data",
+                "human_verified_interruptions",
+                "strict_thesis_data_coverage",
+            )
+        ),
+    }
+    training_data_policy = (
+        qa_waiver["policy"] if waiver_selected and qa_waiver is not None else "strict"
+    )
+    data_gates = waiver_data_gates if waiver_selected else strict_data_gates
     training_gates = {**hardware_gates, **infrastructure_gates, **data_gates}
+    strict_training_gates = {
+        **hardware_gates,
+        **infrastructure_gates,
+        **strict_data_gates,
+    }
     evaluation_gates = {
         "physical_gpu_12_to_24_gb": physical_eligible,
         "cuda_available": torch_info.get("cuda_available") is True,
     }
     failed_adaptation_gates = [name for name, passed in training_gates.items() if not passed]
+    failed_strict_data_gates = [name for name, passed in strict_data_gates.items() if not passed]
     adaptation_run_ready = all(training_gates.values())
+    strict_adaptation_run_ready = all(strict_training_gates.values())
     adaptation_launch_safe_now = adaptation_run_ready and current_headroom_sufficient
     report = {
-        "schema_version": 2,
+        "schema_version": 3,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "gpu": gpu,
         "nvidia_smi": nvidia_smi,
@@ -710,6 +793,7 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
             "interaction_sheet": interaction_sheet,
             "interaction_application": interaction_application,
         },
+        "qa_waiver": qa_waiver_status,
         "moshi_environment": environment,
         "moshi_wiring_smoke": smoke,
         "moshi_export": export,
@@ -735,16 +819,24 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
         },
         "hardware_gates": hardware_gates,
         "infrastructure_gates": infrastructure_gates,
+        "training_data_policy": training_data_policy,
+        "strict_data_gates": strict_data_gates,
+        "waiver_data_gates": waiver_data_gates,
         "data_gates": data_gates,
         "training_gates": training_gates,
         "evaluation_gates": evaluation_gates,
+        "strict_training_gates": strict_training_gates,
         "training_hardware_ready": all(hardware_gates.values()),
         "trainer_stack_ready": all(infrastructure_gates.values()),
         "training_data_ready": all(data_gates.values()),
+        "strict_training_data_ready": all(strict_data_gates.values()),
+        "training_data_ready_under_qa_waiver": waiver_selected and all(waiver_data_gates.values()),
         "evaluation_hardware_ready": all(evaluation_gates.values()),
         "adaptation_run_ready": adaptation_run_ready,
+        "strict_adaptation_run_ready": strict_adaptation_run_ready,
         "adaptation_launch_safe_now": adaptation_launch_safe_now,
         "failed_adaptation_gates": failed_adaptation_gates,
+        "failed_strict_data_gates": failed_strict_data_gates,
         "adaptation_status": (
             "ready_to_launch"
             if adaptation_launch_safe_now
@@ -757,7 +849,10 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
             "for the final target-hardware fit and live-latency evidence. Moshi-Finetune is "
             "the pinned genuine response-audio trainer. Supervisor-approved internal "
             "training is recorded separately from raw-data redistribution, which remains "
-            "disabled."
+            "disabled. The student-authorized QA waiver changes only limited internal "
+            "training readiness; strict thesis readiness and all human-verification "
+            "claims remain independently visible and false until the preserved reviews "
+            "are actually completed."
         ),
     }
     if out_json is not None:

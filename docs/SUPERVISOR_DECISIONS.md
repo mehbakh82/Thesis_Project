@@ -24,6 +24,16 @@ The machine-readable source decision form references this section. If the
 supervisor later narrows or expands the scope, update both this record and the
 CSV before rebuilding any training export.
 
+## Student methodology waiver — not a supervisor decision
+
+On 2026-08-24 the student chose the documented automatic-only conversation-QA
+waiver because the prepared reviews could not be completed or delegated within
+the project schedule. This section records separation of authority only: no
+supervisor approval of waiving QA is claimed. The supervisor-approved internal
+data-use scope above remains unchanged. The machine-readable policy, prohibited
+claims, preserved QA assets, and thesis disclosure are in
+`configs/conversation_qa_waiver.yaml` and `docs/QA_WAIVER.md`.
+
 ## Still awaiting explicit supervisor decisions
 
 - Final direct speech-to-speech base model/trainer choice.
