@@ -214,8 +214,10 @@ def mean_confidence_interval(
         return None
     rng = np.random.default_rng(seed)
     samples = rng.choice(array, size=(max(1, bootstrap_samples), len(array)), replace=True)
-    interval = np.percentile(samples.mean(axis=1), [2.5, 97.5])
-    return [round(float(interval[0]), 4), round(float(interval[1]), 4)]
+    means = samples.mean(axis=1)
+    lower = float(np.percentile(means, 2.5))
+    upper = float(np.percentile(means, 97.5))
+    return [round(lower, 4), round(upper, 4)]
 
 
 def write_json(path: str | Path, payload: dict) -> None:
