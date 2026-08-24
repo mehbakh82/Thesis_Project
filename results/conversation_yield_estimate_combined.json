@@ -1,33 +1,33 @@
 {
   "source_manifest": "data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl",
-  "source_windows": 1021,
-  "estimated_pairs": 6017,
-  "estimated_pair_hours": 105.727,
+  "source_windows": 1129,
+  "estimated_pairs": 6754,
+  "estimated_pair_hours": 123.796,
   "hours_100_to_200": true,
   "label_counts": {
-    "none": 1230,
-    "overlap_unattributed": 4787
+    "none": 1343,
+    "overlap_unattributed": 5411
   },
   "automatic_interaction_candidate_counts": {
-    "interrupt": 669,
-    "backchannel": 43
+    "interrupt": 717,
+    "backchannel": 53
   },
-  "automatic_interaction_candidates": 712,
-  "automatic_direct_interruption_candidates": 669,
-  "automatic_backchannel_candidates": 43,
+  "automatic_interaction_candidates": 770,
+  "automatic_direct_interruption_candidates": 717,
+  "automatic_backchannel_candidates": 53,
   "human_verified_interaction_counts": {},
   "human_verified_direct_interruption_pairs": 0,
   "direct_interruption_pairs": 0,
-  "unattributed_overlap_pairs": 4787,
+  "unattributed_overlap_pairs": 5411,
   "channel_hours": {
     "Digiato": 7.945,
     "Mehran Rowshan Persian": 17.996,
-    "Tabaghe16": 74.714,
+    "Tabaghe16": 92.782,
     "Zoomit": 5.072
   },
   "skipped": {
     "not_verified_multi_speaker": 234,
-    "not_adjacent_response": 3038
+    "not_adjacent_response": 3279
   },
   "candidate_rule": {
     "method": "caption_speaker_plus_raw_boundary_v1",

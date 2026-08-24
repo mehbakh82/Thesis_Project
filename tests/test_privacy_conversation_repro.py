@@ -517,6 +517,18 @@ def test_h100_training_readiness_is_independent_of_target_gpu(tmp_path: Path, mo
         ),
         encoding="utf-8",
     )
+    (results / "moshi_export_audit.json").write_text(
+        json.dumps(
+            {
+                "audit_passes": True,
+                "training_ready_under_qa_waiver": True,
+                "verified_export_pairs": 10,
+                "verified_export_hours": 100.0,
+                "requirements": {"files": True, "channels": True},
+            }
+        ),
+        encoding="utf-8",
+    )
     fake_cuda = SimpleNamespace(is_available=lambda: True, is_bf16_supported=lambda: True)
     fake_torch = SimpleNamespace(
         __version__="2.6.0",

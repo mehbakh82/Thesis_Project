@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "source_pairs": 6754,
+  "verified_export_pairs": 6754,
+  "verified_export_hours": 108.584,
+  "split_counts": {
+    "train": 6419,
+    "val": 131,
+    "test": 204
+  },
+  "failure_counts": {},
+  "missing_pair_ids": [],
+  "extra_pair_ids": [],
+  "group_split_leaks": 0,
+  "sample": {
+    "path": "data/processed/manifests/moshi_export_listening_sample.csv",
+    "rows": 24,
+    "human_review_complete": false,
+    "assistant_resynthesis": {
+      "applicable": true,
+      "rows": 24,
+      "matches": 24,
+      "failures": [],
+      "passes": true
+    },
+    "coverage": {
+      "split": {
+        "train": 20,
+        "test": 3,
+        "val": 1
+      },
+      "channel": {
+        "Tabaghe16": 12,
+        "Mehran Rowshan Persian": 4,
+        "Digiato": 5,
+        "Zoomit": 3
+      },
+      "noise_condition": {
+        "background-clean": 16,
+        "background-moderate": 6,
+        "background-noisy": 1,
+        "unestimated": 1
+      },
+      "interaction_label": {
+        "overlap_unattributed": 17,
+        "none": 7
+      },
+      "overlap": {
+        "yes": 17,
+        "no": 7
+      },
+      "response_length": {
+        "long": 13,
+        "medium": 7,
+        "short": 4
+      }
+    }
+  },
+  "requirements": {
+    "source_manifest_hash_current": true,
+    "all_split_manifest_hashes_current": true,
+    "all_source_pairs_exported_once": true,
+    "all_file_header_metadata_and_hash_checks_pass": true,
+    "session_group_splits_isolated": true,
+    "train_validation_test_present": true,
+    "reported_pair_count_matches": true,
+    "reported_hours_match": true,
+    "channel_order_declared_assistant_0_user_1": true,
+    "actual_channel_order_and_user_audio_match": true,
+    "assistant_resynthesis_sample_matches": true,
+    "unreviewed_stratified_sample_prepared": true
+  },
+  "audit_passes": true,
+  "training_ready_under_qa_waiver": true,
+  "strict_thesis_data_coverage": false,
+  "note": "The sample is prepared but deliberately unreviewed. Automated integrity checks do not replace listening or establish human-verification claims."
+}

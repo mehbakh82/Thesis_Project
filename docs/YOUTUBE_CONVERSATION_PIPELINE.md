@@ -185,8 +185,8 @@ If verified primary yield is too low, add a bounded reserve batch:
   --in-jsonl data/processed/manifests/conversation_reserve_episode_windows_diarized.jsonl \
   --out-jsonl data/processed/manifests/conversation_reserve_episode_windows_noise_labeled.jsonl
 
-# Use the minimum whole-episode reserve prefix needed for a 105 h pair-yield
-# safety target while keeping selected candidate hours at or below 200.
+# Use the minimum whole-episode reserve prefix needed for a 123.5 h source-pair
+# safety target while keeping selected candidate hours at or below 220.
 .venv/bin/python -m thesis_s2s.cli select-conversation-reserve
 
 .venv/bin/python -m thesis_s2s.cli merge-conversation-windows \
@@ -198,7 +198,7 @@ If verified primary yield is too low, add a bounded reserve batch:
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
   --manifest data/processed/manifests/conversation_episode_windows_noise_labeled_combined.jsonl \
   --out results/diarized_episode_audit_combined.json \
-  --min-hours 100 --max-hours 240
+  --min-hours 100 --max-hours 250
 ```
 
 Keep primary and reserve preparation/diarization manifests separate. Alternate
@@ -210,17 +210,19 @@ Measured final state:
 
 - primary: 287 episodes, 947 windows, 201.576 staging h, 164.247 automatic multi-speaker h, 199.288 aligned h, zero diarization failures;
 - audited reserve pool: 22 episodes, 182 windows, 43.156 staging h, 42.907 automatic multi-speaker h, zero failures;
-- selected reserve: 9 episodes, 74 windows, 16.503 candidate h and 10.676 estimated pair h;
-- final plan: 196.546 candidate h, 296 episodes, 1,021 windows, 181.824 automatic multi-speaker h, and 6,017 estimated response pairs / 105.727 pair h;
-- authorization: all 1,021 windows approved for internal thesis training, zero source-license-verified hours, redistribution disabled;
-- noise evidence: primary 639 clean / 243 moderate / 59 noisy / 6 unestimated windows; the selected reserve inherits deterministic labels from its fully estimated reserve pool;
-- interaction evidence: 4,787 pairs remain conservatively `overlap_unattributed`; raw speaker boundaries expose 712 stricter automatic candidates (669 interruption-like / 43 backchannel-like) across all four channels, with zero human-verified direct interruptions until listening review.
+- selected reserve: all 22 prepared episodes / 182 windows, 39.903 candidate h and 28.744 estimated pair h;
+- final plan: 219.946 candidate h, 309 episodes, 1,129 windows, 244.733 staging h, 207.154 automatic multi-speaker h, 242.445 aligned h, and 6,754 response pairs / 123.796 source-pair h;
+- final derivative: 6,754/6,754 pairs / 108.584 measured stereo h, split 6,419/131/204, zero independent-audit failures, and 24/24 deterministic assistant re-synthesis matches;
+- authorization: all 1,129 windows approved for internal thesis training, zero source-license-verified hours, redistribution disabled;
+- noise evidence: primary 639 clean / 243 moderate / 59 noisy / 6 unestimated windows plus reserve 157 clean / 25 moderate windows;
+- interaction evidence: 5,411 pairs remain conservatively `overlap_unattributed`; raw speaker boundaries expose 770 stricter automatic candidates (717 interruption-like / 53 backchannel-like) across all four channels, with zero human-verified direct interruptions under the waiver.
 
 The 40-row window QA handoff covers five windows from every channel × automatic
 pass/reject stratum and balances clean, moderate, noisy, and unestimated
-conditions. A second deterministic sheet samples six interaction candidates per
-channel (24 rows, 168.3 seconds of excerpt audio). These are the remaining
-corpus-side human gates; neither requires new recording.
+conditions. A second deterministic sheet sampled six interaction candidates
+per channel (24 rows, 168.3 seconds of excerpt audio) from the earlier
+712-candidate pool. Both are preserved strict-path artifacts but are explicitly
+waived—not completed—for the active limited run; neither requires new recording.
 
 
 ## Storage and runtime expectations
@@ -232,7 +234,7 @@ reconstruction. The preparation command deletes only its own temporary
 per-episode downloads and is resumable.
 
 The prepared-audio audit verifies that selected caption hours remain in the
-100–200 band, reconstructed staging audio stays below a 240-hour safety cap,
+100–200 planning band, reconstructed staging audio stays below a 250-hour operational cap,
 and windows have unique IDs, preserved episode splits, ordered reference rows,
 bounded durations, valid WAV format, matching manifest/file durations, and a
 current—not stale—completion report. Only final verified multi-speaker hours

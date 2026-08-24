@@ -31,16 +31,16 @@ Problems:
 
 The original ASR ingest remains a substantial reusable result, but it is no longer presented as conversational supervision. A separate conversation pipeline now prepares, hashes, aligns, diarizes, noise-stratifies, and audits whole episodes while preserving episode-isolated splits.
 
-The final authorized staging set contains 296 episodes and 1,021 windows (219.403 h). The deterministic reserve selector keeps the training-candidate duration within the requested 100–200 h range: 196.546 h of candidate audio, 181.824 h automatically classified as multi-speaker, and 217.115 h with aligned captions. The estimator and production builder both yield 6,017 adjacent-turn pairs / 105.727 h across Digiato, Mehran Rowshan Persian, Tabaghe16, and Zoomit. The file-backed waiver audit verifies 149 sessions, 371 speaker IDs, zero missing files, zero reused spans, zero split leakage, and all 6,017 pairs authorized; strict human-QA coverage remains false. Inputs, decisions, pairs, waiver, and audit are content-hashed.
+The final authorized staging set contains 309 episodes and 1,129 windows (244.733 h). The deterministic reserve selector targets the binding final corpus measure rather than padding audio: 219.946 h of candidate audio, 207.154 h automatically classified as multi-speaker, and 242.445 h with aligned captions. The estimator and production builder both yield 6,754 adjacent-turn pairs / 123.796 source-pair h across Digiato, Mehran Rowshan Persian, Tabaghe16, and Zoomit. The file-backed waiver audit verifies 162 sessions, 407 speaker IDs, zero missing files, zero reused spans, zero split leakage, and all 6,754 pairs authorized; strict human-QA coverage remains false. Inputs, decisions, pairs, waiver, and audit are content-hashed.
 
-The project's supervisor approved internal research training on the crawled public YouTube material. The authorization report therefore admits all 1,021 windows for internal training while correctly leaving redistribution disabled; internal-use approval is not represented as an open-content license.
+The project's supervisor approved internal research training on the crawled public YouTube material. The authorization report therefore admits all 1,129 windows for internal training while correctly leaving redistribution disabled; internal-use approval is not represented as an open-content license.
 
 The remaining corpus limitations are explicit:
 
 - the 40-row, channel/outcome/noise-stratified listening sheet remains 0/40 and
   is waived—not completed—for the active limited run;
-- 4,787 estimated pairs retain the conservative `overlap_unattributed` label;
-  all 712 raw-boundary interaction candidates remain automatic pseudo-labels,
+- 5,411 pairs retain the conservative `overlap_unattributed` label;
+  all 770 raw-boundary interaction candidates remain automatic pseudo-labels,
   with zero human-verified interruption evidence under the waiver;
 - speaker diarization estimates adjacent turns; it does not prove semantic user/assistant roles or response quality;
 - YouTube media and generated training manifests remain internal-only;
@@ -58,7 +58,7 @@ Corrections:
 - checkpoints declare `runtime_ready: false`;
 - legacy/untyped checkpoints fail closed;
 - serving is unconditionally cascade-only for the legacy artifact;
-- the genuine direct path now uses the pinned official Moshi runtime and LoRA trainer, a fail-closed stereo exporter, an H100 profile, deterministic single-voice Persian assistant targets, immutable upstream metadata, and exact model-file verification. All three base blobs pass their pinned sizes and SHA-256 hashes. A real one-step H100 smoke completed the model/Mimi/data/loss/backward/optimizer path at 15.258 GB peak; it is wiring evidence only. A separate exact-shape one-step probe is defined so the light smoke cannot be misrepresented as full-profile memory evidence. The adapter remains pending until the export passes the explicitly selected strict-or-waiver policy, the post-export probe, the full training run, and held-out Persian evaluation pass.
+- the genuine direct path now uses the pinned official Moshi runtime and LoRA trainer, a fail-closed stereo exporter, a production-audit-clean pinned local client, an H100 profile, deterministic single-voice Persian assistant targets, immutable upstream metadata, and exact model-file verification. All three base blobs pass their pinned sizes and SHA-256 hashes. The waiver-bound export is complete at 6,754 pairs / 108.584 final stereo h; an independent audit verifies every artifact/channel/source interval with zero failures and reproduces 24/24 sampled assistant renders exactly. A real one-step H100 smoke completed the model/Mimi/data/loss/backward/optimizer path at 15.258 GB peak; it is wiring evidence only. The adapter remains pending on the separate safe-headroom exact-shape probe, full training run, and held-out Persian evaluation.
 
 The working system is now honestly modular: NeMo ASR → locally cached Qwen2.5-0.5B (rules if unavailable) → Piper/formant TTS.
 

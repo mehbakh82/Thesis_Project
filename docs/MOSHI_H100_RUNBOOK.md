@@ -113,7 +113,7 @@ version of the model from `main`. Recheck offline at any time with
 
 Do not train unless either the strict human-QA path or the validated documented
 waiver path passes. Automatic processing is complete: the candidate-capped
-primary + reserve plan estimates 6,017 pairs / 105.727 pair h, and all 1,021
+primary + reserve plan contains 6,754 pairs / 123.796 source-pair h, and all 1,129
 staging windows are internally authorized. The original strict data command
 sequence starts with the reviewer:
 
@@ -128,7 +128,7 @@ sequence starts with the reviewer:
   --out-jsonl data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
   --manifest data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl \
-  --min-hours 100 --max-hours 240
+  --min-hours 100 --max-hours 250
 .venv/bin/python -m thesis_s2s.cli build-conversations \
   --in-jsonl data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
@@ -172,12 +172,13 @@ size, frame count, sample rate, channels, and duration. The independent audit
 recomputes all of them and prepares a 24-row stratified but explicitly
 unreviewed listening sheet.
 
-Caption-aligned turns remain conservative: 4,787 pairs are still
-`overlap_unattributed`. The retained raw speaker boundaries now recover 712
-stricter review candidates (669 interruption-like and 43 backchannel-like) using
+Caption-aligned turns remain conservative: 5,411 pairs are still
+`overlap_unattributed`. The retained raw speaker boundaries recover 770
+stricter review candidates (717 interruption-like and 53 backchannel-like) using
 a 50% speaker-turn match, a 0.5 s caption-boundary tolerance, and at least 0.2 s
-of cross-speaker overlap. The 24-row, four-channel listening sheet is only 168.3
-seconds in total. Automatic candidates never pass the interruption gate. A
+of cross-speaker overlap. The preserved 24-row, four-channel listening sheet
+was sampled from the earlier 712-candidate pool and is only 168.3 seconds in
+total. Automatic candidates never pass the interruption gate. A
 complete passing row is attached to the source window, and the builder then
 uses its reviewed raw boundaries so clip/stereo timing preserves the overlap.
 If the sample has unacceptable precision, use an approved supplement or narrow
@@ -230,7 +231,7 @@ microbatches so it can coexist more safely on a shared H100. Never terminate
 unrelated GPU jobs to make room; wait for headroom or reduce `duration_sec` for
 a smoke test.
 
-After the final reviewed Moshi export exists, first run one step with the exact
+After the final strict-or-waiver Moshi export and independent audit pass, run one step with the exact
 full-training shape. Unlike the earlier five-second rank-8 smoke, this probe
 uses 20 seconds, rank 64, embedding tuning, and four microbatches. It records a
 memory certificate but is still explicitly non-scientific:
@@ -273,7 +274,7 @@ hashes every candidate, and never consults held-out or subjective output.
 
 A final run is acceptable only when:
 
-- the Moshi export report passes every gate;
+- the Moshi export report and independent audit pass every selected-policy gate;
 - training and validation losses are finite and periodic adapters are runtime-loadable;
 - changing assistant speech targets changes the audio-token loss;
 - the adapter produces intelligible Persian on held-out sessions;
@@ -281,15 +282,16 @@ A final run is acceptable only when:
 
 ## Development inference and target-GPU evaluation
 
-Build the browser client from the same pinned Moshi checkout. `npm ci` uses its
-committed lockfile; do not omit `--static`, because the server otherwise
+Build the browser client from the same pinned Moshi checkout with the
+hash-verified project security overlay. The overlay updates only the client
+dependency lock (React Router and `ws` plus compatible build-tool fixes); it
+does not modify the pinned Moshi source. The build uses a digest-pinned Node 20
+container, fails unless the production dependency audit is clean, and hashes
+the static bundle. Do not omit `--static`, because the server otherwise
 retrieves a separate moving web bundle.
 
 ```bash
-cd third_party/checkouts/moshi/client
-npm ci
-npm run build
-cd ../../../..
+.venv/bin/python scripts/build_moshi_client.py
 .venv-moshi/bin/python -m moshi.server \
   --hf-repo kyutai/moshika-pytorch-bf16 \
   --moshi-weight hf_cache/pinned/moshika-pytorch-bf16-a49141e/model.safetensors \
@@ -297,7 +299,7 @@ cd ../../../..
   --tokenizer hf_cache/pinned/moshika-pytorch-bf16-a49141e/tokenizer_spm_32k_3.model \
   --lora-weight checkpoints/moshi_fa/checkpoints/checkpoint_008000/consolidated/lora.safetensors \
   --config-path checkpoints/moshi_fa/checkpoints/checkpoint_008000/consolidated/config.json \
-  --static third_party/checkouts/moshi/client/dist
+  --static data/processed/moshi_client_build/dist
 ```
 
 The explicit local model paths prevent the runtime from resolving its default

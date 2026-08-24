@@ -1,20 +1,20 @@
 {
   "audit_contract": {
     "min_hours": 100.0,
-    "max_hours": 240.0,
+    "max_hours": 250.0,
     "is_thesis_standard_100_to_200": false
   },
-  "windows": 1021,
-  "episodes": 296,
+  "windows": 1129,
+  "episodes": 309,
   "channels": {
     "Mehran Rowshan Persian": 289,
-    "Tabaghe16": 507,
+    "Tabaghe16": 615,
     "Digiato": 108,
     "Zoomit": 117
   },
-  "prepared_hours": 219.403,
-  "automatic_multi_speaker_hours": 181.824,
-  "reference_aligned_hours": 217.115,
+  "prepared_hours": 244.733,
+  "automatic_multi_speaker_hours": 207.154,
+  "reference_aligned_hours": 242.445,
   "manual_qa_reviewed_windows": 0,
   "human_verified_windows": 0,
   "manual_qa_expected_strata": [

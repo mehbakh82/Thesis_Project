@@ -26,6 +26,8 @@ SNAPSHOT_FILES = (
     "CITATION.cff",
     "requirements-moshi.lock",
     "third_party/UPSTREAMS.lock.json",
+    "third_party/overlays/moshi-client/package.json",
+    "third_party/overlays/moshi-client/package-lock.json",
     "results/corpus_audit.json",
     "results/prepared_episode_audit.json",
     "results/prepared_reserve_tabaghe16_audit.json",
@@ -35,6 +37,7 @@ SNAPSHOT_FILES = (
     "results/hardware/moshi_environment.json",
     "results/hardware/moshi_h100_smoke.json",
     "results/hardware/moshi_h100_profile_probe.json",
+    "results/hardware/moshi_client_build.json",
     "results/conversation_rights_report.json",
     "results/conversation_source_authorization_report_combined.json",
     "results/conversation_noise_report.json",
@@ -97,6 +100,58 @@ def sha256_file(path: Path) -> str:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def _verify_tree_manifest(
+    root: Path, rows: object, expected_tree_sha256: object
+) -> tuple[bool, str | None]:
+    """Verify an attested tree exactly, including absence of undeclared files."""
+
+    if (
+        not root.is_dir()
+        or not isinstance(rows, list)
+        or not rows
+        or not isinstance(expected_tree_sha256, str)
+    ):
+        return False, None
+    expected: dict[str, dict] = {}
+    for row in rows:
+        if not isinstance(row, dict) or not isinstance(row.get("path"), str):
+            return False, None
+        relative_text = row["path"]
+        relative = Path(relative_text)
+        if (
+            not relative_text
+            or relative.is_absolute()
+            or ".." in relative.parts
+            or relative.as_posix() != relative_text
+            or relative_text in expected
+            or not isinstance(row.get("bytes"), int)
+            or not isinstance(row.get("sha256"), str)
+        ):
+            return False, None
+        expected[relative_text] = row
+
+    entries = list(root.rglob("*"))
+    if any(path.is_symlink() for path in entries):
+        return False, None
+    actual_files = sorted(path for path in entries if path.is_file())
+    actual_names = [path.relative_to(root).as_posix() for path in actual_files]
+    if actual_names != sorted(expected):
+        return False, None
+
+    digest = hashlib.sha256()
+    for path, relative_text in zip(actual_files, actual_names, strict=True):
+        row = expected[relative_text]
+        file_hash = sha256_file(path)
+        if path.stat().st_size != row["bytes"] or file_hash != row["sha256"]:
+            return False, None
+        digest.update(relative_text.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(file_hash.encode("ascii"))
+        digest.update(b"\n")
+    actual_tree_sha256 = digest.hexdigest()
+    return actual_tree_sha256 == expected_tree_sha256, actual_tree_sha256
 
 
 def load_upstream_lock(path: Path | None = None) -> dict:
@@ -625,6 +680,102 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
             "claims": export_payload.get("claims") if isinstance(export_payload, dict) else {},
         }
     )
+    export_audit = _json_report(root / "results" / "moshi_export_audit.json")
+    export_audit_payload = export_audit.pop("report", None)
+    export_audit_requirements = (
+        export_audit_payload.get("requirements") if isinstance(export_audit_payload, dict) else {}
+    ) or {}
+    export_audit_matches_report = (
+        isinstance(export_audit_payload, dict)
+        and isinstance(export_payload, dict)
+        and export_audit_payload.get("verified_export_pairs")
+        == export_payload.get("exported_pairs")
+        and export_audit_payload.get("verified_export_hours")
+        == export_payload.get("exported_hours")
+    )
+    export_audit_valid = (
+        isinstance(export_audit_payload, dict)
+        and export_audit_payload.get("audit_passes") is True
+        and bool(export_audit_requirements)
+        and all(value is True for value in export_audit_requirements.values())
+        and export_audit_matches_report
+    )
+    export_audit.update(
+        {
+            "valid": export_audit_valid,
+            "matches_export_report": export_audit_matches_report,
+            "verified_export_pairs": export_audit_payload.get("verified_export_pairs")
+            if isinstance(export_audit_payload, dict)
+            else None,
+            "verified_export_hours": export_audit_payload.get("verified_export_hours")
+            if isinstance(export_audit_payload, dict)
+            else None,
+            "training_ready_under_qa_waiver": export_audit_payload.get(
+                "training_ready_under_qa_waiver"
+            )
+            if isinstance(export_audit_payload, dict)
+            else None,
+            "requirements": export_audit_requirements,
+        }
+    )
+    client_build = _json_report(root / "results" / "hardware" / "moshi_client_build.json")
+    client_payload = client_build.pop("report", None)
+    client_source = (client_payload.get("source") if isinstance(client_payload, dict) else {}) or {}
+    client_dist = (client_payload.get("dist") if isinstance(client_payload, dict) else {}) or {}
+    client_security = (
+        client_payload.get("security") if isinstance(client_payload, dict) else {}
+    ) or {}
+    client_inputs = {
+        "upstream_package_sha256": (
+            root / "third_party" / "checkouts" / "moshi" / "client" / "package.json"
+        ),
+        "upstream_package_lock_sha256": (
+            root / "third_party" / "checkouts" / "moshi" / "client" / "package-lock.json"
+        ),
+        "overlay_package_sha256": (
+            root / "third_party" / "overlays" / "moshi-client" / "package.json"
+        ),
+        "overlay_package_lock_sha256": (
+            root / "third_party" / "overlays" / "moshi-client" / "package-lock.json"
+        ),
+    }
+    client_input_hashes_current = all(
+        path.is_file() and client_source.get(key) == sha256_file(path)
+        for key, path in client_inputs.items()
+    )
+    client_dist_value = client_dist.get("path")
+    client_dist_root = (root / str(client_dist_value or "")).resolve()
+    client_dist_parent = (root / "data" / "processed").resolve()
+    client_dist_path_safe = (
+        isinstance(client_dist_value, str)
+        and not Path(client_dist_value).is_absolute()
+        and client_dist_parent in client_dist_root.parents
+    )
+    client_dist_rows = client_dist.get("files") or []
+
+    client_dist_hashes_current, client_dist_tree_sha256 = _verify_tree_manifest(
+        client_dist_root,
+        client_dist_rows if client_dist_path_safe else None,
+        client_dist.get("tree_sha256"),
+    )
+    client_valid = (
+        isinstance(client_payload, dict)
+        and client_payload.get("valid") is True
+        and client_security.get("production_audit_clean") is True
+        and client_input_hashes_current
+        and client_dist_hashes_current
+    )
+    client_build.update(
+        {
+            "valid": client_valid,
+            "production_audit_clean": client_security.get("production_audit_clean"),
+            "input_hashes_match": client_input_hashes_current,
+            "dist_hashes_match": client_dist_hashes_current,
+            "dist_path_safe": client_dist_path_safe,
+            "expected_dist_tree_sha256": client_dist.get("tree_sha256"),
+            "actual_dist_tree_sha256": client_dist_tree_sha256,
+        }
+    )
 
     nvidia_smi = _nvidia_smi()
     devices = nvidia_smi.get("devices") or []
@@ -715,6 +866,7 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
         "interaction_qa_applied_with_verified_interruption": interaction_application["valid"],
         "conversational_data_audit_passes": conversation["thesis_coverage_ok"],
         "moshi_export_final_training_ready": export["valid"],
+        "moshi_export_independent_audit_passes": export_audit["valid"],
     }
     conversation_policy = conversation.get("qa_policy") or {}
     export_policy = export.get("qa_policy") or {}
@@ -750,6 +902,11 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
         is True,
         "conversation_audit_uses_current_waiver": conversation_uses_current_waiver,
         "moshi_export_ready_under_qa_waiver": export.get("valid_under_qa_waiver") is True,
+        "moshi_export_independent_audit_passes": export_audit["valid"],
+        "moshi_export_audit_ready_under_qa_waiver": export_audit.get(
+            "training_ready_under_qa_waiver"
+        )
+        is True,
         "moshi_export_uses_current_waiver": export_uses_current_waiver,
         "human_verification_claims_disabled": qa_waiver is not None
         and all(
@@ -800,6 +957,8 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
         "moshi_environment": environment,
         "moshi_wiring_smoke": smoke,
         "moshi_export": export,
+        "moshi_export_audit": export_audit,
+        "moshi_client_build": client_build,
         "scheduling": scheduling,
         "training_config": str(root / "configs" / "moshi_h100.yaml"),
         "training_base_model": (training_config.get("moshi_paths") or {}).get("hf_repo_id"),

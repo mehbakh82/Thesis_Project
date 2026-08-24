@@ -43,13 +43,13 @@ Verified now:
 - [x] Real one-step H100 wiring smoke passed model/Mimi load, LoRA init,
   tokenization, loss, backward, and optimizer: loss 4.614331, peak 15.258 GB.
 - [x] Full inventory: 775.887 caption hours / 1,442 episodes.
-- [x] Authorized staging: 296 episodes / 1,021 windows / 196.546 candidate
-  hours / 181.824 automatic multi-speaker hours / 217.115 aligned hours.
-- [x] Non-mutating estimate: 6,017 non-reused pairs / 105.727 pair hours.
-- [x] Internal thesis training is supervisor-approved for all 1,021 windows;
+- [x] Authorized staging: 309 episodes / 1,129 windows / 219.946 candidate
+  hours / 207.154 automatic multi-speaker hours / 242.445 aligned hours.
+- [x] Built corpus: 6,754 non-reused pairs / 123.796 source-pair hours.
+- [x] Internal thesis training is supervisor-approved for all 1,129 windows;
   raw-data redistribution remains prohibited.
-- [x] 712 conservative interaction candidates recovered: 669
-  interruption-like and 43 backchannel-like.
+- [x] 770 conservative interaction candidates recovered: 717
+  interruption-like and 53 backchannel-like.
 - [x] Best-practice QA sheets, Persian guides, stratified samples, and playback
   helper were prepared and are preserved unchanged.
 - [x] Student QA waiver is machine-readable, hash-bound, fail-closed, and tested;
@@ -58,15 +58,16 @@ Verified now:
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
-- [x] Ruff and mypy pass on all 47 source files; all 77 tests pass and
+- [x] Ruff and mypy pass on all 47 source files; all 80 tests pass and
   branch-aware coverage is 62% with a 60% CI floor.
 - [x] General dependencies have no known vulnerabilities; the pinned scientific
   lock has an exact, fail-closed accepted-risk baseline and mitigations.
 - [ ] Window QA: 0/40 reviewed.
 - [ ] Interaction QA: 0/24 reviewed.
-- [ ] Moshi export, full-profile probe, scientific adapter,
-  held-out model evaluation, 4090 evidence, real detector evidence, and human
-  study are pending.
+- [x] Waiver-bound Moshi export/audit: 6,754 pairs / 108.584 measured stereo
+  hours, zero machine failures, 24/24 deterministic assistant re-syntheses.
+- [ ] Full-profile probe, scientific adapter, held-out model evaluation, 4090
+  evidence, real detector evidence, and human study are pending.
 - [x] GitHub CLI authentication is persistent for `mehbakh82`; the remote is
   configured without placing credentials in the repository.
 
@@ -161,6 +162,8 @@ Owner: student for authentication; Codex can push afterward.
   rejects forbidden/oversized artifacts and private paths, scans all reachable
   revisions for secrets, audits general dependencies, and fails on scientific
   dependency-risk drift.
+- [x] GitHub dependency vulnerability alerts and automated security fixes are
+  enabled and verified through the authenticated API.
 - [ ] Enable protected/CI-gated main-branch updates. GitHub currently returns
   HTTP 403 for branch protection on this private repository under the active
   plan; changing plan or visibility requires the student.
@@ -219,14 +222,15 @@ Active waiver alternative:
   helper; do not synthesize reviewer IDs or decisions.
 - [x] Validate `configs/conversation_qa_waiver.yaml` and bind its hash to every
   output pair.
-- [x] Build 6,017 pairs / 105.727 hours from the authorized automatic manifest
+- [x] Build 6,754 pairs / 123.796 hours from the authorized automatic manifest
   with `--qa-waiver configs/conversation_qa_waiver.yaml`.
 - [x] Run `audit-conversations` with the same waiver and file checks enabled:
-  149 sessions, 371 speakers, zero missing files, zero split leaks, and zero
+  162 sessions, 407 speakers, zero missing files, zero split leaks, and zero
   reused spans.
 - [x] Require `training_ready_under_qa_waiver=true`, while requiring
   `thesis_coverage_ok=false` and all three human/strict claims false.
-- [ ] Freeze the waiver, input, output, and audit hashes used by training.
+- [x] Freeze waiver, conversation-manifest, split-manifest, WAV/metadata,
+  assistant-voice, export-report, and independent-audit hashes used by training.
 
 The following is the preserved strict path and remains incomplete:
 
@@ -271,31 +275,37 @@ not estimated, duration satisfies the supervisor-approved 100–200-hour measure
 
 Owner: Codex after section 4.
 
-- [ ] Export the primary set:
-
-For the active waiver path, append
-`--qa-waiver configs/conversation_qa_waiver.yaml` and require
-`training_ready_under_qa_waiver=true`. The strict requirements below remain
-open and must not be marked complete from the waiver result.
+- [x] Export the primary Piper set under the documented QA waiver:
 
   ```bash
   .venv/bin/python -m thesis_s2s.cli export-moshi-data \
-    --assistant-audio-mode piper
+    --assistant-audio-mode piper \
+    --qa-waiver configs/conversation_qa_waiver.yaml
   ```
 
-- [ ] Require group-isolated train/validation/test manifests, all selected pairs
-  exported, 100–200 exported hours, manual verification, complete authorization,
-  pinned assistant voice, and raw redistribution disabled.
-- [ ] Verify files, sample rate, stereo order, durations, response timing,
-  transcript association, and hashes.
-- [ ] Listen to a stratified sample across channel/split/noise/overlap/
-  interruption/response-length conditions.
-- [ ] Confirm channel 0 is assistant and channel 1 is user.
-- [ ] Keep `--assistant-audio-mode source` as a named multi-voice ablation only.
-- [ ] Require `results/moshi_export_report.json` to have
-  `final_training_ready=true` and all requirements true.
-- [ ] Re-run `gpu-preflight`; require `training_data_ready=true` and
-  `adaptation_run_ready=true`.
+- [x] Require group-isolated train/validation/test manifests (6,419 / 131 /
+  204), all 6,754 selected pairs exported, **108.584 measured stereo hours**,
+  complete authorization, pinned assistant voice, immutable hashes, and raw
+  redistribution disabled.
+- [x] Independently verify every WAV/header/metadata/hash, source-user PCM and
+  offset/silence placement, split isolation, transcript association, and actual
+  channel order; `results/moshi_export_audit.json` has zero failures.
+- [x] Re-synthesize a deterministic, stratified 24-pair assistant sample with the
+  pinned voice: 24/24 exact PCM matches. Preserve the generated unreviewed
+  listening sheet.
+- [ ] Listen to that stratified sample across channel/split/noise/overlap/
+  interaction/response-length conditions. This remains waived—not completed.
+- [x] Confirm by content, not metadata alone, that channel 0 is assistant and
+  channel 1 is user.
+- [x] Keep `--assistant-audio-mode source` as a named multi-voice ablation only.
+- [x] Require both export and independent audit
+  `training_ready_under_qa_waiver=true`; every waiver-compatible requirement
+  passes and all human-verification claims remain false.
+- [ ] Require strict `final_training_ready=true`. It is deliberately false
+  because `manual_verification_sample_present=false` under the waiver.
+- [x] Re-run `gpu-preflight`: `training_data_ready=true` and
+  `adaptation_run_ready=true`. Launch remains unsafe until the exact profile
+  is measured with adequate shared-H100 headroom.
 
 Exit: immutable manifests/audio/metadata, assistant-voice hash, statistics, and
 passing export report.
@@ -307,6 +317,10 @@ Owner: Codex after section 5, without disrupting other GPU users.
 Exact-shape launch probe:
 
 - [ ] Wait for safe H100 availability; never stop unrelated processes.
+  The 2026-08-24 10:59 UTC preflight found only 23,526 MiB (22.975 GiB)
+  free while unrelated workloads occupied the shared GPU. The exact profile has
+  no measured peak yet, so launching it cannot satisfy the required
+  measured-peak-plus-4-GiB safety rule. No unrelated process was stopped.
 - [x] Revalidate the isolated environment, both pinned checkouts, model/Mimi/
   tokenizer schemas, configs, and hashes; all 81 exact lock pins match the
   installed Python 3.12 H100 environment.
@@ -383,10 +397,14 @@ final adapter causes the learned Persian response behavior.
 
 ## 8. Complete direct-model full-duplex integration
 
-Owner: Codex after a valid adapter exists.
+Owner: Codex; secure client build complete, live integration after a valid adapter.
 
-- [ ] Build the pinned Moshi web client from its committed lockfile and serve its
-  local static bundle—never a moving remote client.
+- [x] Build the exact pinned Moshi web-client source with the tracked,
+  hash-verified security lock overlay in a digest-pinned Node 20 container;
+  production audit is clean and all 33 static files/tree hash are attested in
+  `results/hardware/moshi_client_build.json`.
+- [ ] Serve that local static bundle with the selected adapter—never a moving
+  remote client.
 - [ ] Load pinned base/Mimi/tokenizer plus exact adapter/config in the official
   streaming server; log all hashes.
 - [ ] Verify the microphone stays active during assistant playback.
@@ -564,7 +582,7 @@ privacy-safe repository at approved visibility, restricted handoff, immutable ta
 | Full duplex | Mic remains active; interruption stops playback and becomes next-turn context | Control implemented; direct model pending | Client traces and continuation tests |
 | End-to-end ≤500 ms | Max `T_first_audio` ≤500 ms unless another statistic is predeclared; always p50/p95/max | Pending | Physical-4090 `official_e2e` telemetry |
 | Open base adapted to Persian | Moshika 7B LoRA trained on reviewed Persian response pairs | Infrastructure ready | Config, logs, adapter, held-out results |
-| 100–200 conversational hours | Final audited/exported hours in range; group-clean, no reused intervals | 105.727 h estimate only | Conversation audit/export report |
+| 100–200 conversational hours | Final audited/exported hours in range; group-clean, no reused intervals | **108.584 exported h**, 6,754/6,754 pairs, zero audit failures | Conversation audit/export report |
 | Noise/overlap/interruption labels | Conditions present, QA complete, verified interruption, agreed precision | Automatic only | QA reports and final counts |
 | Classical detector >80% | Real group-held-out event accuracy >80%, F1/FAR/FRR reported | Synthetic proxy only | Real held-out report/hash |
 | 12–24 GB evaluation | Full model fits/runs officially on physical 4090 | Pending | Preflight, VRAM, telemetry |

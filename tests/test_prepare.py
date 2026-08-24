@@ -121,6 +121,11 @@ def test_dataset_card_refresh_preserves_final_authorized_conversation_evidence(
         "conversation_yield_estimate_combined.json": {
             "estimated_pairs": 6017,
             "estimated_pair_hours": 105.727,
+            "automatic_interaction_candidates": 770,
+            "automatic_interaction_candidate_counts": {
+                "interrupt": 717,
+                "backchannel": 53,
+            },
             "label_counts": {"none": 1230, "overlap_unattributed": 4787},
             "direct_interruption_pairs": 0,
         },
@@ -132,6 +137,23 @@ def test_dataset_card_refresh_preserves_final_authorized_conversation_evidence(
         "conversation_source_authorization_report_combined.json": {
             "counts": {"authorized_windows": 1021},
             "training_authorization_gate_passes": True,
+        },
+        "moshi_export_report.json": {
+            "exported_pairs": 6017,
+            "exported_hours": 101.25,
+            "final_training_ready": False,
+            "training_ready_under_qa_waiver": True,
+        },
+        "moshi_export_audit.json": {
+            "verified_export_pairs": 6017,
+            "verified_export_hours": 101.25,
+            "split_counts": {"train": 5700, "val": 120, "test": 197},
+            "audit_passes": True,
+            "training_ready_under_qa_waiver": True,
+            "sample": {
+                "rows": 24,
+                "assistant_resynthesis": {"passes": True},
+            },
         },
     }
     for name, report in reports.items():
@@ -148,13 +170,23 @@ def test_dataset_card_refresh_preserves_final_authorized_conversation_evidence(
 
     assert "Supervisor-approved internal thesis use" in card
     assert "196.546 candidate h / 296 episodes / 1021 windows" in card
-    assert "105.727 estimated response-pair h / 6017 pairs" in card
+    assert "105.727 non-reused source-pair h / 6017 pairs" in card
     assert "overlap_unattributed" in card
-    assert "712 conservative interaction candidates" in card
-    assert "automatic candidates—not interruption claims" in card
+    assert "770 conservative interaction candidates" in card
+    assert "earlier 712-candidate pool" in card
+    assert "not human-verified interruption claims under the active waiver" in card
     assert "pending explicit confirmation" not in card
     assert snapshot["conversation_training_authorization_gate"] is True
     assert snapshot["conversation_training_authorized_windows"] == 1021
     assert snapshot["conversation_direct_interruption_pairs"] == 0
-    assert snapshot["conversation_automatic_interaction_candidates"] == 712
+    assert snapshot["conversation_automatic_interaction_candidates"] == 770
+    assert snapshot["conversation_interaction_qa_source_candidates"] == 712
     assert snapshot["conversation_interaction_qa_sampled_candidates"] == 24
+    assert "6017 exported pairs / 101.25 final stereo h" in card
+    assert "assistant re-synthesis match **True**" in card
+    assert snapshot["moshi_export_pairs"] == 6017
+    assert snapshot["moshi_export_hours"] == 101.25
+    assert snapshot["moshi_export_machine_audit_passes"] is True
+    assert snapshot["moshi_export_ready_under_qa_waiver"] is True
+    assert snapshot["moshi_export_strict_final_training_ready"] is False
+    assert snapshot["moshi_export_assistant_resynthesis_sample_passes"] is True

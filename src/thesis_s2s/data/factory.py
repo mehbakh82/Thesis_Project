@@ -95,10 +95,15 @@ def refresh_dataset_card(report: dict | None = None) -> Path:
     conversation_yield = _load_report(
         root / "results" / "conversation_yield_estimate_combined.json"
     )
-    interaction_candidates = _load_report(root / "results" / "interaction_candidate_report.json")
+    interaction_qa_sample = _load_report(
+        root / "results" / "interaction_candidate_report.json"
+    )
     authorization = _load_report(
         root / "results" / "conversation_source_authorization_report_combined.json"
     )
+    conversation_audit = _load_report(root / "results" / "conversation_audit.json")
+    moshi_export = _load_report(root / "results" / "moshi_export_report.json")
+    moshi_export_audit = _load_report(root / "results" / "moshi_export_audit.json")
     final_candidate_hours = reserve_selection.get("combined_candidate_hours", selected_hours)
     final_episodes = staging.get("episodes", selected_episodes)
     final_windows = staging.get("windows")
@@ -107,8 +112,20 @@ def refresh_dataset_card(report: dict | None = None) -> Path:
     final_aligned_hours = staging.get("reference_aligned_hours")
     final_pair_hours = conversation_yield.get("estimated_pair_hours")
     final_pairs = conversation_yield.get("estimated_pairs")
+    automatic_interaction_candidates = conversation_yield.get(
+        "automatic_interaction_candidates",
+        interaction_qa_sample.get("automatic_candidates", 0),
+    )
+    automatic_interaction_candidate_counts = conversation_yield.get(
+        "automatic_interaction_candidate_counts",
+        interaction_qa_sample.get("automatic_candidate_counts", {}),
+    )
     authorized_windows = (authorization.get("counts") or {}).get("authorized_windows")
     authorization_complete = authorization.get("training_authorization_gate_passes") is True
+    moshi_audit_sample = moshi_export_audit.get("sample") or {}
+    moshi_resynthesis = (
+        moshi_audit_sample.get("assistant_resynthesis") or {}
+    )
     synth_stats = {}
     synth_path = manifests / "synthetic_stats.json"
     if synth_path.is_file():
@@ -159,13 +176,14 @@ def refresh_dataset_card(report: dict | None = None) -> Path:
             f"**{final_candidate_hours} candidate h / {final_episodes} episodes / "
             f"{final_windows} windows / {final_staging_hours} staging h**; "
             f"**{final_multi_speaker_hours} automatic multi-speaker h** and "
-            f"**{final_pair_hours} estimated response-pair h / {final_pairs} pairs**. "
+            f"**{final_pair_hours} non-reused source-pair h / {final_pairs} pairs**. "
             + (
                 f"Authorization passes for all {authorized_windows} windows; "
                 if authorization_complete
                 else "Authorization remains incomplete; "
             )
-            + "40-row window QA and 24-row/short-excerpt interaction QA remain pending. |"
+            + "strict 40-row window QA and 24-row/short-excerpt interaction QA remain "
+            "unperformed under the documented student waiver. |"
         ),
         (
             f"| Synthetic duplex | tiled harmonic overlap mixer | synthetic | Yes, clearly labeled | "
@@ -184,6 +202,12 @@ def refresh_dataset_card(report: dict | None = None) -> Path:
         "`results/conversation_source_authorization_report_combined.json` separately "
         f"reports authorization for {authorized_windows or 0} final staging windows and "
         "zero verified-license coverage. Redistribution remains disabled.",
+        "",
+        "The active limited-training policy is the documented student QA waiver in "
+        "`docs/QA_WAIVER.md`; it is not supervisor approval of the waiver. The two QA "
+        "sheets remain 0/40 and 0/24 and are preserved for later review. Waiver outputs "
+        "must report zero human-verified rows/interruptions and false strict thesis "
+        "coverage.",
         "",
         "S2S/TTS text = YouTube **CSV caption** (`transcript_caption`) after **fa-verbatim-2**. "
         "Those CSVs are the same reference transcripts used to fine-tune Soroush; NeMo is not a teacher for this mix. "
@@ -219,12 +243,48 @@ def refresh_dataset_card(report: dict | None = None) -> Path:
             f"human-verified direct interruption pairs: {conversation_yield.get('direct_interruption_pairs', 0)}."
         ),
         (
-            "Raw speaker boundaries recover "
-            f"**{interaction_candidates.get('automatic_candidates', 0)} conservative interaction candidates** "
-            f"({json.dumps(interaction_candidates.get('automatic_candidate_counts', {}), ensure_ascii=False, sort_keys=True)}). "
-            f"The generated {interaction_candidates.get('sampled_candidates', 0)}-row sheet covers "
-            "all four channels and about three minutes of excerpt audio. These are automatic "
-            "candidates—not interruption claims—until pair-level listening review passes."
+            "Raw speaker boundaries in the current production manifest recover "
+            f"**{automatic_interaction_candidates} conservative interaction candidates** "
+            f"({json.dumps(automatic_interaction_candidate_counts, ensure_ascii=False, sort_keys=True)}). "
+            f"The preserved {interaction_qa_sample.get('sampled_candidates', 0)}-row sheet was "
+            f"sampled from the earlier {interaction_qa_sample.get('automatic_candidates', 0)}-candidate pool; "
+            "it covers all four channels and about three minutes of excerpt audio. These are automatic "
+            "candidates—not human-verified interruption claims under the active waiver."
+        ),
+        "",
+        (
+            "`results/conversation_audit.json` verifies the built waiver-bound corpus: "
+            f"**{conversation_audit.get('pairs', 0)} pairs / "
+            f"{conversation_audit.get('hours', 0)} h / "
+            f"{conversation_audit.get('sessions', 0)} sessions / "
+            f"{conversation_audit.get('speakers', 0)} speaker IDs**, with "
+            f"{conversation_audit.get('missing_files', 0)} missing files, "
+            f"{conversation_audit.get('reused_source_spans', 0)} reused spans, and "
+            f"{conversation_audit.get('session_group_split_leaks', 0)} session-split leaks. "
+            f"Limited waiver readiness is **{conversation_audit.get('training_ready_under_qa_waiver') is True}**; "
+            "strict coverage and every human-verification claim remain false."
+        ),
+        (
+            f"Under the waiver, the {automatic_interaction_candidates} candidates may remain "
+            "training pseudo-label metadata, but none becomes a human-verified label."
+        ),
+        (
+            (
+                "`results/moshi_export_report.json` and the independent audit verify "
+                f"**{moshi_export_audit.get('verified_export_pairs', 0)} exported pairs / "
+                f"{moshi_export_audit.get('verified_export_hours', 0)} final stereo h**; "
+                f"splits {json.dumps(moshi_export_audit.get('split_counts', {}), sort_keys=True)}, "
+                f"machine audit **{moshi_export_audit.get('audit_passes') is True}**, "
+                f"{moshi_audit_sample.get('rows', 0)}-row unreviewed sample prepared, "
+                f"assistant re-synthesis match **{moshi_resynthesis.get('passes') is True}**, "
+                f"waiver readiness **{moshi_export_audit.get('training_ready_under_qa_waiver') is True}**. "
+                "Strict final readiness remains false solely where human listening is required."
+            )
+            if moshi_export
+            else (
+                "The final Moshi stereo export/audit is not yet present; source-pair "
+                "duration is not substituted for measured exported duration."
+            )
         ),
         "",
         "Staging hours preserve conversational context and gaps, whereas pair hours count only "
@@ -278,11 +338,13 @@ def refresh_dataset_card(report: dict | None = None) -> Path:
         "",
         "## Moshi direct-model derivative",
         "",
-        "After reviewer QA, non-reused adjacent turns are exported in the official Moshi "
-        "stereo schema. The user channel retains authorized natural archive audio. The "
+        "After either completed strict QA or validation of the explicit limited-training "
+        "waiver, non-reused adjacent turns are exported in the official Moshi stereo schema. "
+        "The user channel retains authorized natural archive audio. The "
         "primary assistant channel is synthesized deterministically from the approved next-turn "
         "text with the pinned Mana-Persian-Piper voice. Original podcast response audio is an "
-        "explicit multi-voice ablation. Neither derivative corpus is redistributed.",
+        "explicit multi-voice ablation. Neither derivative corpus is redistributed; waiver-derived "
+        "data is not represented as human-verified.",
         "",
     ]
     path = root / "docs" / "DATASET_CARD.md"
@@ -315,14 +377,28 @@ def refresh_dataset_card(report: dict | None = None) -> Path:
         "conversation_direct_interruption_pairs": conversation_yield.get(
             "direct_interruption_pairs"
         ),
-        "conversation_automatic_interaction_candidates": interaction_candidates.get(
+        "conversation_automatic_interaction_candidates": automatic_interaction_candidates,
+        "conversation_automatic_interaction_candidate_counts": (
+            automatic_interaction_candidate_counts
+        ),
+        "conversation_interaction_qa_source_candidates": interaction_qa_sample.get(
             "automatic_candidates"
         ),
-        "conversation_automatic_interaction_candidate_counts": interaction_candidates.get(
-            "automatic_candidate_counts"
-        ),
-        "conversation_interaction_qa_sampled_candidates": interaction_candidates.get(
+        "conversation_interaction_qa_sampled_candidates": interaction_qa_sample.get(
             "sampled_candidates"
+        ),
+        "moshi_export_pairs": moshi_export_audit.get("verified_export_pairs"),
+        "moshi_export_hours": moshi_export_audit.get("verified_export_hours"),
+        "moshi_export_split_counts": moshi_export_audit.get("split_counts"),
+        "moshi_export_machine_audit_passes": moshi_export_audit.get("audit_passes"),
+        "moshi_export_ready_under_qa_waiver": moshi_export_audit.get(
+            "training_ready_under_qa_waiver"
+        ),
+        "moshi_export_strict_final_training_ready": moshi_export.get(
+            "final_training_ready"
+        ),
+        "moshi_export_assistant_resynthesis_sample_passes": moshi_resynthesis.get(
+            "passes"
         ),
         "conversation_reserve_hours": conversation_selection.get("reserve_candidate_hours"),
         "conversation_reserve_episodes": conversation_selection.get("reserve_episodes"),

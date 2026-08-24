@@ -21,6 +21,9 @@ Status date: 2026-08-24
 - GitHub Actions has read-only repository permissions, fetches complete history,
   and pins the first-party checkout and Python setup actions to immutable commit
   SHAs.
+- GitHub dependency vulnerability alerts and automated security fixes are
+  enabled; the authenticated API reports alerts available and automated fixes
+  `enabled=true`, `paused=false`.
 - CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 47
   source files against the Python 3.10 target.
 - The measured branch-aware coverage is 62%; the enforced floor is 60%, raised
@@ -33,6 +36,14 @@ Status date: 2026-08-24
   environment are independently pinned and hash-checked by
   `requirements-moshi.lock`, `third_party/UPSTREAMS.lock.json`, and the
   hardware/environment evidence.
+- The pinned Moshi browser source is built with
+  `scripts/build_moshi_client.py` from a hash-verified dependency overlay in a
+  digest-pinned Node 20 container. Its served production graph has zero known
+  advisories; the static bundle's 33 files and tree hash are recorded in
+  `results/hardware/moshi_client_build.json`. Eight remaining npm findings
+  (five high, three moderate, zero critical) belong only to build-time tooling,
+  which receives pinned trusted inputs in an ephemeral container. Any critical
+  finding fails the build, and the npm development server is prohibited.
 
 ## Accepted pinned-training compatibility risks
 

@@ -2,7 +2,7 @@
   "source_manifest": "data/processed/manifests/conversation_episode_windows_noise_labeled_combined.jsonl",
   "rights_csv": "data/processed/manifests/conversation_rights_review.csv",
   "out_manifest": "data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl",
-  "source_windows": 1021,
+  "source_windows": 1129,
   "source_channels": [
     "Digiato",
     "Mehran Rowshan Persian",
@@ -17,11 +17,11 @@
     "Zoomit"
   ],
   "license_verified_channels": [],
-  "authorized_hours": 219.403,
+  "authorized_hours": 244.733,
   "license_verified_hours": 0,
   "counts": {
-    "authorized_windows": 1021,
-    "supervisor_authorized_windows": 1021
+    "authorized_windows": 1129,
+    "supervisor_authorized_windows": 1129
   },
   "training_authorization_gate_passes": true,
   "rights_gate_passes": true,

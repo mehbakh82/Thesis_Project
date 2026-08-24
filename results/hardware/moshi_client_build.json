@@ -1,0 +1,636 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-24T10:31:28.985899+00:00",
+  "valid": true,
+  "scientific_evidence": false,
+  "source": {
+    "upstream_revision": "061cc4c630d9e11722e08b7d02b1836ba58f30e8",
+    "upstream_package_sha256": "deaeb6717ff9b6b95e81d1206cb846738c5fd6a9900964dca9a43b78f3832390",
+    "upstream_package_lock_sha256": "ee4392116cd0119a94e34681d001446604d8f85d1690b1432dd071c58b1acf3d",
+    "overlay_package_sha256": "31c3e2326416184d202839cae2ce374b1d3f12246986fcab8d492f90c6222f01",
+    "overlay_package_lock_sha256": "b6946e010d702f8fb2bf199418a63e300c61fda826a3ac5ceb052dd69704aa24",
+    "client_subdir": "client"
+  },
+  "build_environment": {
+    "node_image": "node:20-bookworm-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0",
+    "image_id": "sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0",
+    "uid_gid": "1000:1000",
+    "npm_ci_completed": true
+  },
+  "security": {
+    "production_audit_clean": true,
+    "production_audit": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 0
+      },
+      "dependencies": {
+        "prod": 21,
+        "dev": 437,
+        "optional": 61,
+        "peer": 0,
+        "peerOptional": 0,
+        "total": 457
+      }
+    },
+    "full_graph_audit": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 3,
+        "high": 5,
+        "critical": 0,
+        "total": 8
+      },
+      "dependencies": {
+        "prod": 21,
+        "dev": 437,
+        "optional": 61,
+        "peer": 0,
+        "peerOptional": 0,
+        "total": 457
+      }
+    },
+    "full_graph_vulnerabilities": {
+      "@typescript-eslint/parser": {
+        "name": "@typescript-eslint/parser",
+        "severity": "high",
+        "isDirect": false,
+        "via": [
+          "@typescript-eslint/typescript-estree"
+        ],
+        "effects": [],
+        "range": "6.16.0 - 7.5.0",
+        "nodes": [
+          "node_modules/prettier-eslint/node_modules/@typescript-eslint/parser"
+        ],
+        "fixAvailable": true
+      },
+      "@typescript-eslint/typescript-estree": {
+        "name": "@typescript-eslint/typescript-estree",
+        "severity": "high",
+        "isDirect": false,
+        "via": [
+          "minimatch"
+        ],
+        "effects": [
+          "@typescript-eslint/parser"
+        ],
+        "range": "6.16.0 - 7.5.0",
+        "nodes": [
+          "node_modules/prettier-eslint/node_modules/@typescript-eslint/typescript-estree"
+        ],
+        "fixAvailable": true
+      },
+      "brace-expansion": {
+        "name": "brace-expansion",
+        "severity": "high",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1105443,
+            "name": "brace-expansion",
+            "dependency": "brace-expansion",
+            "title": "brace-expansion Regular Expression Denial of Service vulnerability",
+            "url": "https://github.com/advisories/GHSA-v6h2-p8h4-qcjw",
+            "severity": "low",
+            "cwe": [
+              "CWE-400"
+            ],
+            "cvss": {
+              "score": 3.1,
+              "vectorString": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:N/I:N/A:L"
+            },
+            "range": ">=1.0.0 <=1.1.11"
+          },
+          {
+            "source": 1115540,
+            "name": "brace-expansion",
+            "dependency": "brace-expansion",
+            "title": "brace-expansion: Zero-step sequence causes process hang and memory exhaustion",
+            "url": "https://github.com/advisories/GHSA-f886-m6hf-6m8v",
+            "severity": "moderate",
+            "cwe": [
+              "CWE-400"
+            ],
+            "cvss": {
+              "score": 6.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H"
+            },
+            "range": "<1.1.13"
+          },
+          {
+            "source": 1123897,
+            "name": "brace-expansion",
+            "dependency": "brace-expansion",
+            "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+            "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+            "severity": "high",
+            "cwe": [
+              "CWE-400",
+              "CWE-407"
+            ],
+            "cvss": {
+              "score": 5.3,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+            },
+            "range": "<1.1.16"
+          },
+          {
+            "source": 1130588,
+            "name": "brace-expansion",
+            "dependency": "brace-expansion",
+            "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+            "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+            "severity": "high",
+            "cwe": [
+              "CWE-400",
+              "CWE-770"
+            ],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            },
+            "range": "<1.1.17"
+          },
+          {
+            "source": 1130737,
+            "name": "brace-expansion",
+            "dependency": "brace-expansion",
+            "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+            "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+            "severity": "high",
+            "cwe": [
+              "CWE-400",
+              "CWE-770"
+            ],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            },
+            "range": "<1.1.18"
+          }
+        ],
+        "effects": [],
+        "range": "<=1.1.17",
+        "nodes": [
+          "node_modules/brace-expansion"
+        ],
+        "fixAvailable": true
+      },
+      "esbuild": {
+        "name": "esbuild",
+        "severity": "moderate",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1102341,
+            "name": "esbuild",
+            "dependency": "esbuild",
+            "title": "esbuild enables any website to send any requests to the development server and read the response",
+            "url": "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
+            "severity": "moderate",
+            "cwe": [
+              "CWE-346"
+            ],
+            "cvss": {
+              "score": 5.3,
+              "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:N/A:N"
+            },
+            "range": "<=0.24.2"
+          }
+        ],
+        "effects": [
+          "vite"
+        ],
+        "range": "<=0.24.2",
+        "nodes": [
+          "node_modules/esbuild"
+        ],
+        "fixAvailable": {
+          "name": "vite",
+          "version": "8.2.2",
+          "isSemVerMajor": true
+        }
+      },
+      "minimatch": {
+        "name": "minimatch",
+        "severity": "high",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1113465,
+            "name": "minimatch",
+            "dependency": "minimatch",
+            "title": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
+            "url": "https://github.com/advisories/GHSA-3ppc-4f35-3m26",
+            "severity": "high",
+            "cwe": [
+              "CWE-1333"
+            ],
+            "cvss": {
+              "score": 0,
+              "vectorString": null
+            },
+            "range": ">=9.0.0 <9.0.6"
+          },
+          {
+            "source": 1113544,
+            "name": "minimatch",
+            "dependency": "minimatch",
+            "title": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
+            "url": "https://github.com/advisories/GHSA-7r86-cg39-jmmj",
+            "severity": "high",
+            "cwe": [
+              "CWE-407"
+            ],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            },
+            "range": ">=9.0.0 <9.0.7"
+          },
+          {
+            "source": 1113552,
+            "name": "minimatch",
+            "dependency": "minimatch",
+            "title": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
+            "url": "https://github.com/advisories/GHSA-23c5-xmqv-rm74",
+            "severity": "high",
+            "cwe": [
+              "CWE-1333"
+            ],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            },
+            "range": ">=9.0.0 <9.0.7"
+          }
+        ],
+        "effects": [
+          "@typescript-eslint/typescript-estree"
+        ],
+        "range": "9.0.0 - 9.0.6",
+        "nodes": [
+          "node_modules/prettier-eslint/node_modules/minimatch"
+        ],
+        "fixAvailable": true
+      },
+      "uuid": {
+        "name": "uuid",
+        "severity": "moderate",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1119441,
+            "name": "uuid",
+            "dependency": "uuid",
+            "title": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
+            "url": "https://github.com/advisories/GHSA-w5hq-g745-h8pq",
+            "severity": "moderate",
+            "cwe": [
+              "CWE-787",
+              "CWE-1285"
+            ],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+            },
+            "range": "<11.1.1"
+          }
+        ],
+        "effects": [
+          "vite-plugin-top-level-await"
+        ],
+        "range": "<11.1.1",
+        "nodes": [
+          "node_modules/uuid"
+        ],
+        "fixAvailable": {
+          "name": "vite-plugin-top-level-await",
+          "version": "1.2.2",
+          "isSemVerMajor": true
+        }
+      },
+      "vite": {
+        "name": "vite",
+        "severity": "high",
+        "isDirect": true,
+        "via": [
+          {
+            "source": 1116229,
+            "name": "vite",
+            "dependency": "vite",
+            "title": "Vite Vulnerable to Path Traversal in Optimized Deps `.map` Handling",
+            "url": "https://github.com/advisories/GHSA-4w7w-66w2-5vf9",
+            "severity": "moderate",
+            "cwe": [
+              "CWE-22",
+              "CWE-200"
+            ],
+            "cvss": {
+              "score": 0,
+              "vectorString": null
+            },
+            "range": "<=6.4.1"
+          },
+          {
+            "source": 1120784,
+            "name": "vite",
+            "dependency": "vite",
+            "title": "launch-editor: NTLMv2 hash disclosure via UNC path handling on Windows",
+            "url": "https://github.com/advisories/GHSA-v6wh-96g9-6wx3",
+            "severity": "moderate",
+            "cwe": [
+              "CWE-73",
+              "CWE-522"
+            ],
+            "cvss": {
+              "score": 0,
+              "vectorString": null
+            },
+            "range": "<=6.4.2"
+          },
+          {
+            "source": 1123525,
+            "name": "vite",
+            "dependency": "vite",
+            "title": "vite: `server.fs.deny` bypass on Windows alternate paths",
+            "url": "https://github.com/advisories/GHSA-fx2h-pf6j-xcff",
+            "severity": "high",
+            "cwe": [
+              "CWE-22",
+              "CWE-200"
+            ],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+            },
+            "range": "<=6.4.2"
+          },
+          "esbuild"
+        ],
+        "effects": [],
+        "range": "<=6.4.2",
+        "nodes": [
+          "node_modules/vite"
+        ],
+        "fixAvailable": {
+          "name": "vite",
+          "version": "8.2.2",
+          "isSemVerMajor": true
+        }
+      },
+      "vite-plugin-top-level-await": {
+        "name": "vite-plugin-top-level-await",
+        "severity": "moderate",
+        "isDirect": true,
+        "via": [
+          "uuid"
+        ],
+        "effects": [],
+        "range": ">=1.2.3",
+        "nodes": [
+          "node_modules/vite-plugin-top-level-await"
+        ],
+        "fixAvailable": {
+          "name": "vite-plugin-top-level-await",
+          "version": "1.2.2",
+          "isSemVerMajor": true
+        }
+      }
+    },
+    "policy": {
+      "production_audit_must_be_clean": true,
+      "build_time_critical_advisories_must_be_zero": true,
+      "serve_static_bundle_only": true,
+      "development_server_prohibited": true,
+      "build_isolation": "ephemeral container; pinned trusted source and lock inputs only",
+      "full_graph_advisories_are_build_time_only_and_must_be_reported": true
+    },
+    "note": "Only the production graph is served. Remaining full-graph findings are build-time dependencies used with pinned trusted inputs in an ephemeral container; npm's development server is prohibited."
+  },
+  "versions": {
+    "react_router_dom": "7.18.2",
+    "ws": "8.21.3",
+    "vite": "5.4.21",
+    "top_level_await": "1.4.1",
+    "swc_core": "1.5.7"
+  },
+  "dist": {
+    "path": "data/processed/moshi_client_build/dist",
+    "files": [
+      {
+        "path": "assets/audio-processor-BUNQrM5u.js",
+        "bytes": 4053,
+        "sha256": "c9cc6f2ef0a8330bc647ffc12c72702beaaab9086cb90352406674ba297a0937"
+      },
+      {
+        "path": "assets/canvas-logo-DG69PeuU.png",
+        "bytes": 54196,
+        "sha256": "424469525a04123e6cd98c0971b16a4cd299067ced77017795e7389f4b5e27ba"
+      },
+      {
+        "path": "assets/decoderWorker.min-DI6rkCrP.js",
+        "bytes": 13615,
+        "sha256": "6c3c89936c70501e9ca24bf7b0f69781124e7812033b37f86cba1856a3fe0d5f"
+      },
+      {
+        "path": "assets/decoderWorker.min.js",
+        "bytes": 28541,
+        "sha256": "55b513929dc52be93042974cd0a20e71a010b7e394afed9dd3ad38fc2db2153c"
+      },
+      {
+        "path": "assets/decoderWorker.min.wasm",
+        "bytes": 149534,
+        "sha256": "cd1d29c43b3fa05719c3d024ed9b9f1528be92415bd6d39d413b262a61d1891f"
+      },
+      {
+        "path": "assets/encoderWorker.min-DpsJ02BN.js",
+        "bytes": 385096,
+        "sha256": "c3a64a87b2868e37c0387da45262900820ec85ab448869011247cbd351858a95"
+      },
+      {
+        "path": "assets/favicon-16x16.png",
+        "bytes": 1166,
+        "sha256": "99e1ec9abb73ac943c6f25b45c7d6ea6e14a0e47c9762a02a76edd9be620ac5c"
+      },
+      {
+        "path": "assets/favicon-32x32.png",
+        "bytes": 1485,
+        "sha256": "e3920701d5de8d0cf09f7b9c1e8c7d528f0e172be672ef17cc30f4bef86ed596"
+      },
+      {
+        "path": "assets/favicon.ico",
+        "bytes": 7406,
+        "sha256": "b1a0982401c390e99bb3041dec32e6de4f99d0874cf4f529593687bed14f024d"
+      },
+      {
+        "path": "assets/images/demo/image1.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image10.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image11.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image12.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image13.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image14.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image15.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image16.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image17.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image18.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image19.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image2.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image20.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image3.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image4.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image5.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image6.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image7.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image8.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/images/demo/image9.jpg",
+        "bytes": 47852,
+        "sha256": "6f006a07684cf04d07603df719ffe71b31a8f046ba6563e2da3553f8dd66d252"
+      },
+      {
+        "path": "assets/index-CUxoGgRZ.css",
+        "bytes": 32527,
+        "sha256": "3d42fc727f045c286585ee0d74cb6631d0bf6b8dd02e351fba1f1353659f565e"
+      },
+      {
+        "path": "assets/index-fawheYez.js",
+        "bytes": 956948,
+        "sha256": "81fadfa7c3f07d0ba2bd9aac69c521dc8ec0088e5da4228eff9b63dc10c5622d"
+      },
+      {
+        "path": "assets/logo.svg",
+        "bytes": 2472,
+        "sha256": "92efe833abac535fb87bc1ef65a8d5fc8c2b10e627ef180f0de85df68e118de3"
+      },
+      {
+        "path": "index.html",
+        "bytes": 637,
+        "sha256": "fa6d8296c9e5422684eb49cf89f944f421ab6e58de0933ca0245d2440671fc2f"
+      }
+    ],
+    "tree_sha256": "97bd1ac467c0556dd3414a209fcccd4586696a2e3d4a0704df889718061bca39"
+  },
+  "build_output_tail": [
+    "> kyutai-client@0.0.0 build",
+    "> tsc && vite build",
+    "",
+    "vite v5.4.21 building for production...",
+    "transforming...",
+    "",
+    "🌼   daisyUI 4.12.2",
+    "├─ ✔︎ 2 themes added\t\thttps://daisyui.com/docs/themes",
+    "╰─ ❤︎ Support daisyUI project:\thttps://opencollective.com/daisyui",
+    "",
+    "✓ 137 modules transformed.",
+    "rendering chunks...",
+    "computing gzip size...",
+    "dist/index.html                              0.64 kB │ gzip:   0.35 kB",
+    "dist/assets/audio-processor-BUNQrM5u.js      4.05 kB",
+    "dist/assets/decoderWorker.min-DI6rkCrP.js   13.62 kB",
+    "dist/assets/canvas-logo-DG69PeuU.png        54.20 kB",
+    "dist/assets/encoderWorker.min-DpsJ02BN.js  385.10 kB",
+    "dist/assets/index-CUxoGgRZ.css              32.53 kB │ gzip:   6.55 kB",
+    "dist/assets/index-fawheYez.js              956.95 kB │ gzip: 272.81 kB",
+    "✓ built in 6.15s"
+  ],
+  "build_warning_tail": [
+    "node_modules/react-router/dist/development/index.mjs (11:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/react-router/dist/development/index.mjs\" was ignored.",
+    "node_modules/react-router/dist/development/dom-export.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/react-router/dist/development/dom-export.mjs\" was ignored.",
+    "Browserslist: caniuse-lite is outdated. Please run:",
+    "  npx update-browserslist-db@latest",
+    "  Why you should do it regularly: https://github.com/browserslist/update-db#readme",
+    "node_modules/eruda/eruda.js (2:375692): Use of eval in \"node_modules/eruda/eruda.js\" is strongly discouraged as it poses security risks and may cause issues with minification.",
+    "",
+    "(!) Some chunks are larger than 500 kB after minification. Consider:",
+    "- Using dynamic import() to code-split the application",
+    "- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks",
+    "- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.",
+    "npm notice",
+    "npm notice New major version of npm available! 10.8.2 -> 12.0.2",
+    "npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2",
+    "npm notice To update run: npm install -g npm@12.0.2",
+    "npm notice"
+  ]
+}

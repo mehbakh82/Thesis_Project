@@ -1,0 +1,100 @@
+{
+  "schema": "kyutai_moshi_finetune_stereo_v1",
+  "source_manifest": "data/processed/manifests/conversations.jsonl",
+  "source_manifest_sha256": "aabf12268cce2854ef8b16ffd9339c6d703339c6b4c50a23a105447047a13a86",
+  "out_dir": "data/processed/moshi_finetune",
+  "assistant_channel": 0,
+  "user_channel": 1,
+  "sample_rate": 16000,
+  "assistant_audio_mode": "piper",
+  "assistant_voice_model": {
+    "repository": "MahtaFetrat/Mana-Persian-Piper",
+    "revision": "ad9dd8518bedf517bd7cbc9f63b8e5c844bf5bc0",
+    "license": "MIT",
+    "path": "models/piper/fa_IR-mana-medium.onnx",
+    "sha256": "e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126"
+  },
+  "source_pairs": 6754,
+  "exported_pairs": 6754,
+  "exported_hours": 108.584,
+  "resume": {
+    "validated_existing_pairs": 5268,
+    "newly_exported_pairs": 1486,
+    "invalid_existing_outputs_rebuilt": 0
+  },
+  "counts": {
+    "exported_pairs": 6754,
+    "resumed_pairs": 5268,
+    "train_pairs": 6419,
+    "val_pairs": 131,
+    "test_pairs": 204,
+    "isolated_piper_processes": 1486,
+    "newly_exported_pairs": 1486
+  },
+  "source_rows_permitting_redistribution": 0,
+  "manifest_sha256": {
+    "train": "a84c9f1f924e8544499bd502413c469d30a10b98ceefc4e5a1f853217af0e517",
+    "val": "a2762495830c82ce12d3dc4cc8469e2110ae21a77ea91f9b70498a6812e187a7",
+    "test": "44d5912201ed359dabe3c026b6ae605b3bf946538e83116f57514448ed0794fe"
+  },
+  "qa_policy": {
+    "policy": "automatic_only_documented_waiver",
+    "path": "configs/conversation_qa_waiver.yaml",
+    "sha256": "4635426ad3ef5639e45b4cf7b78789485d098b24a9358568b3537e31ac1904f0",
+    "decision_date": "2026-08-24",
+    "decision_authority": "student_project_owner",
+    "reason": "insufficient_time_and_no_available_delegate",
+    "supervisor_approval_claimed": false,
+    "human_verified_data_claim_allowed": false,
+    "human_verified_interruption_claim_allowed": false,
+    "strict_thesis_data_coverage_claim_allowed": false,
+    "requirements": {
+      "schema_supported": true,
+      "status_acknowledged": true,
+      "policy_explicit": true,
+      "student_authority_explicit": true,
+      "supervisor_approval_not_claimed": true,
+      "reason_recorded": true,
+      "decision_date_recorded": true,
+      "limited_internal_training_explicit": true,
+      "both_reviews_waived": true,
+      "human_claims_disabled": true,
+      "best_practice_assets_preserved": true
+    },
+    "valid": true
+  },
+  "requirements": {
+    "response_pairs_exported": true,
+    "all_selected_pairs_exported": true,
+    "train_validation_test_present": true,
+    "training_hours_100_to_200": true,
+    "immutable_file_hashes_present": true,
+    "manual_verification_sample_present": false,
+    "training_authorization_complete": true,
+    "consistent_assistant_voice": true,
+    "assistant_voice_model_pinned": true,
+    "raw_redistribution_disabled": true
+  },
+  "final_training_ready": false,
+  "waiver_requirements": {
+    "response_pairs_exported": true,
+    "all_selected_pairs_exported": true,
+    "train_validation_test_present": true,
+    "training_hours_100_to_200": true,
+    "immutable_file_hashes_present": true,
+    "training_authorization_complete": true,
+    "consistent_assistant_voice": true,
+    "assistant_voice_model_pinned": true,
+    "raw_redistribution_disabled": true,
+    "documented_qa_waiver_valid": true,
+    "all_pairs_declare_same_waiver": true,
+    "human_verified_claims_disabled": true
+  },
+  "training_ready_under_qa_waiver": true,
+  "claims": {
+    "human_verified_data": false,
+    "human_verified_interruptions": false,
+    "strict_thesis_data_coverage": false
+  },
+  "note": "Internal research artifact; audio and transcripts are not redistributable. The official Moshi trainer learns text and assistant-audio token losses. The primary Piper mode follows Moshi's consistent-system-voice design; source response audio is retained only as a multi-voice ablation. The documented student QA waiver permits a limited automatic-label training run, but it does not establish human verification, verified interruptions, or strict thesis data coverage."
+}

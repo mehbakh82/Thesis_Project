@@ -39,13 +39,14 @@ A listening-only study can measure naturalness and preference but cannot, by its
 The preferred route is now the verified internal YouTube archive:
 
 - 775.887 caption-speech hours are available across 1,442 long episodes;
-- the deterministic primary + minimum-reserve plan uses 196.546 candidate hours / 296 episodes from Tabaghe16, Mehran Rowshan Persian, Digiato, and Zoomit;
-- H100 processing found 181.824 automatic multi-speaker hours and 6,017 estimated response pairs / 105.727 pair hours;
+- the deterministic primary + reserve plan uses 219.946 candidate hours / 309 episodes from Tabaghe16, Mehran Rowshan Persian, Digiato, and Zoomit;
+- H100 processing found 207.154 automatic multi-speaker hours, 242.445 aligned staging hours, and 6,754 non-reused response pairs / 123.796 source-pair hours;
+- the final immutable Piper derivative is 6,754/6,754 pairs / 108.584 measured stereo hours and passes the independent machine audit with zero failures;
 - the provided CSV captions supply text, while diarization supplies speaker timing and deterministic archived-noise evidence;
-- internal thesis training is supervisor-approved for all 1,021 final staging windows; redistribution is not;
+- internal thesis training is supervisor-approved for all 1,129 final staging windows; redistribution is not;
 - Kooshiar remains inventory/acoustic data and is excluded from the default conversation set.
 
-This route avoids new recording, but two listening checks remain. The generated 40-row window sample verifies speaker/alignment/noise quality. Raw diarizer boundaries also recover 712 strict interaction candidates; the generated 24-row sheet covers six short excerpts per channel and only 168.3 seconds of audio. Either sheet may be completed by the supervisor, a lab member, or another approved annotator. Automatic candidates never count as interruption claims. If the pair-level sample has acceptable precision, reviewed existing clips supply the needed evidence; a supplement or written scope amendment is needed only if the review fails.
+This route avoids new recording. The student has explicitly waived—not completed—the two listening checks for the active time-constrained run, while preserving the generated 40-row window sample and the earlier 24-row / 168.3-second interaction sample for later strict recovery. Raw diarizer boundaries recover 770 automatic interaction candidates in the expanded set, but they never count as human-verified interruption claims. The waiver permits limited training with this limitation disclosed; it does not turn pseudo-labels into ground truth or satisfy strict corpus coverage.
 
 LDC is now a fallback if listening QA, licensing policy, or attributable-interruption coverage invalidates the archive route:
 

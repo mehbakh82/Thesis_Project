@@ -4,16 +4,16 @@
   "primary_selection": "data/processed/manifests/youtube_conversation_selection.jsonl",
   "reserve_selection": "data/processed/manifests/youtube_conversation_reserve_tabaghe16_40h.jsonl",
   "out_manifest": "data/processed/manifests/conversation_reserve_tabaghe16_windows_selected.jsonl",
-  "target_pair_hours": 105.0,
-  "max_candidate_hours": 200.0,
+  "target_pair_hours": 123.5,
+  "max_candidate_hours": 220.0,
   "primary_candidate_hours": 180.043,
   "primary_estimated_pair_hours": 95.051,
-  "selected_reserve_episodes": 9,
-  "selected_reserve_windows": 74,
-  "selected_reserve_candidate_hours": 16.503,
-  "selected_reserve_estimated_pair_hours": 10.676,
-  "combined_candidate_hours": 196.546,
-  "combined_estimated_pair_hours": 105.727,
+  "selected_reserve_episodes": 22,
+  "selected_reserve_windows": 182,
+  "selected_reserve_candidate_hours": 39.903,
+  "selected_reserve_estimated_pair_hours": 28.744,
+  "combined_candidate_hours": 219.946,
+  "combined_estimated_pair_hours": 123.795,
   "target_reached": true,
   "candidate_cap_passes": true,
   "selected_episodes": [
@@ -88,6 +88,110 @@
       "windows": 13,
       "cumulative_candidate_hours": 196.546,
       "cumulative_pair_hours": 105.726
+    },
+    {
+      "episode_id": "Tabaghe16/Episode 66 - وحید نوید آذر ｜ موسس گروه صنعتی سار",
+      "candidate_hours": 1.733,
+      "estimated_pair_hours": 1.256,
+      "windows": 8,
+      "cumulative_candidate_hours": 198.279,
+      "cumulative_pair_hours": 106.982
+    },
+    {
+      "episode_id": "Tabaghe16/Episode 53 - Poobon -  پوریا بنکداری",
+      "candidate_hours": 1.7227,
+      "estimated_pair_hours": 1.592,
+      "windows": 8,
+      "cumulative_candidate_hours": 200.001,
+      "cumulative_pair_hours": 108.574
+    },
+    {
+      "episode_id": "Tabaghe16/Episode 73 - Mehdi Nayebi ｜ Flashbox",
+      "candidate_hours": 1.5995,
+      "estimated_pair_hours": 1.341,
+      "windows": 7,
+      "cumulative_candidate_hours": 201.601,
+      "cumulative_pair_hours": 109.915
+    },
+    {
+      "episode_id": "Tabaghe16/EP 83 - Arash Mir ｜ زندگی",
+      "candidate_hours": 1.3607,
+      "estimated_pair_hours": 0.891,
+      "windows": 6,
+      "cumulative_candidate_hours": 202.962,
+      "cumulative_pair_hours": 110.806
+    },
+    {
+      "episode_id": "Tabaghe16/طبقه ۱۶ - Tech Talks #1",
+      "candidate_hours": 0.7739,
+      "estimated_pair_hours": 0.41,
+      "windows": 4,
+      "cumulative_candidate_hours": 203.736,
+      "cumulative_pair_hours": 111.216
+    },
+    {
+      "episode_id": "Tabaghe16/EP 165 - Miare ｜ سرمایه‌گذاری ۲۳۵ میلیارد تومانی دیجی‌کالا در استارتاپ میاره",
+      "candidate_hours": 1.9316,
+      "estimated_pair_hours": 1.589,
+      "windows": 9,
+      "cumulative_candidate_hours": 205.667,
+      "cumulative_pair_hours": 112.805
+    },
+    {
+      "episode_id": "Tabaghe16/Episode 61 - Hossein Moazzen ｜ Byteager Game Studio",
+      "candidate_hours": 3.1115,
+      "estimated_pair_hours": 2.374,
+      "windows": 14,
+      "cumulative_candidate_hours": 208.779,
+      "cumulative_pair_hours": 115.179
+    },
+    {
+      "episode_id": "Tabaghe16/EP 95 - Farokh Shahabi ｜ CEO at Formaloo ｜ TEDx Speaker",
+      "candidate_hours": 1.9546,
+      "estimated_pair_hours": 1.593,
+      "windows": 9,
+      "cumulative_candidate_hours": 210.733,
+      "cumulative_pair_hours": 116.772
+    },
+    {
+      "episode_id": "Tabaghe16/EP 187 – Mohammad Samiei ｜ Ex-Marketing Lead at Reyhoon & Snapp",
+      "candidate_hours": 1.5637,
+      "estimated_pair_hours": 1.092,
+      "windows": 7,
+      "cumulative_candidate_hours": 212.297,
+      "cumulative_pair_hours": 117.864
+    },
+    {
+      "episode_id": "Tabaghe16/EP 136 - Farokh Shahabi ｜ راه‌های طراحی محصول",
+      "candidate_hours": 1.9986,
+      "estimated_pair_hours": 1.856,
+      "windows": 10,
+      "cumulative_candidate_hours": 214.296,
+      "cumulative_pair_hours": 119.72
+    },
+    {
+      "episode_id": "Tabaghe16/Episode 29 -  شروین گرافیانی",
+      "candidate_hours": 1.8463,
+      "estimated_pair_hours": 1.537,
+      "windows": 8,
+      "cumulative_candidate_hours": 216.142,
+      "cumulative_pair_hours": 121.257
+    },
+    {
+      "episode_id": "Tabaghe16/EP 99 - Shayan Shalileh ｜ انتقال تجربه",
+      "candidate_hours": 2.6645,
+      "estimated_pair_hours": 2.069,
+      "windows": 12,
+      "cumulative_candidate_hours": 218.806,
+      "cumulative_pair_hours": 123.326
+    },
+    {
+      "episode_id": "Tabaghe16/EP 132 - آرش صدر ｜ Google Labs",
+      "candidate_hours": 1.1401,
+      "estimated_pair_hours": 0.468,
+      "windows": 6,
+      "cumulative_candidate_hours": 219.946,
+      "cumulative_pair_hours": 123.794
     }
   ],
   "skipped": {},
@@ -97,7 +201,7 @@
     "reserve_manifest": "24ef94969737e5980767f657ad3301774e55b56b27828ed263edc1c6693ecdd5",
     "primary_selection": "738ff849eac7762aea9fd9ee2de748be728c1211ab571e4f496a9b9106f2b260",
     "reserve_selection": "d7e6a1a12b0417abbb271f7c7138b172e8389367d415690f6c634cbe0c1e4e5f",
-    "out_manifest": "9733e5d8aa25eb8ec54f663ad23cba1921671c35f3263ede2770196c488406ec"
+    "out_manifest": "24ef94969737e5980767f657ad3301774e55b56b27828ed263edc1c6693ecdd5"
   },
   "non_mutating_audio_selection": true,
   "training_ready": false,
