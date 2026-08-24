@@ -82,11 +82,20 @@ def _run_audit(lock_path: Path) -> tuple[dict, int, str]:
     )
     if completed.returncode not in {0, 1}:
         detail = (completed.stderr or completed.stdout).strip()
-        raise RuntimeError(f"pip-audit failed with exit {completed.returncode}: {detail}")
+        raise RuntimeError(
+            f"pip-audit failed with exit {completed.returncode}: {detail}"
+        )
+    if not completed.stdout.strip():
+        detail = completed.stderr.strip() or "empty stdout"
+        raise RuntimeError(f"pip-audit returned no JSON: {detail}")
+
     try:
         payload = json.loads(completed.stdout)
     except json.JSONDecodeError as exc:
-        raise RuntimeError(f"pip-audit did not return valid JSON: {exc}") from exc
+        detail = completed.stderr.strip()
+        raise RuntimeError(
+            f"pip-audit did not return valid JSON: {exc}; stderr: {detail}"
+        ) from exc
     if not isinstance(payload, dict) or not isinstance(payload.get("dependencies"), list):
         raise RuntimeError("pip-audit JSON is missing its dependency list")
     return payload, completed.returncode, completed.stderr.strip()
