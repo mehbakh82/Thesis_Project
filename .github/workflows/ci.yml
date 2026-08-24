@@ -38,4 +38,4 @@ jobs:
       - name: Test
         run: coverage run -m pytest -q
       - name: Coverage
-        run: coverage report --fail-under=55
+        run: coverage report --fail-under=60

@@ -23,7 +23,7 @@ Status date: 2026-08-24
   SHAs.
 - CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 47
   source files against the Python 3.10 target.
-- The measured branch-aware coverage is 58%; the enforced floor is 55%, raised
+- The measured branch-aware coverage is 62%; the enforced floor is 60%, raised
   from 35% while retaining a small non-flaky margin. Core conversation,
   Moshi-export, QA-policy, rights, and preflight modules are substantially above
   the aggregate.
