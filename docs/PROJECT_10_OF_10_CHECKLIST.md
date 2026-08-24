@@ -58,7 +58,10 @@ Verified now:
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
-- [x] Ruff, mypy on 46 source files, and all 69 tests pass.
+- [x] Ruff and mypy pass on all 47 source files; all 77 tests pass and
+  branch-aware coverage is 62% with a 60% CI floor.
+- [x] General dependencies have no known vulnerabilities; the pinned scientific
+  lock has an exact, fail-closed accepted-risk baseline and mitigations.
 - [ ] Window QA: 0/40 reviewed.
 - [ ] Interaction QA: 0/24 reviewed.
 - [ ] Moshi export, full-profile probe, scientific adapter,
@@ -144,23 +147,29 @@ Owner: student for authentication; Codex can push afterward.
   root-ignored and absent from tracked history.
 - [x] Raw media, internal manifests, environments, caches, credentials,
   checkpoints, and large weights are ignored.
-- [ ] Authenticate GitHub locally without putting a token in the repository,
-  command history, or chat. Do not reuse/overwrite the pre-existing rejected
-  SSH key because its ownership is uncertain.
-- [ ] Run `git push origin main`; require local `main` not to be ahead of
-  `origin/main`.
-- [ ] Inspect the repository while logged out and confirm restricted/private
-  files and absolute internal paths are absent.
-- [x] Basic GitHub Actions CI runs compile, Ruff, mypy, tests, and a 35% coverage
-  floor.
-- [ ] Extend CI to lint `scripts`, parse tracked JSON/YAML, and run secret
-  scanning; review whether the risk-based coverage floor should be raised.
-- [ ] Enable protected/CI-gated main-branch updates.
-- [ ] Confirm source-code license and third-party notices; keep source, model,
-  dataset, and derived-adapter licenses distinct.
+- [x] GitHub CLI authentication is persistent for `mehbakh82` without
+  placing credentials in the repository.
+- [x] Push `main`; require local `main` and `origin/main` to resolve to the
+  same commit at every handoff.
+- [x] Verify a fresh authenticated clone of the private remote: clean worktree,
+  expected HEAD, one author/committer identity, and passing full-history
+  artifact/privacy/secret audit.
+- [x] GitHub Actions uses read-only permissions and immutable first-party Action
+  SHAs; it compiles, lints, type-checks, audits, tests, and enforces 60%
+  branch-aware coverage.
+- [x] CI lints `src`/`tests`/`scripts`, parses tracked JSON/YAML/TOML,
+  rejects forbidden/oversized artifacts and private paths, scans all reachable
+  revisions for secrets, audits general dependencies, and fails on scientific
+  dependency-risk drift.
+- [ ] Enable protected/CI-gated main-branch updates. GitHub currently returns
+  HTTP 403 for branch protection on this private repository under the active
+  plan; changing plan or visibility requires the student.
+- [ ] Confirm a source-code license; third-party/model/data/adapter terms are
+  already separated in `THIRD_PARTY_NOTICES.md`, but no project license is
+  inferred.
 
-Exit: remote equals the frozen local commit, CI is green, and a fresh public
-clone is privacy-safe.
+Exit: remote equals the frozen local commit, CI is green, and a fresh clone at
+the approved visibility is privacy-safe.
 
 ## 3. Complete both human listening reviews
 
@@ -298,8 +307,9 @@ Owner: Codex after section 5, without disrupting other GPU users.
 Exact-shape launch probe:
 
 - [ ] Wait for safe H100 availability; never stop unrelated processes.
-- [ ] Revalidate isolated environment, checkouts, assets, architecture, configs,
-  and hashes.
+- [x] Revalidate the isolated environment, both pinned checkouts, model/Mimi/
+  tokenizer schemas, configs, and hashes; all 81 exact lock pins match the
+  installed Python 3.12 H100 environment.
 - [ ] Run the exact 20-second, batch-1, four-microbatch, rank-64,
   gradient-checkpointed, embedding-tuning one-step probe:
 
@@ -334,8 +344,9 @@ Full run:
   a restart an exact resume.
 - [ ] Check train/validation loss for finiteness, convergence, instability, and
   overfitting.
-- [ ] Predeclare checkpoint-selection criterion; do not choose from training loss
-  or a favorite subjective sample.
+- [x] Predeclare checkpoint selection in `docs/MOSHI_SELECTION_PROTOCOL.md`:
+  minimum finite mean validation `eval_loss` across all expected 500-step
+  checkpoints, tie broken toward the earlier step; never use held-out outcomes.
 - [ ] Load periodic/final adapters in the pinned runtime with no unexpected or
   missing adapter keys; hash the selected adapter/config.
 
@@ -523,20 +534,27 @@ Final engineering audit:
 
 - [ ] Reproduce install, tests, adapter load, and held-out inference in a clean
   environment.
-- [ ] Confirm `features`/`metrics` modes write no WAV.
-- [ ] Run secret scan, dependency vulnerability review, license review, and
-  tracked-file-size review; document accepted residual risks.
-- [ ] Parse all JSON/YAML/manifests and verify all hashes.
-- [ ] Confirm no raw YouTube media, private source documents, participant
+- [x] Confirm by test that `features`/`metrics` retention modes write no
+  WAV.
+- [x] Run full-history secret/private-path/size scans, general dependency audit,
+  and exact scientific-risk drift audit; document the accepted pinned-stack
+  risks and mitigations in `docs/REPOSITORY_SECURITY.md`.
+- [ ] Select the project source-code license; do not infer one from third-party
+  licenses.
+- [x] Parse all tracked JSON/JSONL/YAML/TOML and enforce their schemas where
+  applicable.
+- [ ] Verify every final generated manifest, export, adapter, evaluation, and
+  release hash after those artifacts exist.
+- [x] Confirm no raw YouTube media, private source documents, participant
   identifiers, credentials, environments, caches, or restricted weights are
-  tracked.
+  tracked in any reachable revision.
 - [ ] Freeze evidence bundle: commit/tag, configs, locks, hashes, environments,
   audits, metrics, logs, approved aggregate study data, and generated tables;
   keep restricted media private.
 - [ ] Tag/push the submitted commit and tag; verify a fresh clone.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
-privacy-safe public repository, approved restricted handoff, immutable tag.
+privacy-safe repository at approved visibility, restricted handoff, immutable tag.
 
 ## Formal requirement traceability
 
@@ -552,18 +570,20 @@ privacy-safe public repository, approved restricted handoff, immutable tag.
 | 12–24 GB evaluation | Full model fits/runs officially on physical 4090 | Pending | Preflight, VRAM, telemetry |
 | Human evaluation | 5–10 Persian speakers, ≥2 aged 60+, complete ratings | Pending | Study summary/analysis |
 | Elderly findings | Evidence from ≥2 aged 60+, cautiously interpreted | Pending | Age-stratified results |
-| Documented code/dataset | Reproducible public code/metadata; restricted corpus handled per approval | Mostly implemented | Final repo/provenance/handoff |
+| Documented code/dataset | Reproducible code/metadata at approved visibility; restricted corpus handled per approval | Mostly implemented | Final repo/provenance/handoff |
 
 ## Inputs required from the student
 
-1. Authenticate GitHub locally; do not send credentials in chat.
-2. Arrange completion of the 40-row and 24-row listening sheets.
-3. Record the unresolved supervisor decisions in section 1.
-4. Tell Codex when QA is complete; Codex can apply/audit/export/probe/train on
-   the H100.
-5. Provide the physical 4090 when available.
-6. Arrange the consented 5–10-person study with at least two participants aged
+1. Record the unresolved supervisor decisions in section 1 before the
+   corresponding final outcome is selected or claimed.
+2. Choose the project source-code license. If protected `main` is required,
+   authorize an eligible GitHub plan or a visibility change.
+3. Provide the physical 4090 when available.
+4. Arrange the consented 5–10-person study with at least two participants aged
    60+, or obtain a written scope amendment.
+5. Optional strict-path recovery only: complete the preserved 40-row and 24-row
+   listening sheets. They are deliberately waived—not fabricated—for the active
+   limited run and do not block its export/probe/training path.
 
-After each input, continue from the first unchecked critical-path item. Never
-skip ahead and backfill evidence after seeing the outcome.
+Continue automatically through engineering-owned work. Never backfill human,
+4090, detector, or study evidence after seeing an outcome.
