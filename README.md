@@ -69,25 +69,26 @@ rotate it and replace the document with environment-variable placeholders.
 .venv/bin/python -m thesis_s2s.cli build-conversations --in-jsonl data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
 .venv/bin/python -m thesis_s2s.cli export-moshi-data --assistant-audio-mode piper
+.venv/bin/python -m thesis_s2s.cli audit-moshi-data
 .venv/bin/python -m thesis_s2s.cli serve --study --retention features
 .venv/bin/python -m thesis_s2s.cli export-recordings
 .venv/bin/python -m thesis_s2s.cli study-summary
 .venv/bin/python -m thesis_s2s.cli gpu-preflight
 .venv/bin/python -m thesis_s2s.cli release-snapshot
+.venv/bin/python scripts/audit_moshi_dependencies.py
+.venv/bin/python scripts/select_moshi_checkpoint.py
 .venv/bin/python -m thesis_s2s.cli eval --path both
 .venv/bin/ruff check src tests scripts
 .venv/bin/python -m pytest -q
 ```
 
 Conversation commands are strict by default. The active time-constrained,
-.venv/bin/python -m thesis_s2s.cli audit-moshi-data
 automatic-only training path must pass the same explicit
 `--qa-waiver configs/conversation_qa_waiver.yaml` to pair building, audit, and
 Moshi export. See `docs/QA_WAIVER.md`; the waiver never creates human-verified
 or strict-coverage evidence.
 
 `gpu-preflight` reports H100 hardware, the isolated Moshi stack, strict and
-.venv/bin/python scripts/select_moshi_checkpoint.py
 waiver-limited data/export readiness, current full-profile memory headroom, and
 physical 4090 evaluation as separate gates. A 4090 is never required to train
 the adapter.

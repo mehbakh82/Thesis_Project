@@ -50,6 +50,7 @@ SNAPSHOT_FILES = (
     "results/moshi_export_audit.json",
     "results/moshi_checkpoint_selection.json",
     "results/moshi_export_report.json",
+    "results/security/moshi_dependency_audit.json",
     "results/bargein/heldout_report.json",
     "results/bargein/recorded_heldout_report.json",
     "results/bargein/feature_heldout_report.json",

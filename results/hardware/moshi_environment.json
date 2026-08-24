@@ -18,6 +18,501 @@
     "finetune": "0.0.0",
     "sphn": "0.1.12"
   },
+  "requirements_lock": {
+    "path": "requirements-moshi.lock",
+    "sha256": "a9f442aaa20bad0498f36210cd66cce53f9626faa06cf8d4caf69e51695e6c2e",
+    "package_count": 81,
+    "packages": {
+      "absl-py": {
+        "requirement_name": "absl-py",
+        "expected": "2.5.0",
+        "actual": "2.5.0",
+        "matches": true
+      },
+      "aiohappyeyeballs": {
+        "requirement_name": "aiohappyeyeballs",
+        "expected": "2.7.1",
+        "actual": "2.7.1",
+        "matches": true
+      },
+      "aiohttp": {
+        "requirement_name": "aiohttp",
+        "expected": "3.11.18",
+        "actual": "3.11.18",
+        "matches": true
+      },
+      "aiosignal": {
+        "requirement_name": "aiosignal",
+        "expected": "1.4.0",
+        "actual": "1.4.0",
+        "matches": true
+      },
+      "attrs": {
+        "requirement_name": "attrs",
+        "expected": "26.1.0",
+        "actual": "26.1.0",
+        "matches": true
+      },
+      "auditok": {
+        "requirement_name": "auditok",
+        "expected": "0.2.0",
+        "actual": "0.2.0",
+        "matches": true
+      },
+      "bitsandbytes": {
+        "requirement_name": "bitsandbytes",
+        "expected": "0.45.5",
+        "actual": "0.45.5",
+        "matches": true
+      },
+      "certifi": {
+        "requirement_name": "certifi",
+        "expected": "2026.7.22",
+        "actual": "2026.7.22",
+        "matches": true
+      },
+      "cffi": {
+        "requirement_name": "cffi",
+        "expected": "2.1.1",
+        "actual": "2.1.1",
+        "matches": true
+      },
+      "charset-normalizer": {
+        "requirement_name": "charset-normalizer",
+        "expected": "3.5.1",
+        "actual": "3.5.1",
+        "matches": true
+      },
+      "cloudpickle": {
+        "requirement_name": "cloudpickle",
+        "expected": "3.1.2",
+        "actual": "3.1.2",
+        "matches": true
+      },
+      "cython": {
+        "requirement_name": "Cython",
+        "expected": "3.3.0",
+        "actual": "3.3.0",
+        "matches": true
+      },
+      "docstring-parser": {
+        "requirement_name": "docstring_parser",
+        "expected": "0.18.0",
+        "actual": "0.18.0",
+        "matches": true
+      },
+      "dtw-python": {
+        "requirement_name": "dtw-python",
+        "expected": "1.7.5",
+        "actual": "1.7.5",
+        "matches": true
+      },
+      "einops": {
+        "requirement_name": "einops",
+        "expected": "0.8.2",
+        "actual": "0.8.2",
+        "matches": true
+      },
+      "filelock": {
+        "requirement_name": "filelock",
+        "expected": "3.32.3",
+        "actual": "3.32.3",
+        "matches": true
+      },
+      "fire": {
+        "requirement_name": "fire",
+        "expected": "0.7.1",
+        "actual": "0.7.1",
+        "matches": true
+      },
+      "frozenlist": {
+        "requirement_name": "frozenlist",
+        "expected": "1.8.0",
+        "actual": "1.8.0",
+        "matches": true
+      },
+      "fsspec": {
+        "requirement_name": "fsspec",
+        "expected": "2026.7.0",
+        "actual": "2026.7.0",
+        "matches": true
+      },
+      "grpcio": {
+        "requirement_name": "grpcio",
+        "expected": "1.83.0",
+        "actual": "1.83.0",
+        "matches": true
+      },
+      "huggingface-hub": {
+        "requirement_name": "huggingface-hub",
+        "expected": "0.28.1",
+        "actual": "0.28.1",
+        "matches": true
+      },
+      "idna": {
+        "requirement_name": "idna",
+        "expected": "3.19",
+        "actual": "3.19",
+        "matches": true
+      },
+      "iniconfig": {
+        "requirement_name": "iniconfig",
+        "expected": "2.3.0",
+        "actual": "2.3.0",
+        "matches": true
+      },
+      "jinja2": {
+        "requirement_name": "Jinja2",
+        "expected": "3.1.6",
+        "actual": "3.1.6",
+        "matches": true
+      },
+      "llvmlite": {
+        "requirement_name": "llvmlite",
+        "expected": "0.49.0",
+        "actual": "0.49.0",
+        "matches": true
+      },
+      "markdown": {
+        "requirement_name": "Markdown",
+        "expected": "3.10.3",
+        "actual": "3.10.3",
+        "matches": true
+      },
+      "markupsafe": {
+        "requirement_name": "MarkupSafe",
+        "expected": "3.0.3",
+        "actual": "3.0.3",
+        "matches": true
+      },
+      "more-itertools": {
+        "requirement_name": "more-itertools",
+        "expected": "11.1.0",
+        "actual": "11.1.0",
+        "matches": true
+      },
+      "mpmath": {
+        "requirement_name": "mpmath",
+        "expected": "1.3.0",
+        "actual": "1.3.0",
+        "matches": true
+      },
+      "multidict": {
+        "requirement_name": "multidict",
+        "expected": "6.7.1",
+        "actual": "6.7.1",
+        "matches": true
+      },
+      "networkx": {
+        "requirement_name": "networkx",
+        "expected": "3.6.1",
+        "actual": "3.6.1",
+        "matches": true
+      },
+      "numba": {
+        "requirement_name": "numba",
+        "expected": "0.67.0",
+        "actual": "0.67.0",
+        "matches": true
+      },
+      "numpy": {
+        "requirement_name": "numpy",
+        "expected": "2.2.6",
+        "actual": "2.2.6",
+        "matches": true
+      },
+      "nvidia-cublas-cu12": {
+        "requirement_name": "nvidia-cublas-cu12",
+        "expected": "12.4.5.8",
+        "actual": "12.4.5.8",
+        "matches": true
+      },
+      "nvidia-cuda-cupti-cu12": {
+        "requirement_name": "nvidia-cuda-cupti-cu12",
+        "expected": "12.4.127",
+        "actual": "12.4.127",
+        "matches": true
+      },
+      "nvidia-cuda-nvrtc-cu12": {
+        "requirement_name": "nvidia-cuda-nvrtc-cu12",
+        "expected": "12.4.127",
+        "actual": "12.4.127",
+        "matches": true
+      },
+      "nvidia-cuda-runtime-cu12": {
+        "requirement_name": "nvidia-cuda-runtime-cu12",
+        "expected": "12.4.127",
+        "actual": "12.4.127",
+        "matches": true
+      },
+      "nvidia-cudnn-cu12": {
+        "requirement_name": "nvidia-cudnn-cu12",
+        "expected": "9.1.0.70",
+        "actual": "9.1.0.70",
+        "matches": true
+      },
+      "nvidia-cufft-cu12": {
+        "requirement_name": "nvidia-cufft-cu12",
+        "expected": "11.2.1.3",
+        "actual": "11.2.1.3",
+        "matches": true
+      },
+      "nvidia-curand-cu12": {
+        "requirement_name": "nvidia-curand-cu12",
+        "expected": "10.3.5.147",
+        "actual": "10.3.5.147",
+        "matches": true
+      },
+      "nvidia-cusolver-cu12": {
+        "requirement_name": "nvidia-cusolver-cu12",
+        "expected": "11.6.1.9",
+        "actual": "11.6.1.9",
+        "matches": true
+      },
+      "nvidia-cusparse-cu12": {
+        "requirement_name": "nvidia-cusparse-cu12",
+        "expected": "12.3.1.170",
+        "actual": "12.3.1.170",
+        "matches": true
+      },
+      "nvidia-cusparselt-cu12": {
+        "requirement_name": "nvidia-cusparselt-cu12",
+        "expected": "0.6.2",
+        "actual": "0.6.2",
+        "matches": true
+      },
+      "nvidia-nccl-cu12": {
+        "requirement_name": "nvidia-nccl-cu12",
+        "expected": "2.21.5",
+        "actual": "2.21.5",
+        "matches": true
+      },
+      "nvidia-nvjitlink-cu12": {
+        "requirement_name": "nvidia-nvjitlink-cu12",
+        "expected": "12.4.127",
+        "actual": "12.4.127",
+        "matches": true
+      },
+      "nvidia-nvtx-cu12": {
+        "requirement_name": "nvidia-nvtx-cu12",
+        "expected": "12.4.127",
+        "actual": "12.4.127",
+        "matches": true
+      },
+      "openai-whisper": {
+        "requirement_name": "openai-whisper",
+        "expected": "20250625",
+        "actual": "20250625",
+        "matches": true
+      },
+      "packaging": {
+        "requirement_name": "packaging",
+        "expected": "26.3",
+        "actual": "26.3",
+        "matches": true
+      },
+      "pillow": {
+        "requirement_name": "pillow",
+        "expected": "12.3.0",
+        "actual": "12.3.0",
+        "matches": true
+      },
+      "pip": {
+        "requirement_name": "pip",
+        "expected": "26.2",
+        "actual": "26.2",
+        "matches": true
+      },
+      "pluggy": {
+        "requirement_name": "pluggy",
+        "expected": "1.6.0",
+        "actual": "1.6.0",
+        "matches": true
+      },
+      "propcache": {
+        "requirement_name": "propcache",
+        "expected": "0.5.2",
+        "actual": "0.5.2",
+        "matches": true
+      },
+      "protobuf": {
+        "requirement_name": "protobuf",
+        "expected": "7.36.0",
+        "actual": "7.36.0",
+        "matches": true
+      },
+      "pycparser": {
+        "requirement_name": "pycparser",
+        "expected": "3.0",
+        "actual": "3.0",
+        "matches": true
+      },
+      "pygments": {
+        "requirement_name": "Pygments",
+        "expected": "2.21.0",
+        "actual": "2.21.0",
+        "matches": true
+      },
+      "pytest": {
+        "requirement_name": "pytest",
+        "expected": "9.1.1",
+        "actual": "9.1.1",
+        "matches": true
+      },
+      "pyyaml": {
+        "requirement_name": "PyYAML",
+        "expected": "6.0.3",
+        "actual": "6.0.3",
+        "matches": true
+      },
+      "regex": {
+        "requirement_name": "regex",
+        "expected": "2026.7.19",
+        "actual": "2026.7.19",
+        "matches": true
+      },
+      "requests": {
+        "requirement_name": "requests",
+        "expected": "2.34.2",
+        "actual": "2.34.2",
+        "matches": true
+      },
+      "safetensors": {
+        "requirement_name": "safetensors",
+        "expected": "0.5.3",
+        "actual": "0.5.3",
+        "matches": true
+      },
+      "scipy": {
+        "requirement_name": "scipy",
+        "expected": "1.18.1",
+        "actual": "1.18.1",
+        "matches": true
+      },
+      "sentencepiece": {
+        "requirement_name": "sentencepiece",
+        "expected": "0.2.0",
+        "actual": "0.2.0",
+        "matches": true
+      },
+      "setuptools": {
+        "requirement_name": "setuptools",
+        "expected": "84.0.0",
+        "actual": "84.0.0",
+        "matches": true
+      },
+      "simple-parsing": {
+        "requirement_name": "simple-parsing",
+        "expected": "0.1.9",
+        "actual": "0.1.9",
+        "matches": true
+      },
+      "sounddevice": {
+        "requirement_name": "sounddevice",
+        "expected": "0.5.0",
+        "actual": "0.5.0",
+        "matches": true
+      },
+      "sphn": {
+        "requirement_name": "sphn",
+        "expected": "0.1.12",
+        "actual": "0.1.12",
+        "matches": true
+      },
+      "submitit": {
+        "requirement_name": "submitit",
+        "expected": "1.5.4",
+        "actual": "1.5.4",
+        "matches": true
+      },
+      "sympy": {
+        "requirement_name": "sympy",
+        "expected": "1.13.1",
+        "actual": "1.13.1",
+        "matches": true
+      },
+      "tensorboard": {
+        "requirement_name": "tensorboard",
+        "expected": "2.21.0",
+        "actual": "2.21.0",
+        "matches": true
+      },
+      "tensorboard-data-server": {
+        "requirement_name": "tensorboard-data-server",
+        "expected": "0.7.2",
+        "actual": "0.7.2",
+        "matches": true
+      },
+      "termcolor": {
+        "requirement_name": "termcolor",
+        "expected": "3.3.0",
+        "actual": "3.3.0",
+        "matches": true
+      },
+      "tiktoken": {
+        "requirement_name": "tiktoken",
+        "expected": "0.14.0",
+        "actual": "0.14.0",
+        "matches": true
+      },
+      "torch": {
+        "requirement_name": "torch",
+        "expected": "2.6.0",
+        "actual": "2.6.0",
+        "matches": true
+      },
+      "torchaudio": {
+        "requirement_name": "torchaudio",
+        "expected": "2.6.0",
+        "actual": "2.6.0",
+        "matches": true
+      },
+      "tqdm": {
+        "requirement_name": "tqdm",
+        "expected": "4.70.0",
+        "actual": "4.70.0",
+        "matches": true
+      },
+      "triton": {
+        "requirement_name": "triton",
+        "expected": "3.2.0",
+        "actual": "3.2.0",
+        "matches": true
+      },
+      "typing-extensions": {
+        "requirement_name": "typing_extensions",
+        "expected": "4.16.0",
+        "actual": "4.16.0",
+        "matches": true
+      },
+      "urllib3": {
+        "requirement_name": "urllib3",
+        "expected": "2.7.0",
+        "actual": "2.7.0",
+        "matches": true
+      },
+      "werkzeug": {
+        "requirement_name": "Werkzeug",
+        "expected": "3.1.8",
+        "actual": "3.1.8",
+        "matches": true
+      },
+      "whisper-timestamped": {
+        "requirement_name": "whisper-timestamped",
+        "expected": "1.15.9",
+        "actual": "1.15.9",
+        "matches": true
+      },
+      "yarl": {
+        "requirement_name": "yarl",
+        "expected": "1.24.5",
+        "actual": "1.24.5",
+        "matches": true
+      }
+    },
+    "errors": [],
+    "valid": true
+  },
   "checkouts": {
     "Moshi": {
       "expected": "061cc4c630d9e11722e08b7d02b1836ba58f30e8",
@@ -91,6 +586,7 @@
     "bf16_supported": true,
     "architecture_matches_pinned_loader": true,
     "checkout_revisions_match": true,
+    "locked_package_versions_match": true,
     "configs_parse": true,
     "model_assets_load_and_schema_match": true,
     "single_gpu_training_launcher_available": true

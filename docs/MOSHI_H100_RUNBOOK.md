@@ -92,7 +92,15 @@ export HF_HOME="$PWD/hf_cache"
   -e third_party/checkouts/moshi-finetune
 .venv-moshi/bin/python scripts/validate_moshi_environment.py
 .venv-moshi/bin/python scripts/prepare_moshi_base.py
+.venv/bin/python scripts/audit_moshi_dependencies.py
 ```
+
+The dependency audit must pass before training. Its passing status means the
+current findings exactly match the reviewed compatibility exceptions in
+`configs/moshi_dependency_risk_policy.json`; it does **not** mean the pinned
+environment has no known vulnerabilities. Keep this environment private, load
+only hash-pinned model/tokenizer files and project-generated checkpoints, and
+review any advisory drift before continuing.
 
 The last command downloads only the exact Hugging Face revision in the
 upstream lock and verifies the byte length and SHA-256 of every training-time

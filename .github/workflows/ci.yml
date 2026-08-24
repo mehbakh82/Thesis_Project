@@ -33,6 +33,8 @@ jobs:
         run: python scripts/ci_artifact_audit.py
       - name: Dependency vulnerability audit
         run: pip-audit --requirement requirements.txt --strict
+      - name: Pinned Moshi dependency risk drift audit
+        run: python scripts/audit_moshi_dependencies.py
       - name: Test
         run: coverage run -m pytest -q
       - name: Coverage

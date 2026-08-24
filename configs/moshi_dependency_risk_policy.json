@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "status": "temporary-compatibility-exception",
+  "reviewed_at": "2026-08-24",
+  "scope": "Pinned private Moshi training/runtime environment only; not the general application environment.",
+  "review_command": ".venv/bin/python scripts/audit_moshi_dependencies.py",
+  "accepted_risks": [
+    {
+      "package": "aiohttp",
+      "version": "3.11.18",
+      "upstream_constraint": "Pinned Moshi requires aiohttp>=3.10.5,<3.12; the available fixes begin outside that range.",
+      "advisories": [
+        "PYSEC-2026-1097",
+        "PYSEC-2026-1099",
+        "PYSEC-2026-1100",
+        "PYSEC-2026-1101",
+        "PYSEC-2026-1104",
+        "PYSEC-2026-1105",
+        "PYSEC-2026-1106",
+        "PYSEC-2026-1107",
+        "PYSEC-2026-1109",
+        "PYSEC-2026-2094",
+        "PYSEC-2026-2095",
+        "PYSEC-2026-2096",
+        "PYSEC-2026-2097",
+        "PYSEC-2026-2098",
+        "PYSEC-2026-2099",
+        "PYSEC-2026-2100",
+        "PYSEC-2026-2101",
+        "PYSEC-2026-2102",
+        "PYSEC-2026-2103",
+        "PYSEC-2026-2104",
+        "PYSEC-2026-2105",
+        "PYSEC-2026-2106",
+        "PYSEC-2026-2107",
+        "PYSEC-2026-2108",
+        "PYSEC-2026-2109",
+        "PYSEC-2026-2110",
+        "PYSEC-2026-2111",
+        "PYSEC-2026-2112",
+        "PYSEC-2026-2113",
+        "PYSEC-2026-237",
+        "PYSEC-2026-3545",
+        "PYSEC-2026-3546",
+        "PYSEC-2026-3547"
+      ],
+      "mitigations": [
+        "Do not expose the pinned training environment as a public service.",
+        "Bind any later research server to loopback or a trusted authenticated network only.",
+        "Re-evaluate and remove this exception before deployment or an upstream Moshi migration."
+      ]
+    },
+    {
+      "package": "sentencepiece",
+      "version": "0.2.0",
+      "upstream_constraint": "Pinned Moshi requires sentencepiece==0.2; the published fix is 0.2.1.",
+      "advisories": [
+        "PYSEC-2026-1909"
+      ],
+      "mitigations": [
+        "Load only the SHA-256-pinned Moshika SentencePiece model.",
+        "Never parse participant-provided or other untrusted tokenizer model files.",
+        "Re-evaluate and remove this exception before deployment or an upstream Moshi migration."
+      ]
+    },
+    {
+      "package": "torch",
+      "version": "2.6.0",
+      "upstream_constraint": "Pinned Moshi-Finetune requires torch==2.6 and pinned Moshi requires torch<2.7; fixes are outside the supported range or unavailable.",
+      "advisories": [
+        "CVE-2025-2148",
+        "CVE-2025-2149",
+        "CVE-2025-2998",
+        "CVE-2025-2999",
+        "CVE-2025-3001",
+        "PYSEC-2025-191",
+        "PYSEC-2025-194",
+        "PYSEC-2025-198",
+        "PYSEC-2025-199",
+        "PYSEC-2025-200",
+        "PYSEC-2025-201",
+        "PYSEC-2025-202",
+        "PYSEC-2025-203",
+        "PYSEC-2025-204",
+        "PYSEC-2025-205",
+        "PYSEC-2025-206",
+        "PYSEC-2025-207",
+        "PYSEC-2025-208",
+        "PYSEC-2025-209",
+        "PYSEC-2026-139",
+        "PYSEC-2026-1970",
+        "PYSEC-2026-2286"
+      ],
+      "mitigations": [
+        "Load only SHA-256-pinned safetensors and project-generated checkpoints; never torch.load untrusted files.",
+        "Use the isolated environment for local single-GPU research, not public multi-tenant inference.",
+        "Treat audio, captions, network messages, and model files from outside the frozen corpus as untrusted.",
+        "Re-evaluate and remove this exception before deployment or an upstream trainer migration."
+      ]
+    }
+  ]
+}

@@ -47,7 +47,7 @@
     "metrics_sha256": "0efca3eb1ea13c5eca68676d8996a7963d64d70ee82f022a5adb262b9b0b253f",
     "resolved_args_sha256": "989a4aefcbb99eab3e22e8352eeedc690ecd0ba93bd95b732980c898961f8012",
     "source_config_sha256": "0c987ffbaa7058e6d4e65cd6fb396731622cae117ebbaedef629b57ca4de37e3",
-    "environment_report_sha256": "a28f8828dfa5a96d285dc0fed4f34a598af78547f9f784db63e0838dd9c222cc"
+    "environment_report_sha256": "08d1df2ec971e9ac78c3363782cdb0272f2e4f8cc8b7674e97bcfaef380e9f19"
   },
   "note": "This proves pinned model/Mimi loading, LoRA initialization, data tokenization, loss, backward pass, and optimizer wiring only. It is not Persian quality, convergence, held-out, or target-GPU evidence."
 }

@@ -34,6 +34,28 @@ Status date: 2026-08-24
   `requirements-moshi.lock`, `third_party/UPSTREAMS.lock.json`, and the
   hardware/environment evidence.
 
+## Accepted pinned-training compatibility risks
+
+The general application audit is clean. The isolated scientific Moshi lock is
+separate: after upgrading its independently patchable packaging tool from pip
+24.0 to 26.2, the audit reports 58 rows (56 unique advisory identifiers) in
+three upstream-constrained packages.
+
+| Package | Pinned reason | Required mitigation |
+|---|---|---|
+| `torch==2.6.0` | Moshi-Finetune requires exactly 2.6 and Moshi requires <2.7 | Load only pinned safetensors/project checkpoints; no untrusted `torch.load`; local single-GPU research only |
+| `aiohttp==3.11.18` | Moshi requires <3.12 while fixes start outside that range | No public service; bind later research servers only to loopback or a trusted authenticated network |
+| `sentencepiece==0.2.0` | Moshi requires 0.2 while the fix is 0.2.1 | Parse only the SHA-256-pinned tokenizer model |
+
+`configs/moshi_dependency_risk_policy.json` records every reviewed advisory,
+constraint, and mitigation. `scripts/audit_moshi_dependencies.py` compares the
+live advisory database with that exact baseline and fails CI on any package,
+version, added advisory, removed advisory, or malformed-policy drift. Its report
+is `results/security/moshi_dependency_audit.json`. A passing drift audit means
+“no unreviewed change”; it deliberately does not claim “no vulnerabilities.”
+The exception must be removed or reviewed again before public deployment or an
+upstream Moshi/trainer migration.
+
 ## Deliberately unresolved decisions
 
 - No source-code license has been selected. Until the student/supervisor chooses

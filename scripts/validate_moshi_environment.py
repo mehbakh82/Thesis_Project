@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import dataclasses
+import hashlib
 import importlib.metadata
 import json
 import subprocess
@@ -15,8 +16,11 @@ import safetensors.torch
 import torch
 from finetune.args import TrainArgs
 from moshi.models import loaders
+from packaging.requirements import InvalidRequirement, Requirement
+from packaging.utils import canonicalize_name
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+LOCK_PATH = PROJECT_ROOT / "requirements-moshi.lock"
 PACKAGES = ("torch", "torchaudio", "triton", "moshi", "finetune", "sphn")
 CHECKOUTS = {
     "Moshi": PROJECT_ROOT / "third_party" / "checkouts" / "moshi",
@@ -48,6 +52,58 @@ def git_head(path: Path) -> str | None:
         ).stdout.strip()
     except (OSError, subprocess.SubprocessError):
         return None
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def validate_locked_environment() -> dict:
+    packages: dict[str, dict] = {}
+    errors: list[str] = []
+    for line_number, raw_line in enumerate(
+        LOCK_PATH.read_text(encoding="utf-8").splitlines(), start=1
+    ):
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        try:
+            requirement = Requirement(line)
+        except InvalidRequirement as exc:
+            errors.append(f"line {line_number}: invalid requirement: {exc}")
+            continue
+        if requirement.marker is not None and not requirement.marker.evaluate():
+            continue
+        specifiers = list(requirement.specifier)
+        if len(specifiers) != 1 or specifiers[0].operator != "==":
+            errors.append(f"line {line_number}: dependency must have one exact == pin")
+            continue
+        key = canonicalize_name(requirement.name)
+        if key in packages:
+            errors.append(f"line {line_number}: duplicate dependency pin: {key}")
+            continue
+        expected = specifiers[0].version
+        try:
+            actual = importlib.metadata.version(requirement.name)
+        except importlib.metadata.PackageNotFoundError:
+            actual = None
+        matches = actual == expected
+        packages[key] = {
+            "requirement_name": requirement.name,
+            "expected": expected,
+            "actual": actual,
+            "matches": matches,
+        }
+        if not matches:
+            errors.append(f"{key}: expected {expected}, installed {actual}")
+    return {
+        "path": str(LOCK_PATH),
+        "sha256": _sha256(LOCK_PATH),
+        "package_count": len(packages),
+        "packages": packages,
+        "errors": errors,
+        "valid": bool(packages) and not errors,
+    }
 
 
 def validate_base_model_schema(entry: dict) -> dict:
@@ -154,6 +210,7 @@ def main() -> int:
             packages[name] = importlib.metadata.version(name)
         except importlib.metadata.PackageNotFoundError:
             packages[name] = None
+    locked_environment = validate_locked_environment()
     gates = {
         "running_in_isolated_venv": Path(sys.prefix).resolve()
         == (PROJECT_ROOT / ".venv-moshi").resolve(),
@@ -162,6 +219,7 @@ def main() -> int:
         "architecture_matches_pinned_loader": model_type == "moshi"
         and legacy == loaders._lm_kwargs,
         "checkout_revisions_match": all(row["matches"] for row in checkouts.values()),
+        "locked_package_versions_match": locked_environment["valid"] is True,
         "configs_parse": len(configs) == len(config_filenames),
         "model_assets_load_and_schema_match": base_model_schema["valid"] is True,
         "single_gpu_training_launcher_available": (
@@ -182,6 +240,7 @@ def main() -> int:
             "single_gpu_gloo_fallback": True,
         },
         "packages": packages,
+        "requirements_lock": locked_environment,
         "checkouts": checkouts,
         "configs": configs,
         "base_model_schema": base_model_schema,
