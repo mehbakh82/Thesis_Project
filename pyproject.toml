@@ -75,9 +75,9 @@ module = [
 ]
 ignore_errors = true
 
-# NumPy 2.4 ships Python-3.12-only syntax in its stubs when installed on a
-# Python 3.12 CI runner. Skipping those third-party implementation stubs keeps
-# mypy focused on this project while preserving the declared Python 3.10 target.
+# NumPy can ship interpreter-specific syntax in the stubs selected for the
+# current runtime. Skipping third-party implementation stubs keeps mypy focused
+# on this project while preserving the declared Python 3.10 target.
 [[tool.mypy.overrides]]
 module = ["numpy", "numpy.*"]
 follow_imports = "skip"
