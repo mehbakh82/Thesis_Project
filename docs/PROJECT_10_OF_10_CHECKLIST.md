@@ -1,0 +1,519 @@
+# Checklist for a defensible 10/10 thesis project
+
+Status date: 2026-08-24
+
+This is the authoritative closure checklist. Mark an item complete only when its
+named artifact exists and its acceptance test passes. Implemented code,
+synthetic fixtures, estimates, and plans are not experimental evidence unless
+an item explicitly says they are.
+
+## Closure rule and current baseline
+
+- `[x]` means completed and supported by an artifact or test.
+- `[ ]` means incomplete, even if its supporting code is implemented.
+- Items owned by a reviewer, supervisor, participant, or hardware provider
+  cannot be fabricated or silently waived by code.
+- A written supervisor-approved scope amendment can replace a requirement; an
+  informal assumption cannot.
+
+The project is 10/10 only when every formal requirement in the traceability
+table passes, every critical-path item below is closed, all numbers reproduce
+from the frozen commit and archived evidence, and no synthetic/component/H100
+result is presented as official live/4090/human evidence.
+
+Verified now:
+
+- [x] Formal data, model, duplex, latency, detector, hardware, and human-study
+  requirements are represented by explicit gates.
+- [x] Working NeMo ASR → Qwen/rules → Piper cascade baseline and a
+  continuous-microphone browser interruption-control path.
+- [x] Legacy 7 MB reconstruction checkpoint is blocked from being described or
+  loaded as a genuine direct speech-language model.
+- [x] Direct path selected: pinned Moshika 7B with the official
+  Moshi-Finetune LoRA trainer.
+- [x] Moshika, Mimi, SentencePiece, trainer, runtime, and Persian Piper files
+  and revisions are pinned and hash-verified.
+- [x] Real one-step H100 wiring smoke passed model/Mimi load, LoRA init,
+  tokenization, loss, backward, and optimizer: loss 4.614331, peak 15.258 GB.
+- [x] Full inventory: 775.887 caption hours / 1,442 episodes.
+- [x] Authorized staging: 296 episodes / 1,021 windows / 196.546 candidate
+  hours / 181.824 automatic multi-speaker hours / 217.115 aligned hours.
+- [x] Non-mutating estimate: 6,017 non-reused pairs / 105.727 pair hours.
+- [x] Internal thesis training is supervisor-approved for all 1,021 windows;
+  raw-data redistribution remains prohibited.
+- [x] 712 conservative interaction candidates recovered: 669
+  interruption-like and 43 backchannel-like.
+- [x] Ruff, mypy on 45 source files, and 65 tests pass.
+- [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
+  raw data, environments, model blobs, checkpoints, and credentials are
+  excluded from tracking.
+- [ ] Window QA: 0/40 reviewed.
+- [ ] Interaction QA: 0/24 reviewed.
+- [ ] Final conversation audit/export, full-profile probe, scientific adapter,
+  held-out model evaluation, 4090 evidence, real detector evidence, and human
+  study are pending.
+- [ ] Local commits are not pushed because this server has no GitHub HTTPS
+  credentials.
+
+## Critical path
+
+Supervisor decisions and participant recruitment may run in parallel with QA.
+Everything else follows this order:
+
+```text
+40-row + 24-row review
+        -> apply QA and audit final response pairs
+        -> export immutable Moshi stereo data
+        -> exact-shape one-step H100 memory probe
+        -> full H100 LoRA training
+        -> held-out model validation and direct-runtime integration
+        -> physical-4090 live evaluation and human study
+        -> final analysis, evidence freeze, thesis, and release
+```
+
+## 1. Freeze supervisor decisions before viewing final outcomes
+
+Owner: student and supervisor. Record dated answers in
+`docs/SUPERVISOR_DECISIONS.md`; keep original correspondence privately.
+
+- [x] Approve private, non-commercial training on the crawled YouTube corpus.
+- [ ] Decide which 100–200-hour measure is binding. Conservative recommendation:
+  require the final exported conversational training duration—not raw episode,
+  staging, candidate, or estimated duration—to be in range.
+- [ ] Approve the 40-row stratified window QA sample, or specify the replacement
+  sample size and acceptance threshold.
+- [ ] Approve the 24-row / 168.3-second interaction-boundary sample, its minimum
+  precision, and the minimum verified-interruption count.
+- [ ] Confirm that reviewed existing podcast/interview interactions satisfy the
+  interruption-data requirement without new student recordings.
+- [ ] Confirm pinned Moshika 7B + official Moshi-Finetune LoRA as the accepted
+  open-base adaptation path.
+- [ ] Decide whether 500 ms binds maximum, p95, or median. Until then, use the
+  literal conservative test: every included official turn ≤500 ms, while also
+  reporting p50, p95, maximum, failures, and timeouts.
+- [ ] Decide event-level versus frame-level detector accuracy. Recommended
+  primary result: event-level, speaker/session-held-out accuracy, plus
+  interrupt precision/recall/F1, FAR, and FRR.
+- [ ] Confirm a physical RTX 4090 (24 GB) as eligible target hardware.
+- [ ] Approve consent/ethics procedure and study retention mode: `features`
+  recommended; `metrics` if acoustic aggregates are prohibited.
+- [ ] If participant recruitment is impossible, obtain a written scope
+  amendment before substituting expert/listening evaluation. Otherwise the
+  human-study requirement remains incomplete.
+- [ ] Decide how to submit the “dataset” without redistribution rights.
+  Recommended: private audited corpus plus public schemas, construction code,
+  hashes, aggregate statistics, and a restricted-data statement.
+- [ ] Confirm final deliverables: repository, private data handoff if any,
+  adapter, evidence bundle, thesis PDF, and demo.
+
+Exit: every applicable ambiguity has a dated answer recorded before outcome
+selection.
+
+## 2. Publish and protect the repository
+
+Owner: student for authentication; Codex can push afterward.
+
+- [x] Remote is `https://github.com/mehbakh82/Thesis_Project.git`.
+- [x] Existing commits use
+  `Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>`.
+- [x] `cursor_bsc_thesis_project_planning.md` and `تعریف پروژه.docx` are
+  root-ignored and absent from tracked history.
+- [x] Raw media, internal manifests, environments, caches, credentials,
+  checkpoints, and large weights are ignored.
+- [ ] Authenticate GitHub locally without putting a token in the repository,
+  command history, or chat. Do not reuse/overwrite the pre-existing rejected
+  SSH key because its ownership is uncertain.
+- [ ] Run `git push origin main`; require local `main` not to be ahead of
+  `origin/main`.
+- [ ] Inspect the repository while logged out and confirm restricted/private
+  files and absolute internal paths are absent.
+- [x] Basic GitHub Actions CI runs compile, Ruff, mypy, tests, and a 35% coverage
+  floor.
+- [ ] Extend CI to lint `scripts`, parse tracked JSON/YAML, and run secret
+  scanning; review whether the risk-based coverage floor should be raised.
+- [ ] Enable protected/CI-gated main-branch updates.
+- [ ] Confirm source-code license and third-party notices; keep source, model,
+  dataset, and derived-adapter licenses distinct.
+
+Exit: remote equals the frozen local commit, CI is green, and a fresh public
+clone is privacy-safe.
+
+## 3. Complete both human listening reviews
+
+Owner: student, supervisor, or approved reviewer with archive access. No new
+speech recording is required.
+
+Window QA:
+
+- [ ] Read `docs/MANUAL_QA_FA.md`.
+- [ ] Review all rows in
+  `data/processed/manifests/conversation_manual_qa.csv`.
+- [ ] Set every `review_status` to `pass` or `fail`; provide `reviewer_id`.
+- [ ] For every pass, complete speaker count, speaker assignment, caption
+  acceptability, and overlap-annotation checks.
+- [ ] Note failures/borderline cases; do not alter IDs, paths, automatic fields,
+  or provenance columns.
+- [ ] Confirm 40/40 complete and zero duplicate IDs.
+
+Interaction QA:
+
+- [ ] Read `docs/INTERRUPTION_QA_FA.md`.
+- [ ] Review all rows in
+  `data/processed/manifests/conversation_interruption_qa.csv`.
+- [ ] Play only the short excerpt with
+  `.venv/bin/python scripts/review_interaction_candidate.py --row N`.
+- [ ] Check distinct speakers, both turn boundaries, and audible overlap; set
+  `corrected_label` to `interrupt` or `backchannel`; provide `reviewer_id`.
+- [ ] Reject uncertainty rather than promoting an automatic label.
+- [ ] Confirm 24/24 complete, four-channel coverage, and at least one verified
+  interruption. If precision fails the agreed threshold, sample a deterministic
+  supplement or narrow the claim.
+
+Exit: both internal, gitignored sheets retain original IDs and pass the
+fail-closed preflight parser.
+
+## 4. Apply QA and construct the final corpus
+
+Owner: Codex after section 3.
+
+- [ ] Apply window review:
+
+  ```bash
+  .venv/bin/python -m thesis_s2s.cli apply-conversation-qa \
+    --in-jsonl data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl \
+    --out-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl
+  ```
+
+- [ ] Require `results/manual_qa_report.json`: 40 decisions, zero incomplete,
+  zero unknown IDs, and fail-closed behavior.
+- [ ] Apply interaction review:
+
+  ```bash
+  .venv/bin/python -m thesis_s2s.cli apply-interruption-qa \
+    --in-jsonl data/processed/manifests/conversation_episode_windows_reviewed.jsonl \
+    --out-jsonl data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl
+  ```
+
+- [ ] Require `results/interaction_qa_report.json`: `qa_complete=true`, zero
+  incomplete/unknown IDs, and `verified_interruption_present=true`.
+- [ ] Re-audit reviewed windows, preserving channel, noise, alignment, speaker,
+  overlap, authorization, and split counts.
+- [ ] Build non-reused adjacent response pairs; run `audit-conversations` with
+  file checks enabled.
+- [ ] Require all final audit gates: 100–200 hours, response pairs, natural
+  multi-speaker sessions, ≥2 session groups, group-clean splits, no reused
+  intervals, verified interruption, overlap/noise, authorization, manual sample,
+  and referenced files present.
+- [ ] If final duration falls below 100 hours, add only enough disjoint reserve
+  material to restore margin and repeat processing, authorization, QA, and audit.
+- [ ] Add Iman Khoraminezhad/Karnakon only if yield or diversity is deficient;
+  deduplicate episodes first and never add hours merely for scale.
+- [ ] Freeze input/output content hashes when all gates pass.
+
+Exit: `results/conversation_audit.json` has `thesis_coverage_ok=true`; final,
+not estimated, duration satisfies the supervisor-approved 100–200-hour measure.
+
+## 5. Export immutable Moshi training data
+
+Owner: Codex after section 4.
+
+- [ ] Export the primary set:
+
+  ```bash
+  .venv/bin/python -m thesis_s2s.cli export-moshi-data \
+    --assistant-audio-mode piper
+  ```
+
+- [ ] Require group-isolated train/validation/test manifests, all selected pairs
+  exported, 100–200 exported hours, manual verification, complete authorization,
+  pinned assistant voice, and raw redistribution disabled.
+- [ ] Verify files, sample rate, stereo order, durations, response timing,
+  transcript association, and hashes.
+- [ ] Listen to a stratified sample across channel/split/noise/overlap/
+  interruption/response-length conditions.
+- [ ] Confirm channel 0 is assistant and channel 1 is user.
+- [ ] Keep `--assistant-audio-mode source` as a named multi-voice ablation only.
+- [ ] Require `results/moshi_export_report.json` to have
+  `final_training_ready=true` and all requirements true.
+- [ ] Re-run `gpu-preflight`; require `training_data_ready=true` and
+  `adaptation_run_ready=true`.
+
+Exit: immutable manifests/audio/metadata, assistant-voice hash, statistics, and
+passing export report.
+
+## 6. Certify and train the exact H100 profile
+
+Owner: Codex after section 5, without disrupting other GPU users.
+
+Exact-shape launch probe:
+
+- [ ] Wait for safe H100 availability; never stop unrelated processes.
+- [ ] Revalidate isolated environment, checkouts, assets, architecture, configs,
+  and hashes.
+- [ ] Run the exact 20-second, batch-1, four-microbatch, rank-64,
+  gradient-checkpointed, embedding-tuning one-step probe:
+
+  ```bash
+  MOSHI_DISTRIBUTED_BACKEND=gloo \
+    .venv-moshi/bin/torchrun --standalone --nproc-per-node 1 \
+    scripts/moshi_train_entry.py configs/moshi_h100_profile_probe.yaml
+  .venv/bin/python scripts/record_moshi_profile_probe.py
+  .venv/bin/python -m thesis_s2s.cli gpu-preflight \
+    --out results/hardware/current_preflight.json
+  ```
+
+- [ ] Require finite loss, current hashes, `full_profile_gate_passes=true`, and
+  current free VRAM ≥ measured peak + 4 GB.
+- [ ] Keep this probe labelled `scientific_evidence=false`.
+
+Full run:
+
+- [ ] Run in a persistent terminal/service because the pinned trainer lacks
+  exact optimizer/scheduler/data-loader resume state.
+- [ ] Use only `configs/moshi_h100.yaml` and immutable reviewed exports:
+
+  ```bash
+  MOSHI_DISTRIBUTED_BACKEND=gloo \
+    .venv-moshi/bin/torchrun --standalone --nproc-per-node 1 \
+    scripts/moshi_train_entry.py configs/moshi_h100.yaml
+  ```
+
+- [ ] Preserve logs, resolved args, environment, input hashes, base hashes, GPU,
+  wall time, seed, losses, and periodic adapters.
+- [ ] Archive failed runs and restart honestly from immutable inputs; never call
+  a restart an exact resume.
+- [ ] Check train/validation loss for finiteness, convergence, instability, and
+  overfitting.
+- [ ] Predeclare checkpoint-selection criterion; do not choose from training loss
+  or a favorite subjective sample.
+- [ ] Load periodic/final adapters in the pinned runtime with no unexpected or
+  missing adapter keys; hash the selected adapter/config.
+
+Exit: a reproducible, loadable Persian adapter selected from scientific
+train/validation evidence—not the smoke or legacy model.
+
+## 7. Validate learning and model quality
+
+Owner: Codex for automation; approved listeners for perceptual checks.
+
+- [ ] Prove the adapter is used by comparing adapter-on, adapter-off, and
+  perturbed-adapter outputs with identical inputs/seeds.
+- [ ] Prove target sensitivity: controlled changes to assistant target text/audio
+  change the corresponding text/audio-token loss.
+- [ ] Audit episode/session/time-span leakage; evaluate only group-disjoint held
+  out conversations.
+- [ ] Evaluate Persian response relevance/coherence with a documented rubric and
+  suitable semantic metrics; do not use WER against open-ended responses as the
+  sole relevance metric.
+- [ ] Measure intelligibility separately, e.g. ASR CER/WER on content-controlled
+  speech, with ASR limitations disclosed.
+- [ ] Check Persian script/pronunciation, silence-only output, English drift,
+  codec collapse, repeated loops, and unsafe/unusable failure modes.
+- [ ] Cover clean/noisy/overlap/interruption, long/short turn, out-of-domain, and
+  elderly-speech conditions; retain representative failures.
+- [ ] Compare cascade, unadapted Moshika, and adapted Moshika on identical tests.
+- [ ] Report the supported source-response multi-voice ablation if useful; add
+  hyperparameter ablations only when answering a thesis question.
+- [ ] Report parameter/trainable counts, H100 time/memory, checkpoint size,
+  inference real-time factor, and negative results.
+
+Exit: held-out tables, reviewed output sample, error analysis, and proof that the
+final adapter causes the learned Persian response behavior.
+
+## 8. Complete direct-model full-duplex integration
+
+Owner: Codex after a valid adapter exists.
+
+- [ ] Build the pinned Moshi web client from its committed lockfile and serve its
+  local static bundle—never a moving remote client.
+- [ ] Load pinned base/Mimi/tokenizer plus exact adapter/config in the official
+  streaming server; log all hashes.
+- [ ] Verify the microphone stays active during assistant playback.
+- [ ] Verify interruption stops every browser audio source and produces
+  `playback_stopped_ack`.
+- [ ] Verify backchannels such as «آها»/«بله» follow the non-stopping policy.
+- [ ] Verify interrupted user speech becomes next-turn context; stopping playback
+  alone is not sufficient full duplex.
+- [ ] Test reconnect, cancellation, stale buffers, simultaneous turns, silence,
+  malformed packets, and OOM recovery.
+- [ ] Keep cascade as labelled baseline; direct sessions must not silently fall
+  back to Qwen/Piper or formant synthesis.
+- [ ] Add end-to-end regression tests for model identity, adapter load, browser
+  acknowledgements, cancellation, and retention mode.
+
+Exit: repeatable live Persian direct S2S with generation, duplex listening,
+interruption, cancellation, and continued conversation using the final adapter.
+
+## 9. Produce real detector evidence
+
+Owner: participants/student for data; Codex for training/analysis.
+
+- [ ] Collect consented real events with `features` retention when permitted (no
+  WAV). Use `metrics` only when aggregates are prohibited and disclose that it
+  prevents feature-based retraining.
+- [ ] Include interruption, backchannel, normal turn, silence, cough/non-speech,
+  noise, loudness, position, and speaker variation.
+- [ ] Keep participant/session groups intact across train/validation/test.
+- [ ] Freeze label and threshold protocol before viewing held-out results.
+- [ ] Train on training groups, tune only on validation groups, evaluate once on
+  held-out groups.
+- [ ] Report event accuracy, interrupt precision/recall/F1, FAR, FRR, confusion
+  matrix, denominators, and 95% confidence intervals.
+- [ ] Require accuracy strictly >80% under the agreed unit; synthetic harmonic
+  accuracy cannot satisfy this gate.
+- [ ] Compare energy VAD and GBDT on identical held-out events.
+- [ ] Report acoustic-onset-to-browser-stop p50/p95/max; retain p95 ≤300 ms as
+  the project engineering barge-in target.
+- [ ] Analyze errors by age/noise/backchannel/loudness/interruption position.
+
+Exit: real speaker/session-held-out report and detector hash satisfying >80%.
+
+## 10. Run official physical-4090 evaluation
+
+Owner: student provides card; Codex can execute/audit.
+
+- [ ] Copy frozen environment/base/adapter evidence; do not retrain or rediarize.
+- [ ] Run `gpu-preflight`; require physical device name 4090, 12–24 GB VRAM,
+  CUDA/BF16, and `evaluation_hardware_ready=true`.
+- [ ] Never use an H100 memory cap as official target evidence.
+- [ ] Verify complete base + adapter + Mimi + runtime fits below 24 GB; report
+  peak allocated/reserved VRAM, not file size.
+- [ ] Document warm-up, concurrency, browser/audio device, driver, CUDA, Torch,
+  and power/performance settings.
+- [ ] Measure end-of-speech → client `playback_started` as `T_first_audio`.
+- [ ] Measure acoustic interrupt onset → client `playback_stopped_ack` as
+  `T_barge_in`; server-only timestamps remain diagnostic.
+- [ ] Predeclare timeout policy; include failures/timeouts in denominators.
+- [ ] Report p50, p95, max, N, failures, and confidence intervals.
+- [ ] Until clarified, require maximum first-audio ≤500 ms; if another statistic
+  is approved, still report the literal maximum.
+- [ ] Separate cold start, warm turn, components, cascade, direct, and official
+  end-to-end rows.
+- [ ] Use enough turns/sessions to avoid cherry-picked demo evidence.
+
+Exit: 4090 preflight plus immutable `official_e2e` client telemetry bound to
+model and commit hashes.
+
+## 11. Complete the human study
+
+Owner: student, ethics/supervisor, and participants. Code cannot replace it.
+
+- [ ] Obtain required approval/consent procedure before recruitment.
+- [ ] Recruit 5–10 native Persian speakers, including at least two aged 60+.
+- [ ] Use pseudonymous IDs; store no names/contact data in the repository.
+- [ ] Run primary ratings on final direct model and eligible target GPU.
+- [ ] Follow predefined script: consent, two warm-ups, time request,
+  interruption, non-stopping backchannel, safe noisy condition, three-minute
+  free conversation, and complete ratings.
+- [ ] Require browser consent before persistence.
+- [ ] Prefer `--retention features` and verify no WAV; retain raw voice only with
+  explicit approval/consent.
+- [ ] Collect all four ratings, MOS/naturalness, satisfaction, interruption
+  success, false stops, client timing, and qualitative notes.
+- [ ] Record elderly pause/loudness/intelligibility/turn-taking/confusion/recovery
+  observations without overgeneralizing from two people.
+- [ ] Predeclare exclusion rules; require complete ratings/timing for included
+  participants and report all exclusions.
+- [ ] Counterbalance baseline/final order if claiming preference differences.
+- [ ] Run `export-recordings` and `study-summary` after each block.
+- [ ] Require `human_study.json`: N=5–10, ≥2 aged 60+, complete ratings/client
+  timing, eligible hardware, and real detector evidence.
+- [ ] Report distributions, appropriate means/medians, uncertainty, paired
+  comparisons where justified, qualitative themes, and small-N limitations.
+
+Exit: consented, pseudonymized study evidence for naturalness, satisfaction,
+interaction, and elderly findings.
+
+## 12. Final analysis, thesis, reproducibility, and release
+
+Evidence/statistics:
+
+- [ ] Regenerate `results/eval/EVIDENCE_STATUS.json` from final artifacts.
+- [ ] Mark only consented live-browser rows on eligible hardware
+  `official_e2e`.
+- [ ] Generate final dataset/model/detector/latency/study/ablation/error tables
+  from machine-readable results.
+- [ ] Include denominators, failures, uncertainty, seeds, split policy, and exact
+  metric definitions.
+- [ ] Do not select thresholds, checkpoints, trials, or statistics after seeing
+  held-out results.
+- [ ] Reconcile every README/dataset-card/thesis/result number; remove stale
+  estimates once final evidence exists.
+
+Thesis narrative:
+
+- [ ] Distinguish prior ASR fine-tuning from Moshi response training.
+- [ ] Document final architecture, channel semantics, LoRA/embedding choices,
+  timing, detector ownership, and browser control path.
+- [ ] Explain H100 training versus physical-4090 official evaluation.
+- [ ] Document selection, diarization, alignment, conditions, QA, authorization,
+  non-redistribution, split isolation, and limitations.
+- [ ] Compare cascade, base Moshika, adapted Moshika, and justified ablations
+  without conflating evidence.
+- [ ] Include real error analysis, successes, failures, and cautiously scoped
+  elderly findings.
+- [ ] Verify citations, bibliography, licenses, and third-party notices.
+- [ ] Ensure abstract/conclusion/tables/demo make no claim beyond evidence.
+
+Final engineering audit:
+
+- [ ] Run:
+
+  ```bash
+  .venv/bin/ruff check src tests scripts
+  .venv/bin/mypy src
+  .venv/bin/python -m pytest -q
+  .venv/bin/python -m thesis_s2s.cli verify-upstreams \
+    --checkouts-root third_party/checkouts
+  .venv/bin/python -m thesis_s2s.cli gpu-preflight \
+    --out results/hardware/final_preflight.json
+  .venv/bin/python -m thesis_s2s.cli release-snapshot \
+    --out results/release/final_snapshot.json
+  ```
+
+- [ ] Reproduce install, tests, adapter load, and held-out inference in a clean
+  environment.
+- [ ] Confirm `features`/`metrics` modes write no WAV.
+- [ ] Run secret scan, dependency vulnerability review, license review, and
+  tracked-file-size review; document accepted residual risks.
+- [ ] Parse all JSON/YAML/manifests and verify all hashes.
+- [ ] Confirm no raw YouTube media, private source documents, participant
+  identifiers, credentials, environments, caches, or restricted weights are
+  tracked.
+- [ ] Freeze evidence bundle: commit/tag, configs, locks, hashes, environments,
+  audits, metrics, logs, approved aggregate study data, and generated tables;
+  keep restricted media private.
+- [ ] Tag/push the submitted commit and tag; verify a fresh clone.
+
+Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
+privacy-safe public repository, approved restricted handoff, immutable tag.
+
+## Formal requirement traceability
+
+| Requirement | Conservative acceptance test | Current state | Final evidence |
+|---|---|---|---|
+| Working Persian S2S prototype | Final adapter produces relevant, intelligible Persian speech live | Pending | Adapter hash, runtime logs, held-out output |
+| Full duplex | Mic remains active; interruption stops playback and becomes next-turn context | Control implemented; direct model pending | Client traces and continuation tests |
+| End-to-end ≤500 ms | Max `T_first_audio` ≤500 ms unless another statistic is predeclared; always p50/p95/max | Pending | Physical-4090 `official_e2e` telemetry |
+| Open base adapted to Persian | Moshika 7B LoRA trained on reviewed Persian response pairs | Infrastructure ready | Config, logs, adapter, held-out results |
+| 100–200 conversational hours | Final audited/exported hours in range; group-clean, no reused intervals | 105.727 h estimate only | Conversation audit/export report |
+| Noise/overlap/interruption labels | Conditions present, QA complete, verified interruption, agreed precision | Automatic only | QA reports and final counts |
+| Classical detector >80% | Real group-held-out event accuracy >80%, F1/FAR/FRR reported | Synthetic proxy only | Real held-out report/hash |
+| 12–24 GB evaluation | Full model fits/runs officially on physical 4090 | Pending | Preflight, VRAM, telemetry |
+| Human evaluation | 5–10 Persian speakers, ≥2 aged 60+, complete ratings | Pending | Study summary/analysis |
+| Elderly findings | Evidence from ≥2 aged 60+, cautiously interpreted | Pending | Age-stratified results |
+| Documented code/dataset | Reproducible public code/metadata; restricted corpus handled per approval | Mostly implemented | Final repo/provenance/handoff |
+
+## Inputs required from the student
+
+1. Authenticate GitHub locally; do not send credentials in chat.
+2. Arrange completion of the 40-row and 24-row listening sheets.
+3. Record the unresolved supervisor decisions in section 1.
+4. Tell Codex when QA is complete; Codex can apply/audit/export/probe/train on
+   the H100.
+5. Provide the physical 4090 when available.
+6. Arrange the consented 5–10-person study with at least two participants aged
+   60+, or obtain a written scope amendment.
+
+After each input, continue from the first unchecked critical-path item. Never
+skip ahead and backfill evidence after seeing the outcome.

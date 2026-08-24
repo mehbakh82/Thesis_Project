@@ -95,3 +95,6 @@ evaluation as separate gates. A 4090 is never required to train the adapter.
 - Human evaluation requires 5–10 Persian speakers, at least two aged 60+, with complete ratings.
 
 See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/MOSHI_H100_RUNBOOK.md`, `docs/METRICS.md`, `docs/HUMAN_STUDY.md`, `docs/NO_RECORDING_ALTERNATIVES.md`, `docs/GPU_4090_RUNBOOK.md`, `docs/MANUAL_QA_FA.md`, `docs/INTERRUPTION_QA_FA.md`, `docs/RIGHTS_REVIEW_FA.md`, `docs/SUPERVISOR_DECISIONS.md`, and `docs/REVIEW.md`.
+
+The ordered evidence and delivery path to a fully complete project is tracked
+in `docs/PROJECT_10_OF_10_CHECKLIST.md`.
