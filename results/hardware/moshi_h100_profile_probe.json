@@ -1,8 +1,8 @@
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "status": "passed",
-  "completed_at": "2026-08-26T08:06:09.554918",
-  "purpose": "one-step exact-full-profile memory and optimizer probe only",
+  "completed_at": "2026-08-26T08:28:51.196981",
+  "purpose": "one-step exact-full-profile optimizer and checkpoint probe only",
   "scientific_evidence": false,
   "persian_training_claim_allowed": false,
   "training_data_policy": {
@@ -45,7 +45,7 @@
   "step": {
     "number": 1,
     "loss": 3.808453,
-    "words_per_second": 1108.032
+    "words_per_second": 1162.155
   },
   "profile": {
     "duration_sec": 20.0,
@@ -70,24 +70,32 @@
     "full_training_shape_matches": true,
     "resolved_args_match_probe_config": true,
     "evaluation_disabled": true,
-    "checkpointing_disabled": true,
+    "checkpoint_save_completed": true,
     "real_model_memory_allocated": true,
-    "project_launcher_uses_fused_adamw": true
+    "project_launcher_uses_fused_adamw": true,
+    "project_launcher_offloads_single_gpu_adapter_save": true
   },
   "optimizer_runtime": {
     "algorithm": "AdamW",
     "foreach": false,
     "fused": true
   },
+  "checkpoint_runtime": {
+    "adapter_copy_device": "cpu",
+    "adapter_bytes": 1013593144,
+    "adapter_tensor_count": 699
+  },
   "full_profile_gate_passes": true,
   "artifacts": {
-    "metrics_sha256": "6aaad1e8e9b47d18a5ddc92752817c23a50ede79e9a91aaed9d9bb128652b306",
-    "resolved_args_sha256": "3d22e68db1fbcfd7963c1c387ce593f632346ed4b12a5b3072ce1bc95b1b683a",
-    "probe_config_sha256": "0980502562237040f0d2d6ee4624a06e48fa60cb9497a858cc7a2b391f2a8516",
+    "metrics_sha256": "8edad383fdbed5da6b6df6347861cb0e5edc5406be3b75df22568e63bfe7f164",
+    "resolved_args_sha256": "993610c28b52bf2c6b8d0e34382c04e412dab8a3382b6290c82033274de5915f",
+    "probe_config_sha256": "08861ae8be49d19ef7d42bc997415f2c093a763bcd9da8eba7e03a13cef0666a",
     "full_config_sha256": "7f009e02064b42c917e621af58afb9b5278601d8d2ec56f0e8f0d8a7aec84d31",
     "environment_report_sha256": "08d1df2ec971e9ac78c3363782cdb0272f2e4f8cc8b7674e97bcfaef380e9f19",
     "export_report_sha256": "f4e2532cbcea533764e84f83018f109b4e815ff1c08a1900947800d69f5a1872",
-    "project_launcher_sha256": "9a047f8d525bc6dfaa1d7aad846346a5bbbcf03219692a13fc4de3e8f61bae39"
+    "project_launcher_sha256": "b461fae3e967b0dfc9dadb5e4cb1e929c95341f9ab56dbb045ee6ec2af5e605f",
+    "probe_adapter_sha256": "2f4aaa9657f0e510d1b4f423a56fa02f7f1f7b35d94edb3e1161a3bc2190a145",
+    "probe_adapter_config_sha256": "d714a651ceb9849fff5d1e9b5f53dda91cf09f2ca8351bbda5214f1053664a7f"
   },
-  "note": "This measures peak memory for one optimizer step with the full training shape. It is not convergence, Persian quality, held-out, or target-GPU evidence. A QA-waiver export validates only the limited training path and never turns automatic labels into human-verified evidence."
+  "note": "This measures peak memory for one optimizer step with the full training shape and proves a CPU-offloaded adapter checkpoint can be written. It is not convergence, Persian quality, held-out, or target-GPU evidence. A QA-waiver export validates only the limited training path and never turns automatic labels into human-verified evidence."
 }

@@ -231,10 +231,11 @@ microbatches so it can coexist more safely on a shared H100. Never terminate
 unrelated GPU jobs to make room; wait for headroom or reduce `duration_sec` for
 a smoke test.
 
-After the final strict-or-waiver Moshi export and independent audit pass, run one step with the exact
-full-training shape. Unlike the earlier five-second rank-8 smoke, this probe
-uses 20 seconds, rank 64, embedding tuning, and four microbatches. It records a
-memory certificate but is still explicitly non-scientific:
+After the final strict-or-waiver Moshi export and independent audit pass, run
+one step and save one adapter with the exact full-training shape. Unlike the
+earlier five-second rank-8 smoke, this probe uses 20 seconds, rank 64, embedding
+tuning, and four microbatches. It records a memory/checkpoint certificate but
+is still explicitly non-scientific:
 
 ```bash
 MOSHI_DISTRIBUTED_BACKEND=gloo \
@@ -249,11 +250,19 @@ On 2026-08-26 the exact probe first exposed two honest optimizer-step OOMs:
 default multi-tensor AdamW and scalar AdamW each needed a 502 MiB denominator
 temporary after forward/backward. No unrelated process was stopped and neither
 attempt is called a passed profile. The project launcher now selects PyTorch's
-fused AdamW kernel, preserving AdamW and every model/data-shape parameter while
-avoiding that materialized temporary. The third attempt passed with loss
-3.808453, 22.707 GB peak, and 21.747 GB allocated after the step. The report
-binds the fused optimizer mode and exact launcher hash; the two failed attempts
-remain in `results/hardware/moshi_h100_profile_probe_attempt{1,2}.json`.
+fused AdamW kernel and copies single-GPU adapter checkpoint tensors directly to
+CPU, preserving AdamW, checkpoint contents, and every model/data-shape
+parameter while avoiding materialized GPU temporaries. The checkpoint-enabled
+exact attempt passed with loss 3.808453, 22.707 GB peak, 21.747 GB allocated
+after the step, and a 967 MiB/699-tensor BF16 adapter written in about three
+seconds. The report binds both runtime choices and the exact launcher hash; the
+two optimizer failures remain in
+`results/hardware/moshi_h100_profile_probe_attempt{1,2}.json`.
+
+The first full scientific launch on commit `1603beb` was intentionally stopped
+at step 150, before checkpoint 500, after code inspection identified the
+one-GPU clone risk under the then-observed 1.1 GiB free headroom. The run is
+archived and hash-attested; it is not eligible for checkpoint selection.
 
 
 Launch only when `adaptation_run_ready`, `adaptation_launch_safe_now`, and the

@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "status": "intentionally_stopped_before_first_checkpoint",
+  "scientific_training_attempt": true,
+  "eligible_for_checkpoint_selection": false,
+  "eligible_for_quality_claims": false,
+  "reason": "The pinned single-GPU saver was found to clone the complete adapter on CUDA while only about 1.1 GiB was free during the resident run. The attempt was stopped before step 500, preserved, and superseded by an exact checkpoint-enabled probe of the CPU-offloaded saver.",
+  "started_at": "2026-08-26T08:15:54Z",
+  "stopped_at": "2026-08-26T08:21:29Z",
+  "source_commit": "1603beb",
+  "service": {
+    "unit": "thesis-moshi-h100-train-1603beb.service",
+    "invocation_id": "cfbff52e7f6a40ba9a42947884f69c07",
+    "exit_signal": "SIGTERM",
+    "stop_scope": "project-owned service only",
+    "unrelated_gpu_processes_stopped": false
+  },
+  "profile": {
+    "max_steps": 8000,
+    "checkpoint_frequency_steps": 500,
+    "evaluation_frequency_steps": 250,
+    "steps_completed": 150,
+    "percent_completed": 1.875,
+    "evaluation_rows": 0,
+    "checkpoints_written": 0,
+    "last_logged_loss": 2.3381354808807373,
+    "peak_allocated_gb": 22.897170066833496,
+    "allocated_gb_after_step": 21.74732255935669,
+    "average_words_per_second": 4206.269737541664
+  },
+  "superseding_checkpoint_probe": {
+    "status": "passed",
+    "adapter_bytes": 1013593144,
+    "adapter_tensor_count": 699,
+    "adapter_dtype": "bfloat16",
+    "adapter_copy_device": "cpu",
+    "profile_report": "results/hardware/moshi_h100_profile_probe.json"
+  },
+  "preserved_artifacts": {
+    "directory": "checkpoints/moshi_fa_attempt1_precheckpoint_1603beb",
+    "gitignored": true,
+    "args_yaml": {
+      "bytes": 1108,
+      "sha256": "74365c1945ad2ffe8538637f4753fa5d2230c446c74ae880e03baaff4099513e"
+    },
+    "train_metrics_jsonl": {
+      "bytes": 5088,
+      "sha256": "af21597263d954770b4c0aabf3be424cf23df7672c72338a4db8b0406bd04fa5"
+    },
+    "systemd_log": {
+      "bytes": 8266,
+      "sha256": "ffd0528eb51502732aa23360cea420b6e80537eeae4e97715f08b57a0b9663da"
+    }
+  }
+}

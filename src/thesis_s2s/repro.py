@@ -791,6 +791,12 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
     profile_artifacts = (
         profile_payload.get("artifacts") if isinstance(profile_payload, dict) else {}
     ) or {}
+    profile_requirements = (
+        profile_payload.get("requirements") if isinstance(profile_payload, dict) else {}
+    ) or {}
+    checkpoint_runtime = (
+        profile_payload.get("checkpoint_runtime") if isinstance(profile_payload, dict) else {}
+    ) or {}
     profile_inputs = {
         "probe_config_sha256": root / "configs" / "moshi_h100_profile_probe.yaml",
         "full_config_sha256": root / "configs" / "moshi_h100.yaml",
@@ -803,11 +809,22 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
         for key, path in profile_inputs.items()
     )
     profile_peak_gb = profile_hardware.get("peak_allocated_gb")
+    checkpoint_save_certified = (
+        profile_requirements.get("checkpoint_save_completed") is True
+        and profile_requirements.get("project_launcher_offloads_single_gpu_adapter_save") is True
+        and checkpoint_runtime.get("adapter_copy_device") == "cpu"
+        and isinstance(checkpoint_runtime.get("adapter_bytes"), int)
+        and checkpoint_runtime["adapter_bytes"] > 0
+        and isinstance(checkpoint_runtime.get("adapter_tensor_count"), int)
+        and checkpoint_runtime["adapter_tensor_count"] > 0
+    )
     profile_valid = (
         isinstance(profile_payload, dict)
+        and profile_payload.get("schema_version") == 4
         and profile_payload.get("status") == "passed"
         and profile_payload.get("full_profile_gate_passes") is True
         and profile_payload.get("scientific_evidence") is False
+        and checkpoint_save_certified
         and profile_hashes_current
     )
     try:
@@ -834,6 +851,7 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
             "status": profile_payload.get("status") if isinstance(profile_payload, dict) else None,
             "peak_allocated_gb": profile_peak_gb,
             "recorded_hashes_match_current_inputs": profile_hashes_current,
+            "checkpoint_save_certified": checkpoint_save_certified,
         }
     )
     scheduling = {

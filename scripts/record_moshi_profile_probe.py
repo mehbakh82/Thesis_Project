@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
+from safetensors import safe_open
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -47,6 +48,16 @@ def main() -> None:
     export_path = ROOT / "results" / "moshi_export_report.json"
     launcher_path = ROOT / "scripts" / "moshi_train_entry.py"
 
+    adapter_path = (
+        ROOT
+        / "checkpoints"
+        / "moshi_h100_profile_probe"
+        / "checkpoints"
+        / "checkpoint_000001"
+        / "consolidated"
+        / "lora.safetensors"
+    )
+    adapter_config_path = adapter_path.with_name("config.json")
     environment = _json(environment_path)
     export = _json(export_path)
     metric_rows = [
@@ -71,6 +82,18 @@ def main() -> None:
             "_configure_low_peak_adamw(torch)",
         )
     )
+    cpu_checkpoint_launcher = all(
+        marker in launcher_text
+        for marker in (
+            'device="cpu", dtype=save_dtype, copy=True',
+            "_configure_low_peak_checkpoints(",
+            'MOSHI_CHECKPOINT_CPU_OFFLOAD_EFFECTIVE"] = "true"',
+        )
+    )
+    adapter_keys: list[str] = []
+    if adapter_path.is_file():
+        with safe_open(adapter_path, framework="pt", device="cpu") as adapter:
+            adapter_keys = list(adapter.keys())
 
     strict_export_valid = export.get("final_training_ready") is True
     export_policy = export.get("qa_policy") or {"policy": "strict"}
@@ -106,15 +129,22 @@ def main() -> None:
         "resolved_args_match_probe_config": _comparable_profile(args)
         == _comparable_profile(probe_config),
         "evaluation_disabled": args.get("do_eval") is False,
-        "checkpointing_disabled": args.get("do_ckpt") is False,
+        "checkpoint_save_completed": (
+            args.get("do_ckpt") is True
+            and args.get("ckpt_freq") == 1
+            and adapter_path.is_file()
+            and adapter_config_path.is_file()
+            and bool(adapter_keys)
+        ),
         "real_model_memory_allocated": float(metric.get("peak_allocated_mem") or 0.0) > 10.0,
         "project_launcher_uses_fused_adamw": fused_adamw_launcher,
+        "project_launcher_offloads_single_gpu_adapter_save": cpu_checkpoint_launcher,
     }
     report = {
-        "schema_version": 3,
+        "schema_version": 4,
         "status": "passed" if all(requirements.values()) else "failed",
         "completed_at": metric.get("at") or datetime.now(timezone.utc).isoformat(),
-        "purpose": "one-step exact-full-profile memory and optimizer probe only",
+        "purpose": "one-step exact-full-profile optimizer and checkpoint probe only",
         "scientific_evidence": False,
         "persian_training_claim_allowed": False,
         "training_data_policy": export_policy,
@@ -143,6 +173,11 @@ def main() -> None:
             "foreach": False,
             "fused": True,
         },
+        "checkpoint_runtime": {
+            "adapter_copy_device": "cpu",
+            "adapter_bytes": adapter_path.stat().st_size if adapter_path.is_file() else None,
+            "adapter_tensor_count": len(adapter_keys),
+        },
         "full_profile_gate_passes": all(requirements.values()),
         "artifacts": {
             "metrics_sha256": _sha256(metrics_path),
@@ -152,9 +187,14 @@ def main() -> None:
             "environment_report_sha256": _sha256(environment_path),
             "export_report_sha256": _sha256(export_path),
             "project_launcher_sha256": _sha256(launcher_path),
+            "probe_adapter_sha256": _sha256(adapter_path) if adapter_path.is_file() else None,
+            "probe_adapter_config_sha256": _sha256(adapter_config_path)
+            if adapter_config_path.is_file()
+            else None,
         },
         "note": (
-            "This measures peak memory for one optimizer step with the full training shape. "
+            "This measures peak memory for one optimizer step with the full training shape "
+            "and proves a CPU-offloaded adapter checkpoint can be written. "
             "It is not convergence, Persian quality, held-out, or target-GPU evidence. "
             "A QA-waiver export validates only the limited training path and never turns "
             "automatic labels into human-verified evidence."

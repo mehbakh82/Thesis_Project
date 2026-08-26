@@ -58,7 +58,7 @@ Verified now:
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
-- [x] Ruff and mypy pass on all 47 source files; all 83 tests pass and
+- [x] Ruff and mypy pass on all 47 source files; all 85 tests pass and
   branch-aware coverage is 62% with a 60% CI floor.
 - [x] General dependencies have no known vulnerabilities; the pinned scientific
   lock has an exact, fail-closed accepted-risk baseline and mitigations.
@@ -66,7 +66,8 @@ Verified now:
 - [ ] Interaction QA: 0/24 reviewed.
 - [x] Waiver-bound Moshi export/audit: 6,754 pairs / 108.584 measured stereo
   hours, zero machine failures, 24/24 deterministic assistant re-syntheses.
-- [x] Exact full-profile probe: loss 3.808453, 22.707 GB peak, all gates pass.
+- [x] Exact full-profile probe: loss 3.808453, 22.707 GB peak, fused AdamW,
+  and a 967 MiB/699-tensor CPU-offloaded adapter save; all gates pass.
 - [ ] Scientific adapter, held-out model evaluation, 4090 evidence, real
   detector evidence, and human study are pending.
 - [x] GitHub CLI authentication is persistent for `mehbakh82`; the remote is
@@ -340,6 +341,10 @@ Exact-shape launch probe:
 - [x] Require finite loss, current hashes, `full_profile_gate_passes=true`, and
   current free VRAM ≥ measured peak + 4 GB.
 - [x] Keep this probe labelled `scientific_evidence=false`.
+- [x] Exercise the real checkpoint path. The single-GPU launcher copies the
+  967 MiB/699-tensor BF16 adapter directly to CPU; the checkpoint-enabled exact
+  probe completed without increasing the 22.707 GB logged training peak.
+
 
 Full run:
 
@@ -364,6 +369,11 @@ Full run:
   checkpoints, tie broken toward the earlier step; never use held-out outcomes.
 - [ ] Load periodic/final adapters in the pinned runtime with no unexpected or
   missing adapter keys; hash the selected adapter/config.
+
+The first launch on commit `1603beb` was intentionally stopped at step 150
+before its first checkpoint after inspection found that the pinned one-GPU
+saver would clone the 967 MiB adapter on a GPU with about 1.1 GiB free. Its
+logs and metrics are preserved and hash-attested; it is not selection evidence.
 
 Exit: a reproducible, loadable Persian adapter selected from scientific
 train/validation evidence—not the smoke or legacy model.

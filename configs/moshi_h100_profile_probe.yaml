@@ -35,8 +35,9 @@ seed: 20260823
 log_freq: 1
 eval_freq: 0
 do_eval: false
-do_ckpt: false
-ckpt_freq: 0
+do_ckpt: true
+ckpt_freq: 1
+num_ckpt_keep: 1
 save_adapters: true
 run_dir: checkpoints/moshi_h100_profile_probe
 overwrite_run_dir: true
