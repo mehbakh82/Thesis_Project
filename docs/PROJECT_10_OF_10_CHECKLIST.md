@@ -58,7 +58,7 @@ Verified now:
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
-- [x] Ruff and mypy pass on all 47 source files; all 85 tests pass and
+- [x] Ruff and mypy pass on all 47 source files; all 91 tests pass and
   branch-aware coverage is 62% with a 60% CI floor.
 - [x] General dependencies have no known vulnerabilities; the pinned scientific
   lock has an exact, fail-closed accepted-risk baseline and mitigations.
@@ -367,6 +367,9 @@ Full run:
 - [x] Predeclare checkpoint selection in `docs/MOSHI_SELECTION_PROTOCOL.md`:
   minimum finite mean validation `eval_loss` across all expected 500-step
   checkpoints, tie broken toward the earlier step; never use held-out outcomes.
+- [x] Implement a fail-closed selected-adapter validator for hashes, saved
+  config, exact trainable keys/shapes/dtypes, finite values, and the pinned
+  official loader; execution remains pending until selection.
 - [ ] Load periodic/final adapters in the pinned runtime with no unexpected or
   missing adapter keys; hash the selected adapter/config.
 

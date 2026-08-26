@@ -287,10 +287,14 @@ the criterion frozen in `docs/MOSHI_SELECTION_PROTOCOL.md`:
 
 ```bash
 .venv/bin/python scripts/select_moshi_checkpoint.py
+.venv-moshi/bin/python scripts/validate_moshi_adapter.py --runtime-device cuda
 ```
 
 The selector uses validation loss only, fails on incomplete logs/checkpoints,
-hashes every candidate, and never consults held-out or subjective output.
+hashes every candidate, and never consults held-out or subjective output. The
+validator then binds those hashes to the actual files, derives the exact
+trainable key/shape/dtype schema from the pinned meta-model, scans all adapter
+values for finiteness, and performs an official unfused-LoRA loader pass.
 
 A final run is acceptable only when:
 

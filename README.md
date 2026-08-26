@@ -77,6 +77,7 @@ rotate it and replace the document with environment-variable placeholders.
 .venv/bin/python -m thesis_s2s.cli release-snapshot
 .venv/bin/python scripts/audit_moshi_dependencies.py
 .venv/bin/python scripts/select_moshi_checkpoint.py
+.venv-moshi/bin/python scripts/validate_moshi_adapter.py --runtime-device cuda
 .venv/bin/python -m thesis_s2s.cli eval --path both
 .venv/bin/ruff check src tests scripts
 .venv/bin/python -m pytest -q

@@ -22,6 +22,18 @@ Run:
 The selector records every candidate, loss, adapter/config size and SHA-256, and
 the selected step in `results/moshi_checkpoint_selection.json`.
 
+Then validate the selected artifact through the isolated pinned Moshi
+environment:
+
+```bash
+.venv-moshi/bin/python scripts/validate_moshi_adapter.py --runtime-device cuda
+```
+
+Validation fails closed on stale hashes/config, a missing or unexpected
+trainable key, any shape/dtype mismatch, non-finite values, or official-loader
+failure. It records the exact adapter/config/selection hashes in
+`results/moshi_adapter_validation.json`.
+
 Training loss, the group-disjoint test split, subjective listening, latency,
 and a favorite generated example must not influence checkpoint selection.
 
