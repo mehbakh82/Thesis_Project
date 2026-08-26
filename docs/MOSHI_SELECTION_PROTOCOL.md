@@ -41,6 +41,12 @@ and a favorite generated example must not influence checkpoint selection.
 
 After the selected adapter loads with no missing/unexpected trainable keys:
 
+Run exactly once after selection and adapter validation:
+
+```bash
+.venv-moshi/bin/python scripts/evaluate_moshi_adapter.py
+```
+
 1. Freeze its adapter/config hashes.
 2. Run adapter-on, adapter-off, and deterministically perturbed-adapter
    conditions on identical group-disjoint test inputs and seeds.

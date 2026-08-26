@@ -58,7 +58,7 @@ Verified now:
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
-- [x] Ruff and mypy pass on all 47 source files; all 91 tests pass and
+- [x] Ruff and mypy pass on all 47 source files; all 97 tests pass and
   branch-aware coverage is 62% with a 60% CI floor.
 - [x] General dependencies have no known vulnerabilities; the pinned scientific
   lock has an exact, fail-closed accepted-risk baseline and mitigations.
@@ -385,6 +385,9 @@ train/validation evidence—not the smoke or legacy model.
 
 Owner: Codex for automation; approved listeners for perceptual checks.
 
+- [x] Implement the one-time full 331-chunk group-disjoint test evaluator for
+  paired selected-adapter, deterministic LoRA-perturbed, and pinned-base
+  text/audio/total losses; execution remains pending until selection.
 - [ ] Prove the adapter is used by comparing adapter-on, adapter-off, and
   perturbed-adapter outputs with identical inputs/seeds.
 - [ ] Prove target sensitivity: controlled changes to assistant target text/audio
