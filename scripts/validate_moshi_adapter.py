@@ -212,6 +212,16 @@ def validate_selected_adapter(
     if not isinstance(selected, dict) or not isinstance(candidates, list):
         raise ValueError("selection report has no selected checkpoint/candidate list")
 
+    reevaluation_metadata = selection.get("validation_reevaluation")
+    if not isinstance(reevaluation_metadata, dict):
+        raise ValueError("selection report has no validation reevaluation provenance")
+    reevaluation_path = project_path(
+        root,
+        reevaluation_metadata.get("path"),
+        "validation_reevaluation.path",
+    )
+    reevaluation = json_object(reevaluation_path)
+
     training_config = yaml.safe_load(training_config_path.read_text(encoding="utf-8"))
     base_config = json_object(base_config_path)
     if not isinstance(training_config, dict):
@@ -247,12 +257,30 @@ def validate_selected_adapter(
     recomputed_selection = selected_candidate_by_rule(candidates)
 
     requirements = {
-        "selection_schema_supported": selection.get("schema_version") == 1,
+        "selection_schema_supported": selection.get("schema_version") == 2,
         "selection_passed": selection.get("selection_passes") is True,
         "criterion_predeclared_before_training": selection.get(
             "criterion_predeclared_before_training"
         )
         is True,
+        "postrun_validation_input_correction_disclosed": selection.get(
+            "selection_input_corrected_after_training"
+        )
+        is True,
+        "selection_criterion_unchanged": selection.get("correction_changes_selection_criterion")
+        is False,
+        "original_upstream_metrics_rejected": selection.get(
+            "original_upstream_metrics_eligible_for_selection"
+        )
+        is False,
+        "fixed_scope_reevaluation_passed": (
+            reevaluation.get("schema_version") == 1
+            and reevaluation.get("status") == "passed"
+            and reevaluation.get("reevaluation_passes") is True
+            and reevaluation.get("heldout_test_used") is False
+        ),
+        "reevaluation_hash_matches_selection": reevaluation_metadata.get("sha256")
+        == sha256_file(reevaluation_path),
         "training_complete": selection.get("training_complete") is True,
         "heldout_not_used_for_selection": selection.get("heldout_test_used_for_selection") is False,
         "selection_profile_matches_training_config": (
@@ -328,6 +356,8 @@ def validate_selected_adapter(
             "path": selection_path.relative_to(root).as_posix(),
             "sha256": sha256_file(selection_path),
             "selected_step": selected_step,
+            "validation_reevaluation_path": reevaluation_path.relative_to(root).as_posix(),
+            "validation_reevaluation_sha256": sha256_file(reevaluation_path),
             "criterion_predeclared_before_training": selection.get(
                 "criterion_predeclared_before_training"
             )

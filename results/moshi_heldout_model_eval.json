@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "generated_at": "2026-08-26T14:29:47.986987+00:00",
+  "scientific_evidence": true,
+  "automatic_model_loss_evidence_only": true,
+  "human_perceptual_claim_allowed": false,
+  "heldout_used_for_checkpoint_selection": false,
+  "test_protocol": {
+    "split": "test",
+    "manifest": "data/processed/moshi_finetune/test.jsonl",
+    "manifest_sha256": "44d5912201ed359dabe3c026b6ae605b3bf946538e83116f57514448ed0794fe",
+    "rows": 204,
+    "chunks": 331,
+    "duration_sec": 20.0,
+    "batch_size": 1,
+    "order": [
+      "selected_adapter",
+      "selected_adapter_lora_B_sign_flipped",
+      "pinned_unadapted_base"
+    ],
+    "perturbation": "multiply every loaded lora_B.weight by -1 in memory"
+  },
+  "provenance": {
+    "adapter_validation_path": "results/moshi_adapter_validation.json",
+    "adapter_validation_sha256": "4433b55c8ae8a912e1026fdba39bd4291b751f62de47feb80d26e88fd2169956",
+    "selection_path": "results/moshi_checkpoint_selection.json",
+    "selection_sha256": "cdd68da015fdc3fc52ebb1a44a8d1984fe9ab8fe5c0d9fe74434ae5e2ca26702",
+    "selected_adapter_sha256": "7c0b184802d4ccbafebd33842f8864f12d9825d6b1143aa0852c1df08ae8abef",
+    "selected_config_sha256": "d714a651ceb9849fff5d1e9b5f53dda91cf09f2ca8351bbda5214f1053664a7f",
+    "base_model_sha256": "e0a5a1c79010680eb916adb940ee8567978c78902c5a6b743c79202e75858712",
+    "mimi_sha256": "09b782f0629851a271227fb9d36db65c041790365f11bbe5d3d59369cf863f50",
+    "tokenizer_sha256": "78d4336533ddc26f9acf7250d7fb83492152196c6ea4212c841df76933f18d2d",
+    "export_report_sha256": "f4e2532cbcea533764e84f83018f109b4e815ff1c08a1900947800d69f5a1872",
+    "export_audit_sha256": "9f4fdf6301ed7d63713df6e4818c41e0a4bfefbe0a14e88e0faaba6ef6d5ee00"
+  },
+  "modes": {
+    "selected_adapter": {
+      "mode": "selected_adapter",
+      "samples": 331,
+      "text_loss": {
+        "samples": 331,
+        "mean": 0.17750807354871037,
+        "standard_deviation": 0.17685526803591373,
+        "standard_error": 0.009720844677541083,
+        "ci95_low": 0.15845521798072984,
+        "ci95_high": 0.1965609291166909,
+        "minimum": 5.501395935425535e-05,
+        "maximum": 0.7925975322723389
+      },
+      "audio_loss": {
+        "samples": 331,
+        "mean": 1.5496960347743418,
+        "standard_deviation": 1.2324565948580675,
+        "standard_error": 0.06774194098642053,
+        "ci95_low": 1.4169218304409577,
+        "ci95_high": 1.682470239107726,
+        "minimum": 0.002159110037609935,
+        "maximum": 4.574254512786865
+      },
+      "total_loss": {
+        "samples": 331,
+        "mean": 1.7272041083230523,
+        "standard_deviation": 1.3049469250712884,
+        "standard_error": 0.07172636988385822,
+        "ci95_low": 1.5866204233506902,
+        "ci95_high": 1.8677877932954143,
+        "minimum": 0.0029107597656548023,
+        "maximum": 4.5743095267462195
+      },
+      "elapsed_seconds": 46.41776418592781,
+      "samples_per_second": 7.1308906364849705,
+      "peak_allocated_gb": 16.258328437805176,
+      "target_sensitivity": {
+        "method": "cyclically increment masked target IDs while holding logits fixed",
+        "text_changed_tokens": 250,
+        "text_original_loss": 0.29195624589920044,
+        "text_changed_target_loss": 22.446550369262695,
+        "text_loss_delta": 22.154594123363495,
+        "audio_changed_tokens": 928,
+        "audio_original_loss": 0.8223174214363098,
+        "audio_changed_target_loss": 25.064695358276367,
+        "audio_loss_delta": 24.242377936840057
+      }
+    },
+    "selected_adapter_lora_B_sign_flipped": {
+      "mode": "selected_adapter_lora_B_sign_flipped",
+      "samples": 331,
+      "text_loss": {
+        "samples": 331,
+        "mean": 3.6165464949931985,
+        "standard_deviation": 2.686126995012001,
+        "standard_error": 0.14764289236416428,
+        "ci95_low": 3.3271664259594367,
+        "ci95_high": 3.9059265640269603,
+        "minimum": 0.26332128047943115,
+        "maximum": 8.623575210571289
+      },
+      "audio_loss": {
+        "samples": 331,
+        "mean": 6.370589704311866,
+        "standard_deviation": 3.7910295967204917,
+        "standard_error": 0.20837383181708574,
+        "ci95_low": 5.962176993950378,
+        "ci95_high": 6.7790024146733545,
+        "minimum": 1.861672282218933,
+        "maximum": 23.489234924316406
+      },
+      "total_loss": {
+        "samples": 331,
+        "mean": 9.987136199305064,
+        "standard_deviation": 5.19105876257409,
+        "standard_error": 0.2853263943074866,
+        "ci95_low": 9.427896466462391,
+        "ci95_high": 10.546375932147738,
+        "minimum": 2.240296483039856,
+        "maximum": 26.849568605422974
+      },
+      "elapsed_seconds": 36.077977342531085,
+      "samples_per_second": 9.174571979394075,
+      "peak_allocated_gb": 16.258278369903564,
+      "target_sensitivity": null,
+      "parameters_changed": 337
+    },
+    "pinned_unadapted_base": {
+      "mode": "pinned_unadapted_base",
+      "samples": 331,
+      "text_loss": {
+        "samples": 331,
+        "mean": 0.9290321217371528,
+        "standard_deviation": 0.7453719444940057,
+        "standard_error": 0.0409693473080578,
+        "ci95_low": 0.8487322010133594,
+        "ci95_high": 1.009332042460946,
+        "minimum": 0.018333973363041878,
+        "maximum": 2.3709046840667725
+      },
+      "audio_loss": {
+        "samples": 331,
+        "mean": 2.63794093639829,
+        "standard_deviation": 1.9988608394284177,
+        "standard_error": 0.10986732805808923,
+        "ci95_low": 2.422600973404435,
+        "ci95_high": 2.853280899392145,
+        "minimum": 0.27001282572746277,
+        "maximum": 11.939131736755371
+      },
+      "total_loss": {
+        "samples": 331,
+        "mean": 3.566973058135443,
+        "standard_deviation": 2.3168318012927434,
+        "standard_error": 0.12734459275355633,
+        "ci95_low": 3.3173776563384725,
+        "ci95_high": 3.8165684599324137,
+        "minimum": 0.3308793045580387,
+        "maximum": 13.746679186820984
+      },
+      "elapsed_seconds": 31.682839293032885,
+      "samples_per_second": 10.447295993222031,
+      "peak_allocated_gb": 15.89704179763794,
+      "target_sensitivity": null
+    }
+  },
+  "paired_comparisons": {
+    "base_minus_adapted": {
+      "text_loss": {
+        "definition": "positive means the selected adapter has lower loss",
+        "samples": 331,
+        "mean": 0.7515240481884424,
+        "standard_deviation": 0.592201458296307,
+        "standard_error": 0.03255033597722811,
+        "ci95_low": 0.6877253896730753,
+        "ci95_high": 0.8153227067038096,
+        "minimum": 0.017243498819880188,
+        "maximum": 1.8716792787308805,
+        "nonzero": true
+      },
+      "audio_loss": {
+        "definition": "positive means the selected adapter has lower loss",
+        "samples": 331,
+        "mean": 1.0882449016239484,
+        "standard_deviation": 1.014024643159896,
+        "standard_error": 0.05573583509740117,
+        "ci95_low": 0.9790026648330421,
+        "ci95_high": 1.1974871384148547,
+        "minimum": 0.26760031282901764,
+        "maximum": 8.208905696868896,
+        "nonzero": true
+      },
+      "total_loss": {
+        "definition": "positive means the selected adapter has lower loss",
+        "samples": 331,
+        "mean": 1.8397689498123908,
+        "standard_deviation": 1.2489119284677437,
+        "standard_error": 0.06864640792095539,
+        "ci95_low": 1.7052219902873182,
+        "ci95_high": 1.9743159093374634,
+        "minimum": 0.3276903200894594,
+        "maximum": 10.080584975599777,
+        "nonzero": true
+      }
+    },
+    "perturbed_minus_adapted": {
+      "text_loss": {
+        "definition": "nonzero proves the loaded LoRA path affects this loss",
+        "samples": 331,
+        "mean": 3.439038421444488,
+        "standard_deviation": 2.5250813654635094,
+        "standard_error": 0.13879102400749307,
+        "ci95_low": 3.1670080143898014,
+        "ci95_high": 3.711068828499174,
+        "minimum": 0.2630949165468337,
+        "maximum": 8.009884357452393,
+        "nonzero": true
+      },
+      "audio_loss": {
+        "definition": "nonzero proves the loaded LoRA path affects this loss",
+        "samples": 331,
+        "mean": 4.820893669537525,
+        "standard_deviation": 2.8805171241301535,
+        "standard_error": 0.15832754017245568,
+        "ci95_low": 4.5105716907995115,
+        "ci95_high": 5.131215648275538,
+        "minimum": 1.8593224610667676,
+        "maximum": 20.845133781433105,
+        "nonzero": true
+      },
+      "total_loss": {
+        "definition": "nonzero proves the loaded LoRA path affects this loss",
+        "samples": 331,
+        "mean": 8.259932090982012,
+        "standard_deviation": 4.182573517937919,
+        "standard_error": 0.2298950320892602,
+        "ci95_low": 7.809337828087062,
+        "ci95_high": 8.710526353876963,
+        "minimum": 2.2362040504813194,
+        "maximum": 22.700920435861917,
+        "nonzero": true
+      }
+    }
+  },
+  "requirements": {
+    "adapter_validation_passed": true,
+    "official_runtime_load_passed": true,
+    "selection_hash_current": true,
+    "adapter_hash_current": true,
+    "adapter_config_hash_current": true,
+    "export_audit_passed": true,
+    "test_split_group_isolated": true,
+    "test_manifest_hash_current": true,
+    "test_row_count_matches_audit": true,
+    "full_heldout_scope_nonempty": true,
+    "test_manifest_not_training_or_validation": true,
+    "all_modes_cover_full_identical_scope": true,
+    "all_mode_losses_finite": true,
+    "lora_perturbation_applied": true,
+    "text_target_sensitivity_proven": true,
+    "audio_target_sensitivity_proven": true,
+    "adapter_changes_total_loss": true,
+    "lora_perturbation_changes_total_loss": true
+  },
+  "evaluation_passes": true,
+  "interpretation": "Positive base-minus-adapted loss is favorable. This automatic objective evaluation does not establish Persian naturalness, pronunciation, response relevance, conversational success, or human preference."
+}

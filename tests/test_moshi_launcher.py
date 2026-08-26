@@ -12,6 +12,7 @@ import torch
 from scripts.moshi_train_entry import (
     _configure_low_peak_adamw,
     _configure_low_peak_checkpoints,
+    _configure_repeatable_eval_loader,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -103,6 +104,27 @@ def test_low_peak_checkpoint_preserves_upstream_fallbacks() -> None:
     _configure_low_peak_checkpoints(checkpointing, distributed, torch)
 
     assert owner.retrieve_save_states(False, torch.float16) == {"fallback": (False, torch.float16)}
+
+
+def test_evaluation_loader_is_recreated_for_every_evaluation() -> None:
+    calls = []
+
+    def build_data_loader(*, is_eval):
+        calls.append(is_eval)
+        return iter([1, 2, 3])
+
+    module = SimpleNamespace(build_data_loader=build_data_loader)
+    _configure_repeatable_eval_loader(module)
+
+    evaluation_loader = module.build_data_loader(is_eval=True)
+    assert list(evaluation_loader) == [1, 2, 3]
+    assert list(evaluation_loader) == [1, 2, 3]
+    assert calls == [True, True]
+    assert os.environ["MOSHI_REPEATABLE_EVAL_LOADER_EFFECTIVE"] == "true"
+
+    training_loader = module.build_data_loader(is_eval=False)
+    assert list(training_loader) == [1, 2, 3]
+    assert calls == [True, True, False]
 
 
 def test_exact_profile_is_bound_to_checkpoint_safe_launcher() -> None:

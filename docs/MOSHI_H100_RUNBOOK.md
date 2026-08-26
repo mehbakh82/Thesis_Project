@@ -286,9 +286,11 @@ All 16 saved 500-step candidates are retained. After the complete run, apply
 the criterion frozen in `docs/MOSHI_SELECTION_PROTOCOL.md`:
 
 ```bash
+.venv-moshi/bin/python scripts/reevaluate_moshi_checkpoints.py
 .venv/bin/python scripts/select_moshi_checkpoint.py
 .venv-moshi/bin/python scripts/validate_moshi_adapter.py --runtime-device cuda
 .venv-moshi/bin/python scripts/evaluate_moshi_adapter.py
+.venv/bin/python scripts/record_moshi_training_run.py
 ```
 
 The selector uses validation loss only, fails on incomplete logs/checkpoints,
@@ -298,6 +300,21 @@ trainable key/shape/dtype schema from the pinned meta-model, scans all adapter
 values for finiteness, and performs an official unfused-LoRA loader pass. The
 evaluator then consumes the isolated test split once and reports paired
 adapter/base/perturbed text, audio, and total loss over all 331 chunks.
+
+The 2026-08-26 run completed all 8,000 steps in 4:47:54 with 22.920 GiB peak
+allocated memory and 16 complete 967 MiB/699-tensor adapters. All 800 logged
+training losses were finite. The pinned evaluator's reused finite iterator was
+exhausted after step 4,250, so its rotating/empty raw values were rejected
+before selection. The fixed-scope correction evaluated every candidate on all
+682 validation chunks; every loss was finite and step 8,000 won at 1.402444.
+The selected adapter passed exact BF16 schema/value checks and the official CUDA
+loader. On the untouched 331-chunk test split, adapted total loss was 1.727204
+versus 3.566973 for the pinned base; the paired base-minus-adapted improvement
+was 1.839769 (95% CI 1.705222–1.974316). Sign-flipped-LoRA and controlled target
+sensitivity checks passed. This is automatic objective evidence only, not a
+claim of Persian naturalness, pronunciation, relevance, or human preference.
+The complete run certificate is
+`results/hardware/moshi_h100_training.json`.
 
 A final run is acceptable only when:
 

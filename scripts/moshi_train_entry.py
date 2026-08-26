@@ -75,6 +75,31 @@ def _configure_low_peak_checkpoints(checkpointing_module, distributed_module, to
     os.environ["MOSHI_CHECKPOINT_CPU_OFFLOAD_EFFECTIVE"] = "true"
 
 
+class _RepeatableEvalLoader:
+    def __init__(self, factory):
+        self._factory = factory
+
+    def __iter__(self):
+        return iter(self._factory())
+
+
+def _configure_repeatable_eval_loader(data_loader_module) -> None:
+    """Recreate the pinned trainer's finite evaluation iterator on every use."""
+
+    original_build = data_loader_module.build_data_loader
+
+    def build_data_loader(*args, **kwargs):
+        is_eval = kwargs.get("is_eval")
+        if is_eval is None and len(args) >= 7:
+            is_eval = args[6]
+        if not is_eval:
+            return original_build(*args, **kwargs)
+        return _RepeatableEvalLoader(lambda: original_build(*args, **kwargs))
+
+    data_loader_module.build_data_loader = build_data_loader
+    os.environ["MOSHI_REPEATABLE_EVAL_LOADER_EFFECTIVE"] = "true"
+
+
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     checkout = root / "third_party" / "checkouts" / "moshi-finetune"
@@ -84,11 +109,13 @@ def main() -> None:
     sys.path.insert(0, str(checkout))
 
     import finetune.checkpointing as finetune_checkpointing
+    import finetune.data.data_loader as finetune_data_loader
     import finetune.distributed as finetune_distributed
     import torch
 
     _configure_low_peak_adamw(torch)
     _configure_low_peak_checkpoints(finetune_checkpointing, finetune_distributed, torch)
+    _configure_repeatable_eval_loader(finetune_data_loader)
 
     if "CUDA_VISIBLE_DEVICES" not in os.environ:
         if torch.cuda.device_count() != 1:

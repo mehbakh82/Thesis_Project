@@ -1,6 +1,6 @@
 # Checklist for a defensible 10/10 thesis project
 
-Status date: 2026-08-24
+Status date: 2026-08-26
 
 This is the authoritative closure checklist. Mark an item complete only when its
 named artifact exists and its acceptance test passes. Implemented code,
@@ -58,7 +58,7 @@ Verified now:
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
-- [x] Ruff and mypy pass on all 47 source files; all 97 tests pass and
+- [x] Ruff and mypy pass on all source files; all 104 tests pass and
   branch-aware coverage is 62% with a 60% CI floor.
 - [x] General dependencies have no known vulnerabilities; the pinned scientific
   lock has an exact, fail-closed accepted-risk baseline and mitigations.
@@ -68,8 +68,10 @@ Verified now:
   hours, zero machine failures, 24/24 deterministic assistant re-syntheses.
 - [x] Exact full-profile probe: loss 3.808453, 22.707 GB peak, fused AdamW,
   and a 967 MiB/699-tensor CPU-offloaded adapter save; all gates pass.
-- [ ] Scientific adapter, held-out model evaluation, 4090 evidence, real
-  detector evidence, and human study are pending.
+- [x] Scientific H100 adapter training, fixed-scope validation selection,
+  exact adapter validation, and one-time automatic held-out evaluation pass.
+- [ ] Physical-4090 evidence, real detector evidence, perceptual model review,
+  and human study are pending.
 - [x] GitHub CLI authentication is persistent for `mehbakh82`; the remote is
   configured without placing credentials in the repository.
 
@@ -305,9 +307,9 @@ Owner: Codex after section 4.
   passes and all human-verification claims remain false.
 - [ ] Require strict `final_training_ready=true`. It is deliberately false
   because `manual_verification_sample_present=false` under the waiver.
-- [x] Re-run `gpu-preflight`: `training_data_ready=true` and
-  `adaptation_run_ready=true`. Launch remains unsafe until the exact profile
-  is measured with adequate shared-H100 headroom.
+- [x] Re-run `gpu-preflight`: `training_data_ready=true`,
+  `adaptation_run_ready=true`, and the measured profile plus 4 GiB launch
+  headroom gate passed before the full service launch.
 
 Exit: immutable manifests/audio/metadata, assistant-voice hash, statistics, and
 passing export report.
@@ -348,9 +350,9 @@ Exact-shape launch probe:
 
 Full run:
 
-- [ ] Run in a persistent terminal/service because the pinned trainer lacks
+- [x] Run in a persistent systemd service because the pinned trainer lacks
   exact optimizer/scheduler/data-loader resume state.
-- [ ] Use only `configs/moshi_h100.yaml` and immutable reviewed exports:
+- [x] Use only `configs/moshi_h100.yaml` and immutable waiver-bound exports:
 
   ```bash
   MOSHI_DISTRIBUTED_BACKEND=gloo \
@@ -358,20 +360,23 @@ Full run:
     scripts/moshi_train_entry.py configs/moshi_h100.yaml
   ```
 
-- [ ] Preserve logs, resolved args, environment, input hashes, base hashes, GPU,
+- [x] Preserve logs, resolved args, environment, input hashes, base hashes, GPU,
   wall time, seed, losses, and periodic adapters.
-- [ ] Archive failed runs and restart honestly from immutable inputs; never call
+- [x] Archive failed runs and restart honestly from immutable inputs; never call
   a restart an exact resume.
-- [ ] Check train/validation loss for finiteness, convergence, instability, and
-  overfitting.
+- [x] Check train/validation loss for finiteness, convergence, instability, and
+  overfitting. All 800 logged train losses and all 16 corrected complete-scope
+  validation losses are finite and improve through step 8,000. The pinned raw
+  evaluator's iterator-exhaustion `NaN`s are diagnosed and excluded.
 - [x] Predeclare checkpoint selection in `docs/MOSHI_SELECTION_PROTOCOL.md`:
   minimum finite mean validation `eval_loss` across all expected 500-step
   checkpoints, tie broken toward the earlier step; never use held-out outcomes.
 - [x] Implement a fail-closed selected-adapter validator for hashes, saved
   config, exact trainable keys/shapes/dtypes, finite values, and the pinned
-  official loader; execution remains pending until selection.
-- [ ] Load periodic/final adapters in the pinned runtime with no unexpected or
-  missing adapter keys; hash the selected adapter/config.
+  official loader; all execution gates pass.
+- [x] Load and hash the selected step-8,000 adapter/config in the pinned runtime:
+  699 exact BF16 tensors, 506,753,024 parameters, 337 LoRA layers, no missing,
+  unexpected, meta, shape, dtype, or non-finite values.
 
 The first launch on commit `1603beb` was intentionally stopped at step 150
 before its first checkpoint after inspection found that the pinned one-GPU
@@ -385,15 +390,17 @@ train/validation evidence—not the smoke or legacy model.
 
 Owner: Codex for automation; approved listeners for perceptual checks.
 
-- [x] Implement the one-time full 331-chunk group-disjoint test evaluator for
-  paired selected-adapter, deterministic LoRA-perturbed, and pinned-base
-  text/audio/total losses; execution remains pending until selection.
-- [ ] Prove the adapter is used by comparing adapter-on, adapter-off, and
-  perturbed-adapter outputs with identical inputs/seeds.
-- [ ] Prove target sensitivity: controlled changes to assistant target text/audio
-  change the corresponding text/audio-token loss.
-- [ ] Audit episode/session/time-span leakage; evaluate only group-disjoint held
-  out conversations.
+- [x] Run the one-time full 331-chunk group-disjoint test evaluator for paired
+  selected-adapter, deterministic LoRA-perturbed, and pinned-base
+  text/audio/total losses.
+- [x] Prove the adapter path is used with identical-scope loss controls:
+  selected total loss 1.727204, pinned base 3.566973, and sign-flipped LoRA
+  9.987136; all paired differences are nonzero.
+- [x] Prove target sensitivity: controlled masked text/audio target changes
+  alter the corresponding fixed-logit losses.
+- [x] Audit episode/session/time-span leakage; the one-time test manifest is
+  group-isolated, hash-current, absent from training/validation, and was not
+  used for checkpoint selection.
 - [ ] Evaluate Persian response relevance/coherence with a documented rubric and
   suitable semantic metrics; do not use WER against open-ended responses as the
   sole relevance metric.
@@ -406,8 +413,9 @@ Owner: Codex for automation; approved listeners for perceptual checks.
 - [ ] Compare cascade, unadapted Moshika, and adapted Moshika on identical tests.
 - [ ] Report the supported source-response multi-voice ablation if useful; add
   hyperparameter ablations only when answering a thesis question.
-- [ ] Report parameter/trainable counts, H100 time/memory, checkpoint size,
-  inference real-time factor, and negative results.
+- [x] Report parameter/trainable counts, H100 time/memory, checkpoint size, and
+  the raw-evaluator negative result. Streaming inference real-time factor remains
+  part of the physical-4090 evaluation.
 
 Exit: held-out tables, reviewed output sample, error analysis, and proof that the
 final adapter causes the learned Persian response behavior.
@@ -598,7 +606,7 @@ privacy-safe repository at approved visibility, restricted handoff, immutable ta
 | Working Persian S2S prototype | Final adapter produces relevant, intelligible Persian speech live | Pending | Adapter hash, runtime logs, held-out output |
 | Full duplex | Mic remains active; interruption stops playback and becomes next-turn context | Control implemented; direct model pending | Client traces and continuation tests |
 | End-to-end ≤500 ms | Max `T_first_audio` ≤500 ms unless another statistic is predeclared; always p50/p95/max | Pending | Physical-4090 `official_e2e` telemetry |
-| Open base adapted to Persian | Moshika 7B LoRA trained on reviewed Persian response pairs | Infrastructure ready | Config, logs, adapter, held-out results |
+| Open base adapted to Persian | Moshika 7B LoRA trained on the waiver-bound Persian response pairs | H100 training and automatic held-out gates pass; perceptual validation pending | Config, logs, adapter hashes, validation/test reports |
 | 100–200 conversational hours | Final audited/exported hours in range; group-clean, no reused intervals | **108.584 exported h**, 6,754/6,754 pairs, zero audit failures | Conversation audit/export report |
 | Noise/overlap/interruption labels | Conditions present, QA complete, verified interruption, agreed precision | Automatic only | QA reports and final counts |
 | Classical detector >80% | Real group-held-out event accuracy >80%, F1/FAR/FRR reported | Synthetic proxy only | Real held-out report/hash |

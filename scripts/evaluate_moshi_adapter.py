@@ -64,6 +64,22 @@ def paired_difference(
     }
 
 
+def cyclically_perturb_masked_targets(target, mask, *, cardinality: int):
+    import torch
+
+    if target.shape != mask.shape:
+        raise ValueError("target and mask shapes must match")
+    if cardinality < 2:
+        raise ValueError("target cardinality must be at least two")
+    selected = mask.to(dtype=torch.bool)
+    changed = int(selected.sum().item())
+    if changed == 0:
+        raise ValueError("target perturbation mask is empty")
+    perturbed = target.clone()
+    perturbed[selected] = (perturbed[selected] + 1) % cardinality
+    return perturbed, changed
+
+
 def expected_chunk_count(manifest_path: Path, duration_sec: float) -> tuple[int, int]:
     rows = [
         json.loads(line)
@@ -124,6 +140,7 @@ def evaluate_model(
     first_codebook_weight_multiplier: float,
     text_padding_weight: float,
     mode: str,
+    measure_target_sensitivity: bool = False,
 ) -> tuple[dict[str, Any], dict[str, list[float]]]:
     import torch
     from finetune.loss import compute_loss_with_mask
@@ -131,6 +148,7 @@ def evaluate_model(
     text_losses: list[float] = []
     audio_losses: list[float] = []
     total_losses: list[float] = []
+    target_sensitivity: dict[str, Any] | None = None
     model.eval()
     torch.cuda.reset_peak_memory_stats()
     torch.cuda.synchronize()
@@ -153,13 +171,55 @@ def evaluate_model(
                     model.end_of_text_padding_id,
                 },
             )
+            audio_target = codes[:, model.audio_offset : model.audio_offset + model.dep_q]
             audio_loss = compute_loss_with_mask(
                 output.logits,
-                codes[:, model.audio_offset : model.audio_offset + model.dep_q],
+                audio_target,
                 output.mask,
                 mode="audio",
                 first_codebook_weight_multiplier=first_codebook_weight_multiplier,
             )
+            if measure_target_sensitivity and target_sensitivity is None:
+                text_target = codes[:, : model.audio_offset]
+                changed_text_target, changed_text_tokens = cyclically_perturb_masked_targets(
+                    text_target,
+                    output.text_mask,
+                    cardinality=output.text_logits.size(-1),
+                )
+                changed_audio_target, changed_audio_tokens = cyclically_perturb_masked_targets(
+                    audio_target,
+                    output.mask,
+                    cardinality=output.logits.size(-1),
+                )
+                changed_text_loss = compute_loss_with_mask(
+                    output.text_logits,
+                    changed_text_target,
+                    output.text_mask,
+                    mode="text",
+                    text_padding_weight=text_padding_weight,
+                    text_padding_ids={
+                        model.text_padding_token_id,
+                        model.end_of_text_padding_id,
+                    },
+                )
+                changed_audio_loss = compute_loss_with_mask(
+                    output.logits,
+                    changed_audio_target,
+                    output.mask,
+                    mode="audio",
+                    first_codebook_weight_multiplier=first_codebook_weight_multiplier,
+                )
+                target_sensitivity = {
+                    "method": "cyclically increment masked target IDs while holding logits fixed",
+                    "text_changed_tokens": changed_text_tokens,
+                    "text_original_loss": float(text_loss.item()),
+                    "text_changed_target_loss": float(changed_text_loss.item()),
+                    "text_loss_delta": float(changed_text_loss.item() - text_loss.item()),
+                    "audio_changed_tokens": changed_audio_tokens,
+                    "audio_original_loss": float(audio_loss.item()),
+                    "audio_changed_target_loss": float(changed_audio_loss.item()),
+                    "audio_loss_delta": float(changed_audio_loss.item() - audio_loss.item()),
+                }
         text_value = float(text_loss.item())
         audio_value = float(audio_loss.item())
         text_losses.append(text_value)
@@ -181,6 +241,7 @@ def evaluate_model(
         "elapsed_seconds": elapsed,
         "samples_per_second": len(total_losses) / elapsed,
         "peak_allocated_gb": torch.cuda.max_memory_allocated() / 1024**3,
+        "target_sensitivity": target_sensitivity,
     }
     return report, series
 
@@ -338,6 +399,7 @@ def evaluate_selected_adapter(
         first_codebook_weight_multiplier=first_codebook_weight_multiplier,
         text_padding_weight=text_padding_weight,
         mode="selected_adapter",
+        measure_target_sensitivity=True,
     )
     perturbed_parameters = negate_lora_up_projections(adapted_model)
     perturbed_report, perturbed_series = evaluate_model(
@@ -411,6 +473,14 @@ def evaluate_selected_adapter(
             for loss_name in ("text_loss", "audio_loss", "total_loss")
         ),
         "lora_perturbation_applied": perturbed_parameters > 0,
+        "text_target_sensitivity_proven": (
+            adapted_report["target_sensitivity"] is not None
+            and adapted_report["target_sensitivity"]["text_loss_delta"] != 0.0
+        ),
+        "audio_target_sensitivity_proven": (
+            adapted_report["target_sensitivity"] is not None
+            and adapted_report["target_sensitivity"]["audio_loss_delta"] != 0.0
+        ),
         "adapter_changes_total_loss": comparisons["base_minus_adapted"]["total_loss"]["nonzero"]
         is True,
         "lora_perturbation_changes_total_loss": comparisons["perturbed_minus_adapted"][

@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "generated_at": "2026-08-26T14:27:22.773993+00:00",
+  "selection": {
+    "path": "results/moshi_checkpoint_selection.json",
+    "sha256": "cdd68da015fdc3fc52ebb1a44a8d1984fe9ab8fe5c0d9fe74434ae5e2ca26702",
+    "selected_step": 8000,
+    "validation_reevaluation_path": "results/moshi_validation_reevaluation.json",
+    "validation_reevaluation_sha256": "f264dad8826b61f751e198a208c40bb5cdfdca8e92ad05afcfc4d1762deb576d",
+    "criterion_predeclared_before_training": true
+  },
+  "adapter": {
+    "path": "checkpoints/moshi_fa/checkpoints/checkpoint_008000/consolidated/lora.safetensors",
+    "bytes": 1013593144,
+    "sha256": "7c0b184802d4ccbafebd33842f8864f12d9825d6b1143aa0852c1df08ae8abef",
+    "tensor_count": 699,
+    "parameter_count": 506753024,
+    "dtype_counts": {
+      "BF16": 699
+    }
+  },
+  "config": {
+    "path": "checkpoints/moshi_fa/checkpoints/checkpoint_008000/consolidated/config.json",
+    "sha256": "d714a651ceb9849fff5d1e9b5f53dda91cf09f2ca8351bbda5214f1053664a7f",
+    "lora_rank": 64,
+    "lora_scaling": 2.0,
+    "embedding_finetuning": true
+  },
+  "schema_comparison": {
+    "expected_tensor_count": 699,
+    "actual_tensor_count": 699,
+    "missing_keys": [],
+    "unexpected_keys": [],
+    "shape_mismatches": [],
+    "dtype_mismatches": [],
+    "exact": true
+  },
+  "requirements": {
+    "selection_schema_supported": true,
+    "selection_passed": true,
+    "criterion_predeclared_before_training": true,
+    "postrun_validation_input_correction_disclosed": true,
+    "selection_criterion_unchanged": true,
+    "original_upstream_metrics_rejected": true,
+    "fixed_scope_reevaluation_passed": true,
+    "reevaluation_hash_matches_selection": true,
+    "training_complete": true,
+    "heldout_not_used_for_selection": true,
+    "selection_profile_matches_training_config": true,
+    "all_predeclared_candidates_present": true,
+    "selected_entry_is_candidate": true,
+    "selected_entry_matches_frozen_rule": true,
+    "selected_step_checkpoint_aligned": true,
+    "adapter_bytes_match_selection": true,
+    "adapter_hash_matches_selection": true,
+    "config_hash_matches_selection": true,
+    "saved_config_matches_training": true,
+    "lora_enabled": true,
+    "lora_rank_matches": true,
+    "lora_scaling_matches": true,
+    "all_adapter_values_finite": true,
+    "all_adapter_names_intended": true,
+    "adapter_schema_exact": true
+  },
+  "static_validation_passes": true,
+  "runtime_load": {
+    "performed": true,
+    "device": "cuda",
+    "fuse_lora": false,
+    "meta_parameters": [],
+    "parameter_devices": [
+      "cuda"
+    ],
+    "lora_layer_count": 337,
+    "passed": true
+  },
+  "validation_passes": true
+}
