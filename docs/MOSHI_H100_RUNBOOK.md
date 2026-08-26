@@ -245,6 +245,17 @@ MOSHI_DISTRIBUTED_BACKEND=gloo \
   --out results/hardware/current_preflight.json
 ```
 
+On 2026-08-26 the exact probe first exposed two honest optimizer-step OOMs:
+default multi-tensor AdamW and scalar AdamW each needed a 502 MiB denominator
+temporary after forward/backward. No unrelated process was stopped and neither
+attempt is called a passed profile. The project launcher now selects PyTorch's
+fused AdamW kernel, preserving AdamW and every model/data-shape parameter while
+avoiding that materialized temporary. The third attempt passed with loss
+3.808453, 22.707 GB peak, and 21.747 GB allocated after the step. The report
+binds the fused optimizer mode and exact launcher hash; the two failed attempts
+remain in `results/hardware/moshi_h100_profile_probe_attempt{1,2}.json`.
+
+
 Launch only when `adaptation_run_ready`, `adaptation_launch_safe_now`, and the
 profile probe's hash checks all pass. The launch gate requires the measured
 peak plus 4 GB of currently free headroom. This scheduling check is transient;

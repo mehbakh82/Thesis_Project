@@ -14,6 +14,7 @@
 - `src/thesis_s2s/data/noise.py` — deterministic speech/nonspeech RMS estimate for real archived background-noise conditions; labels remain automatic until listening QA.
 - `src/thesis_s2s/data/moshi.py` — fail-closed conversion from authorized non-reused Persian response pairs to the official Moshi stereo dialogue schema, using a deterministic pinned Persian assistant voice for the primary run and source responses only as an ablation.
 - `configs/moshi_h100.yaml` — single-H100 LoRA profile for text and Mimi assistant-speech-token losses; `configs/moshi_h100_profile_probe.yaml` measures the exact training shape for one non-scientific step before launch.
+- `scripts/moshi_train_entry.py` — unchanged pinned trainer routing plus a single-GPU Gloo fallback and fused AdamW wrapper that avoids full-size optimizer temporaries on the shared H100; the exact launcher hash is a profile gate.
 - `third_party/UPSTREAMS.lock.json` — immutable Moshi runtime/trainer revisions and license boundaries.
 - `scripts/build_moshi_client.py` plus
   `third_party/overlays/moshi-client/` — exact-source/hash verification,

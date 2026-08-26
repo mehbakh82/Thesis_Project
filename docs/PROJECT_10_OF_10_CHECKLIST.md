@@ -58,7 +58,7 @@ Verified now:
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
-- [x] Ruff and mypy pass on all 47 source files; all 80 tests pass and
+- [x] Ruff and mypy pass on all 47 source files; all 83 tests pass and
   branch-aware coverage is 62% with a 60% CI floor.
 - [x] General dependencies have no known vulnerabilities; the pinned scientific
   lock has an exact, fail-closed accepted-risk baseline and mitigations.
@@ -66,8 +66,9 @@ Verified now:
 - [ ] Interaction QA: 0/24 reviewed.
 - [x] Waiver-bound Moshi export/audit: 6,754 pairs / 108.584 measured stereo
   hours, zero machine failures, 24/24 deterministic assistant re-syntheses.
-- [ ] Full-profile probe, scientific adapter, held-out model evaluation, 4090
-  evidence, real detector evidence, and human study are pending.
+- [x] Exact full-profile probe: loss 3.808453, 22.707 GB peak, all gates pass.
+- [ ] Scientific adapter, held-out model evaluation, 4090 evidence, real
+  detector evidence, and human study are pending.
 - [x] GitHub CLI authentication is persistent for `mehbakh82`; the remote is
   configured without placing credentials in the repository.
 
@@ -316,15 +317,15 @@ Owner: Codex after section 5, without disrupting other GPU users.
 
 Exact-shape launch probe:
 
-- [ ] Wait for safe H100 availability; never stop unrelated processes.
-  The 2026-08-24 10:59 UTC preflight found only 23,526 MiB (22.975 GiB)
-  free while unrelated workloads occupied the shared GPU. The exact profile has
-  no measured peak yet, so launching it cannot satisfy the required
-  measured-peak-plus-4-GiB safety rule. No unrelated process was stopped.
+- [x] Wait for safe H100 availability; never stop unrelated processes.
+  The 2026-08-26 08:09 UTC preflight found 27,934 MiB (27.279 GiB) free
+  against a measured 22.707 GB peak and 26.707 GB launch requirement. No
+  unrelated process was stopped; both preceding optimizer-temporary OOMs are
+  preserved as failed, non-scientific attempts.
 - [x] Revalidate the isolated environment, both pinned checkouts, model/Mimi/
   tokenizer schemas, configs, and hashes; all 81 exact lock pins match the
   installed Python 3.12 H100 environment.
-- [ ] Run the exact 20-second, batch-1, four-microbatch, rank-64,
+- [x] Run the exact 20-second, batch-1, four-microbatch, rank-64,
   gradient-checkpointed, embedding-tuning one-step probe:
 
   ```bash
@@ -336,9 +337,9 @@ Exact-shape launch probe:
     --out results/hardware/current_preflight.json
   ```
 
-- [ ] Require finite loss, current hashes, `full_profile_gate_passes=true`, and
+- [x] Require finite loss, current hashes, `full_profile_gate_passes=true`, and
   current free VRAM ≥ measured peak + 4 GB.
-- [ ] Keep this probe labelled `scientific_evidence=false`.
+- [x] Keep this probe labelled `scientific_evidence=false`.
 
 Full run:
 

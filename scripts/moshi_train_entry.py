@@ -9,6 +9,28 @@ import sys
 from pathlib import Path
 
 
+def _configure_low_peak_adamw(torch_module) -> None:
+    """Use fused AdamW updates to avoid full-size CUDA denominator temporaries."""
+
+    original_adamw = torch_module.optim.AdamW
+
+    class LowPeakAdamW(original_adamw):
+        def __init__(self, *args, **kwargs):
+            requested = kwargs.get("foreach")
+            if requested not in (None, False):
+                raise RuntimeError("the shared-H100 launcher requires AdamW foreach=False")
+            requested_fused = kwargs.get("fused")
+            if requested_fused not in (None, True):
+                raise RuntimeError("the shared-H100 launcher requires AdamW fused=True")
+            kwargs["foreach"] = False
+            kwargs["fused"] = True
+            super().__init__(*args, **kwargs)
+
+    torch_module.optim.AdamW = LowPeakAdamW
+    os.environ["MOSHI_ADAMW_FOREACH_EFFECTIVE"] = "false"
+    os.environ["MOSHI_ADAMW_FUSED_EFFECTIVE"] = "true"
+
+
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     checkout = root / "third_party" / "checkouts" / "moshi-finetune"
@@ -19,6 +41,8 @@ def main() -> None:
 
     import finetune.distributed as finetune_distributed
     import torch
+
+    _configure_low_peak_adamw(torch)
 
     if "CUDA_VISIBLE_DEVICES" not in os.environ:
         if torch.cuda.device_count() != 1:

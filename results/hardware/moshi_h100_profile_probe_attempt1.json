@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "attempt": 1,
+  "started_at": "2026-08-26T07:58:29Z",
+  "failed_at": "2026-08-26T07:58:49Z",
+  "status": "failed_oom",
+  "scientific_evidence": false,
+  "command": "MOSHI_DISTRIBUTED_BACKEND=gloo .venv-moshi/bin/torchrun --standalone --nproc-per-node 1 scripts/moshi_train_entry.py configs/moshi_h100_profile_probe.yaml",
+  "profile": {
+    "duration_sec": 20,
+    "batch_size": 1,
+    "num_microbatches": 4,
+    "gradient_checkpointing": true,
+    "lora_rank": 64,
+    "ft_embed": true
+  },
+  "failure": {
+    "stage": "AdamW optimizer.step foreach square-root temporary",
+    "requested_allocation_mib": 502.0,
+    "initial_free_memory_gib": 24.174,
+    "process_memory_gib_at_failure": 23.96,
+    "device_free_memory_mib_at_failure": 208.31,
+    "exception": "torch.OutOfMemoryError"
+  },
+  "response": {
+    "unrelated_processes_stopped": false,
+    "model_or_data_shape_reduced": false,
+    "change": "Use mathematically equivalent AdamW foreach=false scalar updates in the project-owned launcher to avoid the full-size temporary."
+  },
+  "artifacts": {
+    "launcher_sha256": "bd7dfd04b6995928f69d3c1b304302683963a7361e7a1085c31caeb4f82c01f9",
+    "probe_config_sha256": "0980502562237040f0d2d6ee4624a06e48fa60cb9497a858cc7a2b391f2a8516",
+    "full_config_sha256": "7f009e02064b42c917e621af58afb9b5278601d8d2ec56f0e8f0d8a7aec84d31",
+    "export_report_sha256": "f4e2532cbcea533764e84f83018f109b4e815ff1c08a1900947800d69f5a1872",
+    "environment_report_sha256": "08d1df2ec971e9ac78c3363782cdb0272f2e4f8cc8b7674e97bcfaef380e9f19"
+  },
+  "note": "The failure occurred after forward/backward and during first optimizer-state initialization. No optimizer step completed, so this attempt is not a passed profile or training evidence."
+}

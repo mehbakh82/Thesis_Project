@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-08-24T10:59:23.397346+00:00",
+  "generated_at": "2026-08-26T08:09:25.445018+00:00",
   "gpu": {
     "device": "NVIDIA H100 NVL",
     "total_gb": 93.09,
@@ -18,16 +18,16 @@
       "utilization_gpu_percent"
     ],
     "rows": [
-      "NVIDIA H100 NVL, 595.71.05, 95830, 71796, 23526, 0"
+      "NVIDIA H100 NVL, 595.71.05, 95830, 67388, 27934, 1"
     ],
     "devices": [
       {
         "name": "NVIDIA H100 NVL",
         "driver_version": "595.71.05",
         "memory_total_mib": 95830,
-        "memory_used_mib": 71796,
-        "memory_free_mib": 23526,
-        "utilization_gpu_percent": 0
+        "memory_used_mib": 67388,
+        "memory_free_mib": 27934,
+        "utilization_gpu_percent": 1
       }
     ]
   },
@@ -371,15 +371,15 @@
   "scheduling": {
     "full_profile_probe": {
       "path": "results/hardware/moshi_h100_profile_probe.json",
-      "present": false,
-      "valid": false,
-      "status": null,
-      "peak_allocated_gb": null,
-      "recorded_hashes_match_current_inputs": false
+      "present": true,
+      "valid": true,
+      "status": "passed",
+      "peak_allocated_gb": 22.707,
+      "recorded_hashes_match_current_inputs": true
     },
-    "current_free_memory_gb": 22.975,
-    "required_free_memory_gb_including_4gb_margin": null,
-    "current_headroom_sufficient": false,
+    "current_free_memory_gb": 27.279,
+    "required_free_memory_gb_including_4gb_margin": 26.707,
+    "current_headroom_sufficient": true,
     "note": "The 5-second rank-8 wiring smoke is a lower bound, not a memory certificate for the 20-second rank-64 embedding-tuning profile. Run the full-profile one-step probe after final data export and only while the shared H100 has sufficient free memory."
   },
   "training_config": "configs/moshi_h100.yaml",
@@ -527,7 +527,7 @@
   "evaluation_hardware_ready": false,
   "adaptation_run_ready": true,
   "strict_adaptation_run_ready": false,
-  "adaptation_launch_safe_now": false,
+  "adaptation_launch_safe_now": true,
   "failed_adaptation_gates": [],
   "failed_strict_data_gates": [
     "window_qa_sheet_complete",
@@ -537,6 +537,6 @@
     "conversational_data_audit_passes",
     "moshi_export_final_training_ready"
   ],
-  "adaptation_status": "prerequisites_ready_waiting_for_safe_gpu_headroom",
+  "adaptation_status": "ready_to_launch",
   "note": "The H100 is valid training hardware. A physical 12–24 GB GPU is required only for the final target-hardware fit and live-latency evidence. Moshi-Finetune is the pinned genuine response-audio trainer. Supervisor-approved internal training is recorded separately from raw-data redistribution, which remains disabled. The student-authorized QA waiver changes only limited internal training readiness; strict thesis readiness and all human-verification claims remain independently visible and false until the preserved reviews are actually completed."
 }

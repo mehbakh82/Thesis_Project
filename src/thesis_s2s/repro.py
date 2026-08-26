@@ -37,6 +37,8 @@ SNAPSHOT_FILES = (
     "results/hardware/moshi_environment.json",
     "results/hardware/moshi_h100_smoke.json",
     "results/hardware/moshi_h100_profile_probe.json",
+    "results/hardware/moshi_h100_profile_probe_attempt1.json",
+    "results/hardware/moshi_h100_profile_probe_attempt2.json",
     "results/hardware/moshi_client_build.json",
     "results/conversation_rights_report.json",
     "results/conversation_source_authorization_report_combined.json",
@@ -794,6 +796,7 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
         "full_config_sha256": root / "configs" / "moshi_h100.yaml",
         "environment_report_sha256": environment_path,
         "export_report_sha256": root / "results" / "moshi_export_report.json",
+        "project_launcher_sha256": root / "scripts" / "moshi_train_entry.py",
     }
     profile_hashes_current = all(
         path.is_file() and profile_artifacts.get(key) == sha256_file(path)

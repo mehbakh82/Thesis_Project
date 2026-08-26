@@ -45,6 +45,7 @@ def main() -> None:
     full_config_path = ROOT / "configs" / "moshi_h100.yaml"
     environment_path = ROOT / "results" / "hardware" / "moshi_environment.json"
     export_path = ROOT / "results" / "moshi_export_report.json"
+    launcher_path = ROOT / "scripts" / "moshi_train_entry.py"
 
     environment = _json(environment_path)
     export = _json(export_path)
@@ -61,6 +62,16 @@ def main() -> None:
     ):
         raise ValueError("probe must contain one metric row and valid argument/config mappings")
     metric = metric_rows[0]
+    launcher_text = launcher_path.read_text(encoding="utf-8")
+    fused_adamw_launcher = all(
+        marker in launcher_text
+        for marker in (
+            'kwargs["foreach"] = False',
+            'kwargs["fused"] = True',
+            "_configure_low_peak_adamw(torch)",
+        )
+    )
+
     strict_export_valid = export.get("final_training_ready") is True
     export_policy = export.get("qa_policy") or {"policy": "strict"}
     export_claims = export.get("claims") or {}
@@ -97,9 +108,10 @@ def main() -> None:
         "evaluation_disabled": args.get("do_eval") is False,
         "checkpointing_disabled": args.get("do_ckpt") is False,
         "real_model_memory_allocated": float(metric.get("peak_allocated_mem") or 0.0) > 10.0,
+        "project_launcher_uses_fused_adamw": fused_adamw_launcher,
     }
     report = {
-        "schema_version": 2,
+        "schema_version": 3,
         "status": "passed" if all(requirements.values()) else "failed",
         "completed_at": metric.get("at") or datetime.now(timezone.utc).isoformat(),
         "purpose": "one-step exact-full-profile memory and optimizer probe only",
@@ -126,6 +138,11 @@ def main() -> None:
         },
         "profile": _comparable_profile(args),
         "requirements": requirements,
+        "optimizer_runtime": {
+            "algorithm": "AdamW",
+            "foreach": False,
+            "fused": True,
+        },
         "full_profile_gate_passes": all(requirements.values()),
         "artifacts": {
             "metrics_sha256": _sha256(metrics_path),
@@ -134,6 +151,7 @@ def main() -> None:
             "full_config_sha256": _sha256(full_config_path),
             "environment_report_sha256": _sha256(environment_path),
             "export_report_sha256": _sha256(export_path),
+            "project_launcher_sha256": _sha256(launcher_path),
         },
         "note": (
             "This measures peak memory for one optimizer step with the full training shape. "
