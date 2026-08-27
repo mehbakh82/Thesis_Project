@@ -383,8 +383,36 @@ before its first checkpoint after inspection found that the pinned one-GPU
 saver would clone the 967 MiB adapter on a GPU with about 1.1 GiB free. Its
 logs and metrics are preserved and hash-attested; it is not selection evidence.
 
-Exit: a reproducible, loadable Persian adapter selected from scientific
-train/validation evidence—not the smoke or legacy model.
+
+V1 autoregressive deployment verdict:
+
+- [x] Launch the selected adapter through the pinned official websocket server
+  and attested local client on loopback; all hashes, CUDA load, reconnect,
+  static-bundle, Opus, GPU-allocation, and no-fallback checks pass.
+- [x] Run the matched unadapted base control. It produces normal English audio
+  (RMS 0.057698) and text, proving that the streaming protocol is healthy.
+- [x] Reject v1 for deployment: step 500 produces English (zero Persian
+  letters), while steps 1,000, 2,000, 4,000, and selected 8,000 produce
+  near-silence/no text. Teacher-forced loss is not treated as generation quality.
+
+Corrective v2 run:
+
+- [x] Freeze a new untouched group-held-out final test before v2 training:
+  738 rows / 14 sessions / 11.894073 hours; training, validation, and final-test
+  sessions are pairwise disjoint and the old v1 test is not reused.
+- [x] Freeze `docs/MOSHI_V2_SELECTION_PROTOCOL.md` with all 20 candidates,
+  a nine-row validation-only official-server panel, and speech/text/Persian
+  eligibility gates before launch.
+- [x] Restore the documented 100-second context, increasing response-onset
+  coverage from 29.4% to 81.1% of train chunks.
+- [x] Complete the exact one-step optimizer/checkpoint probe at 22.797 GB peak.
+- [ ] Complete the 2,000-step v2 run from `configs/moshi_h100_v2.yaml`.
+- [ ] Reevaluate all v2 candidates on the same complete validation scope.
+- [ ] Apply the frozen autoregressive panel, select only among eligible
+  candidates, validate the selected hash, and evaluate it once on the new test.
+
+Exit remains open until v2 yields a reproducible, loadable adapter that passes
+both scientific validation and frozen autoregressive Persian-output gates.
 
 ## 7. Validate learning and model quality
 
@@ -408,6 +436,9 @@ Owner: Codex for automation; approved listeners for perceptual checks.
   speech, with ASR limitations disclosed.
 - [ ] Check Persian script/pronunciation, silence-only output, English drift,
   codec collapse, repeated loops, and unsafe/unusable failure modes.
+- [x] Detect and preserve the v1 silence/English-drift failure with matched
+  official-server base and checkpoint controls; the negative result triggers
+  v2 and is not relabelled as success.
 - [ ] Cover clean/noisy/overlap/interruption, long/short turn, out-of-domain, and
   elderly-speech conditions; retain representative failures.
 - [ ] Compare cascade, unadapted Moshika, and adapted Moshika on identical tests.
@@ -428,10 +459,12 @@ Owner: Codex; secure client build complete, live integration after a valid adapt
   hash-verified security lock overlay in a digest-pinned Node 20 container;
   production audit is clean and all 33 static files/tree hash are attested in
   `results/hardware/moshi_client_build.json`.
-- [ ] Serve that local static bundle with the selected adapter—never a moving
-  remote client.
-- [ ] Load pinned base/Mimi/tokenizer plus exact adapter/config in the official
-  streaming server; log all hashes.
+- [x] Serve the attested local static bundle with the v1 selected adapter on
+  loopback—never a moving remote client. This is a diagnostic smoke, not final
+  direct-model readiness.
+- [x] Load pinned base/Mimi/tokenizer plus the exact v1 adapter/config in the
+  official streaming server and log all hashes. Loading passes; generated
+  Persian output fails, so v1 remains disabled.
 - [ ] Verify the microphone stays active during assistant playback.
 - [ ] Verify interruption stops every browser audio source and produces
   `playback_stopped_ack`.

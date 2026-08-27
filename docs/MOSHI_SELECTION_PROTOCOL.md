@@ -97,4 +97,20 @@ The test set is used once for final reporting. If the selected adapter fails a
 predeclared safety/validity check, report the failure; do not select a different
 checkpoint from the test result. Any new run must use a new, explicitly
 versioned protocol and validation split decision.
-Run:
+
+## Post-selection autoregressive deployment verdict (2026-08-27)
+
+The selected step-8,000 artifact passed schema, official-loader, and
+teacher-forced held-out controls but failed the official streaming-server
+deployment gate on validation-only input. Its transport/runtime path passed
+completely, but decoded output RMS was 0.00005256 and it emitted no text.
+Step 500 emitted substantial audio (RMS 0.024320) and text, but the decoded
+text was English with zero Persian-script letters. Steps 1,000, 2,000, and
+4,000 reproduced the selected adapter's near-silent/no-text behavior. The
+matched unadapted base control emitted normal English audio (RMS 0.057698) and
+text, ruling out the client/server protocol as the cause.
+
+The v1 adapter is therefore not deployment-eligible. This negative result does
+not retroactively alter v1 checkpoint selection or its one-time test report.
+The corrective run is a separately versioned experiment with a fresh final
+test and the frozen protocol in `docs/MOSHI_V2_SELECTION_PROTOCOL.md`.

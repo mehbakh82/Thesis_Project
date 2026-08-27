@@ -8,7 +8,7 @@ An evidence-first Persian speech prototype that keeps the microphone active duri
 |---|---|
 | Working spoken conversation | Implemented as NeMo Persian ASR → local Qwen2.5-0.5B (rule fallback) → Piper Persian TTS |
 | Full-duplex control | Continuous browser PCM16 stream, rolling energy/F0/MFCC detector, server stop event, client stop acknowledgement |
-| Direct speech LLM | The exact 8,000-step H100 Moshi LoRA run completed in 4:47:54 at 22.920 GiB peak with all 16 adapters preserved. A diagnosed upstream finite-iterator bug made its rotating/empty raw validation log ineligible; a hash-bound correction reevaluated every checkpoint on the same complete 682-chunk validation set. Step 8,000 was selected at loss 1.402444 and passed exact 699-tensor BF16 schema/value and official CUDA-loader checks. On the untouched 331-chunk test split, adapted total loss was 1.727204 versus 3.566973 for the pinned base (paired improvement 1.839769, 95% CI 1.705222–1.974316); LoRA sign-flip and target-sensitivity controls passed. These are automatic objective results, not human perceptual evidence. Strict listening QA remains explicitly waived, and the old 7 MB reconstruction artifact stays runtime-ineligible |
+| Direct speech LLM | The exact 8,000-step v1 H100 run and objective held-out controls completed, but official-server validation correctly rejected it: step 500 still generated English, while steps 1,000–8,000 collapsed to near-silence despite improving teacher-forced loss. The base control generated normal English audio/text, isolating the failure to adaptation rather than transport. A corrected v2 protocol is frozen before training: official 100-second context (81.1% rather than 29.4% response-onset-bearing train chunks), a passing 22.797 GB one-step probe, validation speech/text/Persian gates, and a fresh untouched 14-session/11.894-hour final test. No v1 adapter is deployment-eligible |
 | 100–200 h conversation corpus | Full inventory: **775.887 h / 1,442 long episodes**. The production selection is **219.946 candidate h / 309 episodes** across four channels; 1,129 windows contain **207.154 automatically classified multi-speaker h**, **242.445 aligned staging h**, and **6,754 non-reused response pairs / 123.796 source-pair h**. The immutable Piper derivative is **108.584 measured stereo h**, inside the formal band |
 | Conversational interruption supervision | Raw speaker boundaries recover **770 conservative candidates** (717 interruption-like, 53 backchannel-like) from the 6,754 pairs. The preserved deterministic 24-row sheet was sampled from the earlier 712-candidate pool and covers all four channels / **168.3 seconds** of excerpt audio. They remain automatic candidates; **zero human-verified direct interruptions** are claimed under the waiver |
 | Barge-in >80% | Met only on harmonic synthetic held-out data; real speaker/session-held-out evidence is pending |
@@ -24,7 +24,7 @@ continuous 16 kHz microphone ─┬─> rolling energy/F0/MFCC barge-in ─> sto
                               └─> NeMo ASR ─> Qwen/rules ─> Piper ─> full PCM reply
 ```
 
-The project server remains deliberately cascade-only until the Persian adapter passes its gates. The selected direct path is trained on the H100 and loaded by Kyutai's pinned official Moshi streaming server; checkpoint metadata alone can never activate the legacy reconstruction artifact.
+The project server remains deliberately cascade-only until a Persian adapter passes every gate. The v1 adapter loads in Kyutai's pinned official server but fails autoregressive Persian output, so it cannot activate the direct path. Checkpoint metadata alone can never activate either that failed adapter or the legacy reconstruction artifact.
 
 ```text
 natural Persian user audio + approved next-turn text
@@ -76,11 +76,14 @@ rotate it and replace the document with environment-variable placeholders.
 .venv/bin/python -m thesis_s2s.cli gpu-preflight
 .venv/bin/python -m thesis_s2s.cli release-snapshot
 .venv/bin/python scripts/audit_moshi_dependencies.py
+.venv/bin/python scripts/prepare_moshi_v2_splits.py
+.venv/bin/python scripts/record_moshi_profile_probe.py --run-dir checkpoints/moshi_h100_100s_profile_probe --probe-config configs/moshi_h100_100s_profile_probe.yaml --full-config configs/moshi_h100_v2.yaml --out results/hardware/moshi_h100_100s_profile_probe.json
 .venv-moshi/bin/python scripts/reevaluate_moshi_checkpoints.py
 .venv/bin/python scripts/select_moshi_checkpoint.py
 .venv-moshi/bin/python scripts/validate_moshi_adapter.py --runtime-device cuda
 .venv-moshi/bin/python scripts/evaluate_moshi_adapter.py
 .venv/bin/python scripts/record_moshi_training_run.py
+.venv-moshi/bin/python scripts/validate_moshi_server_runtime.py
 .venv/bin/python -m thesis_s2s.cli eval --path both
 .venv/bin/ruff check src tests scripts
 .venv/bin/python -m pytest -q
@@ -109,7 +112,7 @@ the adapter.
 - Human evaluation requires 5–10 Persian speakers, at least two aged 60+, with complete ratings.
 
 See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/MOSHI_H100_RUNBOOK.md`,
-`docs/MOSHI_SELECTION_PROTOCOL.md`, `docs/QA_WAIVER.md`,
+`docs/MOSHI_SELECTION_PROTOCOL.md`, `docs/MOSHI_V2_SELECTION_PROTOCOL.md`, `docs/QA_WAIVER.md`,
 `docs/REPOSITORY_SECURITY.md`, `docs/METRICS.md`, `docs/HUMAN_STUDY.md`,
 `docs/NO_RECORDING_ALTERNATIVES.md`, `docs/GPU_4090_RUNBOOK.md`,
 `docs/MANUAL_QA_FA.md`, `docs/INTERRUPTION_QA_FA.md`,

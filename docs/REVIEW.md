@@ -1,10 +1,10 @@
-# Comprehensive project review (updated 2026-08-24)
+# Comprehensive project review (updated 2026-08-27)
 
 ## Verdict
 
 The project has a strong thesis problem, useful infrastructure, and unusually good data-engineering effort, but the earlier implementation overstated two central claims: the trained artifact was not an end-to-end speech LLM, and the browser was not full duplex. The current revision corrects those claims, provides a functional modular cascade plus genuine continuous-microphone interruption control, constructs an auditable conversational training set, and adds a pinned official Moshi/Moshika LoRA path for genuine response-audio adaptation.
 
-Current engineering/research readiness: **8.8/10**. Earlier audited state: **about 4/10**. A defensible 10/10 cannot be produced entirely in code because the remaining points require reviewer listening, a completed model run and held-out evaluation, human participants, and live measurements on the forthcoming physical 4090.
+Current engineering/research readiness: **8.8/10**. Earlier audited state: **about 4/10**. A defensible 10/10 cannot be produced entirely in code because the remaining points require a deployment-eligible Persian direct model, reviewer listening, human participants, and live measurements on the forthcoming physical 4090.
 
 The student has now explicitly waived both conversation listening reviews for
 the time-constrained limited training run. This improves auditability, not the
@@ -59,6 +59,14 @@ Corrections:
 - legacy/untyped checkpoints fail closed;
 - serving is unconditionally cascade-only for the legacy artifact;
 - the genuine direct path now uses the pinned official Moshi runtime and LoRA trainer, a fail-closed stereo exporter, a production-audit-clean pinned local client, deterministic single-voice Persian assistant targets, immutable upstream metadata, and exact model-file verification. All three base blobs pass their pinned sizes and SHA-256 hashes. The waiver-bound export is complete at 6,754 pairs / 108.584 final stereo h; an independent audit verifies every artifact/channel/source interval with zero failures and reproduces 24/24 sampled assistant renders exactly. The exact full-shape H100 probe completed model/Mimi/data/loss/backward/fused-AdamW at loss 3.808453 and 22.707 GB peak, then wrote a real 967 MiB/699-tensor adapter through the CPU-offloaded checkpoint path. It is launch evidence only. The scientific adapter remains pending on the full training run and held-out Persian evaluation.
+
+The later scientific v1 run completed all 8,000 steps and objective held-out
+controls, but official-server validation exposed a decisive generation failure:
+step 500 remained English and steps 1,000–8,000 became near-silent with no text.
+The matched base control ruled out transport failure, so v1 is correctly
+runtime-ineligible. A separately frozen v2 restores the official 100-second
+context, adds validation speech/text/Persian gates, and reserves a fresh
+14-session final test before training; its 22.797 GB one-step probe passes.
 
 The working system is now honestly modular: NeMo ASR → locally cached Qwen2.5-0.5B (rules if unavailable) → Piper/formant TTS.
 

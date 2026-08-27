@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-27T11:42:43.831674+00:00",
+  "purpose": "Untouched group-held-out final test for the corrected 100-second Moshi v2 run. The old test remains v1-only and is not an input to v2 training, selection, or testing.",
+  "rule": {
+    "group": "source_session_id",
+    "hash": "blake2b-64",
+    "modulus": 10,
+    "heldout_bucket": 0,
+    "frozen_before_v2_training": true
+  },
+  "inputs": {
+    "source_train": "data/processed/moshi_finetune/train.jsonl",
+    "source_train_sha256": "a84c9f1f924e8544499bd502413c469d30a10b98ceefc4e5a1f853217af0e517",
+    "source_validation": "data/processed/moshi_finetune/val.jsonl",
+    "source_validation_sha256": "a2762495830c82ce12d3dc4cc8469e2110ae21a77ea91f9b70498a6812e187a7",
+    "old_test_used": false
+  },
+  "outputs": {
+    "train": {
+      "path": "data/processed/moshi_finetune_v2/train.jsonl",
+      "sha256": "e96ae5ae3f230579d239daf20312080eec7eaee2f898c11418da5f0fe6f23251",
+      "rows": 5681,
+      "hours": 91.98564
+    },
+    "validation": {
+      "path": "data/processed/moshi_finetune_v2/val.jsonl",
+      "sha256": "a2762495830c82ce12d3dc4cc8469e2110ae21a77ea91f9b70498a6812e187a7",
+      "rows": 131,
+      "hours": 3.431446
+    },
+    "final_test": {
+      "path": "data/processed/moshi_finetune_v2/test.jsonl",
+      "sha256": "f46deefe39beb31e2eb17bae94bab4a44514de85b8f541ef9f59221afe604bf8",
+      "rows": 738,
+      "hours": 11.894073
+    }
+  },
+  "sessions": {
+    "train": 138,
+    "validation": 5,
+    "final_test": 14,
+    "all_pairwise_disjoint": true
+  },
+  "requirements": {
+    "source_hashes_current": true,
+    "deterministic_rule_frozen": true,
+    "train_nonempty": true,
+    "validation_nonempty": true,
+    "final_test_nonempty": true,
+    "session_groups_pairwise_disjoint": true,
+    "old_v1_test_not_used": true
+  },
+  "split_passes": true
+}

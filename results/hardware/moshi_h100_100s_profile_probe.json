@@ -1,0 +1,101 @@
+{
+  "schema_version": 4,
+  "status": "passed",
+  "completed_at": "2026-08-27T11:40:10.943487",
+  "purpose": "one-step exact-full-profile optimizer and checkpoint probe only",
+  "scientific_evidence": false,
+  "persian_training_claim_allowed": false,
+  "training_data_policy": {
+    "policy": "automatic_only_documented_waiver",
+    "path": "configs/conversation_qa_waiver.yaml",
+    "sha256": "4635426ad3ef5639e45b4cf7b78789485d098b24a9358568b3537e31ac1904f0",
+    "decision_date": "2026-08-24",
+    "decision_authority": "student_project_owner",
+    "reason": "insufficient_time_and_no_available_delegate",
+    "supervisor_approval_claimed": false,
+    "human_verified_data_claim_allowed": false,
+    "human_verified_interruption_claim_allowed": false,
+    "strict_thesis_data_coverage_claim_allowed": false,
+    "requirements": {
+      "schema_supported": true,
+      "status_acknowledged": true,
+      "policy_explicit": true,
+      "student_authority_explicit": true,
+      "supervisor_approval_not_claimed": true,
+      "reason_recorded": true,
+      "decision_date_recorded": true,
+      "limited_internal_training_explicit": true,
+      "both_reviews_waived": true,
+      "human_claims_disabled": true,
+      "best_practice_assets_preserved": true
+    },
+    "valid": true
+  },
+  "strict_export_ready": false,
+  "training_export_ready_under_qa_waiver": true,
+  "waiver_policy_matches_current": true,
+  "waiver_claims_disabled": true,
+  "human_verification_claim_allowed": false,
+  "hardware": {
+    "gpu": "NVIDIA H100 NVL",
+    "torch_cuda": "12.4",
+    "peak_allocated_gb": 22.797,
+    "allocated_gb_after_step": 21.838
+  },
+  "step": {
+    "number": 1,
+    "loss": 4.304206,
+    "words_per_second": 4202.314
+  },
+  "profile": {
+    "duration_sec": 100.0,
+    "batch_size": 1,
+    "num_microbatches": 4,
+    "gradient_checkpointing": true,
+    "full_finetuning": false,
+    "lora": {
+      "enable": true,
+      "ft_embed": true,
+      "rank": 64,
+      "scaling": 2.0
+    },
+    "first_codebook_weight_multiplier": 100.0,
+    "text_padding_weight": 0.5
+  },
+  "requirements": {
+    "environment_valid": true,
+    "training_export_valid_for_selected_policy": true,
+    "one_optimizer_step_completed": true,
+    "finite_loss": true,
+    "full_training_shape_matches": true,
+    "resolved_args_match_probe_config": true,
+    "evaluation_disabled": true,
+    "checkpoint_save_completed": true,
+    "real_model_memory_allocated": true,
+    "project_launcher_uses_fused_adamw": true,
+    "project_launcher_offloads_single_gpu_adapter_save": true
+  },
+  "optimizer_runtime": {
+    "algorithm": "AdamW",
+    "foreach": false,
+    "fused": true
+  },
+  "checkpoint_runtime": {
+    "adapter_copy_device": "cpu",
+    "adapter_bytes": 1013593144,
+    "adapter_tensor_count": 699
+  },
+  "full_profile_gate_passes": true,
+  "artifacts": {
+    "metrics_sha256": "010dedf3dd956512abbeac71fd9138688f5ef5a5be5a61478bf69337918dd0a2",
+    "resolved_args_sha256": "171944108008e8038ab943ddc29dffd3723499829e1b179a531d50725423b6a6",
+    "probe_config_sha256": "83ce40a9908578acb7f64cce0af020e72018903eebb88fe5375db9470d13650e",
+    "full_config_sha256": "c9cd892ded3aa094ca612385f7e2cb37c55a61d2a76a0ef3b458612ebb737b4b",
+    "environment_report_sha256": "08d1df2ec971e9ac78c3363782cdb0272f2e4f8cc8b7674e97bcfaef380e9f19",
+    "export_report_sha256": "f4e2532cbcea533764e84f83018f109b4e815ff1c08a1900947800d69f5a1872",
+    "project_launcher_sha256": "c6acd9bc2c7e37286fb249b4f10a21b38f2b2f3ba396d7553db075bdcd4d6359",
+    "probe_adapter_sha256": "12f31d19f50efc3d8ec41e8c660221813ddbd34e0494d43186e6b19a32294f2c",
+    "probe_adapter_config_sha256": "d714a651ceb9849fff5d1e9b5f53dda91cf09f2ca8351bbda5214f1053664a7f"
+  },
+  "note": "This measures peak memory for one optimizer step with the full training shape and proves a CPU-offloaded adapter checkpoint can be written. It is not convergence, Persian quality, held-out, or target-GPU evidence. A QA-waiver export validates only the limited training path and never turns automatic labels into human-verified evidence."
+}

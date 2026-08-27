@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import math
@@ -40,23 +41,33 @@ def _comparable_profile(value: dict) -> dict:
 
 
 def main() -> None:
-    metrics_path = ROOT / "checkpoints" / "moshi_h100_profile_probe" / "metrics.train.jsonl"
-    args_path = ROOT / "checkpoints" / "moshi_h100_profile_probe" / "args.yaml"
-    probe_config_path = ROOT / "configs" / "moshi_h100_profile_probe.yaml"
-    full_config_path = ROOT / "configs" / "moshi_h100.yaml"
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--run-dir", type=Path, default=Path("checkpoints/moshi_h100_profile_probe")
+    )
+    parser.add_argument(
+        "--probe-config",
+        type=Path,
+        default=Path("configs/moshi_h100_profile_probe.yaml"),
+    )
+    parser.add_argument("--full-config", type=Path, default=Path("configs/moshi_h100.yaml"))
+    parser.add_argument(
+        "--out",
+        type=Path,
+        default=Path("results/hardware/moshi_h100_profile_probe.json"),
+    )
+    cli = parser.parse_args()
+
+    run_dir = (ROOT / cli.run_dir).resolve()
+    metrics_path = run_dir / "metrics.train.jsonl"
+    args_path = run_dir / "args.yaml"
+    probe_config_path = (ROOT / cli.probe_config).resolve()
+    full_config_path = (ROOT / cli.full_config).resolve()
     environment_path = ROOT / "results" / "hardware" / "moshi_environment.json"
     export_path = ROOT / "results" / "moshi_export_report.json"
     launcher_path = ROOT / "scripts" / "moshi_train_entry.py"
 
-    adapter_path = (
-        ROOT
-        / "checkpoints"
-        / "moshi_h100_profile_probe"
-        / "checkpoints"
-        / "checkpoint_000001"
-        / "consolidated"
-        / "lora.safetensors"
-    )
+    adapter_path = run_dir / "checkpoints/checkpoint_000001/consolidated/lora.safetensors"
     adapter_config_path = adapter_path.with_name("config.json")
     environment = _json(environment_path)
     export = _json(export_path)
@@ -202,7 +213,7 @@ def main() -> None:
     }
     if not report["full_profile_gate_passes"]:
         raise RuntimeError(f"full-profile probe failed: {requirements}")
-    output = ROOT / "results" / "hardware" / "moshi_h100_profile_probe.json"
+    output = (ROOT / cli.out).resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
