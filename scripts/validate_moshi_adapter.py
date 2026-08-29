@@ -274,7 +274,7 @@ def validate_selected_adapter(
             for candidate in candidates
             if isinstance(candidate, dict) and candidate.get("autoregressive_eligible") is True
         ]
-        if selection_schema == 3
+        if selection_schema in {3, 4, 5}
         else candidates
     )
     recomputed_selection = selected_candidate_by_rule(rule_candidates)
@@ -291,30 +291,44 @@ def validate_selected_adapter(
     )
 
     requirements = {
-        "selection_schema_supported": selection_schema in {2, 3, 4},
+        "selection_schema_supported": selection_schema in {2, 3, 4, 5},
         "selection_passed": selection.get("selection_passes") is True,
-        "complete_prompt_protocol_correction_disclosed": (
-            selection_schema != 4
-            or (
-                selection.get("runtime_panel_corrected_after_training") is True
+        "complete_prompt_protocol_disclosed": (
+            (
+                selection_schema == 4
+                and selection.get("runtime_panel_corrected_after_training") is True
                 and selection.get("exact_runtime_panel_indices_predeclared_before_training")
                 is False
                 and isinstance(
-                    (selection.get("runtime_validation") or {}).get(
-                        "protocol_correction"
-                    ),
+                    (selection.get("runtime_validation") or {}).get("protocol_correction"),
                     dict,
                 )
             )
+            or (
+                selection_schema == 5
+                and selection.get("runtime_panel_corrected_after_training") is False
+                and selection.get("exact_runtime_panel_indices_predeclared_before_training") is True
+                and isinstance(
+                    (selection.get("runtime_validation") or {}).get("protocol_provenance"),
+                    dict,
+                )
+            )
+            or selection_schema in {2, 3}
         ),
         "criterion_predeclared_before_training": selection.get(
             "criterion_predeclared_before_training"
         )
         is True,
-        "postrun_validation_input_correction_disclosed": selection.get(
-            "selection_input_corrected_after_training"
-        )
-        is True,
+        "validation_input_timing_disclosed": (
+            (
+                selection_schema == 5
+                and selection.get("selection_input_corrected_after_training") is False
+            )
+            or (
+                selection_schema != 5
+                and selection.get("selection_input_corrected_after_training") is True
+            )
+        ),
         "selection_criterion_unchanged": selection.get("correction_changes_selection_criterion")
         is False,
         "original_upstream_metrics_rejected": selection.get(
