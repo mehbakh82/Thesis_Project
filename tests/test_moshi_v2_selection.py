@@ -41,7 +41,8 @@ def test_posttraining_pipeline_freezes_selection_before_test_access() -> None:
 
 
 def test_corrected_pipeline_freezes_selection_before_test_access() -> None:
-    names = [stage["name"] for stage in corrected_pipeline_commands()]
+    stages = corrected_pipeline_commands()
+    names = [stage["name"] for stage in stages]
     assert names == [
         "corrected_complete_prompt_validation_runtime_panel",
         "eligible_only_selection",
@@ -50,9 +51,10 @@ def test_corrected_pipeline_freezes_selection_before_test_access() -> None:
         "separate_complete_prompt_final_runtime_diagnostics",
         "training_and_corrected_pipeline_certificate",
     ]
-    assert names.index("eligible_only_selection") < names.index(
-        "one_time_objective_final_test"
-    )
+    assert names.index("eligible_only_selection") < names.index("one_time_objective_final_test")
+    selection = next(stage for stage in stages if stage["name"] == "eligible_only_selection")
+    assert Path(selection["command"][0]).name == "python"
+    assert Path(selection["command"][0]).parent.parent.name == ".venv"
 
 
 def test_runtime_ineligible_lower_loss_cannot_win(tmp_path: Path) -> None:

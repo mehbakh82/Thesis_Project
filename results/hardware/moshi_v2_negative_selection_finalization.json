@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "generated_at": "2026-08-29T13:09:18.572577+00:00",
+  "scientific_outcome": "Moshi v2 failed closed: none of 20 checkpoints passed all nine unchanged official-runtime validation gates on complete user prompts.",
+  "scientific_negative_outcome_finalized": true,
+  "test_access_started": false,
+  "preconditions": {
+    "corrected_runtime_complete": true,
+    "no_runtime_candidate_eligible": true,
+    "pipeline_failure_was_selection_environment_only": true,
+    "final_test_outputs_absent": true
+  },
+  "requirements": {
+    "selector_failed_closed_as_expected": true,
+    "negative_selection_report_written": true,
+    "selection_schema_supported": true,
+    "selection_status_failed": true,
+    "selection_passes_false": true,
+    "selected_checkpoint_absent": true,
+    "eligible_candidate_count_zero": true,
+    "eligible_steps_empty": true,
+    "heldout_test_not_used": true,
+    "selection_bound_to_corrected_runtime": true,
+    "final_test_outputs_still_absent": true
+  },
+  "selector": {
+    "command": [
+      ".venv/bin/python",
+      "scripts/select_moshi_v2_checkpoint.py",
+      "--runtime",
+      "results/moshi_v2_runtime_candidates.json",
+      "--out",
+      "results/moshi_v2_checkpoint_selection.json"
+    ],
+    "exit_code": 1,
+    "expected_nonzero_exit": true,
+    "stderr_last_line": "RuntimeError: no Moshi v2 checkpoint passed every frozen eligibility gate"
+  },
+  "artifacts": {
+    "runtime_path": "results/moshi_v2_runtime_candidates.json",
+    "runtime_sha256": "57d6cb66f4733c1b28645fe9e9b7e8599e9fa70da9d8abae25a561d5d720d093",
+    "failed_pipeline_receipt_path": "results/hardware/moshi_v2_corrected_posttraining_selection_environment_failed.json",
+    "failed_pipeline_receipt_sha256": "3861e7cf0230e1782ff6a6d95d1d7d53423b60a6fa54e2cbdcf407b712fbfae9",
+    "selection_path": "results/moshi_v2_checkpoint_selection.json",
+    "selection_sha256": "4a7ed302d2a0c860e6f25454cb932839539a38e5e6226f2550b155dd7f1aaba1",
+    "finalizer_sha256": "aece92661b40620831098250572b6e43d88e80ba00399689e53f4d23031d8e1e"
+  },
+  "next_stage": "Design a new predeclared training experiment; do not access the v2 final test."
+}

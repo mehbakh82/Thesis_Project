@@ -81,3 +81,34 @@ used to select or revise the checkpoint.
 If the corrected validation panel yields no eligible candidate, v2 remains a
 negative result and the pipeline must stop before the test set. Thresholds must
 not be weakened after seeing the corrected outputs.
+
+## Corrected v2 outcome
+
+The corrected official-runtime evaluation completed on 2026-08-29 for all 20
+predeclared checkpoints. The transport, static adapter, and complete-prompt
+evaluation path completed successfully, but no candidate passed every output
+gate on all nine rows. Step 400 was the strongest checkpoint at 2/9 passing
+rows; steps 500, 600, 700, 800, and 1,000 passed 1/9; every other checkpoint
+passed 0/9. Early checkpoints spoke but remained English, step 400 produced
+limited Persian speech, and later checkpoints increasingly collapsed to
+silence.
+
+The first corrected orchestrator then encountered an infrastructure-only
+failure while importing NumPy from the root-owned project environment during
+selection. That failure occurred after the complete runtime report was written
+and before any selection output or final-test access. It is preserved as:
+
+- `results/hardware/moshi_v2_corrected_posttraining_selection_environment_failed.json`
+
+Selection was rerun with the accidental NumPy dependency removed. The canonical
+fail-closed evidence is:
+
+- `results/moshi_v2_runtime_candidates.json`
+- `results/moshi_v2_checkpoint_selection.json`
+- `results/hardware/moshi_v2_negative_selection_finalization.json`
+
+The finalizer verifies zero eligible candidates, a null selected checkpoint,
+the corrected-runtime hash, the expected nonzero selector exit, and
+`test_access_started=false`. No v2 selected-adapter, final objective, final
+runtime, or training-certificate output was created. The 738-row final-test
+manifest remains untouched and must not be accessed for v2.

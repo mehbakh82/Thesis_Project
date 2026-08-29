@@ -58,7 +58,7 @@ Corrections:
 - checkpoints declare `runtime_ready: false`;
 - legacy/untyped checkpoints fail closed;
 - serving is unconditionally cascade-only for the legacy artifact;
-- the genuine direct path now uses the pinned official Moshi runtime and LoRA trainer, a fail-closed stereo exporter, a production-audit-clean pinned local client, deterministic single-voice Persian assistant targets, immutable upstream metadata, and exact model-file verification. All three base blobs pass their pinned sizes and SHA-256 hashes. The waiver-bound export is complete at 6,754 pairs / 108.584 final stereo h; an independent audit verifies every artifact/channel/source interval with zero failures and reproduces 24/24 sampled assistant renders exactly. The exact full-shape H100 probe completed model/Mimi/data/loss/backward/fused-AdamW at loss 3.808453 and 22.707 GB peak, then wrote a real 967 MiB/699-tensor adapter through the CPU-offloaded checkpoint path. It is launch evidence only. The scientific adapter remains pending on the full training run and held-out Persian evaluation.
+- the genuine direct path now uses the pinned official Moshi runtime and LoRA trainer, a fail-closed stereo exporter, a production-audit-clean pinned local client, deterministic single-voice Persian assistant targets, immutable upstream metadata, and exact model-file verification. All three base blobs pass their pinned sizes and SHA-256 hashes. The waiver-bound export is complete at 6,754 pairs / 108.584 final stereo h; an independent audit verifies every artifact/channel/source interval with zero failures and reproduces 24/24 sampled assistant renders exactly. The exact full-shape H100 probe completed model/Mimi/data/loss/backward/fused-AdamW at loss 3.808453 and 22.707 GB peak, then wrote a real 967 MiB/699-tensor adapter through the CPU-offloaded checkpoint path. It was launch evidence only; subsequent v1 and v2 scientific runs completed but both failed the official-runtime generation gates described below.
 
 The later scientific v1 run completed all 8,000 steps and objective held-out
 controls, but official-server validation exposed a decisive generation failure:
@@ -67,6 +67,15 @@ The matched base control ruled out transport failure, so v1 is correctly
 runtime-ineligible. A separately frozen v2 restores the official 100-second
 context, adds validation speech/text/Persian gates, and reserves a fresh
 14-session final test before training; its 22.797 GB one-step probe passes.
+
+The clean v2 retry subsequently completed 2,000 steps and improved complete-
+scope validation loss monotonically from 2.312407 to 1.734574. Its first panel
+was invalid because eight of nine five-second inputs truncated active user
+turns. After an input-only complete-prompt correction was frozen, all 20
+checkpoints were reevaluated through the official runtime with unchanged gates.
+No checkpoint passed 9/9 rows; step 400 was best at 2/9 and later checkpoints
+again tended toward silence. V2 therefore failed closed, no adapter was
+promoted, and its fresh final test was not accessed.
 
 The working system is now honestly modular: NeMo ASR → locally cached Qwen2.5-0.5B (rules if unavailable) → Piper/formant TTS.
 
@@ -130,7 +139,9 @@ Added:
 ## Irreducible path to 10/10
 
 1. Complete the 40-row window review and the 24-row interaction-candidate review. The latter uses existing internal-authorized audio and requires no recording; use a supplement or scope amendment only if its measured precision is unacceptable.
-2. Train the pinned Moshi LoRA response model on the H100, then validate Persian response relevance, speech output, checkpoints, and held-out metrics.
+2. Continue controlled Moshi adaptation experiments on the H100 until one
+   passes the unchanged validation-only Persian speech/text gates; v1 and v2
+   are preserved negative results and must not be presented as deployment-ready.
 3. Recruit 5–10 Persian speakers, including at least two aged 60+, and complete all ratings. If recruitment is formally waived, record the supervisor-approved alternative and narrow the claims accordingly.
 4. Run the live browser protocol on the physical 4090 and export client timing; the H100 is the correct training machine, while the 4090 is the target deployment/evaluation machine.
 5. Evaluate the detector on speaker/session-held-out real conversational audio and report confidence intervals.

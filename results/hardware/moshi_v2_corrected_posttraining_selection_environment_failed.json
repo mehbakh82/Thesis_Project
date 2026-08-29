@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "generated_at": "2026-08-29T08:59:33.163087+00:00",
+  "launch_commit": "d44687a6b96fb115d032c56598a5896b482645d9",
+  "test_access_started": false,
+  "preconditions": {
+    "launch_worktree_clean": true,
+    "complete_validation_reevaluation_passed": true,
+    "superseded_runtime_preserved_and_ineligible": true,
+    "superseded_selection_failed_closed": true,
+    "superseded_pipeline_stopped_before_test_access": true,
+    "correction_frozen_before_new_generation": true
+  },
+  "stages": [
+    {
+      "name": "corrected_complete_prompt_validation_runtime_panel",
+      "started_at": "2026-08-29T08:44:01.115177+00:00",
+      "command": [
+        ".venv-moshi/bin/python",
+        "scripts/evaluate_moshi_v2_runtime_candidates.py"
+      ],
+      "status": "passed",
+      "finished_at": "2026-08-29T08:59:33.010397+00:00",
+      "exit_code": 0,
+      "output": "results/moshi_v2_runtime_candidates.json",
+      "output_sha256": "57d6cb66f4733c1b28645fe9e9b7e8599e9fa70da9d8abae25a561d5d720d093"
+    },
+    {
+      "name": "eligible_only_selection",
+      "started_at": "2026-08-29T08:59:33.014274+00:00",
+      "command": [
+        ".venv/bin/python",
+        "scripts/select_moshi_v2_checkpoint.py"
+      ],
+      "status": "failed",
+      "finished_at": "2026-08-29T08:59:33.162968+00:00",
+      "exit_code": 1
+    }
+  ],
+  "requirements": {
+    "stages_run_in_frozen_order": false
+  },
+  "artifacts": {
+    "correction_document_sha256": "37b916ee8846bb135cfa902658f397cd165f459b79be335855a418ed34c876c3",
+    "reevaluation_sha256": "89a36567855f5e353d52b10688abb316cde050a55df6e869606b10fc8466a151",
+    "superseded_runtime_sha256": "2d79bed3b2f7c4f39fb0eb0678006903e79bf84dceb49a8053615a414646fb02",
+    "superseded_selection_sha256": "1c468be2436967587d8d08fc3e3d214e727bb5c36a9a544f4e8ae9d3104d6f42",
+    "superseded_pipeline_receipt_sha256": "ecfea73444dfdc81770fe10b98df60055aa5d44fa33e94aee17159bdadc12faa",
+    "orchestrator_sha256": "96d81f013b454b403c4135574b2448a9adb6dd24640fa062146d6dc5af0db4db"
+  },
+  "failure": "stage failed: eligible_only_selection"
+}

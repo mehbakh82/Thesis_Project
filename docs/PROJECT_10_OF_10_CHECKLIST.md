@@ -58,7 +58,7 @@ Verified now:
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
-- [x] Ruff and mypy pass on all source files; all 104 tests pass and
+- [x] Ruff and mypy pass on all source files; all 113 tests pass and
   branch-aware coverage is 62% with a 60% CI floor.
 - [x] General dependencies have no known vulnerabilities; the pinned scientific
   lock has an exact, fail-closed accepted-risk baseline and mitigations.
@@ -68,8 +68,10 @@ Verified now:
   hours, zero machine failures, 24/24 deterministic assistant re-syntheses.
 - [x] Exact full-profile probe: loss 3.808453, 22.707 GB peak, fused AdamW,
   and a 967 MiB/699-tensor CPU-offloaded adapter save; all gates pass.
-- [x] Scientific H100 adapter training, fixed-scope validation selection,
-  exact adapter validation, and one-time automatic held-out evaluation pass.
+- [x] Scientific H100 experiments are preserved honestly: v1 passed
+  teacher-forced held-out controls but failed official-runtime generation; v2
+  completed all 20 candidates but failed its unchanged autoregressive
+  eligibility gates before final-test access.
 - [ ] Physical-4090 evidence, real detector evidence, perceptual model review,
   and human study are pending.
 - [x] GitHub CLI authentication is persistent for `mehbakh82`; the remote is
@@ -434,10 +436,18 @@ Corrective v2 run:
   or final-test access. It deterministically selects nine complete five-second
   prompts using input PCM only and leaves all thresholds, candidates, the 9/9
   requirement, loss rule, and tie break unchanged.
-- [ ] Apply the corrected complete-prompt autoregressive panel, select only
-  among eligible candidates, validate the selected hash, and evaluate it once
-  on the untouched new test with objective and separately reported
-  autoregressive diagnostics.
+- [x] Apply the corrected complete-prompt official-runtime panel to all 20
+  candidates. No checkpoint passed all nine unchanged gates; step 400 was best
+  at 2/9, steps 500–800 and 1,000 reached 1/9, and all others reached 0/9.
+- [x] Finalize v2 selection fail-closed with zero eligible checkpoints and a
+  null selection. The infrastructure-only root/NumPy failure is preserved
+  separately from the successful runtime report and repaired reproducibly.
+- [x] Stop before selected-adapter validation or any final-test evaluation, as
+  required by the frozen protocol. The fresh 738-row / 14-session final test
+  remains untouched.
+- [ ] Produce a new training configuration that passes the unchanged complete-
+  prompt autoregressive gates; only then validate the selected hash and access
+  the frozen final test once.
 
 Exit remains open until v2 yields a reproducible, loadable adapter that passes
 both scientific validation and frozen autoregressive Persian-output gates.
@@ -667,7 +677,7 @@ privacy-safe repository at approved visibility, restricted handoff, immutable ta
 | Working Persian S2S prototype | Final adapter produces relevant, intelligible Persian speech live | Pending | Adapter hash, runtime logs, held-out output |
 | Full duplex | Mic remains active; interruption stops playback and becomes next-turn context | Control implemented; direct model pending | Client traces and continuation tests |
 | End-to-end ≤500 ms | Max `T_first_audio` ≤500 ms unless another statistic is predeclared; always p50/p95/max | Pending | Physical-4090 `official_e2e` telemetry |
-| Open base adapted to Persian | Moshika 7B LoRA trained on the waiver-bound Persian response pairs | H100 training and automatic held-out gates pass; perceptual validation pending | Config, logs, adapter hashes, validation/test reports |
+| Open base adapted to Persian | Moshika 7B LoRA trained on the waiver-bound Persian response pairs | V1 and v2 trained but are runtime-ineligible; no adapter promoted and v2 final test untouched | Config, logs, adapter hashes, validation/test reports |
 | 100–200 conversational hours | Final audited/exported hours in range; group-clean, no reused intervals | **108.584 exported h**, 6,754/6,754 pairs, zero audit failures | Conversation audit/export report |
 | Noise/overlap/interruption labels | Conditions present, QA complete, verified interruption, agreed precision | Automatic only | QA reports and final counts |
 | Classical detector >80% | Real group-held-out event accuracy >80%, F1/FAR/FRR reported | Synthetic proxy only | Real held-out report/hash |

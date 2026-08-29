@@ -16,7 +16,17 @@ sys.path.insert(0, str(ROOT))
 
 from scripts.validate_moshi_adapter import json_object, project_path, sha256_file  # noqa: E402
 from thesis_s2s.config import load_yaml, portable_project_values  # noqa: E402
-from thesis_s2s.metrics import write_json  # noqa: E402
+
+
+def write_report(path: Path, report: dict[str, Any]) -> None:
+    """Write a selection report without importing the NumPy-backed metrics module."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(f"{path.suffix}.tmp")
+    temporary.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    temporary.replace(path)
 
 
 def candidate_map(report: dict[str, Any], label: str) -> dict[int, dict[str, Any]]:
@@ -85,13 +95,9 @@ def select_checkpoint(
                 "frozen_after_training_before_corrected_generation_and_final_test_access"
             )
             is True
-            and (runtime.get("protocol_correction") or {}).get(
-                "selection_criterion_changed"
-            )
+            and (runtime.get("protocol_correction") or {}).get("selection_criterion_changed")
             is False
-            and (runtime.get("protocol_correction") or {}).get(
-                "eligibility_thresholds_changed"
-            )
+            and (runtime.get("protocol_correction") or {}).get("eligibility_thresholds_changed")
             is False
         ),
     }
@@ -227,7 +233,7 @@ def select_checkpoint(
         ),
     }
     report = portable_project_values(report)
-    write_json(out_path, report)
+    write_report(out_path, report)
     if not selection_passes:
         raise RuntimeError("no Moshi v2 checkpoint passed every frozen eligibility gate")
     return report
