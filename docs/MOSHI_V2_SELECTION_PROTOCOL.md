@@ -80,3 +80,7 @@ For the frozen 738-row test this is
 speech/text/Persian gates but never select or revise a checkpoint. Human
 listening and physical-4090 browser evidence remain separate gates and cannot
 be replaced by this protocol.
+
+This final-runtime reporting rule was frozen on 2026-08-29, after the clean
+training retry launched but before checkpoint selection or final-test access.
+It does not change the candidate set, validation eligibility gates, or selector.

@@ -85,6 +85,7 @@ rotate it and replace the document with environment-variable placeholders.
 .venv-moshi/bin/python scripts/evaluate_moshi_v2_final_test.py
 .venv-moshi/bin/python scripts/evaluate_moshi_v2_final_runtime.py
 .venv-moshi/bin/python scripts/record_moshi_v2_training_run.py
+.venv/bin/python scripts/run_moshi_v2_posttraining.py
 
 # Historical v1 evidence
 .venv-moshi/bin/python scripts/reevaluate_moshi_checkpoints.py

@@ -7,6 +7,7 @@ from pathlib import Path
 import yaml
 
 from scripts.evaluate_moshi_v2_final_runtime import evenly_spaced_indices
+from scripts.run_moshi_v2_posttraining import pipeline_commands
 from scripts.select_moshi_v2_checkpoint import select_checkpoint
 
 
@@ -20,6 +21,21 @@ def write_json(path: Path, value: dict) -> None:
 
 def test_final_runtime_panel_is_deterministic_and_spans_manifest() -> None:
     assert evenly_spaced_indices(738) == (0, 92, 184, 276, 368, 460, 552, 644, 737)
+
+
+def test_posttraining_pipeline_freezes_selection_before_test_access() -> None:
+    names = [stage["name"] for stage in pipeline_commands()]
+
+    assert names == [
+        "complete_validation_reevaluation",
+        "validation_runtime_panel",
+        "eligible_only_selection",
+        "selected_adapter_validation",
+        "one_time_objective_final_test",
+        "separate_final_runtime_diagnostics",
+        "training_and_pipeline_certificate",
+    ]
+    assert names.index("eligible_only_selection") < names.index("one_time_objective_final_test")
 
 
 def test_runtime_ineligible_lower_loss_cannot_win(tmp_path: Path) -> None:
