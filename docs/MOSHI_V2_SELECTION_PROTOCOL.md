@@ -2,6 +2,8 @@
 
 Frozen before v2 training: 2026-08-27.
 
+Post-training complete-prompt correction frozen 2026-08-29; see `docs/MOSHI_V2_PROTOCOL_CORRECTION.md`. The original panel below is preserved as the superseded protocol.
+
 ## Why a second run is required
 
 The completed v1 run remains valid evidence for teacher-forced loss learning, but
@@ -84,3 +86,24 @@ be replaced by this protocol.
 This final-runtime reporting rule was frozen on 2026-08-29, after the clean
 training retry launched but before checkpoint selection or final-test access.
 It does not change the candidate set, validation eligibility gates, or selector.
+
+## Post-training complete-prompt addendum
+
+The training run completed, but the original panel was found to stream
+unfinished five-second prefixes for eight of nine rows. That makes silence an
+ambiguous and often correct turn-taking result rather than evidence that the
+model cannot respond. Its generated reports and fail-closed selection are
+preserved under explicit `truncated_prompt` names.
+
+Before any corrected generation or final-test access, the replacement
+validation rule was frozen in `docs/MOSHI_V2_PROTOCOL_CORRECTION.md`. It uses
+only input PCM timing: retain rows whose entire user channel ends within five
+seconds, then choose nine floor-spaced manifest-ordered members. The resulting
+validation indices are `[0, 11, 33, 51, 55, 74, 85, 87, 106]`.
+
+Candidate steps, loss criterion, tie break, official runtime, artifact gates,
+RMS threshold, text gate, Persian-script threshold, and the 9/9 requirement
+remain unchanged. The exact corrected indices were not predeclared before
+training, and that limitation must be reported. The final runtime diagnostic
+uses the same input-only rule after selection; the superseded fixed final-test
+indices are not used.

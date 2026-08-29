@@ -1,6 +1,6 @@
 # Checklist for a defensible 10/10 thesis project
 
-Status date: 2026-08-26
+Status date: 2026-08-29
 
 This is the authoritative closure checklist. Mark an item complete only when its
 named artifact exists and its acceptance test passes. Implemented code,
@@ -420,11 +420,24 @@ Corrective v2 run:
   load, one-time complete final-test controls, deterministic final-test runtime
   diagnostics, and launch/checkpoint attestation.
 
-- [ ] Complete the 2,000-step v2 run from `configs/moshi_h100_v2.yaml`.
-- [ ] Reevaluate all v2 candidates on the same complete validation scope.
-- [ ] Apply the frozen autoregressive panel, select only among eligible
-  candidates, validate the selected hash, and evaluate it once on the new test
-  with objective and separately reported autoregressive diagnostics.
+- [x] Complete the clean 2,000-step v2 retry from
+  `configs/moshi_h100_v2.yaml`: step 2,000 and its checkpoint completed at
+  2026-08-29 07:28:31 UTC with finite metrics and a 27.7 GB logged peak.
+- [x] Reevaluate all 20 v2 candidates on the identical complete 202-chunk
+  validation scope. Total loss improves monotonically from 2.312407 at step 100
+  to 1.734574 at step 2,000.
+- [x] Preserve the first panel and failed selector as invalid eligibility
+  evidence: eight of nine five-second inputs ended before their source user
+  turns, so silence could be correct turn-taking. The pipeline stopped with
+  `test_access_started=false`.
+- [x] Freeze `docs/MOSHI_V2_PROTOCOL_CORRECTION.md` before corrected generation
+  or final-test access. It deterministically selects nine complete five-second
+  prompts using input PCM only and leaves all thresholds, candidates, the 9/9
+  requirement, loss rule, and tie break unchanged.
+- [ ] Apply the corrected complete-prompt autoregressive panel, select only
+  among eligible candidates, validate the selected hash, and evaluate it once
+  on the untouched new test with objective and separately reported
+  autoregressive diagnostics.
 
 Exit remains open until v2 yields a reproducible, loadable adapter that passes
 both scientific validation and frozen autoregressive Persian-output gates.

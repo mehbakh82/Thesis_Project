@@ -152,7 +152,12 @@ def evaluate_final_test(
         "official_cuda_loader_passed": (
             runtime_info.get("performed") is True and runtime_info.get("passed") is True
         ),
-        "selection_schema_supported": selection.get("schema_version") == 3,
+        "selection_schema_supported": selection.get("schema_version") == 4,
+        "complete_prompt_protocol_correction_disclosed": (
+            selection.get("runtime_panel_corrected_after_training") is True
+            and selection.get("exact_runtime_panel_indices_predeclared_before_training")
+            is False
+        ),
         "selection_passed_before_test_access": selection.get("selection_passes") is True,
         "test_not_used_for_checkpoint_selection": selection.get("heldout_test_used_for_selection")
         is False,

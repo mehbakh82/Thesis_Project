@@ -8,7 +8,7 @@ An evidence-first Persian speech prototype that keeps the microphone active duri
 |---|---|
 | Working spoken conversation | Implemented as NeMo Persian ASR → local Qwen2.5-0.5B (rule fallback) → Piper Persian TTS |
 | Full-duplex control | Continuous browser PCM16 stream, rolling energy/F0/MFCC detector, server stop event, client stop acknowledgement |
-| Direct speech LLM | The exact 8,000-step v1 H100 run and objective held-out controls completed, but official-server validation correctly rejected it: step 500 still generated English, while steps 1,000–8,000 collapsed to near-silence despite improving teacher-forced loss. The base control generated normal English audio/text, isolating the failure to adaptation rather than transport. A corrected v2 protocol is frozen before training: official 100-second context (81.1% rather than 29.4% response-onset-bearing train chunks), a passing 22.797 GB one-step probe, validation speech/text/Persian gates, and a fresh untouched 14-session/11.894-hour final test. No v1 adapter is deployment-eligible |
+| Direct speech LLM | V1 remains rejected for English drift/near-silence. The clean v2 H100 retry completed all 2,000 steps and 20 checkpoints; complete-scope validation loss improved from 2.312407 to 1.734574. Its first runtime panel failed closed, but investigation proved eight of nine inputs were truncated prefixes of unfinished user turns (up to 442.113 s), so that panel is preserved as invalid for response eligibility. A deterministic complete-prompt correction is frozen before new generation or final-test access, with every output threshold and the 9/9 requirement unchanged. The fresh 14-session/11.894-hour v2 final test remains untouched, and no adapter is deployment-eligible until corrected selection passes. |
 | 100–200 h conversation corpus | Full inventory: **775.887 h / 1,442 long episodes**. The production selection is **219.946 candidate h / 309 episodes** across four channels; 1,129 windows contain **207.154 automatically classified multi-speaker h**, **242.445 aligned staging h**, and **6,754 non-reused response pairs / 123.796 source-pair h**. The immutable Piper derivative is **108.584 measured stereo h**, inside the formal band |
 | Conversational interruption supervision | Raw speaker boundaries recover **770 conservative candidates** (717 interruption-like, 53 backchannel-like) from the 6,754 pairs. The preserved deterministic 24-row sheet was sampled from the earlier 712-candidate pool and covers all four channels / **168.3 seconds** of excerpt audio. They remain automatic candidates; **zero human-verified direct interruptions** are claimed under the waiver |
 | Barge-in >80% | Met only on harmonic synthetic held-out data; real speaker/session-held-out evidence is pending |
@@ -122,7 +122,7 @@ the adapter.
 - Human evaluation requires 5–10 Persian speakers, at least two aged 60+, with complete ratings.
 
 See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/MOSHI_H100_RUNBOOK.md`,
-`docs/MOSHI_SELECTION_PROTOCOL.md`, `docs/MOSHI_V2_SELECTION_PROTOCOL.md`, `docs/QA_WAIVER.md`,
+`docs/MOSHI_SELECTION_PROTOCOL.md`, `docs/MOSHI_V2_SELECTION_PROTOCOL.md`, `docs/MOSHI_V2_PROTOCOL_CORRECTION.md`, `docs/QA_WAIVER.md`,
 `docs/REPOSITORY_SECURITY.md`, `docs/METRICS.md`, `docs/HUMAN_STUDY.md`,
 `docs/NO_RECORDING_ALTERNATIVES.md`, `docs/GPU_4090_RUNBOOK.md`,
 `docs/MANUAL_QA_FA.md`, `docs/INTERRUPTION_QA_FA.md`,

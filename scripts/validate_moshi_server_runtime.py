@@ -26,6 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from scripts.build_moshi_client import tree_manifest  # noqa: E402
+from scripts.moshi_runtime_panel import user_audio_bounds_seconds  # noqa: E402
 from scripts.validate_moshi_adapter import (  # noqa: E402
     json_object,
     project_path,
@@ -168,8 +169,14 @@ async def exercise_server(
         pcm, sample_rate = sphn.read(str(input_audio), sample_rate=24000)
         if pcm.ndim != 2 or pcm.shape[0] != 2:
             raise RuntimeError("runtime smoke input must be stereo assistant/user audio")
+        source_user_start_seconds, source_user_end_seconds = user_audio_bounds_seconds(
+            input_audio
+        )
         input_samples = min(pcm.shape[-1], int(input_seconds * sample_rate))
         user_pcm = pcm[1, :input_samples]
+        complete_user_audio_streamed = (
+            source_user_end_seconds <= input_samples / sample_rate
+        )
         post_silence_samples = int(post_input_silence_seconds * sample_rate)
         streamed_pcm = np.concatenate(
             [user_pcm, np.zeros(post_silence_samples, dtype=user_pcm.dtype)]
@@ -266,6 +273,11 @@ async def exercise_server(
         "input_sample_rate": sample_rate,
         "input_samples": input_samples,
         "input_audio_seconds": input_samples / sample_rate,
+        "source_audio_samples": int(pcm.shape[-1]),
+        "source_audio_seconds": pcm.shape[-1] / sample_rate,
+        "user_audio_start_seconds": source_user_start_seconds,
+        "user_audio_end_seconds": source_user_end_seconds,
+        "complete_user_audio_streamed": complete_user_audio_streamed,
         "post_input_silence_seconds": post_silence_samples / sample_rate,
         "total_streamed_samples": int(streamed_pcm.size),
         "total_streamed_seconds": streamed_pcm.size / sample_rate,

@@ -61,7 +61,7 @@ def select_checkpoint(
         ),
         "heldout_test_not_used_for_loss": reevaluation.get("heldout_test_used") is False,
         "runtime_panel_evaluation_complete": (
-            runtime.get("schema_version") == 1
+            runtime.get("schema_version") == 2
             and runtime.get("status") == "passed"
             and runtime.get("runtime_panel_evaluation_passes") is True
             and runtime.get("selection_performed") is False
@@ -76,6 +76,23 @@ def select_checkpoint(
         "runtime_bound_to_reevaluation": (
             (runtime.get("artifacts") or {}).get("reevaluation_sha256")
             == sha256_file(reevaluation_path)
+        ),
+        "complete_prompt_protocol_correction_valid": (
+            (runtime.get("protocol") or {}).get("complete_user_turn_required") is True
+            and (runtime.get("protocol") or {}).get("panel_indices")
+            == [0, 11, 33, 51, 55, 74, 85, 87, 106]
+            and (runtime.get("protocol_correction") or {}).get(
+                "frozen_after_training_before_corrected_generation_and_final_test_access"
+            )
+            is True
+            and (runtime.get("protocol_correction") or {}).get(
+                "selection_criterion_changed"
+            )
+            is False
+            and (runtime.get("protocol_correction") or {}).get(
+                "eligibility_thresholds_changed"
+            )
+            is False
         ),
     }
     if not all(preconditions.values()):
@@ -162,13 +179,16 @@ def select_checkpoint(
     )
     selection_passes = selected is not None
     report: dict[str, Any] = {
-        "schema_version": 3,
+        "schema_version": 4,
         "status": "passed" if selection_passes else "failed",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "criterion_predeclared_before_training": True,
+        "exact_runtime_panel_indices_predeclared_before_training": False,
+        "runtime_panel_corrected_after_training": True,
         "criterion": (
-            "among candidates passing exact artifact validation and every automatic gate on "
-            "all nine frozen official-server validation rows, choose minimum finite mean "
+            "among candidates passing exact artifact validation and every unchanged automatic "
+            "gate on all nine deterministically selected complete-prompt official-server "
+            "validation rows, choose minimum finite mean "
             "eval_loss on the identical complete validation scope; exact ties choose the "
             "earlier step"
         ),
@@ -193,6 +213,9 @@ def select_checkpoint(
             "path": runtime_path.relative_to(root).as_posix(),
             "sha256": sha256_file(runtime_path),
             "panel_indices": (runtime.get("protocol") or {}).get("panel_indices"),
+            "panel_rule": (runtime.get("protocol") or {}).get("panel_rule"),
+            "complete_user_turn_required": True,
+            "protocol_correction": runtime.get("protocol_correction"),
             "all_panel_rows_must_pass": True,
         },
         "selection_passes": selection_passes,

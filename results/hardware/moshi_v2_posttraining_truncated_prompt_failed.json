@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "generated_at": "2026-08-29T07:28:56.927676+00:00",
+  "training_unit": "thesis-moshi-h100-v2-retry1-119f9e8.service",
+  "test_access_started": false,
+  "stages": [
+    {
+      "name": "complete_validation_reevaluation",
+      "started_at": "2026-08-29T07:28:56.929090+00:00",
+      "command": [
+        ".venv-moshi/bin/python",
+        "scripts/reevaluate_moshi_checkpoints.py",
+        "--training-config",
+        "configs/moshi_h100_v2.yaml",
+        "--run-dir",
+        "checkpoints/moshi_fa_100s_v2",
+        "--metrics-out",
+        "checkpoints/moshi_fa_100s_v2/metrics.reeval.jsonl",
+        "--report-out",
+        "results/moshi_v2_validation_reevaluation.json",
+        "--heldout-test-manifest",
+        "data/processed/moshi_finetune_v2/test.jsonl"
+      ],
+      "status": "passed",
+      "finished_at": "2026-08-29T07:36:50.740466+00:00",
+      "exit_code": 0,
+      "output": "results/moshi_v2_validation_reevaluation.json",
+      "output_sha256": "89a36567855f5e353d52b10688abb316cde050a55df6e869606b10fc8466a151"
+    },
+    {
+      "name": "validation_runtime_panel",
+      "started_at": "2026-08-29T07:36:50.741376+00:00",
+      "command": [
+        ".venv-moshi/bin/python",
+        "scripts/evaluate_moshi_v2_runtime_candidates.py"
+      ],
+      "status": "passed",
+      "finished_at": "2026-08-29T07:53:43.076234+00:00",
+      "exit_code": 0,
+      "output": "results/moshi_v2_runtime_candidates.json",
+      "output_sha256": "2d79bed3b2f7c4f39fb0eb0678006903e79bf84dceb49a8053615a414646fb02"
+    },
+    {
+      "name": "eligible_only_selection",
+      "started_at": "2026-08-29T07:53:43.078097+00:00",
+      "command": [
+        ".venv/bin/python",
+        "scripts/select_moshi_v2_checkpoint.py"
+      ],
+      "status": "failed",
+      "finished_at": "2026-08-29T07:54:23.736756+00:00",
+      "exit_code": 1,
+      "output": "results/moshi_v2_checkpoint_selection.json",
+      "output_sha256": "1c468be2436967587d8d08fc3e3d214e727bb5c36a9a544f4e8ae9d3104d6f42"
+    }
+  ],
+  "requirements": {
+    "training_service_succeeded": true,
+    "stages_run_in_frozen_order": false
+  },
+  "orchestrator_sha256": "b69270957948d46675aaaae656aa67b972d86dfb21dc4fc8c6f364504cc9f9bd",
+  "training_service": {
+    "Result": "success",
+    "ExecMainStatus": "0",
+    "ActiveState": "inactive",
+    "SubState": "dead"
+  },
+  "pre_pipeline_free_bytes": 48547233792,
+  "failure": "stage failed: eligible_only_selection"
+}

@@ -108,6 +108,21 @@ def main() -> int:
         default=Path("results/moshi_v2_checkpoint_selection.json"),
     )
     parser.add_argument(
+        "--superseded-runtime-panel",
+        type=Path,
+        default=Path("results/moshi_v2_runtime_candidates_truncated_prompt_invalid.json"),
+    )
+    parser.add_argument(
+        "--superseded-selection",
+        type=Path,
+        default=Path("results/moshi_v2_checkpoint_selection_truncated_prompt_failed.json"),
+    )
+    parser.add_argument(
+        "--protocol-correction",
+        type=Path,
+        default=Path("docs/MOSHI_V2_PROTOCOL_CORRECTION.md"),
+    )
+    parser.add_argument(
         "--validation",
         type=Path,
         default=Path("results/moshi_v2_adapter_validation.json"),
@@ -140,6 +155,9 @@ def main() -> int:
     reevaluation_path = (ROOT / args.reevaluation).resolve()
     runtime_panel_path = (ROOT / args.runtime_panel).resolve()
     selection_path = (ROOT / args.selection).resolve()
+    superseded_runtime_path = (ROOT / args.superseded_runtime_panel).resolve()
+    superseded_selection_path = (ROOT / args.superseded_selection).resolve()
+    protocol_correction_path = (ROOT / args.protocol_correction).resolve()
     validation_path = (ROOT / args.validation).resolve()
     final_test_path = (ROOT / args.final_test).resolve()
     final_runtime_path = (ROOT / args.final_runtime).resolve()
@@ -157,6 +175,8 @@ def main() -> int:
     reevaluation = json_object(reevaluation_path)
     runtime_panel = json_object(runtime_panel_path)
     selection = json_object(selection_path)
+    superseded_runtime = json_object(superseded_runtime_path)
+    superseded_selection = json_object(superseded_selection_path)
     validation = json_object(validation_path)
     final_test = json_object(final_test_path)
     final_runtime = json_object(final_runtime_path)
@@ -263,8 +283,23 @@ def main() -> int:
             is True
         ),
         "fixed_scope_reevaluation_passed": reevaluation.get("reevaluation_passes") is True,
-        "runtime_panel_evaluation_passed": runtime_panel.get("runtime_panel_evaluation_passes")
-        is True,
+        "runtime_panel_evaluation_passed": (
+            runtime_panel.get("schema_version") == 2
+            and runtime_panel.get("runtime_panel_evaluation_passes") is True
+        ),
+        "complete_prompt_protocol_correction_preserved": (
+            protocol_correction_path.is_file()
+            and selection.get("schema_version") == 4
+            and selection.get("runtime_panel_corrected_after_training") is True
+            and superseded_runtime.get("schema_version") == 1
+            and superseded_runtime.get("eligible_steps") == []
+            and superseded_selection.get("selection_passes") is False
+            and superseded_selection.get("selected") is None
+            and (runtime_panel.get("protocol") or {}).get(
+                "complete_user_turn_required"
+            )
+            is True
+        ),
         "checkpoint_selection_passed": selection.get("selection_passes") is True,
         "selected_adapter_validation_passed": validation.get("validation_passes") is True,
         "one_time_final_test_passed": final_test.get("evaluation_passes") is True,
@@ -351,6 +386,9 @@ def main() -> int:
             "reevaluation_sha256": sha256_file(reevaluation_path),
             "runtime_panel_sha256": sha256_file(runtime_panel_path),
             "selection_sha256": sha256_file(selection_path),
+            "superseded_runtime_panel_sha256": sha256_file(superseded_runtime_path),
+            "superseded_selection_sha256": sha256_file(superseded_selection_path),
+            "protocol_correction_sha256": sha256_file(protocol_correction_path),
             "adapter_validation_sha256": sha256_file(validation_path),
             "final_test_sha256": sha256_file(final_test_path),
             "final_runtime_sha256": sha256_file(final_runtime_path),

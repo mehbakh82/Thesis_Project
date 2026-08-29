@@ -19,17 +19,12 @@ from scripts.build_moshi_client import tree_manifest  # noqa: E402
 from scripts.evaluate_moshi_v2_runtime_candidates import (  # noqa: E402
     run_candidate_server,
 )
+from scripts.moshi_runtime_panel import complete_prompt_panel  # noqa: E402
 from scripts.validate_moshi_adapter import (  # noqa: E402
     json_object,
     project_path,
     sha256_file,
 )
-
-
-def evenly_spaced_indices(row_count: int, panel_size: int = 9) -> tuple[int, ...]:
-    if row_count < panel_size or panel_size < 2:
-        raise ValueError("row_count must cover a panel of at least two rows")
-    return tuple(index * (row_count - 1) // (panel_size - 1) for index in range(panel_size))
 
 
 def load_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -125,7 +120,10 @@ def main() -> int:
         "v2 final-test manifest",
     )
     test_rows = load_jsonl(test_manifest)
-    panel_indices = evenly_spaced_indices(len(test_rows))
+    panel_indices, complete_prompt_rows = complete_prompt_panel(
+        test_rows,
+        input_seconds=args.input_seconds,
+    )
 
     moshi_paths = training_config.get("moshi_paths")
     if not isinstance(moshi_paths, dict):
@@ -146,7 +144,7 @@ def main() -> int:
             runtime_load.get("performed") is True and runtime_load.get("passed") is True
         ),
         "selection_passed": (
-            selection.get("schema_version") == 3
+            selection.get("schema_version") == 4
             and selection.get("selection_passes") is True
             and selection.get("heldout_test_used_for_selection") is False
         ),
@@ -164,7 +162,13 @@ def main() -> int:
             final_test.get("sha256") == sha256_file(test_manifest)
             and final_test.get("rows") == len(test_rows)
         ),
-        "panel_rule_exact": panel_indices == (0, 92, 184, 276, 368, 460, 552, 644, 737),
+        "complete_prompt_panel_size_exact": len(panel_indices) == 9,
+        "complete_prompt_pool_sufficient": len(complete_prompt_rows) >= 9,
+        "all_panel_user_turns_complete_within_stream": all(
+            row["user_audio_end_seconds"] <= args.input_seconds
+            for row in complete_prompt_rows
+            if row["manifest_index"] in panel_indices
+        ),
         "client_build_valid": client_report.get("valid") is True,
         "client_tree_hash_current": static_tree_hash == client_dist.get("tree_sha256"),
         "client_file_count_current": len(static_files) == len(client_dist.get("files") or []),
@@ -202,9 +206,16 @@ def main() -> int:
         "used_for_checkpoint_selection": False,
         "human_perceptual_evidence": False,
         "panel_rule": {
-            "method": "floor(i * (row_count - 1) / (panel_size - 1))",
+            "method": (
+                "retain final-test rows whose last non-zero user-channel PCM sample is at "
+                "or before input_seconds, then select nine floor-spaced manifest-ordered members"
+            ),
+            "frozen_before_final_test_access": True,
+            "uses_model_outputs": False,
+            "input_seconds": args.input_seconds,
             "panel_size": 9,
             "row_count": len(test_rows),
+            "complete_prompt_candidate_count": len(complete_prompt_rows),
             "indices": list(panel_indices),
         },
         "preconditions": preconditions,

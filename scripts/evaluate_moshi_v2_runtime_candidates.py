@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from scripts.build_moshi_client import tree_manifest  # noqa: E402
+from scripts.moshi_runtime_panel import complete_prompt_panel  # noqa: E402
 from scripts.validate_moshi_adapter import (  # noqa: E402
     compare_adapter_schema,
     expected_adapter_schema,
@@ -40,7 +41,8 @@ from scripts.validate_moshi_server_runtime import (  # noqa: E402
     wait_for_http,
 )
 
-PANEL_INDICES = (0, 16, 32, 48, 64, 80, 96, 112, 130)
+PANEL_INDICES = (0, 11, 33, 51, 55, 74, 85, 87, 106)
+SUPERSEDED_PANEL_INDICES = (0, 16, 32, 48, 64, 80, 96, 112, 130)
 SPEECH_RMS_THRESHOLD = 1e-3
 PERSIAN_LETTER_FRACTION_THRESHOLD = 0.5
 
@@ -207,6 +209,10 @@ def run_candidate_server(
                     "input_audio_hash_current": input_audio_path.is_file()
                     and sha256_file(input_audio_path) == row.get("sha256"),
                     "exercise_completed": sample_error is None,
+                    "complete_user_turn_streamed": exercise.get(
+                        "complete_user_audio_streamed"
+                    )
+                    is True,
                     "static_bundle_served_exactly": (
                         exercise.get("static_http_status") == 200
                         and exercise.get("static_index_exact") is True
@@ -345,6 +351,11 @@ def main() -> int:
         type=Path,
         default=Path("results/moshi_v2_runtime_candidates.json"),
     )
+    parser.add_argument(
+        "--superseded-runtime-report",
+        type=Path,
+        default=Path("results/moshi_v2_runtime_candidates_truncated_prompt_invalid.json"),
+    )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=18998)
     parser.add_argument("--ready-timeout", type=float, default=180.0)
@@ -360,6 +371,7 @@ def main() -> int:
     split_report_path = (ROOT / args.split_report).resolve()
     client_report_path = (ROOT / args.client_report).resolve()
     out_path = (ROOT / args.out).resolve()
+    superseded_runtime_path = (ROOT / args.superseded_runtime_report).resolve()
     training_config = yaml.safe_load(training_config_path.read_text(encoding="utf-8"))
     if not isinstance(training_config, dict):
         raise ValueError("training config must be a mapping")
@@ -381,6 +393,11 @@ def main() -> int:
         "data.eval_data",
     )
     validation_rows = load_jsonl(validation_manifest)
+    derived_panel_indices, complete_prompt_rows = complete_prompt_panel(
+        validation_rows,
+        input_seconds=args.input_seconds,
+    )
+    superseded_runtime = json_object(superseded_runtime_path)
     split_validation = (split_report.get("outputs") or {}).get("validation") or {}
     client_dist = client_report.get("dist") or {}
     static_dir = (ROOT / str(client_dist.get("path"))).resolve()
@@ -422,8 +439,20 @@ def main() -> int:
             and split_validation.get("sha256") == sha256_file(validation_manifest)
             and split_validation.get("rows") == len(validation_rows)
         ),
-        "frozen_panel_indices_exact": list(PANEL_INDICES) == [0, 16, 32, 48, 64, 80, 96, 112, 130],
+        "corrected_panel_indices_exact": derived_panel_indices == PANEL_INDICES,
+        "complete_prompt_candidate_count_exact": len(complete_prompt_rows) == 17,
         "panel_indices_in_range": all(index < len(validation_rows) for index in PANEL_INDICES),
+        "all_corrected_panel_prompts_complete_within_stream": all(
+            row["user_audio_end_seconds"] <= args.input_seconds
+            for row in complete_prompt_rows
+            if row["manifest_index"] in PANEL_INDICES
+        ),
+        "superseded_truncated_panel_preserved": (
+            superseded_runtime.get("schema_version") == 1
+            and (superseded_runtime.get("protocol") or {}).get("panel_indices")
+            == list(SUPERSEDED_PANEL_INDICES)
+            and superseded_runtime.get("eligible_steps") == []
+        ),
         "reevaluation_passed": (
             reevaluation.get("status") == "passed"
             and reevaluation.get("reevaluation_passes") is True
@@ -438,14 +467,34 @@ def main() -> int:
         raise RuntimeError(f"v2 runtime-panel preconditions failed: {preconditions}")
 
     report: dict[str, Any] = {
-        "schema_version": 1,
+        "schema_version": 2,
         "status": "running",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "scientific_validation_evidence": True,
         "human_perceptual_evidence": False,
         "selection_performed": False,
+        "protocol_correction": {
+            "frozen_after_training_before_corrected_generation_and_final_test_access": True,
+            "reason": (
+                "the superseded panel streamed only the first five seconds even when the "
+                "source user turn continued beyond that point"
+            ),
+            "selection_criterion_changed": False,
+            "eligibility_thresholds_changed": False,
+            "validation_inputs_changed_by_input_only_rule": True,
+            "superseded_panel_indices": list(SUPERSEDED_PANEL_INDICES),
+            "superseded_runtime_report": superseded_runtime_path.relative_to(ROOT).as_posix(),
+            "superseded_runtime_sha256": sha256_file(superseded_runtime_path),
+        },
         "protocol": {
             "panel_indices": list(PANEL_INDICES),
+            "panel_rule": (
+                "retain validation rows whose last non-zero user-channel PCM sample is at "
+                "or before input_seconds, then select nine floor-spaced manifest-ordered members"
+            ),
+            "complete_prompt_candidate_count": len(complete_prompt_rows),
+            "complete_user_turn_required": True,
+            "input_seconds": args.input_seconds,
             "speech_energy_threshold_rms": SPEECH_RMS_THRESHOLD,
             "persian_letter_fraction_threshold": PERSIAN_LETTER_FRACTION_THRESHOLD,
             "all_panel_rows_must_pass": True,
@@ -467,6 +516,7 @@ def main() -> int:
             "tokenizer_sha256": sha256_file(tokenizer_path),
             "server_entry_sha256": sha256_file(ROOT / "scripts/moshi_server_entry.py"),
             "evaluator_sha256": sha256_file(Path(__file__).resolve()),
+            "superseded_runtime_sha256": sha256_file(superseded_runtime_path),
         },
     }
     write_report(out_path, report)

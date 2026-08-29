@@ -13,6 +13,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from thesis_s2s.config import portable_project_values
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -47,8 +49,9 @@ def service_properties(unit: str) -> dict[str, str]:
 def write_report(path: Path, report: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
+    portable_report = portable_project_values(report, root=ROOT)
     temporary.write_text(
-        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+        json.dumps(portable_report, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
     temporary.replace(path)

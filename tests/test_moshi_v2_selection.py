@@ -6,7 +6,8 @@ from pathlib import Path
 
 import yaml
 
-from scripts.evaluate_moshi_v2_final_runtime import evenly_spaced_indices
+from scripts.moshi_runtime_panel import evenly_spaced_members
+from scripts.run_moshi_v2_corrected_posttraining import corrected_pipeline_commands
 from scripts.run_moshi_v2_posttraining import pipeline_commands
 from scripts.select_moshi_v2_checkpoint import select_checkpoint
 
@@ -19,8 +20,9 @@ def write_json(path: Path, value: dict) -> None:
     path.write_text(json.dumps(value), encoding="utf-8")
 
 
-def test_final_runtime_panel_is_deterministic_and_spans_manifest() -> None:
-    assert evenly_spaced_indices(738) == (0, 92, 184, 276, 368, 460, 552, 644, 737)
+def test_complete_prompt_panel_selection_is_deterministic() -> None:
+    eligible = [0, 10, 11, 12, 33, 35, 51, 53, 55, 59, 74, 84, 85, 86, 87, 88, 106]
+    assert evenly_spaced_members(eligible) == (0, 11, 33, 51, 55, 74, 85, 87, 106)
 
 
 def test_posttraining_pipeline_freezes_selection_before_test_access() -> None:
@@ -36,6 +38,21 @@ def test_posttraining_pipeline_freezes_selection_before_test_access() -> None:
         "training_and_pipeline_certificate",
     ]
     assert names.index("eligible_only_selection") < names.index("one_time_objective_final_test")
+
+
+def test_corrected_pipeline_freezes_selection_before_test_access() -> None:
+    names = [stage["name"] for stage in corrected_pipeline_commands()]
+    assert names == [
+        "corrected_complete_prompt_validation_runtime_panel",
+        "eligible_only_selection",
+        "selected_adapter_validation",
+        "one_time_objective_final_test",
+        "separate_complete_prompt_final_runtime_diagnostics",
+        "training_and_corrected_pipeline_certificate",
+    ]
+    assert names.index("eligible_only_selection") < names.index(
+        "one_time_objective_final_test"
+    )
 
 
 def test_runtime_ineligible_lower_loss_cannot_win(tmp_path: Path) -> None:
@@ -99,12 +116,20 @@ def test_runtime_ineligible_lower_loss_cannot_win(tmp_path: Path) -> None:
     write_json(
         runtime_path,
         {
-            "schema_version": 1,
+            "schema_version": 2,
             "status": "passed",
             "runtime_panel_evaluation_passes": True,
             "selection_performed": False,
             "artifacts": {"reevaluation_sha256": sha256(reevaluation_path)},
-            "protocol": {"panel_indices": [0, 16, 32, 48, 64, 80, 96, 112, 130]},
+            "protocol": {
+                "panel_indices": [0, 11, 33, 51, 55, 74, 85, 87, 106],
+                "complete_user_turn_required": True,
+            },
+            "protocol_correction": {
+                "frozen_after_training_before_corrected_generation_and_final_test_access": True,
+                "selection_criterion_changed": False,
+                "eligibility_thresholds_changed": False,
+            },
             "candidates": runtime_candidates,
         },
     )
@@ -117,6 +142,7 @@ def test_runtime_ineligible_lower_loss_cannot_win(tmp_path: Path) -> None:
         root=tmp_path,
     )
 
+    assert report["schema_version"] == 4
     assert report["selection_passes"] is True
     assert report["eligible_steps"] == [100]
     assert report["selected"]["step"] == 100

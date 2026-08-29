@@ -226,7 +226,7 @@ def validate_selected_adapter(
     runtime_validation_path: Path | None = None
     runtime_validation: dict[str, Any] | None = None
     runtime_validation_metadata = selection.get("runtime_validation")
-    if selection_schema == 3:
+    if selection_schema in {3, 4}:
         if not isinstance(runtime_validation_metadata, dict):
             raise ValueError("v2 selection has no runtime-validation provenance")
         runtime_validation_path = project_path(
@@ -291,8 +291,22 @@ def validate_selected_adapter(
     )
 
     requirements = {
-        "selection_schema_supported": selection_schema in {2, 3},
+        "selection_schema_supported": selection_schema in {2, 3, 4},
         "selection_passed": selection.get("selection_passes") is True,
+        "complete_prompt_protocol_correction_disclosed": (
+            selection_schema != 4
+            or (
+                selection.get("runtime_panel_corrected_after_training") is True
+                and selection.get("exact_runtime_panel_indices_predeclared_before_training")
+                is False
+                and isinstance(
+                    (selection.get("runtime_validation") or {}).get(
+                        "protocol_correction"
+                    ),
+                    dict,
+                )
+            )
+        ),
         "criterion_predeclared_before_training": selection.get(
             "criterion_predeclared_before_training"
         )
