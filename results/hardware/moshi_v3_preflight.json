@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "generated_at": "2026-08-29T13:21:06.517365+00:00",
+  "launch_commit": "cab08339e6b097e98426d0dd3007cece462194d0",
+  "test_access_started": false,
+  "experiment": {
+    "name": "moshi_v3_embedding_preserving",
+    "candidate_steps": [
+      100,
+      200,
+      300,
+      400,
+      500
+    ],
+    "changed_from_v2": {
+      "lora.rank": {
+        "v2": 64,
+        "v3": 128
+      },
+      "lora.ft_embed": {
+        "v2": true,
+        "v3": false
+      },
+      "max_steps": {
+        "v2": 2000,
+        "v3_screen": 500
+      }
+    }
+  },
+  "storage": {
+    "free_bytes": 9594392576,
+    "free_gib": 8.935,
+    "estimated_adapter_bytes": 775749632,
+    "estimated_adapter_gib": 0.722,
+    "retained_adapter_count": 6,
+    "transient_adapter_count": 1,
+    "safety_gib": 2,
+    "required_free_bytes": 7577731072,
+    "required_free_gib": 7.057
+  },
+  "gpu": {
+    "name": "NVIDIA H100 NVL",
+    "total_mib": 95830,
+    "used_mib": 55230,
+    "free_mib": 40092
+  },
+  "requirements": {
+    "launch_worktree_clean": true,
+    "v2_failed_closed": true,
+    "same_train_validation_and_optimization_invariants_as_v2": true,
+    "upstream_embedding_preserving_lora_restored": true,
+    "bounded_candidate_set_exact": true,
+    "probe_shape_matches_full": true,
+    "probe_controls_exact": true,
+    "upstream_example_hash_current": true,
+    "frozen_split_passed": true,
+    "v3_run_directories_absent": true,
+    "v3_final_outputs_absent": true,
+    "disk_headroom_passes": true,
+    "h100_headroom_passes": true
+  },
+  "preflight_passes": true,
+  "artifacts": {
+    "config": "configs/moshi_h100_v3.yaml",
+    "config_sha256": "8d94001aebe103ea5e94b7b08b97c24f40e739df8bfe7cdbb387ea9f40eff72b",
+    "probe_config": "configs/moshi_h100_v3_probe.yaml",
+    "probe_config_sha256": "b83434811512fb3e84703b4842cae6102666bdc2eb16577914921400d80c6067",
+    "protocol": "docs/MOSHI_V3_SELECTION_PROTOCOL.md",
+    "protocol_sha256": "d1dad8f7f396e61ba2a614113f41975c0ff789d9e9df86bd88d3112620af7838",
+    "v2_selection_sha256": "4a7ed302d2a0c860e6f25454cb932839539a38e5e6226f2550b155dd7f1aaba1",
+    "v2_finalization_sha256": "3b04a81ad952f6ab1ef737050846cbd65a88c0d55b3eed40cfbf7a40eb303abc",
+    "split_report_sha256": "c68fbd0191b4d2021399a5b7e8f5d392461ce7fc1c12b763ca40c0292c8f8103",
+    "upstream_example_sha256": "c574c424d1a078a89bcb7556978d8b4b8c160276aeebbda01ff77ca6f259ac48",
+    "source_adapter": "checkpoints/moshi_fa_100s_v2/checkpoints/checkpoint_000400/consolidated/lora.safetensors",
+    "source_adapter_sha256": "6133aa5f9ed4ae7c6b092b43c223cb3e1020634ea6472e5fc302dec82c560235",
+    "preflight_sha256": "1afd0ab3640c08869a8f094d6948cc844bcc17ac3667e0250f93d63aebd83bae"
+  },
+  "next_stage": "run the exact-shape one-step v3 probe; do not access final-test data"
+}
