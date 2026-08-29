@@ -69,9 +69,15 @@ def main() -> int:
     parser.add_argument("--response-timeout", type=float, default=20.0)
     parser.add_argument("--input-seconds", type=float, default=5.0)
     parser.add_argument("--post-input-silence-seconds", type=float, default=3.0)
+    parser.add_argument(
+        "--experiment-label",
+        choices=("v2", "v3"),
+        default="v2",
+    )
     args = parser.parse_args()
     if args.host not in {"127.0.0.1", "localhost"}:
         raise ValueError("final runtime evaluation is restricted to loopback")
+    expected_selection_schema = 5 if args.experiment_label == "v3" else 4
 
     validation_path = (ROOT / args.validation).resolve()
     training_config_path = (ROOT / args.training_config).resolve()
@@ -80,7 +86,8 @@ def main() -> int:
     out_path = (ROOT / args.out).resolve()
     if out_path.exists():
         raise FileExistsError(
-            f"refusing to repeat the v2 final-test runtime diagnostic: {out_path}"
+            f"refusing to repeat the {args.experiment_label} final-test runtime "
+            f"diagnostic: {out_path}"
         )
     validation = json_object(validation_path)
     split_report = json_object(split_report_path)
@@ -144,9 +151,22 @@ def main() -> int:
             runtime_load.get("performed") is True and runtime_load.get("passed") is True
         ),
         "selection_passed": (
-            selection.get("schema_version") == 4
+            selection.get("schema_version") == expected_selection_schema
             and selection.get("selection_passes") is True
             and selection.get("heldout_test_used_for_selection") is False
+        ),
+        "complete_prompt_protocol_disclosed": (
+            (
+                args.experiment_label == "v2"
+                and selection.get("runtime_panel_corrected_after_training") is True
+                and selection.get("exact_runtime_panel_indices_predeclared_before_training")
+                is False
+            )
+            or (
+                args.experiment_label == "v3"
+                and selection.get("runtime_panel_corrected_after_training") is False
+                and selection.get("exact_runtime_panel_indices_predeclared_before_training") is True
+            )
         ),
         "selection_hash_current": selection_info.get("sha256") == sha256_file(selection_path),
         "adapter_hash_current": (
@@ -157,7 +177,7 @@ def main() -> int:
             == selected.get("config_sha256")
             == sha256_file(adapter_config_path)
         ),
-        "v2_split_passed": split_report.get("split_passes") is True,
+        "group_split_passed": split_report.get("split_passes") is True,
         "final_test_manifest_current": (
             final_test.get("sha256") == sha256_file(test_manifest)
             and final_test.get("rows") == len(test_rows)
@@ -174,7 +194,9 @@ def main() -> int:
         "client_file_count_current": len(static_files) == len(client_dist.get("files") or []),
     }
     if not all(preconditions.values()):
-        raise RuntimeError(f"v2 final-runtime preconditions failed: {preconditions}")
+        raise RuntimeError(
+            f"{args.experiment_label} final-runtime preconditions failed: {preconditions}"
+        )
 
     runtime = run_candidate_server(
         step=int(selected["step"]),
@@ -194,7 +216,7 @@ def main() -> int:
         input_seconds=args.input_seconds,
         post_input_silence_seconds=args.post_input_silence_seconds,
         panel_indices=panel_indices,
-        split_label="v2_final_test",
+        split_label=f"{args.experiment_label}_final_test",
     )
     passed = all(preconditions.values()) and runtime["candidate_runtime_passes"] is True
     report = {
@@ -239,7 +261,9 @@ def main() -> int:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     if not passed:
-        raise RuntimeError("selected Moshi v2 failed final-test runtime diagnostics")
+        raise RuntimeError(
+            f"selected Moshi {args.experiment_label} failed final-test runtime diagnostics"
+        )
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0
 

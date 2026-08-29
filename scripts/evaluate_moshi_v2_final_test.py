@@ -42,13 +42,19 @@ def evaluate_final_test(
     split_report_path: Path,
     out_path: Path,
     root: Path = ROOT,
+    experiment_label: str = "v2",
 ) -> dict[str, Any]:
     import sentencepiece
     import torch
     from moshi.models import loaders
 
+    if experiment_label not in {"v2", "v3"}:
+        raise ValueError(f"unsupported Moshi experiment label: {experiment_label}")
+    expected_selection_schema = 5 if experiment_label == "v3" else 4
+    adapted_mode = f"selected_{experiment_label}_adapter"
+    perturbed_mode = f"{adapted_mode}_lora_B_sign_flipped"
     if not torch.cuda.is_available():
-        raise RuntimeError("Moshi v2 final-test evaluation requires CUDA")
+        raise RuntimeError(f"Moshi {experiment_label} final-test evaluation requires CUDA")
     paths = [
         validation_path,
         training_config_path,
@@ -65,7 +71,7 @@ def evaluate_final_test(
     ) = [path.resolve() for path in paths]
     if out_path.exists():
         raise FileExistsError(
-            f"refusing to repeat the one-time v2 final-test evaluation: {out_path}"
+            f"refusing to repeat the one-time {experiment_label} final-test evaluation: {out_path}"
         )
 
     validation = json_object(validation_path)
@@ -152,11 +158,21 @@ def evaluate_final_test(
         "official_cuda_loader_passed": (
             runtime_info.get("performed") is True and runtime_info.get("passed") is True
         ),
-        "selection_schema_supported": selection.get("schema_version") == 4,
-        "complete_prompt_protocol_correction_disclosed": (
-            selection.get("runtime_panel_corrected_after_training") is True
-            and selection.get("exact_runtime_panel_indices_predeclared_before_training")
-            is False
+        "selection_schema_supported": (
+            selection.get("schema_version") == expected_selection_schema
+        ),
+        "complete_prompt_protocol_disclosed": (
+            (
+                experiment_label == "v2"
+                and selection.get("runtime_panel_corrected_after_training") is True
+                and selection.get("exact_runtime_panel_indices_predeclared_before_training")
+                is False
+            )
+            or (
+                experiment_label == "v3"
+                and selection.get("runtime_panel_corrected_after_training") is False
+                and selection.get("exact_runtime_panel_indices_predeclared_before_training") is True
+            )
         ),
         "selection_passed_before_test_access": selection.get("selection_passes") is True,
         "test_not_used_for_checkpoint_selection": selection.get("heldout_test_used_for_selection")
@@ -165,7 +181,7 @@ def evaluate_final_test(
         "adapter_hash_current": adapter.get("sha256") == sha256_file(adapter_path),
         "adapter_config_hash_current": adapter_config.get("sha256")
         == sha256_file(adapter_config_path),
-        "v2_split_passed": split_report.get("split_passes") is True,
+        "group_split_passed": split_report.get("split_passes") is True,
         "session_groups_pairwise_disjoint": sessions.get("all_pairwise_disjoint") is True,
         "reevaluation_hash_current": selection_reevaluation.get("sha256")
         == sha256_file(reevaluation_path),
@@ -201,7 +217,7 @@ def evaluate_final_test(
         ),
     }
     if not all(preconditions.values()):
-        raise RuntimeError(f"v2 final-test preconditions failed: {preconditions}")
+        raise RuntimeError(f"{experiment_label} final-test preconditions failed: {preconditions}")
 
     duration_sec = float(training_config["duration_sec"])
     dep_q = int(selected_config["dep_q"])
@@ -242,7 +258,7 @@ def evaluate_final_test(
     adapted_report, adapted_series = evaluate_model(
         model=adapted_model,
         loader=cached_batch_iterator(cached_batches),
-        mode="selected_v2_adapter",
+        mode=adapted_mode,
         measure_target_sensitivity=True,
         first_codebook_weight_multiplier=first_codebook_weight_multiplier,
         text_padding_weight=text_padding_weight,
@@ -251,7 +267,7 @@ def evaluate_final_test(
     perturbed_report, perturbed_series = evaluate_model(
         model=adapted_model,
         loader=cached_batch_iterator(cached_batches),
-        mode="selected_v2_adapter_lora_B_sign_flipped",
+        mode=perturbed_mode,
         first_codebook_weight_multiplier=first_codebook_weight_multiplier,
         text_padding_weight=text_padding_weight,
     )
@@ -280,7 +296,9 @@ def evaluate_final_test(
             loss_name: paired_difference(
                 base_series[loss_name],
                 adapted_series[loss_name],
-                definition="positive means the selected v2 adapter has lower loss",
+                definition=(
+                    f"positive means the selected {experiment_label} adapter has lower loss"
+                ),
             )
             for loss_name in ("text_loss", "audio_loss", "total_loss")
         },
@@ -329,7 +347,7 @@ def evaluate_final_test(
         "heldout_used_for_checkpoint_selection": False,
         "one_time_final_test": True,
         "test_protocol": {
-            "split": "v2_final_test",
+            "split": f"{experiment_label}_final_test",
             "manifest": test_manifest.relative_to(root).as_posix(),
             "manifest_sha256": sha256_file(test_manifest),
             "rows": expected_rows,
@@ -337,8 +355,8 @@ def evaluate_final_test(
             "duration_sec": duration_sec,
             "batch_size": 1,
             "order": [
-                "selected_v2_adapter",
-                "selected_v2_adapter_lora_B_sign_flipped",
+                adapted_mode,
+                perturbed_mode,
                 "pinned_unadapted_base",
             ],
             "selection_frozen_before_access": True,
@@ -354,8 +372,8 @@ def evaluate_final_test(
             "tokenizer_sha256": sha256_file(tokenizer_path),
         },
         "modes": {
-            "selected_v2_adapter": adapted_report,
-            "selected_v2_adapter_lora_B_sign_flipped": {
+            adapted_mode: adapted_report,
+            perturbed_mode: {
                 **perturbed_report,
                 "parameters_changed": perturbed_parameters,
             },
@@ -377,7 +395,7 @@ def evaluate_final_test(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     if not passed:
-        raise RuntimeError("Moshi v2 final-test integrity evaluation failed")
+        raise RuntimeError(f"Moshi {experiment_label} final-test integrity evaluation failed")
     return report
 
 
@@ -408,6 +426,11 @@ def main() -> int:
         type=Path,
         default=Path("results/moshi_v2_final_test.json"),
     )
+    parser.add_argument(
+        "--experiment-label",
+        choices=("v2", "v3"),
+        default="v2",
+    )
     args = parser.parse_args()
     report = evaluate_final_test(
         validation_path=ROOT / args.validation,
@@ -415,6 +438,7 @@ def main() -> int:
         base_config_path=ROOT / args.base_config,
         split_report_path=ROOT / args.split_report,
         out_path=ROOT / args.out,
+        experiment_label=args.experiment_label,
     )
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0
