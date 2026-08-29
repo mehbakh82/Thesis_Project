@@ -120,14 +120,14 @@ def main() -> int:
     superseded_selection = json_object(superseded_selection_path)
     superseded_receipt = json_object(superseded_receipt_path)
     launch_commit = subprocess.run(
-        ["git", "rev-parse", "HEAD"],
+        ["git", "-c", f"safe.directory={ROOT}", "rev-parse", "HEAD"],
         cwd=ROOT,
         check=True,
         capture_output=True,
         text=True,
     ).stdout.strip()
     worktree_status = subprocess.run(
-        ["git", "status", "--porcelain"],
+        ["git", "-c", f"safe.directory={ROOT}", "status", "--porcelain"],
         cwd=ROOT,
         check=True,
         capture_output=True,
