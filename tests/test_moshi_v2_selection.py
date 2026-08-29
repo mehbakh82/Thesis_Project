@@ -9,7 +9,7 @@ import yaml
 from scripts.moshi_runtime_panel import evenly_spaced_members
 from scripts.run_moshi_v2_corrected_posttraining import corrected_pipeline_commands
 from scripts.run_moshi_v2_posttraining import pipeline_commands
-from scripts.select_moshi_v2_checkpoint import select_checkpoint
+from scripts.select_moshi_v2_checkpoint import runtime_protocol_valid, select_checkpoint
 
 
 def sha256(path: Path) -> str:
@@ -150,3 +150,21 @@ def test_runtime_ineligible_lower_loss_cannot_win(tmp_path: Path) -> None:
     assert report["selected"]["step"] == 100
     assert report["selected"]["eval_loss"] == 2.0
     assert report["candidates"][1]["autoregressive_eligible"] is False
+
+
+def test_v3_protocol_must_be_predeclared() -> None:
+    runtime = {
+        "protocol_predeclared_before_training": True,
+        "protocol": {
+            "complete_user_turn_required": True,
+            "panel_indices": [0, 11, 33, 51, 55, 74, 85, 87, 106],
+        },
+        "protocol_provenance": {
+            "frozen_before_v3_optimizer_step": True,
+            "selection_criterion_changed_after_training": False,
+            "eligibility_thresholds_changed_after_training": False,
+        },
+    }
+    assert runtime_protocol_valid(runtime, "predeclared-v3") is True
+    runtime["protocol_predeclared_before_training"] = False
+    assert runtime_protocol_valid(runtime, "predeclared-v3") is False

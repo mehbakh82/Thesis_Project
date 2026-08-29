@@ -41,6 +41,34 @@ def candidate_map(report: dict[str, Any], label: str) -> dict[int, dict[str, Any
     return result
 
 
+def runtime_protocol_valid(runtime: dict[str, Any], protocol_mode: str) -> bool:
+    protocol = runtime.get("protocol") or {}
+    common = protocol.get("complete_user_turn_required") is True and protocol.get(
+        "panel_indices"
+    ) == [0, 11, 33, 51, 55, 74, 85, 87, 106]
+    if protocol_mode == "corrected-v2":
+        correction = runtime.get("protocol_correction") or {}
+        return (
+            common
+            and correction.get(
+                "frozen_after_training_before_corrected_generation_and_final_test_access"
+            )
+            is True
+            and correction.get("selection_criterion_changed") is False
+            and correction.get("eligibility_thresholds_changed") is False
+        )
+    if protocol_mode == "predeclared-v3":
+        provenance = runtime.get("protocol_provenance") or {}
+        return (
+            common
+            and runtime.get("protocol_predeclared_before_training") is True
+            and provenance.get("frozen_before_v3_optimizer_step") is True
+            and provenance.get("selection_criterion_changed_after_training") is False
+            and provenance.get("eligibility_thresholds_changed_after_training") is False
+        )
+    raise ValueError(f"unsupported Moshi protocol mode: {protocol_mode}")
+
+
 def select_checkpoint(
     *,
     config_path: Path,
@@ -48,6 +76,7 @@ def select_checkpoint(
     runtime_path: Path,
     out_path: Path,
     root: Path = ROOT,
+    protocol_mode: str = "corrected-v2",
 ) -> dict[str, Any]:
     config_path = config_path.resolve()
     reevaluation_path = reevaluation_path.resolve()
@@ -56,6 +85,11 @@ def select_checkpoint(
     config = load_yaml(config_path)
     reevaluation = json_object(reevaluation_path)
     runtime = json_object(runtime_path)
+    is_v3 = protocol_mode == "predeclared-v3"
+    if protocol_mode not in {"corrected-v2", "predeclared-v3"}:
+        raise ValueError(f"unsupported Moshi protocol mode: {protocol_mode}")
+    expected_runtime_schema = 3 if is_v3 else 2
+    experiment_label = "v3" if is_v3 else "v2"
     max_steps = int(config["max_steps"])
     checkpoint_frequency = int(config["ckpt_freq"])
     expected_steps = list(range(checkpoint_frequency, max_steps + 1, checkpoint_frequency))
@@ -71,7 +105,7 @@ def select_checkpoint(
         ),
         "heldout_test_not_used_for_loss": reevaluation.get("heldout_test_used") is False,
         "runtime_panel_evaluation_complete": (
-            runtime.get("schema_version") == 2
+            runtime.get("schema_version") == expected_runtime_schema
             and runtime.get("status") == "passed"
             and runtime.get("runtime_panel_evaluation_passes") is True
             and runtime.get("selection_performed") is False
@@ -87,22 +121,12 @@ def select_checkpoint(
             (runtime.get("artifacts") or {}).get("reevaluation_sha256")
             == sha256_file(reevaluation_path)
         ),
-        "complete_prompt_protocol_correction_valid": (
-            (runtime.get("protocol") or {}).get("complete_user_turn_required") is True
-            and (runtime.get("protocol") or {}).get("panel_indices")
-            == [0, 11, 33, 51, 55, 74, 85, 87, 106]
-            and (runtime.get("protocol_correction") or {}).get(
-                "frozen_after_training_before_corrected_generation_and_final_test_access"
-            )
-            is True
-            and (runtime.get("protocol_correction") or {}).get("selection_criterion_changed")
-            is False
-            and (runtime.get("protocol_correction") or {}).get("eligibility_thresholds_changed")
-            is False
-        ),
+        "complete_prompt_protocol_valid": runtime_protocol_valid(runtime, protocol_mode),
     }
     if not all(preconditions.values()):
-        raise RuntimeError(f"v2 selection preconditions failed: {preconditions}")
+        raise RuntimeError(
+            f"Moshi {experiment_label} selection preconditions failed: {preconditions}"
+        )
 
     candidates: list[dict[str, Any]] = []
     for step in expected_steps:
@@ -185,12 +209,12 @@ def select_checkpoint(
     )
     selection_passes = selected is not None
     report: dict[str, Any] = {
-        "schema_version": 4,
+        "schema_version": 5 if is_v3 else 4,
         "status": "passed" if selection_passes else "failed",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "criterion_predeclared_before_training": True,
-        "exact_runtime_panel_indices_predeclared_before_training": False,
-        "runtime_panel_corrected_after_training": True,
+        "exact_runtime_panel_indices_predeclared_before_training": is_v3,
+        "runtime_panel_corrected_after_training": not is_v3,
         "criterion": (
             "among candidates passing exact artifact validation and every unchanged automatic "
             "gate on all nine deterministically selected complete-prompt official-server "
@@ -200,7 +224,7 @@ def select_checkpoint(
         ),
         "heldout_test_used_for_selection": False,
         "training_complete": True,
-        "selection_input_corrected_after_training": True,
+        "selection_input_corrected_after_training": not is_v3,
         "correction_changes_selection_criterion": False,
         "original_upstream_metrics_eligible_for_selection": False,
         "configured_max_steps": max_steps,
@@ -222,20 +246,26 @@ def select_checkpoint(
             "panel_rule": (runtime.get("protocol") or {}).get("panel_rule"),
             "complete_user_turn_required": True,
             "protocol_correction": runtime.get("protocol_correction"),
+            "protocol_provenance": runtime.get("protocol_provenance"),
             "all_panel_rows_must_pass": True,
         },
         "selection_passes": selection_passes,
         "next_stage": (
-            "validate the exact selected adapter, freeze its hash, then access the fresh v2 "
-            "final test exactly once; never revise this choice from test results"
+            f"validate the exact selected adapter, freeze its hash, then access the fresh "
+            f"{experiment_label} final test exactly once; never revise this choice from test results"
             if selection_passes
-            else "v2 fails closed because no predeclared candidate passed every eligibility gate"
+            else (
+                f"{experiment_label} fails closed because no predeclared candidate passed "
+                "every eligibility gate"
+            )
         ),
     }
     report = portable_project_values(report)
     write_report(out_path, report)
     if not selection_passes:
-        raise RuntimeError("no Moshi v2 checkpoint passed every frozen eligibility gate")
+        raise RuntimeError(
+            f"no Moshi {experiment_label} checkpoint passed every frozen eligibility gate"
+        )
     return report
 
 
@@ -261,12 +291,18 @@ def main() -> int:
         type=Path,
         default=Path("results/moshi_v2_checkpoint_selection.json"),
     )
+    parser.add_argument(
+        "--protocol-mode",
+        choices=("corrected-v2", "predeclared-v3"),
+        default="corrected-v2",
+    )
     args = parser.parse_args()
     report = select_checkpoint(
         config_path=ROOT / args.config,
         reevaluation_path=ROOT / args.reevaluation,
         runtime_path=ROOT / args.runtime,
         out_path=ROOT / args.out,
+        protocol_mode=args.protocol_mode,
     )
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0
