@@ -24,6 +24,11 @@ continuous 16 kHz microphone ─┬─> rolling energy/F0/MFCC barge-in ─> sto
                               └─> NeMo ASR ─> Qwen/rules ─> Piper ─> full PCM reply
 ```
 
+A bounded v3 experiment is frozen before launch: it restores the pinned
+trainer's rank-128, embedding-frozen LoRA default while keeping v2 data,
+context, optimizer, seed, and output gates unchanged. It screens steps 100–500
+and retains the same final-test firewall.
+
 The project server remains deliberately cascade-only until a Persian adapter passes every gate. The v1 adapter loads in Kyutai's pinned official server but fails autoregressive Persian output, so it cannot activate the direct path. Checkpoint metadata alone can never activate either that failed adapter or the legacy reconstruction artifact.
 
 ```text

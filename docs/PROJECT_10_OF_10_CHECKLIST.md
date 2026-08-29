@@ -445,9 +445,17 @@ Corrective v2 run:
 - [x] Stop before selected-adapter validation or any final-test evaluation, as
   required by the frozen protocol. The fresh 738-row / 14-session final test
   remains untouched.
-- [ ] Produce a new training configuration that passes the unchanged complete-
-  prompt autoregressive gates; only then validate the selected hash and access
-  the frozen final test once.
+- [x] Freeze the bounded v3 embedding-preserving protocol before training:
+  restore the pinned upstream rank-128 / `ft_embed=false` LoRA choice; keep
+  data, context, optimizer, seed, and all output gates unchanged; screen only
+  steps 100–500.
+- [x] Implement a fail-closed v3 preflight that binds v2 failure evidence,
+  upstream example/config hashes, exact probe/full shapes, untouched-test
+  state, H100 headroom, and a conservative disk budget.
+- [ ] Pass the exact-shape one-step v3 probe, then run all five candidates
+  through complete-scope loss and unchanged complete-prompt runtime gates.
+- [ ] If and only if v3 produces an eligible checkpoint, validate the selected
+  hash and access the frozen final test once.
 
 Exit remains open until v2 yields a reproducible, loadable adapter that passes
 both scientific validation and frozen autoregressive Persian-output gates.
