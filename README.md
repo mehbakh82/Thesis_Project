@@ -78,6 +78,15 @@ rotate it and replace the document with environment-variable placeholders.
 .venv/bin/python scripts/audit_moshi_dependencies.py
 .venv/bin/python scripts/prepare_moshi_v2_splits.py
 .venv/bin/python scripts/record_moshi_profile_probe.py --run-dir checkpoints/moshi_h100_100s_profile_probe --probe-config configs/moshi_h100_100s_profile_probe.yaml --full-config configs/moshi_h100_v2.yaml --out results/hardware/moshi_h100_100s_profile_probe.json
+.venv-moshi/bin/python scripts/reevaluate_moshi_checkpoints.py --training-config configs/moshi_h100_v2.yaml --run-dir checkpoints/moshi_fa_100s_v2 --metrics-out checkpoints/moshi_fa_100s_v2/metrics.reeval.jsonl --report-out results/moshi_v2_validation_reevaluation.json --heldout-test-manifest data/processed/moshi_finetune_v2/test.jsonl
+.venv-moshi/bin/python scripts/evaluate_moshi_v2_runtime_candidates.py
+.venv/bin/python scripts/select_moshi_v2_checkpoint.py
+.venv-moshi/bin/python scripts/validate_moshi_adapter.py --selection results/moshi_v2_checkpoint_selection.json --training-config configs/moshi_h100_v2.yaml --out results/moshi_v2_adapter_validation.json --runtime-device cuda
+.venv-moshi/bin/python scripts/evaluate_moshi_v2_final_test.py
+.venv-moshi/bin/python scripts/evaluate_moshi_v2_final_runtime.py
+.venv-moshi/bin/python scripts/record_moshi_v2_training_run.py
+
+# Historical v1 evidence
 .venv-moshi/bin/python scripts/reevaluate_moshi_checkpoints.py
 .venv/bin/python scripts/select_moshi_checkpoint.py
 .venv-moshi/bin/python scripts/validate_moshi_adapter.py --runtime-device cuda

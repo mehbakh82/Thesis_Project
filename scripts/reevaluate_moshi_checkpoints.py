@@ -129,6 +129,7 @@ def reevaluate_checkpoints(
     run_dir: Path,
     metrics_out: Path,
     report_out: Path,
+    heldout_test_manifest: Path | None = None,
     root: Path = ROOT,
 ) -> dict[str, Any]:
     import sentencepiece
@@ -152,7 +153,9 @@ def reevaluate_checkpoints(
     expected_steps = list(range(checkpoint_frequency, max_steps + 1, checkpoint_frequency))
     duration_sec = float(training_config["duration_sec"])
     validation_manifest = (root / str(data_config["eval_data"])).resolve()
-    heldout_test_manifest = (root / "data/processed/moshi_finetune/test.jsonl").resolve()
+    if heldout_test_manifest is None:
+        heldout_test_manifest = root / "data/processed/moshi_finetune/test.jsonl"
+    heldout_test_manifest = heldout_test_manifest.resolve()
     base_model_path = (root / str(moshi_paths["moshi_path"])).resolve()
     mimi_path = (root / str(moshi_paths["mimi_path"])).resolve()
     tokenizer_path = (root / str(moshi_paths["tokenizer_path"])).resolve()
@@ -191,11 +194,17 @@ def reevaluate_checkpoints(
             checkpoint_paths[step].is_file() and config_paths[step].is_file()
             for step in expected_steps
         ),
-        "raw_nonfinite_validation_observed": bool(observed_nonfinite_steps),
-        "upstream_exhaustion_predicts_nonfinite_onset": (
-            bool(predicted_empty_steps)
-            and bool(observed_nonfinite_steps)
-            and predicted_empty_steps[0] == observed_nonfinite_steps[0]
+        "raw_validation_not_complete_scope": expected_chunks > UPSTREAM_EVAL_LIMIT,
+        "raw_evaluation_behavior_accounted": (
+            (
+                bool(predicted_empty_steps)
+                and bool(observed_nonfinite_steps)
+                and predicted_empty_steps[0] == observed_nonfinite_steps[0]
+            )
+            or (
+                not observed_nonfinite_steps
+                and all(math.isfinite(loss) for loss in raw_eval_losses)
+            )
         ),
         "heldout_test_not_used": (
             validation_manifest != heldout_test_manifest
@@ -325,13 +334,22 @@ def reevaluate_checkpoints(
         "selection_criterion_changed": False,
         "selection_input_corrected_after_training": True,
         "correction_reason": (
-            "The pinned upstream evaluator reused one finite iterator and fetched one extra "
-            "batch at its 40-sample break. It therefore evaluated different subsets, exhausted "
-            "all 682 validation chunks after step 4250, and divided by zero from step 4500."
+            (
+                "The historical pinned upstream evaluator reused one finite iterator and "
+                f"eventually produced a non-finite result at step {observed_nonfinite_steps[0]}."
+            )
+            if observed_nonfinite_steps
+            else (
+                "The project launcher makes the finite evaluation loader repeatable, preventing "
+                f"iterator exhaustion, but the pinned evaluator still stops after "
+                f"{UPSTREAM_EVAL_LIMIT} samples. Its finite periodic metrics therefore cover "
+                f"only a fixed prefix of the {expected_chunks}-chunk validation scope."
+            )
         ),
         "original_metrics_eligible_for_selection": False,
         "corrected_protocol": (
-            "Evaluate every predeclared 500-step saved checkpoint on the same complete, "
+            f"Evaluate every predeclared {checkpoint_frequency}-step saved checkpoint on the "
+            "same complete, "
             "ordered validation manifest; choose later using the already-frozen minimum mean "
             "validation-loss rule."
         ),
@@ -346,8 +364,17 @@ def reevaluate_checkpoints(
         },
         "upstream_failure_diagnosis": {
             "evaluation_limit": UPSTREAM_EVAL_LIMIT,
-            "observed_first_nonfinite_step": observed_nonfinite_steps[0],
-            "predicted_first_empty_step": predicted_empty_steps[0],
+            "mode": (
+                "exhausted_finite_iterator"
+                if observed_nonfinite_steps
+                else "repeatable_but_partial_scope"
+            ),
+            "observed_first_nonfinite_step": (
+                observed_nonfinite_steps[0] if observed_nonfinite_steps else None
+            ),
+            "predicted_first_empty_step_without_repeatable_wrapper": (
+                predicted_empty_steps[0] if predicted_empty_steps else None
+            ),
             "nonfinite_steps": observed_nonfinite_steps,
             "consumption_by_evaluation": consumption,
         },
@@ -377,6 +404,7 @@ def reevaluate_checkpoints(
                 root / "third_party/checkouts/moshi-finetune/finetune/data/dataset.py"
             ),
             "reevaluator_sha256": sha256_file(Path(__file__).resolve()),
+            "training_entry_sha256": sha256_file(root / "scripts/moshi_train_entry.py"),
         },
     }
     report_out.parent.mkdir(parents=True, exist_ok=True)
@@ -403,12 +431,18 @@ def main() -> int:
         type=Path,
         default=Path("results/moshi_validation_reevaluation.json"),
     )
+    parser.add_argument(
+        "--heldout-test-manifest",
+        type=Path,
+        default=Path("data/processed/moshi_finetune/test.jsonl"),
+    )
     args = parser.parse_args()
     report = reevaluate_checkpoints(
         training_config_path=args.training_config,
         run_dir=args.run_dir,
         metrics_out=args.metrics_out,
         report_out=args.report_out,
+        heldout_test_manifest=args.heldout_test_manifest,
     )
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0

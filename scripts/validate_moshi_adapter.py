@@ -77,7 +77,7 @@ def selected_candidate_by_rule(candidates: list[object]) -> dict[str, Any]:
         if not isinstance(candidate, dict):
             raise ValueError("selection candidate must be an object")
         step = int(candidate.get("step") or 0)
-        loss = float(candidate.get("eval_loss"))
+        loss = float(candidate["eval_loss"])
         if step <= 0 or not math.isfinite(loss):
             raise ValueError("selection candidate has an invalid step/eval_loss")
         valid_candidates.append(candidate)
@@ -222,6 +222,20 @@ def validate_selected_adapter(
     )
     reevaluation = json_object(reevaluation_path)
 
+    selection_schema = int(selection.get("schema_version") or 0)
+    runtime_validation_path: Path | None = None
+    runtime_validation: dict[str, Any] | None = None
+    runtime_validation_metadata = selection.get("runtime_validation")
+    if selection_schema == 3:
+        if not isinstance(runtime_validation_metadata, dict):
+            raise ValueError("v2 selection has no runtime-validation provenance")
+        runtime_validation_path = project_path(
+            root,
+            runtime_validation_metadata.get("path"),
+            "runtime_validation.path",
+        )
+        runtime_validation = json_object(runtime_validation_path)
+
     training_config = yaml.safe_load(training_config_path.read_text(encoding="utf-8"))
     base_config = json_object(base_config_path)
     if not isinstance(training_config, dict):
@@ -254,10 +268,30 @@ def validate_selected_adapter(
     selected_step = int(selected.get("step") or 0)
     candidate_steps = {int(candidate.get("step") or 0) for candidate in candidates}
     expected_candidate_steps = set(range(checkpoint_frequency, max_steps + 1, checkpoint_frequency))
-    recomputed_selection = selected_candidate_by_rule(candidates)
+    rule_candidates = (
+        [
+            candidate
+            for candidate in candidates
+            if isinstance(candidate, dict) and candidate.get("autoregressive_eligible") is True
+        ]
+        if selection_schema == 3
+        else candidates
+    )
+    recomputed_selection = selected_candidate_by_rule(rule_candidates)
+    runtime_eligibility_evidence = selection_schema == 2 or (
+        runtime_validation_path is not None
+        and runtime_validation is not None
+        and isinstance(runtime_validation_metadata, dict)
+        and runtime_validation_metadata.get("sha256") == sha256_file(runtime_validation_path)
+        and runtime_validation.get("status") == "passed"
+        and runtime_validation.get("runtime_panel_evaluation_passes") is True
+        and selected.get("autoregressive_eligible") is True
+        and selection.get("eligible_candidate_count") == len(rule_candidates)
+        and len(rule_candidates) > 0
+    )
 
     requirements = {
-        "selection_schema_supported": selection.get("schema_version") == 2,
+        "selection_schema_supported": selection_schema in {2, 3},
         "selection_passed": selection.get("selection_passes") is True,
         "criterion_predeclared_before_training": selection.get(
             "criterion_predeclared_before_training"
@@ -281,6 +315,7 @@ def validate_selected_adapter(
         ),
         "reevaluation_hash_matches_selection": reevaluation_metadata.get("sha256")
         == sha256_file(reevaluation_path),
+        "runtime_eligibility_evidence_passed": runtime_eligibility_evidence,
         "training_complete": selection.get("training_complete") is True,
         "heldout_not_used_for_selection": selection.get("heldout_test_used_for_selection") is False,
         "selection_profile_matches_training_config": (
@@ -358,6 +393,16 @@ def validate_selected_adapter(
             "selected_step": selected_step,
             "validation_reevaluation_path": reevaluation_path.relative_to(root).as_posix(),
             "validation_reevaluation_sha256": sha256_file(reevaluation_path),
+            "runtime_validation_path": (
+                runtime_validation_path.relative_to(root).as_posix()
+                if runtime_validation_path is not None
+                else None
+            ),
+            "runtime_validation_sha256": (
+                sha256_file(runtime_validation_path)
+                if runtime_validation_path is not None
+                else None
+            ),
             "criterion_predeclared_before_training": selection.get(
                 "criterion_predeclared_before_training"
             )

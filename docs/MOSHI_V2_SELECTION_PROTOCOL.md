@@ -64,7 +64,19 @@ is called a perceptual, naturalness, relevance, or human-quality result.
 ## Untouched final evaluation
 
 After selection is frozen, evaluate the selected hash exactly once on the new
-v2 final test. Report teacher-forced adapted/base/perturbed loss controls and
-autoregressive automatic diagnostics separately. The final test must never
-select a checkpoint. Human listening and physical-4090 browser evidence remain
-separate gates and cannot be replaced by this protocol.
+v2 final test. The complete teacher-forced report compares the selected,
+sign-flipped-LoRA, and base models on identical cached tokens. The script
+refuses to overwrite an existing final-test report.
+
+Report autoregressive automatic diagnostics separately on nine deterministic
+rows selected without inspecting model output:
+
+```text
+floor(i * (row_count - 1) / (panel_size - 1)), i = 0..8
+```
+
+For the frozen 738-row test this is
+`[0, 92, 184, 276, 368, 460, 552, 644, 737]`. These diagnostics use the same
+speech/text/Persian gates but never select or revise a checkpoint. Human
+listening and physical-4090 browser evidence remain separate gates and cannot
+be replaced by this protocol.

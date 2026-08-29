@@ -1,0 +1,247 @@
+#!/usr/bin/env python3
+"""Select a Moshi v2 adapter only from official-runtime-eligible candidates."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import math
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from scripts.validate_moshi_adapter import json_object, project_path, sha256_file  # noqa: E402
+from thesis_s2s.config import load_yaml, portable_project_values  # noqa: E402
+from thesis_s2s.metrics import write_json  # noqa: E402
+
+
+def candidate_map(report: dict[str, Any], label: str) -> dict[int, dict[str, Any]]:
+    candidates = report.get("candidates")
+    if not isinstance(candidates, list) or not all(
+        isinstance(candidate, dict) for candidate in candidates
+    ):
+        raise ValueError(f"{label} has no valid candidate list")
+    result = {int(candidate["step"]): candidate for candidate in candidates}
+    if len(result) != len(candidates):
+        raise ValueError(f"{label} contains duplicate candidate steps")
+    return result
+
+
+def select_checkpoint(
+    *,
+    config_path: Path,
+    reevaluation_path: Path,
+    runtime_path: Path,
+    out_path: Path,
+    root: Path = ROOT,
+) -> dict[str, Any]:
+    config_path = config_path.resolve()
+    reevaluation_path = reevaluation_path.resolve()
+    runtime_path = runtime_path.resolve()
+    out_path = out_path.resolve()
+    config = load_yaml(config_path)
+    reevaluation = json_object(reevaluation_path)
+    runtime = json_object(runtime_path)
+    max_steps = int(config["max_steps"])
+    checkpoint_frequency = int(config["ckpt_freq"])
+    expected_steps = list(range(checkpoint_frequency, max_steps + 1, checkpoint_frequency))
+    loss_by_step = candidate_map(reevaluation, "reevaluation report")
+    runtime_by_step = candidate_map(runtime, "runtime-panel report")
+
+    preconditions = {
+        "criterion_predeclared_before_training": True,
+        "reevaluation_passed": (
+            reevaluation.get("schema_version") == 1
+            and reevaluation.get("status") == "passed"
+            and reevaluation.get("reevaluation_passes") is True
+        ),
+        "heldout_test_not_used_for_loss": reevaluation.get("heldout_test_used") is False,
+        "runtime_panel_evaluation_complete": (
+            runtime.get("schema_version") == 1
+            and runtime.get("status") == "passed"
+            and runtime.get("runtime_panel_evaluation_passes") is True
+            and runtime.get("selection_performed") is False
+        ),
+        "candidate_steps_exact": (
+            sorted(loss_by_step) == expected_steps and sorted(runtime_by_step) == expected_steps
+        ),
+        "profile_matches": (
+            reevaluation.get("configured_max_steps") == max_steps
+            and reevaluation.get("checkpoint_frequency") == checkpoint_frequency
+        ),
+        "runtime_bound_to_reevaluation": (
+            (runtime.get("artifacts") or {}).get("reevaluation_sha256")
+            == sha256_file(reevaluation_path)
+        ),
+    }
+    if not all(preconditions.values()):
+        raise RuntimeError(f"v2 selection preconditions failed: {preconditions}")
+
+    candidates: list[dict[str, Any]] = []
+    for step in expected_steps:
+        loss_candidate = loss_by_step[step]
+        runtime_candidate = runtime_by_step[step]
+        adapter_path = project_path(
+            root,
+            runtime_candidate.get("adapter_path"),
+            f"candidate {step} adapter",
+        )
+        config_artifact_path = project_path(
+            root,
+            runtime_candidate.get("config_path"),
+            f"candidate {step} config",
+        )
+        loss = float(loss_candidate["eval_loss"])
+        text_loss = float(loss_candidate["text_eval_loss"])
+        audio_loss = float(loss_candidate["audio_eval_loss"])
+        static_validation = runtime_candidate.get("static_adapter_validation")
+        if not isinstance(static_validation, dict):
+            raise ValueError(f"candidate {step} lacks static adapter validation")
+        eligibility_requirements = {
+            "complete_validation_losses_finite": all(
+                math.isfinite(value) for value in (loss, text_loss, audio_loss)
+            ),
+            "complete_validation_scope": (
+                loss_candidate.get("validation_scope") == "complete_fixed_manifest"
+                and int(loss_candidate.get("sample_count") or 0) > 0
+            ),
+            "adapter_hashes_agree_and_are_current": (
+                loss_candidate.get("adapter_sha256")
+                == static_validation.get("adapter_sha256")
+                == sha256_file(adapter_path)
+            ),
+            "config_hashes_agree_and_are_current": (
+                loss_candidate.get("config_sha256")
+                == static_validation.get("config_sha256")
+                == sha256_file(config_artifact_path)
+            ),
+            "static_adapter_validation_passed": static_validation.get("passes") is True,
+            "official_server_and_all_panel_gates_passed": runtime_candidate.get(
+                "candidate_runtime_passes"
+            )
+            is True,
+            "all_nine_panel_rows_passed": (
+                runtime_candidate.get("panel_count") == 9
+                and runtime_candidate.get("panel_pass_count") == 9
+            ),
+        }
+        candidates.append(
+            {
+                "step": step,
+                "eval_loss": loss,
+                "text_eval_loss": text_loss,
+                "audio_eval_loss": audio_loss,
+                "validation_sample_count": loss_candidate.get("sample_count"),
+                "validation_manifest_sha256": loss_candidate.get("validation_manifest_sha256"),
+                "adapter_path": adapter_path.relative_to(root).as_posix(),
+                "adapter_sha256": sha256_file(adapter_path),
+                "adapter_bytes": adapter_path.stat().st_size,
+                "config_path": config_artifact_path.relative_to(root).as_posix(),
+                "config_sha256": sha256_file(config_artifact_path),
+                "runtime_panel_pass_count": runtime_candidate.get("panel_pass_count"),
+                "runtime_panel_count": runtime_candidate.get("panel_count"),
+                "eligibility_requirements": eligibility_requirements,
+                "autoregressive_eligible": all(eligibility_requirements.values()),
+            }
+        )
+
+    eligible = [
+        candidate for candidate in candidates if candidate["autoregressive_eligible"] is True
+    ]
+    selected = (
+        min(
+            eligible,
+            key=lambda candidate: (float(candidate["eval_loss"]), int(candidate["step"])),
+        )
+        if eligible
+        else None
+    )
+    selection_passes = selected is not None
+    report: dict[str, Any] = {
+        "schema_version": 3,
+        "status": "passed" if selection_passes else "failed",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "criterion_predeclared_before_training": True,
+        "criterion": (
+            "among candidates passing exact artifact validation and every automatic gate on "
+            "all nine frozen official-server validation rows, choose minimum finite mean "
+            "eval_loss on the identical complete validation scope; exact ties choose the "
+            "earlier step"
+        ),
+        "heldout_test_used_for_selection": False,
+        "training_complete": True,
+        "selection_input_corrected_after_training": True,
+        "correction_changes_selection_criterion": False,
+        "original_upstream_metrics_eligible_for_selection": False,
+        "configured_max_steps": max_steps,
+        "checkpoint_frequency": checkpoint_frequency,
+        "candidate_count": len(candidates),
+        "eligible_candidate_count": len(eligible),
+        "eligible_steps": [candidate["step"] for candidate in eligible],
+        "candidates": candidates,
+        "selected": selected,
+        "validation_reevaluation": {
+            "path": reevaluation_path.relative_to(root).as_posix(),
+            "sha256": sha256_file(reevaluation_path),
+            "requirements": preconditions,
+        },
+        "runtime_validation": {
+            "path": runtime_path.relative_to(root).as_posix(),
+            "sha256": sha256_file(runtime_path),
+            "panel_indices": (runtime.get("protocol") or {}).get("panel_indices"),
+            "all_panel_rows_must_pass": True,
+        },
+        "selection_passes": selection_passes,
+        "next_stage": (
+            "validate the exact selected adapter, freeze its hash, then access the fresh v2 "
+            "final test exactly once; never revise this choice from test results"
+            if selection_passes
+            else "v2 fails closed because no predeclared candidate passed every eligibility gate"
+        ),
+    }
+    report = portable_project_values(report)
+    write_json(out_path, report)
+    if not selection_passes:
+        raise RuntimeError("no Moshi v2 checkpoint passed every frozen eligibility gate")
+    return report
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=Path("configs/moshi_h100_v2.yaml"),
+    )
+    parser.add_argument(
+        "--reevaluation",
+        type=Path,
+        default=Path("results/moshi_v2_validation_reevaluation.json"),
+    )
+    parser.add_argument(
+        "--runtime",
+        type=Path,
+        default=Path("results/moshi_v2_runtime_candidates.json"),
+    )
+    parser.add_argument(
+        "--out",
+        type=Path,
+        default=Path("results/moshi_v2_checkpoint_selection.json"),
+    )
+    args = parser.parse_args()
+    report = select_checkpoint(
+        config_path=ROOT / args.config,
+        reevaluation_path=ROOT / args.reevaluation,
+        runtime_path=ROOT / args.runtime,
+        out_path=ROOT / args.out,
+    )
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

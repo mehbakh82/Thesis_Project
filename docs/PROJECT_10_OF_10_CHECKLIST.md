@@ -406,10 +406,25 @@ Corrective v2 run:
 - [x] Restore the documented 100-second context, increasing response-onset
   coverage from 29.4% to 81.1% of train chunks.
 - [x] Complete the exact one-step optimizer/checkpoint probe at 22.797 GB peak.
+- [x] Preserve and disclose the first v2 attempt: it trained through step 1,800
+  with finite metrics, then failed only while creating checkpoint 1,800 because
+  the filesystem returned `ENOSPC`. Its 17 complete checkpoints and metrics
+  remain recoverable under `checkpoints/moshi_fa_100s_v2_failed_enospc_20260827`.
+- [x] Launch a clean step-zero retry with the unchanged frozen seed/profile as
+  the isolated, journal-attested
+  `thesis-moshi-h100-v2-retry1-119f9e8.service`; no optimizer-state-free
+  pseudo-resume and no unrelated GPU process termination.
+- [x] Implement the hash-bound post-training chain: identical complete-scope
+  loss reevaluation, exact adapter schema/finite checks, all-candidate
+  official-server validation panel, eligible-only selection, official CUDA
+  load, one-time complete final-test controls, deterministic final-test runtime
+  diagnostics, and launch/checkpoint attestation.
+
 - [ ] Complete the 2,000-step v2 run from `configs/moshi_h100_v2.yaml`.
 - [ ] Reevaluate all v2 candidates on the same complete validation scope.
 - [ ] Apply the frozen autoregressive panel, select only among eligible
-  candidates, validate the selected hash, and evaluate it once on the new test.
+  candidates, validate the selected hash, and evaluate it once on the new test
+  with objective and separately reported autoregressive diagnostics.
 
 Exit remains open until v2 yields a reproducible, loadable adapter that passes
 both scientific validation and frozen autoregressive Persian-output gates.
