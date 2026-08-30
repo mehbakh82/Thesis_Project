@@ -690,8 +690,14 @@ Final engineering audit:
     --out results/release/final_snapshot.json
   ```
 
-- [ ] Reproduce install, tests, adapter load, and held-out inference in a clean
-  environment.
+- [x] From a fresh full-history GitHub clone at remote HEAD `25059a4`, build a
+  wheel, install it into an isolated temporary target without duplicating the
+  verified dependency environment, run all 128 tests, verify the installed
+  package imports from that target, and remove the temporary checkout.
+- [ ] Reproduce a deployment-eligible direct-adapter load and frozen held-out
+  inference in a separately provisioned clean scientific environment. This is
+  blocked honestly because v1–v4 produced no deployable adapter; opening a
+  v2–v4 final test without an eligible selection remains prohibited.
 - [x] Confirm by test that `features`/`metrics` retention modes write no
   WAV.
 - [x] Run full-history secret/private-path/size scans, general dependency audit,
