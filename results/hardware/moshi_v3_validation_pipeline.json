@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "generated_at": "2026-08-29T16:33:46.499861+00:00",
+  "launch_commit": "87da6acbc7523846776d0cac87a899648c5f7a02",
+  "training_invocation_id": "0479e341d29944c3b6edf61298fc953f",
+  "test_access_started": false,
+  "preconditions": {
+    "launch_worktree_clean": true,
+    "preflight_bound_to_config": true,
+    "profile_probe_bound_to_config": true,
+    "protocol_hash_bound_before_training": true,
+    "v2_final_test_never_accessed": true,
+    "training_reached_step_500": true,
+    "training_completed_cleanly_in_journal": true,
+    "all_five_checkpoints_present": true,
+    "final_test_outputs_absent": true
+  },
+  "stages": [
+    {
+      "name": "complete_validation_reevaluation",
+      "started_at": "2026-08-29T16:27:41.055069+00:00",
+      "command": [
+        ".venv-moshi/bin/python",
+        "scripts/reevaluate_moshi_checkpoints.py",
+        "--training-config",
+        "configs/moshi_h100_v3.yaml",
+        "--run-dir",
+        "checkpoints/moshi_fa_100s_v3_no_embed",
+        "--metrics-out",
+        "checkpoints/moshi_fa_100s_v3_no_embed/metrics.reeval.jsonl",
+        "--report-out",
+        "results/moshi_v3_validation_reevaluation.json",
+        "--heldout-test-manifest",
+        "data/processed/moshi_finetune_v2/test.jsonl"
+      ],
+      "status": "passed",
+      "finished_at": "2026-08-29T16:29:54.683265+00:00",
+      "exit_code": 0,
+      "output": "results/moshi_v3_validation_reevaluation.json",
+      "output_sha256": "29b16f0256822ffee3aa5106fb49948aadc1ceac5581b7e202fcc1ab52bd672a"
+    },
+    {
+      "name": "predeclared_complete_prompt_runtime_panel",
+      "started_at": "2026-08-29T16:29:54.685394+00:00",
+      "command": [
+        ".venv-moshi/bin/python",
+        "scripts/evaluate_moshi_v3_runtime_candidates.py"
+      ],
+      "status": "passed",
+      "finished_at": "2026-08-29T16:33:38.955778+00:00",
+      "exit_code": 0,
+      "output": "results/moshi_v3_runtime_candidates.json",
+      "output_sha256": "a14c9afa3a200b16dcecdd9e88917f6f2665904597376770c08779e4fc9399c2"
+    },
+    {
+      "name": "eligible_only_selection",
+      "started_at": "2026-08-29T16:33:38.958932+00:00",
+      "command": [
+        ".venv/bin/python",
+        "scripts/select_moshi_v2_checkpoint.py",
+        "--config",
+        "configs/moshi_h100_v3.yaml",
+        "--reevaluation",
+        "results/moshi_v3_validation_reevaluation.json",
+        "--runtime",
+        "results/moshi_v3_runtime_candidates.json",
+        "--out",
+        "results/moshi_v3_checkpoint_selection.json",
+        "--protocol-mode",
+        "predeclared-v3"
+      ],
+      "status": "passed",
+      "finished_at": "2026-08-29T16:33:46.495407+00:00",
+      "exit_code": 1,
+      "output": "results/moshi_v3_checkpoint_selection.json",
+      "output_sha256": "c66415d97c6c502c74bc157036ed832b02adc38b1f7264d19d264405055614db",
+      "outcome": "scientific_negative_no_eligible_checkpoint"
+    }
+  ],
+  "artifacts": {
+    "config_sha256": "8d94001aebe103ea5e94b7b08b97c24f40e739df8bfe7cdbb387ea9f40eff72b",
+    "protocol_sha256": "d1dad8f7f396e61ba2a614113f41975c0ff789d9e9df86bd88d3112620af7838",
+    "preflight_sha256": "04c67affde42e320fcbecae2c166980fc9abb1e05bb7117cf77d6d019943d064",
+    "profile_probe_sha256": "9ac69afbb83a11b86eb471f99d3d392d4de4c03a80ef71badaa88a16e0439659",
+    "orchestrator_sha256": "ca8464e5645c01feee0b7a7a37df851dbd8a53c77cee034024c267a433cd1a6c"
+  },
+  "selection_outcome": "scientific_negative_no_eligible_checkpoint",
+  "selected_step": null,
+  "eligible_steps": [],
+  "scientific_negative_outcome": true,
+  "requirements": {
+    "all_validation_stages_completed": true,
+    "test_access_never_started": true
+  },
+  "next_stage": "v3 failed closed; design a new experiment without accessing the final test"
+}

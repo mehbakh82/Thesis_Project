@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "generated_at": "2026-08-29T16:35:35Z",
+  "reason": "Recover workspace capacity after a failed ENOSPC training attempt while retaining reproducibility evidence and every artifact still needed by active scientific evaluation.",
+  "removed_bytes": 22817304461,
+  "free_space_observed": {
+    "before": "4.8G",
+    "after": "26G",
+    "filesystem": "/mnt/md0"
+  },
+  "recoverable_locally": false,
+  "removed": [
+    {
+      "path": "checkpoints/moshi_fa_100s_v2_failed_enospc_20260827/checkpoints",
+      "bytes": 17231101145,
+      "reason": "Seventeen checkpoint payloads from the failed ENOSPC attempt were superseded by the complete clean v2 retry."
+    },
+    {
+      "path": "hf_cache/pip",
+      "bytes": 3327519356,
+      "reason": "Regenerable package-download cache; the pinned Moshi model cache was not removed."
+    },
+    {
+      "path": "checkpoints/moshi_h100_profile_probe/checkpoints",
+      "bytes": 1013594185,
+      "reason": "Superseded one-step probe tensor payload; its configuration, metrics, logs, and attestation remain."
+    },
+    {
+      "path": "checkpoints/moshi_h100_100s_profile_probe/checkpoints",
+      "bytes": 1013594185,
+      "reason": "Superseded one-step probe tensor payload; its configuration, metrics, logs, and attestation remain."
+    },
+    {
+      "path": ".mypy_cache",
+      "bytes": 231473376,
+      "reason": "Regenerable type-check cache."
+    },
+    {
+      "path": ".pytest_cache",
+      "bytes": 11588,
+      "reason": "Regenerable test-run cache."
+    },
+    {
+      "path": ".ruff_cache",
+      "bytes": 10626,
+      "reason": "Regenerable lint cache."
+    }
+  ],
+  "retained_evidence": {
+    "failed_v2_args_sha256": "b04b3debdcd4c136152974f96f65bcd078c4fb49388803a801ed09be06cbd3b9",
+    "failed_v2_train_metrics_sha256": "37cc37c9f2b6d5046f3bdff0d2d9041a45cdccc1a92e0c23a5e3c915b71a5c85",
+    "failed_v2_eval_metrics_sha256": "cee0d2bb3296336fdf8cf0b6002c3f3fefa7f608f2406ebf8f299be99599bfb1",
+    "profile_probe_args_sha256": "993610c28b52bf2c6b8d0e34382c04e412dab8a3382b6290c82033274de5915f",
+    "profile_probe_train_metrics_sha256": "8edad383fdbed5da6b6df6347861cb0e5edc5406be3b75df22568e63bfe7f164",
+    "profile_probe_100s_args_sha256": "171944108008e8038ab943ddc29dffd3723499829e1b179a531d50725423b6a6",
+    "profile_probe_100s_train_metrics_sha256": "010dedf3dd956512abbeac71fd9138688f5ef5a5be5a61478bf69337918dd0a2"
+  },
+  "protected_artifacts_untouched": [
+    "data",
+    "hf_cache/pinned",
+    ".venv-moshi",
+    "checkpoints/moshi_fa",
+    "checkpoints/moshi_fa_100s_v2",
+    "checkpoints/moshi_fa_100s_v3_no_embed"
+  ]
+}

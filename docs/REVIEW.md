@@ -77,6 +77,16 @@ No checkpoint passed 9/9 rows; step 400 was best at 2/9 and later checkpoints
 again tended toward silence. V2 therefore failed closed, no adapter was
 promoted, and its fresh final test was not accessed.
 
+The bounded v3 experiment then restored upstream rank-128 LoRA while freezing
+token embeddings and keeping the v2 data, context, optimizer, seed, and output
+gates unchanged. It completed 500/500 steps with finite losses and improved the
+identical 202-chunk validation loss from 2.084004 to 1.879258. All five adapters
+loaded in the official server, but their nine-row runtime pass counts were 0,
+0, 0, 1, and 0. Persian-script output was absent on every row except the single
+step-400 pass, with increasing silence/text absence at later steps. V3 therefore
+also failed closed with zero eligible checkpoints; the final test remains
+untouched.
+
 The working system is now honestly modular: NeMo ASR → locally cached Qwen2.5-0.5B (rules if unavailable) → Piper/formant TTS.
 
 ### 4. Barge-in
@@ -139,9 +149,10 @@ Added:
 ## Irreducible path to 10/10
 
 1. Complete the 40-row window review and the 24-row interaction-candidate review. The latter uses existing internal-authorized audio and requires no recording; use a supplement or scope amendment only if its measured precision is unacceptable.
-2. Continue controlled Moshi adaptation experiments on the H100 until one
-   passes the unchanged validation-only Persian speech/text gates; v1 and v2
-   are preserved negative results and must not be presented as deployment-ready.
+2. Design any further controlled Moshi adaptation experiment from the preserved
+   v1/v2/v3 failure evidence, freeze it before training, and continue only if it
+   answers a defensible research question. V1, v2, and v3 are preserved negative
+   results and must not be presented as deployment-ready.
 3. Recruit 5–10 Persian speakers, including at least two aged 60+, and complete all ratings. If recruitment is formally waived, record the supervisor-approved alternative and narrow the claims accordingly.
 4. Run the live browser protocol on the physical 4090 and export client timing; the H100 is the correct training machine, while the 4090 is the target deployment/evaluation machine.
 5. Evaluate the detector on speaker/session-held-out real conversational audio and report confidence intervals.

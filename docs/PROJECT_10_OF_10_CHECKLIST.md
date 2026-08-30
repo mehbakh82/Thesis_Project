@@ -58,7 +58,7 @@ Verified now:
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
-- [x] Ruff and mypy pass on all source files; all 113 tests pass and
+- [x] Ruff and mypy pass on all source files; all 119 tests pass and
   branch-aware coverage is 62% with a 60% CI floor.
 - [x] General dependencies have no known vulnerabilities; the pinned scientific
   lock has an exact, fail-closed accepted-risk baseline and mitigations.
@@ -70,8 +70,9 @@ Verified now:
   and a 967 MiB/699-tensor CPU-offloaded adapter save; all gates pass.
 - [x] Scientific H100 experiments are preserved honestly: v1 passed
   teacher-forced held-out controls but failed official-runtime generation; v2
-  completed all 20 candidates but failed its unchanged autoregressive
-  eligibility gates before final-test access.
+  completed all 20 candidates and v3 completed all five candidates, but both
+  failed their unchanged autoregressive eligibility gates before final-test
+  access.
 - [ ] Physical-4090 evidence, real detector evidence, perceptual model review,
   and human study are pending.
 - [x] GitHub CLI authentication is persistent for `mehbakh82`; the remote is
@@ -410,8 +411,11 @@ Corrective v2 run:
 - [x] Complete the exact one-step optimizer/checkpoint probe at 22.797 GB peak.
 - [x] Preserve and disclose the first v2 attempt: it trained through step 1,800
   with finite metrics, then failed only while creating checkpoint 1,800 because
-  the filesystem returned `ENOSPC`. Its 17 complete checkpoints and metrics
-  remain recoverable under `checkpoints/moshi_fa_100s_v2_failed_enospc_20260827`.
+  the filesystem returned `ENOSPC`. After the complete clean v2 retry
+  superseded it, its 17 checkpoint tensors were intentionally discarded to
+  recover 17.231 GB; resolved args, metrics, TensorBoard logs, and hashes remain
+  under `checkpoints/moshi_fa_100s_v2_failed_enospc_20260827`, with the complete
+  deletion receipt in `results/hardware/storage_cleanup_20260829.json`.
 - [x] Launch a clean step-zero retry with the unchanged frozen seed/profile as
   the isolated, journal-attested
   `thesis-moshi-h100-v2-retry1-119f9e8.service`; no optimizer-state-free
@@ -452,13 +456,19 @@ Corrective v2 run:
 - [x] Implement a fail-closed v3 preflight that binds v2 failure evidence,
   upstream example/config hashes, exact probe/full shapes, untouched-test
   state, H100 headroom, and a conservative disk budget.
-- [ ] Pass the exact-shape one-step v3 probe, then run all five candidates
-  through complete-scope loss and unchanged complete-prompt runtime gates.
-- [ ] If and only if v3 produces an eligible checkpoint, validate the selected
-  hash and access the frozen final test once.
+- [x] Pass the exact-shape one-step v3 probe, complete all 500 training steps,
+  and run all five candidates through identical 202-chunk complete-scope loss
+  and unchanged nine-row complete-prompt runtime gates. Loss improves from
+  2.084004 to 1.879258; runtime pass counts are 0/9, 0/9, 0/9, 1/9, and 0/9.
+- [x] Apply the conditional final-test firewall: v3 produces zero eligible
+  checkpoints, selection is null, and selected-adapter/final-test evaluation is
+  correctly not run. `test_access_started=false` in the hash-bound pipeline and
+  training attestations.
 
-Exit remains open until v2 yields a reproducible, loadable adapter that passes
-both scientific validation and frozen autoregressive Persian-output gates.
+Exit remains open until a future predeclared experiment yields a reproducible,
+loadable adapter that passes both scientific validation and frozen
+autoregressive Persian-output gates. V1, v2, and v3 are finalized negative
+results and must not be promoted.
 
 ## 7. Validate learning and model quality
 
@@ -685,7 +695,7 @@ privacy-safe repository at approved visibility, restricted handoff, immutable ta
 | Working Persian S2S prototype | Final adapter produces relevant, intelligible Persian speech live | Pending | Adapter hash, runtime logs, held-out output |
 | Full duplex | Mic remains active; interruption stops playback and becomes next-turn context | Control implemented; direct model pending | Client traces and continuation tests |
 | End-to-end ≤500 ms | Max `T_first_audio` ≤500 ms unless another statistic is predeclared; always p50/p95/max | Pending | Physical-4090 `official_e2e` telemetry |
-| Open base adapted to Persian | Moshika 7B LoRA trained on the waiver-bound Persian response pairs | V1 and v2 trained but are runtime-ineligible; no adapter promoted and v2 final test untouched | Config, logs, adapter hashes, validation/test reports |
+| Open base adapted to Persian | Moshika 7B LoRA trained on the waiver-bound Persian response pairs | V1, v2, and v3 trained but are runtime-ineligible; no adapter promoted and the frozen final test is untouched | Config, logs, adapter hashes, validation reports |
 | 100–200 conversational hours | Final audited/exported hours in range; group-clean, no reused intervals | **108.584 exported h**, 6,754/6,754 pairs, zero audit failures | Conversation audit/export report |
 | Noise/overlap/interruption labels | Conditions present, QA complete, verified interruption, agreed precision | Automatic only | QA reports and final counts |
 | Classical detector >80% | Real group-held-out event accuracy >80%, F1/FAR/FRR reported | Synthetic proxy only | Real held-out report/hash |

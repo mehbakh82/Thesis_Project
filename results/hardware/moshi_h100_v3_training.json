@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "generated_at": "2026-08-29T16:34:34.335981+00:00",
+  "scientific_training_evidence": true,
+  "human_quality_claim_allowed": false,
+  "test_access_started": false,
+  "training_policy": "limited internal training under the documented student QA waiver",
+  "experiment": {
+    "name": "moshi_v3_embedding_preserving",
+    "changed_from_v2": {
+      "lora_rank": {
+        "v2": 64,
+        "v3": 128
+      },
+      "ft_embed": {
+        "v2": true,
+        "v3": false
+      },
+      "candidate_horizon": {
+        "v2": 2000,
+        "v3": 500
+      }
+    }
+  },
+  "service": {
+    "unit": "thesis-moshi-h100-v3-d89d60f.service",
+    "invocation_id": "0479e341d29944c3b6edf61298fc953f",
+    "result": "success",
+    "launch_commit": "d89d60fa176514ded5e52121a3d9e06fb4f57bc6",
+    "started_at_utc": "2026-08-29T13:22:50Z",
+    "wall_seconds": 2780,
+    "wall_hms": "0:46:20",
+    "journal_sha256": "9c4c7f21eaa0ac78611753a5bf4b8e62d3ddbce6a3393cc2cb17f94e868f876f",
+    "journal_bytes": 18717,
+    "journal_retained_by_systemd": true
+  },
+  "profile": {
+    "data": {
+      "eval_data": "data/processed/moshi_finetune_v2/val.jsonl",
+      "shuffle": true,
+      "train_data": "data/processed/moshi_finetune_v2/train.jsonl"
+    },
+    "moshi_paths": {
+      "config_path": "configs/moshika_7b_legacy.json",
+      "hf_repo_id": "kyutai/moshika-pytorch-bf16",
+      "mimi_path": "hf_cache/pinned/moshika-pytorch-bf16-a49141e/tokenizer-e351c8d8-checkpoint125.safetensors",
+      "moshi_path": "hf_cache/pinned/moshika-pytorch-bf16-a49141e/model.safetensors",
+      "tokenizer_path": "hf_cache/pinned/moshika-pytorch-bf16-a49141e/tokenizer_spm_32k_3.model"
+    },
+    "full_finetuning": false,
+    "lora": {
+      "enable": true,
+      "ft_embed": false,
+      "rank": 128,
+      "scaling": 2.0
+    },
+    "first_codebook_weight_multiplier": 100.0,
+    "text_padding_weight": 0.5,
+    "duration_sec": 100.0,
+    "batch_size": 1,
+    "num_microbatches": 4,
+    "max_steps": 500,
+    "gradient_checkpointing": true,
+    "optim": {
+      "lr": 2e-06,
+      "pct_start": 0.05,
+      "weight_decay": 0.1
+    },
+    "seed": 20260827,
+    "log_freq": 10,
+    "eval_freq": 100,
+    "do_eval": true,
+    "do_ckpt": true,
+    "ckpt_freq": 100,
+    "num_ckpt_keep": 5,
+    "save_adapters": true,
+    "run_dir": "checkpoints/moshi_fa_100s_v3_no_embed",
+    "overwrite_run_dir": false
+  },
+  "training_metrics": {
+    "logged_rows": 50,
+    "first_logged_step": 10,
+    "final_step": 500,
+    "final_logged_loss": 2.6129989624023438,
+    "minimum_logged_loss": 0.8291809558868408,
+    "maximum_peak_allocated_gb": 26.503708362579346,
+    "final_average_words_per_second": 8145.232219667487
+  },
+  "raw_upstream_validation": {
+    "eligible_for_selection": false,
+    "rows": 5,
+    "all_finite": true,
+    "diagnosis": "The project launcher makes the finite evaluation loader repeatable, preventing iterator exhaustion, but the pinned evaluator still stops after 40 samples. Its finite periodic metrics therefore cover only a fixed prefix of the 202-chunk validation scope."
+  },
+  "checkpoint_count": 5,
+  "checkpoint_schema": {
+    "tensor_count": 674,
+    "adapter_bytes": 775835456
+  },
+  "checkpoints": [
+    {
+      "step": 100,
+      "adapter_path": "checkpoints/moshi_fa_100s_v3_no_embed/checkpoints/checkpoint_000100/consolidated/lora.safetensors",
+      "adapter_bytes": 775835456,
+      "adapter_sha256": "468d7cec69b976ae6cdd400cddcd194050d85cb7f98810a361153b24778ae9e5",
+      "adapter_tensor_count": 674,
+      "config_path": "checkpoints/moshi_fa_100s_v3_no_embed/checkpoints/checkpoint_000100/consolidated/config.json",
+      "config_sha256": "1ae5f4489af61a5acb8f1344660cf865707d4f6fa6b18a56addb686ad447ef32"
+    },
+    {
+      "step": 200,
+      "adapter_path": "checkpoints/moshi_fa_100s_v3_no_embed/checkpoints/checkpoint_000200/consolidated/lora.safetensors",
+      "adapter_bytes": 775835456,
+      "adapter_sha256": "112df2a2ef7ae5d1fac068d2f829b4ab9dfb6bcafc468a850c462b42bdec2277",
+      "adapter_tensor_count": 674,
+      "config_path": "checkpoints/moshi_fa_100s_v3_no_embed/checkpoints/checkpoint_000200/consolidated/config.json",
+      "config_sha256": "1ae5f4489af61a5acb8f1344660cf865707d4f6fa6b18a56addb686ad447ef32"
+    },
+    {
+      "step": 300,
+      "adapter_path": "checkpoints/moshi_fa_100s_v3_no_embed/checkpoints/checkpoint_000300/consolidated/lora.safetensors",
+      "adapter_bytes": 775835456,
+      "adapter_sha256": "937bc97c71ff96a0fb432da110d6c933f336a3664710be5b47d666dc8c88789a",
+      "adapter_tensor_count": 674,
+      "config_path": "checkpoints/moshi_fa_100s_v3_no_embed/checkpoints/checkpoint_000300/consolidated/config.json",
+      "config_sha256": "1ae5f4489af61a5acb8f1344660cf865707d4f6fa6b18a56addb686ad447ef32"
+    },
+    {
+      "step": 400,
+      "adapter_path": "checkpoints/moshi_fa_100s_v3_no_embed/checkpoints/checkpoint_000400/consolidated/lora.safetensors",
+      "adapter_bytes": 775835456,
+      "adapter_sha256": "d71e1bf113a1326f4bf1c0aac93e86c006b2a2758c5a4b36ed963fc4c3809c49",
+      "adapter_tensor_count": 674,
+      "config_path": "checkpoints/moshi_fa_100s_v3_no_embed/checkpoints/checkpoint_000400/consolidated/config.json",
+      "config_sha256": "1ae5f4489af61a5acb8f1344660cf865707d4f6fa6b18a56addb686ad447ef32"
+    },
+    {
+      "step": 500,
+      "adapter_path": "checkpoints/moshi_fa_100s_v3_no_embed/checkpoints/checkpoint_000500/consolidated/lora.safetensors",
+      "adapter_bytes": 775835456,
+      "adapter_sha256": "46c7c1142038abd7e1f3ce0087bcb90449a3b79f756be0c40c0db6720724937b",
+      "adapter_tensor_count": 674,
+      "config_path": "checkpoints/moshi_fa_100s_v3_no_embed/checkpoints/checkpoint_000500/consolidated/config.json",
+      "config_sha256": "1ae5f4489af61a5acb8f1344660cf865707d4f6fa6b18a56addb686ad447ef32"
+    }
+  ],
+  "selection_outcome": "scientific_negative_no_eligible_checkpoint",
+  "selected": null,
+  "eligible_steps": [],
+  "requirements": {
+    "launch_and_current_profiles_match": true,
+    "launch_commit_contains_exact_launcher": true,
+    "all_expected_logged_steps_present": true,
+    "all_training_losses_finite": true,
+    "all_raw_validation_losses_finite": true,
+    "configured_final_step_completed": true,
+    "service_journal_records_clean_completion": true,
+    "all_expected_checkpoints_present": true,
+    "all_checkpoint_schemas_match": true,
+    "checkpoint_hashes_match_reevaluation": true,
+    "fixed_scope_reevaluation_passed": true,
+    "predeclared_runtime_panel_completed": true,
+    "eligible_only_selection_valid": true,
+    "validation_pipeline_passed_without_test_access": true,
+    "preflight_and_probe_passed": true,
+    "protocol_hash_unchanged": true,
+    "h100_environment_valid": true,
+    "training_export_valid_under_waiver": true,
+    "group_split_passed": true
+  },
+  "training_run_passes": true,
+  "artifacts": {
+    "training_config_sha256": "8d94001aebe103ea5e94b7b08b97c24f40e739df8bfe7cdbb387ea9f40eff72b",
+    "resolved_args_sha256": "78a8774742486041de54adef13f187ecf25d71425e866865c560bd98b0770e1e",
+    "training_metrics_sha256": "80655262f5356c6ff2d183631ca920ec66acb5dbe7b27c5f1eff0e54b3cbc15c",
+    "raw_eval_metrics_sha256": "d5332e85ee518cecfb717ef513918fc542b7d47494b8b2cf1fd9d23de0b20e49",
+    "reevaluation_sha256": "29b16f0256822ffee3aa5106fb49948aadc1ceac5581b7e202fcc1ab52bd672a",
+    "runtime_panel_sha256": "a14c9afa3a200b16dcecdd9e88917f6f2665904597376770c08779e4fc9399c2",
+    "selection_sha256": "c66415d97c6c502c74bc157036ed832b02adc38b1f7264d19d264405055614db",
+    "validation_pipeline_sha256": "08789d96d28a1c1943ae00840591545bf59a21a63ce892f2ebc21bb48cca4c0a",
+    "preflight_sha256": "04c67affde42e320fcbecae2c166980fc9abb1e05bb7117cf77d6d019943d064",
+    "profile_probe_sha256": "9ac69afbb83a11b86eb471f99d3d392d4de4c03a80ef71badaa88a16e0439659",
+    "protocol_sha256": "d1dad8f7f396e61ba2a614113f41975c0ff789d9e9df86bd88d3112620af7838",
+    "training_entry_sha256": "c6acd9bc2c7e37286fb249b4f10a21b38f2b2f3ba396d7553db075bdcd4d6359",
+    "certificate_sha256": "8efbfa82e0580b0e92cad80fd8da3eba3995a1e73967e97debf284b0d759b6fd"
+  },
+  "next_stage": "v3 is a finalized negative result; do not access its final test"
+}
