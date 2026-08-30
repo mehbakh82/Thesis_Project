@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-30T13:00:18.136016+00:00",
+  "generated_at": "2026-08-30T13:01:17.167441+00:00",
   "python": "3.12.3",
   "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.39",
   "git": {
     "available": true,
-    "commit": "f872743bfd8b6eebb876178bff9f49010988115c",
-    "dirty": true
+    "commit": "d115ec3e8d25d4b26941eb353b7b5881113d706f",
+    "dirty": false
   },
   "gpu": {
     "device": "NVIDIA H100 NVL",
@@ -75,7 +75,7 @@
       "bytes": 3080
     },
     "checkpoints/llama_omni2_fa/dummy_adapter.pt": {
-      "sha256": "6a350b7f2af40e728a9166fc2e295880e2e36cbc4ee1a4413e4d47206f45aba5",
+      "sha256": "679cfcb84c4da597704bc9445666dd278a2315b051005541531c759cad2da3d6",
       "bytes": 170721
     },
     "checkpoints/llama_omni2_fa/persian_omni2.pt": {
