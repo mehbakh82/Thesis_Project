@@ -1,1 +1,391 @@
-{"schema_version":2,"as_of":"2026-08-22","authoritative":true,"thesis_ready":false,"model":{"path":"checkpoints/llama_omni2_fa/persian_omni2.pt","exists":true,"bytes":7183969,"artifact_kind":"legacy_untyped","runtime_ready":false,"reason":"not_a_deployable_s2s_checkpoint"},"corpus":{"manifest":"data/processed/manifests/filtered.jsonl","hours":197.613,"rows":215684,"integrity_ok":true,"thesis_coverage_ok":false,"evidence":"results/corpus_audit.json","alignment_screening":{"digiato":{"paired_rows":110024,"hours":101.091,"mean_similarity":0.7243,"low_similarity_fraction":0.0613,"evidence":"results/caption_alignment_audit.json"},"zoomit":{"sample_rows":20,"mean_similarity":0.7735,"low_similarity_fraction":0.0,"evidence":"results/caption_alignment_zoomit_live_sample.json"},"ground_truth":false}},"artifacts":{"latency_bench.json":{"class":"server_component","official":false,"superseded":true},"latency_bench_path_b.json":{"class":"server_component","official":false,"superseded":true},"interrupt_bench.json":{"class":"synthetic_proxy","official":false,"recorded_eval":false},"reply_wer.json":{"class":"diagnostic_proxy","official":false,"mean_wer":104.0},"human_study.json":{"class":"live_study_status","complete":false}},"required_to_complete":["5–10 consented Persian participants with at least two aged 60+","speaker/session-held-out recorded interruption evaluation","client-observed first-audio and playback-stop acknowledgements","physical 12–24 GB GPU evaluation","genuine speech-conditioned conversational model or explicitly scoped cascade thesis","validated Persian speech naturalness and satisfaction results"]}
+{
+  "schema_version": 3,
+  "generated_at": "2026-08-30T12:59:12.975675+00:00",
+  "authoritative": true,
+  "thesis_ready": false,
+  "verdict": "not_thesis_ready_evidence_gates_pending",
+  "generation_policy": {
+    "fail_closed": true,
+    "reads_frozen_final_test_rows": false,
+    "official_e2e_requires": [
+      "consented",
+      "live_browser",
+      "client_playback_acknowledgements",
+      "physical_12_to_24_gb_gpu"
+    ]
+  },
+  "gates": {
+    "audited_export_100_to_200_hours": true,
+    "data_policy_resolved_under_documented_qa_waiver": true,
+    "deployment_eligible_persian_direct_model": false,
+    "real_group_heldout_detector_above_80_percent": false,
+    "physical_12_to_24_gb_fit_and_live_latency": false,
+    "human_study_complete": false,
+    "source_code_license_selected": false
+  },
+  "data": {
+    "conversation_pairs": 6754,
+    "conversation_source_hours": 123.796,
+    "exported_pairs": 6754,
+    "exported_hours": 108.584,
+    "split_counts": {
+      "train": 6419,
+      "val": 131,
+      "test": 204
+    },
+    "group_split_leaks": 0,
+    "automatic_integrity_audit_passed": true,
+    "training_ready_under_documented_qa_waiver": true,
+    "human_review_complete": false,
+    "strict_human_qa_complete": false,
+    "qa_waiver_is_a_documented_limitation_not_an_open_action": true,
+    "human_verified_claim_allowed": false,
+    "raw_redistribution_permitted_rows": 0
+  },
+  "direct_moshi": {
+    "deployment_eligible": false,
+    "promoted_adapter": null,
+    "trials": [
+      {
+        "version": "v1",
+        "scientific_run_complete": true,
+        "candidate_count": 16,
+        "eligible_candidate_count": 0,
+        "eligible_steps": [],
+        "selected_step": 8000,
+        "deployment_eligible": false,
+        "selection_failed_closed": false,
+        "test_access_started": true,
+        "verdict": "runtime_ineligible_after_postselection_validation",
+        "reason": "selected adapter decoded near-silent audio and no text",
+        "configuration": {
+          "context_seconds": 20.0,
+          "max_steps": 8000,
+          "seed": 20260823,
+          "lora_rank": 64,
+          "upstream_ft_embed": true,
+          "selective_embeddings": [],
+          "peak_allocated_gb": 22.91976833343506
+        }
+      },
+      {
+        "version": "v2",
+        "scientific_run_complete": true,
+        "candidate_count": 20,
+        "eligible_candidate_count": 0,
+        "eligible_steps": [],
+        "selected_step": null,
+        "deployment_eligible": false,
+        "fixed_validation_losses": [
+          2.3124072925489636,
+          2.056552486116122,
+          1.9530398574995458,
+          1.8942299617228495,
+          1.8584979913568604,
+          1.8297844480162389,
+          1.810278958612465,
+          1.792216325268071,
+          1.7783953180988457,
+          1.7680850304992544,
+          1.758151776079085,
+          1.751503885928674,
+          1.7472018133739406,
+          1.7422766101354674,
+          1.7391139535636941,
+          1.7373975327570974,
+          1.736002017434189,
+          1.7349481533788949,
+          1.7346090439046153,
+          1.734574257889774
+        ],
+        "runtime_panel_pass_counts": [
+          0,
+          0,
+          0,
+          2,
+          1,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "runtime_panel_size": 9,
+        "selection_failed_closed": true,
+        "test_access_started": false,
+        "configuration": {
+          "context_seconds": 100,
+          "max_steps": 2000,
+          "seed": 20260827,
+          "lora_rank": 64,
+          "upstream_ft_embed": true,
+          "selective_embeddings": [],
+          "peak_allocated_gb": null
+        }
+      },
+      {
+        "version": "v3",
+        "scientific_run_complete": true,
+        "candidate_count": 5,
+        "eligible_candidate_count": 0,
+        "eligible_steps": [],
+        "selected_step": null,
+        "deployment_eligible": false,
+        "fixed_validation_losses": [
+          2.084003782317061,
+          1.948509098646994,
+          1.899810641349321,
+          1.8819008291339372,
+          1.879257527556637
+        ],
+        "runtime_panel_pass_counts": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "runtime_panel_size": 9,
+        "selection_failed_closed": true,
+        "test_access_started": false,
+        "configuration": {
+          "context_seconds": 100.0,
+          "max_steps": 500,
+          "seed": 20260827,
+          "lora_rank": 128,
+          "upstream_ft_embed": false,
+          "selective_embeddings": [],
+          "peak_allocated_gb": 26.503708362579346
+        }
+      },
+      {
+        "version": "v4",
+        "scientific_run_complete": true,
+        "candidate_count": 5,
+        "eligible_candidate_count": 0,
+        "eligible_steps": [],
+        "selected_step": null,
+        "deployment_eligible": false,
+        "fixed_validation_losses": [
+          2.082124794734236,
+          1.9483154240193417,
+          1.899639937738798,
+          1.8816324289130868,
+          1.8790605066486492
+        ],
+        "runtime_panel_pass_counts": [
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        "runtime_panel_size": 9,
+        "selection_failed_closed": true,
+        "test_access_started": false,
+        "configuration": {
+          "context_seconds": 100.0,
+          "max_steps": 500,
+          "seed": 20260827,
+          "lora_rank": 128,
+          "upstream_ft_embed": false,
+          "selective_embeddings": [
+            "depformer_text_emb.weight",
+            "text_emb.weight"
+          ],
+          "peak_allocated_gb": 28.64000654220581
+        }
+      }
+    ],
+    "v2_v3_v4_final_test_access_started": false,
+    "conclusion": "V1 through v4 are scientific training evidence, but none is eligible for deployment or thesis end-to-end claims."
+  },
+  "detector": {
+    "evidence_class": "synthetic_proxy",
+    "synthetic_accuracy": 1.0,
+    "synthetic_n": 32,
+    "recorded_n": 0,
+    "recorded_group_heldout_gate_passed": false
+  },
+  "latency_and_hardware": {
+    "current_gpu": "NVIDIA H100 NVL",
+    "current_gpu_total_gb": 93.09,
+    "physical_target_hardware_ready": false,
+    "official_e2e_rows": 0,
+    "reports": [
+      {
+        "path": "results/eval/latency_bench.json",
+        "present": true,
+        "declared_evidence_class": "server_component",
+        "qualifies": false,
+        "qualifying_rows": 0
+      },
+      {
+        "path": "results/eval/latency_bench_path_b.json",
+        "present": true,
+        "declared_evidence_class": "server_component",
+        "qualifies": false,
+        "qualifying_rows": 0
+      },
+      {
+        "path": "results/eval/path_ab_and_study.json",
+        "present": true,
+        "declared_evidence_class": "historical_proxy_summary",
+        "qualifies": false,
+        "qualifying_rows": 0
+      }
+    ],
+    "component_proxy_claim_allowed": false
+  },
+  "human_study": {
+    "status": "not_collected_or_incomplete",
+    "participants": 1,
+    "elderly_participants": 1,
+    "complete_ratings": 0,
+    "official_ready": false
+  },
+  "release": {
+    "source_code_license_selected": false,
+    "license_files": [],
+    "immutable_submission_tag_created": false
+  },
+  "required_to_complete": [
+    "Produce a validation-eligible Persian direct-model checkpoint before opening that experiment's frozen final test.",
+    "Collect recorded, speaker/session-group-held-out interruption evidence.",
+    "Run the final system and client-acknowledged latency protocol on a physical 12–24 GB GPU such as the planned RTX 4090.",
+    "Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+.",
+    "Select and add the project source-code license."
+  ],
+  "artifact_provenance": {
+    "conversation_audit": {
+      "path": "results/conversation_audit.json",
+      "present": true,
+      "bytes": 3339,
+      "sha256": "e46cf34bedfb471e47d6c927ce4331e93761ce0b580cd6ead8fc8a60961b8182"
+    },
+    "moshi_export_report": {
+      "path": "results/moshi_export_report.json",
+      "present": true,
+      "bytes": 4097,
+      "sha256": "f4e2532cbcea533764e84f83018f109b4e815ff1c08a1900947800d69f5a1872"
+    },
+    "moshi_export_audit": {
+      "path": "results/moshi_export_audit.json",
+      "present": true,
+      "bytes": 2084,
+      "sha256": "9f4fdf6301ed7d63713df6e4818c41e0a4bfefbe0a14e88e0faaba6ef6d5ee00"
+    },
+    "moshi_v1_training": {
+      "path": "results/hardware/moshi_h100_training.json",
+      "present": true,
+      "bytes": 13128,
+      "sha256": "1e2133a771f67e319300114ab8b6f72a7d1f8b247e7af308271da20893d19980"
+    },
+    "moshi_v1_protocol": {
+      "path": "docs/MOSHI_SELECTION_PROTOCOL.md",
+      "present": true,
+      "bytes": 5520,
+      "sha256": "f1fb6cfb12fad8bb1f025664640f76fb38bc18af939eda4ea078ab886adf6750"
+    },
+    "moshi_v2_config": {
+      "path": "configs/moshi_h100_v2.yaml",
+      "present": true,
+      "bytes": 1266,
+      "sha256": "c9cd892ded3aa094ca612385f7e2cb37c55a61d2a76a0ef3b458612ebb737b4b"
+    },
+    "moshi_v2_selection": {
+      "path": "results/moshi_v2_checkpoint_selection.json",
+      "present": true,
+      "bytes": 28027,
+      "sha256": "4a7ed302d2a0c860e6f25454cb932839539a38e5e6226f2550b155dd7f1aaba1"
+    },
+    "moshi_v2_finalization": {
+      "path": "results/hardware/moshi_v2_negative_selection_finalization.json",
+      "present": true,
+      "bytes": 2191,
+      "sha256": "3b04a81ad952f6ab1ef737050846cbd65a88c0d55b3eed40cfbf7a40eb303abc"
+    },
+    "moshi_v3_training": {
+      "path": "results/hardware/moshi_h100_v3_training.json",
+      "present": true,
+      "bytes": 8237,
+      "sha256": "779d47b3946c8ca6bc4e82257564887f9ebc3569d89cef154b50ad328f5cda5b"
+    },
+    "moshi_v3_selection": {
+      "path": "results/moshi_v3_checkpoint_selection.json",
+      "present": true,
+      "bytes": 8993,
+      "sha256": "c66415d97c6c502c74bc157036ed832b02adc38b1f7264d19d264405055614db"
+    },
+    "moshi_v4_training": {
+      "path": "results/hardware/moshi_h100_v4_training.json",
+      "present": true,
+      "bytes": 9582,
+      "sha256": "dfa6ce72531cf39c85e3300915ec2e0f7691369255b9dc7f34461016bf28a8b1"
+    },
+    "moshi_v4_selection": {
+      "path": "results/moshi_v4_checkpoint_selection.json",
+      "present": true,
+      "bytes": 9021,
+      "sha256": "c201daf0dc812b2966cfa044e596590fae8a372fbaf528f34c54e29b4f57e627"
+    },
+    "moshi_v4_result": {
+      "path": "docs/MOSHI_V4_RESULT.md",
+      "present": true,
+      "bytes": 4057,
+      "sha256": "914fde0043c1fa262cabb17111e6178af3c1443dac067e84e0125889ecd21eb5"
+    },
+    "interrupt_bench": {
+      "path": "results/eval/interrupt_bench.json",
+      "present": true,
+      "bytes": 1448,
+      "sha256": "b64636ecad39b68c5df15901dfaa0b531ddc97b1381b0e6bf991bc0239d59541"
+    },
+    "human_study": {
+      "path": "results/eval/human_study.json",
+      "present": true,
+      "bytes": 723,
+      "sha256": "10f922dc8b91d78aad488fc12e8e5a2fd101caae5bd3e1b9fbdcced1aaa41973"
+    },
+    "hardware_preflight": {
+      "path": "results/hardware/current_preflight.json",
+      "present": true,
+      "bytes": 20246,
+      "sha256": "3b8ffd16df80f9398fe5762362d9c05561ad14964c848d8b72f218ac67b81805"
+    },
+    "final_hardware_preflight": {
+      "path": "results/hardware/final_preflight.json",
+      "present": true,
+      "bytes": 20280,
+      "sha256": "e9bae17938e0b6d16c22ba3be0e36488cdbe21374c0bdb1276d962dcc76e86ff"
+    },
+    "latency_h100_capped": {
+      "path": "results/eval/latency_bench.json",
+      "present": true,
+      "bytes": 4899,
+      "sha256": "3348143be811eb1477a62faf94539f183eccb9b7fa7fc224267342215bd7313e"
+    },
+    "latency_h100_uncapped": {
+      "path": "results/eval/latency_bench_path_b.json",
+      "present": true,
+      "bytes": 5026,
+      "sha256": "100c204d1a1b599471143db403b1917350bf2642a6bfe4fe868cbd39c5d1f49f"
+    },
+    "metrics_definition": {
+      "path": "docs/METRICS.md",
+      "present": true,
+      "bytes": 2493,
+      "sha256": "7178cff7a723ac07e04a1b23c732e543df759af17471419ae4495b33f0fbcdc9"
+    }
+  }
+}

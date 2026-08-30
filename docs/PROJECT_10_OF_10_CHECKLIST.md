@@ -1,6 +1,6 @@
 # Checklist for a defensible 10/10 thesis project
 
-Status date: 2026-08-29
+Status date: 2026-08-30
 
 This is the authoritative closure checklist. Mark an item complete only when its
 named artifact exists and its acceptance test passes. Implemented code,
@@ -58,8 +58,8 @@ Verified now:
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
-- [x] Ruff and mypy pass on all source files; all 119 tests pass and
-  branch-aware coverage is 62% with a 60% CI floor.
+- [x] Ruff and mypy pass on all 48 source files; all 128 tests pass and
+  branch-aware coverage is 63% with a 60% CI floor.
 - [x] General dependencies have no known vulnerabilities; the pinned scientific
   lock has an exact, fail-closed accepted-risk baseline and mitigations.
 - [ ] Window QA: 0/40 reviewed.
@@ -70,9 +70,9 @@ Verified now:
   and a 967 MiB/699-tensor CPU-offloaded adapter save; all gates pass.
 - [x] Scientific H100 experiments are preserved honestly: v1 passed
   teacher-forced held-out controls but failed official-runtime generation; v2
-  completed all 20 candidates and v3 completed all five candidates, but both
-  failed their unchanged autoregressive eligibility gates before final-test
-  access.
+  completed all 20 candidates, v3 completed all five candidates, and v4
+  completed all five selective-text-embedding candidates; all three failed
+  their unchanged autoregressive eligibility gates before final-test access.
 - [ ] Physical-4090 evidence, real detector evidence, perceptual model review,
   and human study are pending.
 - [x] GitHub CLI authentication is persistent for `mehbakh82`; the remote is
@@ -638,27 +638,33 @@ interaction, and elderly findings.
 
 Evidence/statistics:
 
-- [ ] Regenerate `results/eval/EVIDENCE_STATUS.json` from final artifacts.
-- [ ] Mark only consented live-browser rows on eligible hardware
-  `official_e2e`.
-- [ ] Generate final dataset/model/detector/latency/study/ablation/error tables
-  from machine-readable results.
+- [x] Regenerate `results/eval/EVIDENCE_STATUS.json` from current artifacts
+  with a tested fail-closed CLI aggregator that never opens frozen test rows.
+- [x] Mark only explicitly consented live-browser rows with client playback
+  acknowledgements on physical 12–24 GB hardware `official_e2e`; current count
+  is correctly zero.
+- [x] Generate current dataset/model/detector/latency/study/ablation/error tables
+  from machine-readable results in `results/eval/SUMMARY.md`.
 - [ ] Include denominators, failures, uncertainty, seeds, split policy, and exact
   metric definitions.
-- [ ] Do not select thresholds, checkpoints, trials, or statistics after seeing
-  held-out results.
-- [ ] Reconcile every README/dataset-card/thesis/result number; remove stale
-  estimates once final evidence exists.
+- [x] Do not select thresholds, checkpoints, trials, or statistics after seeing
+  held-out results; the v2–v4 selectors are validation-only, predeclared, and
+  fail closed before final-test access.
+- [x] Reconcile repository README, dataset-card, review, and generated-result
+  numbers through v4; retain older flat-clip figures only where explicitly
+  labelled historical/provenance evidence.
+- [ ] Reconcile the final thesis manuscript and submission tables after the
+  remaining external evidence exists.
 
 Thesis narrative:
 
-- [ ] Distinguish prior ASR fine-tuning from Moshi response training.
-- [ ] Document final architecture, channel semantics, LoRA/embedding choices,
+- [x] Distinguish prior ASR fine-tuning from Moshi response training.
+- [x] Document final architecture, channel semantics, LoRA/embedding choices,
   timing, detector ownership, and browser control path.
-- [ ] Explain H100 training versus physical-4090 official evaluation.
-- [ ] Document selection, diarization, alignment, conditions, QA, authorization,
+- [x] Explain H100 training versus physical-4090 official evaluation.
+- [x] Document selection, diarization, alignment, conditions, QA, authorization,
   non-redistribution, split isolation, and limitations.
-- [ ] Compare cascade, base Moshika, adapted Moshika, and justified ablations
+- [x] Compare cascade, base Moshika, adapted Moshika, and justified ablations
   without conflating evidence.
 - [ ] Include real error analysis, successes, failures, and cautiously scoped
   elderly findings.
@@ -667,7 +673,9 @@ Thesis narrative:
 
 Final engineering audit:
 
-- [ ] Run:
+- [x] Run (2026-08-30: Ruff passed; mypy passed 48 source files; 128 tests
+  passed; all 8 upstream checks passed; final H100 preflight correctly rejects
+  only official target-hardware evaluation; release snapshot generated):
 
   ```bash
   .venv/bin/ruff check src tests scripts

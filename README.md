@@ -8,7 +8,7 @@ An evidence-first Persian speech prototype that keeps the microphone active duri
 |---|---|
 | Working spoken conversation | Implemented as NeMo Persian ASR → local Qwen2.5-0.5B (rule fallback) → Piper Persian TTS |
 | Full-duplex control | Continuous browser PCM16 stream, rolling energy/F0/MFCC detector, server stop event, client stop acknowledgement |
-| Direct speech LLM | V1 remains rejected for English drift/near-silence. V2 completed all 2,000 steps but failed the corrected complete-prompt official-runtime gates (best: step 400, 2/9). The bounded embedding-preserving v3 completed all 500 steps; complete-scope validation loss improved from 2.084004 to 1.879258, but its five candidates passed 0/9, 0/9, 0/9, 1/9, and 0/9 runtime rows. V3 therefore also failed closed. The fresh 14-session/11.894-hour final test remains untouched and no direct adapter is deployment-eligible. |
+| Direct speech LLM | V1 remains rejected for English drift/near-silence. V2 completed all 2,000 steps but failed the corrected complete-prompt official-runtime gates (best: step 400, 2/9). V3 (rank-128, embeddings frozen) completed 500 steps and passed at most 1/9 rows. V4 changed only two text embeddings, completed 500 steps, improved fixed-scope loss from 2.082125 to 1.879061, but passed only 1/9, 0/9, 0/9, 1/9, and 0/9 rows. V2–v4 all failed closed; their fresh 14-session/11.894-hour final test remains untouched and no direct adapter is deployment-eligible. |
 | 100–200 h conversation corpus | Full inventory: **775.887 h / 1,442 long episodes**. The production selection is **219.946 candidate h / 309 episodes** across four channels; 1,129 windows contain **207.154 automatically classified multi-speaker h**, **242.445 aligned staging h**, and **6,754 non-reused response pairs / 123.796 source-pair h**. The immutable Piper derivative is **108.584 measured stereo h**, inside the formal band |
 | Conversational interruption supervision | Raw speaker boundaries recover **770 conservative candidates** (717 interruption-like, 53 backchannel-like) from the 6,754 pairs. The preserved deterministic 24-row sheet was sampled from the earlier 712-candidate pool and covers all four channels / **168.3 seconds** of excerpt audio. They remain automatic candidates; **zero human-verified direct interruptions** are claimed under the waiver |
 | Barge-in >80% | Met only on harmonic synthetic held-out data; real speaker/session-held-out evidence is pending |
@@ -26,10 +26,11 @@ continuous 16 kHz microphone ─┬─> rolling energy/F0/MFCC barge-in ─> sto
 
 The bounded v3 experiment restored the pinned trainer's rank-128,
 embedding-frozen LoRA default while keeping v2 data, context, optimizer, seed,
-and output gates unchanged. Training, complete-scope reevaluation, and the
-official-runtime panel completed for steps 100–500. No candidate passed all
-nine rows, so selection returned null and the final-test firewall remained
-closed.
+and output gates unchanged. V4 then changed exactly one factor by training only
+`text_emb.weight` and `depformer_text_emb.weight` alongside the same rank-128
+LoRA, with all 23 audio embeddings frozen. Both completed steps 100–500 and
+failed the unchanged nine-row official-runtime eligibility rule. Selection
+returned null and the final-test firewall remained closed for both versions.
 
 The project server remains deliberately cascade-only until a Persian adapter passes every gate. The v1 adapter loads in Kyutai's pinned official server but fails autoregressive Persian output, so it cannot activate the direct path. Checkpoint metadata alone can never activate either that failed adapter or the legacy reconstruction artifact.
 
@@ -80,6 +81,7 @@ rotate it and replace the document with environment-variable placeholders.
 .venv/bin/python -m thesis_s2s.cli serve --study --retention features
 .venv/bin/python -m thesis_s2s.cli export-recordings
 .venv/bin/python -m thesis_s2s.cli study-summary
+.venv/bin/python -m thesis_s2s.cli evidence-status
 .venv/bin/python -m thesis_s2s.cli gpu-preflight
 .venv/bin/python -m thesis_s2s.cli release-snapshot
 .venv/bin/python scripts/audit_moshi_dependencies.py
@@ -145,6 +147,7 @@ See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/MOSHI_H100_RUNBOOK.md`,
 `docs/REPOSITORY_SECURITY.md`, `docs/METRICS.md`, `docs/HUMAN_STUDY.md`,
 `docs/NO_RECORDING_ALTERNATIVES.md`, `docs/GPU_4090_RUNBOOK.md`,
 `docs/MANUAL_QA_FA.md`, `docs/INTERRUPTION_QA_FA.md`,
+`docs/MOSHI_V4_SELECTION_PROTOCOL.md`, `docs/MOSHI_V4_RESULT.md`,
 `docs/RIGHTS_REVIEW_FA.md`, `docs/SUPERVISOR_DECISIONS.md`, and
 `docs/REVIEW.md`.
 

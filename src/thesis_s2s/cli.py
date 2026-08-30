@@ -418,6 +418,13 @@ def main(argv: list[str] | None = None) -> None:
     sub.add_parser("export-recordings")
     p_study_summary = sub.add_parser("study-summary")
     p_study_summary.add_argument("--out", type=Path, default=Path("results/eval/human_study.json"))
+    p_evidence = sub.add_parser("evidence-status")
+    p_evidence.add_argument(
+        "--out", type=Path, default=Path("results/eval/EVIDENCE_STATUS.json")
+    )
+    p_evidence.add_argument(
+        "--summary", type=Path, default=Path("results/eval/SUMMARY.md")
+    )
     p_gpu = sub.add_parser("gpu-preflight")
     p_gpu.add_argument("--out", type=Path, default=Path("results/hardware/gpu_preflight.json"))
     p_upstream = sub.add_parser("verify-upstreams")
@@ -845,6 +852,12 @@ def main(argv: list[str] | None = None) -> None:
         from thesis_s2s.runtime.session_log import SessionStore
 
         print(json.dumps(SessionStore().study_summary(args.out), indent=2, ensure_ascii=False))
+    elif args.cmd == "evidence-status":
+        from thesis_s2s.eval.evidence import build_evidence_status, write_evidence_summary
+
+        payload = build_evidence_status(args.out)
+        write_evidence_summary(args.summary, payload)
+        print(json.dumps(payload, indent=2, ensure_ascii=False))
     elif args.cmd == "gpu-preflight":
         from thesis_s2s.repro import gpu_preflight
 

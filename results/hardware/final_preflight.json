@@ -1,0 +1,543 @@
+{
+  "schema_version": 3,
+  "generated_at": "2026-08-30T12:56:48.485267+00:00",
+  "gpu": {
+    "device": "NVIDIA H100 NVL",
+    "total_gb": 93.09,
+    "official_size": false,
+    "path_b_possible": false
+  },
+  "nvidia_smi": {
+    "available": true,
+    "fields": [
+      "name",
+      "driver_version",
+      "memory_total_mib",
+      "memory_used_mib",
+      "memory_free_mib",
+      "utilization_gpu_percent"
+    ],
+    "rows": [
+      "NVIDIA H100 NVL, 595.71.05, 95830, 55230, 40092, 0"
+    ],
+    "devices": [
+      {
+        "name": "NVIDIA H100 NVL",
+        "driver_version": "595.71.05",
+        "memory_total_mib": 95830,
+        "memory_used_mib": 55230,
+        "memory_free_mib": 40092,
+        "utilization_gpu_percent": 0
+      }
+    ]
+  },
+  "torch": {
+    "version": "2.12.0+cu130",
+    "cuda_runtime": "13.0",
+    "cuda_available": true,
+    "bf16_supported": true
+  },
+  "is_rtx_4090": false,
+  "upstreams": {
+    "schema_version": 1,
+    "valid": true,
+    "checks": [
+      {
+        "name": "LLaMA-Omni2",
+        "revision": "c8afa9061a9c2d2c1919f7293f5492d946869752",
+        "pin_valid": true,
+        "checkout_present": false,
+        "checkout_matches": null
+      },
+      {
+        "name": "Mini-Omni2",
+        "revision": "75f450ea4e7dc1e52a7fc0e4dcf45b4c3d45ab98",
+        "pin_valid": true,
+        "checkout_present": false,
+        "checkout_matches": null
+      },
+      {
+        "name": "BayLing-Speech",
+        "revision": "c63fd7221d1e6c2d22c85e781bc61e842835ed53",
+        "pin_valid": true,
+        "checkout_present": false,
+        "checkout_matches": null
+      },
+      {
+        "name": "Freeze-Omni",
+        "revision": "163a24880e533b2a07038fb8dcfe02dbbb8457e6",
+        "pin_valid": true,
+        "checkout_present": false,
+        "checkout_matches": null
+      },
+      {
+        "name": "Moshi",
+        "revision": "061cc4c630d9e11722e08b7d02b1836ba58f30e8",
+        "pin_valid": true,
+        "checkout_present": true,
+        "checkout_matches": true,
+        "checkout_head": "061cc4c630d9e11722e08b7d02b1836ba58f30e8"
+      },
+      {
+        "name": "Moshi-Finetune",
+        "revision": "2acc879fe7c48f885a18f6cc9548bccb2674d87b",
+        "pin_valid": true,
+        "checkout_present": true,
+        "checkout_matches": true,
+        "checkout_head": "2acc879fe7c48f885a18f6cc9548bccb2674d87b"
+      },
+      {
+        "name": "Moshika-PyTorch-BF16",
+        "revision": "a49141e28b3d9c947cf9aa5314431e1b11cbd2f5",
+        "pin_valid": true,
+        "checkout_present": false,
+        "checkout_matches": null
+      },
+      {
+        "name": "Mana-Persian-Piper",
+        "revision": "ad9dd8518bedf517bd7cbc9f63b8e5c844bf5bc0",
+        "pin_valid": true,
+        "checkout_present": false,
+        "checkout_matches": null
+      }
+    ]
+  },
+  "conversation_data": {
+    "present": true,
+    "thesis_coverage_ok": false,
+    "training_ready_under_qa_waiver": true,
+    "path": "results/conversation_audit.json",
+    "staging_audit_path": "results/diarized_episode_audit_combined_authorized.json",
+    "yield_estimate_path": "results/conversation_yield_estimate_combined.json",
+    "qa_policy": {
+      "policy": "automatic_only_documented_waiver",
+      "path": "configs/conversation_qa_waiver.yaml",
+      "sha256": "4635426ad3ef5639e45b4cf7b78789485d098b24a9358568b3537e31ac1904f0",
+      "decision_date": "2026-08-24",
+      "decision_authority": "student_project_owner",
+      "reason": "insufficient_time_and_no_available_delegate",
+      "supervisor_approval_claimed": false,
+      "human_verified_data_claim_allowed": false,
+      "human_verified_interruption_claim_allowed": false,
+      "strict_thesis_data_coverage_claim_allowed": false,
+      "requirements": {
+        "schema_supported": true,
+        "status_acknowledged": true,
+        "policy_explicit": true,
+        "student_authority_explicit": true,
+        "supervisor_approval_not_claimed": true,
+        "reason_recorded": true,
+        "decision_date_recorded": true,
+        "limited_internal_training_explicit": true,
+        "both_reviews_waived": true,
+        "human_claims_disabled": true,
+        "best_practice_assets_preserved": true
+      },
+      "valid": true
+    },
+    "pairs": 6754,
+    "hours": 123.796,
+    "claims": {
+      "human_verified_data": false,
+      "human_verified_interruptions": false,
+      "strict_thesis_data_coverage": false
+    },
+    "staging": {
+      "present": true,
+      "windows": 1129,
+      "episodes": 309,
+      "automatic_multi_speaker_hours": 207.154,
+      "reference_aligned_hours": 242.445,
+      "automatic_gates_pass": true,
+      "manual_qa_complete": false
+    },
+    "yield_estimate": {
+      "present": true,
+      "pairs": 6754,
+      "hours": 123.796,
+      "hours_100_to_200": true,
+      "non_mutating": true
+    }
+  },
+  "human_review": {
+    "window_sheet": {
+      "path": "data/processed/manifests/conversation_manual_qa.csv",
+      "present": true,
+      "kind": "window",
+      "rows": 40,
+      "completed_rows": 0,
+      "pending_or_invalid_rows": 40,
+      "duplicate_ids": 0,
+      "complete": false,
+      "status_counts": {
+        "blank": 40
+      }
+    },
+    "window_application": {
+      "path": "results/manual_qa_report.json",
+      "present": false,
+      "valid": false
+    },
+    "interaction_sheet": {
+      "path": "data/processed/manifests/conversation_interruption_qa.csv",
+      "present": true,
+      "kind": "interaction_boundary",
+      "rows": 24,
+      "completed_rows": 0,
+      "pending_or_invalid_rows": 24,
+      "duplicate_ids": 0,
+      "complete": false,
+      "status_counts": {
+        "blank": 24
+      },
+      "passing_interruption_rows": 0
+    },
+    "interaction_application": {
+      "path": "results/interaction_qa_report.json",
+      "present": false,
+      "valid": false
+    }
+  },
+  "qa_waiver": {
+    "path": "configs/conversation_qa_waiver.yaml",
+    "present": true,
+    "valid": true,
+    "policy": "automatic_only_documented_waiver",
+    "sha256": "4635426ad3ef5639e45b4cf7b78789485d098b24a9358568b3537e31ac1904f0",
+    "decision_date": "2026-08-24",
+    "decision_authority": "student_project_owner",
+    "reason": "insufficient_time_and_no_available_delegate",
+    "supervisor_approval_claimed": false,
+    "human_verified_data_claim_allowed": false,
+    "human_verified_interruption_claim_allowed": false,
+    "strict_thesis_data_coverage_claim_allowed": false,
+    "requirements": {
+      "schema_supported": true,
+      "status_acknowledged": true,
+      "policy_explicit": true,
+      "student_authority_explicit": true,
+      "supervisor_approval_not_claimed": true,
+      "reason_recorded": true,
+      "decision_date_recorded": true,
+      "limited_internal_training_explicit": true,
+      "both_reviews_waived": true,
+      "human_claims_disabled": true,
+      "best_practice_assets_preserved": true
+    },
+    "selected_for_training": true
+  },
+  "moshi_environment": {
+    "path": "results/hardware/moshi_environment.json",
+    "present": true,
+    "valid": true,
+    "gpu": "NVIDIA H100 NVL",
+    "torch_cuda": "12.4",
+    "gates": {
+      "running_in_isolated_venv": true,
+      "cuda_available": true,
+      "bf16_supported": true,
+      "architecture_matches_pinned_loader": true,
+      "checkout_revisions_match": true,
+      "locked_package_versions_match": true,
+      "configs_parse": true,
+      "model_assets_load_and_schema_match": true,
+      "single_gpu_training_launcher_available": true
+    }
+  },
+  "moshi_wiring_smoke": {
+    "path": "results/hardware/moshi_h100_smoke.json",
+    "present": true,
+    "valid": true,
+    "status": "passed",
+    "wiring_gate_passes": true,
+    "scientific_evidence": false,
+    "hardware": {
+      "gpu": "NVIDIA H100 NVL",
+      "torch_cuda": "12.4",
+      "peak_allocated_gb": 15.258,
+      "allocated_gb_after_step": 15.123
+    },
+    "launcher": {
+      "entry_point": "scripts/moshi_train_entry.py",
+      "world_size": 1,
+      "backend": "gloo",
+      "backend_scope": "single-GPU compatibility fallback only",
+      "reason": "The bundled NCCL 2.21.5 reproducibly SIGSEGVs in libnccl during a minimal one-rank communicator init on this host. Gloo CUDA all-reduce passed and the trainer's world-size-one path is unsharded.",
+      "command": "MOSHI_DISTRIBUTED_BACKEND=gloo .venv-moshi/bin/torchrun --standalone --nproc-per-node 1 scripts/moshi_train_entry.py configs/moshi_h100_smoke.yaml"
+    },
+    "recorded_hashes_match_current_inputs": true
+  },
+  "moshi_export": {
+    "path": "results/moshi_export_report.json",
+    "present": true,
+    "valid": false,
+    "final_training_ready": false,
+    "exported_pairs": 6754,
+    "exported_hours": 108.584,
+    "valid_under_qa_waiver": true,
+    "training_ready_under_qa_waiver": true,
+    "qa_policy": {
+      "policy": "automatic_only_documented_waiver",
+      "path": "configs/conversation_qa_waiver.yaml",
+      "sha256": "4635426ad3ef5639e45b4cf7b78789485d098b24a9358568b3537e31ac1904f0",
+      "decision_date": "2026-08-24",
+      "decision_authority": "student_project_owner",
+      "reason": "insufficient_time_and_no_available_delegate",
+      "supervisor_approval_claimed": false,
+      "human_verified_data_claim_allowed": false,
+      "human_verified_interruption_claim_allowed": false,
+      "strict_thesis_data_coverage_claim_allowed": false,
+      "requirements": {
+        "schema_supported": true,
+        "status_acknowledged": true,
+        "policy_explicit": true,
+        "student_authority_explicit": true,
+        "supervisor_approval_not_claimed": true,
+        "reason_recorded": true,
+        "decision_date_recorded": true,
+        "limited_internal_training_explicit": true,
+        "both_reviews_waived": true,
+        "human_claims_disabled": true,
+        "best_practice_assets_preserved": true
+      },
+      "valid": true
+    },
+    "requirements": {
+      "response_pairs_exported": true,
+      "all_selected_pairs_exported": true,
+      "train_validation_test_present": true,
+      "training_hours_100_to_200": true,
+      "immutable_file_hashes_present": true,
+      "manual_verification_sample_present": false,
+      "training_authorization_complete": true,
+      "consistent_assistant_voice": true,
+      "assistant_voice_model_pinned": true,
+      "raw_redistribution_disabled": true
+    },
+    "waiver_requirements": {
+      "response_pairs_exported": true,
+      "all_selected_pairs_exported": true,
+      "train_validation_test_present": true,
+      "training_hours_100_to_200": true,
+      "immutable_file_hashes_present": true,
+      "training_authorization_complete": true,
+      "consistent_assistant_voice": true,
+      "assistant_voice_model_pinned": true,
+      "raw_redistribution_disabled": true,
+      "documented_qa_waiver_valid": true,
+      "all_pairs_declare_same_waiver": true,
+      "human_verified_claims_disabled": true
+    },
+    "claims": {
+      "human_verified_data": false,
+      "human_verified_interruptions": false,
+      "strict_thesis_data_coverage": false
+    }
+  },
+  "moshi_export_audit": {
+    "path": "results/moshi_export_audit.json",
+    "present": true,
+    "valid": true,
+    "matches_export_report": true,
+    "verified_export_pairs": 6754,
+    "verified_export_hours": 108.584,
+    "training_ready_under_qa_waiver": true,
+    "requirements": {
+      "source_manifest_hash_current": true,
+      "all_split_manifest_hashes_current": true,
+      "all_source_pairs_exported_once": true,
+      "all_file_header_metadata_and_hash_checks_pass": true,
+      "session_group_splits_isolated": true,
+      "train_validation_test_present": true,
+      "reported_pair_count_matches": true,
+      "reported_hours_match": true,
+      "channel_order_declared_assistant_0_user_1": true,
+      "actual_channel_order_and_user_audio_match": true,
+      "assistant_resynthesis_sample_matches": true,
+      "unreviewed_stratified_sample_prepared": true
+    }
+  },
+  "moshi_client_build": {
+    "path": "results/hardware/moshi_client_build.json",
+    "present": true,
+    "valid": true,
+    "production_audit_clean": true,
+    "input_hashes_match": true,
+    "dist_hashes_match": true,
+    "dist_path_safe": true,
+    "expected_dist_tree_sha256": "97bd1ac467c0556dd3414a209fcccd4586696a2e3d4a0704df889718061bca39",
+    "actual_dist_tree_sha256": "97bd1ac467c0556dd3414a209fcccd4586696a2e3d4a0704df889718061bca39"
+  },
+  "scheduling": {
+    "full_profile_probe": {
+      "path": "results/hardware/moshi_h100_profile_probe.json",
+      "present": true,
+      "valid": false,
+      "status": "passed",
+      "peak_allocated_gb": 22.707,
+      "recorded_hashes_match_current_inputs": false,
+      "checkpoint_save_certified": true
+    },
+    "current_free_memory_gb": 39.152,
+    "required_free_memory_gb_including_4gb_margin": 26.707,
+    "current_headroom_sufficient": false,
+    "note": "The 5-second rank-8 wiring smoke is a lower bound, not a memory certificate for the 20-second rank-64 embedding-tuning profile. Run the full-profile one-step probe after final data export and only while the shared H100 has sufficient free memory."
+  },
+  "training_config": "configs/moshi_h100.yaml",
+  "training_base_model": "kyutai/moshika-pytorch-bf16",
+  "training_objective": {
+    "model": "Moshika 7B LoRA via pinned Moshi-Finetune",
+    "input": "timed stereo user/assistant conversations",
+    "supervision": "assistant text tokens and Mimi assistant-speech tokens",
+    "learns": "Persian response generation, response audio, turn timing, and overlap behavior",
+    "not_asr": true
+  },
+  "official_upstream_training_entrypoint_available": true,
+  "configured_trainer_entrypoint": "third_party/checkouts/moshi-finetune/train.py",
+  "configured_project_launcher": "scripts/moshi_train_entry.py",
+  "base_model": {
+    "revision": "a49141e28b3d9c947cf9aa5314431e1b11cbd2f5",
+    "files": {
+      "model.safetensors": {
+        "path": "hf_cache/pinned/moshika-pytorch-bf16-a49141e/model.safetensors",
+        "expected_bytes": 15375500136,
+        "actual_bytes": 15375500136,
+        "expected_sha256": "e0a5a1c79010680eb916adb940ee8567978c78902c5a6b743c79202e75858712",
+        "actual_sha256": "e0a5a1c79010680eb916adb940ee8567978c78902c5a6b743c79202e75858712",
+        "matches_pin": true
+      },
+      "tokenizer-e351c8d8-checkpoint125.safetensors": {
+        "path": "hf_cache/pinned/moshika-pytorch-bf16-a49141e/tokenizer-e351c8d8-checkpoint125.safetensors",
+        "expected_bytes": 384644900,
+        "actual_bytes": 384644900,
+        "expected_sha256": "09b782f0629851a271227fb9d36db65c041790365f11bbe5d3d59369cf863f50",
+        "actual_sha256": "09b782f0629851a271227fb9d36db65c041790365f11bbe5d3d59369cf863f50",
+        "matches_pin": true
+      },
+      "tokenizer_spm_32k_3.model": {
+        "path": "hf_cache/pinned/moshika-pytorch-bf16-a49141e/tokenizer_spm_32k_3.model",
+        "expected_bytes": 552778,
+        "actual_bytes": 552778,
+        "expected_sha256": "78d4336533ddc26f9acf7250d7fb83492152196c6ea4212c841df76933f18d2d",
+        "actual_sha256": "78d4336533ddc26f9acf7250d7fb83492152196c6ea4212c841df76933f18d2d",
+        "matches_pin": true
+      }
+    },
+    "architecture_config": "configs/moshika_7b_legacy.json",
+    "architecture_config_present": true,
+    "valid": true
+  },
+  "assistant_voice_target": {
+    "path": "models/piper/fa_IR-mana-medium.onnx",
+    "expected_sha256": "e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126",
+    "actual_sha256": "e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126",
+    "matches_pin": true
+  },
+  "hardware_gates": {
+    "cuda_available": true,
+    "bf16_supported": true
+  },
+  "infrastructure_gates": {
+    "upstream_revisions_pinned": true,
+    "reviewed_training_entrypoint_available": true,
+    "project_training_launcher_available": true,
+    "base_model_files_pinned": true,
+    "assistant_voice_target_pinned": true,
+    "isolated_moshi_environment_valid": true,
+    "one_step_official_wiring_smoke_passes": true
+  },
+  "training_data_policy": "automatic_only_documented_waiver",
+  "strict_data_gates": {
+    "window_qa_sheet_complete": false,
+    "window_qa_applied_fail_closed": false,
+    "interaction_qa_sheet_complete": false,
+    "interaction_qa_applied_with_verified_interruption": false,
+    "conversational_data_audit_passes": false,
+    "moshi_export_final_training_ready": false,
+    "moshi_export_independent_audit_passes": true
+  },
+  "waiver_data_gates": {
+    "documented_qa_waiver_valid": true,
+    "best_practice_qa_assets_preserved": true,
+    "conversation_audit_ready_under_qa_waiver": true,
+    "conversation_audit_uses_current_waiver": true,
+    "moshi_export_ready_under_qa_waiver": true,
+    "moshi_export_independent_audit_passes": true,
+    "moshi_export_audit_ready_under_qa_waiver": true,
+    "moshi_export_uses_current_waiver": true,
+    "human_verification_claims_disabled": true
+  },
+  "data_gates": {
+    "documented_qa_waiver_valid": true,
+    "best_practice_qa_assets_preserved": true,
+    "conversation_audit_ready_under_qa_waiver": true,
+    "conversation_audit_uses_current_waiver": true,
+    "moshi_export_ready_under_qa_waiver": true,
+    "moshi_export_independent_audit_passes": true,
+    "moshi_export_audit_ready_under_qa_waiver": true,
+    "moshi_export_uses_current_waiver": true,
+    "human_verification_claims_disabled": true
+  },
+  "training_gates": {
+    "cuda_available": true,
+    "bf16_supported": true,
+    "upstream_revisions_pinned": true,
+    "reviewed_training_entrypoint_available": true,
+    "project_training_launcher_available": true,
+    "base_model_files_pinned": true,
+    "assistant_voice_target_pinned": true,
+    "isolated_moshi_environment_valid": true,
+    "one_step_official_wiring_smoke_passes": true,
+    "documented_qa_waiver_valid": true,
+    "best_practice_qa_assets_preserved": true,
+    "conversation_audit_ready_under_qa_waiver": true,
+    "conversation_audit_uses_current_waiver": true,
+    "moshi_export_ready_under_qa_waiver": true,
+    "moshi_export_independent_audit_passes": true,
+    "moshi_export_audit_ready_under_qa_waiver": true,
+    "moshi_export_uses_current_waiver": true,
+    "human_verification_claims_disabled": true
+  },
+  "evaluation_gates": {
+    "physical_gpu_12_to_24_gb": false,
+    "cuda_available": true
+  },
+  "strict_training_gates": {
+    "cuda_available": true,
+    "bf16_supported": true,
+    "upstream_revisions_pinned": true,
+    "reviewed_training_entrypoint_available": true,
+    "project_training_launcher_available": true,
+    "base_model_files_pinned": true,
+    "assistant_voice_target_pinned": true,
+    "isolated_moshi_environment_valid": true,
+    "one_step_official_wiring_smoke_passes": true,
+    "window_qa_sheet_complete": false,
+    "window_qa_applied_fail_closed": false,
+    "interaction_qa_sheet_complete": false,
+    "interaction_qa_applied_with_verified_interruption": false,
+    "conversational_data_audit_passes": false,
+    "moshi_export_final_training_ready": false,
+    "moshi_export_independent_audit_passes": true
+  },
+  "training_hardware_ready": true,
+  "trainer_stack_ready": true,
+  "training_data_ready": true,
+  "strict_training_data_ready": false,
+  "training_data_ready_under_qa_waiver": true,
+  "evaluation_hardware_ready": false,
+  "adaptation_run_ready": true,
+  "strict_adaptation_run_ready": false,
+  "adaptation_launch_safe_now": false,
+  "failed_adaptation_gates": [],
+  "failed_strict_data_gates": [
+    "window_qa_sheet_complete",
+    "window_qa_applied_fail_closed",
+    "interaction_qa_sheet_complete",
+    "interaction_qa_applied_with_verified_interruption",
+    "conversational_data_audit_passes",
+    "moshi_export_final_training_ready"
+  ],
+  "adaptation_status": "prerequisites_ready_waiting_for_safe_gpu_headroom",
+  "note": "The H100 is valid training hardware. A physical 12–24 GB GPU is required only for the final target-hardware fit and live-latency evidence. Moshi-Finetune is the pinned genuine response-audio trainer. Supervisor-approved internal training is recorded separately from raw-data redistribution, which remains disabled. The student-authorized QA waiver changes only limited internal training readiness; strict thesis readiness and all human-verification claims remain independently visible and false until the preserved reviews are actually completed."
+}

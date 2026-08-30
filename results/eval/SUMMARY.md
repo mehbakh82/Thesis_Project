@@ -1,35 +1,62 @@
-# Evaluation evidence status
+# Authoritative project evidence status
 
-**Verdict: no thesis-level end-to-end gate is currently satisfied by collected evidence.** Historical JSON files are retained for provenance but are component/synthetic proxies.
+Generated: `2026-08-30T12:59:12.975675+00:00`
 
-## Barge-in detector
+**Verdict:** `not_thesis_ready_evidence_gates_pending`. Thesis-ready: **false**.
 
-- Proposed GBDT: accuracy **1.0**, F1 1.0, FAR 0.0, FRR 0.0 (n=32)
-- Energy-VAD baseline: accuracy 0.375, FAR 1.0
-- Evidence class: **synthetic_proxy**. Recorded speaker/session-held-out evaluation is not collected, so the >80% thesis gate is pending.
-- CPU hop: ~8 ms (budget ≪ 20 ms)
+This table is generated from `EVIDENCE_STATUS.json`. Component and synthetic proxies are never promoted to official end-to-end evidence.
 
-## Historical latency proxy
+## Acceptance gates
 
-The old files timed server-side generation and simulated detector handling, not first audible browser playback and acknowledged browser stop. They also exercised a legacy `OmniTalker` that Piper bypassed; that checkpoint is now rejected by the runtime.
+| Gate | Passed |
+|---|---:|
+| `audited_export_100_to_200_hours` | yes |
+| `data_policy_resolved_under_documented_qa_waiver` | yes |
+| `deployment_eligible_persian_direct_model` | no |
+| `real_group_heldout_detector_above_80_percent` | no |
+| `physical_12_to_24_gb_fit_and_live_latency` | no |
+| `human_study_complete` | no |
+| `source_code_license_selected` | no |
 
-| Historical file | Hardware | Evidence class | Reported proxy |
-|---|---|---|---|
-| `latency_bench.json` | H100 NVL with 24 GB software cap | server/synthetic component, unofficial | 60 ms generation p50 / 18 ms detector p95 |
-| `latency_bench_path_b.json` | 93 GB H100 NVL uncapped | server/synthetic component, unofficial | 45 ms generation p50 / 16 ms detector p95 |
+## Dataset and export
 
-Neither row may be used to claim the ≤500 ms or ≤300 ms end-to-end gate. A memory cap does not turn an H100 into an eligible physical 12–24 GB GPU.
+| Measure | Value |
+|---|---:|
+| Conversation source pairs | 6,754 |
+| Conversation source hours | 123.796 |
+| Audited exported pairs | 6,754 |
+| Audited exported hours | 108.584 |
+| Train / validation / test pairs | 6,419 / 131 / 204 |
+| Session-group split leaks | 0 |
+| Automatic integrity audit | pass |
+| Human listening QA complete | no (waived) |
 
-Historical cascade server observations were ~1.1–2.4 s and already exceeded the target. Re-measure the corrected complete-reply cascade through the live browser protocol.
+## Direct Moshi trials and ablations
 
-## Speech quality
+| Trial | Context | LoRA rank | Embeddings trained | Candidates | Runtime passes per 9 | Minimum fixed-val loss | Deployment eligible |
+|---|---:|---:|---|---:|---|---:|---:|
+| v1 | 20.0 | 64 | upstream broad embedding switch | 16 | n/a | n/a | no |
+| v2 | 100 | 64 | upstream broad embedding switch | 20 | 0, 0, 0, 2, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 | 1.734574 | no |
+| v3 | 100.0 | 128 | none | 5 | 0, 0, 0, 1, 0 | 1.879258 | no |
+| v4 | 100.0 | 128 | depformer_text_emb.weight, text_emb.weight | 5 | 1, 0, 0, 1, 0 | 1.879061 | no |
 
-`reply_wer.json` has a mean WER of 104 over only three prompts. It is a failed/diagnostic ASR-on-TTS proxy, not evidence of acceptable naturalness or intelligibility. No valid MOS table has been collected.
+V1 was selected under its frozen loss protocol but failed later autoregressive runtime validation. V2–v4 each failed closed with zero eligible checkpoints; their frozen final tests remain untouched.
 
-## Human study
+## Detector, latency, and study evidence
 
-`human_study.json` is **incomplete**: one participant directory, one partial rating, zero turns, zero complete ratings, and no client timing. Required: 5–10 participants, at least two aged 60+, complete ratings, real detector evidence, and eligible hardware.
+| Area | Current evidence | Official gate |
+|---|---|---:|
+| Detector | synthetic_proxy; synthetic n=32, accuracy=1.0 | pending |
+| Hardware/latency | NVIDIA H100 NVL; official E2E rows=0 | pending |
+| Human study | participants=1, aged 60+=1, complete ratings=0 | pending |
+| Project license | not selected | pending |
 
-## Current use
+## Remaining requirements
 
-Run `serve --record --study` for collection, then `export-recordings` and `study-summary`. The authoritative artifact classification is `results/eval/EVIDENCE_STATUS.json`; metric semantics are in `docs/METRICS.md`.
+- Produce a validation-eligible Persian direct-model checkpoint before opening that experiment's frozen final test.
+- Collect recorded, speaker/session-group-held-out interruption evidence.
+- Run the final system and client-acknowledged latency protocol on a physical 12–24 GB GPU such as the planned RTX 4090.
+- Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+.
+- Select and add the project source-code license.
+
+No claim should exceed these evidence classes. In particular, the H100 measurements are engineering/training evidence, not physical-4090 official latency evidence, and synthetic detector accuracy is not a real held-out result.

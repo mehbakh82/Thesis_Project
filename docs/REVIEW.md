@@ -1,4 +1,4 @@
-# Comprehensive project review (updated 2026-08-27)
+# Comprehensive project review (updated 2026-08-30)
 
 ## Verdict
 
@@ -58,7 +58,7 @@ Corrections:
 - checkpoints declare `runtime_ready: false`;
 - legacy/untyped checkpoints fail closed;
 - serving is unconditionally cascade-only for the legacy artifact;
-- the genuine direct path now uses the pinned official Moshi runtime and LoRA trainer, a fail-closed stereo exporter, a production-audit-clean pinned local client, deterministic single-voice Persian assistant targets, immutable upstream metadata, and exact model-file verification. All three base blobs pass their pinned sizes and SHA-256 hashes. The waiver-bound export is complete at 6,754 pairs / 108.584 final stereo h; an independent audit verifies every artifact/channel/source interval with zero failures and reproduces 24/24 sampled assistant renders exactly. The exact full-shape H100 probe completed model/Mimi/data/loss/backward/fused-AdamW at loss 3.808453 and 22.707 GB peak, then wrote a real 967 MiB/699-tensor adapter through the CPU-offloaded checkpoint path. It was launch evidence only; subsequent v1 and v2 scientific runs completed but both failed the official-runtime generation gates described below.
+- the genuine direct path now uses the pinned official Moshi runtime and LoRA trainer, a fail-closed stereo exporter, a production-audit-clean pinned local client, deterministic single-voice Persian assistant targets, immutable upstream metadata, and exact model-file verification. All three base blobs pass their pinned sizes and SHA-256 hashes. The waiver-bound export is complete at 6,754 pairs / 108.584 final stereo h; an independent audit verifies every artifact/channel/source interval with zero failures and reproduces 24/24 sampled assistant renders exactly. The exact full-shape H100 probe completed model/Mimi/data/loss/backward/fused-AdamW at loss 3.808453 and 22.707 GB peak, then wrote a real 967 MiB/699-tensor adapter through the CPU-offloaded checkpoint path. It was launch evidence only; subsequent v1 through v4 scientific runs completed but all failed the official-runtime generation gates described below.
 
 The later scientific v1 run completed all 8,000 steps and objective held-out
 controls, but official-server validation exposed a decisive generation failure:
@@ -86,6 +86,13 @@ loaded in the official server, but their nine-row runtime pass counts were 0,
 step-400 pass, with increasing silence/text absence at later steps. V3 therefore
 also failed closed with zero eligible checkpoints; the final test remains
 untouched.
+
+V4 retained rank-128 LoRA and changed exactly one factor: it trained only the
+two text embeddings (`text_emb.weight` and `depformer_text_emb.weight`) while
+freezing all 23 audio embeddings. Its five complete-scope losses improved from
+2.082125 to 1.879061, but runtime pass counts were only 1, 0, 0, 1, and 0 out
+of nine. The hash-bound certificate therefore finalized v4 as another negative
+result with null selection and no final-test access.
 
 The working system is now honestly modular: NeMo ASR → locally cached Qwen2.5-0.5B (rules if unavailable) → Piper/formant TTS.
 

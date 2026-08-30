@@ -13,10 +13,10 @@
 - `estimate-conversation-yield` and `select-conversation-reserve` — non-mutating pair-yield estimation plus deterministic minimum whole-episode reserve selection under an explicit candidate-hour cap; neither claims training readiness.
 - `src/thesis_s2s/data/noise.py` — deterministic speech/nonspeech RMS estimate for real archived background-noise conditions; labels remain automatic until listening QA.
 - `src/thesis_s2s/data/moshi.py` — fail-closed conversion from authorized non-reused Persian response pairs to the official Moshi stereo dialogue schema, using a deterministic pinned Persian assistant voice for the primary run and source responses only as an ablation.
-- `configs/moshi_h100.yaml` — single-H100 LoRA profile for text and Mimi assistant-speech-token losses; `configs/moshi_h100_profile_probe.yaml` measures the exact training shape and writes one non-scientific adapter checkpoint before launch.
+- `configs/moshi_h100.yaml` and the frozen `moshi_h100_v2.yaml` through `moshi_h100_v4.yaml` profiles — the original and controlled single-H100 LoRA experiments for text and Mimi assistant-speech-token losses; their paired probe profiles measure exact trainable shapes before launch.
 - `scripts/moshi_train_entry.py` — unchanged pinned trainer routing plus a single-GPU Gloo fallback, fused AdamW, and single-GPU CPU-offloaded adapter saves that avoid material GPU temporaries on the shared H100; the exact launcher hash is a profile gate.
 - `scripts/validate_moshi_adapter.py` — hash/config binding, exact LoRA/embedding key-shape-dtype comparison against the pinned meta-model, finite-value scan, and optional official runtime load for the selected adapter.
-- `scripts/evaluate_moshi_adapter.py` — one-time full 331-chunk group-disjoint test evaluation with paired selected-adapter, deterministic LoRA-perturbation, and pinned-base text/audio/total loss evidence.
+- `scripts/evaluate_moshi_adapter.py` — historical v1 one-time group-disjoint test evaluation. Versioned v2–v4 final evaluators remain behind validation-eligibility firewalls; none was run because all three selections failed closed.
 - `third_party/UPSTREAMS.lock.json` — immutable Moshi runtime/trainer revisions and license boundaries.
 - `scripts/build_moshi_client.py` plus
   `third_party/overlays/moshi-client/` — exact-source/hash verification,
@@ -42,6 +42,7 @@
 - `src/thesis_s2s/data/factory.py` — data pipeline orchestration.
 - `src/thesis_s2s/bakeoff/codecs.py` — codec/component probes, not a comparative full-model benchmark.
 - `src/thesis_s2s/eval/bench.py` — component proxy measurements and evidence metadata. Official end-to-end latency comes only from live browser telemetry on eligible physical hardware.
+- `src/thesis_s2s/eval/evidence.py` — fail-closed aggregation of current dataset, v1–v4 model, detector, hardware, study, and release evidence into authoritative JSON plus generated Markdown tables without opening frozen final-test rows.
 - `src/thesis_s2s/metrics.py` — validated latency, detector, and hardware-gate calculations.
 
 See `docs/REVIEW.md` for the audit verdict and the remaining evidence required by the thesis definition.

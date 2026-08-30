@@ -5,7 +5,7 @@
 - Name: `fa-s2s-duplex-mix` (working title)
 - Language: Persian (fa-IR)
 - Intended use: train/evaluate a full-duplex speech-to-speech prototype
-- Last updated: 2026-08-24
+- Last updated: 2026-08-30
 
 ## Splits (status)
 
