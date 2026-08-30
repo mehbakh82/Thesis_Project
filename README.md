@@ -96,6 +96,16 @@ rotate it and replace the document with environment-variable placeholders.
 .venv/bin/python scripts/run_moshi_v3_posttraining.py
 .venv-moshi/bin/python scripts/record_moshi_v3_training_run.py
 
+# Frozen v4 protocol: rank-128 LoRA plus exactly two text embeddings.
+# Run preflight only from a clean, committed worktree; the probe and training
+# launches additionally require MOSHI_TEXT_EMBEDDINGS_ONLY=1.
+.venv/bin/python scripts/preflight_moshi_v4.py
+.venv/bin/python scripts/record_moshi_profile_probe.py --run-dir checkpoints/moshi_h100_100s_v4_text_embed_probe --probe-config configs/moshi_h100_v4_probe.yaml --full-config configs/moshi_h100_v4.yaml --embedding-policy configs/moshi_v4_embedding_policy.json --out results/hardware/moshi_h100_v4_profile_probe.json
+.venv/bin/python scripts/run_moshi_v4_posttraining.py --training-invocation-id <systemd-invocation-id> --launch-commit <training-launch-commit>
+.venv-moshi/bin/python scripts/record_moshi_v4_training_run.py --launch-commit <training-launch-commit> --service-unit <systemd-unit> --invocation-id <systemd-invocation-id>
+# Only after an eligible schema-6 selection and certificate are committed:
+.venv/bin/python scripts/run_moshi_v4_final.py
+
 # Historical v1 evidence
 .venv-moshi/bin/python scripts/reevaluate_moshi_checkpoints.py
 .venv/bin/python scripts/select_moshi_checkpoint.py

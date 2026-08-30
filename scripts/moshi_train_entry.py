@@ -8,13 +8,20 @@ import runpy
 import sys
 from pathlib import Path
 
+TEXT_EMBEDDING_PARAMETER_NAMES = frozenset(
+    {
+        "depformer_text_emb.weight",
+        "text_emb.weight",
+    }
+)
+
 
 def _configure_low_peak_adamw(torch_module) -> None:
     """Use fused AdamW updates to avoid full-size CUDA denominator temporaries."""
 
     original_adamw = torch_module.optim.AdamW
 
-    class LowPeakAdamW(original_adamw):
+    class LowPeakAdamW(original_adamw):  # type: ignore[misc, valid-type]
         def __init__(self, *args, **kwargs):
             requested = kwargs.get("foreach")
             if requested not in (None, False):
@@ -100,6 +107,46 @@ def _configure_repeatable_eval_loader(data_loader_module) -> None:
     os.environ["MOSHI_REPEATABLE_EVAL_LOADER_EFFECTIVE"] = "true"
 
 
+def _configure_text_embeddings_only(wrapped_model_module) -> None:
+    """Train the two text embeddings while keeping every audio embedding frozen."""
+
+    original_get_fsdp_model = wrapped_model_module.get_fsdp_model
+
+    def get_fsdp_model(args, checkpoint_info):
+        if args.full_finetuning or not args.lora.enable or args.lora.ft_embed:
+            raise RuntimeError(
+                "text-embedding-only mode requires LoRA, partial finetuning, and ft_embed=false"
+            )
+        model = original_get_fsdp_model(args, checkpoint_info)
+        parameters = dict(model.named_parameters())
+        missing = TEXT_EMBEDDING_PARAMETER_NAMES - parameters.keys()
+        if missing:
+            raise RuntimeError(f"missing required text embeddings: {sorted(missing)}")
+        for name in TEXT_EMBEDDING_PARAMETER_NAMES:
+            parameters[name].requires_grad = True
+        trainable_embeddings = {
+            name
+            for name, parameter in model.named_parameters()
+            if "emb" in name and parameter.requires_grad
+        }
+        if trainable_embeddings != TEXT_EMBEDDING_PARAMETER_NAMES:
+            raise RuntimeError(
+                "unexpected trainable embedding scope: "
+                f"{sorted(trainable_embeddings)}"
+            )
+        os.environ["MOSHI_TEXT_EMBEDDINGS_ONLY_EFFECTIVE"] = ",".join(
+            sorted(trainable_embeddings)
+        )
+        print(
+            "MOSHI_TEXT_EMBEDDINGS_ONLY_EFFECTIVE="
+            + os.environ["MOSHI_TEXT_EMBEDDINGS_ONLY_EFFECTIVE"],
+            flush=True,
+        )
+        return model
+
+    wrapped_model_module.get_fsdp_model = get_fsdp_model
+
+
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     checkout = root / "third_party" / "checkouts" / "moshi-finetune"
@@ -111,11 +158,17 @@ def main() -> None:
     import finetune.checkpointing as finetune_checkpointing
     import finetune.data.data_loader as finetune_data_loader
     import finetune.distributed as finetune_distributed
+    import finetune.wrapped_model as finetune_wrapped_model
     import torch
 
     _configure_low_peak_adamw(torch)
     _configure_low_peak_checkpoints(finetune_checkpointing, finetune_distributed, torch)
     _configure_repeatable_eval_loader(finetune_data_loader)
+    text_embedding_policy = os.environ.get("MOSHI_TEXT_EMBEDDINGS_ONLY", "0").strip()
+    if text_embedding_policy not in {"0", "1"}:
+        raise RuntimeError("MOSHI_TEXT_EMBEDDINGS_ONLY must be exactly 0 or 1")
+    if text_embedding_policy == "1":
+        _configure_text_embeddings_only(finetune_wrapped_model)
 
     if "CUDA_VISIBLE_DEVICES" not in os.environ:
         if torch.cuda.device_count() != 1:

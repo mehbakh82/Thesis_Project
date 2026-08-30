@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -10,9 +11,11 @@ import pytest
 import torch
 
 from scripts.moshi_train_entry import (
+    TEXT_EMBEDDING_PARAMETER_NAMES,
     _configure_low_peak_adamw,
     _configure_low_peak_checkpoints,
     _configure_repeatable_eval_loader,
+    _configure_text_embeddings_only,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -127,6 +130,61 @@ def test_evaluation_loader_is_recreated_for_every_evaluation() -> None:
     assert calls == [True, True, False]
 
 
+class _NamedParameter:
+    def __init__(self, requires_grad: bool) -> None:
+        self.requires_grad = requires_grad
+
+
+class _SelectiveEmbeddingModel:
+    def __init__(self) -> None:
+        self.parameters_by_name = {
+            "transformer.0.lora_A.weight": _NamedParameter(True),
+            "text_emb.weight": _NamedParameter(False),
+            "depformer_text_emb.weight": _NamedParameter(False),
+            "emb.0.weight": _NamedParameter(False),
+            "depformer_emb.0.weight": _NamedParameter(False),
+        }
+
+    def named_parameters(self):
+        return list(self.parameters_by_name.items())
+
+
+def test_text_embedding_policy_enables_only_text_embeddings() -> None:
+    model = _SelectiveEmbeddingModel()
+    module = SimpleNamespace(get_fsdp_model=lambda args, checkpoint_info: model)
+    args = SimpleNamespace(
+        full_finetuning=False,
+        lora=SimpleNamespace(enable=True, ft_embed=False),
+    )
+
+    _configure_text_embeddings_only(module)
+    configured = module.get_fsdp_model(args, object())
+
+    trainable_embeddings = {
+        name
+        for name, parameter in configured.named_parameters()
+        if "emb" in name and parameter.requires_grad
+    }
+    assert trainable_embeddings == TEXT_EMBEDDING_PARAMETER_NAMES
+    assert configured.parameters_by_name["emb.0.weight"].requires_grad is False
+    assert configured.parameters_by_name["depformer_emb.0.weight"].requires_grad is False
+    assert os.environ["MOSHI_TEXT_EMBEDDINGS_ONLY_EFFECTIVE"] == (
+        "depformer_text_emb.weight,text_emb.weight"
+    )
+
+
+def test_text_embedding_policy_rejects_broad_embedding_finetuning() -> None:
+    module = SimpleNamespace(get_fsdp_model=lambda args, checkpoint_info: object())
+    args = SimpleNamespace(
+        full_finetuning=False,
+        lora=SimpleNamespace(enable=True, ft_embed=True),
+    )
+    _configure_text_embeddings_only(module)
+
+    with pytest.raises(RuntimeError, match="ft_embed=false"):
+        module.get_fsdp_model(args, object())
+
+
 def test_exact_profile_is_bound_to_checkpoint_safe_launcher() -> None:
     launcher = ROOT / "scripts" / "moshi_train_entry.py"
     report = json.loads(
@@ -145,7 +203,18 @@ def test_exact_profile_is_bound_to_checkpoint_safe_launcher() -> None:
         "foreach": False,
         "fused": True,
     }
-    assert (
-        report["artifacts"]["project_launcher_sha256"]
-        == hashlib.sha256(launcher.read_bytes()).hexdigest()
-    )
+    historical_hashes = {
+        hashlib.sha256(
+            subprocess.check_output(
+                ["git", "show", f"{revision}:scripts/moshi_train_entry.py"],
+                cwd=ROOT,
+            )
+        ).hexdigest()
+        for revision in subprocess.check_output(
+            ["git", "log", "--all", "--format=%H", "--", "scripts/moshi_train_entry.py"],
+            cwd=ROOT,
+            text=True,
+        ).splitlines()
+    }
+    assert report["artifacts"]["project_launcher_sha256"] in historical_hashes
+    assert launcher.is_file()

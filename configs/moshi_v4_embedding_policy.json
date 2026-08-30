@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "mode": "text_embeddings_only",
+  "launcher_environment": {
+    "name": "MOSHI_TEXT_EMBEDDINGS_ONLY",
+    "required_value": "1"
+  },
+  "upstream_lora_ft_embed": false,
+  "expected_lora_tensor_count": 674,
+  "expected_total_adapter_tensor_count": 676,
+  "trainable_embedding_parameters": [
+    "depformer_text_emb.weight",
+    "text_emb.weight"
+  ],
+  "frozen_audio_embedding_parameters": [
+    "depformer_emb.0.weight",
+    "depformer_emb.1.weight",
+    "depformer_emb.2.weight",
+    "depformer_emb.3.weight",
+    "depformer_emb.4.weight",
+    "depformer_emb.5.weight",
+    "depformer_emb.6.weight",
+    "emb.0.weight",
+    "emb.1.weight",
+    "emb.2.weight",
+    "emb.3.weight",
+    "emb.4.weight",
+    "emb.5.weight",
+    "emb.6.weight",
+    "emb.7.weight",
+    "emb.8.weight",
+    "emb.9.weight",
+    "emb.10.weight",
+    "emb.11.weight",
+    "emb.12.weight",
+    "emb.13.weight",
+    "emb.14.weight",
+    "emb.15.weight"
+  ],
+  "allowed_trainable_parameter_rule": "all LoRA parameters plus exactly the two declared text embedding parameters",
+  "scientific_hypothesis": "V2's broad embedding tuning enabled limited Persian output but updated all audio embeddings and collapsed speech; v3 preserved audio embeddings but mostly retained English. Selective text-embedding tuning may learn Persian lexical tokens while preserving audio-codebook geometry."
+}

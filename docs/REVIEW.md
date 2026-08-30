@@ -149,10 +149,12 @@ Added:
 ## Irreducible path to 10/10
 
 1. Complete the 40-row window review and the 24-row interaction-candidate review. The latter uses existing internal-authorized audio and requires no recording; use a supplement or scope amendment only if its measured precision is unacceptable.
-2. Design any further controlled Moshi adaptation experiment from the preserved
-   v1/v2/v3 failure evidence, freeze it before training, and continue only if it
-   answers a defensible research question. V1, v2, and v3 are preserved negative
-   results and must not be presented as deployment-ready.
+2. Execute the already frozen v4 controlled experiment: rank-128 LoRA plus
+   exactly the two text embeddings, with every audio embedding frozen and all
+   v3 data/optimization/runtime gates unchanged. Run its exact-shape probe first,
+   then the bounded five-candidate experiment. Promote nothing unless all nine
+   validation prompts pass; otherwise preserve v4 as another negative result.
+   V1, v2, and v3 remain preserved negative results.
 3. Recruit 5–10 Persian speakers, including at least two aged 60+, and complete all ratings. If recruitment is formally waived, record the supervisor-approved alternative and narrow the claims accordingly.
 4. Run the live browser protocol on the physical 4090 and export client timing; the H100 is the correct training machine, while the 4090 is the target deployment/evaluation machine.
 5. Evaluate the detector on speaker/session-held-out real conversational audio and report confidence intervals.

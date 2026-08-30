@@ -74,10 +74,12 @@ def candidate_static_validation(
     expected_config: dict[str, Any],
     expected_schema: dict[str, dict[str, Any]],
     ft_embed: bool,
+    embedding_names: set[str] | frozenset[str] | None = None,
 ) -> dict[str, Any]:
     saved_config = json_object(config_path)
     actual_schema, all_values_finite, parameter_count = read_adapter_schema(adapter_path)
     schema_comparison = compare_adapter_schema(expected_schema, actual_schema)
+    selected_embeddings = set(embedding_names or ())
     requirements = {
         "adapter_hash_matches_reevaluation": candidate.get("adapter_sha256")
         == sha256_file(adapter_path),
@@ -86,7 +88,10 @@ def candidate_static_validation(
         "saved_config_matches_training": saved_config == expected_config,
         "all_adapter_values_finite": all_values_finite,
         "all_adapter_names_intended": all(
-            "lora" in key or (ft_embed and "emb" in key) for key in actual_schema
+            "lora" in key
+            or (ft_embed and "emb" in key)
+            or key in selected_embeddings
+            for key in actual_schema
         ),
         "adapter_schema_exact": schema_comparison["exact"] is True,
     }

@@ -56,6 +56,7 @@ def main() -> None:
         type=Path,
         default=Path("results/hardware/moshi_h100_profile_probe.json"),
     )
+    parser.add_argument("--embedding-policy", type=Path)
     cli = parser.parse_args()
 
     run_dir = (ROOT / cli.run_dir).resolve()
@@ -66,6 +67,9 @@ def main() -> None:
     environment_path = ROOT / "results" / "hardware" / "moshi_environment.json"
     export_path = ROOT / "results" / "moshi_export_report.json"
     launcher_path = ROOT / "scripts" / "moshi_train_entry.py"
+    embedding_policy_path = (
+        (ROOT / cli.embedding_policy).resolve() if cli.embedding_policy is not None else None
+    )
 
     adapter_path = run_dir / "checkpoints/checkpoint_000001/consolidated/lora.safetensors"
     adapter_config_path = adapter_path.with_name("config.json")
@@ -105,6 +109,31 @@ def main() -> None:
     if adapter_path.is_file():
         with safe_open(adapter_path, framework="pt", device="cpu") as adapter:
             adapter_keys = list(adapter.keys())
+    embedding_policy = (
+        _json(embedding_policy_path) if embedding_policy_path is not None else None
+    )
+    expected_embedding_keys = (
+        set(embedding_policy.get("trainable_embedding_parameters") or [])
+        if embedding_policy is not None
+        else set()
+    )
+    actual_embedding_keys = {key for key in adapter_keys if "emb" in key}
+    lora_keys = {key for key in adapter_keys if "lora" in key}
+    selective_policy_passes = (
+        embedding_policy is None
+        or (
+            embedding_policy.get("mode") == "text_embeddings_only"
+            and expected_embedding_keys
+            == {"depformer_text_emb.weight", "text_emb.weight"}
+            and actual_embedding_keys == expected_embedding_keys
+            and set(adapter_keys) == lora_keys | expected_embedding_keys
+            and len(lora_keys) == embedding_policy.get("expected_lora_tensor_count")
+            and len(adapter_keys)
+            == embedding_policy.get("expected_total_adapter_tensor_count")
+            and (embedding_policy.get("launcher_environment") or {})
+            == {"name": "MOSHI_TEXT_EMBEDDINGS_ONLY", "required_value": "1"}
+        )
+    )
 
     strict_export_valid = export.get("final_training_ready") is True
     export_policy = export.get("qa_policy") or {"policy": "strict"}
@@ -150,6 +179,18 @@ def main() -> None:
         "real_model_memory_allocated": float(metric.get("peak_allocated_mem") or 0.0) > 10.0,
         "project_launcher_uses_fused_adamw": fused_adamw_launcher,
         "project_launcher_offloads_single_gpu_adapter_save": cpu_checkpoint_launcher,
+        "selective_embedding_policy_passes": selective_policy_passes,
+        "selective_embedding_launcher_present": (
+            embedding_policy is None
+            or all(
+                marker in launcher_text
+                for marker in (
+                    "_configure_text_embeddings_only",
+                    "MOSHI_TEXT_EMBEDDINGS_ONLY",
+                    "MOSHI_TEXT_EMBEDDINGS_ONLY_EFFECTIVE",
+                )
+            )
+        ),
     }
     report = {
         "schema_version": 4,
@@ -188,7 +229,19 @@ def main() -> None:
             "adapter_copy_device": "cpu",
             "adapter_bytes": adapter_path.stat().st_size if adapter_path.is_file() else None,
             "adapter_tensor_count": len(adapter_keys),
+            "lora_tensor_count": len(lora_keys),
+            "embedding_parameters": sorted(actual_embedding_keys),
         },
+        "embedding_policy": (
+            {
+                "path": embedding_policy_path.relative_to(ROOT).as_posix(),
+                "sha256": _sha256(embedding_policy_path),
+                "mode": embedding_policy.get("mode"),
+                "trainable_embedding_parameters": sorted(expected_embedding_keys),
+            }
+            if embedding_policy_path is not None and embedding_policy is not None
+            else None
+        ),
         "full_profile_gate_passes": all(requirements.values()),
         "artifacts": {
             "metrics_sha256": _sha256(metrics_path),
@@ -198,6 +251,11 @@ def main() -> None:
             "environment_report_sha256": _sha256(environment_path),
             "export_report_sha256": _sha256(export_path),
             "project_launcher_sha256": _sha256(launcher_path),
+            "embedding_policy_sha256": (
+                _sha256(embedding_policy_path)
+                if embedding_policy_path is not None
+                else None
+            ),
             "probe_adapter_sha256": _sha256(adapter_path) if adapter_path.is_file() else None,
             "probe_adapter_config_sha256": _sha256(adapter_config_path)
             if adapter_config_path.is_file()

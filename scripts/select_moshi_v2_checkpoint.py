@@ -57,12 +57,13 @@ def runtime_protocol_valid(runtime: dict[str, Any], protocol_mode: str) -> bool:
             and correction.get("selection_criterion_changed") is False
             and correction.get("eligibility_thresholds_changed") is False
         )
-    if protocol_mode == "predeclared-v3":
+    if protocol_mode in {"predeclared-v3", "predeclared-v4"}:
         provenance = runtime.get("protocol_provenance") or {}
+        version = protocol_mode.removeprefix("predeclared-")
         return (
             common
             and runtime.get("protocol_predeclared_before_training") is True
-            and provenance.get("frozen_before_v3_optimizer_step") is True
+            and provenance.get(f"frozen_before_{version}_optimizer_step") is True
             and provenance.get("selection_criterion_changed_after_training") is False
             and provenance.get("eligibility_thresholds_changed_after_training") is False
         )
@@ -85,11 +86,19 @@ def select_checkpoint(
     config = load_yaml(config_path)
     reevaluation = json_object(reevaluation_path)
     runtime = json_object(runtime_path)
-    is_v3 = protocol_mode == "predeclared-v3"
-    if protocol_mode not in {"corrected-v2", "predeclared-v3"}:
+    predeclared_version = {
+        "predeclared-v3": "v3",
+        "predeclared-v4": "v4",
+    }.get(protocol_mode)
+    if protocol_mode not in {"corrected-v2", "predeclared-v3", "predeclared-v4"}:
         raise ValueError(f"unsupported Moshi protocol mode: {protocol_mode}")
-    expected_runtime_schema = 3 if is_v3 else 2
-    experiment_label = "v3" if is_v3 else "v2"
+    expected_runtime_schema = (
+        {"v3": 3, "v4": 4}[predeclared_version]
+        if predeclared_version is not None
+        else 2
+    )
+    experiment_label = predeclared_version or "v2"
+    is_predeclared = predeclared_version is not None
     max_steps = int(config["max_steps"])
     checkpoint_frequency = int(config["ckpt_freq"])
     expected_steps = list(range(checkpoint_frequency, max_steps + 1, checkpoint_frequency))
@@ -209,12 +218,16 @@ def select_checkpoint(
     )
     selection_passes = selected is not None
     report: dict[str, Any] = {
-        "schema_version": 5 if is_v3 else 4,
+        "schema_version": (
+            {"v3": 5, "v4": 6}[predeclared_version]
+            if predeclared_version is not None
+            else 4
+        ),
         "status": "passed" if selection_passes else "failed",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "criterion_predeclared_before_training": True,
-        "exact_runtime_panel_indices_predeclared_before_training": is_v3,
-        "runtime_panel_corrected_after_training": not is_v3,
+        "exact_runtime_panel_indices_predeclared_before_training": is_predeclared,
+        "runtime_panel_corrected_after_training": not is_predeclared,
         "criterion": (
             "among candidates passing exact artifact validation and every unchanged automatic "
             "gate on all nine deterministically selected complete-prompt official-server "
@@ -224,7 +237,7 @@ def select_checkpoint(
         ),
         "heldout_test_used_for_selection": False,
         "training_complete": True,
-        "selection_input_corrected_after_training": not is_v3,
+        "selection_input_corrected_after_training": not is_predeclared,
         "correction_changes_selection_criterion": False,
         "original_upstream_metrics_eligible_for_selection": False,
         "configured_max_steps": max_steps,
@@ -293,7 +306,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--protocol-mode",
-        choices=("corrected-v2", "predeclared-v3"),
+        choices=("corrected-v2", "predeclared-v3", "predeclared-v4"),
         default="corrected-v2",
     )
     args = parser.parse_args()

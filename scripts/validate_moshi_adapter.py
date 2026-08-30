@@ -108,6 +108,7 @@ def expected_adapter_schema(
     raw_config: dict[str, Any],
     *,
     ft_embed: bool,
+    embedding_names: set[str] | frozenset[str] | None = None,
 ) -> dict[str, dict[str, Any]]:
     import torch
     from moshi.models import loaders
@@ -120,10 +121,11 @@ def expected_adapter_schema(
         lora_weights=None,
         fuse_lora=False,
     )
+    selected_embeddings = set(embedding_names or ())
     schema = {
         name: {"shape": list(parameter.shape), "dtype": "BF16"}
         for name, parameter in model.named_parameters()
-        if "lora" in name or (ft_embed and "emb" in name)
+        if "lora" in name or (ft_embed and "emb" in name) or name in selected_embeddings
     }
     del model
     return schema
@@ -201,6 +203,7 @@ def validate_selected_adapter(
     base_config_path: Path,
     out_path: Path,
     runtime_device: str | None = None,
+    embedding_policy_path: Path | None = None,
     root: Path = ROOT,
 ) -> dict[str, Any]:
     selection_path = selection_path.resolve()
@@ -226,7 +229,7 @@ def validate_selected_adapter(
     runtime_validation_path: Path | None = None
     runtime_validation: dict[str, Any] | None = None
     runtime_validation_metadata = selection.get("runtime_validation")
-    if selection_schema in {3, 4}:
+    if selection_schema in {3, 4, 5, 6}:
         if not isinstance(runtime_validation_metadata, dict):
             raise ValueError("v2 selection has no runtime-validation provenance")
         runtime_validation_path = project_path(
@@ -256,9 +259,24 @@ def validate_selected_adapter(
         }
     )
 
+    embedding_policy: dict[str, Any] | None = None
+    embedding_names: set[str] = set()
+    if embedding_policy_path is not None:
+        embedding_policy_path = embedding_policy_path.resolve()
+        if not embedding_policy_path.is_relative_to(root.resolve()):
+            raise ValueError("embedding policy must stay within the project root")
+        embedding_policy = json_object(embedding_policy_path)
+        declared_names = embedding_policy.get("trainable_embedding_parameters")
+        if not isinstance(declared_names, list) or not declared_names or not all(
+            isinstance(name, str) and name for name in declared_names
+        ):
+            raise ValueError("embedding policy has no valid trainable embedding list")
+        embedding_names = set(declared_names)
+
     expected_schema = expected_adapter_schema(
         saved_config,
         ft_embed=lora_config.get("ft_embed") is True,
+        embedding_names=embedding_names,
     )
     actual_schema, all_values_finite, parameter_count = read_adapter_schema(adapter_path)
     schema_comparison = compare_adapter_schema(expected_schema, actual_schema)
@@ -274,7 +292,7 @@ def validate_selected_adapter(
             for candidate in candidates
             if isinstance(candidate, dict) and candidate.get("autoregressive_eligible") is True
         ]
-        if selection_schema in {3, 4, 5}
+        if selection_schema in {3, 4, 5, 6}
         else candidates
     )
     recomputed_selection = selected_candidate_by_rule(rule_candidates)
@@ -291,7 +309,7 @@ def validate_selected_adapter(
     )
 
     requirements = {
-        "selection_schema_supported": selection_schema in {2, 3, 4, 5},
+        "selection_schema_supported": selection_schema in {2, 3, 4, 5, 6},
         "selection_passed": selection.get("selection_passes") is True,
         "complete_prompt_protocol_disclosed": (
             (
@@ -305,7 +323,7 @@ def validate_selected_adapter(
                 )
             )
             or (
-                selection_schema == 5
+                selection_schema in {5, 6}
                 and selection.get("runtime_panel_corrected_after_training") is False
                 and selection.get("exact_runtime_panel_indices_predeclared_before_training") is True
                 and isinstance(
@@ -321,11 +339,11 @@ def validate_selected_adapter(
         is True,
         "validation_input_timing_disclosed": (
             (
-                selection_schema == 5
+                selection_schema in {5, 6}
                 and selection.get("selection_input_corrected_after_training") is False
             )
             or (
-                selection_schema != 5
+                selection_schema not in {5, 6}
                 and selection.get("selection_input_corrected_after_training") is True
             )
         ),
@@ -374,8 +392,20 @@ def validate_selected_adapter(
         "lora_scaling_matches": saved_config.get("lora_scaling") == lora_config.get("scaling"),
         "all_adapter_values_finite": all_values_finite,
         "all_adapter_names_intended": all(
-            "lora" in key or (lora_config.get("ft_embed") is True and "emb" in key)
+            "lora" in key
+            or (lora_config.get("ft_embed") is True and "emb" in key)
+            or key in embedding_names
             for key in actual_schema
+        ),
+        "selective_embedding_policy_matches": (
+            embedding_policy_path is None
+            or (
+                lora_config.get("ft_embed") is False
+                and embedding_names
+                == {"depformer_text_emb.weight", "text_emb.weight"}
+                and embedding_policy is not None
+                and embedding_policy.get("mode") == "text_embeddings_only"
+            )
         ),
         "adapter_schema_exact": schema_comparison["exact"] is True,
     }
@@ -453,6 +483,17 @@ def validate_selected_adapter(
             "lora_rank": saved_config.get("lora_rank"),
             "lora_scaling": saved_config.get("lora_scaling"),
             "embedding_finetuning": lora_config.get("ft_embed") is True,
+            "selective_embedding_parameters": sorted(embedding_names),
+            "embedding_policy": (
+                embedding_policy_path.relative_to(root).as_posix()
+                if embedding_policy_path is not None
+                else None
+            ),
+            "embedding_policy_sha256": (
+                sha256_file(embedding_policy_path)
+                if embedding_policy_path is not None
+                else None
+            ),
         },
         "schema_comparison": schema_comparison,
         "requirements": requirements,
@@ -486,6 +527,7 @@ def main() -> int:
         default=Path("results/moshi_adapter_validation.json"),
     )
     parser.add_argument("--runtime-device", choices=("cpu", "cuda"))
+    parser.add_argument("--embedding-policy", type=Path)
     args = parser.parse_args()
     report = validate_selected_adapter(
         selection_path=args.selection,
@@ -493,6 +535,7 @@ def main() -> int:
         base_config_path=args.base_config,
         out_path=args.out,
         runtime_device=args.runtime_device,
+        embedding_policy_path=args.embedding_policy,
     )
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0
