@@ -472,17 +472,20 @@ Corrective v2 run:
 - [x] Implement the hash-bound v4 protocol, machine-readable embedding policy,
   exact-schema preflight/probe recorder, validation-only candidate evaluator,
   schema-6 selector, training certificate, and conditional final-test firewall.
-- [ ] Pass the one-step v4 exact-shape probe, then complete the bounded 500-step
-  run and apply the unchanged five-candidate / nine-prompt gates. This line is
-  intentionally pending until real GPU evidence exists.
-- [ ] If and only if v4 selects an eligible checkpoint, commit that selection
-  and certificate before one-time final-test access; otherwise finalize v4 as a
-  negative result without reading the frozen test.
+- [x] Pass the one-step v4 exact-shape probe at 24.057 GB peak with a
+  676-tensor adapter, then complete all 500 bounded steps in 39m53s with five
+  exact checkpoints and finite losses.
+- [x] Apply the unchanged complete-scope and nine-prompt gates to every v4
+  candidate. Fixed-scope loss improves from 2.082125 to 1.879061, but runtime
+  pass counts are only 1/9, 0/9, 0/9, 1/9, and 0/9.
+- [x] Finalize v4 as a negative result: eligible count zero, selection null,
+  certificate passed, and no selected-adapter or final-test stage created.
+  `test_access_started=false` remains hash-bound.
 
 Exit remains open until a predeclared experiment yields a reproducible,
 loadable adapter that passes both scientific validation and frozen
-autoregressive Persian-output gates. V1, v2, and v3 are finalized negative
-results and must not be promoted; v4 is frozen and prepared but not yet run.
+autoregressive Persian-output gates. V1 through v4 are finalized negative
+results and must not be promoted.
 
 ## 7. Validate learning and model quality
 
@@ -709,7 +712,7 @@ privacy-safe repository at approved visibility, restricted handoff, immutable ta
 | Working Persian S2S prototype | Final adapter produces relevant, intelligible Persian speech live | Pending | Adapter hash, runtime logs, held-out output |
 | Full duplex | Mic remains active; interruption stops playback and becomes next-turn context | Control implemented; direct model pending | Client traces and continuation tests |
 | End-to-end ≤500 ms | Max `T_first_audio` ≤500 ms unless another statistic is predeclared; always p50/p95/max | Pending | Physical-4090 `official_e2e` telemetry |
-| Open base adapted to Persian | Moshika 7B LoRA trained on the waiver-bound Persian response pairs | V1, v2, and v3 are runtime-ineligible; v4 text-embedding-only protocol is frozen but unrun; no adapter is promoted and the final test is untouched | Config, logs, adapter hashes, validation reports |
+| Open base adapted to Persian | Moshika 7B LoRA trained on the waiver-bound Persian response pairs | V1 through v4 are runtime-ineligible; no adapter is promoted and the v2/v3/v4 final test remains untouched | Config, logs, adapter hashes, validation reports |
 | 100–200 conversational hours | Final audited/exported hours in range; group-clean, no reused intervals | **108.584 exported h**, 6,754/6,754 pairs, zero audit failures | Conversation audit/export report |
 | Noise/overlap/interruption labels | Conditions present, QA complete, verified interruption, agreed precision | Automatic only | QA reports and final counts |
 | Classical detector >80% | Real group-held-out event accuracy >80%, F1/FAR/FRR reported | Synthetic proxy only | Real held-out report/hash |
