@@ -730,8 +730,8 @@ Final engineering audit:
   package imports from that target, and remove the temporary checkout.
 - [x] Diagnose the red remote CI runs at `b15a38e`: two storage receipts exposed
   the local volume mount string and were correctly rejected by the privacy
-  audit. Replace it with a non-host-specific label and reproduce the audit
-  locally; the next pushed commit must be verified green before handoff.
+  audit. The host-specific strings were removed, the audit reproduced locally,
+  and the corrected full remote run `33314972249` passed at commit `24ec60f`.
 - [ ] Reproduce a deployment-eligible direct-adapter load and frozen held-out
   inference in a separately provisioned clean scientific environment. This is
   blocked honestly because v1–v4 produced no deployable adapter; opening a

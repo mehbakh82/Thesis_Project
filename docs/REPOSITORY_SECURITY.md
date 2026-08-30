@@ -49,6 +49,9 @@ Status date: 2026-08-30
   evidence were committed. Eleven representative adapters remain hash-verified;
   the receipt uses no private absolute host path and is included in the release
   snapshot and authoritative evidence aggregation.
+- The complete GitHub Actions run `33314972249` passed at commit `24ec60f` on
+  2026-08-30, including compile, lint, types, privacy/history, dependency,
+  test/coverage, and pinned-scientific-risk jobs.
 
 ## Accepted pinned-training compatibility risks
 
