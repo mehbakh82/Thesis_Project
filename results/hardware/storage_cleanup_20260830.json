@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "generated_at": "2026-08-30T13:16:53Z",
+  "source_commit": "f35f611bd4fcac678c0c03e51a3d545854763c56",
+  "reason": "Recover critically low workspace capacity after all Moshi v1-v4 experiments were finalized, while retaining representative adapters and every committed certificate, metric, runtime output, configuration, and hash.",
+  "scope": "repository-local ignored and generated artifacts only",
+  "space": {
+    "filesystem": "/mnt/md0",
+    "available_bytes_before": 22012612608,
+    "available_bytes_after": 62730715136,
+    "observed_phase_reclaimed_bytes": 40718569472,
+    "net_available_increase_bytes": 40718102528,
+    "project_du_before": "157G",
+    "project_du_after": "119G",
+    "filesystem_utilization_before": "98%",
+    "filesystem_utilization_after": "94%"
+  },
+  "removed": [
+    {
+      "category": "unreferenced_synthetic_plumbing_audio",
+      "path": "data/processed/synthetic",
+      "files": 9032,
+      "bytes": 2306073972,
+      "reason": "No code, configuration, test, result, or active training path referenced these WAV fixtures; synthetic data is not official thesis evidence."
+    },
+    {
+      "category": "reproducible_client_build_dependencies",
+      "paths": [
+        "data/processed/moshi_client_build/node_modules",
+        "third_party/checkouts/moshi/client/node_modules"
+      ],
+      "bytes": 491025458,
+      "reason": "Both dependency trees are reproducible from the preserved package locks; the attested production dist bundle remains."
+    },
+    {
+      "category": "superseded_one_step_probe_adapters",
+      "paths": [
+        "checkpoints/moshi_h100_100s_v3_no_embed_probe/checkpoints",
+        "checkpoints/moshi_h100_100s_v4_text_embed_probe/checkpoints"
+      ],
+      "bytes": 1879363532,
+      "reason": "The completed full v3/v4 runs supersede these one-step tensor payloads. Probe args, metrics, logs, reports, schemas, and hashes remain."
+    },
+    {
+      "category": "regenerable_tool_and_python_caches",
+      "paths": [
+        ".mypy_cache",
+        ".pytest_cache",
+        ".ruff_cache",
+        ".coverage",
+        "all repository __pycache__ directories"
+      ],
+      "reason": "Regenerable bytecode and analysis caches only."
+    },
+    {
+      "category": "non_promoted_negative_checkpoint_intermediates",
+      "removed_file_bytes": 35032321961,
+      "runs": {
+        "v1": {
+          "base": "checkpoints/moshi_fa/checkpoints",
+          "removed_steps": [1500, 2500, 3000, 3500, 4500, 5000, 5500, 6000, 6500, 7000, 7500],
+          "evidence": "results/hardware/moshi_h100_training.json"
+        },
+        "v2": {
+          "base": "checkpoints/moshi_fa_100s_v2/checkpoints",
+          "removed_steps": [100, 200, 300, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900],
+          "evidence": "results/moshi_v2_checkpoint_selection.json"
+        },
+        "v3": {
+          "base": "checkpoints/moshi_fa_100s_v3_no_embed/checkpoints",
+          "removed_steps": [100, 200, 300],
+          "evidence": "results/moshi_v3_checkpoint_selection.json"
+        },
+        "v4": {
+          "base": "checkpoints/moshi_fa_100s_v4_text_embed/checkpoints",
+          "removed_steps": [100, 200, 300],
+          "evidence": "results/moshi_v4_checkpoint_selection.json"
+        }
+      },
+      "reason": "All were non-promoted intermediates from finalized negative experiments. Exact hashes, losses, runtime outputs, configurations, and certificates remain committed; checkpoint fishing and final-test access remain prohibited."
+    },
+    {
+      "category": "superseded_local_release_snapshots",
+      "paths": [
+        "results/release/baseline_832c4d4.json",
+        "results/release/current_feasible_snapshot.json",
+        "results/release/snapshot.json"
+      ],
+      "reason": "Superseded by the tracked results/release/final_snapshot.json."
+    }
+  ],
+  "deduplicated_without_path_or_content_loss": [
+    {
+      "canonical": "data/processed/manifests/filtered.jsonl",
+      "aliases": ["data/processed/manifests/filtered_caption.jsonl"],
+      "sha256": "8a93f37419f37975ea8b4348762e8ce0d4ae610b5fd37210562e80b01b1e9dc0",
+      "bytes_saved": 277969156
+    },
+    {
+      "canonical": "data/processed/manifests/filtered_diarized.jsonl",
+      "aliases": ["data/processed/manifests/filtered_nemo_teacher.jsonl"],
+      "sha256": "178745a10c603a3ecd6dd2ec2da3577ce85d4a987db12f332ee2c49e02cc4f8f",
+      "bytes_saved": 193197621
+    },
+    {
+      "canonical": "data/processed/manifests/conversation_reserve_tabaghe16_windows_diarized.jsonl",
+      "aliases": [
+        "data/processed/manifests/conversation_reserve_tabaghe16_windows_noise_labeled.jsonl",
+        "data/processed/manifests/conversation_reserve_tabaghe16_windows_selected.jsonl"
+      ],
+      "sha256": "24ef94969737e5980767f657ad3301774e55b56b27828ed263edc1c6693ecdd5",
+      "bytes_saved": 77429796
+    }
+  ],
+  "retained_representative_adapters": {
+    "v1": {
+      "steps": [500, 1000, 2000, 4000, 8000],
+      "reason": "Every checkpoint used in the v1 post-selection runtime diagnosis, including the selected step 8000."
+    },
+    "v2": {
+      "steps": [400, 2000],
+      "reason": "Best runtime checkpoint and minimum-loss endpoint."
+    },
+    "v3": {
+      "steps": [400, 500],
+      "reason": "Only runtime-passing checkpoint and minimum-loss endpoint."
+    },
+    "v4": {
+      "steps": [400, 500],
+      "reason": "Best retained runtime checkpoint and minimum-loss endpoint."
+    },
+    "count": 11,
+    "all_sha256_match_committed_evidence": true
+  },
+  "protected_artifacts_untouched": [
+    "hf_cache/pinned",
+    ".venv-moshi",
+    "data/processed/conversations",
+    "data/processed/moshi_finetune",
+    "all real conversation/window/source audio",
+    "all manifests and manifest paths",
+    "all tracked results and certificates",
+    "results/release/final_snapshot.json"
+  ],
+  "postconditions": {
+    "all_retained_adapter_hashes_verified": true,
+    "deduplicated_manifest_hashes_unchanged": true,
+    "deduplicated_manifest_paths_present": true,
+    "pytest_passed": 128,
+    "ruff_passed": true,
+    "tests_and_lint_ran_without_persistent_caches": true,
+    "git_worktree_clean_before_receipt": true
+  },
+  "recoverability": {
+    "caches_node_modules_and_synthetic_plumbing": "regenerable",
+    "one_step_probe_adapters": "regenerable by rerunning the frozen probes, but expensive",
+    "removed_negative_intermediate_adapters": "not locally recoverable; exact hashes and all derived scientific evidence remain, and retraining would be required to recreate tensor payloads",
+    "deduplicated_manifests": "fully preserved at every original path via same-filesystem hard links"
+  }
+}

@@ -37,6 +37,7 @@ SNAPSHOT_FILES = (
     "results/diarization_smoke_h100.json",
     "results/hardware/current_preflight.json",
     "results/hardware/final_preflight.json",
+    "results/hardware/storage_cleanup_20260830.json",
     "results/hardware/moshi_environment.json",
     "results/hardware/moshi_h100_smoke.json",
     "results/hardware/moshi_h100_profile_probe.json",
