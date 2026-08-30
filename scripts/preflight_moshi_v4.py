@@ -7,11 +7,15 @@ import argparse
 import math
 import shutil
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from scripts.preflight_moshi_v3 import (
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from scripts.preflight_moshi_v3 import (  # noqa: E402
     DTYPE_BYTES,
     GIB,
     OFFICIAL_EXAMPLE_SHA256,
@@ -25,7 +29,6 @@ from scripts.preflight_moshi_v3 import (
     yaml_object,
 )
 
-ROOT = Path(__file__).resolve().parents[1]
 TEXT_EMBEDDINGS = {"depformer_text_emb.weight", "text_emb.weight"}
 EXPECTED_AUDIO_EMBEDDING_COUNT = 23
 
