@@ -155,5 +155,8 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert report["direct_moshi"]["trials"][3]["runtime_panel_pass_counts"] == [1, 0]
     assert report["direct_moshi"]["v2_v3_v4_final_test_access_started"] is False
     assert report["latency_and_hardware"]["official_e2e_rows"] == 0
+    assert report["detector"]["synthetic_accuracy_ci95_wilson"] == [0.8928, 1.0]
+    assert report["detector"]["synthetic_failures"] == 0
+    assert report["reporting_contract"]["failure_denominators_included"] is True
     assert report["release"]["source_code_license_selected"] is False
     assert json.loads(out.read_text(encoding="utf-8")) == report

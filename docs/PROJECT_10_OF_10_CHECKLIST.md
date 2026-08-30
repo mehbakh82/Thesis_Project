@@ -645,8 +645,9 @@ Evidence/statistics:
   is correctly zero.
 - [x] Generate current dataset/model/detector/latency/study/ablation/error tables
   from machine-readable results in `results/eval/SUMMARY.md`.
-- [ ] Include denominators, failures, uncertainty, seeds, split policy, and exact
-  metric definitions.
+- [x] Include denominators, observed failures, uncertainty where estimable,
+  explicit null/reasons where it is not, model seeds, session-group split
+  policy, and exact metric definitions in the generated status/report.
 - [x] Do not select thresholds, checkpoints, trials, or statistics after seeing
   held-out results; the v2–v4 selectors are validation-only, predeclared, and
   fail closed before final-test access.

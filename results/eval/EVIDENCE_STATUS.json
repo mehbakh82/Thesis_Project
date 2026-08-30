@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-08-30T12:59:12.975675+00:00",
+  "generated_at": "2026-08-30T13:05:30.145013+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -34,6 +34,24 @@
       "test": 204
     },
     "group_split_leaks": 0,
+    "audit_failure_counts": {},
+    "split_policy": {
+      "unit": "source_session_id",
+      "group_isolated": true,
+      "v2_v3_v4_rule": {
+        "group": "source_session_id",
+        "hash": "blake2b-64",
+        "modulus": 10,
+        "heldout_bucket": 0,
+        "frozen_before_v2_training": true
+      },
+      "v2_v3_v4_sessions": {
+        "train": 138,
+        "validation": 5,
+        "final_test": 14,
+        "all_pairwise_disjoint": true
+      }
+    },
     "automatic_integrity_audit_passed": true,
     "training_ready_under_documented_qa_waiver": true,
     "human_review_complete": false,
@@ -98,6 +116,7 @@
           1.7346090439046153,
           1.734574257889774
         ],
+        "fixed_validation_samples_per_candidate": 202,
         "runtime_panel_pass_counts": [
           0,
           0,
@@ -120,8 +139,34 @@
           0,
           0
         ],
+        "runtime_panel_failure_counts": [
+          9,
+          9,
+          9,
+          7,
+          8,
+          8,
+          8,
+          8,
+          9,
+          8,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9
+        ],
         "runtime_panel_size": 9,
         "selection_failed_closed": true,
+        "uncertainty": {
+          "interval": null,
+          "reason": "deterministic complete-scope loss and pass/fail eligibility rule"
+        },
         "test_access_started": false,
         "configuration": {
           "context_seconds": 100,
@@ -148,6 +193,7 @@
           1.8819008291339372,
           1.879257527556637
         ],
+        "fixed_validation_samples_per_candidate": 202,
         "runtime_panel_pass_counts": [
           0,
           0,
@@ -155,8 +201,19 @@
           1,
           0
         ],
+        "runtime_panel_failure_counts": [
+          9,
+          9,
+          9,
+          8,
+          9
+        ],
         "runtime_panel_size": 9,
         "selection_failed_closed": true,
+        "uncertainty": {
+          "interval": null,
+          "reason": "deterministic complete-scope loss and pass/fail eligibility rule"
+        },
         "test_access_started": false,
         "configuration": {
           "context_seconds": 100.0,
@@ -183,6 +240,7 @@
           1.8816324289130868,
           1.8790605066486492
         ],
+        "fixed_validation_samples_per_candidate": 202,
         "runtime_panel_pass_counts": [
           1,
           0,
@@ -190,8 +248,19 @@
           1,
           0
         ],
+        "runtime_panel_failure_counts": [
+          8,
+          9,
+          9,
+          8,
+          9
+        ],
         "runtime_panel_size": 9,
         "selection_failed_closed": true,
+        "uncertainty": {
+          "interval": null,
+          "reason": "deterministic complete-scope loss and pass/fail eligibility rule"
+        },
         "test_access_started": false,
         "configuration": {
           "context_seconds": 100.0,
@@ -208,13 +277,42 @@
       }
     ],
     "v2_v3_v4_final_test_access_started": false,
+    "v1_automatic_heldout_loss_evidence": {
+      "evidence_class": "automatic_model_loss_only",
+      "rows": 204,
+      "chunks": 331,
+      "selected_total_loss": {
+        "samples": 331,
+        "mean": 1.7272041083230523,
+        "standard_deviation": 1.3049469250712884,
+        "standard_error": 0.07172636988385822,
+        "ci95_low": 1.5866204233506902,
+        "ci95_high": 1.8677877932954143,
+        "minimum": 0.0029107597656548023,
+        "maximum": 4.5743095267462195
+      },
+      "human_perceptual_claim_allowed": false,
+      "deployment_claim_allowed": false
+    },
     "conclusion": "V1 through v4 are scientific training evidence, but none is eligible for deployment or thesis end-to-end claims."
   },
   "detector": {
     "evidence_class": "synthetic_proxy",
     "synthetic_accuracy": 1.0,
+    "synthetic_accuracy_ci95_wilson": [
+      0.8928,
+      1.0
+    ],
+    "synthetic_train_n": 128,
     "synthetic_n": 32,
+    "synthetic_failures": 0,
     "recorded_n": 0,
+    "recorded_uncertainty": {
+      "interval": null,
+      "reason": "no recorded held-out events"
+    },
+    "evaluation_unit": "event",
+    "split_policy": "speaker/session-group-held-out required for official evidence",
     "recorded_group_heldout_gate_passed": false
   },
   "latency_and_hardware": {
@@ -222,6 +320,11 @@
     "current_gpu_total_gb": 93.09,
     "physical_target_hardware_ready": false,
     "official_e2e_rows": 0,
+    "official_failures_or_timeouts": null,
+    "official_uncertainty": {
+      "interval": null,
+      "reason": "no qualifying official end-to-end rows"
+    },
     "reports": [
       {
         "path": "results/eval/latency_bench.json",
@@ -252,7 +355,20 @@
     "participants": 1,
     "elderly_participants": 1,
     "complete_ratings": 0,
+    "rating_denominator": 0,
+    "uncertainty": {
+      "interval": null,
+      "reason": "zero complete ratings"
+    },
     "official_ready": false
+  },
+  "reporting_contract": {
+    "metric_definitions": "docs/METRICS.md",
+    "failure_denominators_included": true,
+    "unavailable_intervals_are_explicit_nulls": true,
+    "model_seeds_reported_per_trial": true,
+    "session_group_split_policy_reported": true,
+    "no_post_test_selection": true
   },
   "release": {
     "source_code_license_selected": false,
@@ -291,11 +407,23 @@
       "bytes": 13128,
       "sha256": "1e2133a771f67e319300114ab8b6f72a7d1f8b247e7af308271da20893d19980"
     },
+    "moshi_v1_heldout_loss": {
+      "path": "results/moshi_heldout_model_eval.json",
+      "present": true,
+      "bytes": 10033,
+      "sha256": "7934bfab45549a1d4eca3fda1bada8de1f53ef8021a1ea894320fb1590feff54"
+    },
     "moshi_v1_protocol": {
       "path": "docs/MOSHI_SELECTION_PROTOCOL.md",
       "present": true,
       "bytes": 5520,
       "sha256": "f1fb6cfb12fad8bb1f025664640f76fb38bc18af939eda4ea078ab886adf6750"
+    },
+    "moshi_v2_split": {
+      "path": "results/moshi_v2_split.json",
+      "present": true,
+      "bytes": 1869,
+      "sha256": "c68fbd0191b4d2021399a5b7e8f5d392461ce7fc1c12b763ca40c0292c8f8103"
     },
     "moshi_v2_config": {
       "path": "configs/moshi_h100_v2.yaml",

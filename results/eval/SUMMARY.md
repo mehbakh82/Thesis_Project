@@ -1,6 +1,6 @@
 # Authoritative project evidence status
 
-Generated: `2026-08-30T12:59:12.975675+00:00`
+Generated: `2026-08-30T13:05:30.145013+00:00`
 
 **Verdict:** `not_thesis_ready_evidence_gates_pending`. Thesis-ready: **false**.
 
@@ -28,28 +28,36 @@ This table is generated from `EVIDENCE_STATUS.json`. Component and synthetic pro
 | Audited exported hours | 108.584 |
 | Train / validation / test pairs | 6,419 / 131 / 204 |
 | Session-group split leaks | 0 |
+| Machine audit failures | 0 |
+| Split policy | source-session-group isolated |
 | Automatic integrity audit | pass |
 | Human listening QA complete | no (waived) |
 
 ## Direct Moshi trials and ablations
 
-| Trial | Context | LoRA rank | Embeddings trained | Candidates | Runtime passes per 9 | Minimum fixed-val loss | Deployment eligible |
-|---|---:|---:|---|---:|---|---:|---:|
-| v1 | 20.0 | 64 | upstream broad embedding switch | 16 | n/a | n/a | no |
-| v2 | 100 | 64 | upstream broad embedding switch | 20 | 0, 0, 0, 2, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 | 1.734574 | no |
-| v3 | 100.0 | 128 | none | 5 | 0, 0, 0, 1, 0 | 1.879258 | no |
-| v4 | 100.0 | 128 | depformer_text_emb.weight, text_emb.weight | 5 | 1, 0, 0, 1, 0 | 1.879061 | no |
+| Trial | Context | Rank | Seed | Embeddings trained | Candidates | Val chunks/candidate | Runtime pass/fail per 9 | Min val loss | Eligible |
+|---|---:|---:|---:|---|---:|---:|---|---:|---:|
+| v1 | 20.0 | 64 | 20260823 | upstream broad embedding switch | 16 | n/a | n/a | n/a | no |
+| v2 | 100 | 64 | 20260827 | upstream broad embedding switch | 20 | 202 | 0/9, 0/9, 0/9, 2/7, 1/8, 1/8, 1/8, 1/8, 0/9, 1/8, 0/9, 0/9, 0/9, 0/9, 0/9, 0/9, 0/9, 0/9, 0/9, 0/9 | 1.734574 | no |
+| v3 | 100.0 | 128 | 20260827 | none | 5 | 202 | 0/9, 0/9, 0/9, 1/8, 0/9 | 1.879258 | no |
+| v4 | 100.0 | 128 | 20260827 | depformer_text_emb.weight, text_emb.weight | 5 | 202 | 1/8, 0/9, 0/9, 1/8, 0/9 | 1.879061 | no |
 
 V1 was selected under its frozen loss protocol but failed later autoregressive runtime validation. V2–v4 each failed closed with zero eligible checkpoints; their frozen final tests remain untouched.
+
+V1 automatic held-out loss evidence used 204 rows / 331 chunks: selected total-loss mean 1.7272041083230523 with 95% CI [1.5866204233506902, 1.8677877932954143]. This is automatic loss evidence only and does not repair the runtime failure or support a perceptual/deployment claim.
 
 ## Detector, latency, and study evidence
 
 | Area | Current evidence | Official gate |
 |---|---|---:|
-| Detector | synthetic_proxy; synthetic n=32, accuracy=1.0 | pending |
+| Detector | synthetic_proxy; train n=128, test n=32, failures=0, accuracy=1.0, 95% Wilson CI=[0.8928, 1.0] | pending |
 | Hardware/latency | NVIDIA H100 NVL; official E2E rows=0 | pending |
 | Human study | participants=1, aged 60+=1, complete ratings=0 | pending |
 | Project license | not selected | pending |
+
+## Reporting contract
+
+Denominators and observed failures are shown above. Model seeds are reported per trial; the Moshi data split is frozen by `source_session_id`. Confidence intervals are reported where estimable. Official latency, recorded-detector, and human-study intervals are explicitly null because their qualifying denominators are zero. Exact timing and acceptance definitions are in `docs/METRICS.md`.
 
 ## Remaining requirements
 
