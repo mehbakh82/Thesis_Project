@@ -92,7 +92,7 @@ SNAPSHOT_FILES = (
 )
 SNAPSHOT_GLOBS = (
     "models/piper/*",
-    "checkpoints/llama_omni2_fa/*.pt",
+    "checkpoints/llama_omni2_fa/persian_omni2*.pt",
     "results/bargein/*.pkl",
 )
 PACKAGE_NAMES = (

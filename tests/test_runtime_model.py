@@ -8,8 +8,8 @@ from thesis_s2s.runtime.cascade import CascadeTalker, TextResponder
 from thesis_s2s.runtime.duplex import DummyTalker, DuplexSession, default_talker
 
 
-def test_s2s_smoke_loss_drops():
-    report = train_smoke(steps=3, device="cpu")
+def test_s2s_smoke_loss_drops(tmp_path):
+    report = train_smoke(steps=3, device="cpu", out_dir=tmp_path)
     assert report["loss_last"] is not None
     assert report["steps"] == 3
 

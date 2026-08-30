@@ -308,11 +308,17 @@ def test_upstream_lock_and_release_snapshot(tmp_path: Path, monkeypatch):
     egg_info.mkdir()
     (egg_info / "PKG-INFO").write_text("generated", encoding="utf-8")
     (tmp_path / "README.md").write_text("snapshot", encoding="utf-8")
+    legacy_dir = tmp_path / "checkpoints" / "llama_omni2_fa"
+    legacy_dir.mkdir(parents=True)
+    (legacy_dir / "persian_omni2.pt").write_bytes(b"historical")
+    (legacy_dir / "dummy_adapter.pt").write_bytes(b"tests only")
     monkeypatch.setattr("thesis_s2s.repro.project_root", lambda: tmp_path)
     monkeypatch.setattr("thesis_s2s.repro.gpu_inventory", lambda: {"device": "test"})
     report = release_snapshot(tmp_path / "snapshot.json")
     assert report["file_count"] >= 5
     assert report["files"]["README.md"]["sha256"]
+    assert "checkpoints/llama_omni2_fa/persian_omni2.pt" in report["files"]
+    assert "checkpoints/llama_omni2_fa/dummy_adapter.pt" not in report["files"]
     assert "src/generated.egg-info/PKG-INFO" not in report["files"]
     assert (tmp_path / "snapshot.json").is_file()
 
