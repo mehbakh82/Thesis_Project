@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-30T13:09:12.870158+00:00",
+  "generated_at": "2026-08-30T13:19:11.060531+00:00",
   "python": "3.12.3",
   "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.39",
   "git": {
     "available": true,
-    "commit": "36a292bd1c4bc9546488c5117d543db797084289",
+    "commit": "c01bc9355a97c409bc3e55c6ab5385de0f9cc19d",
     "dirty": false
   },
   "gpu": {
@@ -75,7 +75,7 @@
       "bytes": 3080
     },
     "checkpoints/llama_omni2_fa/dummy_adapter.pt": {
-      "sha256": "dd276785490d655647872479a413a68289356fb11141e5952685eeceb2d86a6a",
+      "sha256": "396a1ab705a3c11c6782d29f4b40489d5fed351b5492186b029b7e7da7cfde47",
       "bytes": 170721
     },
     "checkpoints/llama_omni2_fa/persian_omni2.pt": {
@@ -453,6 +453,10 @@
     "results/hardware/moshi_v4_validation_pipeline.json": {
       "sha256": "345a1f9bc877d3a16dd129d48189c3e452eda281c4e4161695d95bb71b0f1854",
       "bytes": 4109
+    },
+    "results/hardware/storage_cleanup_20260830.json": {
+      "sha256": "270fca498cc741e123a715e8a66e9d2bdfc5cae74e43110b90e0e9d4298173a4",
+      "bytes": 6750
     },
     "results/moshi_adapter_validation.json": {
       "sha256": "4433b55c8ae8a912e1026fdba39bd4291b751f62de47feb80d26e88fd2169956",
@@ -855,8 +859,8 @@
       "bytes": 20909
     },
     "src/thesis_s2s/repro.py": {
-      "sha256": "39564507fadf521ebf201c2de8d7040e644312266b65c8bbc03049dd9f0f7e69",
-      "bytes": 47667
+      "sha256": "6bc1e0a10c031b523182812b8a17148f82bedafd98e79d777d32412da4164c6d",
+      "bytes": 47721
     },
     "src/thesis_s2s/runtime/__init__.py": {
       "sha256": "94dd29c6b3f956bdd1baee914fc4d86ae4e6ac4b41724cd34a76f3fde4f7d8b8",
@@ -1007,5 +1011,5 @@
       "bytes": 1220
     }
   },
-  "file_count": 238
+  "file_count": 239
 }
