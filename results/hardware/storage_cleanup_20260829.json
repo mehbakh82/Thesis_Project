@@ -7,7 +7,7 @@
   "free_space_observed": {
     "before": "4.8G",
     "after": "26G",
-    "filesystem": "/mnt/md0"
+    "filesystem": "local project workspace volume"
   },
   "recoverable_locally": false,
   "removed": [

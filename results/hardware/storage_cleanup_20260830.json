@@ -6,7 +6,7 @@
   "reason": "Recover critically low workspace capacity after all Moshi v1-v4 experiments were finalized, while retaining representative adapters and every committed certificate, metric, runtime output, configuration, and hash.",
   "scope": "repository-local ignored and generated artifacts only",
   "space": {
-    "filesystem": "/mnt/md0",
+    "filesystem": "local project workspace volume",
     "available_bytes_before": 22012612608,
     "available_bytes_after": 62730715136,
     "observed_phase_reclaimed_bytes": 40718569472,

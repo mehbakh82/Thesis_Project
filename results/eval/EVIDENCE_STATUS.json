@@ -1,6 +1,6 @@
 {
-  "schema_version": 3,
-  "generated_at": "2026-08-30T13:05:30.145013+00:00",
+  "schema_version": 4,
+  "generated_at": "2026-08-30T13:35:10.942390+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -296,6 +296,39 @@
     },
     "conclusion": "V1 through v4 are scientific training evidence, but none is eligible for deployment or thesis end-to-end claims."
   },
+  "local_artifact_retention": {
+    "evidence_class": "post_finalization_storage_receipt",
+    "cleanup_passed": true,
+    "observed_reclaimed_bytes": 40718569472,
+    "project_size_after": "119G",
+    "representative_adapter_count": 11,
+    "representative_adapter_steps": {
+      "v1": [
+        500,
+        1000,
+        2000,
+        4000,
+        8000
+      ],
+      "v2": [
+        400,
+        2000
+      ],
+      "v3": [
+        400,
+        500
+      ],
+      "v4": [
+        400,
+        500
+      ]
+    },
+    "all_retained_adapter_hashes_verified": true,
+    "full_candidate_tensor_sets_retained": false,
+    "scientific_results_configs_certificates_retained": true,
+    "deleted_candidate_tensor_recreation_requires_retraining": true,
+    "interpretation": "Candidate counts, hashes, losses, and runtime verdicts describe the certified historical experiments. Only representative adapter tensors remain locally after verified storage cleanup."
+  },
   "detector": {
     "evidence_class": "synthetic_proxy",
     "synthetic_accuracy": 1.0,
@@ -382,6 +415,27 @@
     "Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+.",
     "Select and add the project source-code license."
   ],
+  "remaining_work_classification": {
+    "active_evidence_gates": [
+      "Produce a validation-eligible Persian direct-model checkpoint before opening that experiment's frozen final test.",
+      "Collect recorded, speaker/session-group-held-out interruption evidence.",
+      "Run the final system and client-acknowledged latency protocol on a physical 12–24 GB GPU such as the planned RTX 4090.",
+      "Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+.",
+      "Select and add the project source-code license."
+    ],
+    "conditional_closeout_after_evidence": [
+      "Reconcile the thesis manuscript and generated tables with final evidence.",
+      "Freeze the final evidence bundle, commit/tag it, push it, and verify a fresh clone."
+    ],
+    "waived_not_completed": [
+      "40-row window listening QA",
+      "24-row interaction listening QA",
+      "24-pair assistant-audio listening QA"
+    ],
+    "platform_limited_not_a_scientific_gate": [
+      "Private-repository main-branch protection requires an eligible GitHub plan."
+    ]
+  },
   "artifact_provenance": {
     "conversation_audit": {
       "path": "results/conversation_audit.json",
@@ -470,8 +524,8 @@
     "moshi_v4_result": {
       "path": "docs/MOSHI_V4_RESULT.md",
       "present": true,
-      "bytes": 4057,
-      "sha256": "914fde0043c1fa262cabb17111e6178af3c1443dac067e84e0125889ecd21eb5"
+      "bytes": 4666,
+      "sha256": "73967abaebc22d126ecb5e9192714953bcf3be41fda7b718eaae2882e091bea4"
     },
     "interrupt_bench": {
       "path": "results/eval/interrupt_bench.json",
@@ -514,6 +568,12 @@
       "present": true,
       "bytes": 2493,
       "sha256": "7178cff7a723ac07e04a1b23c732e543df759af17471419ae4495b33f0fbcdc9"
+    },
+    "storage_cleanup": {
+      "path": "results/hardware/storage_cleanup_20260830.json",
+      "present": true,
+      "bytes": 6772,
+      "sha256": "117be8c193b92ca1f21ac314b5ab1be1e26b9fb0be2e575f8975e9370bdfee5b"
     }
   }
 }

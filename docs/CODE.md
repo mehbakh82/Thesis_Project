@@ -43,6 +43,9 @@
 - `src/thesis_s2s/bakeoff/codecs.py` — codec/component probes, not a comparative full-model benchmark.
 - `src/thesis_s2s/eval/bench.py` — component proxy measurements and evidence metadata. Official end-to-end latency comes only from live browser telemetry on eligible physical hardware.
 - `src/thesis_s2s/eval/evidence.py` — fail-closed aggregation of current dataset, v1–v4 model, detector, hardware, study, and release evidence into authoritative JSON plus generated Markdown tables without opening frozen final-test rows.
+- `results/hardware/storage_cleanup_20260830.json` — hash-verified local
+  retention receipt separating historically certified candidate sets from the
+  11 representative adapter tensors that remain after disk cleanup.
 - `src/thesis_s2s/metrics.py` — validated latency, detector, and hardware-gate calculations.
 
 See `docs/REVIEW.md` for the audit verdict and the remaining evidence required by the thesis definition.

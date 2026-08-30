@@ -24,8 +24,8 @@ speech and produce reliable Persian.
 - One-step probe: finite loss 3.573359, 24.057 GB peak, exact 676-tensor
   checkpoint (674 LoRA plus two text embeddings).
 - Scientific run: 500/500 steps in 39m53s, 28.640 GB maximum logged peak, 50
-  finite logged training losses, five retained exact 1,103,525,992-byte
-  adapters, and a clean service exit.
+  finite logged training losses, five exact 1,103,525,992-byte adapters present
+  at certification time, and a clean service exit.
 - Every checkpoint contained the same 674 LoRA tensors and only the two declared
   embeddings. Shapes, BF16 dtypes, values, saved configs, and hashes passed.
 - The complete fixed validation scope was 202 chunks. The held-out final test
@@ -63,6 +63,17 @@ The validation pipeline and training certificate passed because they correctly
 attest a negative experiment. Selected-adapter validation, objective final-test
 evaluation, final runtime diagnostics, and a final-pipeline receipt do not
 exist.
+
+## Post-finalization retention
+
+After v4 was certified and failed closed, disk-pressure cleanup retained the
+step-400 best-runtime and step-500 minimum-loss tensors. Steps 100–300 were
+non-promoted negative intermediates and were removed only after their exact
+hashes, losses, runtime outputs, schema checks, configurations, and certificates
+were committed. Recreating those three tensor payloads requires rerunning the
+frozen v4 recipe; the scientific result does not depend on their continued
+local presence. The verified receipt is
+`results/hardware/storage_cleanup_20260830.json`.
 
 ## Interpretation and next constraint
 

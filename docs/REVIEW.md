@@ -4,12 +4,18 @@
 
 The project has a strong thesis problem, useful infrastructure, and unusually good data-engineering effort, but the earlier implementation overstated two central claims: the trained artifact was not an end-to-end speech LLM, and the browser was not full duplex. The current revision corrects those claims, provides a functional modular cascade plus genuine continuous-microphone interruption control, constructs an auditable conversational training set, and adds a pinned official Moshi/Moshika LoRA path for genuine response-audio adaptation.
 
-Current engineering/research readiness: **8.8/10**. Earlier audited state: **about 4/10**. A defensible 10/10 cannot be produced entirely in code because the remaining points require a deployment-eligible Persian direct model, reviewer listening, human participants, and live measurements on the forthcoming physical 4090.
+Current engineering/research readiness: **8.8/10**. Earlier audited state:
+**about 4/10**. A defensible 10/10 cannot be produced entirely in code because
+the active remaining evidence requires a deployment-eligible Persian direct
+model, recorded detector events, human participants, and live measurements on
+the forthcoming physical 4090. The original unwaived rubric also requires the
+preserved listening reviews.
 
-The student has now explicitly waived both conversation listening reviews for
-the time-constrained limited training run. This improves auditability, not the
-score: strict readiness remains 8.8/10 because the reviews were designed and
-preserved but not performed.
+The student has explicitly waived the conversation and synthesized-assistant
+listening reviews for the time-constrained limited training run. The active
+machine gate records this policy as resolved, while every human-verification
+claim remains false. This improves auditability, not the strict unwaived score:
+the reviews were designed and preserved but not performed.
 
 ## Stage-by-stage assessment
 
@@ -94,6 +100,13 @@ freezing all 23 audio embeddings. Its five complete-scope losses improved from
 of nine. The hash-bound certificate therefore finalized v4 as another negative
 result with null selection and no final-test access.
 
+All candidate tensors existed and were hash-verified when their experiments
+were certified. After finalization, a receipt-backed cleanup reclaimed 37.92
+GiB while retaining 11 representative adapters and every result, configuration,
+runtime output, certificate, and candidate hash. The removed non-promoted
+negative intermediates require retraining for exact tensor recreation; their
+historical findings remain fully attested and cannot be reopened for selection.
+
 The working system is now honestly modular: NeMo ASR → locally cached Qwen2.5-0.5B (rules if unavailable) → Piper/formant TTS.
 
 ### 4. Barge-in
@@ -139,7 +152,9 @@ Added:
 - a natural-conversation response-pair builder with session-level splitting and fail-closed audit;
 - immutable upstream commit/license metadata;
 - physical-GPU preflight and release-snapshot hashing;
-- literal maximum latency reporting alongside p50/p95.
+- literal maximum latency reporting alongside p50/p95;
+- fail-closed aggregate evidence/status generation and explicit local artifact-
+  retention reporting.
 
 ## Scoring
 
@@ -155,21 +170,28 @@ Added:
 
 ## Irreducible path to 10/10
 
-1. Complete the 40-row window review and the 24-row interaction-candidate review. The latter uses existing internal-authorized audio and requires no recording; use a supplement or scope amendment only if its measured precision is unacceptable.
-2. Treat v4 as the completed negative result documented in
-   `docs/MOSHI_V4_RESULT.md`: selective text-embedding tuning did not produce a
-   runtime-eligible adapter. Do not launch another run by checkpoint fishing.
-   Any v5 must freeze a new data/objective hypothesis from validation-only
-   evidence before training; v1 through v4 remain preserved negatives.
-3. Recruit 5–10 Persian speakers, including at least two aged 60+, and complete all ratings. If recruitment is formally waived, record the supervisor-approved alternative and narrow the claims accordingly.
-4. Run the live browser protocol on the physical 4090 and export client timing; the H100 is the correct training machine, while the 4090 is the target deployment/evaluation machine.
-5. Evaluate the detector on speaker/session-held-out real conversational audio and report confidence intervals.
-6. Obtain human naturalness/satisfaction results for the final speech path.
-7. Confirm the repository release license with the author and preserve model/environment checksums plus the restricted-data provenance manifest. This is separate from permission to train internally on the source corpus.
+1. Freeze a new validation-only data/objective hypothesis and produce a Persian
+   direct checkpoint that passes the unchanged autoregressive eligibility
+   discipline. V1–v4 remain finalized negative results; no checkpoint fishing
+   or final-test access is allowed.
+2. Evaluate the detector on recorded speaker/session-held-out conversational
+   events and establish accuracy strictly above 80%, with F1/FAR/FRR and
+   confidence intervals.
+3. Run the eligible final model through the live browser protocol on the
+   physical 12–24 GB target GPU and export client-acknowledged timing/memory
+   evidence.
+4. Recruit 5–10 Persian speakers, including at least two aged 60+, and complete
+   consented ratings and naturalness/satisfaction/error analysis on the final
+   speech path.
+5. Select the project source-code license. This is separate from permission to
+   train internally on the restricted source corpus.
+6. Reconcile the final manuscript/tables, freeze hashes and evidence, tag/push
+   the submission, and verify a fresh full-history clone.
 
 Until these evidence-producing steps are completed, claiming 10/10 would reduce rather than improve the thesis quality.
 
-The documented student waiver enables a narrower automatic-label training
-experiment but does not close item 1 and is not represented as supervisor
-approval. Thesis methods and limitations must use the disclosure in
-`docs/QA_WAIVER.md`.
+The documented student waiver removes the three listening reviews from the
+active limited-scope work queue; it does not complete them or satisfy the
+original unwaived rubric. Thesis methods and limitations must use the
+disclosure in `docs/QA_WAIVER.md`, and no human-verified data/interruption claim
+is allowed.

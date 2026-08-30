@@ -39,6 +39,7 @@ ARTIFACTS: dict[str, str] = {
     "latency_h100_capped": "results/eval/latency_bench.json",
     "latency_h100_uncapped": "results/eval/latency_bench_path_b.json",
     "metrics_definition": "docs/METRICS.md",
+    "storage_cleanup": "results/hardware/storage_cleanup_20260830.json",
 }
 
 
@@ -221,6 +222,7 @@ def build_evidence_status(
     v4_selection = _read_json(project, ARTIFACTS["moshi_v4_selection"])
     interrupt = _read_json(project, ARTIFACTS["interrupt_bench"])
     study = _read_json(project, ARTIFACTS["human_study"])
+    cleanup = _read_json(project, ARTIFACTS["storage_cleanup"])
     final_hardware_path = project / "results/hardware/final_preflight.json"
     hardware = (
         _read_json(project, "results/hardware/final_preflight.json")
@@ -315,6 +317,17 @@ def build_evidence_status(
     ]
     source_license_selected = bool(license_files)
     official_rows, official_reports = _official_e2e_reports(project)
+    retained_adapters = cleanup.get("retained_representative_adapters") or {}
+    removed_categories = {
+        str(item.get("category"))
+        for item in cleanup.get("removed") or []
+        if isinstance(item, dict)
+    }
+    negative_intermediates_removed = (
+        "non_promoted_negative_checkpoint_intermediates" in removed_categories
+    )
+    cleanup_postconditions = cleanup.get("postconditions") or {}
+    cleanup_space = cleanup.get("space") or {}
 
     gates = {
         "audited_export_100_to_200_hours": audited_export_ready,
@@ -349,7 +362,7 @@ def build_evidence_status(
     }
 
     payload: dict[str, Any] = {
-        "schema_version": 3,
+        "schema_version": 4,
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "authoritative": True,
         "thesis_ready": thesis_ready,
@@ -426,6 +439,38 @@ def build_evidence_status(
                 "deployment or thesis end-to-end claims."
             ),
         },
+        "local_artifact_retention": {
+            "evidence_class": "post_finalization_storage_receipt",
+            "cleanup_passed": bool(cleanup.get("status") == "passed"),
+            "observed_reclaimed_bytes": int(
+                cleanup_space.get("observed_phase_reclaimed_bytes") or 0
+            ),
+            "project_size_after": cleanup_space.get("project_du_after"),
+            "representative_adapter_count": int(retained_adapters.get("count") or 0),
+            "representative_adapter_steps": {
+                version: list((retained_adapters.get(version) or {}).get("steps") or [])
+                for version in ("v1", "v2", "v3", "v4")
+            },
+            "all_retained_adapter_hashes_verified": bool(
+                cleanup_postconditions.get("all_retained_adapter_hashes_verified")
+                and retained_adapters.get("all_sha256_match_committed_evidence")
+            ),
+            "full_candidate_tensor_sets_retained": bool(
+                cleanup and not negative_intermediates_removed
+            ),
+            "scientific_results_configs_certificates_retained": bool(
+                "all tracked results and certificates"
+                in (cleanup.get("protected_artifacts_untouched") or [])
+            ),
+            "deleted_candidate_tensor_recreation_requires_retraining": bool(
+                negative_intermediates_removed
+            ),
+            "interpretation": (
+                "Candidate counts, hashes, losses, and runtime verdicts describe the "
+                "certified historical experiments. Only representative adapter tensors "
+                "remain locally after verified storage cleanup."
+            ),
+        },
         "detector": {
             "evidence_class": interrupt.get("evidence_class") or "missing",
             "synthetic_accuracy": proposed.get("accuracy"),
@@ -483,6 +528,23 @@ def build_evidence_status(
             "immutable_submission_tag_created": False,
         },
         "required_to_complete": [text for gate, text in required.items() if not gates[gate]],
+        "remaining_work_classification": {
+            "active_evidence_gates": [
+                text for gate, text in required.items() if not gates[gate]
+            ],
+            "conditional_closeout_after_evidence": [
+                "Reconcile the thesis manuscript and generated tables with final evidence.",
+                "Freeze the final evidence bundle, commit/tag it, push it, and verify a fresh clone.",
+            ],
+            "waived_not_completed": [
+                "40-row window listening QA",
+                "24-row interaction listening QA",
+                "24-pair assistant-audio listening QA",
+            ],
+            "platform_limited_not_a_scientific_gate": [
+                "Private-repository main-branch protection requires an eligible GitHub plan."
+            ],
+        },
         "artifact_provenance": _artifact_provenance(project),
     }
     if out is not None:
@@ -503,6 +565,7 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
     latency = payload.get("latency_and_hardware") or {}
     study = payload.get("human_study") or {}
     release = payload.get("release") or {}
+    retention = payload.get("local_artifact_retention") or {}
     v1_loss_evidence = direct.get("v1_automatic_heldout_loss_evidence") or {}
     v1_total_loss = v1_loss_evidence.get("selected_total_loss") or {}
     split_counts = data.get("split_counts") or {}
@@ -589,6 +652,27 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             f"[{v1_total_loss.get('ci95_low')}, {v1_total_loss.get('ci95_high')}]. "
             "This is automatic loss evidence only and does not repair the runtime failure "
             "or support a perceptual/deployment claim.",
+            "",
+            "## Local artifact retention",
+            "",
+            f"The verified post-finalization cleanup reclaimed "
+            f"{retention.get('observed_reclaimed_bytes', 0) / (1024**3):.2f} GiB and "
+            f"retains {retention.get('representative_adapter_count', 0)} representative "
+            "adapter tensors. Retained steps: "
+            + "; ".join(
+                f"{version}={steps}"
+                for version, steps in (
+                    retention.get("representative_adapter_steps") or {}
+                ).items()
+            )
+            + ".",
+            "",
+            "All retained adapter hashes match committed evidence, and all scientific "
+            "results, configurations, runtime outputs, and certificates remain. The full "
+            "set of negative intermediate tensors is intentionally not retained; exact "
+            "tensor recreation would require rerunning the frozen training recipes. "
+            "Historical candidate counts and verdicts remain attested by their committed "
+            "certificates.",
             "",
             "## Detector, latency, and study evidence",
             "",

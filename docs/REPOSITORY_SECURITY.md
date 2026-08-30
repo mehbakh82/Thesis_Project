@@ -1,6 +1,6 @@
 # Repository security and reproducibility review
 
-Status date: 2026-08-24
+Status date: 2026-08-30
 
 ## Controls that are enforced
 
@@ -24,9 +24,9 @@ Status date: 2026-08-24
 - GitHub dependency vulnerability alerts and automated security fixes are
   enabled; the authenticated API reports alerts available and automated fixes
   `enabled=true`, `paused=false`.
-- CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 47
+- CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 48
   source files against the Python 3.10 target.
-- The measured branch-aware coverage is 62%; the enforced floor is 60%, raised
+- The measured branch-aware coverage is 63%; the enforced floor is 60%, raised
   from 35% while retaining a small non-flaky margin. Core conversation,
   Moshi-export, QA-policy, rights, and preflight modules are substantially above
   the aggregate.
@@ -44,6 +44,11 @@ Status date: 2026-08-24
   (five high, three moderate, zero critical) belong only to build-time tooling,
   which receives pinned trusted inputs in an ephemeral container. Any critical
   finding fails the build, and the npm development server is prohibited.
+- Post-finalization storage cleanup removed only ignored/regenerable assets and
+  non-promoted negative checkpoint tensors after their hashes and derived
+  evidence were committed. Eleven representative adapters remain hash-verified;
+  the receipt uses no private absolute host path and is included in the release
+  snapshot and authoritative evidence aggregation.
 
 ## Accepted pinned-training compatibility risks
 

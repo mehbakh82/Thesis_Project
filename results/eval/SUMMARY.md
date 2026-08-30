@@ -1,6 +1,6 @@
 # Authoritative project evidence status
 
-Generated: `2026-08-30T13:05:30.145013+00:00`
+Generated: `2026-08-30T13:35:10.942390+00:00`
 
 **Verdict:** `not_thesis_ready_evidence_gates_pending`. Thesis-ready: **false**.
 
@@ -45,6 +45,12 @@ This table is generated from `EVIDENCE_STATUS.json`. Component and synthetic pro
 V1 was selected under its frozen loss protocol but failed later autoregressive runtime validation. V2–v4 each failed closed with zero eligible checkpoints; their frozen final tests remain untouched.
 
 V1 automatic held-out loss evidence used 204 rows / 331 chunks: selected total-loss mean 1.7272041083230523 with 95% CI [1.5866204233506902, 1.8677877932954143]. This is automatic loss evidence only and does not repair the runtime failure or support a perceptual/deployment claim.
+
+## Local artifact retention
+
+The verified post-finalization cleanup reclaimed 37.92 GiB and retains 11 representative adapter tensors. Retained steps: v1=[500, 1000, 2000, 4000, 8000]; v2=[400, 2000]; v3=[400, 500]; v4=[400, 500].
+
+All retained adapter hashes match committed evidence, and all scientific results, configurations, runtime outputs, and certificates remain. The full set of negative intermediate tensors is intentionally not retained; exact tensor recreation would require rerunning the frozen training recipes. Historical candidate counts and verdicts remain attested by their committed certificates.
 
 ## Detector, latency, and study evidence
 

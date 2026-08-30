@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from thesis_s2s.eval.evidence import build_evidence_status
+from thesis_s2s.eval.evidence import build_evidence_status, render_evidence_summary
 
 
 def _write(root: Path, relative: str, payload: dict) -> None:
@@ -137,6 +137,33 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
         },
     )
 
+    _write(
+        tmp_path,
+        "results/hardware/storage_cleanup_20260830.json",
+        {
+            "status": "passed",
+            "space": {
+                "observed_phase_reclaimed_bytes": 40_718_569_472,
+                "project_du_after": "119G",
+            },
+            "removed": [
+                {"category": "non_promoted_negative_checkpoint_intermediates"}
+            ],
+            "retained_representative_adapters": {
+                "v1": {"steps": [500, 1000, 2000, 4000, 8000]},
+                "v2": {"steps": [400, 2000]},
+                "v3": {"steps": [400, 500]},
+                "v4": {"steps": [400, 500]},
+                "count": 11,
+                "all_sha256_match_committed_evidence": True,
+            },
+            "protected_artifacts_untouched": [
+                "all tracked results and certificates"
+            ],
+            "postconditions": {"all_retained_adapter_hashes_verified": True},
+        },
+    )
+
     out = tmp_path / "results/eval/EVIDENCE_STATUS.json"
     report = build_evidence_status(
         out,
@@ -145,6 +172,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
 
     assert report["authoritative"] is True
+    assert report["schema_version"] == 4
     assert report["thesis_ready"] is False
     assert report["generation_policy"]["reads_frozen_final_test_rows"] is False
     assert report["gates"]["audited_export_100_to_200_hours"] is True
@@ -154,9 +182,22 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert report["direct_moshi"]["deployment_eligible"] is False
     assert report["direct_moshi"]["trials"][3]["runtime_panel_pass_counts"] == [1, 0]
     assert report["direct_moshi"]["v2_v3_v4_final_test_access_started"] is False
+    assert report["local_artifact_retention"]["cleanup_passed"] is True
+    assert report["local_artifact_retention"]["representative_adapter_count"] == 11
+    assert report["local_artifact_retention"]["full_candidate_tensor_sets_retained"] is False
+    assert (
+        report["local_artifact_retention"][
+            "scientific_results_configs_certificates_retained"
+        ]
+        is True
+    )
     assert report["latency_and_hardware"]["official_e2e_rows"] == 0
     assert report["detector"]["synthetic_accuracy_ci95_wilson"] == [0.8928, 1.0]
     assert report["detector"]["synthetic_failures"] == 0
     assert report["reporting_contract"]["failure_denominators_included"] is True
     assert report["release"]["source_code_license_selected"] is False
+    assert report["remaining_work_classification"]["waived_not_completed"]
+    summary = render_evidence_summary(report)
+    assert "## Local artifact retention" in summary
+    assert "11 representative" in summary
     assert json.loads(out.read_text(encoding="utf-8")) == report

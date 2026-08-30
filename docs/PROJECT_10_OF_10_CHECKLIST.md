@@ -78,6 +78,35 @@ Verified now:
 - [x] GitHub CLI authentication is persistent for `mehbakh82`; the remote is
   configured without placing credentials in the repository.
 
+## What remains now
+
+The generated evidence report reduces the active limited-scope closure path to
+five primary gates. These are the actual next tasks, in dependency order:
+
+1. Produce a validation-eligible Persian direct-model checkpoint under a newly
+   frozen hypothesis, then—and only then—open that experiment's final test.
+2. Collect recorded speaker/session-held-out interruption events and establish
+   real detector accuracy strictly above 80%.
+3. Run the eligible final system on the physical 12–24 GB target GPU, with live
+   browser `playback_started` and `playback_stopped_ack` timing.
+4. Complete the consented 5–10-person Persian study, including at least two
+   participants aged 60+.
+5. Choose and add the source-code license.
+
+After those gates pass, the remaining work is mechanical closeout: reconcile
+the manuscript/tables, freeze all final hashes and evidence, tag/push the
+submission, and verify a fresh full-history clone.
+
+The 40-row window review, 24-row interaction review, and 24-pair synthesized-
+assistant listening review are explicitly **waived, not completed** for the
+active limited-scope run. Their tools, sheets, and best-practice instructions
+remain preserved. This is not an active coding task, but it permanently blocks
+claims that the corpus or interruptions were human-verified and means the
+original unwaived rubric is not fully satisfied. Branch protection is also
+unresolved because GitHub returns HTTP 403 for this private repository under
+the current plan; it is a platform/owner decision, not a scientific evidence
+gate.
+
 ## Critical path
 
 The original strict path remains:
@@ -654,6 +683,11 @@ Evidence/statistics:
 - [x] Reconcile repository README, dataset-card, review, and generated-result
   numbers through v4; retain older flat-clip figures only where explicitly
   labelled historical/provenance evidence.
+- [x] Record the post-finalization storage policy: 11 representative adapters
+  remain locally (v1: 500/1000/2000/4000/8000; v2: 400/2000; v3: 400/500;
+  v4: 400/500), every retained hash matches committed evidence, and 37.92 GiB
+  was reclaimed. Candidate counts and results are historical certificates; an
+  exact recreation of removed negative intermediate tensors requires retraining.
 - [ ] Reconcile the final thesis manuscript and submission tables after the
   remaining external evidence exists.
 
@@ -694,6 +728,10 @@ Final engineering audit:
   wheel, install it into an isolated temporary target without duplicating the
   verified dependency environment, run all 128 tests, verify the installed
   package imports from that target, and remove the temporary checkout.
+- [x] Diagnose the red remote CI runs at `b15a38e`: two storage receipts exposed
+  the local volume mount string and were correctly rejected by the privacy
+  audit. Replace it with a non-host-specific label and reproduce the audit
+  locally; the next pushed commit must be verified green before handoff.
 - [ ] Reproduce a deployment-eligible direct-adapter load and frozen held-out
   inference in a separately provisioned clean scientific environment. This is
   blocked honestly because v1–v4 produced no deployable adapter; opening a

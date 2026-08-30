@@ -34,6 +34,14 @@ returned null and the final-test firewall remained closed for both versions.
 
 The project server remains deliberately cascade-only until a Persian adapter passes every gate. The v1 adapter loads in Kyutai's pinned official server but fails autoregressive Persian output, so it cannot activate the direct path. Checkpoint metadata alone can never activate either that failed adapter or the legacy reconstruction artifact.
 
+Post-finalization storage cleanup retains 11 representative adapter tensors:
+v1 steps 500/1000/2000/4000/8000, v2 steps 400/2000, and v3/v4 steps 400/500.
+Their hashes match the committed experiment certificates. All candidate losses,
+runtime outputs, configurations, hashes, and negative verdicts remain tracked,
+but tensors for the other non-promoted candidates were deliberately removed;
+recreating them requires rerunning the frozen training recipe. See
+`results/hardware/storage_cleanup_20260830.json`.
+
 ```text
 natural Persian user audio + approved next-turn text
         -> deterministic single-voice Persian Piper target
@@ -59,6 +67,12 @@ If a key has ever been stored in a plaintext cheatsheet or exposed in output,
 rotate it and replace the document with environment-variable placeholders.
 
 ## Core commands
+
+The general commands below are current. Versioned Moshi post-training commands
+are also preserved as protocol/reconstruction commands: evaluating every v2–v4
+candidate now requires first recreating the removed negative intermediate
+tensors by rerunning the frozen experiment. They must not be used to reopen a
+final test or revise a finalized selection.
 
 ```bash
 .venv/bin/python -m thesis_s2s.cli plan-conversation-corpus
