@@ -1,0 +1,118 @@
+{
+  "schema_version": 4,
+  "status": "passed",
+  "completed_at": "2026-08-30T07:21:29.403406",
+  "purpose": "one-step exact-full-profile optimizer and checkpoint probe only",
+  "scientific_evidence": false,
+  "persian_training_claim_allowed": false,
+  "training_data_policy": {
+    "policy": "automatic_only_documented_waiver",
+    "path": "configs/conversation_qa_waiver.yaml",
+    "sha256": "4635426ad3ef5639e45b4cf7b78789485d098b24a9358568b3537e31ac1904f0",
+    "decision_date": "2026-08-24",
+    "decision_authority": "student_project_owner",
+    "reason": "insufficient_time_and_no_available_delegate",
+    "supervisor_approval_claimed": false,
+    "human_verified_data_claim_allowed": false,
+    "human_verified_interruption_claim_allowed": false,
+    "strict_thesis_data_coverage_claim_allowed": false,
+    "requirements": {
+      "schema_supported": true,
+      "status_acknowledged": true,
+      "policy_explicit": true,
+      "student_authority_explicit": true,
+      "supervisor_approval_not_claimed": true,
+      "reason_recorded": true,
+      "decision_date_recorded": true,
+      "limited_internal_training_explicit": true,
+      "both_reviews_waived": true,
+      "human_claims_disabled": true,
+      "best_practice_assets_preserved": true
+    },
+    "valid": true
+  },
+  "strict_export_ready": false,
+  "training_export_ready_under_qa_waiver": true,
+  "waiver_policy_matches_current": true,
+  "waiver_claims_disabled": true,
+  "human_verification_claim_allowed": false,
+  "hardware": {
+    "gpu": "NVIDIA H100 NVL",
+    "torch_cuda": "12.4",
+    "peak_allocated_gb": 24.057,
+    "allocated_gb_after_step": 22.785
+  },
+  "step": {
+    "number": 1,
+    "loss": 3.573359,
+    "words_per_second": 4362.675
+  },
+  "profile": {
+    "duration_sec": 100.0,
+    "batch_size": 1,
+    "num_microbatches": 4,
+    "gradient_checkpointing": true,
+    "full_finetuning": false,
+    "lora": {
+      "enable": true,
+      "ft_embed": false,
+      "rank": 128,
+      "scaling": 2.0
+    },
+    "first_codebook_weight_multiplier": 100.0,
+    "text_padding_weight": 0.5
+  },
+  "requirements": {
+    "environment_valid": true,
+    "training_export_valid_for_selected_policy": true,
+    "one_optimizer_step_completed": true,
+    "finite_loss": true,
+    "full_training_shape_matches": true,
+    "resolved_args_match_probe_config": true,
+    "evaluation_disabled": true,
+    "checkpoint_save_completed": true,
+    "real_model_memory_allocated": true,
+    "project_launcher_uses_fused_adamw": true,
+    "project_launcher_offloads_single_gpu_adapter_save": true,
+    "selective_embedding_policy_passes": true,
+    "selective_embedding_launcher_present": true
+  },
+  "optimizer_runtime": {
+    "algorithm": "AdamW",
+    "foreach": false,
+    "fused": true
+  },
+  "checkpoint_runtime": {
+    "adapter_copy_device": "cpu",
+    "adapter_bytes": 1103525992,
+    "adapter_tensor_count": 676,
+    "lora_tensor_count": 674,
+    "embedding_parameters": [
+      "depformer_text_emb.weight",
+      "text_emb.weight"
+    ]
+  },
+  "embedding_policy": {
+    "path": "configs/moshi_v4_embedding_policy.json",
+    "sha256": "aefb2f1e0a2ea68063f0dd23dfd9ba2ce3d0c37eb5d8cea5b96fdfc32a8b0eda",
+    "mode": "text_embeddings_only",
+    "trainable_embedding_parameters": [
+      "depformer_text_emb.weight",
+      "text_emb.weight"
+    ]
+  },
+  "full_profile_gate_passes": true,
+  "artifacts": {
+    "metrics_sha256": "07b776ead697ee8e82bd3f85f102e71f7d67cb25cc396f7454001aea113feb00",
+    "resolved_args_sha256": "e119976c3babecc0c7a41468cff7261e3e87e05ab905762287baa9536a92372a",
+    "probe_config_sha256": "f5e0b2948da8ba5fa368e1d8bf3cab5f99fd41d745dae50dff4f39714b857b14",
+    "full_config_sha256": "a527761a50bdbc14a7b3630bdad3339bc21b696d4a48bab5d5717d86a01a2bd7",
+    "environment_report_sha256": "08d1df2ec971e9ac78c3363782cdb0272f2e4f8cc8b7674e97bcfaef380e9f19",
+    "export_report_sha256": "f4e2532cbcea533764e84f83018f109b4e815ff1c08a1900947800d69f5a1872",
+    "project_launcher_sha256": "81fbf5dedc59bba563a23a6326bff9632cf68672f16cca3cff5b0c833fbcccc9",
+    "embedding_policy_sha256": "aefb2f1e0a2ea68063f0dd23dfd9ba2ce3d0c37eb5d8cea5b96fdfc32a8b0eda",
+    "probe_adapter_sha256": "368127996634ad5711b8218aa1765608cd644285185cce37e952596f1d84e826",
+    "probe_adapter_config_sha256": "1ae5f4489af61a5acb8f1344660cf865707d4f6fa6b18a56addb686ad447ef32"
+  },
+  "note": "This measures peak memory for one optimizer step with the full training shape and proves a CPU-offloaded adapter checkpoint can be written. It is not convergence, Persian quality, held-out, or target-GPU evidence. A QA-waiver export validates only the limited training path and never turns automatic labels into human-verified evidence."
+}
