@@ -96,8 +96,8 @@ def main() -> int:
     v4_runtime_path = ROOT / "results/moshi_v4_runtime_candidates.json"
     v4_certificate_path = ROOT / "results/hardware/moshi_h100_v4_training.json"
     split_path = ROOT / "results/moshi_v2_split.json"
-    v4_adapter_path = (
-        ROOT / "checkpoints/moshi_fa_100s_v4_text_embed/checkpoints/checkpoint_000400/"
+    rank128_lora_source_path = (
+        ROOT / "checkpoints/moshi_fa_100s_v3_no_embed/checkpoints/checkpoint_000400/"
         "consolidated/lora.safetensors"
     )
     v2_adapter_path = (
@@ -117,7 +117,7 @@ def main() -> int:
     split = json_object(split_path)
 
     estimate = selective_adapter_bytes(
-        adapter_schema(v4_adapter_path),
+        adapter_schema(rank128_lora_source_path),
         adapter_schema(v2_adapter_path),
     )
     retained_adapter_count = 6
@@ -321,7 +321,7 @@ def main() -> int:
             "v4_certificate_sha256": sha256_file(v4_certificate_path),
             "split_report_sha256": sha256_file(split_path),
             "upstream_example_sha256": sha256_file(official_example_path),
-            "rank128_source_adapter_sha256": sha256_file(v4_adapter_path),
+            "rank128_source_adapter_sha256": sha256_file(rank128_lora_source_path),
             "broad_embedding_source_adapter_sha256": sha256_file(v2_adapter_path),
             "launcher_sha256": sha256_file(launcher_path),
             "preflight_sha256": sha256_file(Path(__file__).resolve()),
