@@ -1,0 +1,69 @@
+schema_version: 1
+evidence_class: recorded_youtube_diarization_proxy
+source_manifest: data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl
+source_manifest_sha256: b7afb3df52fcfadb91d639808db18382cfbfd006750891b2248a125393177440
+protocol_document: docs/RECORDED_BARGEIN_PROXY_PROTOCOL.md
+seed: 20260831
+
+split:
+  group_key: session_id
+  algorithm: sha256_seeded_bucket_v1
+  train_end_exclusive: 70
+  validation_end_exclusive: 85
+  bucket_count: 100
+  minimum_groups_per_split: 5
+  minimum_events_per_class_per_split: 20
+
+events:
+  positive_kind: interrupt
+  negative_kinds:
+    - backchannel
+    - clean_turn
+  maximum_events_per_kind_per_session: 8
+  raw_turn_match_ratio: 0.5
+  boundary_tolerance_s: 0.5
+  minimum_overlap_s: 0.2
+  minimum_clean_gap_s: 0.2
+  maximum_clean_gap_s: 2.0
+
+features:
+  sample_rate: 16000
+  pre_onset_s: 0.4
+  post_onset_s: 0.12
+  frame_ms: 20.0
+  context_ms: 400.0
+  schema: energy-zcr-f0-voicing-mfcc13-delta13.context400.mean-std-max.v1
+
+model:
+  n_estimators: 200
+  max_depth: 4
+  learning_rate: 0.08
+  min_samples_leaf: 8
+
+threshold:
+  candidates:
+    - 0.05
+    - 0.10
+    - 0.15
+    - 0.20
+    - 0.25
+    - 0.30
+    - 0.35
+    - 0.40
+    - 0.45
+    - 0.50
+    - 0.55
+    - 0.60
+    - 0.65
+    - 0.70
+    - 0.75
+    - 0.80
+    - 0.85
+    - 0.90
+    - 0.95
+  criterion: validation_balanced_accuracy_then_interrupt_f1_then_nearest_0.5_then_lower
+  test_target_accuracy: 0.80
+
+output:
+  report: results/eval/interrupt_recorded_proxy.json
+  model: results/bargein_recorded_proxy/bargein_gbdt.pkl
