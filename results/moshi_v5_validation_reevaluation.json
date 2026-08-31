@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "generated_at": "2026-08-31T15:41:38.885162+00:00",
+  "scientific_validation_evidence": true,
+  "heldout_test_used": false,
+  "checkpoint_selection_performed": false,
+  "selection_criterion_changed": false,
+  "selection_input_corrected_after_training": true,
+  "correction_reason": "The project launcher makes the finite evaluation loader repeatable, preventing iterator exhaustion, but the pinned evaluator still stops after 40 samples. Its finite periodic metrics therefore cover only a fixed prefix of the 202-chunk validation scope.",
+  "original_metrics_eligible_for_selection": false,
+  "corrected_protocol": "Evaluate every predeclared 100-step saved checkpoint on the same complete, ordered validation manifest; choose later using the already-frozen minimum mean validation-loss rule.",
+  "validation_scope": {
+    "manifest": "data/processed/moshi_finetune_v2/val.jsonl",
+    "manifest_sha256": "a2762495830c82ce12d3dc4cc8469e2110ae21a77ea91f9b70498a6812e187a7",
+    "rows": 131,
+    "chunks": 202,
+    "duration_sec": 100.0,
+    "batch_size": 1,
+    "order": "manifest order, identical cached Mimi/text tokens for every checkpoint"
+  },
+  "upstream_failure_diagnosis": {
+    "evaluation_limit": 40,
+    "mode": "repeatable_but_partial_scope",
+    "observed_first_nonfinite_step": null,
+    "predicted_first_empty_step_without_repeatable_wrapper": null,
+    "nonfinite_steps": [],
+    "consumption_by_evaluation": [
+      {
+        "step": 100,
+        "processed": 40,
+        "discarded_by_off_by_one_break": 1,
+        "consumed": 41,
+        "remaining_after": 161
+      },
+      {
+        "step": 200,
+        "processed": 40,
+        "discarded_by_off_by_one_break": 1,
+        "consumed": 41,
+        "remaining_after": 120
+      },
+      {
+        "step": 300,
+        "processed": 40,
+        "discarded_by_off_by_one_break": 1,
+        "consumed": 41,
+        "remaining_after": 79
+      },
+      {
+        "step": 400,
+        "processed": 40,
+        "discarded_by_off_by_one_break": 1,
+        "consumed": 41,
+        "remaining_after": 38
+      },
+      {
+        "step": 500,
+        "processed": 38,
+        "discarded_by_off_by_one_break": 0,
+        "consumed": 38,
+        "remaining_after": 0
+      }
+    ]
+  },
+  "configured_max_steps": 500,
+  "checkpoint_frequency": 100,
+  "candidate_count": 5,
+  "candidates": [
+    {
+      "schema_version": 1,
+      "step": 100,
+      "eval_loss": 2.0826758611042484,
+      "text_eval_loss": 0.2829787481344526,
+      "audio_eval_loss": 1.799697112969796,
+      "sample_count": 202,
+      "validation_scope": "complete_fixed_manifest",
+      "validation_manifest_sha256": "a2762495830c82ce12d3dc4cc8469e2110ae21a77ea91f9b70498a6812e187a7",
+      "heldout_test_used": false,
+      "adapter_sha256": "992dddb20ba4052b5084699071c323b343ecf8faaa1e04f5484b7cccfe18fcb8",
+      "config_sha256": "1ae5f4489af61a5acb8f1344660cf865707d4f6fa6b18a56addb686ad447ef32",
+      "adapter_tensor_count": 676,
+      "elapsed_seconds": 20.870016193017364,
+      "peak_allocated_gb": 15.571638107299805
+    },
+    {
+      "schema_version": 1,
+      "step": 200,
+      "eval_loss": 1.9434592133643807,
+      "text_eval_loss": 0.2205637035105322,
+      "audio_eval_loss": 1.7228955098538485,
+      "sample_count": 202,
+      "validation_scope": "complete_fixed_manifest",
+      "validation_manifest_sha256": "a2762495830c82ce12d3dc4cc8469e2110ae21a77ea91f9b70498a6812e187a7",
+      "heldout_test_used": false,
+      "adapter_sha256": "254187145d576c75c580c7aed3512bdea8b830d8a12cf210709d78cc4606c612",
+      "config_sha256": "1ae5f4489af61a5acb8f1344660cf865707d4f6fa6b18a56addb686ad447ef32",
+      "adapter_tensor_count": 676,
+      "elapsed_seconds": 19.54518735036254,
+      "peak_allocated_gb": 15.571638107299805
+    },
+    {
+      "schema_version": 1,
+      "step": 300,
+      "eval_loss": 1.8898615991044905,
+      "text_eval_loss": 0.20009128528325543,
+      "audio_eval_loss": 1.689770313821235,
+      "sample_count": 202,
+      "validation_scope": "complete_fixed_manifest",
+      "validation_manifest_sha256": "a2762495830c82ce12d3dc4cc8469e2110ae21a77ea91f9b70498a6812e187a7",
+      "heldout_test_used": false,
+      "adapter_sha256": "51efd35a6ead31843c7a7af0f13d88150d9dd2f23dd1c3ca997f79a1c201a5af",
+      "config_sha256": "1ae5f4489af61a5acb8f1344660cf865707d4f6fa6b18a56addb686ad447ef32",
+      "adapter_tensor_count": 676,
+      "elapsed_seconds": 19.556820383295417,
+      "peak_allocated_gb": 15.571638107299805
+    },
+    {
+      "schema_version": 1,
+      "step": 400,
+      "eval_loss": 1.8707194534311358,
+      "text_eval_loss": 0.19122197131896024,
+      "audio_eval_loss": 1.6794974821121755,
+      "sample_count": 202,
+      "validation_scope": "complete_fixed_manifest",
+      "validation_manifest_sha256": "a2762495830c82ce12d3dc4cc8469e2110ae21a77ea91f9b70498a6812e187a7",
+      "heldout_test_used": false,
+      "adapter_sha256": "b0faf99111cdff811ac52f28a11824b5c9ff00f62ffc6ca5bce70703758cb66b",
+      "config_sha256": "1ae5f4489af61a5acb8f1344660cf865707d4f6fa6b18a56addb686ad447ef32",
+      "adapter_tensor_count": 676,
+      "elapsed_seconds": 19.555211428552866,
+      "peak_allocated_gb": 15.571638107299805
+    },
+    {
+      "schema_version": 1,
+      "step": 500,
+      "eval_loss": 1.8678590164590156,
+      "text_eval_loss": 0.18985374009128347,
+      "audio_eval_loss": 1.6780052763677322,
+      "sample_count": 202,
+      "validation_scope": "complete_fixed_manifest",
+      "validation_manifest_sha256": "a2762495830c82ce12d3dc4cc8469e2110ae21a77ea91f9b70498a6812e187a7",
+      "heldout_test_used": false,
+      "adapter_sha256": "fd4f993329b873d1cd76dafdb71bf3fbc352f9b6dc5fa8cc5d43f2c147162b4a",
+      "config_sha256": "1ae5f4489af61a5acb8f1344660cf865707d4f6fa6b18a56addb686ad447ef32",
+      "adapter_tensor_count": 676,
+      "elapsed_seconds": 19.518483014777303,
+      "peak_allocated_gb": 15.571638107299805
+    }
+  ],
+  "timing": {
+    "validation_token_cache_seconds": 14.055812325328588,
+    "checkpoint_reevaluation_seconds": 112.95972698368132
+  },
+  "requirements": {
+    "training_reached_configured_final_step": true,
+    "all_logged_training_losses_finite": true,
+    "raw_evaluation_reached_configured_final_step": true,
+    "all_expected_checkpoints_present": true,
+    "raw_validation_not_complete_scope": true,
+    "raw_evaluation_behavior_accounted": true,
+    "heldout_test_not_used": true,
+    "all_candidates_reevaluated": true,
+    "candidate_steps_exact": true,
+    "identical_complete_scope": true,
+    "all_corrected_losses_finite": true,
+    "all_adapter_schemas_identical": true,
+    "all_saved_configs_identical": true
+  },
+  "reevaluation_passes": true,
+  "artifacts": {
+    "training_config": "configs/moshi_h100_v5.yaml",
+    "training_config_sha256": "d9e3f77975241970ce3f03efe09acade7b75e1eacc26fb0036fa4f8e5a3dac3f",
+    "resolved_training_args": "checkpoints/moshi_fa_100s_v5_codebook10/args.yaml",
+    "resolved_training_args_sha256": "d5aca3b192aaa0f3dbcd2c80334740759a7845fa441b95ae9b567154b019c9db",
+    "raw_train_metrics_sha256": "1f1029b71a3a9f5f492b2c86dec9313f0b6e522ad23f2f513256c80a55764cc4",
+    "raw_eval_metrics_sha256": "ff20adf49cbb68cad62ac140715ee3c301cdf85cdec41a19567032c89e04a794",
+    "corrected_metrics": "checkpoints/moshi_fa_100s_v5_codebook10/metrics.reeval.jsonl",
+    "corrected_metrics_sha256": "c04104124c9bff5286dd745f41cb42a5e108c9eff6318f3fe9b00c8051850b2b",
+    "upstream_eval_sha256": "e371bc1caede007f63b30da0798684e4b66f458e525f24b5b6c368bcd0414cc3",
+    "upstream_dataset_sha256": "c7a969bc89e083860428ca8dd825f5c84403b03fb830aa74e8770b0e39d927da",
+    "reevaluator_sha256": "9d42c6c74c092fb45dbd2b633d669e072c223fcd873970c1b7a8d8bd3e0eada3",
+    "training_entry_sha256": "81fbf5dedc59bba563a23a6326bff9632cf68672f16cca3cff5b0c833fbcccc9"
+  }
+}
