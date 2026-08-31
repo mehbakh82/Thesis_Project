@@ -96,6 +96,31 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
     _write(
         tmp_path,
+        "results/eval/interrupt_recorded_proxy.json",
+        {
+            "evidence_class": "recorded_youtube_diarization_proxy",
+            "recorded_audio": True,
+            "label_source": "automatic_diarization_and_reference_alignment_proxy",
+            "human_verified_labels": 0,
+            "official_detector_eligible": False,
+            "heldout_test": {
+                "n": 132,
+                "sessions": 22,
+                "proposed": {
+                    "accuracy": 0.8106,
+                    "interrupt_f1": 0.7899,
+                    "far": 0.0909,
+                    "frr": 0.2879,
+                },
+                "proposed_event_ci95": {"accuracy": [0.7353, 0.8683]},
+                "proposed_session_block_bootstrap_ci95": {"accuracy": [0.7444, 0.8718]},
+                "recorded_proxy_accuracy_above_80_percent": True,
+                "official_target_satisfied": False,
+            },
+        },
+    )
+    _write(
+        tmp_path,
         "results/eval/human_study.json",
         {
             "status": "not_collected_or_incomplete",
@@ -146,9 +171,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
                 "observed_phase_reclaimed_bytes": 40_718_569_472,
                 "project_du_after": "119G",
             },
-            "removed": [
-                {"category": "non_promoted_negative_checkpoint_intermediates"}
-            ],
+            "removed": [{"category": "non_promoted_negative_checkpoint_intermediates"}],
             "retained_representative_adapters": {
                 "v1": {"steps": [500, 1000, 2000, 4000, 8000]},
                 "v2": {"steps": [400, 2000]},
@@ -157,9 +180,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
                 "count": 11,
                 "all_sha256_match_committed_evidence": True,
             },
-            "protected_artifacts_untouched": [
-                "all tracked results and certificates"
-            ],
+            "protected_artifacts_untouched": ["all tracked results and certificates"],
             "postconditions": {"all_retained_adapter_hashes_verified": True},
         },
     )
@@ -172,7 +193,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
 
     assert report["authoritative"] is True
-    assert report["schema_version"] == 4
+    assert report["schema_version"] == 5
     assert report["thesis_ready"] is False
     assert report["generation_policy"]["reads_frozen_final_test_rows"] is False
     assert report["gates"]["audited_export_100_to_200_hours"] is True
@@ -186,18 +207,22 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert report["local_artifact_retention"]["representative_adapter_count"] == 11
     assert report["local_artifact_retention"]["full_candidate_tensor_sets_retained"] is False
     assert (
-        report["local_artifact_retention"][
-            "scientific_results_configs_certificates_retained"
-        ]
+        report["local_artifact_retention"]["scientific_results_configs_certificates_retained"]
         is True
     )
     assert report["latency_and_hardware"]["official_e2e_rows"] == 0
     assert report["detector"]["synthetic_accuracy_ci95_wilson"] == [0.8928, 1.0]
     assert report["detector"]["synthetic_failures"] == 0
+    assert report["detector"]["recorded_proxy"]["n"] == 132
+    assert report["detector"]["recorded_proxy"]["sessions"] == 22
+    assert report["detector"]["recorded_proxy"]["accuracy_above_80_percent"] is True
+    assert report["detector"]["recorded_proxy"]["official_detector_eligible"] is False
+    assert report["gates"]["real_group_heldout_detector_above_80_percent"] is False
     assert report["reporting_contract"]["failure_denominators_included"] is True
     assert report["release"]["source_code_license_selected"] is False
     assert report["remaining_work_classification"]["waived_not_completed"]
     summary = render_evidence_summary(report)
     assert "## Local artifact retention" in summary
     assert "11 representative" in summary
+    assert "recorded proxy n=132 / 22 sessions" in summary
     assert json.loads(out.read_text(encoding="utf-8")) == report

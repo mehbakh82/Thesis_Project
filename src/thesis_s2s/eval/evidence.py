@@ -33,6 +33,7 @@ ARTIFACTS: dict[str, str] = {
     "moshi_v4_selection": "results/moshi_v4_checkpoint_selection.json",
     "moshi_v4_result": "docs/MOSHI_V4_RESULT.md",
     "interrupt_bench": "results/eval/interrupt_bench.json",
+    "interrupt_recorded_proxy": "results/eval/interrupt_recorded_proxy.json",
     "human_study": "results/eval/human_study.json",
     "hardware_preflight": "results/hardware/current_preflight.json",
     "final_hardware_preflight": "results/hardware/final_preflight.json",
@@ -76,11 +77,7 @@ def _wilson_interval(successes: int, total: int) -> list[float] | None:
     centre = (proportion + z * z / (2.0 * total)) / denominator
     margin = (
         z
-        * (
-            proportion * (1.0 - proportion) / total
-            + z * z / (4.0 * total**2)
-        )
-        ** 0.5
+        * (proportion * (1.0 - proportion) / total + z * z / (4.0 * total**2)) ** 0.5
         / denominator
     )
     return [round(max(0.0, centre - margin), 4), round(min(1.0, centre + margin), 4)]
@@ -105,9 +102,7 @@ def _selection_trial(
     profile = training_payload.get("profile") or config or {}
     lora = profile.get("lora") or {}
     checkpoints = training_payload.get("checkpoints") or []
-    selective_embeddings = (
-        checkpoints[0].get("embedding_parameters") if checkpoints else []
-    ) or []
+    selective_embeddings = (checkpoints[0].get("embedding_parameters") if checkpoints else []) or []
     test_access_started = bool(
         training_payload.get("test_access_started", finalization_payload.get("test_access_started"))
     )
@@ -127,16 +122,13 @@ def _selection_trial(
         ),
         "fixed_validation_losses": [row.get("eval_loss") for row in candidate_rows],
         "fixed_validation_samples_per_candidate": (
-            int(candidate_rows[0].get("validation_sample_count") or 0)
-            if candidate_rows
-            else 0
+            int(candidate_rows[0].get("validation_sample_count") or 0) if candidate_rows else 0
         ),
         "runtime_panel_pass_counts": [
             int(row.get("runtime_panel_pass_count") or 0) for row in candidate_rows
         ],
         "runtime_panel_failure_counts": [
-            int(row.get("runtime_panel_count") or 0)
-            - int(row.get("runtime_panel_pass_count") or 0)
+            int(row.get("runtime_panel_count") or 0) - int(row.get("runtime_panel_pass_count") or 0)
             for row in candidate_rows
         ],
         "runtime_panel_size": (
@@ -221,6 +213,7 @@ def build_evidence_status(
     v4_training = _read_json(project, ARTIFACTS["moshi_v4_training"])
     v4_selection = _read_json(project, ARTIFACTS["moshi_v4_selection"])
     interrupt = _read_json(project, ARTIFACTS["interrupt_bench"])
+    recorded_proxy = _read_json(project, ARTIFACTS["interrupt_recorded_proxy"])
     study = _read_json(project, ARTIFACTS["human_study"])
     cleanup = _read_json(project, ARTIFACTS["storage_cleanup"])
     final_hardware_path = project / "results/hardware/final_preflight.json"
@@ -257,9 +250,7 @@ def build_evidence_status(
             "deployment_eligible": False,
             "selection_failed_closed": False,
             "test_access_started": bool(
-                (v1_training.get("requirements") or {}).get(
-                    "one_time_heldout_evaluation_passed"
-                )
+                (v1_training.get("requirements") or {}).get("one_time_heldout_evaluation_passed")
             ),
             "verdict": "runtime_ineligible_after_postselection_validation",
             "reason": "selected adapter decoded near-silent audio and no text",
@@ -267,21 +258,17 @@ def build_evidence_status(
                 "context_seconds": (v1_training.get("profile") or {}).get("duration_sec"),
                 "max_steps": (v1_training.get("profile") or {}).get("max_steps"),
                 "seed": (v1_training.get("profile") or {}).get("seed"),
-                "lora_rank": ((v1_training.get("profile") or {}).get("lora") or {}).get(
-                    "rank"
+                "lora_rank": ((v1_training.get("profile") or {}).get("lora") or {}).get("rank"),
+                "upstream_ft_embed": ((v1_training.get("profile") or {}).get("lora") or {}).get(
+                    "ft_embed"
                 ),
-                "upstream_ft_embed": (
-                    (v1_training.get("profile") or {}).get("lora") or {}
-                ).get("ft_embed"),
                 "selective_embeddings": [],
                 "peak_allocated_gb": (v1_training.get("training_metrics") or {}).get(
                     "maximum_peak_allocated_gb"
                 ),
             },
         },
-        _selection_trial(
-            "v2", v2_selection, finalization=v2_finalization, config=v2_config
-        ),
+        _selection_trial("v2", v2_selection, finalization=v2_finalization, config=v2_config),
         _selection_trial("v3", v3_selection, training=v3_training),
         _selection_trial("v4", v4_selection, training=v4_training),
     ]
@@ -299,10 +286,19 @@ def build_evidence_status(
     synthetic_n = int(proposed.get("n") or 0)
     if synthetic_correct == 0 and synthetic_n and proposed.get("accuracy") is not None:
         synthetic_correct = round(float(proposed["accuracy"]) * synthetic_n)
+    recorded_proxy_test = recorded_proxy.get("heldout_test") or {}
+    recorded_proxy_proposed = recorded_proxy_test.get("proposed") or {}
     detector_eligible = bool(
-        interrupt.get("recorded_eval")
-        and interrupt.get("official_detector_eligible")
-        and float(proposed.get("accuracy") or 0.0) >= 0.80
+        (
+            interrupt.get("recorded_eval")
+            and interrupt.get("official_detector_eligible")
+            and float(proposed.get("accuracy") or 0.0) >= 0.80
+        )
+        or (
+            recorded_proxy.get("official_detector_eligible")
+            and int(recorded_proxy.get("human_verified_labels") or 0) > 0
+            and float(recorded_proxy_proposed.get("accuracy") or 0.0) >= 0.80
+        )
     )
     physical_target_hardware = bool(
         hardware.get("is_rtx_4090")
@@ -319,9 +315,7 @@ def build_evidence_status(
     official_rows, official_reports = _official_e2e_reports(project)
     retained_adapters = cleanup.get("retained_representative_adapters") or {}
     removed_categories = {
-        str(item.get("category"))
-        for item in cleanup.get("removed") or []
-        if isinstance(item, dict)
+        str(item.get("category")) for item in cleanup.get("removed") or [] if isinstance(item, dict)
     }
     negative_intermediates_removed = (
         "non_promoted_negative_checkpoint_intermediates" in removed_categories
@@ -336,8 +330,7 @@ def build_evidence_status(
         ),
         "deployment_eligible_persian_direct_model": direct_model_eligible,
         "real_group_heldout_detector_above_80_percent": detector_eligible,
-        "physical_12_to_24_gb_fit_and_live_latency": physical_target_hardware
-        and official_rows > 0,
+        "physical_12_to_24_gb_fit_and_live_latency": physical_target_hardware and official_rows > 0,
         "human_study_complete": human_study_complete,
         "source_code_license_selected": source_license_selected,
     }
@@ -348,7 +341,9 @@ def build_evidence_status(
             "that experiment's frozen final test."
         ),
         "real_group_heldout_detector_above_80_percent": (
-            "Collect recorded, speaker/session-group-held-out interruption evidence."
+            "Obtain independently human-reviewed recorded labels and establish >80% on a "
+            "speaker/session-group-held-out test; the automatic YouTube proxy is not "
+            "ground truth."
         ),
         "physical_12_to_24_gb_fit_and_live_latency": (
             "Run the final system and client-acknowledged latency protocol on a physical "
@@ -362,7 +357,7 @@ def build_evidence_status(
     }
 
     payload: dict[str, Any] = {
-        "schema_version": 4,
+        "schema_version": 5,
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "authoritative": True,
         "thesis_ready": thesis_ready,
@@ -388,9 +383,7 @@ def build_evidence_status(
             "audit_failure_counts": export_audit.get("failure_counts") or {},
             "split_policy": {
                 "unit": "source_session_id",
-                "group_isolated": bool(
-                    audit_requirements.get("session_group_splits_isolated")
-                ),
+                "group_isolated": bool(audit_requirements.get("session_group_splits_isolated")),
                 "v2_v3_v4_rule": v2_split.get("rule") or {},
                 "v2_v3_v4_sessions": v2_split.get("sessions") or {},
             },
@@ -474,16 +467,38 @@ def build_evidence_status(
         "detector": {
             "evidence_class": interrupt.get("evidence_class") or "missing",
             "synthetic_accuracy": proposed.get("accuracy"),
-            "synthetic_accuracy_ci95_wilson": _wilson_interval(
-                synthetic_correct, synthetic_n
-            ),
+            "synthetic_accuracy_ci95_wilson": _wilson_interval(synthetic_correct, synthetic_n),
             "synthetic_train_n": int(interrupt.get("n_train") or 0),
             "synthetic_n": synthetic_n,
             "synthetic_failures": synthetic_n - synthetic_correct,
             "recorded_n": int(interrupt.get("n_recorded") or 0),
             "recorded_uncertainty": {
                 "interval": None,
-                "reason": "no recorded held-out events",
+                "reason": "no independently human-labeled held-out events",
+            },
+            "recorded_proxy": {
+                "present": bool(recorded_proxy),
+                "evidence_class": recorded_proxy.get("evidence_class"),
+                "recorded_audio": bool(recorded_proxy.get("recorded_audio")),
+                "label_source": recorded_proxy.get("label_source"),
+                "human_verified_labels": int(recorded_proxy.get("human_verified_labels") or 0),
+                "n": int(recorded_proxy_test.get("n") or 0),
+                "sessions": int(recorded_proxy_test.get("sessions") or 0),
+                "accuracy": recorded_proxy_proposed.get("accuracy"),
+                "interrupt_f1": recorded_proxy_proposed.get("interrupt_f1"),
+                "far": recorded_proxy_proposed.get("far"),
+                "frr": recorded_proxy_proposed.get("frr"),
+                "event_ci95": recorded_proxy_test.get("proposed_event_ci95"),
+                "session_block_bootstrap_ci95": recorded_proxy_test.get(
+                    "proposed_session_block_bootstrap_ci95"
+                ),
+                "accuracy_above_80_percent": bool(
+                    recorded_proxy_test.get("recorded_proxy_accuracy_above_80_percent")
+                ),
+                "official_detector_eligible": bool(
+                    recorded_proxy.get("official_detector_eligible")
+                ),
+                "official_target_satisfied": False,
             },
             "evaluation_unit": "event",
             "split_policy": "speaker/session-group-held-out required for official evidence",
@@ -529,9 +544,7 @@ def build_evidence_status(
         },
         "required_to_complete": [text for gate, text in required.items() if not gates[gate]],
         "remaining_work_classification": {
-            "active_evidence_gates": [
-                text for gate, text in required.items() if not gates[gate]
-            ],
+            "active_evidence_gates": [text for gate, text in required.items() if not gates[gate]],
             "conditional_closeout_after_evidence": [
                 "Reconcile the thesis manuscript and generated tables with final evidence.",
                 "Freeze the final evidence bundle, commit/tag it, push it, and verify a fresh clone.",
@@ -585,9 +598,7 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
         "| Gate | Passed |",
         "|---|---:|",
     ]
-    lines.extend(
-        f"| `{name}` | {'yes' if passed else 'no'} |" for name, passed in gates.items()
-    )
+    lines.extend(f"| `{name}` | {'yes' if passed else 'no'} |" for name, passed in gates.items())
     lines.extend(
         [
             "",
@@ -622,12 +633,17 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             embeddings = "upstream broad embedding switch"
         else:
             embeddings = "none"
-        losses = [value for value in trial.get("fixed_validation_losses") or [] if value is not None]
+        losses = [
+            value for value in trial.get("fixed_validation_losses") or [] if value is not None
+        ]
         minimum_loss = f"{min(losses):.6f}" if losses else "n/a"
         pass_counts = trial.get("runtime_panel_pass_counts") or []
         failure_counts = trial.get("runtime_panel_failure_counts") or []
         pass_fail = (
-            ", ".join(f"{passed}/{failed}" for passed, failed in zip(pass_counts, failure_counts, strict=True))
+            ", ".join(
+                f"{passed}/{failed}"
+                for passed, failed in zip(pass_counts, failure_counts, strict=True)
+            )
             if pass_counts
             else "n/a"
         )
@@ -661,9 +677,7 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             "adapter tensors. Retained steps: "
             + "; ".join(
                 f"{version}={steps}"
-                for version, steps in (
-                    retention.get("representative_adapter_steps") or {}
-                ).items()
+                for version, steps in (retention.get("representative_adapter_steps") or {}).items()
             )
             + ".",
             "",
@@ -678,11 +692,13 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             "",
             "| Area | Current evidence | Official gate |",
             "|---|---|---:|",
-            f"| Detector | {detector.get('evidence_class')}; train n="
-            f"{detector.get('synthetic_train_n', 0)}, test n={detector.get('synthetic_n', 0)}, "
-            f"failures={detector.get('synthetic_failures', 0)}, "
-            f"accuracy={detector.get('synthetic_accuracy')}, 95% Wilson CI="
-            f"{detector.get('synthetic_accuracy_ci95_wilson')} | "
+            f"| Detector | synthetic accuracy={detector.get('synthetic_accuracy')}; "
+            f"recorded proxy n={(detector.get('recorded_proxy') or {}).get('n', 0)} / "
+            f"{(detector.get('recorded_proxy') or {}).get('sessions', 0)} sessions, "
+            f"accuracy={(detector.get('recorded_proxy') or {}).get('accuracy')}, "
+            f"F1={(detector.get('recorded_proxy') or {}).get('interrupt_f1')}, "
+            f"session CI={((detector.get('recorded_proxy') or {}).get('session_block_bootstrap_ci95') or {}).get('accuracy')}; "
+            "automatic labels, not official ground truth | "
             f"{'pass' if detector.get('recorded_group_heldout_gate_passed') else 'pending'} |",
             f"| Hardware/latency | {latency.get('current_gpu') or 'unknown'}; "
             f"official E2E rows={latency.get('official_e2e_rows', 0)} | "
@@ -698,9 +714,11 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             "",
             "Denominators and observed failures are shown above. Model seeds are reported "
             "per trial; the Moshi data split is frozen by `source_session_id`. Confidence "
-            "intervals are reported where estimable. Official latency, recorded-detector, "
-            "and human-study intervals are explicitly null because their qualifying "
-            "denominators are zero. Exact timing and acceptance definitions are in "
+            "intervals are reported where estimable, including event and session-block "
+            "intervals for the recorded automatic-label proxy. Official latency, "
+            "independently labeled detector, and human-study intervals remain null "
+            "because their qualifying denominators are zero. Exact timing and acceptance "
+            "definitions are in "
             "`docs/METRICS.md`.",
             "",
             "## Remaining requirements",
@@ -716,7 +734,8 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             "",
             "No claim should exceed these evidence classes. In particular, the H100 "
             "measurements are engineering/training evidence, not physical-4090 official "
-            "latency evidence, and synthetic detector accuracy is not a real held-out result.",
+            "latency evidence; synthetic accuracy and the recorded automatic-label proxy are "
+            "not independently labeled official detector evidence.",
             "",
         ]
     )
