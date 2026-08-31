@@ -1,0 +1,656 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "evidence_class": "recorded_youtube_diarization_proxy",
+  "recorded_audio": true,
+  "label_source": "automatic_diarization_and_reference_alignment_proxy",
+  "human_verified_labels": 0,
+  "official_detector_eligible": false,
+  "official_ineligibility_reason": "recorded events were not independently human-labeled; automatic proxy accuracy cannot satisfy the official >80% ground-truth gate",
+  "authorization_scope": "supervisor-approved internal research; no redistribution",
+  "raw_audio_retained_by_benchmark": false,
+  "feature_vectors_retained": false,
+  "group_split_unit": "source_session_id",
+  "group_overlap": false,
+  "requirements": {
+    "all_three_splits_present": true,
+    "session_groups_disjoint": true,
+    "minimum_groups_per_split": true,
+    "both_classes_and_minimum_events_per_split": true,
+    "balanced_classes_per_split": true
+  },
+  "events": {
+    "discovered": 1730,
+    "selected": 1048,
+    "by_split_and_kind": {
+      "test/backchannel": 5,
+      "test/clean_turn": 61,
+      "test/interrupt": 66,
+      "train/backchannel": 41,
+      "train/clean_turn": 314,
+      "train/interrupt": 355,
+      "validation/backchannel": 7,
+      "validation/clean_turn": 96,
+      "validation/interrupt": 103
+    },
+    "sessions_by_split": {
+      "train": 103,
+      "validation": 24,
+      "test": 22
+    },
+    "channels_by_split": {
+      "train": {
+        "Digiato": 159,
+        "Mehran Rowshan Persian": 175,
+        "Tabaghe16": 343,
+        "Zoomit": 33
+      },
+      "validation": {
+        "Digiato": 55,
+        "Mehran Rowshan Persian": 27,
+        "Tabaghe16": 124
+      },
+      "test": {
+        "Digiato": 3,
+        "Mehran Rowshan Persian": 18,
+        "Tabaghe16": 70,
+        "Zoomit": 41
+      }
+    },
+    "identity_sha256": "17ed78c49b577cadc00871c79c2666458e4dde222911774b629e3cf25ef51077"
+  },
+  "model": {
+    "type": "GradientBoostingClassifier",
+    "config": {
+      "n_estimators": 200,
+      "max_depth": 4,
+      "learning_rate": 0.08,
+      "min_samples_leaf": 8
+    },
+    "feature_schema": "energy-zcr-f0-voicing-mfcc13-delta13.context400.mean-std-max.v1",
+    "decision_horizon_after_onset_ms": 120.0,
+    "path": "results/bargein_recorded_proxy/bargein_gbdt.pkl",
+    "sha256": "9155a4b1a55fc9966ceee1b039017c8a9f002421d256554d005ad61b4385246a"
+  },
+  "threshold_selection": {
+    "scope": "validation_sessions_only",
+    "criterion": "validation_balanced_accuracy_then_interrupt_f1_then_nearest_0.5_then_lower",
+    "selected": 0.7,
+    "candidates": [
+      {
+        "threshold": 0.05,
+        "accuracy": 0.7572815533980582,
+        "interrupt_f1": 0.7787610619469026,
+        "far": 0.33980582524271846,
+        "frr": 0.14563106796116504,
+        "target_ok": false,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            68,
+            35
+          ],
+          [
+            15,
+            88
+          ]
+        ],
+        "balanced_accuracy": 0.7572815533980582
+      },
+      {
+        "threshold": 0.1,
+        "accuracy": 0.7912621359223301,
+        "interrupt_f1": 0.8,
+        "far": 0.2524271844660194,
+        "frr": 0.1650485436893204,
+        "target_ok": false,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            77,
+            26
+          ],
+          [
+            17,
+            86
+          ]
+        ],
+        "balanced_accuracy": 0.7912621359223301
+      },
+      {
+        "threshold": 0.15,
+        "accuracy": 0.8058252427184466,
+        "interrupt_f1": 0.8076923076923078,
+        "far": 0.20388349514563106,
+        "frr": 0.18446601941747573,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            82,
+            21
+          ],
+          [
+            19,
+            84
+          ]
+        ],
+        "balanced_accuracy": 0.8058252427184466
+      },
+      {
+        "threshold": 0.2,
+        "accuracy": 0.8106796116504854,
+        "interrupt_f1": 0.8078817733990147,
+        "far": 0.17475728155339806,
+        "frr": 0.20388349514563106,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            85,
+            18
+          ],
+          [
+            21,
+            82
+          ]
+        ],
+        "balanced_accuracy": 0.8106796116504854
+      },
+      {
+        "threshold": 0.25,
+        "accuracy": 0.8155339805825242,
+        "interrupt_f1": 0.8118811881188118,
+        "far": 0.1650485436893204,
+        "frr": 0.20388349514563106,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            86,
+            17
+          ],
+          [
+            21,
+            82
+          ]
+        ],
+        "balanced_accuracy": 0.8155339805825242
+      },
+      {
+        "threshold": 0.3,
+        "accuracy": 0.8252427184466019,
+        "interrupt_f1": 0.82,
+        "far": 0.14563106796116504,
+        "frr": 0.20388349514563106,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            88,
+            15
+          ],
+          [
+            21,
+            82
+          ]
+        ],
+        "balanced_accuracy": 0.8252427184466019
+      },
+      {
+        "threshold": 0.35,
+        "accuracy": 0.8398058252427184,
+        "interrupt_f1": 0.83248730964467,
+        "far": 0.11650485436893204,
+        "frr": 0.20388349514563106,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            91,
+            12
+          ],
+          [
+            21,
+            82
+          ]
+        ],
+        "balanced_accuracy": 0.8398058252427185
+      },
+      {
+        "threshold": 0.4,
+        "accuracy": 0.8398058252427184,
+        "interrupt_f1": 0.83248730964467,
+        "far": 0.11650485436893204,
+        "frr": 0.20388349514563106,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            91,
+            12
+          ],
+          [
+            21,
+            82
+          ]
+        ],
+        "balanced_accuracy": 0.8398058252427185
+      },
+      {
+        "threshold": 0.45,
+        "accuracy": 0.8398058252427184,
+        "interrupt_f1": 0.83248730964467,
+        "far": 0.11650485436893204,
+        "frr": 0.20388349514563106,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            91,
+            12
+          ],
+          [
+            21,
+            82
+          ]
+        ],
+        "balanced_accuracy": 0.8398058252427185
+      },
+      {
+        "threshold": 0.5,
+        "accuracy": 0.8495145631067961,
+        "interrupt_f1": 0.837696335078534,
+        "far": 0.07766990291262135,
+        "frr": 0.22330097087378642,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            95,
+            8
+          ],
+          [
+            23,
+            80
+          ]
+        ],
+        "balanced_accuracy": 0.8495145631067962
+      },
+      {
+        "threshold": 0.55,
+        "accuracy": 0.8543689320388349,
+        "interrupt_f1": 0.8421052631578948,
+        "far": 0.06796116504854369,
+        "frr": 0.22330097087378642,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            96,
+            7
+          ],
+          [
+            23,
+            80
+          ]
+        ],
+        "balanced_accuracy": 0.854368932038835
+      },
+      {
+        "threshold": 0.6,
+        "accuracy": 0.8543689320388349,
+        "interrupt_f1": 0.8404255319148938,
+        "far": 0.05825242718446602,
+        "frr": 0.23300970873786409,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            97,
+            6
+          ],
+          [
+            24,
+            79
+          ]
+        ],
+        "balanced_accuracy": 0.854368932038835
+      },
+      {
+        "threshold": 0.65,
+        "accuracy": 0.8592233009708737,
+        "interrupt_f1": 0.8432432432432432,
+        "far": 0.038834951456310676,
+        "frr": 0.24271844660194175,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            99,
+            4
+          ],
+          [
+            25,
+            78
+          ]
+        ],
+        "balanced_accuracy": 0.8592233009708738
+      },
+      {
+        "threshold": 0.7,
+        "accuracy": 0.8640776699029126,
+        "interrupt_f1": 0.8478260869565217,
+        "far": 0.02912621359223301,
+        "frr": 0.24271844660194175,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            100,
+            3
+          ],
+          [
+            25,
+            78
+          ]
+        ],
+        "balanced_accuracy": 0.8640776699029127
+      },
+      {
+        "threshold": 0.75,
+        "accuracy": 0.8640776699029126,
+        "interrupt_f1": 0.8461538461538461,
+        "far": 0.019417475728155338,
+        "frr": 0.2524271844660194,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            101,
+            2
+          ],
+          [
+            26,
+            77
+          ]
+        ],
+        "balanced_accuracy": 0.8640776699029127
+      },
+      {
+        "threshold": 0.8,
+        "accuracy": 0.8543689320388349,
+        "interrupt_f1": 0.8314606741573034,
+        "far": 0.009708737864077669,
+        "frr": 0.2815533980582524,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            102,
+            1
+          ],
+          [
+            29,
+            74
+          ]
+        ],
+        "balanced_accuracy": 0.854368932038835
+      },
+      {
+        "threshold": 0.85,
+        "accuracy": 0.8495145631067961,
+        "interrupt_f1": 0.8248587570621468,
+        "far": 0.009708737864077669,
+        "frr": 0.2912621359223301,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            102,
+            1
+          ],
+          [
+            30,
+            73
+          ]
+        ],
+        "balanced_accuracy": 0.8495145631067962
+      },
+      {
+        "threshold": 0.9,
+        "accuracy": 0.8446601941747572,
+        "interrupt_f1": 0.8181818181818181,
+        "far": 0.009708737864077669,
+        "frr": 0.30097087378640774,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            102,
+            1
+          ],
+          [
+            31,
+            72
+          ]
+        ],
+        "balanced_accuracy": 0.8446601941747574
+      },
+      {
+        "threshold": 0.95,
+        "accuracy": 0.8349514563106796,
+        "interrupt_f1": 0.8023255813953488,
+        "far": 0.0,
+        "frr": 0.3300970873786408,
+        "target_ok": true,
+        "n": 206,
+        "labels": [
+          "other",
+          "interrupt"
+        ],
+        "matrix": [
+          [
+            103,
+            0
+          ],
+          [
+            34,
+            69
+          ]
+        ],
+        "balanced_accuracy": 0.8349514563106797
+      }
+    ]
+  },
+  "heldout_test": {
+    "evaluated_once": true,
+    "n": 132,
+    "sessions": 22,
+    "proposed": {
+      "accuracy": 0.8106060606060606,
+      "interrupt_f1": 0.7899159663865547,
+      "far": 0.09090909090909091,
+      "frr": 0.2878787878787879,
+      "target_ok": true,
+      "n": 132,
+      "labels": [
+        "other",
+        "interrupt"
+      ],
+      "matrix": [
+        [
+          60,
+          6
+        ],
+        [
+          19,
+          47
+        ]
+      ],
+      "balanced_accuracy": 0.8106060606060606
+    },
+    "proposed_event_ci95": {
+      "accuracy": [
+        0.7353,
+        0.8683
+      ],
+      "interrupt_f1": [
+        0.6947,
+        0.8633
+      ],
+      "far": [
+        0.0423,
+        0.1845
+      ],
+      "frr": [
+        0.1927,
+        0.4064
+      ]
+    },
+    "proposed_session_block_bootstrap_ci95": {
+      "accuracy": [
+        0.7444,
+        0.8718
+      ],
+      "interrupt_f1": [
+        0.7234,
+        0.8571
+      ],
+      "far": [
+        0.0263,
+        0.1692
+      ],
+      "frr": [
+        0.193,
+        0.3723
+      ]
+    },
+    "energy_zcr_baseline": {
+      "accuracy": 0.7803030303030303,
+      "interrupt_f1": 0.7184466019417475,
+      "far": 0.0,
+      "frr": 0.4393939393939394,
+      "target_ok": false,
+      "n": 132,
+      "labels": [
+        "other",
+        "interrupt"
+      ],
+      "matrix": [
+        [
+          66,
+          0
+        ],
+        [
+          29,
+          37
+        ]
+      ],
+      "balanced_accuracy": 0.7803030303030303
+    },
+    "energy_zcr_baseline_event_ci95": {
+      "accuracy": [
+        0.7023,
+        0.8425
+      ],
+      "interrupt_f1": [
+        0.6136,
+        0.8148
+      ],
+      "far": [
+        0.0,
+        0.055
+      ],
+      "frr": [
+        0.3263,
+        0.5592
+      ]
+    },
+    "classification_report": "              precision    recall  f1-score   support\n\n       other       0.76      0.91      0.83        66\n   interrupt       0.89      0.71      0.79        66\n\n    accuracy                           0.81       132\n   macro avg       0.82      0.81      0.81       132\nweighted avg       0.82      0.81      0.81       132\n",
+    "recorded_proxy_accuracy_above_80_percent": true,
+    "official_target_satisfied": false
+  },
+  "artifacts": {
+    "source_manifest": "data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl",
+    "source_manifest_sha256": "b7afb3df52fcfadb91d639808db18382cfbfd006750891b2248a125393177440",
+    "config": "configs/bargein_recorded_proxy.yaml",
+    "config_sha256": "31fb4fe874800617af265e325f62795304b204ddae64ac669146782ad06e4ff8",
+    "protocol": "docs/RECORDED_BARGEIN_PROXY_PROTOCOL.md",
+    "protocol_sha256": "9a6904bd46d2937bc92c58c625d00917b68fc152c7f7d85d75040cfabb563527",
+    "implementation_sha256": "6e08302daa596b8d2844299ddaade7c96fe9f86d1948babcb22b896b809e992e"
+  },
+  "interpretation": "This is real recorded-audio, session-held-out proxy evidence. It measures agreement with frozen automatic diarization labels, not human ground truth."
+}
