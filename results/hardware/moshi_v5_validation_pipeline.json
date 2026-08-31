@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "generated_at": "2026-08-31T15:45:40.753218+00:00",
+  "launch_commit": "8a8c18185c3e6586fe3ebc50a1b6df95ccc6300b",
+  "training_invocation_id": "4c3e1c27782b479397100c6b52b06461",
+  "test_access_started": false,
+  "preconditions": {
+    "launch_worktree_clean": true,
+    "launch_commit_is_current_head": true,
+    "preflight_bound_to_config": true,
+    "profile_probe_bound_to_config_and_policy": true,
+    "protocol_hash_bound_before_training": true,
+    "v4_negative_finalized_without_test_access": true,
+    "training_reached_step_500": true,
+    "training_completed_cleanly_in_journal": true,
+    "all_five_checkpoints_present": true,
+    "all_five_checkpoint_schemas_exact": true,
+    "final_test_outputs_absent": true
+  },
+  "stages": [
+    {
+      "name": "complete_validation_reevaluation",
+      "started_at": "2026-08-31T15:39:17.113708+00:00",
+      "command": [
+        ".venv-moshi/bin/python",
+        "scripts/reevaluate_moshi_checkpoints.py",
+        "--training-config",
+        "configs/moshi_h100_v5.yaml",
+        "--run-dir",
+        "checkpoints/moshi_fa_100s_v5_codebook10",
+        "--metrics-out",
+        "checkpoints/moshi_fa_100s_v5_codebook10/metrics.reeval.jsonl",
+        "--report-out",
+        "results/moshi_v5_validation_reevaluation.json",
+        "--heldout-test-manifest",
+        "data/processed/moshi_finetune_v2/test.jsonl"
+      ],
+      "status": "passed",
+      "finished_at": "2026-08-31T15:41:39.841899+00:00",
+      "exit_code": 0,
+      "output": "results/moshi_v5_validation_reevaluation.json",
+      "output_sha256": "2e381b44c2c5e74c9fbedf75636aba803eaaee9a83b33635ef4305d0e4f4499f"
+    },
+    {
+      "name": "predeclared_complete_prompt_runtime_panel",
+      "started_at": "2026-08-31T15:41:39.844054+00:00",
+      "command": [
+        ".venv-moshi/bin/python",
+        "scripts/evaluate_moshi_v5_runtime_candidates.py"
+      ],
+      "status": "passed",
+      "finished_at": "2026-08-31T15:45:30.126870+00:00",
+      "exit_code": 0,
+      "output": "results/moshi_v5_runtime_candidates.json",
+      "output_sha256": "84c99ff2b01ea36b10713d33892bea2f8b6d946bdde6a2df7f4cafa019e0ce87"
+    },
+    {
+      "name": "eligible_only_selection",
+      "started_at": "2026-08-31T15:45:30.129322+00:00",
+      "command": [
+        ".venv/bin/python",
+        "scripts/select_moshi_v2_checkpoint.py",
+        "--config",
+        "configs/moshi_h100_v5.yaml",
+        "--reevaluation",
+        "results/moshi_v5_validation_reevaluation.json",
+        "--runtime",
+        "results/moshi_v5_runtime_candidates.json",
+        "--out",
+        "results/moshi_v5_checkpoint_selection.json",
+        "--protocol-mode",
+        "predeclared-v5"
+      ],
+      "status": "passed",
+      "finished_at": "2026-08-31T15:45:40.749024+00:00",
+      "exit_code": 1,
+      "output": "results/moshi_v5_checkpoint_selection.json",
+      "output_sha256": "efcfb433923ac681ed8fef0d846ac3b88b875742eb9f4d905fd51d7d39ab8107",
+      "outcome": "scientific_negative_no_eligible_checkpoint"
+    }
+  ],
+  "artifacts": {
+    "config_sha256": "d9e3f77975241970ce3f03efe09acade7b75e1eacc26fb0036fa4f8e5a3dac3f",
+    "protocol_sha256": "f5f7f4755583399747f442a97e6aceba9c9489110f3adbe30c4e07ad9ac1c069",
+    "preflight_sha256": "e27c5cb2259eccb66e416fa6db2e05140a7e69d7c2fe078dde82815bfce116b1",
+    "profile_probe_sha256": "a4497bbb2eebe5c859e04219cd22ef9015bb11fb1af2dae235a67bfbcb8e01d2",
+    "embedding_policy_sha256": "5233ef3f746ae957fcfd0c466316cffba182a4aa0ee72d3386beb97aef1c6bf6",
+    "v4_certificate_sha256": "dfa6ce72531cf39c85e3300915ec2e0f7691369255b9dc7f34461016bf28a8b1",
+    "orchestrator_sha256": "ab7de7d08147631c028c7697e5e3e179dd6fed55ff6cdb4ed7b273dd5da423ab"
+  },
+  "selection_outcome": "scientific_negative_no_eligible_checkpoint",
+  "selected_step": null,
+  "eligible_steps": [],
+  "scientific_negative_outcome": true,
+  "requirements": {
+    "all_validation_stages_completed": true,
+    "test_access_never_started": true
+  },
+  "next_stage": "v5 failed closed; design a new experiment without accessing the final test"
+}
