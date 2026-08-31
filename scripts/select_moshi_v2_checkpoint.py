@@ -57,7 +57,7 @@ def runtime_protocol_valid(runtime: dict[str, Any], protocol_mode: str) -> bool:
             and correction.get("selection_criterion_changed") is False
             and correction.get("eligibility_thresholds_changed") is False
         )
-    if protocol_mode in {"predeclared-v3", "predeclared-v4"}:
+    if protocol_mode in {"predeclared-v3", "predeclared-v4", "predeclared-v5"}:
         provenance = runtime.get("protocol_provenance") or {}
         version = protocol_mode.removeprefix("predeclared-")
         return (
@@ -89,13 +89,12 @@ def select_checkpoint(
     predeclared_version = {
         "predeclared-v3": "v3",
         "predeclared-v4": "v4",
+        "predeclared-v5": "v5",
     }.get(protocol_mode)
-    if protocol_mode not in {"corrected-v2", "predeclared-v3", "predeclared-v4"}:
+    if protocol_mode not in {"corrected-v2", "predeclared-v3", "predeclared-v4", "predeclared-v5"}:
         raise ValueError(f"unsupported Moshi protocol mode: {protocol_mode}")
     expected_runtime_schema = (
-        {"v3": 3, "v4": 4}[predeclared_version]
-        if predeclared_version is not None
-        else 2
+        {"v3": 3, "v4": 4, "v5": 5}[predeclared_version] if predeclared_version is not None else 2
     )
     experiment_label = predeclared_version or "v2"
     is_predeclared = predeclared_version is not None
@@ -219,7 +218,7 @@ def select_checkpoint(
     selection_passes = selected is not None
     report: dict[str, Any] = {
         "schema_version": (
-            {"v3": 5, "v4": 6}[predeclared_version]
+            {"v3": 5, "v4": 6, "v5": 7}[predeclared_version]
             if predeclared_version is not None
             else 4
         ),
@@ -306,7 +305,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--protocol-mode",
-        choices=("corrected-v2", "predeclared-v3", "predeclared-v4"),
+        choices=("corrected-v2", "predeclared-v3", "predeclared-v4", "predeclared-v5"),
         default="corrected-v2",
     )
     args = parser.parse_args()

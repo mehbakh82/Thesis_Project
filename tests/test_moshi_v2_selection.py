@@ -190,3 +190,25 @@ def test_v4_protocol_requires_its_own_pretraining_freeze_marker() -> None:
         "frozen_before_v3_optimizer_step": True,
     }
     assert runtime_protocol_valid(runtime, "predeclared-v4") is False
+
+
+def test_v5_protocol_requires_its_own_pretraining_freeze_marker() -> None:
+    runtime = {
+        "protocol_predeclared_before_training": True,
+        "protocol": {
+            "complete_user_turn_required": True,
+            "panel_indices": [0, 11, 33, 51, 55, 74, 85, 87, 106],
+        },
+        "protocol_provenance": {
+            "frozen_before_v5_optimizer_step": True,
+            "selection_criterion_changed_after_training": False,
+            "eligibility_thresholds_changed_after_training": False,
+        },
+    }
+    assert runtime_protocol_valid(runtime, "predeclared-v5") is True
+    runtime["protocol_provenance"] = {
+        **runtime["protocol_provenance"],
+        "frozen_before_v5_optimizer_step": False,
+        "frozen_before_v4_optimizer_step": True,
+    }
+    assert runtime_protocol_valid(runtime, "predeclared-v5") is False

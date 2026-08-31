@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "mode": "text_embeddings_only",
+  "launcher_environment": {
+    "name": "MOSHI_TEXT_EMBEDDINGS_ONLY",
+    "required_value": "1"
+  },
+  "upstream_lora_ft_embed": false,
+  "expected_lora_tensor_count": 674,
+  "expected_total_adapter_tensor_count": 676,
+  "trainable_embedding_parameters": [
+    "depformer_text_emb.weight",
+    "text_emb.weight"
+  ],
+  "frozen_audio_embedding_parameters": [
+    "depformer_emb.0.weight",
+    "depformer_emb.1.weight",
+    "depformer_emb.2.weight",
+    "depformer_emb.3.weight",
+    "depformer_emb.4.weight",
+    "depformer_emb.5.weight",
+    "depformer_emb.6.weight",
+    "emb.0.weight",
+    "emb.1.weight",
+    "emb.2.weight",
+    "emb.3.weight",
+    "emb.4.weight",
+    "emb.5.weight",
+    "emb.6.weight",
+    "emb.7.weight",
+    "emb.8.weight",
+    "emb.9.weight",
+    "emb.10.weight",
+    "emb.11.weight",
+    "emb.12.weight",
+    "emb.13.weight",
+    "emb.14.weight",
+    "emb.15.weight"
+  ],
+  "allowed_trainable_parameter_rule": "all LoRA parameters plus exactly the two declared text embedding parameters",
+  "objective_change": {
+    "baseline_experiment": "v4",
+    "changed_parameter": "first_codebook_weight_multiplier",
+    "baseline_value": 100.0,
+    "v5_value": 10.0,
+    "all_other_training_profile_fields_unchanged": true
+  },
+  "scientific_hypothesis": "V4 initially preserved speech but increasingly collapsed to silence while teacher-forced loss improved. Reducing only the first semantic audio-codebook loss multiplier from 100 to 10 may prevent that objective from dominating adaptation while retaining Persian text supervision and the frozen audio-embedding geometry."
+}
