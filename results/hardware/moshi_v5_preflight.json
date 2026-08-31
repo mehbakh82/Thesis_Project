@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "generated_at": "2026-08-31T14:47:55.067135+00:00",
+  "launch_commit": "1f59e1f667bb74ecec37824ed002f5183136a225",
+  "test_access_started": false,
+  "experiment": {
+    "name": "moshi_v5_codebook10",
+    "candidate_steps": [
+      100,
+      200,
+      300,
+      400,
+      500
+    ],
+    "changed_from_v4": {
+      "only_changed_parameter": "first_codebook_weight_multiplier",
+      "first_codebook_weight_multiplier": {
+        "v4": 100.0,
+        "v5": 10.0
+      },
+      "lora": "unchanged rank-128 LoRA",
+      "upstream_ft_embed": "unchanged false",
+      "selective_text_embeddings": {
+        "v4": [
+          "depformer_text_emb.weight",
+          "text_emb.weight"
+        ],
+        "v5": [
+          "depformer_text_emb.weight",
+          "text_emb.weight"
+        ]
+      }
+    }
+  },
+  "storage": {
+    "lora_bytes": 775749632,
+    "text_embedding_bytes": 327690240,
+    "estimated_adapter_bytes": 1103439872,
+    "expected_tensor_count": 676,
+    "estimated_adapter_gib": 1.028,
+    "retained_adapter_count": 6,
+    "transient_adapter_count": 1,
+    "safety_gib": 2,
+    "free_bytes": 50362048512,
+    "free_gib": 46.903,
+    "required_free_bytes": 9871562752,
+    "required_free_gib": 9.194
+  },
+  "gpu": {
+    "name": "NVIDIA H100 NVL",
+    "total_mib": 95830,
+    "used_mib": 50778,
+    "free_mib": 44544
+  },
+  "requirements": {
+    "launch_worktree_clean": true,
+    "v4_failed_closed_without_test_access": true,
+    "single_objective_change_from_v4_exact": true,
+    "rank128_lora_and_broad_upstream_embedding_switch_unchanged": true,
+    "selective_embedding_policy_exact": true,
+    "launcher_implements_fail_closed_selective_scope": true,
+    "bounded_candidate_set_exact": true,
+    "probe_shape_matches_full": true,
+    "probe_controls_exact": true,
+    "upstream_example_hash_current": true,
+    "frozen_split_passed": true,
+    "v5_run_directories_absent": true,
+    "v5_final_outputs_absent": true,
+    "prior_final_test_outputs_absent": true,
+    "estimated_schema_exact": true,
+    "disk_headroom_passes": true,
+    "h100_headroom_passes": true
+  },
+  "preflight_passes": true,
+  "artifacts": {
+    "config": "configs/moshi_h100_v5.yaml",
+    "config_sha256": "d9e3f77975241970ce3f03efe09acade7b75e1eacc26fb0036fa4f8e5a3dac3f",
+    "probe_config": "configs/moshi_h100_v5_probe.yaml",
+    "probe_config_sha256": "ef6f9a0fcf3d61690b7576f54bae96c9b9433fed577a5c7053b2a95b625f97d8",
+    "embedding_policy": "configs/moshi_v5_embedding_policy.json",
+    "embedding_policy_sha256": "5233ef3f746ae957fcfd0c466316cffba182a4aa0ee72d3386beb97aef1c6bf6",
+    "protocol": "docs/MOSHI_V5_SELECTION_PROTOCOL.md",
+    "protocol_sha256": "f5f7f4755583399747f442a97e6aceba9c9489110f3adbe30c4e07ad9ac1c069",
+    "v4_selection_sha256": "c201daf0dc812b2966cfa044e596590fae8a372fbaf528f34c54e29b4f57e627",
+    "v4_runtime_sha256": "5525278ef7adb5ed3e012c553e12065dec04bf71c92baa449470117c8a1cee85",
+    "v4_certificate_sha256": "dfa6ce72531cf39c85e3300915ec2e0f7691369255b9dc7f34461016bf28a8b1",
+    "split_report_sha256": "c68fbd0191b4d2021399a5b7e8f5d392461ce7fc1c12b763ca40c0292c8f8103",
+    "upstream_example_sha256": "c574c424d1a078a89bcb7556978d8b4b8c160276aeebbda01ff77ca6f259ac48",
+    "rank128_source_adapter_sha256": "d71e1bf113a1326f4bf1c0aac93e86c006b2a2758c5a4b36ed963fc4c3809c49",
+    "broad_embedding_source_adapter_sha256": "6133aa5f9ed4ae7c6b092b43c223cb3e1020634ea6472e5fc302dec82c560235",
+    "launcher_sha256": "81fbf5dedc59bba563a23a6326bff9632cf68672f16cca3cff5b0c833fbcccc9",
+    "preflight_sha256": "18f89dcdbde3eefc511d2454bb2e06e7411199b79cb5f5313e096e3b2ffc10ac"
+  },
+  "next_stage": "run the exact-shape one-step v5 probe with selective scope; do not access final-test data"
+}
