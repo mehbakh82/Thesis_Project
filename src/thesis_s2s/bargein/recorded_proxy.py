@@ -288,8 +288,7 @@ def extract_feature_rows(
     pre_onset_s: float,
     post_onset_s: float,
 ) -> tuple[np.ndarray, np.ndarray]:
-    vectors: list[np.ndarray] = []
-    labels: list[int] = []
+    vectors_by_id: dict[str, np.ndarray] = {}
     by_audio: dict[str, list[RecordedEvent]] = defaultdict(list)
     for event in events:
         by_audio[event.audio_path].append(event)
@@ -314,13 +313,15 @@ def extract_feature_rows(
                     source_start:source_end
                 ]
             features = frame_feature_matrix(clip, feature_config)
-            vectors.append(
-                context_vector(features, len(features) - 1, feature_config.context_frames)
+            vectors_by_id[event.event_id] = context_vector(
+                features, len(features) - 1, feature_config.context_frames
             )
-            labels.append(event.label)
-    if len(vectors) != len(events):
-        raise RuntimeError("feature extraction did not preserve event cardinality")
-    return np.stack(vectors), np.asarray(labels, dtype=np.int32)
+    if set(vectors_by_id) != {event.event_id for event in events}:
+        raise RuntimeError("feature extraction did not preserve event identities")
+    return (
+        np.stack([vectors_by_id[event.event_id] for event in events]),
+        np.asarray([event.label for event in events], dtype=np.int32),
+    )
 
 
 def _scores_with_balanced_accuracy(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, Any]:

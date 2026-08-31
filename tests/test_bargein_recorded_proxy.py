@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from thesis_s2s.audio import write_wav
+from thesis_s2s.bargein.features import FeatureConfig
 from thesis_s2s.bargein.recorded_proxy import (
     RecordedEvent,
     discover_events,
+    extract_feature_rows,
     select_balanced_events,
     select_validation_threshold,
     stable_split,
@@ -101,3 +104,47 @@ def test_threshold_selection_uses_frozen_tie_break() -> None:
 
     assert selected == 0.5
     assert len(rows) == 3
+
+
+def test_feature_extraction_preserves_event_order_across_audio_groups(tmp_path) -> None:
+    import numpy as np
+
+    quiet = tmp_path / "a.wav"
+    voiced = tmp_path / "z.wav"
+    write_wav(quiet, np.zeros(16000, dtype=np.float32))
+    write_wav(voiced, np.full(16000, 0.25, dtype=np.float32))
+    events = [
+        RecordedEvent(
+            event_id="voiced-first",
+            session_id="session-z",
+            channel="channel",
+            audio_path=str(voiced),
+            onset_s=0.5,
+            label=1,
+            kind="interrupt",
+            split="test",
+            source_window_id="z",
+        ),
+        RecordedEvent(
+            event_id="quiet-second",
+            session_id="session-a",
+            channel="channel",
+            audio_path=str(quiet),
+            onset_s=0.5,
+            label=0,
+            kind="clean_turn",
+            split="train",
+            source_window_id="a",
+        ),
+    ]
+
+    vectors, labels = extract_feature_rows(
+        events,
+        root=tmp_path,
+        feature_config=FeatureConfig(),
+        pre_onset_s=0.4,
+        post_onset_s=0.12,
+    )
+
+    assert labels.tolist() == [1, 0]
+    assert vectors[0, 0] > vectors[1, 0]
