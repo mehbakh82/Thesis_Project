@@ -42,6 +42,7 @@ PERSIAN_LETTER_FRACTION_THRESHOLD = 0.8
 SPEECH_RMS_THRESHOLD = 1e-3
 MAX_PREFIX_CER = 0.75
 MIN_NORMALIZED_TEXT_LENGTH = 4
+FUSE_LORA_AT_RUNTIME = False
 
 
 def normalize_text(text: str) -> str:
@@ -264,6 +265,7 @@ def main() -> int:
             "maximum_target_prefix_character_error_rate": MAX_PREFIX_CER,
             "replacement_character_allowed": False,
             "minimum_text_loss_reduction_from_step_50": 0.30,
+            "official_server_fuse_lora": FUSE_LORA_AT_RUNTIME,
         },
         "preconditions": preconditions,
         "candidates": [],
@@ -327,6 +329,7 @@ def main() -> int:
             post_input_silence_seconds=args.post_input_silence_seconds,
             panel_indices=PANEL_INDICES,
             split_label="train_only_in_sample_diagnostic",
+            fuse_lora=FUSE_LORA_AT_RUNTIME,
         )
         for panel_row in runtime["panel"]:
             manifest_index = int(panel_row["validation_index"])

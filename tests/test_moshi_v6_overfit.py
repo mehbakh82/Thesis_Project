@@ -10,6 +10,7 @@ import torch
 import yaml
 
 from scripts.evaluate_moshi_v6_overfit import (
+    FUSE_LORA_AT_RUNTIME,
     MIN_NORMALIZED_TEXT_LENGTH,
     normalize_text,
     prefix_character_error_rate,
@@ -166,6 +167,7 @@ def test_runtime_text_gate_has_meaningful_minimum_and_prefix_cer() -> None:
 
 
 def test_frozen_v6_configuration_and_report_match() -> None:
+    assert FUSE_LORA_AT_RUNTIME is False
     config = yaml.safe_load((ROOT / "configs/moshi_h100_v6_overfit.yaml").read_text())
     probe = yaml.safe_load((ROOT / "configs/moshi_h100_v6_overfit_probe.yaml").read_text())
     policy = json.loads((ROOT / "configs/moshi_v6_overfit_policy.json").read_text())

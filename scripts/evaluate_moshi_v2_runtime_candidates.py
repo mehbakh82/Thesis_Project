@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import hashlib
 import json
 import os
 import re
@@ -88,9 +89,7 @@ def candidate_static_validation(
         "saved_config_matches_training": saved_config == expected_config,
         "all_adapter_values_finite": all_values_finite,
         "all_adapter_names_intended": all(
-            "lora" in key
-            or (ft_embed and "emb" in key)
-            or key in selected_embeddings
+            "lora" in key or (ft_embed and "emb" in key) or key in selected_embeddings
             for key in actual_schema
         ),
         "adapter_schema_exact": schema_comparison["exact"] is True,
@@ -127,6 +126,7 @@ def run_candidate_server(
     post_input_silence_seconds: float,
     panel_indices: tuple[int, ...] = PANEL_INDICES,
     split_label: str = "validation",
+    fuse_lora: bool = True,
 ) -> dict[str, Any]:
     ensure_port_available(host, port)
     command = [
@@ -151,6 +151,8 @@ def run_candidate_server(
         "--lora-weight",
         str(adapter_path),
     ]
+    if not fuse_lora:
+        command.append("--no_fuse_lora")
     environment = dict(os.environ)
     environment["PYTHONUNBUFFERED"] = "1"
     environment["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
@@ -214,9 +216,7 @@ def run_candidate_server(
                     "input_audio_hash_current": input_audio_path.is_file()
                     and sha256_file(input_audio_path) == row.get("sha256"),
                     "exercise_completed": sample_error is None,
-                    "complete_user_turn_streamed": exercise.get(
-                        "complete_user_audio_streamed"
-                    )
+                    "complete_user_turn_streamed": exercise.get("complete_user_audio_streamed")
                     is True,
                     "static_bundle_served_exactly": (
                         exercise.get("static_http_status") == 200
@@ -300,6 +300,9 @@ def run_candidate_server(
         "server": {
             "host": host,
             "port": port,
+            "lora_fused": fuse_lora,
+            "log_sha256": hashlib.sha256(clean_output.encode("utf-8")).hexdigest(),
+            "failure_log_tail": clean_output[-4000:] if error is not None else None,
             "ready_seconds": ready_seconds,
             "process_gpu_memory_mib": gpu_memory_mib,
             "socket": socket_report,

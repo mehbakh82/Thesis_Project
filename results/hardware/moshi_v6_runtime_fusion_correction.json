@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "generated_at": "2026-09-01T15:05:00+00:00",
+  "purpose": "preserve and correct the incomplete v6 fused-LoRA runtime attempt",
+  "final_test_accessed": false,
+  "attempt": {
+    "report": "results/moshi_v6_overfit_runtime_attempt1_fused_oom.json",
+    "report_sha256": "187ddced44970a1c0db8aedd01e3d9b39f4bda3ab578f3fd37fdc68e1c092ae5",
+    "candidate_count": 4,
+    "panel_rows_exercised": 0,
+    "failure": "all servers exited before readiness during fused LoRA model loading",
+    "failed_temporary_allocation_mib": 96.0,
+    "free_mib_at_manual_reproduction": 58.75
+  },
+  "diagnosis": {
+    "official_server_fuses_lora_by_default": true,
+    "fused_equation": "W_prime = W + scaling * B @ A",
+    "cause": "the mathematically optional B @ A materialization exceeded current shared-H100 headroom"
+  },
+  "verified_recovery": {
+    "official_flag": "--no_fuse_lora",
+    "semantics": "retain LoRALinear modules and compute the same low-rank update without materializing merged weights",
+    "scope": "manual step-200 official-server startup diagnostic only",
+    "mimi_loaded": true,
+    "moshi_loaded": true,
+    "warmup_completed": true,
+    "bound_loopback": "127.0.0.1:18998",
+    "diagnostic_process_stopped_after_readiness": true
+  },
+  "correction": {
+    "shared_evaluator_default_remains_fused": true,
+    "v6_explicitly_disables_fusion": true,
+    "success_thresholds_changed": false,
+    "panel_or_data_changed": false,
+    "frozen_scientific_protocol_changed": false,
+    "future_failure_reports_retain_sanitized_log_tail": true
+  },
+  "artifacts": {
+    "official_lora_source_sha256": "c703b0548a9a275bd07dfa245867d99c418f4c4c80e7cb1a414e2343562f9706",
+    "official_server_source_sha256": "65a8bd36d869dcc79130479d832c68bca8e28d956be569cecbb096824d0553e6",
+    "shared_evaluator_before_sha256": "0401e143c89c21925ebd4495377143e899acd35303c4c2451279b5a91d69994e",
+    "shared_evaluator_after_sha256": "4c2fdc42be50e1b17184e7126b068e57a44ab452db0b139a8ef3bbb851984a84",
+    "v6_evaluator_before_sha256": "656fbe6d48d25b10fc21b5fa2e83949dcc31da5e00369ff8387a740eff5b4d50",
+    "v6_evaluator_after_sha256": "8cf425527bb7e881690ab319a942683042b9aa62369f44480d03bd2a893aed56"
+  },
+  "note": "Attempt 1 was infrastructure-incomplete and is not a scientific negative. The retry changes only equivalent runtime execution, not weights, data, panel, or gates."
+}

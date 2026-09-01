@@ -1,0 +1,416 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "generated_at": "2026-09-01T14:59:24.929159+00:00",
+  "diagnostic_only": true,
+  "scientific_validation_evidence": false,
+  "generalization_claim_allowed": false,
+  "final_test_accessed": false,
+  "protocol": {
+    "panel_indices": [
+      0,
+      3,
+      7,
+      11,
+      15,
+      19,
+      23,
+      27,
+      31
+    ],
+    "panel_scope": "same 32 train-only rows used by optimization",
+    "all_nine_rows_must_pass": true,
+    "speech_rms_threshold": 0.001,
+    "persian_letter_fraction_threshold": 0.8,
+    "maximum_target_prefix_character_error_rate": 0.75,
+    "replacement_character_allowed": false,
+    "minimum_text_loss_reduction_from_step_50": 0.3
+  },
+  "preconditions": {
+    "protocol_frozen_before_optimizer_step": true,
+    "probe_passed": true,
+    "data_freeze_current": true,
+    "reevaluation_complete_and_in_sample": true,
+    "policy_current": true,
+    "panel_exact": true,
+    "client_build_current": true,
+    "final_test_not_an_input": true
+  },
+  "candidates": [
+    {
+      "error": "RuntimeError: Moshi server exited before readiness: 1",
+      "server": {
+        "host": "127.0.0.1",
+        "port": 18998,
+        "ready_seconds": null,
+        "process_gpu_memory_mib": null,
+        "socket": {
+          "output": "",
+          "local_addresses": [],
+          "loopback_only": false
+        },
+        "exit_code": 1,
+        "frame_processing_ms": {
+          "count": 0,
+          "mean": null,
+          "p95": null,
+          "maximum": null
+        }
+      },
+      "input": {
+        "split": "train_only_in_sample_diagnostic",
+        "manifest": "data/processed/moshi_finetune_v6_overfit/train.jsonl",
+        "manifest_sha256": "efb9533504f947f9fece336a1ceccdd6ca14f2e05928add723e56e218a823645",
+        "panel_indices": [
+          0,
+          3,
+          7,
+          11,
+          15,
+          19,
+          23,
+          27,
+          31
+        ],
+        "audio_retained": false
+      },
+      "panel": [],
+      "panel_pass_count": 0,
+      "panel_count": 0,
+      "expected_panel_count": 9,
+      "server_requirements": {
+        "server_launch_completed": false,
+        "server_process_exited_cleanly": false,
+        "server_bound_loopback_only": false,
+        "official_server_loaded_mimi_and_moshi": false,
+        "server_frame_processing_observed": false,
+        "real_model_gpu_allocation_observed": false,
+        "no_cascade_or_tts_fallback_in_command": true,
+        "all_frozen_panel_rows_exercised": false
+      },
+      "official_server_runtime_passes": false,
+      "all_panel_output_gates_pass": false,
+      "candidate_runtime_passes": false,
+      "static_adapter_validation": {
+        "adapter_bytes": 977794112,
+        "adapter_sha256": "6cf5eb821d72333941b57b68d391ea745fac444808dba93eae9b863f4b6f75d3",
+        "config_sha256": "d714a651ceb9849fff5d1e9b5f53dda91cf09f2ca8351bbda5214f1053664a7f",
+        "tensor_count": 677,
+        "parameter_count": 488854528,
+        "schema_comparison": {
+          "expected_tensor_count": 677,
+          "actual_tensor_count": 677,
+          "missing_keys": [],
+          "unexpected_keys": [],
+          "shape_mismatches": [],
+          "dtype_mismatches": [],
+          "exact": true
+        },
+        "requirements": {
+          "adapter_hash_matches_reevaluation": true,
+          "config_hash_matches_reevaluation": true,
+          "saved_config_matches_training": true,
+          "all_adapter_values_finite": true,
+          "all_adapter_names_intended": true,
+          "adapter_schema_exact": true
+        },
+        "passes": true
+      },
+      "text_eval_loss": 0.2389943862799555,
+      "audio_eval_loss": 1.7997099608182907,
+      "eval_loss": 2.038704347098246,
+      "step": 50,
+      "adapter_path": "checkpoints/moshi_v6_overfit/checkpoints/checkpoint_000050/consolidated/lora.safetensors",
+      "config_path": "checkpoints/moshi_v6_overfit/checkpoints/checkpoint_000050/consolidated/config.json"
+    },
+    {
+      "error": "RuntimeError: Moshi server exited before readiness: 1",
+      "server": {
+        "host": "127.0.0.1",
+        "port": 18998,
+        "ready_seconds": null,
+        "process_gpu_memory_mib": null,
+        "socket": {
+          "output": "",
+          "local_addresses": [],
+          "loopback_only": false
+        },
+        "exit_code": 1,
+        "frame_processing_ms": {
+          "count": 0,
+          "mean": null,
+          "p95": null,
+          "maximum": null
+        }
+      },
+      "input": {
+        "split": "train_only_in_sample_diagnostic",
+        "manifest": "data/processed/moshi_finetune_v6_overfit/train.jsonl",
+        "manifest_sha256": "efb9533504f947f9fece336a1ceccdd6ca14f2e05928add723e56e218a823645",
+        "panel_indices": [
+          0,
+          3,
+          7,
+          11,
+          15,
+          19,
+          23,
+          27,
+          31
+        ],
+        "audio_retained": false
+      },
+      "panel": [],
+      "panel_pass_count": 0,
+      "panel_count": 0,
+      "expected_panel_count": 9,
+      "server_requirements": {
+        "server_launch_completed": false,
+        "server_process_exited_cleanly": false,
+        "server_bound_loopback_only": false,
+        "official_server_loaded_mimi_and_moshi": false,
+        "server_frame_processing_observed": false,
+        "real_model_gpu_allocation_observed": false,
+        "no_cascade_or_tts_fallback_in_command": true,
+        "all_frozen_panel_rows_exercised": false
+      },
+      "official_server_runtime_passes": false,
+      "all_panel_output_gates_pass": false,
+      "candidate_runtime_passes": false,
+      "static_adapter_validation": {
+        "adapter_bytes": 977794112,
+        "adapter_sha256": "dd7e907faaba54a8903aec9cf8a539524838e21244020100c36f16553443f863",
+        "config_sha256": "d714a651ceb9849fff5d1e9b5f53dda91cf09f2ca8351bbda5214f1053664a7f",
+        "tensor_count": 677,
+        "parameter_count": 488854528,
+        "schema_comparison": {
+          "expected_tensor_count": 677,
+          "actual_tensor_count": 677,
+          "missing_keys": [],
+          "unexpected_keys": [],
+          "shape_mismatches": [],
+          "dtype_mismatches": [],
+          "exact": true
+        },
+        "requirements": {
+          "adapter_hash_matches_reevaluation": true,
+          "config_hash_matches_reevaluation": true,
+          "saved_config_matches_training": true,
+          "all_adapter_values_finite": true,
+          "all_adapter_names_intended": true,
+          "adapter_schema_exact": true
+        },
+        "passes": true
+      },
+      "text_eval_loss": 0.027933826931985095,
+      "audio_eval_loss": 1.5178562141954899,
+      "eval_loss": 1.545790041127475,
+      "step": 100,
+      "adapter_path": "checkpoints/moshi_v6_overfit/checkpoints/checkpoint_000100/consolidated/lora.safetensors",
+      "config_path": "checkpoints/moshi_v6_overfit/checkpoints/checkpoint_000100/consolidated/config.json"
+    },
+    {
+      "error": "RuntimeError: Moshi server exited before readiness: 1",
+      "server": {
+        "host": "127.0.0.1",
+        "port": 18998,
+        "ready_seconds": null,
+        "process_gpu_memory_mib": null,
+        "socket": {
+          "output": "",
+          "local_addresses": [],
+          "loopback_only": false
+        },
+        "exit_code": 1,
+        "frame_processing_ms": {
+          "count": 0,
+          "mean": null,
+          "p95": null,
+          "maximum": null
+        }
+      },
+      "input": {
+        "split": "train_only_in_sample_diagnostic",
+        "manifest": "data/processed/moshi_finetune_v6_overfit/train.jsonl",
+        "manifest_sha256": "efb9533504f947f9fece336a1ceccdd6ca14f2e05928add723e56e218a823645",
+        "panel_indices": [
+          0,
+          3,
+          7,
+          11,
+          15,
+          19,
+          23,
+          27,
+          31
+        ],
+        "audio_retained": false
+      },
+      "panel": [],
+      "panel_pass_count": 0,
+      "panel_count": 0,
+      "expected_panel_count": 9,
+      "server_requirements": {
+        "server_launch_completed": false,
+        "server_process_exited_cleanly": false,
+        "server_bound_loopback_only": false,
+        "official_server_loaded_mimi_and_moshi": false,
+        "server_frame_processing_observed": false,
+        "real_model_gpu_allocation_observed": false,
+        "no_cascade_or_tts_fallback_in_command": true,
+        "all_frozen_panel_rows_exercised": false
+      },
+      "official_server_runtime_passes": false,
+      "all_panel_output_gates_pass": false,
+      "candidate_runtime_passes": false,
+      "static_adapter_validation": {
+        "adapter_bytes": 977794112,
+        "adapter_sha256": "84ac0d2de46f61692a94f7ab065af1886e75c3ac813ff2b152b8503d6f83feb5",
+        "config_sha256": "d714a651ceb9849fff5d1e9b5f53dda91cf09f2ca8351bbda5214f1053664a7f",
+        "tensor_count": 677,
+        "parameter_count": 488854528,
+        "schema_comparison": {
+          "expected_tensor_count": 677,
+          "actual_tensor_count": 677,
+          "missing_keys": [],
+          "unexpected_keys": [],
+          "shape_mismatches": [],
+          "dtype_mismatches": [],
+          "exact": true
+        },
+        "requirements": {
+          "adapter_hash_matches_reevaluation": true,
+          "config_hash_matches_reevaluation": true,
+          "saved_config_matches_training": true,
+          "all_adapter_values_finite": true,
+          "all_adapter_names_intended": true,
+          "adapter_schema_exact": true
+        },
+        "passes": true
+      },
+      "text_eval_loss": 0.01003133768972475,
+      "audio_eval_loss": 1.3530183918774128,
+      "eval_loss": 1.3630497295671375,
+      "step": 150,
+      "adapter_path": "checkpoints/moshi_v6_overfit/checkpoints/checkpoint_000150/consolidated/lora.safetensors",
+      "config_path": "checkpoints/moshi_v6_overfit/checkpoints/checkpoint_000150/consolidated/config.json"
+    },
+    {
+      "error": "RuntimeError: Moshi server exited before readiness: 1",
+      "server": {
+        "host": "127.0.0.1",
+        "port": 18998,
+        "ready_seconds": null,
+        "process_gpu_memory_mib": null,
+        "socket": {
+          "output": "",
+          "local_addresses": [],
+          "loopback_only": false
+        },
+        "exit_code": 1,
+        "frame_processing_ms": {
+          "count": 0,
+          "mean": null,
+          "p95": null,
+          "maximum": null
+        }
+      },
+      "input": {
+        "split": "train_only_in_sample_diagnostic",
+        "manifest": "data/processed/moshi_finetune_v6_overfit/train.jsonl",
+        "manifest_sha256": "efb9533504f947f9fece336a1ceccdd6ca14f2e05928add723e56e218a823645",
+        "panel_indices": [
+          0,
+          3,
+          7,
+          11,
+          15,
+          19,
+          23,
+          27,
+          31
+        ],
+        "audio_retained": false
+      },
+      "panel": [],
+      "panel_pass_count": 0,
+      "panel_count": 0,
+      "expected_panel_count": 9,
+      "server_requirements": {
+        "server_launch_completed": false,
+        "server_process_exited_cleanly": false,
+        "server_bound_loopback_only": false,
+        "official_server_loaded_mimi_and_moshi": false,
+        "server_frame_processing_observed": false,
+        "real_model_gpu_allocation_observed": false,
+        "no_cascade_or_tts_fallback_in_command": true,
+        "all_frozen_panel_rows_exercised": false
+      },
+      "official_server_runtime_passes": false,
+      "all_panel_output_gates_pass": false,
+      "candidate_runtime_passes": false,
+      "static_adapter_validation": {
+        "adapter_bytes": 977794112,
+        "adapter_sha256": "cb560cbd8157c17adce8415931b451c042a005ae8a31396e7cf68c060505128d",
+        "config_sha256": "d714a651ceb9849fff5d1e9b5f53dda91cf09f2ca8351bbda5214f1053664a7f",
+        "tensor_count": 677,
+        "parameter_count": 488854528,
+        "schema_comparison": {
+          "expected_tensor_count": 677,
+          "actual_tensor_count": 677,
+          "missing_keys": [],
+          "unexpected_keys": [],
+          "shape_mismatches": [],
+          "dtype_mismatches": [],
+          "exact": true
+        },
+        "requirements": {
+          "adapter_hash_matches_reevaluation": true,
+          "config_hash_matches_reevaluation": true,
+          "saved_config_matches_training": true,
+          "all_adapter_values_finite": true,
+          "all_adapter_names_intended": true,
+          "adapter_schema_exact": true
+        },
+        "passes": true
+      },
+      "text_eval_loss": 0.008926365655497648,
+      "audio_eval_loss": 1.3218197785317898,
+      "eval_loss": 1.3307461441872874,
+      "step": 200,
+      "adapter_path": "checkpoints/moshi_v6_overfit/checkpoints/checkpoint_000200/consolidated/lora.safetensors",
+      "config_path": "checkpoints/moshi_v6_overfit/checkpoints/checkpoint_000200/consolidated/config.json"
+    }
+  ],
+  "selection": null,
+  "artifacts": {
+    "training_config_sha256": "65068af91a4647434ead550d1a8eaaa3546e85dfa1f6c194334f3d733f8bb866",
+    "reevaluation_sha256": "52a2b902f570a555b9d50be1832d7cb896ae3a4f1026a0645f149335e4e0d8d3",
+    "data_report_sha256": "9ff9da1be99ca2a21ad7d7f6a83e98fbd2c77c099f6b02e7b206821c703f6f2d",
+    "preflight_sha256": "b85833d68b35d206be5e6d3b04b02be0873a9e3e9107ea1886468693dfcf746d",
+    "probe_sha256": "fd181e6da11a6e14aa2206bb630adc792c78e1d13505c3fab0971ff5f3ecd7f9",
+    "protocol_sha256": "c952cfc588c165db23af086e1c31ddbd9e6c1b616f2901794053c066f382aff4",
+    "policy_sha256": "fdab6505a05ba2afaecf42d96439aa0f528e0f0af2e22d55c16c4f5685ce6a98",
+    "training_manifest_sha256": "efb9533504f947f9fece336a1ceccdd6ca14f2e05928add723e56e218a823645",
+    "base_model_sha256": "e0a5a1c79010680eb916adb940ee8567978c78902c5a6b743c79202e75858712",
+    "mimi_sha256": "09b782f0629851a271227fb9d36db65c041790365f11bbe5d3d59369cf863f50",
+    "tokenizer_sha256": "78d4336533ddc26f9acf7250d7fb83492152196c6ea4212c841df76933f18d2d",
+    "evaluator_sha256": "656fbe6d48d25b10fc21b5fa2e83949dcc31da5e00369ff8387a740eff5b4d50"
+  },
+  "requirements": {
+    "protocol_frozen_before_optimizer_step": true,
+    "probe_passed": true,
+    "data_freeze_current": true,
+    "reevaluation_complete_and_in_sample": true,
+    "policy_current": true,
+    "panel_exact": true,
+    "client_build_current": true,
+    "final_test_not_an_input": true,
+    "all_candidates_evaluated": true,
+    "all_static_adapter_checks_passed": true,
+    "all_official_servers_exercised": false
+  },
+  "diagnostic_positive": false,
+  "diagnostic_outcome": "negative",
+  "completed_at": "2026-09-01T15:00:30.793751+00:00"
+}
