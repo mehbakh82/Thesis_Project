@@ -49,7 +49,12 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
         "results/hardware/moshi_h100_training.json",
         {"training_run_passes": True, "checkpoint_count": 8, "selected": {"step": 8000}},
     )
-    for version, pass_counts in (("v2", [0, 0]), ("v3", [0]), ("v4", [1, 0])):
+    for version, pass_counts in (
+        ("v2", [0, 0]),
+        ("v3", [0]),
+        ("v4", [1, 0]),
+        ("v5", [0, 1]),
+    ):
         _write(
             tmp_path,
             f"results/moshi_{version}_checkpoint_selection.json",
@@ -81,6 +86,11 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     _write(
         tmp_path,
         "results/hardware/moshi_h100_v4_training.json",
+        {"training_run_passes": True, "test_access_started": False},
+    )
+    _write(
+        tmp_path,
+        "results/hardware/moshi_h100_v5_training.json",
         {"training_run_passes": True, "test_access_started": False},
     )
     _write(
@@ -164,7 +174,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
 
     _write(
         tmp_path,
-        "results/hardware/storage_cleanup_20260830.json",
+        "results/hardware/storage_cleanup_20260831.json",
         {
             "status": "passed",
             "space": {
@@ -177,7 +187,8 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
                 "v2": {"steps": [400, 2000]},
                 "v3": {"steps": [400, 500]},
                 "v4": {"steps": [400, 500]},
-                "count": 11,
+                "v5": {"steps": [400, 500]},
+                "count": 13,
                 "all_sha256_match_committed_evidence": True,
             },
             "protected_artifacts_untouched": ["all tracked results and certificates"],
@@ -193,7 +204,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
 
     assert report["authoritative"] is True
-    assert report["schema_version"] == 5
+    assert report["schema_version"] == 6
     assert report["thesis_ready"] is False
     assert report["generation_policy"]["reads_frozen_final_test_rows"] is False
     assert report["gates"]["audited_export_100_to_200_hours"] is True
@@ -202,9 +213,10 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert report["data"]["exported_hours"] == 108.584
     assert report["direct_moshi"]["deployment_eligible"] is False
     assert report["direct_moshi"]["trials"][3]["runtime_panel_pass_counts"] == [1, 0]
-    assert report["direct_moshi"]["v2_v3_v4_final_test_access_started"] is False
+    assert report["direct_moshi"]["trials"][4]["runtime_panel_pass_counts"] == [0, 1]
+    assert report["direct_moshi"]["v2_to_v5_final_test_access_started"] is False
     assert report["local_artifact_retention"]["cleanup_passed"] is True
-    assert report["local_artifact_retention"]["representative_adapter_count"] == 11
+    assert report["local_artifact_retention"]["representative_adapter_count"] == 13
     assert report["local_artifact_retention"]["full_candidate_tensor_sets_retained"] is False
     assert (
         report["local_artifact_retention"]["scientific_results_configs_certificates_retained"]
@@ -223,6 +235,6 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert report["remaining_work_classification"]["waived_not_completed"]
     summary = render_evidence_summary(report)
     assert "## Local artifact retention" in summary
-    assert "11 representative" in summary
+    assert "13 representative" in summary
     assert "recorded proxy n=132 / 22 sessions" in summary
     assert json.loads(out.read_text(encoding="utf-8")) == report

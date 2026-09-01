@@ -1,6 +1,6 @@
 {
-  "schema_version": 4,
-  "generated_at": "2026-08-30T13:35:10.942390+00:00",
+  "schema_version": 6,
+  "generated_at": "2026-09-01T05:52:29.292464+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -38,14 +38,14 @@
     "split_policy": {
       "unit": "source_session_id",
       "group_isolated": true,
-      "v2_v3_v4_rule": {
+      "v2_to_v5_rule": {
         "group": "source_session_id",
         "hash": "blake2b-64",
         "modulus": 10,
         "heldout_bucket": 0,
         "frozen_before_v2_training": true
       },
-      "v2_v3_v4_sessions": {
+      "v2_to_v5_sessions": {
         "train": 138,
         "validation": 5,
         "final_test": 14,
@@ -274,9 +274,59 @@
           ],
           "peak_allocated_gb": 28.64000654220581
         }
+      },
+      {
+        "version": "v5",
+        "scientific_run_complete": true,
+        "candidate_count": 5,
+        "eligible_candidate_count": 0,
+        "eligible_steps": [],
+        "selected_step": null,
+        "deployment_eligible": false,
+        "fixed_validation_losses": [
+          2.0826758611042484,
+          1.9434592133643807,
+          1.8898615991044905,
+          1.8707194534311358,
+          1.8678590164590156
+        ],
+        "fixed_validation_samples_per_candidate": 202,
+        "runtime_panel_pass_counts": [
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "runtime_panel_failure_counts": [
+          9,
+          9,
+          9,
+          8,
+          8
+        ],
+        "runtime_panel_size": 9,
+        "selection_failed_closed": true,
+        "uncertainty": {
+          "interval": null,
+          "reason": "deterministic complete-scope loss and pass/fail eligibility rule"
+        },
+        "test_access_started": false,
+        "configuration": {
+          "context_seconds": 100.0,
+          "max_steps": 500,
+          "seed": 20260827,
+          "lora_rank": 128,
+          "upstream_ft_embed": false,
+          "selective_embeddings": [
+            "depformer_text_emb.weight",
+            "text_emb.weight"
+          ],
+          "peak_allocated_gb": 28.64000654220581
+        }
       }
     ],
-    "v2_v3_v4_final_test_access_started": false,
+    "v2_to_v5_final_test_access_started": false,
     "v1_automatic_heldout_loss_evidence": {
       "evidence_class": "automatic_model_loss_only",
       "rows": 204,
@@ -294,14 +344,14 @@
       "human_perceptual_claim_allowed": false,
       "deployment_claim_allowed": false
     },
-    "conclusion": "V1 through v4 are scientific training evidence, but none is eligible for deployment or thesis end-to-end claims."
+    "conclusion": "V1 through v5 are scientific training evidence, but none is eligible for deployment or thesis end-to-end claims."
   },
   "local_artifact_retention": {
     "evidence_class": "post_finalization_storage_receipt",
     "cleanup_passed": true,
-    "observed_reclaimed_bytes": 40718569472,
-    "project_size_after": "119G",
-    "representative_adapter_count": 11,
+    "observed_reclaimed_bytes": 44029079552,
+    "project_size_after": "121G",
+    "representative_adapter_count": 13,
     "representative_adapter_steps": {
       "v1": [
         500,
@@ -319,6 +369,10 @@
         500
       ],
       "v4": [
+        400,
+        500
+      ],
+      "v5": [
         400,
         500
       ]
@@ -342,7 +396,59 @@
     "recorded_n": 0,
     "recorded_uncertainty": {
       "interval": null,
-      "reason": "no recorded held-out events"
+      "reason": "no independently human-labeled held-out events"
+    },
+    "recorded_proxy": {
+      "present": true,
+      "evidence_class": "recorded_youtube_diarization_proxy",
+      "recorded_audio": true,
+      "label_source": "automatic_diarization_and_reference_alignment_proxy",
+      "human_verified_labels": 0,
+      "n": 132,
+      "sessions": 22,
+      "accuracy": 0.8106060606060606,
+      "interrupt_f1": 0.7899159663865547,
+      "far": 0.09090909090909091,
+      "frr": 0.2878787878787879,
+      "event_ci95": {
+        "accuracy": [
+          0.7353,
+          0.8683
+        ],
+        "interrupt_f1": [
+          0.6947,
+          0.8633
+        ],
+        "far": [
+          0.0423,
+          0.1845
+        ],
+        "frr": [
+          0.1927,
+          0.4064
+        ]
+      },
+      "session_block_bootstrap_ci95": {
+        "accuracy": [
+          0.7444,
+          0.8718
+        ],
+        "interrupt_f1": [
+          0.7234,
+          0.8571
+        ],
+        "far": [
+          0.0263,
+          0.1692
+        ],
+        "frr": [
+          0.193,
+          0.3723
+        ]
+      },
+      "accuracy_above_80_percent": true,
+      "official_detector_eligible": false,
+      "official_target_satisfied": false
     },
     "evaluation_unit": "event",
     "split_policy": "speaker/session-group-held-out required for official evidence",
@@ -410,7 +516,7 @@
   },
   "required_to_complete": [
     "Produce a validation-eligible Persian direct-model checkpoint before opening that experiment's frozen final test.",
-    "Collect recorded, speaker/session-group-held-out interruption evidence.",
+    "Obtain independently human-reviewed recorded labels and establish >80% on a speaker/session-group-held-out test; the automatic YouTube proxy is not ground truth.",
     "Run the final system and client-acknowledged latency protocol on a physical 12–24 GB GPU such as the planned RTX 4090.",
     "Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+.",
     "Select and add the project source-code license."
@@ -418,7 +524,7 @@
   "remaining_work_classification": {
     "active_evidence_gates": [
       "Produce a validation-eligible Persian direct-model checkpoint before opening that experiment's frozen final test.",
-      "Collect recorded, speaker/session-group-held-out interruption evidence.",
+      "Obtain independently human-reviewed recorded labels and establish >80% on a speaker/session-group-held-out test; the automatic YouTube proxy is not ground truth.",
       "Run the final system and client-acknowledged latency protocol on a physical 12–24 GB GPU such as the planned RTX 4090.",
       "Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+.",
       "Select and add the project source-code license."
@@ -527,11 +633,35 @@
       "bytes": 4666,
       "sha256": "73967abaebc22d126ecb5e9192714953bcf3be41fda7b718eaae2882e091bea4"
     },
+    "moshi_v5_training": {
+      "path": "results/hardware/moshi_h100_v5_training.json",
+      "present": true,
+      "bytes": 9810,
+      "sha256": "fd229b23a25956b15d4a10679acacb074ae21a1558c976639de9ad6dde9f601c"
+    },
+    "moshi_v5_selection": {
+      "path": "results/moshi_v5_checkpoint_selection.json",
+      "present": true,
+      "bytes": 9021,
+      "sha256": "efcfb433923ac681ed8fef0d846ac3b88b875742eb9f4d905fd51d7d39ab8107"
+    },
+    "moshi_v5_result": {
+      "path": "docs/MOSHI_V5_RESULT.md",
+      "present": true,
+      "bytes": 4466,
+      "sha256": "c0d3ff6e900417cc2853ab735d2bc3fc8b99348596b16faf9f38ee272721f666"
+    },
     "interrupt_bench": {
       "path": "results/eval/interrupt_bench.json",
       "present": true,
       "bytes": 1448,
       "sha256": "b64636ecad39b68c5df15901dfaa0b531ddc97b1381b0e6bf991bc0239d59541"
+    },
+    "interrupt_recorded_proxy": {
+      "path": "results/eval/interrupt_recorded_proxy.json",
+      "present": true,
+      "bytes": 15202,
+      "sha256": "5fd98f3104893226e054d007c38c7f8338456c9257e13ecfaa77604adf768d36"
     },
     "human_study": {
       "path": "results/eval/human_study.json",
@@ -549,7 +679,7 @@
       "path": "results/hardware/final_preflight.json",
       "present": true,
       "bytes": 20280,
-      "sha256": "e9bae17938e0b6d16c22ba3be0e36488cdbe21374c0bdb1276d962dcc76e86ff"
+      "sha256": "9dba4d3e503f7144835b242fc7ba184170562926cd15cb745f574fac48d9abc7"
     },
     "latency_h100_capped": {
       "path": "results/eval/latency_bench.json",
@@ -570,10 +700,10 @@
       "sha256": "7178cff7a723ac07e04a1b23c732e543df759af17471419ae4495b33f0fbcdc9"
     },
     "storage_cleanup": {
-      "path": "results/hardware/storage_cleanup_20260830.json",
+      "path": "results/hardware/storage_cleanup_20260831.json",
       "present": true,
-      "bytes": 6772,
-      "sha256": "117be8c193b92ca1f21ac314b5ab1be1e26b9fb0be2e575f8975e9370bdfee5b"
+      "bytes": 3662,
+      "sha256": "5d87d5f4155b8055ba0060849d7902a73c6a1ce218547bc0b5eb6553bc64639f"
     }
   }
 }

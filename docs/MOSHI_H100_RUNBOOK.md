@@ -319,16 +319,17 @@ The complete run certificate is
 ### Post-finalization local retention
 
 The counts above describe what existed when each experiment was evaluated and
-certified. After v1–v4 were finalized as non-deployable, the verified
-2026-08-30 cleanup retained 11 representative adapter tensors: v1 steps
-500/1000/2000/4000/8000, v2 steps 400/2000, and v3/v4 steps 400/500. Every
+certified. After v1–v5 were finalized as non-deployable, the chained verified cleanups
+through 2026-08-31 retained 13 representative adapter tensors: v1 steps
+500/1000/2000/4000/8000, v2 steps 400/2000, and v3/v4/v5 steps 400/500. Every
 retained tensor hash matches its committed certificate. Other non-promoted
 negative intermediates and superseded one-step probe tensors were removed;
 all results, runtime outputs, configurations, logs, schemas, and hashes remain.
 Therefore, commands that reevaluate the complete candidate set require
 retraining the missing candidates first. Never interpret a missing local
 negative tensor as missing historical evidence or permission to revise a
-frozen selection. See `results/hardware/storage_cleanup_20260830.json`.
+frozen selection. See `results/hardware/storage_cleanup_20260831.json`, which
+chains the original 2026-08-30 receipt.
 
 A final run is acceptable only when:
 

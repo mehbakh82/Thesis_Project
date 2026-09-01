@@ -1,14 +1,14 @@
-# Comprehensive project review (updated 2026-08-30)
+# Comprehensive project review (updated 2026-09-01)
 
 ## Verdict
 
 The project has a strong thesis problem, useful infrastructure, and unusually good data-engineering effort, but the earlier implementation overstated two central claims: the trained artifact was not an end-to-end speech LLM, and the browser was not full duplex. The current revision corrects those claims, provides a functional modular cascade plus genuine continuous-microphone interruption control, constructs an auditable conversational training set, and adds a pinned official Moshi/Moshika LoRA path for genuine response-audio adaptation.
 
-Current engineering/research readiness: **8.8/10**. Earlier audited state:
+Current engineering/research readiness: **9.0/10**. Earlier audited state:
 **about 4/10**. A defensible 10/10 cannot be produced entirely in code because
 the active remaining evidence requires a deployment-eligible Persian direct
-model, recorded detector events, human participants, and live measurements on
-the forthcoming physical 4090. The original unwaived rubric also requires the
+model, independently reviewed detector labels, human participants, and live
+measurements on the forthcoming physical 4090. The original unwaived rubric also requires the
 preserved listening reviews.
 
 The student has explicitly waived the conversation and synthesized-assistant
@@ -64,7 +64,7 @@ Corrections:
 - checkpoints declare `runtime_ready: false`;
 - legacy/untyped checkpoints fail closed;
 - serving is unconditionally cascade-only for the legacy artifact;
-- the genuine direct path now uses the pinned official Moshi runtime and LoRA trainer, a fail-closed stereo exporter, a production-audit-clean pinned local client, deterministic single-voice Persian assistant targets, immutable upstream metadata, and exact model-file verification. All three base blobs pass their pinned sizes and SHA-256 hashes. The waiver-bound export is complete at 6,754 pairs / 108.584 final stereo h; an independent audit verifies every artifact/channel/source interval with zero failures and reproduces 24/24 sampled assistant renders exactly. The exact full-shape H100 probe completed model/Mimi/data/loss/backward/fused-AdamW at loss 3.808453 and 22.707 GB peak, then wrote a real 967 MiB/699-tensor adapter through the CPU-offloaded checkpoint path. It was launch evidence only; subsequent v1 through v4 scientific runs completed but all failed the official-runtime generation gates described below.
+- the genuine direct path now uses the pinned official Moshi runtime and LoRA trainer, a fail-closed stereo exporter, a production-audit-clean pinned local client, deterministic single-voice Persian assistant targets, immutable upstream metadata, and exact model-file verification. All three base blobs pass their pinned sizes and SHA-256 hashes. The waiver-bound export is complete at 6,754 pairs / 108.584 final stereo h; an independent audit verifies every artifact/channel/source interval with zero failures and reproduces 24/24 sampled assistant renders exactly. The exact full-shape H100 probe completed model/Mimi/data/loss/backward/fused-AdamW at loss 3.808453 and 22.707 GB peak, then wrote a real 967 MiB/699-tensor adapter through the CPU-offloaded checkpoint path. It was launch evidence only; subsequent v1 through v5 scientific runs completed but all failed the official-runtime generation gates described below.
 
 The later scientific v1 run completed all 8,000 steps and objective held-out
 controls, but official-server validation exposed a decisive generation failure:
@@ -100,10 +100,18 @@ freezing all 23 audio embeddings. Its five complete-scope losses improved from
 of nine. The hash-bound certificate therefore finalized v4 as another negative
 result with null selection and no final-test access.
 
+V5 then tested one predeclared objective change: reducing only the first
+semantic-codebook loss multiplier from 100 to 10. It completed 500/500 steps in
+42m03s with a 28.640 GB maximum logged peak. Complete-scope losses improved
+from 2.082676 to 1.867859, but runtime pass counts were only 0, 0, 0, 1, and 1
+out of nine. Speech rows declined from 9/9 at step 100 to 4/9 at step 500, and
+nonempty text remained predominantly English. V5 therefore also failed closed
+with a null selection; its final test remains untouched.
+
 All candidate tensors existed and were hash-verified when their experiments
-were certified. After finalization, a receipt-backed cleanup reclaimed 37.92
-GiB while retaining 11 representative adapters and every result, configuration,
-runtime output, certificate, and candidate hash. The removed non-promoted
+were certified. Chained receipt-backed cleanup has reclaimed 41.01 GiB while
+retaining 13 representative adapters and every result, configuration, runtime
+output, certificate, and candidate hash. The removed non-promoted
 negative intermediates require retraining for exact tensor recreation; their
 historical findings remain fully attested and cannot be reopened for selection.
 
@@ -113,7 +121,14 @@ The working system is now honestly modular: NeMo ASR → locally cached Qwen2.5-
 
 The energy/F0/MFCC feature direction matches the definition. The new controller maintains a rolling 450 ms window and requires consecutive positive hops. It records a conservative acoustic-onset bound when no explicit onset is supplied.
 
-The prior 1.00 accuracy is only harmonic synthetic evidence. Recorded evaluation is now split by speaker/session so a participant cannot leak across train and test. The >80% thesis claim remains pending until consented held-out recordings exist.
+The prior 1.00 accuracy is only harmonic synthetic evidence. A frozen
+recorded-audio proxy now uses authorized YouTube audio, acoustic-only features,
+and disjoint session groups. Its once-evaluated balanced held-out test contains
+132 events from 22 sessions and reaches 81.06% accuracy, 78.99% interrupt F1,
+9.09% FAR, and 28.79% FRR; the energy/ZCR baseline reaches 78.03%. The
+session-block accuracy interval is 74.44–87.18%. Because labels come from
+automatic diarization/alignment, human-verified labels are zero and the official
+>80% gate remains false.
 
 ### 5. Runtime
 
@@ -164,19 +179,20 @@ Added:
 | Architecture | 6 | 19 | 20 |
 | Implementation correctness | 7 | 18 | 20 |
 | Data engineering and provenance | 9 | 14 | 15 |
-| Evaluation quality | 2 | 6 | 10 |
+| Evaluation quality | 2 | 8 | 10 |
 | Reproducibility, tests, security | 3 | 9 | 10 |
-| **Total** | **36/100** | **88/100** | **100/100** |
+| **Total** | **36/100** | **90/100** | **100/100** |
 
 ## Irreducible path to 10/10
 
 1. Freeze a new validation-only data/objective hypothesis and produce a Persian
    direct checkpoint that passes the unchanged autoregressive eligibility
-   discipline. V1–v4 remain finalized negative results; no checkpoint fishing
+   discipline. V1–v5 remain finalized negative results; no checkpoint fishing
    or final-test access is allowed.
-2. Evaluate the detector on recorded speaker/session-held-out conversational
-   events and establish accuracy strictly above 80%, with F1/FAR/FRR and
-   confidence intervals.
+2. Replace the completed recorded-audio automatic-label proxy with
+   independently human-reviewed event labels, then establish accuracy strictly
+   above 80% on a speaker/session-group-held-out test. The current 81.06% proxy
+   and its interval are engineering evidence, not ground truth.
 3. Run the eligible final model through the live browser protocol on the
    physical 12–24 GB target GPU and export client-acknowledged timing/memory
    evidence.

@@ -1,6 +1,6 @@
 # Checklist for a defensible 10/10 thesis project
 
-Status date: 2026-08-30
+Status date: 2026-09-01
 
 This is the authoritative closure checklist. Mark an item complete only when its
 named artifact exists and its acceptance test passes. Implemented code,
@@ -58,7 +58,7 @@ Verified now:
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
-- [x] Ruff and mypy pass on all 48 source files; all 128 tests pass and
+- [x] Ruff and mypy pass on all 49 source files; all 140 tests pass and
   branch-aware coverage is 63% with a 60% CI floor.
 - [x] General dependencies have no known vulnerabilities; the pinned scientific
   lock has an exact, fail-closed accepted-risk baseline and mitigations.
@@ -70,11 +70,16 @@ Verified now:
   and a 967 MiB/699-tensor CPU-offloaded adapter save; all gates pass.
 - [x] Scientific H100 experiments are preserved honestly: v1 passed
   teacher-forced held-out controls but failed official-runtime generation; v2
-  completed all 20 candidates, v3 completed all five candidates, and v4
-  completed all five selective-text-embedding candidates; all three failed
-  their unchanged autoregressive eligibility gates before final-test access.
-- [ ] Physical-4090 evidence, real detector evidence, perceptual model review,
-  and human study are pending.
+  completed all 20 candidates, v3/v4 completed all five candidates, and v5
+  completed all five reduced-semantic-codebook-weight candidates; v2 through
+  v5 failed their unchanged autoregressive eligibility gates before final-test
+  access.
+- [x] Real-audio automatic-label detector proxy completed once on 132 balanced
+  events / 22 held-out sessions: accuracy 81.06%, interrupt F1 78.99%, FAR
+  9.09%, and FRR 28.79%; it is explicitly ineligible as independent ground
+  truth because human-verified labels remain zero.
+- [ ] Physical-4090 evidence, independently labeled detector evidence,
+  perceptual model review, and human study are pending.
 - [x] GitHub CLI authentication is persistent for `mehbakh82`; the remote is
   configured without placing credentials in the repository.
 
@@ -85,8 +90,9 @@ five primary gates. These are the actual next tasks, in dependency order:
 
 1. Produce a validation-eligible Persian direct-model checkpoint under a newly
    frozen hypothesis, then—and only then—open that experiment's final test.
-2. Collect recorded speaker/session-held-out interruption events and establish
-   real detector accuracy strictly above 80%.
+2. Replace the completed automatic-label recorded-audio proxy with
+   independently human-reviewed event labels, then establish accuracy strictly
+   above 80% on a speaker/session-group-held-out test.
 3. Run the eligible final system on the physical 12–24 GB target GPU, with live
    browser `playback_started` and `playback_stopped_ack` timing.
 4. Complete the consented 5–10-person Persian study, including at least two
@@ -510,10 +516,24 @@ Corrective v2 run:
 - [x] Finalize v4 as a negative result: eligible count zero, selection null,
   certificate passed, and no selected-adapter or final-test stage created.
   `test_access_started=false` remains hash-bound.
+- [x] Freeze v5 before training as a one-factor test of v4: reduce only
+  `first_codebook_weight_multiplier` from 100 to 10, retaining rank-128 LoRA,
+  the exact two text embeddings, frozen audio embeddings, data/split, seed,
+  optimizer, horizon, candidate steps, panel, and all thresholds.
+- [x] Pass the v5 fail-closed preflight and one-step exact-schema probe, then
+  complete 500/500 H100 steps in 42m03s with finite losses and five exact
+  676-tensor checkpoints at a 28.640 GB maximum logged peak.
+- [x] Evaluate all five v5 checkpoints on the identical 202-chunk validation
+  scope and official nine-row runtime panel. Loss improves from 2.082676 to
+  1.867859, but pass counts are only 0/9, 0/9, 0/9, 1/9, and 1/9; speech rows
+  decline from 9/9 to 4/9 and nonempty outputs remain predominantly English.
+- [x] Finalize v5 as a negative result: eligible count zero, selection null,
+  training/pipeline certificates passed, and no selected-adapter or final-test
+  stage created. `test_access_started=false` remains hash-bound.
 
 Exit remains open until a predeclared experiment yields a reproducible,
 loadable adapter that passes both scientific validation and frozen
-autoregressive Persian-output gates. V1 through v4 are finalized negative
+autoregressive Persian-output gates. V1 through v5 are finalized negative
 results and must not be promoted.
 
 ## 7. Validate learning and model quality
@@ -586,6 +606,28 @@ interruption, cancellation, and continued conversation using the final adapter.
 ## 9. Produce real detector evidence
 
 Owner: participants/student for data; Codex for training/analysis.
+
+Completed automatic-label recorded-audio proxy (useful engineering evidence,
+not official ground truth):
+
+- [x] Freeze the event, feature, session-split, threshold-selection, and
+  one-time-test protocol before feature extraction or model fitting.
+- [x] Extract acoustic-only features from authorized real YouTube audio without
+  copying or retaining new raw audio; keep session groups disjoint.
+- [x] Balance and evaluate 1,048 events: train 710 / validation 206 / held-out
+  test 132, with 103 / 24 / 22 disjoint sessions respectively.
+- [x] Tune the GBDT threshold on validation only and evaluate the held-out test
+  once. At threshold 0.70: accuracy 81.06%, interrupt F1 78.99%, FAR 9.09%,
+  FRR 28.79%, confusion matrix `[[60, 6], [19, 47]]`.
+- [x] Report event and session-block bootstrap intervals. Accuracy intervals are
+  73.53–86.83% and 74.44–87.18%, so neither proves the population accuracy is
+  strictly above 80%.
+- [x] Compare the fixed energy/ZCR baseline on the same test: accuracy 78.03%,
+  interrupt F1 71.84%. Preserve the trained proxy-model hash locally.
+- [x] Keep `official_detector_eligible=false`,
+  `official_target_satisfied=false`, and `human_verified_labels=0`.
+
+Official gate still required:
 
 - [ ] Collect consented real events with `features` retention when permitted (no
   WAV). Use `metrics` only when aggregates are prohibited and disclose that it
@@ -678,16 +720,17 @@ Evidence/statistics:
   explicit null/reasons where it is not, model seeds, session-group split
   policy, and exact metric definitions in the generated status/report.
 - [x] Do not select thresholds, checkpoints, trials, or statistics after seeing
-  held-out results; the v2–v4 selectors are validation-only, predeclared, and
+  held-out results; the v2–v5 selectors are validation-only, predeclared, and
   fail closed before final-test access.
 - [x] Reconcile repository README, dataset-card, review, and generated-result
-  numbers through v4; retain older flat-clip figures only where explicitly
+  numbers through v5; retain older flat-clip figures only where explicitly
   labelled historical/provenance evidence.
-- [x] Record the post-finalization storage policy: 11 representative adapters
-  remain locally (v1: 500/1000/2000/4000/8000; v2: 400/2000; v3: 400/500;
-  v4: 400/500), every retained hash matches committed evidence, and 37.92 GiB
-  was reclaimed. Candidate counts and results are historical certificates; an
-  exact recreation of removed negative intermediate tensors requires retraining.
+- [x] Record the chained post-finalization storage policy: 13 representative
+  adapters remain locally (v1: 500/1000/2000/4000/8000; v2: 400/2000; v3:
+  400/500; v4: 400/500; v5: 400/500), every retained hash matches committed
+  evidence, and 41.01 GiB was reclaimed cumulatively. Candidate counts and
+  results are historical certificates; exact recreation of removed negative
+  intermediate tensors requires retraining.
 - [ ] Reconcile the final thesis manuscript and submission tables after the
   remaining external evidence exists.
 
@@ -708,9 +751,10 @@ Thesis narrative:
 
 Final engineering audit:
 
-- [x] Run (2026-08-30: Ruff passed; mypy passed 48 source files; 128 tests
-  passed; all 8 upstream checks passed; final H100 preflight correctly rejects
-  only official target-hardware evaluation; release snapshot generated):
+- [x] Run (2026-09-01: Ruff passed; mypy passed 49 source files; 140 tests
+  passed; 63% branch-aware coverage; all 8 upstream checks passed; final H100
+  preflight correctly rejects official target-hardware evaluation; release
+  snapshot regenerated after the evidence commit):
 
   ```bash
   .venv/bin/ruff check src tests scripts
@@ -734,8 +778,8 @@ Final engineering audit:
   and the corrected full remote run `33314972249` passed at commit `24ec60f`.
 - [ ] Reproduce a deployment-eligible direct-adapter load and frozen held-out
   inference in a separately provisioned clean scientific environment. This is
-  blocked honestly because v1–v4 produced no deployable adapter; opening a
-  v2–v4 final test without an eligible selection remains prohibited.
+  blocked honestly because v1–v5 produced no deployable adapter; opening a
+  v2–v5 final test without an eligible selection remains prohibited.
 - [x] Confirm by test that `features`/`metrics` retention modes write no
   WAV.
 - [x] Run full-history secret/private-path/size scans, general dependency audit,
@@ -765,10 +809,10 @@ privacy-safe repository at approved visibility, restricted handoff, immutable ta
 | Working Persian S2S prototype | Final adapter produces relevant, intelligible Persian speech live | Pending | Adapter hash, runtime logs, held-out output |
 | Full duplex | Mic remains active; interruption stops playback and becomes next-turn context | Control implemented; direct model pending | Client traces and continuation tests |
 | End-to-end ≤500 ms | Max `T_first_audio` ≤500 ms unless another statistic is predeclared; always p50/p95/max | Pending | Physical-4090 `official_e2e` telemetry |
-| Open base adapted to Persian | Moshika 7B LoRA trained on the waiver-bound Persian response pairs | V1 through v4 are runtime-ineligible; no adapter is promoted and the v2/v3/v4 final test remains untouched | Config, logs, adapter hashes, validation reports |
+| Open base adapted to Persian | Moshika 7B LoRA trained on the waiver-bound Persian response pairs | V1 through v5 are runtime-ineligible; no adapter is promoted and the v2–v5 final test remains untouched | Config, logs, adapter hashes, validation reports |
 | 100–200 conversational hours | Final audited/exported hours in range; group-clean, no reused intervals | **108.584 exported h**, 6,754/6,754 pairs, zero audit failures | Conversation audit/export report |
 | Noise/overlap/interruption labels | Conditions present, QA complete, verified interruption, agreed precision | Automatic only | QA reports and final counts |
-| Classical detector >80% | Real group-held-out event accuracy >80%, F1/FAR/FRR reported | Synthetic proxy only | Real held-out report/hash |
+| Classical detector >80% | Independently labeled real group-held-out event accuracy >80%, F1/FAR/FRR reported | Recorded-audio automatic-label proxy: 81.06% on 132 events / 22 sessions, but CI crosses 80% and official eligibility is false | Independently labeled held-out report/hash |
 | 12–24 GB evaluation | Full model fits/runs officially on physical 4090 | Pending | Preflight, VRAM, telemetry |
 | Human evaluation | 5–10 Persian speakers, ≥2 aged 60+, complete ratings | Pending | Study summary/analysis |
 | Elderly findings | Evidence from ≥2 aged 60+, cautiously interpreted | Pending | Age-stratified results |

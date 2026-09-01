@@ -32,6 +32,9 @@ ARTIFACTS: dict[str, str] = {
     "moshi_v4_training": "results/hardware/moshi_h100_v4_training.json",
     "moshi_v4_selection": "results/moshi_v4_checkpoint_selection.json",
     "moshi_v4_result": "docs/MOSHI_V4_RESULT.md",
+    "moshi_v5_training": "results/hardware/moshi_h100_v5_training.json",
+    "moshi_v5_selection": "results/moshi_v5_checkpoint_selection.json",
+    "moshi_v5_result": "docs/MOSHI_V5_RESULT.md",
     "interrupt_bench": "results/eval/interrupt_bench.json",
     "interrupt_recorded_proxy": "results/eval/interrupt_recorded_proxy.json",
     "human_study": "results/eval/human_study.json",
@@ -40,7 +43,7 @@ ARTIFACTS: dict[str, str] = {
     "latency_h100_capped": "results/eval/latency_bench.json",
     "latency_h100_uncapped": "results/eval/latency_bench_path_b.json",
     "metrics_definition": "docs/METRICS.md",
-    "storage_cleanup": "results/hardware/storage_cleanup_20260830.json",
+    "storage_cleanup": "results/hardware/storage_cleanup_20260831.json",
 }
 
 
@@ -212,6 +215,8 @@ def build_evidence_status(
     v3_selection = _read_json(project, ARTIFACTS["moshi_v3_selection"])
     v4_training = _read_json(project, ARTIFACTS["moshi_v4_training"])
     v4_selection = _read_json(project, ARTIFACTS["moshi_v4_selection"])
+    v5_training = _read_json(project, ARTIFACTS["moshi_v5_training"])
+    v5_selection = _read_json(project, ARTIFACTS["moshi_v5_selection"])
     interrupt = _read_json(project, ARTIFACTS["interrupt_bench"])
     recorded_proxy = _read_json(project, ARTIFACTS["interrupt_recorded_proxy"])
     study = _read_json(project, ARTIFACTS["human_study"])
@@ -271,6 +276,7 @@ def build_evidence_status(
         _selection_trial("v2", v2_selection, finalization=v2_finalization, config=v2_config),
         _selection_trial("v3", v3_selection, training=v3_training),
         _selection_trial("v4", v4_selection, training=v4_training),
+        _selection_trial("v5", v5_selection, training=v5_training),
     ]
     direct_model_eligible = any(bool(trial["deployment_eligible"]) for trial in trials)
 
@@ -357,7 +363,7 @@ def build_evidence_status(
     }
 
     payload: dict[str, Any] = {
-        "schema_version": 5,
+        "schema_version": 6,
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "authoritative": True,
         "thesis_ready": thesis_ready,
@@ -384,8 +390,8 @@ def build_evidence_status(
             "split_policy": {
                 "unit": "source_session_id",
                 "group_isolated": bool(audit_requirements.get("session_group_splits_isolated")),
-                "v2_v3_v4_rule": v2_split.get("rule") or {},
-                "v2_v3_v4_sessions": v2_split.get("sessions") or {},
+                "v2_to_v5_rule": v2_split.get("rule") or {},
+                "v2_to_v5_sessions": v2_split.get("sessions") or {},
             },
             "automatic_integrity_audit_passed": bool(export_audit.get("audit_passes")),
             "training_ready_under_documented_qa_waiver": bool(
@@ -409,7 +415,7 @@ def build_evidence_status(
             "deployment_eligible": direct_model_eligible,
             "promoted_adapter": None,
             "trials": trials,
-            "v2_v3_v4_final_test_access_started": any(
+            "v2_to_v5_final_test_access_started": any(
                 bool(trial["test_access_started"]) for trial in trials[1:]
             ),
             "v1_automatic_heldout_loss_evidence": {
@@ -428,7 +434,7 @@ def build_evidence_status(
                 "deployment_claim_allowed": False,
             },
             "conclusion": (
-                "V1 through v4 are scientific training evidence, but none is eligible for "
+                "V1 through v5 are scientific training evidence, but none is eligible for "
                 "deployment or thesis end-to-end claims."
             ),
         },
@@ -436,13 +442,15 @@ def build_evidence_status(
             "evidence_class": "post_finalization_storage_receipt",
             "cleanup_passed": bool(cleanup.get("status") == "passed"),
             "observed_reclaimed_bytes": int(
-                cleanup_space.get("observed_phase_reclaimed_bytes") or 0
+                cleanup_space.get("cumulative_verified_reclaimed_bytes")
+                or cleanup_space.get("observed_phase_reclaimed_bytes")
+                or 0
             ),
             "project_size_after": cleanup_space.get("project_du_after"),
             "representative_adapter_count": int(retained_adapters.get("count") or 0),
             "representative_adapter_steps": {
                 version: list((retained_adapters.get(version) or {}).get("steps") or [])
-                for version in ("v1", "v2", "v3", "v4")
+                for version in ("v1", "v2", "v3", "v4", "v5")
             },
             "all_retained_adapter_hashes_verified": bool(
                 cleanup_postconditions.get("all_retained_adapter_hashes_verified")
@@ -659,7 +667,7 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
         [
             "",
             "V1 was selected under its frozen loss protocol but failed later autoregressive "
-            "runtime validation. V2–v4 each failed closed with zero eligible checkpoints; "
+            "runtime validation. V2–v5 each failed closed with zero eligible checkpoints; "
             "their frozen final tests remain untouched.",
             "",
             f"V1 automatic held-out loss evidence used {v1_loss_evidence.get('rows', 0)} "

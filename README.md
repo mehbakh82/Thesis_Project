@@ -8,10 +8,10 @@ An evidence-first Persian speech prototype that keeps the microphone active duri
 |---|---|
 | Working spoken conversation | Implemented as NeMo Persian ASR → local Qwen2.5-0.5B (rule fallback) → Piper Persian TTS |
 | Full-duplex control | Continuous browser PCM16 stream, rolling energy/F0/MFCC detector, server stop event, client stop acknowledgement |
-| Direct speech LLM | V1 remains rejected for English drift/near-silence. V2 completed all 2,000 steps but failed the corrected complete-prompt official-runtime gates (best: step 400, 2/9). V3 (rank-128, embeddings frozen) completed 500 steps and passed at most 1/9 rows. V4 changed only two text embeddings, completed 500 steps, improved fixed-scope loss from 2.082125 to 1.879061, but passed only 1/9, 0/9, 0/9, 1/9, and 0/9 rows. V2–v4 all failed closed; their fresh 14-session/11.894-hour final test remains untouched and no direct adapter is deployment-eligible. |
+| Direct speech LLM | V1 remains rejected for English drift/near-silence. V2 completed 2,000 steps but passed at most 2/9 runtime rows. V3/V4 completed 500 steps and passed at most 1/9. V5 reduced only the first semantic-codebook multiplier from 100 to 10, completed 500 steps, improved fixed-scope loss from 2.082676 to 1.867859, but passed only 0/9, 0/9, 0/9, 1/9, and 1/9 rows. V2–v5 all failed closed; their fresh 14-session/11.894-hour final test remains untouched and no direct adapter is deployment-eligible. |
 | 100–200 h conversation corpus | Full inventory: **775.887 h / 1,442 long episodes**. The production selection is **219.946 candidate h / 309 episodes** across four channels; 1,129 windows contain **207.154 automatically classified multi-speaker h**, **242.445 aligned staging h**, and **6,754 non-reused response pairs / 123.796 source-pair h**. The immutable Piper derivative is **108.584 measured stereo h**, inside the formal band |
 | Conversational interruption supervision | Raw speaker boundaries recover **770 conservative candidates** (717 interruption-like, 53 backchannel-like) from the 6,754 pairs. The preserved deterministic 24-row sheet was sampled from the earlier 712-candidate pool and covers all four channels / **168.3 seconds** of excerpt audio. They remain automatic candidates; **zero human-verified direct interruptions** are claimed under the waiver |
-| Barge-in >80% | Met only on harmonic synthetic held-out data; real speaker/session-held-out evidence is pending |
+| Barge-in >80% | Recorded-audio automatic-label proxy: 81.06% accuracy / 78.99% interrupt F1 on 132 events from 22 held-out sessions, but the session CI is 74.44–87.18% and human-verified labels are zero. Independent-label official evidence remains pending |
 | ≤500 ms and 12–24 GB official test | Pending live browser measurements on a physical 12–24 GB GPU |
 | Human study | Incomplete; 5–10 participants and at least two aged 60+ are still required. Raw WAV retention is optional |
 
@@ -28,19 +28,22 @@ The bounded v3 experiment restored the pinned trainer's rank-128,
 embedding-frozen LoRA default while keeping v2 data, context, optimizer, seed,
 and output gates unchanged. V4 then changed exactly one factor by training only
 `text_emb.weight` and `depformer_text_emb.weight` alongside the same rank-128
-LoRA, with all 23 audio embeddings frozen. Both completed steps 100–500 and
-failed the unchanged nine-row official-runtime eligibility rule. Selection
-returned null and the final-test firewall remained closed for both versions.
+LoRA, with all 23 audio embeddings frozen. V5 then reduced only the first
+semantic-codebook loss multiplier from 100 to 10. V3–v5 completed steps
+100–500 and failed the unchanged nine-row official-runtime eligibility rule.
+Selection returned null and the final-test firewall remained closed for every
+version.
 
 The project server remains deliberately cascade-only until a Persian adapter passes every gate. The v1 adapter loads in Kyutai's pinned official server but fails autoregressive Persian output, so it cannot activate the direct path. Checkpoint metadata alone can never activate either that failed adapter or the legacy reconstruction artifact.
 
-Post-finalization storage cleanup retains 11 representative adapter tensors:
-v1 steps 500/1000/2000/4000/8000, v2 steps 400/2000, and v3/v4 steps 400/500.
-Their hashes match the committed experiment certificates. All candidate losses,
-runtime outputs, configurations, hashes, and negative verdicts remain tracked,
-but tensors for the other non-promoted candidates were deliberately removed;
-recreating them requires rerunning the frozen training recipe. See
-`results/hardware/storage_cleanup_20260830.json`.
+Post-finalization storage cleanup retains 13 representative adapter tensors:
+v1 steps 500/1000/2000/4000/8000, v2 steps 400/2000, and v3/v4/v5 steps
+400/500. Their hashes match the committed experiment certificates. All
+candidate losses, runtime outputs, configurations, hashes, and negative
+verdicts remain tracked, but tensors for other non-promoted candidates were
+deliberately removed; recreating them requires rerunning the frozen training
+recipe. The chained receipts record 41.01 GiB reclaimed; see
+`results/hardware/storage_cleanup_20260831.json`.
 
 ```text
 natural Persian user audio + approved next-turn text
@@ -69,7 +72,7 @@ rotate it and replace the document with environment-variable placeholders.
 ## Core commands
 
 The general commands below are current. Versioned Moshi post-training commands
-are also preserved as protocol/reconstruction commands: evaluating every v2–v4
+are also preserved as protocol/reconstruction commands: evaluating every v2–v5
 candidate now requires first recreating the removed negative intermediate
 tensors by rerunning the frozen experiment. They must not be used to reopen a
 final test or revise a finalized selection.
@@ -126,6 +129,18 @@ final test or revise a finalized selection.
 # Only after an eligible schema-6 selection and certificate are committed:
 .venv/bin/python scripts/run_moshi_v4_final.py
 
+# Historical v5 negative-result reproduction: change only the semantic
+# codebook multiplier from 100 to 10. No adapter was selected and the final test
+# was never accessed; see docs/MOSHI_V5_RESULT.md.
+.venv/bin/python scripts/preflight_moshi_v5.py
+.venv/bin/python scripts/run_moshi_v5_posttraining.py --training-invocation-id <systemd-invocation-id> --launch-commit <training-launch-commit>
+.venv-moshi/bin/python scripts/record_moshi_v5_training_run.py --launch-commit <training-launch-commit> --service-unit <systemd-unit> --invocation-id <systemd-invocation-id>
+# Only after an eligible schema-7 selection and certificate are committed:
+.venv/bin/python scripts/run_moshi_v5_final.py
+
+# Recorded-audio automatic-label detector proxy (not official ground truth):
+.venv/bin/python scripts/evaluate_recorded_bargein_proxy.py
+
 # Historical v1 evidence
 .venv-moshi/bin/python scripts/reevaluate_moshi_checkpoints.py
 .venv/bin/python scripts/select_moshi_checkpoint.py
@@ -166,6 +181,8 @@ See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/MOSHI_H100_RUNBOOK.md`,
 `docs/NO_RECORDING_ALTERNATIVES.md`, `docs/GPU_4090_RUNBOOK.md`,
 `docs/MANUAL_QA_FA.md`, `docs/INTERRUPTION_QA_FA.md`,
 `docs/MOSHI_V4_SELECTION_PROTOCOL.md`, `docs/MOSHI_V4_RESULT.md`,
+`docs/MOSHI_V5_SELECTION_PROTOCOL.md`, `docs/MOSHI_V5_RESULT.md`,
+`docs/RECORDED_BARGEIN_PROXY_PROTOCOL.md`,
 `docs/RIGHTS_REVIEW_FA.md`, `docs/SUPERVISOR_DECISIONS.md`, and
 `docs/REVIEW.md`.
 

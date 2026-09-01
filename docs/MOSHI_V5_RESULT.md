@@ -63,6 +63,17 @@ attest a negative experiment. Selected-adapter validation, objective final-test
 evaluation, final runtime diagnostics, and a final-pipeline receipt do not
 exist.
 
+## Post-finalization retention
+
+After certification and the null selection were committed, disk-pressure
+cleanup retained the step-400 best-runtime-tied and step-500 minimum-loss
+tensors. Steps 100–300 were non-promoted negative intermediates and were
+removed only after their exact hashes, losses, runtime outputs, schemas,
+configurations, and certificate were committed. Recreating those tensor
+payloads requires rerunning the frozen v5 recipe; the scientific result does
+not depend on their continued local presence. The chained verified receipt is
+`results/hardware/storage_cleanup_20260831.json`.
+
 ## Interpretation and next constraint
 
 The v5 hypothesis is not supported strongly enough for promotion. Reducing the

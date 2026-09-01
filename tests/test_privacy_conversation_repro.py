@@ -308,6 +308,12 @@ def test_upstream_lock_and_release_snapshot(tmp_path: Path, monkeypatch):
     egg_info.mkdir()
     (egg_info / "PKG-INFO").write_text("generated", encoding="utf-8")
     (tmp_path / "README.md").write_text("snapshot", encoding="utf-8")
+    recorded_proxy = tmp_path / "results" / "eval" / "interrupt_recorded_proxy.json"
+    recorded_proxy.parent.mkdir(parents=True)
+    recorded_proxy.write_text("{}", encoding="utf-8")
+    cleanup = tmp_path / "results" / "hardware" / "storage_cleanup_20260831.json"
+    cleanup.parent.mkdir(parents=True)
+    cleanup.write_text("{}", encoding="utf-8")
     legacy_dir = tmp_path / "checkpoints" / "llama_omni2_fa"
     legacy_dir.mkdir(parents=True)
     (legacy_dir / "persian_omni2.pt").write_bytes(b"historical")
@@ -319,6 +325,8 @@ def test_upstream_lock_and_release_snapshot(tmp_path: Path, monkeypatch):
     assert report["files"]["README.md"]["sha256"]
     assert "checkpoints/llama_omni2_fa/persian_omni2.pt" in report["files"]
     assert "checkpoints/llama_omni2_fa/dummy_adapter.pt" not in report["files"]
+    assert "results/eval/interrupt_recorded_proxy.json" in report["files"]
+    assert "results/hardware/storage_cleanup_20260831.json" in report["files"]
     assert "src/generated.egg-info/PKG-INFO" not in report["files"]
     assert (tmp_path / "snapshot.json").is_file()
 

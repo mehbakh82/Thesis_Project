@@ -1,0 +1,110 @@
+{
+  "schema_version": 2,
+  "status": "passed",
+  "generated_at": "2026-08-31T15:53:47Z",
+  "scope": "repository-local ignored v5 checkpoint tensors only",
+  "predecessor": {
+    "path": "results/hardware/storage_cleanup_20260830.json",
+    "sha256": "117be8c193b92ca1f21ac314b5ab1be1e26b9fb0be2e575f8975e9370bdfee5b",
+    "status": "passed"
+  },
+  "scientific_result_commit": "e18fc5e2dcae8acd0c89fbf68761fc2de923b81c",
+  "space": {
+    "filesystem": "local project workspace volume",
+    "available_bytes_before": 44769828864,
+    "available_bytes_after": 48080338944,
+    "observed_phase_reclaimed_bytes": 3310510080,
+    "cumulative_verified_reclaimed_bytes": 44029079552,
+    "net_available_increase_bytes": 3310510080,
+    "project_du_before": "124G",
+    "project_du_after": "121G",
+    "filesystem_utilization_before": "96%",
+    "filesystem_utilization_after": "96%"
+  },
+  "removed": [
+    {
+      "category": "non_promoted_negative_checkpoint_intermediates",
+      "removed_file_bytes": 3310577976,
+      "runs": {
+        "v5": {
+          "base": "checkpoints/moshi_fa_100s_v5_codebook10/checkpoints",
+          "removed_steps": [
+            100,
+            200,
+            300
+          ],
+          "evidence": "results/hardware/moshi_h100_v5_training.json",
+          "selection": "results/moshi_v5_checkpoint_selection.json",
+          "adapter_sha256": {
+            "100": "992dddb20ba4052b5084699071c323b343ecf8faaa1e04f5484b7cccfe18fcb8",
+            "200": "254187145d576c75c580c7aed3512bdea8b830d8a12cf210709d78cc4606c612",
+            "300": "51efd35a6ead31843c7a7af0f13d88150d9dd2f23dd1c3ca997f79a1c201a5af"
+          }
+        }
+      },
+      "reason": "All three tensors were non-promoted intermediates from a finalized negative experiment. Their exact hashes, complete-scope losses, runtime outputs, configurations, and certificate were committed before deletion; checkpoint fishing and final-test access remain prohibited."
+    }
+  ],
+  "retained_representative_adapters": {
+    "v1": {
+      "steps": [
+        500,
+        1000,
+        2000,
+        4000,
+        8000
+      ],
+      "reason": "Every checkpoint used in the v1 post-selection runtime diagnosis, including the selected step 8000."
+    },
+    "v2": {
+      "steps": [
+        400,
+        2000
+      ],
+      "reason": "Best runtime checkpoint and minimum-loss endpoint."
+    },
+    "v3": {
+      "steps": [
+        400,
+        500
+      ],
+      "reason": "Only runtime-passing checkpoint and minimum-loss endpoint."
+    },
+    "v4": {
+      "steps": [
+        400,
+        500
+      ],
+      "reason": "Best retained runtime checkpoint and minimum-loss endpoint."
+    },
+    "v5": {
+      "steps": [
+        400,
+        500
+      ],
+      "reason": "Best runtime-tied checkpoint and minimum-loss endpoint."
+    },
+    "count": 13,
+    "all_sha256_match_committed_evidence": true
+  },
+  "postconditions": {
+    "predecessor_receipt_hash_verified": true,
+    "v5_result_committed_before_cleanup": true,
+    "v5_removed_adapter_hashes_verified_before_deletion": true,
+    "v5_removed_adapter_payloads_absent": true,
+    "v5_retained_adapter_hashes_verified": true,
+    "all_retained_adapter_hashes_verified": true,
+    "v5_final_test_access_started": false,
+    "all_configs_metrics_results_and_certificates_retained": true
+  },
+  "protected_artifacts_untouched": [
+    "hf_cache/pinned",
+    ".venv-moshi",
+    "data/processed/conversations",
+    "data/processed/moshi_finetune",
+    "all real conversation/window/source audio",
+    "all manifests and manifest paths",
+    "all tracked results and certificates",
+    "results/release/final_snapshot.json"
+  ]
+}
