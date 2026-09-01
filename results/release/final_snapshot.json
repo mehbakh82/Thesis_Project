@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-30T13:49:12.884246+00:00",
+  "generated_at": "2026-09-01T05:53:24.052261+00:00",
   "python": "3.12.3",
   "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.39",
   "git": {
     "available": true,
-    "commit": "ad8ebefcd663c4de0ae16f8db2816764e4018078",
+    "commit": "bb7ca9f0461d47f03dd4024cc3e2134bb4d9cc6a",
     "dirty": false
   },
   "gpu": {
@@ -25,15 +25,15 @@
       "utilization_gpu_percent"
     ],
     "rows": [
-      "NVIDIA H100 NVL, 595.71.05, 95830, 55230, 40092, 0"
+      "NVIDIA H100 NVL, 595.71.05, 95830, 56760, 38562, 0"
     ],
     "devices": [
       {
         "name": "NVIDIA H100 NVL",
         "driver_version": "595.71.05",
         "memory_total_mib": 95830,
-        "memory_used_mib": 55230,
-        "memory_free_mib": 40092,
+        "memory_used_mib": 56760,
+        "memory_free_mib": 38562,
         "utilization_gpu_percent": 0
       }
     ]
@@ -67,8 +67,8 @@
       "bytes": 574
     },
     "README.md": {
-      "sha256": "96a20617f73fc9d947a2800549ef698c14c96966d4d51a317f380d6ca7f2037a",
-      "bytes": 12565
+      "sha256": "c1ad498bb91d38f2d4723d67dd1e170bc3d0f027f84b09295834cff1748b8369",
+      "bytes": 13729
     },
     "THIRD_PARTY_NOTICES.md": {
       "sha256": "baf85f0c9f0f47dec437a0280ffe20814e7ccc6157a72c1c7b92d18c6a0c58a6",
@@ -89,6 +89,10 @@
     "configs/bargein.yaml": {
       "sha256": "22292eb4028a17396af1ce5a203dbf98162144e482139a2f580ba5dfcf4facab",
       "bytes": 325
+    },
+    "configs/bargein_recorded_proxy.yaml": {
+      "sha256": "31fb4fe874800617af265e325f62795304b204ddae64ac669146782ad06e4ff8",
+      "bytes": 1566
     },
     "configs/conversation_qa_waiver.yaml": {
       "sha256": "4635426ad3ef5639e45b4cf7b78789485d098b24a9358568b3537e31ac1904f0",
@@ -150,9 +154,21 @@
       "sha256": "f5e0b2948da8ba5fa368e1d8bf3cab5f99fd41d745dae50dff4f39714b857b14",
       "bytes": 1176
     },
+    "configs/moshi_h100_v5.yaml": {
+      "sha256": "d9e3f77975241970ce3f03efe09acade7b75e1eacc26fb0036fa4f8e5a3dac3f",
+      "bytes": 1519
+    },
+    "configs/moshi_h100_v5_probe.yaml": {
+      "sha256": "ef6f9a0fcf3d61690b7576f54bae96c9b9433fed577a5c7053b2a95b625f97d8",
+      "bytes": 1175
+    },
     "configs/moshi_v4_embedding_policy.json": {
       "sha256": "aefb2f1e0a2ea68063f0dd23dfd9ba2ce3d0c37eb5d8cea5b96fdfc32a8b0eda",
       "bytes": 1385
+    },
+    "configs/moshi_v5_embedding_policy.json": {
+      "sha256": "5233ef3f746ae957fcfd0c466316cffba182a4aa0ee72d3386beb97aef1c6bf6",
+      "bytes": 1654
     },
     "configs/moshika_7b_legacy.json": {
       "sha256": "4647280ab3ae080fc9ee06bd9485efad4dd8b39189c813e647c76c87bd47df75",
@@ -167,8 +183,8 @@
       "bytes": 2566
     },
     "docs/CODE.md": {
-      "sha256": "d3133848deea37a86e64f72703a0e7c70cb5efbf59ae5e6c53a155fa4a569d28",
-      "bytes": 5804
+      "sha256": "de246b4ea62e99c5a02e734635824d19d8f699941d77b80efd4265d8bd4dc0ee",
+      "bytes": 5810
     },
     "docs/CONSENT.md": {
       "sha256": "29087db6941dac539668cd5466a67ba126eca399696b907bdb3bc4b218e0d9ba",
@@ -203,8 +219,8 @@
       "bytes": 2493
     },
     "docs/MOSHI_H100_RUNBOOK.md": {
-      "sha256": "ed1416792f2f922859906fe45d0783a1fc4ceb1a4cc7c9b5965db05492951e55",
-      "bytes": 19607
+      "sha256": "52fbb7b4a9928e510b7783f4ab1930d95af7c1837a355c73e07e3d12169aa6c3",
+      "bytes": 19673
     },
     "docs/MOSHI_SELECTION_PROTOCOL.md": {
       "sha256": "f1fb6cfb12fad8bb1f025664640f76fb38bc18af939eda4ea078ab886adf6750",
@@ -230,6 +246,14 @@
       "sha256": "3ff77e1b1a7fffb7f9745d88d1fda9e58f66a4169e8826e75a324c38bc4c5883",
       "bytes": 4901
     },
+    "docs/MOSHI_V5_RESULT.md": {
+      "sha256": "c0d3ff6e900417cc2853ab735d2bc3fc8b99348596b16faf9f38ee272721f666",
+      "bytes": 4466
+    },
+    "docs/MOSHI_V5_SELECTION_PROTOCOL.md": {
+      "sha256": "f5f7f4755583399747f442a97e6aceba9c9489110f3adbe30c4e07ad9ac1c069",
+      "bytes": 4149
+    },
     "docs/MOS_SHEET.md": {
       "sha256": "236a68362e18216c3e80c8a35f75f4ff137473cd67141efb0efb121b025982ed",
       "bytes": 1016
@@ -239,8 +263,8 @@
       "bytes": 6414
     },
     "docs/PROJECT_10_OF_10_CHECKLIST.md": {
-      "sha256": "0669f9a9f83a0a2bdb8ff4d9124d11ea92b1374f4b0ca600309667f3adf00fc2",
-      "bytes": 43905
+      "sha256": "355f49c76d774d1e83005e3c13a12040d7afb695391885e927e5a371398233f9",
+      "bytes": 46787
     },
     "docs/PROMPT_SHEET.md": {
       "sha256": "834713479073112fc0d2fc6f573d1fa742142863f4df67b98f680a856826ef78",
@@ -249,6 +273,10 @@
     "docs/QA_WAIVER.md": {
       "sha256": "c7bfb708c29a45d571c421c4ff42c75336659c4a4674e14ee44aa4c73459b252",
       "bytes": 5155
+    },
+    "docs/RECORDED_BARGEIN_PROXY_PROTOCOL.md": {
+      "sha256": "9a6904bd46d2937bc92c58c625d00917b68fc152c7f7d85d75040cfabb563527",
+      "bytes": 3063
     },
     "docs/RECORDING.md": {
       "sha256": "08302d4f52ef142bc01bae1c35cb3d9349467528ecf146477c586f40df08972a",
@@ -259,8 +287,8 @@
       "bytes": 6066
     },
     "docs/REVIEW.md": {
-      "sha256": "462c7e67f60de1963d346464efde6b6d7fa141627edee6d5ddd83ad1a49731e2",
-      "bytes": 13213
+      "sha256": "6d3491039975e548d6dad13c2afc88c39ecad50a09564a2b702e3a58d1ea6453",
+      "bytes": 14170
     },
     "docs/RIGHTS_REVIEW_FA.md": {
       "sha256": "7194102cd2a936f541c3bb617380d6ffbdd2928f8859f5fd00342901b481492b",
@@ -367,23 +395,27 @@
       "bytes": 1408
     },
     "results/eval/EVIDENCE_STATUS.json": {
-      "sha256": "3723dc49e7d090910a3be02dfc1050ae86c9f14c446191957555c7b8666c2903",
-      "bytes": 18132
+      "sha256": "0c417831e62143c81eaa8e8643666ecc7c182ee07bd1497c1eca8e448d23cc91",
+      "bytes": 21790
     },
     "results/eval/SUMMARY.md": {
-      "sha256": "72ed69ab627de37210c81a2b8a224524d9038bd9475b703d5df2b13b24447502",
-      "bytes": 4534
+      "sha256": "a7c794fcf2557c651459f1ec568a075786ab83884ca0206c0037057947c24bef",
+      "bytes": 5000
     },
     "results/eval/human_study.json": {
       "sha256": "10f922dc8b91d78aad488fc12e8e5a2fd101caae5bd3e1b9fbdcced1aaa41973",
       "bytes": 723
+    },
+    "results/eval/interrupt_recorded_proxy.json": {
+      "sha256": "5fd98f3104893226e054d007c38c7f8338456c9257e13ecfaa77604adf768d36",
+      "bytes": 15202
     },
     "results/hardware/current_preflight.json": {
       "sha256": "3b8ffd16df80f9398fe5762362d9c05561ad14964c848d8b72f218ac67b81805",
       "bytes": 20246
     },
     "results/hardware/final_preflight.json": {
-      "sha256": "e9bae17938e0b6d16c22ba3be0e36488cdbe21374c0bdb1276d962dcc76e86ff",
+      "sha256": "9dba4d3e503f7144835b242fc7ba184170562926cd15cb745f574fac48d9abc7",
       "bytes": 20280
     },
     "results/hardware/moshi_client_build.json": {
@@ -430,6 +462,14 @@
       "sha256": "dfa6ce72531cf39c85e3300915ec2e0f7691369255b9dc7f34461016bf28a8b1",
       "bytes": 9582
     },
+    "results/hardware/moshi_h100_v5_profile_probe.json": {
+      "sha256": "a4497bbb2eebe5c859e04219cd22ef9015bb11fb1af2dae235a67bfbcb8e01d2",
+      "bytes": 4688
+    },
+    "results/hardware/moshi_h100_v5_training.json": {
+      "sha256": "fd229b23a25956b15d4a10679acacb074ae21a1558c976639de9ad6dde9f601c",
+      "bytes": 9810
+    },
     "results/hardware/moshi_v2_negative_selection_finalization.json": {
       "sha256": "3b04a81ad952f6ab1ef737050846cbd65a88c0d55b3eed40cfbf7a40eb303abc",
       "bytes": 2191
@@ -450,9 +490,21 @@
       "sha256": "345a1f9bc877d3a16dd129d48189c3e452eda281c4e4161695d95bb71b0f1854",
       "bytes": 4109
     },
+    "results/hardware/moshi_v5_preflight.json": {
+      "sha256": "e27c5cb2259eccb66e416fa6db2e05140a7e69d7c2fe078dde82815bfce116b1",
+      "bytes": 3768
+    },
+    "results/hardware/moshi_v5_validation_pipeline.json": {
+      "sha256": "c159ee9f15b003b45ad55f93513e440544f1f66d28bcaeb5cccdae19f220de9f",
+      "bytes": 4109
+    },
     "results/hardware/storage_cleanup_20260830.json": {
       "sha256": "117be8c193b92ca1f21ac314b5ab1be1e26b9fb0be2e575f8975e9370bdfee5b",
       "bytes": 6772
+    },
+    "results/hardware/storage_cleanup_20260831.json": {
+      "sha256": "5d87d5f4155b8055ba0060849d7902a73c6a1ce218547bc0b5eb6553bc64639f",
+      "bytes": 3662
     },
     "results/moshi_adapter_validation.json": {
       "sha256": "4433b55c8ae8a912e1026fdba39bd4291b751f62de47feb80d26e88fd2169956",
@@ -514,6 +566,18 @@
       "sha256": "325a1bbb99c4335741e6a403535268c834216789a9ff39d773042a9ff4c9b301",
       "bytes": 7862
     },
+    "results/moshi_v5_checkpoint_selection.json": {
+      "sha256": "efcfb433923ac681ed8fef0d846ac3b88b875742eb9f4d905fd51d7d39ab8107",
+      "bytes": 9021
+    },
+    "results/moshi_v5_runtime_candidates.json": {
+      "sha256": "84c99ff2b01ea36b10713d33892bea2f8b6d946bdde6a2df7f4cafa019e0ce87",
+      "bytes": 139514
+    },
+    "results/moshi_v5_validation_reevaluation.json": {
+      "sha256": "2e381b44c2c5e74c9fbedf75636aba803eaaee9a83b33635ef4305d0e4f4499f",
+      "bytes": 7863
+    },
     "results/moshi_validation_reevaluation.json": {
       "sha256": "f264dad8826b61f751e198a208c40bb5cdfdca8e92ad05afcfc4d1762deb576d",
       "bytes": 20037
@@ -566,6 +630,14 @@
       "sha256": "000e194bf771f5aa1e7077be09bf2ef6156deabe2d9e35430ecbddc53a57ccdd",
       "bytes": 16380
     },
+    "scripts/evaluate_moshi_v5_runtime_candidates.py": {
+      "sha256": "d83e2beb83fb9d97e5110d33ca95b38986c83ee2210f922910fdc3d7bf677eb5",
+      "bytes": 16691
+    },
+    "scripts/evaluate_recorded_bargein_proxy.py": {
+      "sha256": "8a8ecb491430051f3de1444d7eec04fb8381c53165627c8141a965bfc4981411",
+      "bytes": 954
+    },
     "scripts/finalize_moshi_v2_negative_selection.py": {
       "sha256": "aece92661b40620831098250572b6e43d88e80ba00399689e53f4d23031d8e1e",
       "bytes": 8345
@@ -593,6 +665,10 @@
     "scripts/preflight_moshi_v4.py": {
       "sha256": "e4a71229c591b88786306abc85e311528d7dca656b91a01ac9c8a81f6daa3e52",
       "bytes": 13508
+    },
+    "scripts/preflight_moshi_v5.py": {
+      "sha256": "18f89dcdbde3eefc511d2454bb2e06e7411199b79cb5f5313e096e3b2ffc10ac",
+      "bytes": 14463
     },
     "scripts/prepare_moshi_base.py": {
       "sha256": "5bed9ffa8a2953d317cb6539e2177c4c30871e75323bf8a2bc3b40c75e569345",
@@ -630,6 +706,10 @@
       "sha256": "4c68d69848de20b1ec4da11d1a65e7001265dee0a1bc47e1e984031aeb2c9d1a",
       "bytes": 17285
     },
+    "scripts/record_moshi_v5_training_run.py": {
+      "sha256": "d98e681a9bfe5553fd0e3790eee74ae408c90d070c0a9a890ced3d5b70728e84",
+      "bytes": 17420
+    },
     "scripts/reevaluate_moshi_checkpoints.py": {
       "sha256": "9d42c6c74c092fb45dbd2b633d669e072c223fcd873970c1b7a8d8bd3e0eada3",
       "bytes": 18674
@@ -662,13 +742,21 @@
       "sha256": "918270f814e9e49559a264877bffc4ea6d5e660d9e49086fec457a522a876e3f",
       "bytes": 12673
     },
+    "scripts/run_moshi_v5_final.py": {
+      "sha256": "045264057718575ff8119c566b72fbaa228c1695f714b5bd02117c79119dee8f",
+      "bytes": 9129
+    },
+    "scripts/run_moshi_v5_posttraining.py": {
+      "sha256": "ab7de7d08147631c028c7697e5e3e179dd6fed55ff6cdb4ed7b273dd5da423ab",
+      "bytes": 12673
+    },
     "scripts/select_moshi_checkpoint.py": {
       "sha256": "db7668224a467f5d0f4441ba19111b5dd53ecccdd6ab80de377a7ad0140b91d9",
       "bytes": 8038
     },
     "scripts/select_moshi_v2_checkpoint.py": {
-      "sha256": "7b0c5219c419a20d162364289f1c2ca29f846eb48279cb40067670e5c4d559ae",
-      "bytes": 13429
+      "sha256": "75af9a18b19ba41478aa28c0805065e91c7e63748cfc6668cca7df5057774ca3",
+      "bytes": 13517
     },
     "scripts/validate_moshi_adapter.py": {
       "sha256": "7a9cb0af1f08f35b33023853cc0be626d59865525d44187adcdf4dc44f41bb42",
@@ -721,6 +809,10 @@
     "src/thesis_s2s/bargein/realtime.py": {
       "sha256": "f2e0e5308f618ce83ce8249d40452c4abcfaf66b6ff6fb351c62d9909774ee8d",
       "bytes": 3436
+    },
+    "src/thesis_s2s/bargein/recorded_proxy.py": {
+      "sha256": "6e08302daa596b8d2844299ddaade7c96fe9f86d1948babcb22b896b809e992e",
+      "bytes": 23213
     },
     "src/thesis_s2s/bargein/synthetic.py": {
       "sha256": "e2734097f2f42b872c5ea8aeb4f330667a0de5303a810df7b9eea40c8ba982d9",
@@ -835,8 +927,8 @@
       "bytes": 9384
     },
     "src/thesis_s2s/eval/evidence.py": {
-      "sha256": "d8f7befe6278375b51ae9153df1db64dd1869b354dc748d99f49c7ac286a7b93",
-      "bytes": 33924
+      "sha256": "bc1eaf747228bf233687dce9a81ddee57589416fe236e6d2b0856c2bb7dce13c",
+      "bytes": 36648
     },
     "src/thesis_s2s/eval/wer.py": {
       "sha256": "f5d57129603ebafcba55700680a85a89fe9863be64264a30b2632ab0f57cd6b7",
@@ -855,8 +947,8 @@
       "bytes": 20909
     },
     "src/thesis_s2s/repro.py": {
-      "sha256": "779a0fe230f882ce3565597d0faa78dea7aac486fa8e90752cd732f33c57c99c",
-      "bytes": 47734
+      "sha256": "c4bccc1ad491a36346f3461f957ff1f46037322934d7e0fbcbe211d4445c26a6",
+      "bytes": 48204
     },
     "src/thesis_s2s/runtime/__init__.py": {
       "sha256": "94dd29c6b3f956bdd1baee914fc4d86ae4e6ac4b41724cd34a76f3fde4f7d8b8",
@@ -886,6 +978,10 @@
       "sha256": "cd4dc283d890cf84ff7181f9e727fdf332247d219d89009f08c7eed7a87804be",
       "bytes": 1648
     },
+    "tests/test_bargein_recorded_proxy.py": {
+      "sha256": "b80f8fca25ac2664d157b61ca146bcd1b37f6416d32fb45459949fea4a2ffc83",
+      "bytes": 4762
+    },
     "tests/test_cli.py": {
       "sha256": "8d4f7ff1a808876b2a510e8232286eaf76184801bdd2525dee99c12a31de4c96",
       "bytes": 1045
@@ -903,8 +999,8 @@
       "bytes": 1504
     },
     "tests/test_evidence_status.py": {
-      "sha256": "e74c283699477debb372e0baefb5a5d924ab216ae215567ac40bf6d165c285e4",
-      "bytes": 7299
+      "sha256": "0e02c30911f925dc4f2393667fd92fca867e15d428d929f47e115322d5bec8d4",
+      "bytes": 8976
     },
     "tests/test_integrity.py": {
       "sha256": "509b402e47ca677beb204a8a42913ae4290f6340e7889ce786b0239fd3c54e40",
@@ -947,8 +1043,8 @@
       "bytes": 2245
     },
     "tests/test_moshi_v2_selection.py": {
-      "sha256": "4f68dacc46d8c93606305f3a2c0694612c4b27a5d624c546c1eaebff0d13bd22",
-      "bytes": 7323
+      "sha256": "9e294706ae43cc95d391316d296dad442874c95b0e32db970a785c46de56ee82",
+      "bytes": 8180
     },
     "tests/test_moshi_v3_final.py": {
       "sha256": "c82b8dad1dd207253a493bf04ca2ade7dcbf7795c1938b31af72d76dd54d64ed",
@@ -974,13 +1070,25 @@
       "sha256": "17f7e9d13579438ef58c2e4660c52d6641bd8c570f291f4f37f90cedb7bfba6e",
       "bytes": 1786
     },
+    "tests/test_moshi_v5_final.py": {
+      "sha256": "97f4809432c377d6376861b246b9374c56ee4438429b9761ccbe66ff3dfb96f0",
+      "bytes": 777
+    },
+    "tests/test_moshi_v5_pipeline.py": {
+      "sha256": "c041a632aca9f68e1e63435e2aee36bda6c67568b4901152eae9bb026f09503e",
+      "bytes": 838
+    },
+    "tests/test_moshi_v5_preflight.py": {
+      "sha256": "c0faad77181e7bba09dff87fe8b4e9795a43499b975b2a86e046762d49572dfb",
+      "bytes": 2638
+    },
     "tests/test_prepare.py": {
       "sha256": "af88a9ddbf0698bb557392b47cea43bd2a0d6f105a8b437b9e508962e4d2040d",
       "bytes": 7843
     },
     "tests/test_privacy_conversation_repro.py": {
-      "sha256": "9ea3e12fbe69ee364fb802f404120fede6f97eafb1c4b6cee4f20a88f2ac8a84",
-      "bytes": 25453
+      "sha256": "9caaa922274042309b369b308638b1859ab44d2d712f9d25c901d9c88bdb49e4",
+      "bytes": 25960
     },
     "tests/test_qa_waiver.py": {
       "sha256": "7c24a7fcb66aa8e50803f5402844f34badaa86a66bcb63ac801fb23f91ca29a9",
@@ -1007,5 +1115,5 @@
       "bytes": 1220
     }
   },
-  "file_count": 238
+  "file_count": 265
 }
