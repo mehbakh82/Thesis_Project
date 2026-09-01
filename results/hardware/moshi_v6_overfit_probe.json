@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "completed_at": "2026-09-01T14:48:41.820519",
+  "purpose": "one-step exact-full-profile v6 in-sample diagnostic probe",
+  "diagnostic_only": true,
+  "scientific_validation_evidence": false,
+  "persian_quality_claim_allowed": false,
+  "final_test_accessed": false,
+  "runtime_environment": {
+    "MOSHI_DISTRIBUTED_BACKEND": "gloo",
+    "MOSHI_PERSIAN_TEXT_ADAPTATION": "1",
+    "MOSHI_TEXT_EMBEDDINGS_ONLY": "0",
+    "MOSHI_AUDIO_LOSS_WEIGHT": "0.1"
+  },
+  "step": {
+    "number": 1,
+    "loss": 2.571399211883545,
+    "peak_allocated_gb": 22.65961456298828
+  },
+  "checkpoint": {
+    "bytes": 977794112,
+    "sha256": "031d404ea5b00e1f0dc3d36ca60698fd505ef2794156ad512690cd6921ef2fca",
+    "tensor_count": 677,
+    "lora_tensor_count": 674,
+    "full_parameters": [
+      "depformer_text_emb.weight",
+      "text_emb.weight",
+      "text_linear.frozen_W.weight"
+    ]
+  },
+  "requirements": {
+    "preflight_passed": true,
+    "runtime_environment_exact": true,
+    "one_optimizer_step_completed": true,
+    "finite_loss": true,
+    "full_training_shape_matches": true,
+    "resolved_args_match_probe": true,
+    "evaluation_disabled": true,
+    "checkpoint_present": true,
+    "adapter_tensor_scope_exact": true,
+    "adapter_size_matches_estimate": true,
+    "real_model_memory_allocated": true,
+    "preflight_bound_to_current_files": true
+  },
+  "probe_passes": true,
+  "artifacts": {
+    "metrics_sha256": "9984d9973484571186ef13b2f45cc028a2c30295a879ca75687197e330cd1b56",
+    "resolved_args_sha256": "2308eb3a7199b2e68862fbcbe28ee4746bd2a9901333328fa176b7f167b7787c",
+    "probe_config_sha256": "ec22e99c05434d79695bb1bf082833a60b27b10992308785126175ab5c08fc84",
+    "full_config_sha256": "65068af91a4647434ead550d1a8eaaa3546e85dfa1f6c194334f3d733f8bb866",
+    "policy_sha256": "fdab6505a05ba2afaecf42d96439aa0f528e0f0af2e22d55c16c4f5685ce6a98",
+    "preflight_sha256": "b85833d68b35d206be5e6d3b04b02be0873a9e3e9107ea1886468693dfcf746d",
+    "adapter_config_sha256": "d714a651ceb9849fff5d1e9b5f53dda91cf09f2ca8351bbda5214f1053664a7f"
+  }
+}
