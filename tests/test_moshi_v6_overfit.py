@@ -189,6 +189,7 @@ def test_frozen_v6_configuration_and_report_match() -> None:
     assert policy["trainable_full_parameters"] == sorted(PERSIAN_TEXT_PARAMETER_NAMES)
     assert policy["expected_total_adapter_tensor_count"] == 677
     assert policy["audio_loss_weight"] == 0.1
+    assert policy["launcher_environment"]["MOSHI_DISTRIBUTED_BACKEND"] == "gloo"
     assert report["passes"] is True
     assert report["human_verified"] is False
     assert report["mechanically_filtered_not_human_clean"] is True

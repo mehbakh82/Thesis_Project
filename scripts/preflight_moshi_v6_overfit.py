@@ -225,6 +225,7 @@ def main() -> int:
             and policy.get("estimated_adapter_bytes") == estimate["estimated_adapter_bytes"]
             and (policy.get("launcher_environment") or {})
             == {
+                "MOSHI_DISTRIBUTED_BACKEND": "gloo",
                 "MOSHI_PERSIAN_TEXT_ADAPTATION": "1",
                 "MOSHI_TEXT_EMBEDDINGS_ONLY": "0",
                 "MOSHI_AUDIO_LOSS_WEIGHT": "0.1",

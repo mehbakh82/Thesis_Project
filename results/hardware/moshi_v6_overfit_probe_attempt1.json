@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "attempt": 1,
+  "started_at": "2026-09-01T06:48:08+00:00",
+  "completed_at": "2026-09-01T06:48:55+00:00",
+  "purpose": "one-step exact-shape v6 hardware probe",
+  "diagnostic_only": true,
+  "scientific_validation_evidence": false,
+  "final_test_accessed": false,
+  "optimizer_step_completed": false,
+  "model_loading_started": false,
+  "run_directory_created": false,
+  "launch": {
+    "commit": "9636a1985b5a40b271a6d588696e62292d652446",
+    "backend": "nccl",
+    "world_size": 1,
+    "command": "CUDA_VISIBLE_DEVICES=0 MOSHI_DISTRIBUTED_BACKEND=nccl MOSHI_PERSIAN_TEXT_ADAPTATION=1 MOSHI_TEXT_EMBEDDINGS_ONLY=0 MOSHI_AUDIO_LOSS_WEIGHT=0.1 .venv-moshi/bin/torchrun --standalone --nproc-per-node 1 scripts/moshi_train_entry.py configs/moshi_h100_v6_overfit_probe.yaml"
+  },
+  "failure": {
+    "exit_code": -11,
+    "signal": "SIGSEGV",
+    "component": "libnccl.so.2",
+    "kernel_event_at": "2026-09-01T06:48:09+00:00",
+    "kernel_evidence": "python segfault in libnccl.so.2 during communicator initialization",
+    "classification": "known host-specific pinned NCCL 2.21.5 single-rank initialization failure"
+  },
+  "recovery": {
+    "action": "bind the documented, previously validated world-size-one Gloo compatibility backend in the v6 policy and regenerate preflight evidence",
+    "scientific_protocol_changed": false,
+    "data_or_success_threshold_changed": false
+  },
+  "artifacts": {
+    "attempt1_preflight_sha256": "ecd245a755ff335212023e34fa4eac89f482f5cf28bc312201f721e4b612691b",
+    "documented_smoke_evidence_sha256": "8d9937a38a93eecd2338863f2fbabd2edac1faeadd492998f3dbad76d277e1ed",
+    "runbook_sha256": "52fbb7b4a9928e510b7783f4ab1930d95af7c1837a355c73e07e3d12169aa6c3"
+  },
+  "note": "The failure occurred before model loading and before any optimizer step; it is not a training or model-quality outcome."
+}

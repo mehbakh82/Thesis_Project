@@ -22,6 +22,8 @@ generalization or deployment readiness.
   least 95% Persian letters among alphabetic target characters.
 - The rows remain automatically transcribed and are **not human-clean**.
 - The model starts from the unchanged pinned Moshika/Mimi/tokenizer weights.
+- The documented one-GPU `MOSHI_DISTRIBUTED_BACKEND=gloo` compatibility path
+  is mandatory because this host's pinned NCCL 2.21.5 crashes before model load.
 - Rank-128 LoRA remains enabled. Audio embeddings remain frozen.
 - `text_emb.weight`, `depformer_text_emb.weight`, and the independent full
   `text_linear.frozen_W.weight` are trainable.
