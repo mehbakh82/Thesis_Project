@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import math
 import os
 import runpy
 import sys
@@ -12,6 +13,14 @@ TEXT_EMBEDDING_PARAMETER_NAMES = frozenset(
     {
         "depformer_text_emb.weight",
         "text_emb.weight",
+    }
+)
+
+PERSIAN_TEXT_PARAMETER_NAMES = frozenset(
+    {
+        "depformer_text_emb.weight",
+        "text_emb.weight",
+        "text_linear.frozen_W.weight",
     }
 )
 
@@ -107,6 +116,24 @@ def _configure_repeatable_eval_loader(data_loader_module) -> None:
     os.environ["MOSHI_REPEATABLE_EVAL_LOADER_EFFECTIVE"] = "true"
 
 
+def _configure_audio_loss_weight(loss_module, weight: float) -> None:
+    """Apply an explicit global weight to the complete audio objective."""
+
+    if not math.isfinite(weight) or not 0.0 < weight <= 1.0:
+        raise RuntimeError("MOSHI_AUDIO_LOSS_WEIGHT must be finite and in (0, 1]")
+    original_compute_loss = loss_module.compute_loss_with_mask
+
+    def compute_loss_with_mask(*args, **kwargs):
+        mode = kwargs.get("mode")
+        if mode is None and len(args) >= 4:
+            mode = args[3]
+        loss = original_compute_loss(*args, **kwargs)
+        return loss * weight if mode == "audio" else loss
+
+    loss_module.compute_loss_with_mask = compute_loss_with_mask
+    os.environ["MOSHI_AUDIO_LOSS_WEIGHT_EFFECTIVE"] = str(weight)
+
+
 def _configure_text_embeddings_only(wrapped_model_module) -> None:
     """Train the two text embeddings while keeping every audio embedding frozen."""
 
@@ -131,15 +158,61 @@ def _configure_text_embeddings_only(wrapped_model_module) -> None:
         }
         if trainable_embeddings != TEXT_EMBEDDING_PARAMETER_NAMES:
             raise RuntimeError(
-                "unexpected trainable embedding scope: "
-                f"{sorted(trainable_embeddings)}"
+                f"unexpected trainable embedding scope: {sorted(trainable_embeddings)}"
             )
-        os.environ["MOSHI_TEXT_EMBEDDINGS_ONLY_EFFECTIVE"] = ",".join(
-            sorted(trainable_embeddings)
-        )
+        os.environ["MOSHI_TEXT_EMBEDDINGS_ONLY_EFFECTIVE"] = ",".join(sorted(trainable_embeddings))
         print(
             "MOSHI_TEXT_EMBEDDINGS_ONLY_EFFECTIVE="
             + os.environ["MOSHI_TEXT_EMBEDDINGS_ONLY_EFFECTIVE"],
+            flush=True,
+        )
+        return model
+
+    wrapped_model_module.get_fsdp_model = get_fsdp_model
+
+
+def _configure_persian_text_adaptation(wrapped_model_module) -> None:
+    """Train the untied text head and text embeddings while audio embeddings stay frozen."""
+
+    original_get_fsdp_model = wrapped_model_module.get_fsdp_model
+
+    def get_fsdp_model(args, checkpoint_info):
+        if args.full_finetuning or not args.lora.enable or args.lora.ft_embed:
+            raise RuntimeError(
+                "Persian text adaptation requires LoRA, partial finetuning, and ft_embed=false"
+            )
+        model = original_get_fsdp_model(args, checkpoint_info)
+        parameters = dict(model.named_parameters())
+        missing = PERSIAN_TEXT_PARAMETER_NAMES - parameters.keys()
+        if missing:
+            raise RuntimeError(f"missing required Persian text parameters: {sorted(missing)}")
+        for name in PERSIAN_TEXT_PARAMETER_NAMES:
+            parameters[name].requires_grad = True
+        trainable_full_parameters = {
+            name
+            for name, parameter in model.named_parameters()
+            if parameter.requires_grad and "lora" not in name
+        }
+        if trainable_full_parameters != PERSIAN_TEXT_PARAMETER_NAMES:
+            raise RuntimeError(
+                f"unexpected trainable full-parameter scope: {sorted(trainable_full_parameters)}"
+            )
+        trainable_audio_embeddings = {
+            name
+            for name, parameter in model.named_parameters()
+            if parameter.requires_grad
+            and (name.startswith("emb.") or name.startswith("depformer_emb."))
+        }
+        if trainable_audio_embeddings:
+            raise RuntimeError(
+                f"unexpected trainable audio embeddings: {sorted(trainable_audio_embeddings)}"
+            )
+        os.environ["MOSHI_PERSIAN_TEXT_ADAPTATION_EFFECTIVE"] = ",".join(
+            sorted(trainable_full_parameters)
+        )
+        print(
+            "MOSHI_PERSIAN_TEXT_ADAPTATION_EFFECTIVE="
+            + os.environ["MOSHI_PERSIAN_TEXT_ADAPTATION_EFFECTIVE"],
             flush=True,
         )
         return model
@@ -158,6 +231,7 @@ def main() -> None:
     import finetune.checkpointing as finetune_checkpointing
     import finetune.data.data_loader as finetune_data_loader
     import finetune.distributed as finetune_distributed
+    import finetune.loss as finetune_loss
     import finetune.wrapped_model as finetune_wrapped_model
     import torch
 
@@ -167,8 +241,21 @@ def main() -> None:
     text_embedding_policy = os.environ.get("MOSHI_TEXT_EMBEDDINGS_ONLY", "0").strip()
     if text_embedding_policy not in {"0", "1"}:
         raise RuntimeError("MOSHI_TEXT_EMBEDDINGS_ONLY must be exactly 0 or 1")
+    persian_text_policy = os.environ.get("MOSHI_PERSIAN_TEXT_ADAPTATION", "0").strip()
+    if persian_text_policy not in {"0", "1"}:
+        raise RuntimeError("MOSHI_PERSIAN_TEXT_ADAPTATION must be exactly 0 or 1")
+    if text_embedding_policy == "1" and persian_text_policy == "1":
+        raise RuntimeError("text-embedding-only and Persian-text modes are mutually exclusive")
     if text_embedding_policy == "1":
         _configure_text_embeddings_only(finetune_wrapped_model)
+    elif persian_text_policy == "1":
+        _configure_persian_text_adaptation(finetune_wrapped_model)
+    audio_loss_weight_text = os.environ.get("MOSHI_AUDIO_LOSS_WEIGHT", "1.0").strip()
+    try:
+        audio_loss_weight = float(audio_loss_weight_text)
+    except ValueError as exc:
+        raise RuntimeError("MOSHI_AUDIO_LOSS_WEIGHT must be numeric") from exc
+    _configure_audio_loss_weight(finetune_loss, audio_loss_weight)
 
     if "CUDA_VISIBLE_DEVICES" not in os.environ:
         if torch.cuda.device_count() != 1:

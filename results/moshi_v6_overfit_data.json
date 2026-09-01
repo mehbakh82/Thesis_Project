@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "purpose": "train-only in-sample Moshi v6 Persian capacity diagnostic",
+  "scientific_scope": "diagnostic_not_validation_or_final_test",
+  "human_verified": false,
+  "mechanically_filtered_not_human_clean": true,
+  "final_test_accessed": false,
+  "selection_rule_frozen_before_optimizer_step": true,
+  "inputs": {
+    "source_train": "data/processed/moshi_finetune_v2/train.jsonl",
+    "source_train_sha256": "e96ae5ae3f230579d239daf20312080eec7eaee2f898c11418da5f0fe6f23251",
+    "source_conversations": "data/processed/manifests/conversations.jsonl",
+    "source_conversations_sha256": "aabf12268cce2854ef8b16ffd9339c6d703339c6b4c50a23a105447047a13a86"
+  },
+  "output": {
+    "manifest": "data/processed/moshi_finetune_v6_overfit/train.jsonl",
+    "manifest_sha256": "efb9533504f947f9fece336a1ceccdd6ca14f2e05928add723e56e218a823645",
+    "rows": 32
+  },
+  "criteria": {
+    "source_split": "train",
+    "training_use_authorized": true,
+    "noise_condition": "background-clean",
+    "overlap_intervals": "empty",
+    "interrupt_label": "none",
+    "user_seconds": [
+      1.0,
+      4.5
+    ],
+    "assistant_seconds": [
+      1.0,
+      5.5
+    ],
+    "maximum_export_seconds": 12.0,
+    "word_count": [
+      2,
+      14
+    ],
+    "minimum_persian_letter_fraction": 0.95,
+    "maximum_complete_user_end_seconds": 5.0,
+    "selection": "sha256(pair_id), one-per-session first, then deterministic fill"
+  },
+  "eligible_before_limit": 35,
+  "selected": {
+    "rows": 32,
+    "sessions": 21,
+    "channels": {
+      "Digiato": 3,
+      "Mehran Rowshan Persian": 16,
+      "Tabaghe16": 13
+    },
+    "duration_seconds": 198.761188,
+    "median_snr_db": 35.902,
+    "pair_ids": [
+      "Mehran-Rowshan-Persian-46863794a3_001521",
+      "Tabaghe16-EP-132---Google-Labs-bfd9e8e922_006723",
+      "Mehran-Rowshan-Persian-4a249d5791_004511",
+      "Mehran-Rowshan-Persian-d5975efd41_003892",
+      "Mehran-Rowshan-Persian-a7e7a9bbd5_002262",
+      "Tabaghe16-EP-117-c0614b31f8_004959",
+      "Digiato-4ad68f5b56_000462",
+      "Mehran-Rowshan-Persian-5f44a6a823_003755",
+      "Tabaghe16-EP-152---Mehrzad-Sajjadi-dbe512b80d_004106",
+      "Tabaghe16-EP-127---Virtuleap-58e1eb76dc_000695",
+      "Mehran-Rowshan-Persian-b7d7b2beee_001225",
+      "Mehran-Rowshan-Persian-0a1b903c3f_004169",
+      "Digiato-27f84db335_001732",
+      "Mehran-Rowshan-Persian-cb010dd07c_002507",
+      "Mehran-Rowshan-Persian-3a4ec6fb98_000608",
+      "Tabaghe16-EP-134---Mohammad-Amroabad-3de236217e_001779",
+      "Mehran-Rowshan-Persian-4022085f3b_002154",
+      "Tabaghe16-EP-135---Hamed-Tajedin-4da701d6bf_004700",
+      "Tabaghe16-EP-149---Amir-Nazemi-27ea9d9f2c_002585",
+      "Mehran-Rowshan-Persian-12e3861543_003324",
+      "Tabaghe16-EP-148---Amir-H-Fassihi-2ba61c2fd2_001931",
+      "Tabaghe16-EP-132---Google-Labs-bfd9e8e922_006741",
+      "Mehran-Rowshan-Persian-46863794a3_001536",
+      "Mehran-Rowshan-Persian-46863794a3_001577",
+      "Mehran-Rowshan-Persian-46863794a3_001542",
+      "Tabaghe16-EP-127---Virtuleap-58e1eb76dc_000662",
+      "Digiato-4ad68f5b56_000475",
+      "Tabaghe16-EP-152---Mehrzad-Sajjadi-dbe512b80d_004110",
+      "Mehran-Rowshan-Persian-cb010dd07c_002515",
+      "Tabaghe16-EP-135---Hamed-Tajedin-4da701d6bf_004686",
+      "Mehran-Rowshan-Persian-46863794a3_001565",
+      "Tabaghe16-EP-117-c0614b31f8_004961"
+    ],
+    "response_text_sha256": [
+      "5b11aa5d177a48660517c332f7b58e3cf722751592af6ac40346e1f133922a58",
+      "91b00ea33a89bec8454e2e3a1295d394836a2757599f56835b9c82eef074de93",
+      "b117aca7a39de8ab27364a6672b3990cc77cec69ef591d4b0d514b1fd6b73637",
+      "871c316a7a5a917058e606aa1364c4b9bbc13c2041a363a00cc4c49769b1cee7",
+      "24746fce4df8c1df41d7214da3f6bccbc693008cf754b4d81c315de8820d80d0",
+      "3b0d1ac53d3c581932ae175ef69eccfc1a7f5131541aea2180eeaa571946a9b6",
+      "0e9f12b526991148de8137d64dedc7317456a1db271b5f45a08868ba6b85be6d",
+      "b3bfae0bf7ee72ebe4cbe3404ada0944fe1371b460fd453053eb159c7d143b65",
+      "25dd53482b836bafa3ef58412c0f64aa40fd3f291909e07f74cd8006947031cb",
+      "31b1f8d955731ed2949ee5412528258da036b6b46615fe33f35fdb7273a19c93",
+      "ad6010b41bcf99df1f783218ee937226902f91d88bb36b9d9779260705f94121",
+      "30a6a6f69224bdb0c0d3fcdee59b15ad0e753f955dbda7ca46f97c7d7c20d409",
+      "5b44d562c1f48777cbe3b8a57794a592427ff2545a7682cbf3494c3182a561e4",
+      "5c7d260e4ba6a9013e4c55929a647ee5ffca8d5a91a0c2f6eda960df534f71c3",
+      "7395af851b7cd2c72874aa4bea582e172e6da1bcf4b3687f80550d451e82d2d2",
+      "d9eb047827d09b036f5af18aea14a507c0039a5d72ae46d04afc088766c5c4a3",
+      "0b78f91e43053117bcce6176d9217d95fc977511a8cfb6cb20e5fbea11e51d3a",
+      "f2a8006e8d6d68dc8e2bcedde1b33519417b56cf85f2995c67cd266e56d13eaa",
+      "053edbba928a3bac109365fd51bc5a0c694fadda114c82dd8aea2db45298821c",
+      "d36226d574f1d234ac45dfdd56384b3cf2cab3dd741fb9cbfa46c83c3bf4fc14",
+      "4ede6a98b70783802b7746bc1cddcfc94f52cfc62088b4112568cae0304aaa24",
+      "e3157ef5b4d922d0645078e14fe712412ef4663ddfc53cb2dd8d7f0d50bbcda2",
+      "dce8dd6010c42019b9b787ebd691b6bf91fb6a94537af906929253d68afa64fe",
+      "6c4454ddc6e08602c980ccd68cf74484bf0ca23fd20a73476f6256cca7097dad",
+      "8bcad045063b87d0991d319afc962934d4b66aa58a2ad71becbc1ef220690aa8",
+      "51c9a3eada1c3983ad959e702a420d362c3907fafe8042a0c358f6e66ae58227",
+      "1d3253a2caa01d0b052d834ca084142f9ff769ffa5da108e720a1caa3155a138",
+      "8833e657d578504738a111db4c42e64a9f93b42d02c7bc9ea0ec6f8afae2a5e4",
+      "babc71a92107d28d0cafafca240877e42517e52f22e2b6978824800fa9765666",
+      "f2310fab0e676d21c059e1bb83406b9a99f1d79f6ec2dc05a1d645614100a907",
+      "91b44cfc4f67a2dd7dbaa89d5ed68d9915408a62ad6a984635c9e52e0eb0d71e",
+      "97cdfcab0981cc5118a74d06b588f58989b041920ad82c4f6c6b39bc322da6a8"
+    ]
+  },
+  "requirements": {
+    "exact_requested_size": true,
+    "all_rows_from_train_manifest": true,
+    "all_selected_rows_meet_mechanical_filter": true,
+    "unique_pairs": true,
+    "multiple_sessions": true,
+    "manifest_hash_recorded": true,
+    "final_test_not_read_or_used": true
+  },
+  "limitations": [
+    "The captions and speaker boundaries remain automatic and are not human-reviewed.",
+    "Passing this in-sample diagnostic proves optimization capacity only, not generalization.",
+    "No held-out or final-test row is an input to selection, training, or diagnosis."
+  ],
+  "passes": true
+}
