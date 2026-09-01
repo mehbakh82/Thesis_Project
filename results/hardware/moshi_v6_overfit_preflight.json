@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "generated_at": "2026-09-01T14:47:37.677490+00:00",
+  "launch_commit": "4d33bfb81d017d0c225a0e9645d0cf63a80de42c",
+  "diagnostic_only": true,
+  "scientific_validation_evidence": false,
+  "test_access_started": false,
+  "experiment": {
+    "name": "moshi_v6_overfit",
+    "candidate_steps": [
+      50,
+      100,
+      150,
+      200
+    ],
+    "training_rows": 32,
+    "scope": "in_sample_capacity_diagnostic"
+  },
+  "storage": {
+    "lora_bytes": 387874816,
+    "text_embedding_bytes": 327690240,
+    "text_output_projection_bytes": 262144000,
+    "estimated_adapter_bytes": 977709056,
+    "expected_tensor_count": 677,
+    "estimated_adapter_gib": 0.911,
+    "retained_adapter_count": 5,
+    "safety_gib": 2,
+    "free_bytes": 24865402880,
+    "free_gib": 23.158,
+    "required_free_bytes": 7036028928,
+    "required_free_gib": 6.553
+  },
+  "gpu": {
+    "name": "NVIDIA H100 NVL",
+    "total_mib": 95830,
+    "used_mib": 68794,
+    "free_mib": 26529
+  },
+  "requirements": {
+    "launch_worktree_clean": true,
+    "v5_failed_closed_without_final_test_access": true,
+    "train_only_data_freeze_passed": true,
+    "same_manifest_used_only_for_in_sample_train_eval": true,
+    "diagnostic_profile_exact": true,
+    "probe_shape_matches_full": true,
+    "probe_controls_exact": true,
+    "parameter_and_objective_policy_exact": true,
+    "launcher_implements_fail_closed_v6_scope": true,
+    "adapter_storage_estimate_exact": true,
+    "protocol_frozen": true,
+    "upstream_example_hash_current": true,
+    "v6_run_directories_absent": true,
+    "v6_result_outputs_absent": true,
+    "disk_headroom_passes": true,
+    "h100_headroom_passes": true
+  },
+  "preflight_passes": true,
+  "artifacts": {
+    "config": "configs/moshi_h100_v6_overfit.yaml",
+    "config_sha256": "65068af91a4647434ead550d1a8eaaa3546e85dfa1f6c194334f3d733f8bb866",
+    "probe_config": "configs/moshi_h100_v6_overfit_probe.yaml",
+    "probe_config_sha256": "ec22e99c05434d79695bb1bf082833a60b27b10992308785126175ab5c08fc84",
+    "policy": "configs/moshi_v6_overfit_policy.json",
+    "policy_sha256": "fdab6505a05ba2afaecf42d96439aa0f528e0f0af2e22d55c16c4f5685ce6a98",
+    "protocol": "docs/MOSHI_V6_OVERFIT_PROTOCOL.md",
+    "protocol_sha256": "c952cfc588c165db23af086e1c31ddbd9e6c1b616f2901794053c066f382aff4",
+    "data_report": "results/moshi_v6_overfit_data.json",
+    "data_report_sha256": "9ff9da1be99ca2a21ad7d7f6a83e98fbd2c77c099f6b02e7b206821c703f6f2d",
+    "data_manifest_sha256": "efb9533504f947f9fece336a1ceccdd6ca14f2e05928add723e56e218a823645",
+    "launcher_sha256": "ee9ca8febd02fda69af642990413526c26f61caf07d4aac0e30000f573ed8a02",
+    "base_model_sha256": "e0a5a1c79010680eb916adb940ee8567978c78902c5a6b743c79202e75858712",
+    "upstream_example_sha256": "c574c424d1a078a89bcb7556978d8b4b8c160276aeebbda01ff77ca6f259ac48"
+  }
+}
