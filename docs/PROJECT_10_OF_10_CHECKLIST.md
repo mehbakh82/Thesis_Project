@@ -768,10 +768,13 @@ Final engineering audit:
     --out results/release/final_snapshot.json
   ```
 
-- [x] From a fresh full-history GitHub clone at remote HEAD `25059a4`, build a
+- [x] From a fresh full-history GitHub clone at remote HEAD `cd8e15f`, build a
   wheel, install it into an isolated temporary target without duplicating the
-  verified dependency environment, run all 128 tests, verify the installed
+  verified dependency environment, run all 140 tests, verify the installed
   package imports from that target, and remove the temporary checkout.
+- [x] Confirm the complete 13-stage GitHub CI run `33475374049` passes at
+  pushed commit `cd8e15f`, including compile, lint, type, history/privacy,
+  dependency, test, coverage, and pinned scientific-risk gates.
 - [x] Diagnose the red remote CI runs at `b15a38e`: two storage receipts exposed
   the local volume mount string and were correctly rejected by the privacy
   audit. The host-specific strings were removed, the audit reproduced locally,
