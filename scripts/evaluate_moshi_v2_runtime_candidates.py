@@ -127,8 +127,10 @@ def run_candidate_server(
     panel_indices: tuple[int, ...] = PANEL_INDICES,
     split_label: str = "validation",
     fuse_lora: bool = True,
+    server_config_path: Path | None = None,
 ) -> dict[str, Any]:
     ensure_port_available(host, port)
+    runtime_config_path = server_config_path or config_path
     command = [
         sys.executable,
         "scripts/moshi_server_entry.py",
@@ -147,7 +149,7 @@ def run_candidate_server(
         "--tokenizer",
         str(tokenizer_path),
         "--config-path",
-        str(config_path),
+        str(runtime_config_path),
         "--lora-weight",
         str(adapter_path),
     ]
@@ -301,6 +303,8 @@ def run_candidate_server(
             "host": host,
             "port": port,
             "lora_fused": fuse_lora,
+            "runtime_config": runtime_config_path.relative_to(ROOT).as_posix(),
+            "runtime_config_sha256": sha256_file(runtime_config_path),
             "log_sha256": hashlib.sha256(clean_output.encode("utf-8")).hexdigest(),
             "failure_log_tail": clean_output[-4000:] if error is not None else None,
             "ready_seconds": ready_seconds,

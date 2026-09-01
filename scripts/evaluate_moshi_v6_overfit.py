@@ -43,6 +43,16 @@ SPEECH_RMS_THRESHOLD = 1e-3
 MAX_PREFIX_CER = 0.75
 MIN_NORMALIZED_TEXT_LENGTH = 4
 FUSE_LORA_AT_RUNTIME = False
+PARENT_V6_RUNTIME_SHA256 = (
+    "fc3c394a76e8866baf40fe649a0ec5c78d0b857aa1307d3c2cbd9caf16961d6b"
+)
+TEXT_GREEDY_LM_GEN_CONFIG = {
+    "use_sampling": True,
+    "temp": 0.8,
+    "temp_text": 0.7,
+    "top_k": 250,
+    "top_k_text": 1,
+}
 
 
 def normalize_text(text: str) -> str:
@@ -128,7 +138,12 @@ def main() -> int:
         type=Path,
         default=Path("results/hardware/moshi_client_build.json"),
     )
-    parser.add_argument("--out", type=Path, default=Path("results/moshi_v6_overfit_runtime.json"))
+    parser.add_argument("--out", type=Path)
+    parser.add_argument(
+        "--text-greedy-followup",
+        action="store_true",
+        help="Run the frozen v6.1 top-k-text=1 follow-up against unchanged v6 weights.",
+    )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=18998)
     parser.add_argument("--ready-timeout", type=float, default=180.0)
@@ -144,10 +159,32 @@ def main() -> int:
     data_report_path = (ROOT / args.data_report).resolve()
     preflight_path = (ROOT / args.preflight).resolve()
     probe_path = (ROOT / args.probe).resolve()
-    protocol_path = (ROOT / args.protocol).resolve()
+    protocol_path = (
+        ROOT
+        / (
+            Path("docs/MOSHI_V6_TEXT_GREEDY_PROTOCOL.md")
+            if args.text_greedy_followup
+            else args.protocol
+        )
+    ).resolve()
     policy_path = (ROOT / args.policy).resolve()
     client_report_path = (ROOT / args.client_report).resolve()
-    out_path = (ROOT / args.out).resolve()
+    default_out = (
+        Path("results/moshi_v6_text_greedy_runtime.json")
+        if args.text_greedy_followup
+        else Path("results/moshi_v6_overfit_runtime.json")
+    )
+    out_path = (ROOT / (args.out or default_out)).resolve()
+    runtime_config_path = (
+        (ROOT / "configs/moshi_v6_text_greedy_runtime.json").resolve()
+        if args.text_greedy_followup
+        else None
+    )
+    parent_runtime_path = (
+        (ROOT / "results/moshi_v6_overfit_runtime.json").resolve()
+        if args.text_greedy_followup
+        else None
+    )
     if out_path.exists():
         raise FileExistsError(f"refusing to overwrite v6 runtime evidence: {out_path}")
 
@@ -182,6 +219,31 @@ def main() -> int:
             "lora_scaling": lora_config.get("scaling"),
         }
     )
+    parent_runtime: dict[str, Any] | None = None
+    followup_predeclared = True
+    if args.text_greedy_followup:
+        if runtime_config_path is None or parent_runtime_path is None:
+            raise AssertionError("follow-up paths were not resolved")
+        runtime_config = json_object(runtime_config_path)
+        generation_config = runtime_config.pop("lm_gen_config", None)
+        if runtime_config != expected_config:
+            raise ValueError("v6.1 runtime config differs from the frozen v6 model config")
+        if generation_config != TEXT_GREEDY_LM_GEN_CONFIG:
+            raise ValueError("v6.1 generation config differs from the frozen intervention")
+        parent_runtime = json_object(parent_runtime_path)
+        followup_predeclared = (
+            protocol_path.is_file()
+            and sha256_file(parent_runtime_path) == PARENT_V6_RUNTIME_SHA256
+            and parent_runtime.get("status") == "passed"
+            and parent_runtime.get("diagnostic_positive") is False
+            and parent_runtime.get("diagnostic_outcome") == "negative"
+            and parent_runtime.get("final_test_accessed") is False
+            and len(parent_runtime.get("candidates") or []) == 4
+            and all(
+                candidate.get("official_server_runtime_passes") is True
+                for candidate in parent_runtime.get("candidates") or []
+            )
+        )
     expected_schema = expected_adapter_schema(
         expected_config,
         ft_embed=False,
@@ -201,12 +263,16 @@ def main() -> int:
     expected_steps = [50, 100, 150, 200]
 
     preconditions = {
-        "protocol_frozen_before_optimizer_step": (
-            protocol_path.is_file()
-            and preflight.get("status") == "passed"
-            and preflight.get("preflight_passes") is True
-            and (preflight.get("artifacts") or {}).get("protocol_sha256")
-            == sha256_file(protocol_path)
+        "protocol_predeclared": (
+            followup_predeclared
+            if args.text_greedy_followup
+            else (
+                protocol_path.is_file()
+                and preflight.get("status") == "passed"
+                and preflight.get("preflight_passes") is True
+                and (preflight.get("artifacts") or {}).get("protocol_sha256")
+                == sha256_file(protocol_path)
+            )
         ),
         "probe_passed": (
             probe.get("status") == "passed"
@@ -256,6 +322,14 @@ def main() -> int:
         "scientific_validation_evidence": False,
         "generalization_claim_allowed": False,
         "final_test_accessed": False,
+        "followup": {
+            "enabled": args.text_greedy_followup,
+            "intervention": "text_top_k_25_to_1" if args.text_greedy_followup else None,
+            "weights_reused_without_training": args.text_greedy_followup,
+            "parent_diagnostic_sha256": (
+                PARENT_V6_RUNTIME_SHA256 if args.text_greedy_followup else None
+            ),
+        },
         "protocol": {
             "panel_indices": list(PANEL_INDICES),
             "panel_scope": "same 32 train-only rows used by optimization",
@@ -283,6 +357,12 @@ def main() -> int:
             "mimi_sha256": sha256_file(mimi_path),
             "tokenizer_sha256": sha256_file(tokenizer_path),
             "evaluator_sha256": sha256_file(Path(__file__).resolve()),
+            "runtime_config_sha256": (
+                sha256_file(runtime_config_path) if runtime_config_path is not None else None
+            ),
+            "parent_runtime_sha256": (
+                sha256_file(parent_runtime_path) if parent_runtime_path is not None else None
+            ),
         },
     }
     write_report(out_path, report)
@@ -330,6 +410,7 @@ def main() -> int:
             panel_indices=PANEL_INDICES,
             split_label="train_only_in_sample_diagnostic",
             fuse_lora=FUSE_LORA_AT_RUNTIME,
+            server_config_path=runtime_config_path,
         )
         for panel_row in runtime["panel"]:
             manifest_index = int(panel_row["validation_index"])
