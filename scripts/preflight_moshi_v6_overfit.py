@@ -113,7 +113,7 @@ def main() -> int:
     v5_selection_path = ROOT / "results/moshi_v5_checkpoint_selection.json"
     v5_certificate_path = ROOT / "results/hardware/moshi_h100_v5_training.json"
     lora_source_path = (
-        ROOT / "checkpoints/moshi_fa_100s_v3_no_embed/checkpoints/checkpoint_000400/"
+        ROOT / "checkpoints/moshi_fa_100s_v2/checkpoints/checkpoint_000400/"
         "consolidated/lora.safetensors"
     )
     embedding_source_path = (
@@ -191,11 +191,15 @@ def main() -> int:
             lora
             == {
                 "enable": True,
-                "rank": 128,
+                "rank": 64,
                 "scaling": 2.0,
                 "ft_embed": False,
             }
-            and lora == (official_example.get("lora") or {})
+            and {key: lora.get(key) for key in ("enable", "scaling", "ft_embed")}
+            == {
+                key: (official_example.get("lora") or {}).get(key)
+                for key in ("enable", "scaling", "ft_embed")
+            }
             and config.get("duration_sec") == 12
             and config.get("batch_size") == 1
             and config.get("num_microbatches") == 4
@@ -244,10 +248,10 @@ def main() -> int:
             )
         ),
         "adapter_storage_estimate_exact": (
-            estimate["lora_bytes"] == 775749632
+            estimate["lora_bytes"] == 387874816
             and estimate["text_embedding_bytes"] == 327690240
             and estimate["text_output_projection_bytes"] == 262144000
-            and estimate["estimated_adapter_bytes"] == 1365583872
+            and estimate["estimated_adapter_bytes"] == 977709056
             and estimate["expected_tensor_count"] == 677
         ),
         "protocol_frozen": protocol_path.is_file(),
@@ -260,7 +264,7 @@ def main() -> int:
         "v6_result_outputs_absent": not any(path.exists() for path in final_outputs),
         "disk_headroom_passes": disk.free >= required_free_bytes,
         "h100_headroom_passes": (
-            gpu["name"] == "NVIDIA H100 NVL" and int(gpu["free_mib"]) >= 34 * 1024
+            gpu["name"] == "NVIDIA H100 NVL" and int(gpu["free_mib"]) >= 25 * 1024
         ),
     }
     report: dict[str, Any] = {

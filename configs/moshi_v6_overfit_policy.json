@@ -19,6 +19,6 @@
   "full_text_output_projection": "text_linear.frozen_W.weight",
   "frozen_audio_embeddings": true,
   "audio_loss_weight": 0.1,
-  "estimated_adapter_bytes": 1365583872,
-  "scientific_hypothesis": "Moshika has an untied text output projection and represents much Persian text through byte pieces. Rank-128 LoRA plus input embeddings did not reliably overcome the English output prior. Full adaptation of the text embeddings and untied text output projection, under a bounded text-focused objective, should be able to memorize 32 short train-only Persian exchanges while preserving audible base-model speech. Failure would falsify the current lightweight Moshika adaptation path before another full-corpus run."
+  "estimated_adapter_bytes": 977709056,
+  "scientific_hypothesis": "Moshika has an untied text output projection and represents much Persian text through byte pieces. Previous LoRA plus input-embedding runs did not reliably overcome the English output prior. Rank-64 LoRA together with full adaptation of the text embeddings and untied text output projection, under a bounded text-focused objective, should have ample capacity to memorize 32 short train-only Persian exchanges while preserving audible base-model speech. Failure would falsify the current lightweight Moshika adaptation path before another full-corpus run."
 }

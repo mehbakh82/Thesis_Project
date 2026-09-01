@@ -24,7 +24,13 @@ generalization or deployment readiness.
 - The model starts from the unchanged pinned Moshika/Mimi/tokenizer weights.
 - The documented one-GPU `MOSHI_DISTRIBUTED_BACKEND=gloo` compatibility path
   is mandatory because this host's pinned NCCL 2.21.5 crashes before model load.
-- Rank-128 LoRA remains enabled. Audio embeddings remain frozen.
+- Rank-64 LoRA remains enabled. This was frozen before any optimizer step after
+  an exact rank-128 probe reached the first AdamW-state allocation but could not
+  fit beside a newly occupied 10.6 GiB GPU allocation. No data, output gate, or
+  success threshold changed. Rank 64 still provides nearly 194 million LoRA
+  parameters, plus the full text parameters, for this 32-row memorization
+  diagnostic.
+  Audio embeddings remain frozen.
 - `text_emb.weight`, `depformer_text_emb.weight`, and the independent full
   `text_linear.frozen_W.weight` are trainable.
 - The complete audio objective is multiplied by 0.1 for this language-bootstrap

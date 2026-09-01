@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "attempt": 2,
+  "started_at": "2026-09-01T14:37:39+00:00",
+  "completed_at": "2026-09-01T14:37:57+00:00",
+  "purpose": "one-step exact-shape rank-128 v6 hardware probe",
+  "diagnostic_only": true,
+  "scientific_validation_evidence": false,
+  "final_test_accessed": false,
+  "optimizer_step_completed": false,
+  "model_loading_completed": true,
+  "forward_pass_completed": true,
+  "backward_pass_completed": true,
+  "run_directory_created": true,
+  "launch": {
+    "commit": "ae1fd0c0eb6cb221af296085238ef37f2eec7632",
+    "backend": "gloo",
+    "world_size": 1,
+    "command": "CUDA_VISIBLE_DEVICES=0 MOSHI_DISTRIBUTED_BACKEND=gloo MOSHI_PERSIAN_TEXT_ADAPTATION=1 MOSHI_TEXT_EMBEDDINGS_ONLY=0 MOSHI_AUDIO_LOSS_WEIGHT=0.1 .venv-moshi/bin/torchrun --standalone --nproc-per-node 1 scripts/moshi_train_entry.py configs/moshi_h100_v6_overfit_probe.yaml"
+  },
+  "failure": {
+    "type": "torch.OutOfMemoryError at first AdamW state allocation",
+    "attempted_allocation_mib": 2.0,
+    "free_mib_at_failure": 2.75,
+    "probe_process_memory_gib": 25.90,
+    "concurrent_process_pid": 2549568,
+    "concurrent_process_memory_mib": 10856,
+    "classification": "insufficient shared-H100 headroom before the first optimizer step"
+  },
+  "recovery": {
+    "action": "freeze rank 64 before any optimizer step and repeat the exact-shape probe",
+    "scientific_protocol_changed": true,
+    "data_or_success_threshold_changed": false,
+    "rank_rationale": "rank 64 preserves very high capacity for a 32-row memorization diagnostic while reducing LoRA parameters, gradients, optimizer state, and checkpoint storage"
+  },
+  "artifacts": {
+    "attempt2_preflight_sha256": "ff97aa19d729611943de08e11fe5db0fb83174b516f6e51b36f1d2a48f615887",
+    "resolved_args_sha256": "332f028c78141fa059a3b78338d9f439ccc38d5670301b78b60f78aae7ad5ebe",
+    "train_tensorboard_sha256": "c72fb0cf928b92e71c10668b95191599752d5e531072499ea8a55d28e43612c8",
+    "eval_tensorboard_sha256": "f2a2b29e7526417ed0aff2b9a21aaf1c43eb66f236d67cc7da49ecbbb1f3c75b"
+  },
+  "cleanup": {
+    "incomplete_run_directory_removal_allowed": true,
+    "reason": "no optimizer step, metric row, or checkpoint exists; all three tiny files are hash-recorded above"
+  },
+  "note": "This is launch-safety evidence, not a training or model-quality outcome."
+}
