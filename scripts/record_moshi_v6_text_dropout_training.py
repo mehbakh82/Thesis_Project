@@ -31,6 +31,11 @@ EXPECTED_ENVIRONMENT = {
     "MOSHI_PERSIAN_TEXT_ADAPTATION": "1",
     "MOSHI_TEXT_EMBEDDINGS_ONLY": "0",
     "MOSHI_AUDIO_LOSS_WEIGHT": "0.1",
+    "MOSHI_OPTIMIZER_CPU_OFFLOAD": "1",
+    "MOSHI_OPTIMIZER_CPU_OFFLOAD_AUDIT": (
+        "checkpoints/moshi_v6_text_dropout/"
+        "optimizer_cpu_offload_audit.json"
+    ),
     "MOSHI_TEXT_INPUT_DROPOUT_START": "0.25",
     "MOSHI_TEXT_INPUT_DROPOUT_END": "0.75",
     "MOSHI_TEXT_INPUT_DROPOUT_FORWARDS": "800",
@@ -128,6 +133,8 @@ def main() -> int:
     train_metrics = read_jsonl(train_metrics_path)
     eval_metrics = read_jsonl(eval_metrics_path)
     audit = read_jsonl(audit_path)
+    optimizer_audit_path = run_dir / "optimizer_cpu_offload_audit.json"
+    optimizer_audit = json_object(optimizer_audit_path)
     environment = {key: os.environ.get(key) for key in EXPECTED_ENVIRONMENT}
 
     checkpoint_reports = []
@@ -218,6 +225,22 @@ def main() -> int:
                 for row in audit
             )
         ),
+        "cpu_offloaded_fp32_adamw_audited": (
+            optimizer_audit.get("algorithm") == "AdamW"
+            and optimizer_audit.get("optimizer_step_calls") == 200
+            and optimizer_audit.get("active_parameter_tensors") == 677
+            and optimizer_audit.get("active_parameter_elements")
+            == int(policy["estimated_adapter_bytes"]) // 2
+            and optimizer_audit.get("master_devices") == ["cpu"]
+            and optimizer_audit.get("gradient_devices") == ["cpu"]
+            and optimizer_audit.get("moment_devices") == ["cpu"]
+            and optimizer_audit.get("master_dtypes") == ["torch.float32"]
+            and optimizer_audit.get("gradient_dtypes") == ["torch.float32"]
+            and optimizer_audit.get("moment_dtypes") == ["torch.float32"]
+            and optimizer_audit.get("moment_tensor_count") == 1354
+            and optimizer_audit.get("foreach") is False
+            and optimizer_audit.get("fused") is False
+        ),
         "final_test_not_accessed": True,
     }
     report = {
@@ -249,6 +272,7 @@ def main() -> int:
             "audio_inputs_mutated": False,
             "evaluation_corrupted": False,
         },
+        "optimizer_cpu_offload": optimizer_audit,
         "checkpoints": checkpoint_reports,
         "requirements": requirements,
         "training_passes": all(requirements.values()),
@@ -261,6 +285,7 @@ def main() -> int:
             "train_metrics_sha256": sha256_file(train_metrics_path),
             "eval_metrics_sha256": sha256_file(eval_metrics_path),
             "dropout_audit_sha256": sha256_file(audit_path),
+            "optimizer_audit_sha256": sha256_file(optimizer_audit_path),
             "recorder_sha256": sha256_file(Path(__file__).resolve()),
         },
     }

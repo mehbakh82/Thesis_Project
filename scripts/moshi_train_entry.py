@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import math
 import os
 import runpy
@@ -47,6 +48,127 @@ def _configure_low_peak_adamw(torch_module) -> None:
     torch_module.optim.AdamW = LowPeakAdamW
     os.environ["MOSHI_ADAMW_FOREACH_EFFECTIVE"] = "false"
     os.environ["MOSHI_ADAMW_FUSED_EFFECTIVE"] = "true"
+
+
+def _configure_cpu_offloaded_adamw(
+    torch_module, mixed_precision_module, audit_path: Path
+) -> None:
+    """Keep exact FP32 AdamW master/state tensors and updates on host memory."""
+
+    original_adamw = torch_module.optim.AdamW
+
+    class CPUOffloadedAdamW(original_adamw):  # type: ignore[misc, valid-type]
+        def __init__(self, *args, **kwargs):
+            requested = kwargs.get("foreach")
+            if requested not in (None, False):
+                raise RuntimeError("CPU-offloaded AdamW requires foreach=False")
+            requested_fused = kwargs.get("fused")
+            if requested_fused not in (None, False):
+                raise RuntimeError("CPU-offloaded AdamW requires fused=False")
+            kwargs["foreach"] = False
+            kwargs["fused"] = False
+            super().__init__(*args, **kwargs)
+            self._cpu_offload_step_calls = 0
+
+        def step(self, *args, **kwargs):
+            result = super().step(*args, **kwargs)
+            active_parameters = [
+                parameter
+                for group in self.param_groups
+                for parameter in group["params"]
+                if parameter.grad is not None
+            ]
+            if not active_parameters:
+                raise RuntimeError("CPU-offloaded AdamW observed no active parameters")
+            master_devices = {parameter.data.device.type for parameter in active_parameters}
+            master_dtypes = {str(parameter.data.dtype) for parameter in active_parameters}
+            gradient_devices = {
+                parameter.grad.device.type for parameter in active_parameters
+            }
+            gradient_dtypes = {str(parameter.grad.dtype) for parameter in active_parameters}
+            moment_tensors = [
+                state[name]
+                for parameter in active_parameters
+                for state in (self.state[parameter],)
+                for name in ("exp_avg", "exp_avg_sq")
+                if name in state
+            ]
+            moment_devices = {tensor.device.type for tensor in moment_tensors}
+            moment_dtypes = {str(tensor.dtype) for tensor in moment_tensors}
+            if (
+                master_devices != {"cpu"}
+                or master_dtypes != {"torch.float32"}
+                or gradient_devices != {"cpu"}
+                or gradient_dtypes != {"torch.float32"}
+                or moment_devices != {"cpu"}
+                or moment_dtypes != {"torch.float32"}
+            ):
+                raise RuntimeError("CPU-offloaded AdamW placement or dtype invariant failed")
+            self._cpu_offload_step_calls += 1
+            audit = {
+                "schema_version": 1,
+                "algorithm": "AdamW",
+                "optimizer_step_calls": self._cpu_offload_step_calls,
+                "active_parameter_tensors": len(active_parameters),
+                "active_parameter_elements": sum(
+                    parameter.numel() for parameter in active_parameters
+                ),
+                "master_devices": sorted(master_devices),
+                "master_dtypes": sorted(master_dtypes),
+                "gradient_devices": sorted(gradient_devices),
+                "gradient_dtypes": sorted(gradient_dtypes),
+                "moment_tensor_count": len(moment_tensors),
+                "moment_devices": sorted(moment_devices),
+                "moment_dtypes": sorted(moment_dtypes),
+                "foreach": False,
+                "fused": False,
+            }
+            audit_path.parent.mkdir(parents=True, exist_ok=True)
+            audit_path.write_text(json.dumps(audit, indent=2) + "\n", encoding="utf-8")
+            return result
+
+    def prepare_mixed_precision(params, param_dtype, optim_dtype):
+        if optim_dtype is not torch_module.float32:
+            raise RuntimeError("CPU-offloaded AdamW requires FP32 optimizer tensors")
+        with torch_module.no_grad():
+            for parameter in params:
+                if parameter.requires_grad:
+                    parameter._mp_param = parameter.detach().to(  # type: ignore[attr-defined]
+                        device="cpu", dtype=optim_dtype, copy=True
+                    )
+                parameter.data = parameter.data.to(param_dtype)
+
+    def upcast_mixed_precision(params, optim_dtype):
+        if optim_dtype is not torch_module.float32:
+            raise RuntimeError("CPU-offloaded AdamW requires FP32 optimizer tensors")
+        with torch_module.no_grad():
+            for parameter in params:
+                if parameter.requires_grad and parameter.grad is not None:
+                    parameter._temp = parameter.data  # type: ignore[attr-defined]
+                    parameter.data = parameter._mp_param  # type: ignore[attr-defined]
+                    parameter.grad = parameter.grad.detach().to(
+                        device="cpu", dtype=optim_dtype, copy=True
+                    )
+
+    def downcast_mixed_precision(params, param_dtype):
+        with torch_module.no_grad():
+            for parameter in params:
+                if parameter.requires_grad and hasattr(parameter, "_temp"):
+                    if parameter.data.device.type != "cpu":
+                        raise RuntimeError("CPU-offloaded AdamW master tensor left host memory")
+                    parameter._temp.copy_(parameter.data)  # type: ignore[attr-defined]
+                    parameter.grad = None
+                    parameter.data = parameter._temp  # type: ignore[attr-defined]
+                    del parameter._temp  # type: ignore[attr-defined]
+
+    torch_module.optim.AdamW = CPUOffloadedAdamW
+    mixed_precision_module.prepare_mixed_precision = prepare_mixed_precision
+    mixed_precision_module.upcast_mixed_precision = upcast_mixed_precision
+    mixed_precision_module.downcast_mixed_precision = downcast_mixed_precision
+    os.environ["MOSHI_ADAMW_FOREACH_EFFECTIVE"] = "false"
+    os.environ["MOSHI_ADAMW_FUSED_EFFECTIVE"] = "false"
+    os.environ["MOSHI_OPTIMIZER_CPU_OFFLOAD_EFFECTIVE"] = "true"
+    os.environ["MOSHI_OPTIMIZER_DTYPE_EFFECTIVE"] = "float32"
 
 
 def _configure_low_peak_checkpoints(checkpointing_module, distributed_module, torch_module) -> None:
@@ -275,10 +397,34 @@ def main() -> None:
     import finetune.data.data_loader as finetune_data_loader
     import finetune.distributed as finetune_distributed
     import finetune.loss as finetune_loss
+    import finetune.mixed_precision as finetune_mixed_precision
     import finetune.wrapped_model as finetune_wrapped_model
     import torch
 
-    _configure_low_peak_adamw(torch)
+    optimizer_cpu_offload = os.environ.get("MOSHI_OPTIMIZER_CPU_OFFLOAD", "0").strip()
+    if optimizer_cpu_offload not in {"0", "1"}:
+        raise RuntimeError("MOSHI_OPTIMIZER_CPU_OFFLOAD must be exactly 0 or 1")
+    optimizer_audit_text = os.environ.get(
+        "MOSHI_OPTIMIZER_CPU_OFFLOAD_AUDIT", ""
+    ).strip()
+    if optimizer_cpu_offload == "1":
+        if not optimizer_audit_text:
+            raise RuntimeError(
+                "MOSHI_OPTIMIZER_CPU_OFFLOAD_AUDIT is required when CPU offload is enabled"
+            )
+        optimizer_audit_path = (root / optimizer_audit_text).resolve()
+        if (
+            root != optimizer_audit_path
+            and root not in optimizer_audit_path.parents
+        ):
+            raise RuntimeError("optimizer CPU-offload audit must stay inside the project")
+        _configure_cpu_offloaded_adamw(
+            torch, finetune_mixed_precision, optimizer_audit_path
+        )
+    else:
+        if optimizer_audit_text:
+            raise RuntimeError("disabled optimizer CPU offload has an unexpected audit path")
+        _configure_low_peak_adamw(torch)
     _configure_low_peak_checkpoints(finetune_checkpointing, finetune_distributed, torch)
     _configure_repeatable_eval_loader(finetune_data_loader)
     text_embedding_policy = os.environ.get("MOSHI_TEXT_EMBEDDINGS_ONLY", "0").strip()

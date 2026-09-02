@@ -33,6 +33,15 @@ FULL_TEXT_PARAMETERS = {
 }
 
 
+def host_available_memory_bytes() -> int:
+    for line in Path("/proc/meminfo").read_text(encoding="utf-8").splitlines():
+        if line.startswith("MemAvailable:"):
+            fields = line.split()
+            if len(fields) == 3 and fields[2] == "kB":
+                return int(fields[1]) * 1024
+    raise RuntimeError("could not read MemAvailable from /proc/meminfo")
+
+
 def comparable_training_config(value: dict[str, Any]) -> dict[str, Any]:
     return {
         key: value.get(key)
@@ -149,6 +158,7 @@ def main() -> int:
     gpu = gpu_memory()
     disk = shutil.disk_usage(ROOT)
     required_free_bytes = 4 * int(policy["estimated_adapter_bytes"]) + 2 * GIB
+    host_available_bytes = host_available_memory_bytes()
 
     baseline_comparison = comparable_training_config(baseline_config)
     candidate_comparison = comparable_training_config(config)
@@ -157,6 +167,7 @@ def main() -> int:
         "MOSHI_PERSIAN_TEXT_ADAPTATION": "1",
         "MOSHI_TEXT_EMBEDDINGS_ONLY": "0",
         "MOSHI_AUDIO_LOSS_WEIGHT": "0.1",
+        "MOSHI_OPTIMIZER_CPU_OFFLOAD": "1",
         "MOSHI_TEXT_INPUT_DROPOUT_START": "0.25",
         "MOSHI_TEXT_INPUT_DROPOUT_END": "0.75",
         "MOSHI_TEXT_INPUT_DROPOUT_SEED": "20260902",
@@ -170,6 +181,7 @@ def main() -> int:
     launcher_text = launcher_path.read_text(encoding="utf-8")
     dropout_text = dropout_module_path.read_text(encoding="utf-8")
     dropout_policy = policy.get("text_input_dropout") or {}
+    resource_policy = policy.get("resource_execution_amendment") or {}
 
     requirements = {
         "launch_worktree_clean": not status.strip(),
@@ -230,6 +242,22 @@ def main() -> int:
             and dropout_policy.get("evaluation_corrupted") is False
             and (policy.get("launcher_environment") or {}) == expected_environment
         ),
+        "optimizer_resource_amendment_exact": (
+            resource_policy.get("model_shape_changed") is False
+            and resource_policy.get("trainable_parameters_changed") is False
+            and resource_policy.get("optimizer_algorithm_changed") is False
+            and resource_policy.get("optimizer_hyperparameters_changed") is False
+            and resource_policy.get("optimizer_dtype") == "float32"
+            and resource_policy.get("optimizer_device") == "cpu"
+            and resource_policy.get("foreach") is False
+            and resource_policy.get("fused") is False
+            and resource_policy.get("expected_active_parameter_elements")
+            == int(policy["estimated_adapter_bytes"]) // 2
+            and resource_policy.get("expected_optimizer_moment_tensors") == 1354
+            and resource_policy.get("minimum_h100_free_mib") == 20 * 1024
+            and resource_policy.get("minimum_host_available_bytes") == 12 * GIB
+            and isinstance(resource_policy.get("kernel_numerics_caveat"), str)
+        ),
         "launcher_and_hook_fail_closed": all(
             marker in launcher_text + dropout_text
             for marker in (
@@ -241,6 +269,10 @@ def main() -> int:
                 "exceeded frozen train forwards",
                 "targets_mutated",
                 "evaluation_corrupted",
+                "_configure_cpu_offloaded_adamw",
+                "MOSHI_OPTIMIZER_CPU_OFFLOAD_AUDIT",
+                "CPU-offloaded AdamW placement or dtype invariant failed",
+                "moment_devices",
             )
         ),
         "protocol_frozen": protocol_path.is_file(),
@@ -256,8 +288,11 @@ def main() -> int:
         ),
         "result_outputs_absent": not any(path.exists() for path in output_paths),
         "disk_headroom_passes": disk.free >= required_free_bytes,
+        "host_memory_headroom_passes": host_available_bytes
+        >= int(resource_policy["minimum_host_available_bytes"]),
         "h100_headroom_passes": (
-            gpu["name"] == "NVIDIA H100 NVL" and int(gpu["free_mib"]) >= 24 * 1024
+            gpu["name"] == "NVIDIA H100 NVL"
+            and int(gpu["free_mib"]) >= int(resource_policy["minimum_h100_free_mib"])
         ),
         "final_test_not_accessed": True,
     }
@@ -281,6 +316,10 @@ def main() -> int:
             "free_bytes": disk.free,
             "required_free_bytes": required_free_bytes,
             "required_free_gib": round(required_free_bytes / GIB, 3),
+        },
+        "host_memory": {
+            "available_bytes": host_available_bytes,
+            "required_available_bytes": int(resource_policy["minimum_host_available_bytes"]),
         },
         "gpu": gpu,
         "requirements": requirements,

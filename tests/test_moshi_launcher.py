@@ -12,6 +12,7 @@ import torch
 
 from scripts.moshi_train_entry import (
     TEXT_EMBEDDING_PARAMETER_NAMES,
+    _configure_cpu_offloaded_adamw,
     _configure_low_peak_adamw,
     _configure_low_peak_checkpoints,
     _configure_repeatable_eval_loader,
@@ -79,6 +80,73 @@ def test_low_peak_adamw_rejects_conflicting_request() -> None:
 
     with pytest.raises(RuntimeError, match="shared-H100 launcher requires AdamW fused=True"):
         fake_torch.optim.AdamW([], fused=False)
+
+
+def test_cpu_offloaded_adamw_keeps_fp32_update_state_on_host(
+    tmp_path: Path,
+) -> None:
+    torch_proxy = SimpleNamespace(
+        optim=SimpleNamespace(AdamW=torch.optim.AdamW),
+        no_grad=torch.no_grad,
+        float32=torch.float32,
+    )
+    mixed_precision = SimpleNamespace()
+    parameter = torch.nn.Parameter(torch.tensor([1.0], dtype=torch.float32))
+    audit_path = tmp_path / "optimizer.json"
+
+    _configure_cpu_offloaded_adamw(torch_proxy, mixed_precision, audit_path)
+    optimizer = torch_proxy.optim.AdamW([parameter], lr=0.1, weight_decay=0.0)
+    mixed_precision.prepare_mixed_precision(
+        [parameter], param_dtype=torch.bfloat16, optim_dtype=torch.float32
+    )
+    parameter.grad = torch.tensor([0.5], dtype=torch.bfloat16)
+    mixed_precision.upcast_mixed_precision([parameter], optim_dtype=torch.float32)
+
+    assert parameter.data.device.type == "cpu"
+    assert parameter.data.dtype == torch.float32
+    assert parameter.grad is not None
+    assert parameter.grad.device.type == "cpu"
+    assert parameter.grad.dtype == torch.float32
+    optimizer.step()
+    mixed_precision.downcast_mixed_precision([parameter], param_dtype=torch.bfloat16)
+
+    assert parameter.data.device.type == "cpu"
+    assert parameter.data.dtype == torch.bfloat16
+    assert parameter.grad is None
+    assert parameter._mp_param.device.type == "cpu"
+    assert parameter._mp_param.dtype == torch.float32
+    assert parameter.item() < 1.0
+    audit = json.loads(audit_path.read_text(encoding="utf-8"))
+    assert audit["optimizer_step_calls"] == 1
+    assert audit["active_parameter_tensors"] == 1
+    assert audit["active_parameter_elements"] == 1
+    assert audit["master_devices"] == ["cpu"]
+    assert audit["gradient_devices"] == ["cpu"]
+    assert audit["moment_devices"] == ["cpu"]
+    assert audit["master_dtypes"] == ["torch.float32"]
+    assert audit["gradient_dtypes"] == ["torch.float32"]
+    assert audit["moment_dtypes"] == ["torch.float32"]
+    assert os.environ["MOSHI_ADAMW_FOREACH_EFFECTIVE"] == "false"
+    assert os.environ["MOSHI_ADAMW_FUSED_EFFECTIVE"] == "false"
+    assert os.environ["MOSHI_OPTIMIZER_CPU_OFFLOAD_EFFECTIVE"] == "true"
+    assert os.environ["MOSHI_OPTIMIZER_DTYPE_EFFECTIVE"] == "float32"
+
+
+def test_cpu_offloaded_adamw_rejects_gpu_update_modes(tmp_path: Path) -> None:
+    fake_torch = SimpleNamespace(
+        optim=SimpleNamespace(AdamW=_FakeAdamW),
+        no_grad=torch.no_grad,
+        float32=torch.float32,
+    )
+    mixed_precision = SimpleNamespace()
+    _configure_cpu_offloaded_adamw(
+        fake_torch, mixed_precision, tmp_path / "optimizer.json"
+    )
+
+    with pytest.raises(RuntimeError, match="requires foreach=False"):
+        fake_torch.optim.AdamW([], foreach=True)
+    with pytest.raises(RuntimeError, match="requires fused=False"):
+        fake_torch.optim.AdamW([], fused=True)
 
 
 def test_low_peak_checkpoint_copies_adapter_state_to_cpu() -> None:

@@ -1,6 +1,8 @@
 # Moshi v6.2 scheduled text-input-dropout protocol
 
-Status: frozen after the completed v6.1 negative and before any v6.2 probe or optimizer step.
+Status: frozen after the completed v6.1 negative and before any v6.2 probe or
+optimizer step; the shared-H100 resource amendment below was also frozen before
+execution.
 
 ## Scientific scope
 
@@ -25,8 +27,8 @@ hypothesis is exposure bias: training always conditions on the true previous tex
 while runtime conditions on generated text.
 
 v6.2 keeps v6's data, model, trainable parameters, audio weight, optimizer,
-learning-rate schedule, seed, 200 steps, four microbatches, and checkpoint cadence.
-Only training inputs change:
+learning-rate schedule, seed, 200 steps, four microbatches, and checkpoint
+cadence. The causal training change is:
 
 - lexical text tokens (IDs greater than 3) are independently replaced with the
   existing text-padding token (ID 3);
@@ -40,6 +42,31 @@ A one-step/four-microbatch no-checkpoint probe must prove the hook executes
 through all four forwards, changes eligible tokens, leaves targets/evaluation
 clean, has finite loss, and stays within the
 previously validated memory profile.
+
+## Pre-run shared-H100 resource amendment
+
+The shared H100 remained at 21,666 MiB free, below the prior exact rank-64
+22.707 GiB peak and the original 24 GiB safety gate. No unrelated GPU service is
+authorized for termination. Before any v6.2 probe or optimizer step, execution
+was therefore amended as follows:
+
+- model shape, rank-64 LoRA, full Persian text parameters, BF16 forward/backward,
+  loss, AdamW algorithm, FP32 optimizer dtype, AdamW hyperparameters, schedule,
+  seed, and candidate steps remain unchanged;
+- FP32 master weights, transferred gradients, Adam moments, and the AdamW update
+  execute on CPU with foreach disabled and fused kernels disabled;
+- the launcher fails if placement/dtype invariants fail and writes an audit after
+  every optimizer step; the probe and full-run recorders require 677 active
+  tensors / 488,854,528 elements and 1,354 FP32 CPU moment tensors;
+- the preflight requires at least 20 GiB free H100 memory and 12 GiB available
+  host memory. At amendment time, host memory had about 151 GB available.
+
+This is a resource-execution accommodation, not an unreported scientific
+substitution. CPU and fused-CUDA AdamW kernels may differ at floating-point
+roundoff scale, so the execution-device change is explicitly bound into the
+policy, launcher hash, preflight, and run evidence. Any positive or negative
+result is attributed to the complete disclosed v6.2 execution, not claimed as a
+bit-identical CUDA replay of v6.
 
 ## Training and candidates
 
@@ -82,6 +109,8 @@ Run the no-checkpoint probe and its recorder with the same shell environment:
 ```bash
 env CUDA_VISIBLE_DEVICES=0 MOSHI_DISTRIBUTED_BACKEND=gloo \
   MOSHI_PERSIAN_TEXT_ADAPTATION=1 MOSHI_TEXT_EMBEDDINGS_ONLY=0 \
+  MOSHI_OPTIMIZER_CPU_OFFLOAD=1 \
+  MOSHI_OPTIMIZER_CPU_OFFLOAD_AUDIT=checkpoints/moshi_v6_text_dropout_probe/optimizer_cpu_offload_audit.json \
   MOSHI_AUDIO_LOSS_WEIGHT=0.1 MOSHI_TEXT_INPUT_DROPOUT_START=0.25 \
   MOSHI_TEXT_INPUT_DROPOUT_END=0.75 MOSHI_TEXT_INPUT_DROPOUT_FORWARDS=4 \
   MOSHI_TEXT_INPUT_DROPOUT_SEED=20260902 \
@@ -91,6 +120,8 @@ env CUDA_VISIBLE_DEVICES=0 MOSHI_DISTRIBUTED_BACKEND=gloo \
 
 env MOSHI_DISTRIBUTED_BACKEND=gloo MOSHI_PERSIAN_TEXT_ADAPTATION=1 \
   MOSHI_TEXT_EMBEDDINGS_ONLY=0 MOSHI_AUDIO_LOSS_WEIGHT=0.1 \
+  MOSHI_OPTIMIZER_CPU_OFFLOAD=1 \
+  MOSHI_OPTIMIZER_CPU_OFFLOAD_AUDIT=checkpoints/moshi_v6_text_dropout_probe/optimizer_cpu_offload_audit.json \
   MOSHI_TEXT_INPUT_DROPOUT_START=0.25 MOSHI_TEXT_INPUT_DROPOUT_END=0.75 \
   MOSHI_TEXT_INPUT_DROPOUT_FORWARDS=4 MOSHI_TEXT_INPUT_DROPOUT_SEED=20260902 \
   MOSHI_TEXT_INPUT_DROPOUT_AUDIT=checkpoints/moshi_v6_text_dropout_probe/input_dropout_audit.jsonl \
@@ -103,6 +134,8 @@ attest it in the same environment, changing only forwards/audit path:
 ```bash
 env CUDA_VISIBLE_DEVICES=0 MOSHI_DISTRIBUTED_BACKEND=gloo \
   MOSHI_PERSIAN_TEXT_ADAPTATION=1 MOSHI_TEXT_EMBEDDINGS_ONLY=0 \
+  MOSHI_OPTIMIZER_CPU_OFFLOAD=1 \
+  MOSHI_OPTIMIZER_CPU_OFFLOAD_AUDIT=checkpoints/moshi_v6_text_dropout/optimizer_cpu_offload_audit.json \
   MOSHI_AUDIO_LOSS_WEIGHT=0.1 MOSHI_TEXT_INPUT_DROPOUT_START=0.25 \
   MOSHI_TEXT_INPUT_DROPOUT_END=0.75 MOSHI_TEXT_INPUT_DROPOUT_FORWARDS=800 \
   MOSHI_TEXT_INPUT_DROPOUT_SEED=20260902 \
@@ -112,6 +145,8 @@ env CUDA_VISIBLE_DEVICES=0 MOSHI_DISTRIBUTED_BACKEND=gloo \
 
 env MOSHI_DISTRIBUTED_BACKEND=gloo MOSHI_PERSIAN_TEXT_ADAPTATION=1 \
   MOSHI_TEXT_EMBEDDINGS_ONLY=0 MOSHI_AUDIO_LOSS_WEIGHT=0.1 \
+  MOSHI_OPTIMIZER_CPU_OFFLOAD=1 \
+  MOSHI_OPTIMIZER_CPU_OFFLOAD_AUDIT=checkpoints/moshi_v6_text_dropout/optimizer_cpu_offload_audit.json \
   MOSHI_TEXT_INPUT_DROPOUT_START=0.25 MOSHI_TEXT_INPUT_DROPOUT_END=0.75 \
   MOSHI_TEXT_INPUT_DROPOUT_FORWARDS=800 MOSHI_TEXT_INPUT_DROPOUT_SEED=20260902 \
   MOSHI_TEXT_INPUT_DROPOUT_AUDIT=checkpoints/moshi_v6_text_dropout/input_dropout_audit.jsonl \

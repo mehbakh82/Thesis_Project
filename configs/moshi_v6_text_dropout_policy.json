@@ -24,8 +24,25 @@
       "nine-row output panel and all quality thresholds"
     ],
     "changed": [
-      "lexical text inputs are replaced with text padding under the frozen schedule"
+      "lexical text inputs are replaced with text padding under the frozen schedule",
+      "FP32 AdamW master weights, gradients, moments, and updates execute on CPU as a pre-run shared-H100 resource accommodation"
     ]
+  },
+  "resource_execution_amendment": {
+    "reason": "the shared H100 had 21666 MiB free versus the prior exact rank-64 peak of 22.707 GiB",
+    "model_shape_changed": false,
+    "trainable_parameters_changed": false,
+    "optimizer_algorithm_changed": false,
+    "optimizer_hyperparameters_changed": false,
+    "optimizer_dtype": "float32",
+    "optimizer_device": "cpu",
+    "foreach": false,
+    "fused": false,
+    "expected_active_parameter_elements": 488854528,
+    "expected_optimizer_moment_tensors": 1354,
+    "minimum_h100_free_mib": 20480,
+    "minimum_host_available_bytes": 12884901888,
+    "kernel_numerics_caveat": "CPU and fused-CUDA AdamW kernels can differ at floating-point roundoff scale; execution location is therefore disclosed as a resource amendment"
   },
   "text_input_dropout": {
     "start_probability": 0.25,
@@ -61,6 +78,7 @@
     "MOSHI_PERSIAN_TEXT_ADAPTATION": "1",
     "MOSHI_TEXT_EMBEDDINGS_ONLY": "0",
     "MOSHI_AUDIO_LOSS_WEIGHT": "0.1",
+    "MOSHI_OPTIMIZER_CPU_OFFLOAD": "1",
     "MOSHI_TEXT_INPUT_DROPOUT_START": "0.25",
     "MOSHI_TEXT_INPUT_DROPOUT_END": "0.75",
     "MOSHI_TEXT_INPUT_DROPOUT_SEED": "20260902"

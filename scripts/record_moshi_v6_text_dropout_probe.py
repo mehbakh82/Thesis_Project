@@ -24,6 +24,11 @@ EXPECTED_ENVIRONMENT = {
     "MOSHI_PERSIAN_TEXT_ADAPTATION": "1",
     "MOSHI_TEXT_EMBEDDINGS_ONLY": "0",
     "MOSHI_AUDIO_LOSS_WEIGHT": "0.1",
+    "MOSHI_OPTIMIZER_CPU_OFFLOAD": "1",
+    "MOSHI_OPTIMIZER_CPU_OFFLOAD_AUDIT": (
+        "checkpoints/moshi_v6_text_dropout_probe/"
+        "optimizer_cpu_offload_audit.json"
+    ),
     "MOSHI_TEXT_INPUT_DROPOUT_START": "0.25",
     "MOSHI_TEXT_INPUT_DROPOUT_END": "0.75",
     "MOSHI_TEXT_INPUT_DROPOUT_FORWARDS": "4",
@@ -106,8 +111,10 @@ def main() -> int:
     metrics_path = run_dir / "metrics.train.jsonl"
     resolved_args_path = run_dir / "args.yaml"
     audit_path = run_dir / "input_dropout_audit.jsonl"
+    optimizer_audit_path = run_dir / "optimizer_cpu_offload_audit.json"
     metrics = read_jsonl(metrics_path)
     audit = read_jsonl(audit_path)
+    optimizer_audit = json_object(optimizer_audit_path)
     resolved_args = yaml.safe_load(resolved_args_path.read_text(encoding="utf-8"))
     probe_config = yaml.safe_load(probe_config_path.read_text(encoding="utf-8"))
     full_config = yaml.safe_load(full_config_path.read_text(encoding="utf-8"))
@@ -169,7 +176,23 @@ def main() -> int:
             and row.get("preserved_token_ids_at_most") == 3
             for row in audit
         ),
-        "real_model_memory_allocated": 20.0 < float(metric.get("peak_allocated_mem")) < 24.0,
+        "cpu_offloaded_fp32_adamw_audited": (
+            optimizer_audit.get("algorithm") == "AdamW"
+            and optimizer_audit.get("optimizer_step_calls") == 1
+            and optimizer_audit.get("active_parameter_tensors") == 677
+            and optimizer_audit.get("active_parameter_elements")
+            == int(policy["estimated_adapter_bytes"]) // 2
+            and optimizer_audit.get("master_devices") == ["cpu"]
+            and optimizer_audit.get("gradient_devices") == ["cpu"]
+            and optimizer_audit.get("moment_devices") == ["cpu"]
+            and optimizer_audit.get("master_dtypes") == ["torch.float32"]
+            and optimizer_audit.get("gradient_dtypes") == ["torch.float32"]
+            and optimizer_audit.get("moment_dtypes") == ["torch.float32"]
+            and optimizer_audit.get("moment_tensor_count") == 1354
+            and optimizer_audit.get("foreach") is False
+            and optimizer_audit.get("fused") is False
+        ),
+        "real_model_memory_allocated": 14.0 < float(metric.get("peak_allocated_mem")) < 22.0,
         "policy_matches_probe": (
             ((policy.get("text_input_dropout") or {}).get("probe_forwards") == 4)
             and ((policy.get("text_input_dropout") or {}).get("seed") == 20260902)
@@ -200,11 +223,13 @@ def main() -> int:
             "targets_mutated": False,
             "evaluation_corrupted": False,
         },
+        "optimizer_cpu_offload": optimizer_audit,
         "requirements": requirements,
         "probe_passes": all(requirements.values()),
         "artifacts": {
             "metrics_sha256": sha256_file(metrics_path),
             "audit_sha256": sha256_file(audit_path),
+            "optimizer_audit_sha256": sha256_file(optimizer_audit_path),
             "resolved_args_sha256": sha256_file(resolved_args_path),
             "probe_config_sha256": sha256_file(probe_config_path),
             "full_config_sha256": sha256_file(full_config_path),
