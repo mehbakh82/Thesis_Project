@@ -9,6 +9,8 @@ import runpy
 import sys
 from pathlib import Path
 
+from scripts.moshi_text_input_dropout import configure_scheduled_text_input_dropout
+
 TEXT_EMBEDDING_PARAMETER_NAMES = frozenset(
     {
         "depformer_text_emb.weight",
@@ -220,6 +222,47 @@ def _configure_persian_text_adaptation(wrapped_model_module) -> None:
     wrapped_model_module.get_fsdp_model = get_fsdp_model
 
 
+def _configure_text_input_dropout_from_environment(
+    root: Path,
+    wrapped_model_module,
+    torch_module,
+    *,
+    persian_text_policy: str,
+) -> None:
+    start_text = os.environ.get("MOSHI_TEXT_INPUT_DROPOUT_START", "0").strip()
+    end_text = os.environ.get("MOSHI_TEXT_INPUT_DROPOUT_END", "0").strip()
+    forwards_text = os.environ.get("MOSHI_TEXT_INPUT_DROPOUT_FORWARDS", "0").strip()
+    seed_text = os.environ.get("MOSHI_TEXT_INPUT_DROPOUT_SEED", "0").strip()
+    audit_text = os.environ.get("MOSHI_TEXT_INPUT_DROPOUT_AUDIT", "").strip()
+    try:
+        start_probability = float(start_text)
+        end_probability = float(end_text)
+        train_forwards = int(forwards_text)
+        seed = int(seed_text)
+    except ValueError as exc:
+        raise RuntimeError("invalid scheduled text-input dropout environment") from exc
+
+    if start_probability == 0.0 and end_probability == 0.0:
+        if train_forwards != 0 or seed != 0 or audit_text:
+            raise RuntimeError("disabled text-input dropout has unexpected controls")
+        return
+    if persian_text_policy != "1":
+        raise RuntimeError("scheduled text-input dropout requires Persian-text adaptation")
+
+    audit_path = (root / audit_text).resolve() if audit_text else None
+    if audit_path is not None and root != audit_path and root not in audit_path.parents:
+        raise RuntimeError("text-input dropout audit must stay inside the project")
+    configure_scheduled_text_input_dropout(
+        wrapped_model_module,
+        torch_module,
+        start_probability=start_probability,
+        end_probability=end_probability,
+        train_forwards=train_forwards,
+        seed=seed,
+        audit_path=audit_path,
+    )
+
+
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     checkout = root / "third_party" / "checkouts" / "moshi-finetune"
@@ -250,6 +293,12 @@ def main() -> None:
         _configure_text_embeddings_only(finetune_wrapped_model)
     elif persian_text_policy == "1":
         _configure_persian_text_adaptation(finetune_wrapped_model)
+    _configure_text_input_dropout_from_environment(
+        root,
+        finetune_wrapped_model,
+        torch,
+        persian_text_policy=persian_text_policy,
+    )
     audio_loss_weight_text = os.environ.get("MOSHI_AUDIO_LOSS_WEIGHT", "1.0").strip()
     try:
         audio_loss_weight = float(audio_loss_weight_text)

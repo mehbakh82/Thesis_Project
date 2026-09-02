@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "status": "frozen_before_probe_or_training",
+  "mode": "persian_text_head_adaptation_with_scheduled_text_input_dropout",
+  "diagnostic_only": true,
+  "scientific_validation_evidence": false,
+  "generalization_claim_allowed": false,
+  "final_test_access_allowed": false,
+  "parents": {
+    "v6_runtime_sha256": "fc3c394a76e8866baf40fe649a0ec5c78d0b857aa1307d3c2cbd9caf16961d6b",
+    "v6_outcome": "negative",
+    "v6_1_runtime_sha256": "220e487e0a62e232c4ba479e87abdace4d3df4515d2a94c647371a882a4bc748",
+    "v6_1_outcome": "negative"
+  },
+  "controlled_comparison_to_v6": {
+    "unchanged": [
+      "32-row train-only manifest",
+      "model and tokenizer",
+      "rank-64 LoRA and full Persian text parameters",
+      "audio loss weight 0.1",
+      "optimizer and learning-rate schedule",
+      "200 optimizer steps and four microbatches",
+      "checkpoint steps 50, 100, 150, 200",
+      "nine-row output panel and all quality thresholds"
+    ],
+    "changed": [
+      "lexical text inputs are replaced with text padding under the frozen schedule"
+    ]
+  },
+  "text_input_dropout": {
+    "start_probability": 0.25,
+    "end_probability": 0.75,
+    "full_training_forwards": 800,
+    "probe_forwards": 4,
+    "seed": 20260902,
+    "eligible_token_rule": "text token id > 3",
+    "replacement_token_id": 3,
+    "special_token_ids_preserved": [0, 1, 2, 3],
+    "audio_inputs_mutated": false,
+    "targets_mutated": false,
+    "evaluation_corrupted": false,
+    "schedule": "linear by training forward call"
+  },
+  "trainable_full_parameters": [
+    "depformer_text_emb.weight",
+    "text_emb.weight",
+    "text_linear.frozen_W.weight"
+  ],
+  "frozen_audio_embeddings": true,
+  "expected_lora_tensor_count": 674,
+  "expected_total_adapter_tensor_count": 677,
+  "estimated_adapter_bytes": 977709056,
+  "audio_loss_weight": 0.1,
+  "runtime_decoding": {
+    "text_top_k": 1,
+    "audio_top_k": 250,
+    "reason": "v6.1 improved the final fixed-panel pass count from 1/9 to 3/9 without changing weights"
+  },
+  "launcher_environment": {
+    "MOSHI_DISTRIBUTED_BACKEND": "gloo",
+    "MOSHI_PERSIAN_TEXT_ADAPTATION": "1",
+    "MOSHI_TEXT_EMBEDDINGS_ONLY": "0",
+    "MOSHI_AUDIO_LOSS_WEIGHT": "0.1",
+    "MOSHI_TEXT_INPUT_DROPOUT_START": "0.25",
+    "MOSHI_TEXT_INPUT_DROPOUT_END": "0.75",
+    "MOSHI_TEXT_INPUT_DROPOUT_SEED": "20260902"
+  }
+}

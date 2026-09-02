@@ -1,0 +1,43 @@
+# Train-only v6.2 exposure-bias diagnostic. Not validation or deployment evidence.
+data:
+  train_data: data/processed/moshi_finetune_v6_overfit/train.jsonl
+  eval_data: data/processed/moshi_finetune_v6_overfit/train.jsonl
+  shuffle: true
+
+moshi_paths:
+  hf_repo_id: kyutai/moshika-pytorch-bf16
+  moshi_path: hf_cache/pinned/moshika-pytorch-bf16-a49141e/model.safetensors
+  mimi_path: hf_cache/pinned/moshika-pytorch-bf16-a49141e/tokenizer-e351c8d8-checkpoint125.safetensors
+  tokenizer_path: hf_cache/pinned/moshika-pytorch-bf16-a49141e/tokenizer_spm_32k_3.model
+  config_path: configs/moshika_7b_legacy.json
+
+full_finetuning: false
+lora:
+  enable: true
+  rank: 64
+  scaling: 2.0
+  ft_embed: false
+
+first_codebook_weight_multiplier: 1.0
+text_padding_weight: 0.1
+
+duration_sec: 12
+batch_size: 1
+num_microbatches: 4
+max_steps: 200
+gradient_checkpointing: true
+optim:
+  lr: 1.0e-5
+  weight_decay: 0.0
+  pct_start: 0.05
+
+seed: 20260901
+log_freq: 10
+eval_freq: 50
+do_eval: true
+do_ckpt: true
+ckpt_freq: 50
+num_ckpt_keep: 4
+save_adapters: true
+run_dir: checkpoints/moshi_v6_text_dropout
+overwrite_run_dir: false

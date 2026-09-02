@@ -43,9 +43,8 @@ SPEECH_RMS_THRESHOLD = 1e-3
 MAX_PREFIX_CER = 0.75
 MIN_NORMALIZED_TEXT_LENGTH = 4
 FUSE_LORA_AT_RUNTIME = False
-PARENT_V6_RUNTIME_SHA256 = (
-    "fc3c394a76e8866baf40fe649a0ec5c78d0b857aa1307d3c2cbd9caf16961d6b"
-)
+PARENT_V6_RUNTIME_SHA256 = "fc3c394a76e8866baf40fe649a0ec5c78d0b857aa1307d3c2cbd9caf16961d6b"
+PARENT_V6_1_RUNTIME_SHA256 = "220e487e0a62e232c4ba479e87abdace4d3df4515d2a94c647371a882a4bc748"
 TEXT_GREEDY_LM_GEN_CONFIG = {
     "use_sampling": True,
     "temp": 0.8,
@@ -144,6 +143,11 @@ def main() -> int:
         action="store_true",
         help="Run the frozen v6.1 top-k-text=1 follow-up against unchanged v6 weights.",
     )
+    parser.add_argument(
+        "--text-dropout-followup",
+        action="store_true",
+        help="Run the frozen v6.2 scheduled text-input-dropout diagnostic.",
+    )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=18998)
     parser.add_argument("--ready-timeout", type=float, default=180.0)
@@ -153,6 +157,16 @@ def main() -> int:
     args = parser.parse_args()
     if args.host not in {"127.0.0.1", "localhost"}:
         raise ValueError("v6 diagnostic runtime is restricted to loopback")
+    if args.text_greedy_followup and args.text_dropout_followup:
+        raise ValueError("v6.1 and v6.2 follow-up modes are mutually exclusive")
+    if args.text_dropout_followup:
+        args.training_config = Path("configs/moshi_h100_v6_text_dropout.yaml")
+        args.reevaluation = Path("results/moshi_v6_text_dropout_reevaluation.json")
+        args.preflight = Path("results/hardware/moshi_v6_text_dropout_preflight.json")
+        args.probe = Path("results/hardware/moshi_v6_text_dropout_probe.json")
+        args.protocol = Path("docs/MOSHI_V6_TEXT_DROPOUT_PROTOCOL.md")
+        args.policy = Path("configs/moshi_v6_text_dropout_policy.json")
+        args.out = Path("results/moshi_v6_text_dropout_runtime.json")
 
     training_config_path = (ROOT / args.training_config).resolve()
     reevaluation_path = (ROOT / args.reevaluation).resolve()
@@ -177,12 +191,19 @@ def main() -> int:
     out_path = (ROOT / (args.out or default_out)).resolve()
     runtime_config_path = (
         (ROOT / "configs/moshi_v6_text_greedy_runtime.json").resolve()
-        if args.text_greedy_followup
+        if args.text_greedy_followup or args.text_dropout_followup
         else None
     )
     parent_runtime_path = (
-        (ROOT / "results/moshi_v6_overfit_runtime.json").resolve()
-        if args.text_greedy_followup
+        (
+            ROOT
+            / (
+                "results/moshi_v6_text_greedy_runtime.json"
+                if args.text_dropout_followup
+                else "results/moshi_v6_overfit_runtime.json"
+            )
+        ).resolve()
+        if args.text_greedy_followup or args.text_dropout_followup
         else None
     )
     if out_path.exists():
@@ -221,19 +242,22 @@ def main() -> int:
     )
     parent_runtime: dict[str, Any] | None = None
     followup_predeclared = True
-    if args.text_greedy_followup:
+    if args.text_greedy_followup or args.text_dropout_followup:
         if runtime_config_path is None or parent_runtime_path is None:
             raise AssertionError("follow-up paths were not resolved")
         runtime_config = json_object(runtime_config_path)
         generation_config = runtime_config.pop("lm_gen_config", None)
         if runtime_config != expected_config:
-            raise ValueError("v6.1 runtime config differs from the frozen v6 model config")
+            raise ValueError("follow-up runtime config differs from the frozen model config")
         if generation_config != TEXT_GREEDY_LM_GEN_CONFIG:
-            raise ValueError("v6.1 generation config differs from the frozen intervention")
+            raise ValueError("follow-up generation config differs from the frozen intervention")
         parent_runtime = json_object(parent_runtime_path)
+        expected_parent_sha256 = (
+            PARENT_V6_1_RUNTIME_SHA256 if args.text_dropout_followup else PARENT_V6_RUNTIME_SHA256
+        )
         followup_predeclared = (
             protocol_path.is_file()
-            and sha256_file(parent_runtime_path) == PARENT_V6_RUNTIME_SHA256
+            and sha256_file(parent_runtime_path) == expected_parent_sha256
             and parent_runtime.get("status") == "passed"
             and parent_runtime.get("diagnostic_positive") is False
             and parent_runtime.get("diagnostic_outcome") == "negative"
@@ -242,6 +266,15 @@ def main() -> int:
             and all(
                 candidate.get("official_server_runtime_passes") is True
                 for candidate in parent_runtime.get("candidates") or []
+            )
+            and (
+                not args.text_dropout_followup
+                or (
+                    preflight.get("status") == "passed"
+                    and preflight.get("preflight_passes") is True
+                    and (preflight.get("artifacts") or {}).get("protocol_sha256")
+                    == sha256_file(protocol_path)
+                )
             )
         )
     expected_schema = expected_adapter_schema(
@@ -265,7 +298,7 @@ def main() -> int:
     preconditions = {
         "protocol_predeclared": (
             followup_predeclared
-            if args.text_greedy_followup
+            if args.text_greedy_followup or args.text_dropout_followup
             else (
                 protocol_path.is_file()
                 and preflight.get("status") == "passed"
@@ -297,7 +330,12 @@ def main() -> int:
             )
         ),
         "policy_current": (
-            policy.get("mode") == "persian_text_head_adaptation"
+            policy.get("mode")
+            == (
+                "persian_text_head_adaptation_with_scheduled_text_input_dropout"
+                if args.text_dropout_followup
+                else "persian_text_head_adaptation"
+            )
             and set(policy.get("trainable_full_parameters") or []) == FULL_TEXT_PARAMETERS
             and (preflight.get("artifacts") or {}).get("policy_sha256") == sha256_file(policy_path)
         ),
@@ -323,11 +361,21 @@ def main() -> int:
         "generalization_claim_allowed": False,
         "final_test_accessed": False,
         "followup": {
-            "enabled": args.text_greedy_followup,
-            "intervention": "text_top_k_25_to_1" if args.text_greedy_followup else None,
+            "enabled": args.text_greedy_followup or args.text_dropout_followup,
+            "intervention": (
+                "scheduled_text_input_dropout_0_25_to_0_75"
+                if args.text_dropout_followup
+                else "text_top_k_25_to_1"
+                if args.text_greedy_followup
+                else None
+            ),
             "weights_reused_without_training": args.text_greedy_followup,
             "parent_diagnostic_sha256": (
-                PARENT_V6_RUNTIME_SHA256 if args.text_greedy_followup else None
+                PARENT_V6_1_RUNTIME_SHA256
+                if args.text_dropout_followup
+                else PARENT_V6_RUNTIME_SHA256
+                if args.text_greedy_followup
+                else None
             ),
         },
         "protocol": {
