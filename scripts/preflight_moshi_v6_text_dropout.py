@@ -163,6 +163,7 @@ def main() -> int:
     }
     output_paths = (
         ROOT / "results/hardware/moshi_v6_text_dropout_probe.json",
+        ROOT / "results/hardware/moshi_v6_text_dropout_training.json",
         ROOT / "results/moshi_v6_text_dropout_reevaluation.json",
         ROOT / "results/moshi_v6_text_dropout_runtime.json",
     )

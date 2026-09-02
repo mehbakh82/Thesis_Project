@@ -57,6 +57,7 @@ def main() -> int:
         type=Path,
         default=Path("results/moshi_v6_overfit_reevaluation.json"),
     )
+    parser.add_argument("--experiment-label", default="v6_overfit")
     args = parser.parse_args()
 
     training_config_path = (ROOT / args.training_config).resolve()
@@ -172,7 +173,7 @@ def main() -> int:
                 training_config["first_codebook_weight_multiplier"]
             ),
             text_padding_weight=float(training_config["text_padding_weight"]),
-            mode=f"v6_overfit_step_{step:06d}",
+            mode=f"{args.experiment_label}_step_{step:06d}",
         )
         candidate = {
             "step": step,
@@ -193,7 +194,7 @@ def main() -> int:
         candidates.append(candidate)
         write_jsonl_atomic(metrics_out, candidates)
         print(
-            f"v6 in-sample reevaluation step={step} text_loss={candidate['text_eval_loss']:.9f}",
+            f"{args.experiment_label} reevaluation step={step} text_loss={candidate['text_eval_loss']:.9f}",
             flush=True,
         )
 
@@ -218,6 +219,7 @@ def main() -> int:
         "schema_version": 1,
         "status": "passed" if all(requirements.values()) else "failed",
         "generated_at": datetime.now(timezone.utc).isoformat(),
+        "experiment": args.experiment_label,
         "diagnostic_only": True,
         "scientific_validation_evidence": False,
         "in_sample_training_evidence": True,
