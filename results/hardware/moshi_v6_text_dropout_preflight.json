@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "generated_at": "2026-09-02T07:15:12.716303+00:00",
+  "launch_commit": "f650ed68a49fe1cd5ae889125cc9210d0ae72996",
+  "diagnostic_only": true,
+  "scientific_validation_evidence": false,
+  "generalization_claim_allowed": false,
+  "final_test_accessed": false,
+  "experiment": {
+    "name": "moshi_v6_text_dropout",
+    "candidate_steps": [
+      50,
+      100,
+      150,
+      200
+    ],
+    "training_rows": 32,
+    "training_forwards": 800
+  },
+  "storage": {
+    "free_bytes": 44515504128,
+    "required_free_bytes": 6058319872,
+    "required_free_gib": 5.642
+  },
+  "host_memory": {
+    "available_bytes": 150206689280,
+    "required_available_bytes": 12884901888
+  },
+  "gpu": {
+    "name": "NVIDIA H100 NVL",
+    "total_mib": 95830,
+    "used_mib": 73656,
+    "free_mib": 21666
+  },
+  "requirements": {
+    "launch_worktree_clean": true,
+    "parent_v6_exact_negative": true,
+    "parent_v6_1_exact_negative": true,
+    "controlled_training_config_matches_v6": true,
+    "only_run_directory_differs_outside_comment": true,
+    "probe_shape_matches_full": true,
+    "probe_controls_exact": true,
+    "train_only_data_current": true,
+    "parameter_scope_and_objective_exact": true,
+    "dropout_policy_exact": true,
+    "optimizer_resource_amendment_exact": true,
+    "launcher_and_hook_fail_closed": true,
+    "protocol_frozen": true,
+    "prior_exact_profile_probe_passed": true,
+    "run_directories_absent": true,
+    "result_outputs_absent": true,
+    "disk_headroom_passes": true,
+    "host_memory_headroom_passes": true,
+    "h100_headroom_passes": true,
+    "final_test_not_accessed": true
+  },
+  "preflight_passes": true,
+  "artifacts": {
+    "config_sha256": "06fa61cedd2cdcdfca7769f573498518c80830cd13be663bc32813c72596c8ae",
+    "probe_config_sha256": "38fb4a2e43f2e1507999017b8d8ff0323af73f0340b597fa874ddfa20f7eaa02",
+    "policy_sha256": "e9f410efb27b213e03ee90c52756950ebb421575540305ad624e7245ce3638a3",
+    "protocol_sha256": "e5a3dddf6edfd592dc04a94a8bc2440d7782e2cda889e58fd25a6e22bb067ce3",
+    "data_manifest_sha256": "efb9533504f947f9fece336a1ceccdd6ca14f2e05928add723e56e218a823645",
+    "launcher_sha256": "d88e6adfb587add3b9eb5e7f2fc698dc76110c913a7e32ca3dbb2c4d08214e82",
+    "dropout_module_sha256": "0eca46b1d77c939eaeaab6d73318f140823d4aaaa3a4a5a77f2a54ab0447ef02",
+    "v6_runtime_sha256": "fc3c394a76e8866baf40fe649a0ec5c78d0b857aa1307d3c2cbd9caf16961d6b",
+    "v6_1_runtime_sha256": "220e487e0a62e232c4ba479e87abdace4d3df4515d2a94c647371a882a4bc748",
+    "prior_probe_sha256": "fd181e6da11a6e14aa2206bb630adc792c78e1d13505c3fab0971ff5f3ecd7f9"
+  }
+}
