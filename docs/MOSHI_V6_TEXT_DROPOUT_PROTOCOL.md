@@ -68,3 +68,63 @@ No threshold may be relaxed after results are visible.
 - Negative: preserve the result. Do not claim v6 positive. Further direct-model
   work requires a separately frozen intervention (such as audio-stream corruption
   or a different model), while the Persian cascade remains the deployable path.
+
+## Exact execution sequence
+
+Run the write-once preflight from a clean commit:
+
+```bash
+.venv/bin/python scripts/preflight_moshi_v6_text_dropout.py
+```
+
+Run the no-checkpoint probe and its recorder with the same shell environment:
+
+```bash
+env CUDA_VISIBLE_DEVICES=0 MOSHI_DISTRIBUTED_BACKEND=gloo \
+  MOSHI_PERSIAN_TEXT_ADAPTATION=1 MOSHI_TEXT_EMBEDDINGS_ONLY=0 \
+  MOSHI_AUDIO_LOSS_WEIGHT=0.1 MOSHI_TEXT_INPUT_DROPOUT_START=0.25 \
+  MOSHI_TEXT_INPUT_DROPOUT_END=0.75 MOSHI_TEXT_INPUT_DROPOUT_FORWARDS=4 \
+  MOSHI_TEXT_INPUT_DROPOUT_SEED=20260902 \
+  MOSHI_TEXT_INPUT_DROPOUT_AUDIT=checkpoints/moshi_v6_text_dropout_probe/input_dropout_audit.jsonl \
+  .venv-moshi/bin/torchrun --standalone --nproc-per-node 1 \
+  scripts/moshi_train_entry.py configs/moshi_h100_v6_text_dropout_probe.yaml
+
+env MOSHI_DISTRIBUTED_BACKEND=gloo MOSHI_PERSIAN_TEXT_ADAPTATION=1 \
+  MOSHI_TEXT_EMBEDDINGS_ONLY=0 MOSHI_AUDIO_LOSS_WEIGHT=0.1 \
+  MOSHI_TEXT_INPUT_DROPOUT_START=0.25 MOSHI_TEXT_INPUT_DROPOUT_END=0.75 \
+  MOSHI_TEXT_INPUT_DROPOUT_FORWARDS=4 MOSHI_TEXT_INPUT_DROPOUT_SEED=20260902 \
+  MOSHI_TEXT_INPUT_DROPOUT_AUDIT=checkpoints/moshi_v6_text_dropout_probe/input_dropout_audit.jsonl \
+  .venv/bin/python scripts/record_moshi_v6_text_dropout_probe.py
+```
+
+After committing the passed preflight/probe evidence, run the full diagnostic and
+attest it in the same environment, changing only forwards/audit path:
+
+```bash
+env CUDA_VISIBLE_DEVICES=0 MOSHI_DISTRIBUTED_BACKEND=gloo \
+  MOSHI_PERSIAN_TEXT_ADAPTATION=1 MOSHI_TEXT_EMBEDDINGS_ONLY=0 \
+  MOSHI_AUDIO_LOSS_WEIGHT=0.1 MOSHI_TEXT_INPUT_DROPOUT_START=0.25 \
+  MOSHI_TEXT_INPUT_DROPOUT_END=0.75 MOSHI_TEXT_INPUT_DROPOUT_FORWARDS=800 \
+  MOSHI_TEXT_INPUT_DROPOUT_SEED=20260902 \
+  MOSHI_TEXT_INPUT_DROPOUT_AUDIT=checkpoints/moshi_v6_text_dropout/input_dropout_audit.jsonl \
+  .venv-moshi/bin/torchrun --standalone --nproc-per-node 1 \
+  scripts/moshi_train_entry.py configs/moshi_h100_v6_text_dropout.yaml
+
+env MOSHI_DISTRIBUTED_BACKEND=gloo MOSHI_PERSIAN_TEXT_ADAPTATION=1 \
+  MOSHI_TEXT_EMBEDDINGS_ONLY=0 MOSHI_AUDIO_LOSS_WEIGHT=0.1 \
+  MOSHI_TEXT_INPUT_DROPOUT_START=0.25 MOSHI_TEXT_INPUT_DROPOUT_END=0.75 \
+  MOSHI_TEXT_INPUT_DROPOUT_FORWARDS=800 MOSHI_TEXT_INPUT_DROPOUT_SEED=20260902 \
+  MOSHI_TEXT_INPUT_DROPOUT_AUDIT=checkpoints/moshi_v6_text_dropout/input_dropout_audit.jsonl \
+  .venv/bin/python scripts/record_moshi_v6_text_dropout_training.py
+
+env CUDA_VISIBLE_DEVICES=0 .venv-moshi/bin/python \
+  scripts/reevaluate_moshi_v6_overfit.py \
+  --training-config configs/moshi_h100_v6_text_dropout.yaml \
+  --run-dir checkpoints/moshi_v6_text_dropout \
+  --metrics-out checkpoints/moshi_v6_text_dropout/metrics.reeval.jsonl \
+  --report-out results/moshi_v6_text_dropout_reevaluation.json \
+  --experiment-label v6_text_dropout
+
+env CUDA_VISIBLE_DEVICES=0 .venv-moshi/bin/python \
+  scripts/evaluate_moshi_v6_overfit.py --text-dropout-followup
+```
