@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "completed_at": "2026-09-02T07:21:56.086925",
+  "purpose": "one-step exact-shape v6.2 scheduled text-input-dropout probe",
+  "diagnostic_only": true,
+  "scientific_validation_evidence": false,
+  "generalization_claim_allowed": false,
+  "final_test_accessed": false,
+  "runtime_environment": {
+    "MOSHI_DISTRIBUTED_BACKEND": "gloo",
+    "MOSHI_PERSIAN_TEXT_ADAPTATION": "1",
+    "MOSHI_TEXT_EMBEDDINGS_ONLY": "0",
+    "MOSHI_AUDIO_LOSS_WEIGHT": "0.1",
+    "MOSHI_OPTIMIZER_CPU_OFFLOAD": "1",
+    "MOSHI_OPTIMIZER_CPU_OFFLOAD_AUDIT": "checkpoints/moshi_v6_text_dropout_probe/optimizer_cpu_offload_audit.json",
+    "MOSHI_TEXT_INPUT_DROPOUT_START": "0.25",
+    "MOSHI_TEXT_INPUT_DROPOUT_END": "0.75",
+    "MOSHI_TEXT_INPUT_DROPOUT_FORWARDS": "4",
+    "MOSHI_TEXT_INPUT_DROPOUT_SEED": "20260902",
+    "MOSHI_TEXT_INPUT_DROPOUT_AUDIT": "checkpoints/moshi_v6_text_dropout_probe/input_dropout_audit.jsonl"
+  },
+  "step": {
+    "number": 1,
+    "loss": 9.411331176757812,
+    "peak_allocated_gb": 16.363738536834717
+  },
+  "dropout_audit": {
+    "rows": 4,
+    "calls": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "probabilities": [
+      0.25,
+      0.41666666666666663,
+      0.5833333333333333,
+      0.75
+    ],
+    "eligible_tokens": 218,
+    "dropped_tokens": 111,
+    "targets_mutated": false,
+    "evaluation_corrupted": false
+  },
+  "optimizer_cpu_offload": {
+    "schema_version": 1,
+    "algorithm": "AdamW",
+    "optimizer_step_calls": 1,
+    "active_parameter_tensors": 677,
+    "active_parameter_elements": 488854528,
+    "master_devices": [
+      "cpu"
+    ],
+    "master_dtypes": [
+      "torch.float32"
+    ],
+    "gradient_devices": [
+      "cpu"
+    ],
+    "gradient_dtypes": [
+      "torch.float32"
+    ],
+    "moment_tensor_count": 1354,
+    "moment_devices": [
+      "cpu"
+    ],
+    "moment_dtypes": [
+      "torch.float32"
+    ],
+    "foreach": false,
+    "fused": false
+  },
+  "requirements": {
+    "preflight_passed_and_bound": true,
+    "entrypoint_correction_bound": true,
+    "runtime_environment_exact": true,
+    "one_optimizer_step_four_microbatches": true,
+    "finite_loss": true,
+    "full_training_shape_matches": true,
+    "resolved_args_match_probe": true,
+    "evaluation_and_checkpointing_disabled": true,
+    "all_training_forwards_audited": true,
+    "linear_schedule_exact": true,
+    "eligible_and_dropped_tokens_observed": true,
+    "targets_and_eval_remained_clean": true,
+    "cpu_offloaded_fp32_adamw_audited": true,
+    "real_model_memory_allocated": true,
+    "policy_matches_probe": true,
+    "final_test_not_accessed": true
+  },
+  "probe_passes": true,
+  "artifacts": {
+    "metrics_sha256": "eaaee0d3a388be2a8cd19c60fbbb2fb7e8bd190e7a7733417838ef629696bada",
+    "audit_sha256": "7634ab1e1404b57363b603687a23cd06d333db6987b4e0860d3a20e240d27821",
+    "optimizer_audit_sha256": "7a672955fbc409c390f853d65c71749dd72a448db28527df26c17ef8f70b1e25",
+    "resolved_args_sha256": "6118c26c71473dd668145ff970fb707d14354bbfd6ec03f14eaa3e00f7def31c",
+    "probe_config_sha256": "38fb4a2e43f2e1507999017b8d8ff0323af73f0340b597fa874ddfa20f7eaa02",
+    "full_config_sha256": "06fa61cedd2cdcdfca7769f573498518c80830cd13be663bc32813c72596c8ae",
+    "policy_sha256": "e9f410efb27b213e03ee90c52756950ebb421575540305ad624e7245ce3638a3",
+    "preflight_sha256": "6e63b3d1538041e5464f91c792fc7f2b497946b12f4033d5862fc218f2ec5209",
+    "launch_failure_sha256": "a605bb7b466de14052633169553779968b28b026a81eb3601936628bed2b5958",
+    "corrected_protocol_sha256": "11bbc1e568160ee013ca837eef8ec563b99cf45243ea1009045354bec7bb7ee1",
+    "unchanged_launcher_sha256": "d88e6adfb587add3b9eb5e7f2fc698dc76110c913a7e32ca3dbb2c4d08214e82",
+    "recorder_sha256": "689ed9fb900986eb3dc1b9962d31dd74bbf1ef6812c1160bbb51e41977646e5f"
+  }
+}
