@@ -97,6 +97,18 @@ No threshold may be relaxed after results are visible.
   or a different model), while the Persian cascade remains the deployable path.
 
 ## Exact execution sequence
+### Infrastructure-only entrypoint correction
+
+The first probe command at 2026-09-02T07:15:54Z exited before importing project
+code because the torchrun console script did not put the repository root on
+Python's module path. No run directory, model load, data access, or optimizer
+step occurred. The failure is preserved in
+`results/hardware/moshi_v6_text_dropout_launch_failure.json`.
+
+The corrected torchrun commands set `PYTHONPATH=.`. This changes only module
+discovery: the launcher SHA-256, configs, policy, data, training variables, and
+preflight remain unchanged.
+
 
 Run the write-once preflight from a clean commit:
 
@@ -107,7 +119,7 @@ Run the write-once preflight from a clean commit:
 Run the no-checkpoint probe and its recorder with the same shell environment:
 
 ```bash
-env CUDA_VISIBLE_DEVICES=0 MOSHI_DISTRIBUTED_BACKEND=gloo \
+env PYTHONPATH=. CUDA_VISIBLE_DEVICES=0 MOSHI_DISTRIBUTED_BACKEND=gloo \
   MOSHI_PERSIAN_TEXT_ADAPTATION=1 MOSHI_TEXT_EMBEDDINGS_ONLY=0 \
   MOSHI_OPTIMIZER_CPU_OFFLOAD=1 \
   MOSHI_OPTIMIZER_CPU_OFFLOAD_AUDIT=checkpoints/moshi_v6_text_dropout_probe/optimizer_cpu_offload_audit.json \
@@ -132,7 +144,7 @@ After committing the passed preflight/probe evidence, run the full diagnostic an
 attest it in the same environment, changing only forwards/audit path:
 
 ```bash
-env CUDA_VISIBLE_DEVICES=0 MOSHI_DISTRIBUTED_BACKEND=gloo \
+env PYTHONPATH=. CUDA_VISIBLE_DEVICES=0 MOSHI_DISTRIBUTED_BACKEND=gloo \
   MOSHI_PERSIAN_TEXT_ADAPTATION=1 MOSHI_TEXT_EMBEDDINGS_ONLY=0 \
   MOSHI_OPTIMIZER_CPU_OFFLOAD=1 \
   MOSHI_OPTIMIZER_CPU_OFFLOAD_AUDIT=checkpoints/moshi_v6_text_dropout/optimizer_cpu_offload_audit.json \

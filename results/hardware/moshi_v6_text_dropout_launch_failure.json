@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "status": "infrastructure_failure_before_project_import",
+  "attempted_at": "2026-09-02T07:15:54Z",
+  "launch_commit": "1945340dca7a39c7f026ec633cb702341fc92cda",
+  "exit_code": 1,
+  "failure_stage": "top_level_project_import",
+  "exception": "ModuleNotFoundError: No module named 'scripts'",
+  "model_loaded": false,
+  "run_directory_created": false,
+  "optimizer_steps": 0,
+  "scientific_result": false,
+  "final_test_accessed": false,
+  "correction": {
+    "environment_added": {
+      "PYTHONPATH": "."
+    },
+    "scientific_inputs_changed": false,
+    "launcher_code_changed": false,
+    "retry_allowed": true
+  },
+  "artifacts": {
+    "parent_preflight_sha256": "6e63b3d1538041e5464f91c792fc7f2b497946b12f4033d5862fc218f2ec5209",
+    "pre_correction_protocol_sha256": "e5a3dddf6edfd592dc04a94a8bc2440d7782e2cda889e58fd25a6e22bb067ce3",
+    "unchanged_launcher_sha256": "d88e6adfb587add3b9eb5e7f2fc698dc76110c913a7e32ca3dbb2c4d08214e82"
+  }
+}

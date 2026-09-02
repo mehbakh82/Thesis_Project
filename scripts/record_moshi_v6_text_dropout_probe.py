@@ -105,6 +105,11 @@ def main() -> int:
     policy_path = (ROOT / args.policy).resolve()
     preflight_path = (ROOT / args.preflight).resolve()
     out_path = (ROOT / args.out).resolve()
+    launch_failure_path = (
+        ROOT / "results/hardware/moshi_v6_text_dropout_launch_failure.json"
+    )
+    protocol_path = ROOT / "docs/MOSHI_V6_TEXT_DROPOUT_PROTOCOL.md"
+    launcher_path = ROOT / "scripts/moshi_train_entry.py"
     if out_path.exists():
         raise FileExistsError(f"refusing to overwrite v6.2 probe evidence: {out_path}")
 
@@ -120,6 +125,7 @@ def main() -> int:
     full_config = yaml.safe_load(full_config_path.read_text(encoding="utf-8"))
     policy = json_object(policy_path)
     preflight = json_object(preflight_path)
+    launch_failure = json_object(launch_failure_path)
     if not all(
         isinstance(value, dict)
         for value in (resolved_args, probe_config, full_config, policy, preflight)
@@ -142,6 +148,29 @@ def main() -> int:
             and (preflight.get("artifacts") or {}).get("config_sha256")
             == sha256_file(full_config_path)
             and (preflight.get("artifacts") or {}).get("policy_sha256") == sha256_file(policy_path)
+        ),
+        "entrypoint_correction_bound": (
+            launch_failure.get("status")
+            == "infrastructure_failure_before_project_import"
+            and launch_failure.get("model_loaded") is False
+            and launch_failure.get("run_directory_created") is False
+            and launch_failure.get("optimizer_steps") == 0
+            and launch_failure.get("scientific_result") is False
+            and launch_failure.get("final_test_accessed") is False
+            and ((launch_failure.get("correction") or {}).get("environment_added") or {})
+            == {"PYTHONPATH": "."}
+            and (launch_failure.get("correction") or {}).get("scientific_inputs_changed")
+            is False
+            and (launch_failure.get("artifacts") or {}).get("parent_preflight_sha256")
+            == sha256_file(preflight_path)
+            and (launch_failure.get("artifacts") or {}).get(
+                "pre_correction_protocol_sha256"
+            )
+            == (preflight.get("artifacts") or {}).get("protocol_sha256")
+            and (launch_failure.get("artifacts") or {}).get("unchanged_launcher_sha256")
+            == (preflight.get("artifacts") or {}).get("launcher_sha256")
+            == sha256_file(launcher_path)
+            and "env PYTHONPATH=. CUDA_VISIBLE_DEVICES=0" in protocol_path.read_text()
         ),
         "runtime_environment_exact": effective_environment == EXPECTED_ENVIRONMENT,
         "one_optimizer_step_four_microbatches": (
@@ -235,6 +264,9 @@ def main() -> int:
             "full_config_sha256": sha256_file(full_config_path),
             "policy_sha256": sha256_file(policy_path),
             "preflight_sha256": sha256_file(preflight_path),
+            "launch_failure_sha256": sha256_file(launch_failure_path),
+            "corrected_protocol_sha256": sha256_file(protocol_path),
+            "unchanged_launcher_sha256": sha256_file(launcher_path),
             "recorder_sha256": sha256_file(Path(__file__).resolve()),
         },
     }
