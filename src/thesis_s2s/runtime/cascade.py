@@ -85,11 +85,22 @@ class TextResponder:
             {"role": "user", "content": user_text},
         ]
         try:
-            tokens: Any = self.tokenizer.apply_chat_template(
+            encoded: Any = self.tokenizer.apply_chat_template(
                 messages, add_generation_prompt=True, return_tensors="pt"
             )
+            tokens: Any = getattr(encoded, "input_ids", None)
+            if tokens is None:
+                tokens = encoded
             tokens = tokens.to(self.device)
-            output = self.model.generate(tokens, max_new_tokens=64, do_sample=False)
+            attention_mask: Any = getattr(encoded, "attention_mask", None)
+            generation_arguments: dict[str, Any] = {
+                "input_ids": tokens,
+                "max_new_tokens": 64,
+                "do_sample": False,
+            }
+            if attention_mask is not None:
+                generation_arguments["attention_mask"] = attention_mask.to(self.device)
+            output = self.model.generate(**generation_arguments)
             answer = str(
                 self.tokenizer.decode(output[0, tokens.shape[-1] :], skip_special_tokens=True)
             ).strip()
@@ -98,7 +109,7 @@ class TextResponder:
                 return answer
             self.last_generation_error = "empty model response"
         except Exception as exc:
-            self.last_generation_error = f"{type(exc).__name__}: {exc}"
+            self.last_generation_error = f"{type(exc).__name__}: {exc!r}"
         self.last_fallback_used = True
         return _reply_text(user_text)
 

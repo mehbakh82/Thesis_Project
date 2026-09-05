@@ -307,7 +307,7 @@ def first_packet(audio: np.ndarray, sr: int = SAMPLE_RATE, seconds: float = 0.25
 def synthesize(text: str, sr: int = SAMPLE_RATE) -> tuple[np.ndarray, str]:
     piper = piper_synthesize(text, sr)
     if piper is not None and len(piper) > 0:
-        return piper, "piper"
+        return np.clip(piper, -1.0, 1.0).astype(np.float32), "piper"
     return formant_synthesize(text, sr), "formant"
 
 

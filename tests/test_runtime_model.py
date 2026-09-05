@@ -1,4 +1,7 @@
+from types import SimpleNamespace
+
 import numpy as np
+import torch
 
 from thesis_s2s.bargein.detector import EnergyVadBaseline
 from thesis_s2s.bargein.synthetic import _harmonic
@@ -74,3 +77,52 @@ def test_cascade_handles_failed_asr_without_inventing_a_transcript(monkeypatch):
     assert talker.last_responder_error is None
     assert talker.responder_initialization_error is None
     assert "دوباره" in generated_text[0]
+
+
+def test_text_responder_extracts_input_ids_from_batch_encoding(monkeypatch):
+    monkeypatch.setenv("TEXT_LLM_ENABLED", "0")
+    responder = TextResponder()
+
+    class FakeTokenizer:
+        def apply_chat_template(self, *args, **kwargs):
+            return SimpleNamespace(
+                input_ids=torch.tensor([[10, 11]]),
+                attention_mask=torch.tensor([[1, 1]]),
+            )
+
+        def decode(self, tokens, *, skip_special_tokens):
+            assert tokens.tolist() == [12]
+            assert skip_special_tokens is True
+            return "پاسخ واقعی مدل"
+
+    class FakeModel:
+        def generate(self, *, input_ids, attention_mask, max_new_tokens, do_sample):
+            assert input_ids.tolist() == [[10, 11]]
+            assert attention_mask.tolist() == [[1, 1]]
+            assert max_new_tokens == 64
+            assert do_sample is False
+            return torch.tensor([[10, 11, 12]])
+
+    responder.backend = responder.model_name
+    responder.tokenizer = FakeTokenizer()
+    responder.model = FakeModel()
+
+    assert responder.reply("سلام") == "پاسخ واقعی مدل"
+    assert responder.last_fallback_used is False
+    assert responder.last_generation_error is None
+
+
+def test_piper_runtime_output_is_clipped_to_pcm_range(monkeypatch):
+    from thesis_s2s.runtime import tts
+
+    monkeypatch.setattr(
+        tts,
+        "piper_synthesize",
+        lambda text, sr: np.asarray([-1.02, 0.0, 1.03], dtype=np.float32),
+    )
+
+    audio, backend = tts.synthesize("سلام")
+
+    assert backend == "piper"
+    assert audio.dtype == np.float32
+    assert audio.tolist() == [-1.0, 0.0, 1.0]
