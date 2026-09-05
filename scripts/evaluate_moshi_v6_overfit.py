@@ -54,6 +54,55 @@ TEXT_GREEDY_LM_GEN_CONFIG = {
 }
 
 
+def v6_text_dropout_entrypoint_correction_valid(
+    *,
+    preflight: dict[str, Any],
+    launch_failure: dict[str, Any],
+    probe: dict[str, Any],
+    preflight_path: Path,
+    launch_failure_path: Path,
+    protocol_path: Path,
+    launcher_path: Path,
+) -> bool:
+    preflight_artifacts = preflight.get("artifacts") or {}
+    failure_artifacts = launch_failure.get("artifacts") or {}
+    correction = launch_failure.get("correction") or {}
+    probe_artifacts = probe.get("artifacts") or {}
+    probe_requirements = probe.get("requirements") or {}
+    return all(
+        (
+            preflight.get("status") == "passed",
+            preflight.get("preflight_passes") is True,
+            launch_failure.get("status") == "infrastructure_failure_before_project_import",
+            launch_failure.get("model_loaded") is False,
+            launch_failure.get("run_directory_created") is False,
+            launch_failure.get("optimizer_steps") == 0,
+            launch_failure.get("scientific_result") is False,
+            launch_failure.get("final_test_accessed") is False,
+            correction.get("environment_added") == {"PYTHONPATH": "."},
+            correction.get("scientific_inputs_changed") is False,
+            correction.get("launcher_code_changed") is False,
+            correction.get("retry_allowed") is True,
+            failure_artifacts.get("parent_preflight_sha256")
+            == sha256_file(preflight_path),
+            failure_artifacts.get("pre_correction_protocol_sha256")
+            == preflight_artifacts.get("protocol_sha256"),
+            failure_artifacts.get("unchanged_launcher_sha256")
+            == sha256_file(launcher_path),
+            probe.get("status") == "passed",
+            probe.get("probe_passes") is True,
+            probe_requirements.get("entrypoint_correction_bound") is True,
+            probe_artifacts.get("preflight_sha256") == sha256_file(preflight_path),
+            probe_artifacts.get("launch_failure_sha256")
+            == sha256_file(launch_failure_path),
+            probe_artifacts.get("corrected_protocol_sha256")
+            == sha256_file(protocol_path),
+            probe_artifacts.get("unchanged_launcher_sha256")
+            == sha256_file(launcher_path),
+        )
+    )
+
+
 def normalize_text(text: str) -> str:
     value = unicodedata.normalize("NFKC", text).replace("ي", "ی").replace("ك", "ک")
     value = re.sub(r"[^\w\u0600-\u06ff]+", " ", value, flags=re.UNICODE)
@@ -206,6 +255,12 @@ def main() -> int:
         if args.text_greedy_followup or args.text_dropout_followup
         else None
     )
+    launch_failure_path = (
+        (ROOT / "results/hardware/moshi_v6_text_dropout_launch_failure.json").resolve()
+        if args.text_dropout_followup
+        else None
+    )
+    launcher_path = (ROOT / "scripts/moshi_train_entry.py").resolve()
     if out_path.exists():
         raise FileExistsError(f"refusing to overwrite v6 runtime evidence: {out_path}")
 
@@ -218,6 +273,21 @@ def main() -> int:
     probe = json_object(probe_path)
     policy = json_object(policy_path)
     client_report = json_object(client_report_path)
+    launch_failure: dict[str, Any] | None = None
+    entrypoint_correction_chain_current = True
+    if args.text_dropout_followup:
+        if launch_failure_path is None:
+            raise AssertionError("v6.2 launch-failure path was not resolved")
+        launch_failure = json_object(launch_failure_path)
+        entrypoint_correction_chain_current = v6_text_dropout_entrypoint_correction_valid(
+            preflight=preflight,
+            launch_failure=launch_failure,
+            probe=probe,
+            preflight_path=preflight_path,
+            launch_failure_path=launch_failure_path,
+            protocol_path=protocol_path,
+            launcher_path=launcher_path,
+        )
     data_config = training_config.get("data") or {}
     moshi_paths = training_config.get("moshi_paths") or {}
     lora_config = training_config.get("lora") or {}
@@ -269,12 +339,7 @@ def main() -> int:
             )
             and (
                 not args.text_dropout_followup
-                or (
-                    preflight.get("status") == "passed"
-                    and preflight.get("preflight_passes") is True
-                    and (preflight.get("artifacts") or {}).get("protocol_sha256")
-                    == sha256_file(protocol_path)
-                )
+                or entrypoint_correction_chain_current
             )
         )
     expected_schema = expected_adapter_schema(
@@ -307,6 +372,7 @@ def main() -> int:
                 == sha256_file(protocol_path)
             )
         ),
+        "entrypoint_correction_chain_current": entrypoint_correction_chain_current,
         "probe_passed": (
             probe.get("status") == "passed"
             and probe.get("probe_passes") is True
@@ -405,6 +471,10 @@ def main() -> int:
             "mimi_sha256": sha256_file(mimi_path),
             "tokenizer_sha256": sha256_file(tokenizer_path),
             "evaluator_sha256": sha256_file(Path(__file__).resolve()),
+            "launcher_sha256": sha256_file(launcher_path),
+            "launch_failure_sha256": (
+                sha256_file(launch_failure_path) if launch_failure_path is not None else None
+            ),
             "runtime_config_sha256": (
                 sha256_file(runtime_config_path) if runtime_config_path is not None else None
             ),

@@ -14,6 +14,7 @@ from scripts.evaluate_moshi_v6_overfit import (
     MIN_NORMALIZED_TEXT_LENGTH,
     normalize_text,
     prefix_character_error_rate,
+    v6_text_dropout_entrypoint_correction_valid,
 )
 from scripts.moshi_train_entry import (
     PERSIAN_TEXT_PARAMETER_NAMES,
@@ -198,3 +199,23 @@ def test_frozen_v6_configuration_and_report_match() -> None:
     assert report["mechanically_filtered_not_human_clean"] is True
     assert report["final_test_accessed"] is False
     assert report["output"]["rows"] == SELECTION_SIZE
+
+
+def test_v6_text_dropout_entrypoint_correction_chain_is_current() -> None:
+    preflight_path = ROOT / "results/hardware/moshi_v6_text_dropout_preflight.json"
+    launch_failure_path = (
+        ROOT / "results/hardware/moshi_v6_text_dropout_launch_failure.json"
+    )
+    probe_path = ROOT / "results/hardware/moshi_v6_text_dropout_probe.json"
+    protocol_path = ROOT / "docs/MOSHI_V6_TEXT_DROPOUT_PROTOCOL.md"
+    launcher_path = ROOT / "scripts/moshi_train_entry.py"
+
+    assert v6_text_dropout_entrypoint_correction_valid(
+        preflight=json.loads(preflight_path.read_text(encoding="utf-8")),
+        launch_failure=json.loads(launch_failure_path.read_text(encoding="utf-8")),
+        probe=json.loads(probe_path.read_text(encoding="utf-8")),
+        preflight_path=preflight_path,
+        launch_failure_path=launch_failure_path,
+        protocol_path=protocol_path,
+        launcher_path=launcher_path,
+    )
