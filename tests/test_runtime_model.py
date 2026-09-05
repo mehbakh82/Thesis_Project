@@ -47,6 +47,9 @@ def test_cascade_generates_and_returns_the_complete_reply(monkeypatch):
     assert np.array_equal(reply, expected)
     assert talker.last_transcript == "سلام"
     assert talker.last_reply_text == "سلام، چطورید؟"
+    assert talker.last_responder_fallback_used is True
+    assert talker.last_responder_error is None
+    assert talker.responder_initialization_error is None
     assert generated_text == [talker.last_reply_text]
     assert talker.backend == "test-tts"
 
@@ -67,4 +70,7 @@ def test_cascade_handles_failed_asr_without_inventing_a_transcript(monkeypatch):
     assert len(reply) == 800
     assert talker.last_transcript == ""
     assert talker.last_asr_error == "offline"
+    assert talker.last_responder_fallback_used is None
+    assert talker.last_responder_error is None
+    assert talker.responder_initialization_error is None
     assert "دوباره" in generated_text[0]

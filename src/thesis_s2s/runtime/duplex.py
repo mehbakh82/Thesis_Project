@@ -619,6 +619,15 @@ def build_app(
                                 "reply_text": getattr(talker, "last_reply_text", None),
                                 "asr_error": getattr(talker, "last_asr_error", None),
                                 "responder_backend": getattr(talker, "responder_backend", None),
+                                "responder_initialization_error": getattr(
+                                    talker, "responder_initialization_error", None
+                                ),
+                                "responder_fallback_used": getattr(
+                                    talker, "last_responder_fallback_used", None
+                                ),
+                                "responder_error": getattr(
+                                    talker, "last_responder_error", None
+                                ),
                             }
                         )
                         buf = []

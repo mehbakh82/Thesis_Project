@@ -52,6 +52,9 @@ class TextResponder:
         self.model: Any = None
         self.tokenizer: Any = None
         self.device = "cpu"
+        self.initialization_error: str | None = None
+        self.last_fallback_used = True
+        self.last_generation_error: str | None = None
         if os.environ.get("TEXT_LLM_ENABLED", "1").lower() in {"0", "false", "no"}:
             return
         try:
@@ -67,12 +70,15 @@ class TextResponder:
             )
             self.model = loaded_model.to(self.device).eval()
             self.backend = self.model_name
-        except Exception:
+        except Exception as exc:
             self.model = None
             self.tokenizer = None
+            self.initialization_error = f"{type(exc).__name__}: {exc}"
 
     def reply(self, user_text: str) -> str:
+        self.last_generation_error = None
         if self.model is None or self.tokenizer is None:
+            self.last_fallback_used = True
             return _reply_text(user_text)
         messages = [
             {"role": "system", "content": "کوتاه، طبیعی و فقط به فارسی پاسخ بده."},
@@ -87,9 +93,14 @@ class TextResponder:
             answer = str(
                 self.tokenizer.decode(output[0, tokens.shape[-1] :], skip_special_tokens=True)
             ).strip()
-            return answer or _reply_text(user_text)
-        except Exception:
-            return _reply_text(user_text)
+            if answer:
+                self.last_fallback_used = False
+                return answer
+            self.last_generation_error = "empty model response"
+        except Exception as exc:
+            self.last_generation_error = f"{type(exc).__name__}: {exc}"
+        self.last_fallback_used = True
+        return _reply_text(user_text)
 
 
 class CascadeTalker:
@@ -100,8 +111,11 @@ class CascadeTalker:
         self.backend = "uninitialized"
         self.asr_backend = "nemo-soroush-http"
         self.responder_backend = self.responder.backend
+        self.responder_initialization_error = self.responder.initialization_error
         self.last_transcript = ""
         self.last_reply_text = ""
+        self.last_responder_fallback_used: bool | None = None
+        self.last_responder_error: str | None = None
         self.last_asr_error: str | None = None
 
     def reply_audio(self, user_audio: np.ndarray, text: str | None = None) -> np.ndarray:
@@ -115,11 +129,16 @@ class CascadeTalker:
         self.last_transcript = user_text
         if not user_text:
             reply = "متأسفم، صدای شما را درست نشنیدم. لطفاً دوباره بگویید."
+            self.last_responder_fallback_used = None
+            self.last_responder_error = None
         else:
             reply = self.responder.reply(user_text)
+            self.last_responder_fallback_used = self.responder.last_fallback_used
+            self.last_responder_error = self.responder.last_generation_error
         audio, backend = synthesize(reply)
         self.backend = backend
         self.responder_backend = self.responder.backend
+        self.responder_initialization_error = self.responder.initialization_error
         self.last_reply_text = reply
         return audio
 
