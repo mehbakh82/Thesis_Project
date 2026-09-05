@@ -81,7 +81,10 @@ class TextResponder:
             self.last_fallback_used = True
             return _reply_text(user_text)
         messages = [
-            {"role": "system", "content": "کوتاه، طبیعی و فقط به فارسی پاسخ بده."},
+            {
+                "role": "system",
+                "content": "فقط با خط فارسی و بدون هیچ حرف یا واژه لاتین، کوتاه و طبیعی پاسخ بده.",
+            },
             {"role": "user", "content": user_text},
         ]
         try:

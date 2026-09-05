@@ -84,7 +84,9 @@ def test_text_responder_extracts_input_ids_from_batch_encoding(monkeypatch):
     responder = TextResponder()
 
     class FakeTokenizer:
-        def apply_chat_template(self, *args, **kwargs):
+        def apply_chat_template(self, messages, **kwargs):
+            assert "بدون هیچ حرف یا واژه لاتین" in messages[0]["content"]
+            assert kwargs == {"add_generation_prompt": True, "return_tensors": "pt"}
             return SimpleNamespace(
                 input_ids=torch.tensor([[10, 11]]),
                 attention_mask=torch.tensor([[1, 1]]),

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run v2 of the frozen train-only NeMo -> Qwen -> Piper acceptance panel."""
+"""Run v3 of the frozen train-only NeMo -> Qwen -> Piper acceptance panel."""
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ MIN_TEXT_LENGTH = 4
 MIN_PERSIAN_LETTER_FRACTION = 0.8
 MIN_AUDIO_SAMPLES = 1600
 MIN_AUDIO_RMS = 1e-3
-PARENT_FAILURE_SHA256 = "6aa0a29131d7741537b84b4277572e8d683891a97a408325eb459c38a3370fe7"
+PARENT_RESULT_SHA256 = "77e8e03af947659539efd650eb2e79c7e2a49a3a7bb55aeca5be91187e75bdbf"
 
 
 def sha256_file(path: Path) -> str:
@@ -142,10 +142,10 @@ def main() -> int:
         "--piper-model", type=Path, default=Path("models/piper/fa_IR-mana-medium.onnx")
     )
     parser.add_argument(
-        "--protocol", type=Path, default=Path("docs/CASCADE_REAL_SERVICE_PROTOCOL_V2.md")
+        "--protocol", type=Path, default=Path("docs/CASCADE_REAL_SERVICE_PROTOCOL_V3.md")
     )
     parser.add_argument(
-        "--out", type=Path, default=Path("results/eval/cascade_real_service_train_panel_v2.json")
+        "--out", type=Path, default=Path("results/eval/cascade_real_service_train_panel_v3.json")
     )
     args = parser.parse_args()
 
@@ -154,8 +154,8 @@ def main() -> int:
     protocol_path = (ROOT / args.protocol).resolve()
     output_path = (ROOT / args.out).resolve()
     piper_config_path = piper_path.with_suffix(piper_path.suffix + ".json")
-    parent_failure_path = (
-        ROOT / "results/eval/cascade_real_service_train_panel.json"
+    parent_result_path = (
+        ROOT / "results/eval/cascade_real_service_train_panel_v2.json"
     ).resolve()
     if output_path.exists():
         raise FileExistsError(f"refusing to overwrite evidence: {output_path}")
@@ -166,13 +166,13 @@ def main() -> int:
         piper_path,
         piper_config_path,
         protocol_path,
-        parent_failure_path,
+        parent_result_path,
     ):
         if not required.is_file():
             raise FileNotFoundError(required)
 
     rows = load_jsonl(manifest_path)
-    parent_failure = json.loads(parent_failure_path.read_text(encoding="utf-8"))
+    parent_result = json.loads(parent_result_path.read_text(encoding="utf-8"))
     if len(rows) != EXPECTED_ROWS:
         raise ValueError(f"expected {EXPECTED_ROWS} train-only rows, found {len(rows)}")
 
@@ -264,16 +264,16 @@ def main() -> int:
         "asr_health_passes": health["passes"] is True,
         "qwen_backend_loaded": responder.backend == args.llm_model,
         "qwen_initialization_succeeded": responder.initialization_error is None,
-        "parent_failure_preserved_and_bound": (
-            parent_failure.get("status") == "failed"
-            and sha256_file(parent_failure_path) == PARENT_FAILURE_SHA256
+        "parent_result_preserved_and_bound": (
+            parent_result.get("status") == "failed"
+            and sha256_file(parent_result_path) == PARENT_RESULT_SHA256
         ),
         "all_nine_samples_pass": len(samples) == len(PANEL_INDICES)
         and all(sample["passes"] for sample in samples),
         "final_test_not_accessed": True,
     }
     report = {
-        "schema_version": 2,
+        "schema_version": 3,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "status": "passed" if all(requirements.values()) else "failed",
         "evidence_class": "real_service_train_only_working_demo",
@@ -290,11 +290,10 @@ def main() -> int:
             ],
         },
         "versioned_correction": {
-            "parent_result": "results/eval/cascade_real_service_train_panel.json",
-            "parent_status": parent_failure.get("status"),
+            "parent_result": "results/eval/cascade_real_service_train_panel_v2.json",
+            "parent_status": parent_result.get("status"),
             "changes": [
-                "extract Qwen input_ids and propagate attention_mask",
-                "clip Piper float output to the PCM range",
+                "strengthen the Qwen instruction to prohibit Latin-script output",
             ],
         },
         "panel": {
@@ -341,7 +340,7 @@ def main() -> int:
             "evaluator_sha256": sha256_file(Path(__file__).resolve()),
             "runtime_cascade_sha256": sha256_file(ROOT / "src/thesis_s2s/runtime/cascade.py"),
             "runtime_tts_sha256": sha256_file(ROOT / "src/thesis_s2s/runtime/tts.py"),
-            "parent_failure_sha256": sha256_file(parent_failure_path),
+            "parent_result_sha256": sha256_file(parent_result_path),
         },
     }
     atomic_write(output_path, report)
