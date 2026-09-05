@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "completed_at": "2026-09-05T12:26:51.890665+00:00",
+  "experiment": "moshi_v6_text_dropout",
+  "diagnostic_only": true,
+  "scientific_validation_evidence": false,
+  "generalization_claim_allowed": false,
+  "final_test_accessed": false,
+  "runtime_environment": {
+    "MOSHI_DISTRIBUTED_BACKEND": "gloo",
+    "MOSHI_PERSIAN_TEXT_ADAPTATION": "1",
+    "MOSHI_TEXT_EMBEDDINGS_ONLY": "0",
+    "MOSHI_AUDIO_LOSS_WEIGHT": "0.1",
+    "MOSHI_OPTIMIZER_CPU_OFFLOAD": "1",
+    "MOSHI_OPTIMIZER_CPU_OFFLOAD_AUDIT": "checkpoints/moshi_v6_text_dropout/optimizer_cpu_offload_audit.json",
+    "MOSHI_TEXT_INPUT_DROPOUT_START": "0.25",
+    "MOSHI_TEXT_INPUT_DROPOUT_END": "0.75",
+    "MOSHI_TEXT_INPUT_DROPOUT_FORWARDS": "800",
+    "MOSHI_TEXT_INPUT_DROPOUT_SEED": "20260902",
+    "MOSHI_TEXT_INPUT_DROPOUT_AUDIT": "checkpoints/moshi_v6_text_dropout/input_dropout_audit.jsonl"
+  },
+  "training": {
+    "max_step": 200,
+    "logged_train_rows": 20,
+    "raw_eval_steps": [
+      50,
+      100,
+      150,
+      200
+    ],
+    "peak_allocated_gb": 16.576905250549316,
+    "final_logged_loss": 2.020059108734131
+  },
+  "dropout_audit": {
+    "calls": [
+      1,
+      200,
+      400,
+      600,
+      800
+    ],
+    "probabilities": [
+      0.25,
+      0.37453066332916146,
+      0.4996871088861076,
+      0.6248435544430538,
+      0.75
+    ],
+    "cumulative_eligible_tokens": 37650,
+    "cumulative_dropped_tokens": 18810,
+    "observed_dropout_fraction": 0.499601593625498,
+    "targets_mutated": false,
+    "audio_inputs_mutated": false,
+    "evaluation_corrupted": false
+  },
+  "optimizer_cpu_offload": {
+    "schema_version": 1,
+    "algorithm": "AdamW",
+    "optimizer_step_calls": 200,
+    "active_parameter_tensors": 677,
+    "active_parameter_elements": 488854528,
+    "master_devices": [
+      "cpu"
+    ],
+    "master_dtypes": [
+      "torch.float32"
+    ],
+    "gradient_devices": [
+      "cpu"
+    ],
+    "gradient_dtypes": [
+      "torch.float32"
+    ],
+    "moment_tensor_count": 1354,
+    "moment_devices": [
+      "cpu"
+    ],
+    "moment_dtypes": [
+      "torch.float32"
+    ],
+    "foreach": false,
+    "fused": false
+  },
+  "checkpoints": [
+    {
+      "step": 50,
+      "adapter_path": "checkpoints/moshi_v6_text_dropout/checkpoints/checkpoint_000050/consolidated/lora.safetensors",
+      "adapter_bytes": 977794112,
+      "adapter_sha256": "44c70240136c3062a34287151345a27c98a2d32d682c8ce9ca1db6589518f6fa",
+      "config_sha256": "d714a651ceb9849fff5d1e9b5f53dda91cf09f2ca8351bbda5214f1053664a7f",
+      "tensor_count": 677,
+      "lora_tensor_count": 674,
+      "full_parameters": [
+        "depformer_text_emb.weight",
+        "text_emb.weight",
+        "text_linear.frozen_W.weight"
+      ],
+      "schema_exact": true
+    },
+    {
+      "step": 100,
+      "adapter_path": "checkpoints/moshi_v6_text_dropout/checkpoints/checkpoint_000100/consolidated/lora.safetensors",
+      "adapter_bytes": 977794112,
+      "adapter_sha256": "d2ba5cae8c4b50314e39565a1d9bbb0fe8c2e0af3fa6dbb8e017c148cb1de998",
+      "config_sha256": "d714a651ceb9849fff5d1e9b5f53dda91cf09f2ca8351bbda5214f1053664a7f",
+      "tensor_count": 677,
+      "lora_tensor_count": 674,
+      "full_parameters": [
+        "depformer_text_emb.weight",
+        "text_emb.weight",
+        "text_linear.frozen_W.weight"
+      ],
+      "schema_exact": true
+    },
+    {
+      "step": 150,
+      "adapter_path": "checkpoints/moshi_v6_text_dropout/checkpoints/checkpoint_000150/consolidated/lora.safetensors",
+      "adapter_bytes": 977794112,
+      "adapter_sha256": "db05f5ee447308e6131e11c7ae16dfeb6a85beb12a49a2dbaece4ae82e7a4052",
+      "config_sha256": "d714a651ceb9849fff5d1e9b5f53dda91cf09f2ca8351bbda5214f1053664a7f",
+      "tensor_count": 677,
+      "lora_tensor_count": 674,
+      "full_parameters": [
+        "depformer_text_emb.weight",
+        "text_emb.weight",
+        "text_linear.frozen_W.weight"
+      ],
+      "schema_exact": true
+    },
+    {
+      "step": 200,
+      "adapter_path": "checkpoints/moshi_v6_text_dropout/checkpoints/checkpoint_000200/consolidated/lora.safetensors",
+      "adapter_bytes": 977794112,
+      "adapter_sha256": "d3e5abcf22b493e6609ca18d8f13f06cbdb342941c2fe5831df753d62a54d27a",
+      "config_sha256": "d714a651ceb9849fff5d1e9b5f53dda91cf09f2ca8351bbda5214f1053664a7f",
+      "tensor_count": 677,
+      "lora_tensor_count": 674,
+      "full_parameters": [
+        "depformer_text_emb.weight",
+        "text_emb.weight",
+        "text_linear.frozen_W.weight"
+      ],
+      "schema_exact": true
+    }
+  ],
+  "requirements": {
+    "preflight_and_probe_passed": true,
+    "runtime_environment_exact": true,
+    "resolved_args_exact": true,
+    "training_reached_200_with_finite_losses": true,
+    "raw_eval_steps_and_losses_exact": true,
+    "all_four_checkpoints_exact": true,
+    "scheduled_forwards_audited": true,
+    "scheduled_probabilities_exact": true,
+    "corruption_executed_at_every_milestone": true,
+    "targets_audio_and_eval_unchanged": true,
+    "cpu_offloaded_fp32_adamw_audited": true,
+    "final_test_not_accessed": true
+  },
+  "training_passes": true,
+  "artifacts": {
+    "config_sha256": "06fa61cedd2cdcdfca7769f573498518c80830cd13be663bc32813c72596c8ae",
+    "policy_sha256": "e9f410efb27b213e03ee90c52756950ebb421575540305ad624e7245ce3638a3",
+    "preflight_sha256": "6e63b3d1538041e5464f91c792fc7f2b497946b12f4033d5862fc218f2ec5209",
+    "probe_sha256": "b0ee5362da761cab46e764dec454706dbd815576d4a9a258cbc346af4d6a00ae",
+    "resolved_args_sha256": "4eba44bb0e40ecc070c429ca896b9664690c324f8d8356085b7213dfa79ad03a",
+    "train_metrics_sha256": "a46c590b5ab5b137a04598f4c8527b6b387afb06a320036e4746708ac09345e5",
+    "eval_metrics_sha256": "e52a2075969610c1a3def55ca768eb11ef202513c7972b089e530404f5bdf59f",
+    "dropout_audit_sha256": "602e89bfda579f7b503685798dff276f7244826b5cf54d160082681ac9e1ff5e",
+    "optimizer_audit_sha256": "68d2b4ef184704727c907ba0103bb4716f2ae787e34b8d28376348910bf7ea9a",
+    "recorder_sha256": "730527a6481b35fafbd921af817acbed91262ea8631c46fcb90bb06731d7b077"
+  }
+}
