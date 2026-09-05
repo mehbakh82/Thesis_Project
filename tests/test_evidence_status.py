@@ -95,6 +95,97 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
     _write(
         tmp_path,
+        "configs/moshi_h100_v6_text_dropout.yaml",
+        {
+            "duration_sec": 12,
+            "max_steps": 200,
+            "seed": 20260901,
+            "lora": {"rank": 64, "ft_embed": False},
+        },
+    )
+    _write(
+        tmp_path,
+        "results/hardware/moshi_v6_text_dropout_training.json",
+        {
+            "status": "passed",
+            "training_passes": True,
+            "final_test_accessed": False,
+            "training": {"peak_allocated_gb": 16.5769},
+            "checkpoints": [
+                {"full_parameters": ["text_emb.weight", "depformer_text_emb.weight"]}
+            ],
+        },
+    )
+    _write(
+        tmp_path,
+        "results/moshi_v6_text_dropout_reevaluation.json",
+        {
+            "status": "passed",
+            "reevaluation_passes": True,
+            "final_test_opened": False,
+            "candidates": [
+                {
+                    "eval_loss": total,
+                    "text_eval_loss": text,
+                    "audio_eval_loss": total - text,
+                    "sample_count": 32,
+                }
+                for total, text in (
+                    (2.6364, 0.8124),
+                    (2.2453, 0.6390),
+                    (2.0715, 0.5508),
+                    (2.0603, 0.5512),
+                )
+            ],
+        },
+    )
+    _write(
+        tmp_path,
+        "results/moshi_v6_text_dropout_runtime.json",
+        {
+            "status": "passed",
+            "diagnostic_outcome": "negative",
+            "selection": None,
+            "final_test_accessed": False,
+            "requirements": {"all_candidates_evaluated": True},
+            "candidates": [
+                {"panel_count": 9, "panel_pass_count": 0} for _ in range(4)
+            ],
+        },
+    )
+    _write(
+        tmp_path,
+        "results/eval/cascade_real_service_validation_panel.json",
+        {
+            "status": "passed",
+            "evidence_class": "real_service_group_disjoint_validation_mechanics",
+            "claim": {
+                "positive_working_user_turn_result": True,
+                "group_disjoint_validation_execution": True,
+                "scientific_generalization_result": False,
+                "official_end_to_end_latency_result": False,
+            },
+            "requirements": {"all_nine_samples_pass": True},
+            "panel": {
+                "selection": "fixed validation panel",
+                "split_unit": "source_session_id",
+                "selected_user_channel": 1,
+                "group_split_leaks": 0,
+            },
+            "samples": [
+                {
+                    "passes": True,
+                    "responder_fallback_used": False,
+                    "responder_language_retry_used": index == 8,
+                    "reply_audio_rms": 0.1 + index / 100,
+                    "reply_statistics": {"persian_letter_fraction": 1.0},
+                }
+                for index in range(9)
+            ],
+        },
+    )
+    _write(
+        tmp_path,
         "results/eval/interrupt_bench.json",
         {
             "evidence_class": "synthetic_proxy",
@@ -204,16 +295,23 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
 
     assert report["authoritative"] is True
-    assert report["schema_version"] == 6
+    assert report["schema_version"] == 7
     assert report["thesis_ready"] is False
     assert report["generation_policy"]["reads_frozen_final_test_rows"] is False
     assert report["gates"]["audited_export_100_to_200_hours"] is True
+    assert report["gates"]["working_persian_s2s_prototype"] is True
+    assert report["working_system"]["passed_rows"] == 9
+    assert report["working_system"]["fallback_rows"] == 0
+    assert report["working_system"]["input_channel"] == 1
     assert report["gates"]["data_policy_resolved_under_documented_qa_waiver"] is True
     assert report["data"]["strict_human_qa_complete"] is False
     assert report["data"]["exported_hours"] == 108.584
     assert report["direct_moshi"]["deployment_eligible"] is False
     assert report["direct_moshi"]["trials"][3]["runtime_panel_pass_counts"] == [1, 0]
     assert report["direct_moshi"]["trials"][4]["runtime_panel_pass_counts"] == [0, 1]
+    assert report["direct_moshi"]["trials"][5]["runtime_panel_pass_counts"] == [0, 0, 0, 0]
+    assert report["direct_moshi"]["trials"][5]["positive_learning_result"] is True
+    assert report["direct_moshi"]["trials"][5]["deployment_eligible"] is False
     assert report["direct_moshi"]["v2_to_v5_final_test_access_started"] is False
     assert report["local_artifact_retention"]["cleanup_passed"] is True
     assert report["local_artifact_retention"]["representative_adapter_count"] == 13
@@ -231,10 +329,14 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert report["detector"]["recorded_proxy"]["official_detector_eligible"] is False
     assert report["gates"]["real_group_heldout_detector_above_80_percent"] is False
     assert report["reporting_contract"]["failure_denominators_included"] is True
+    assert report["submission_strategy"]["production_candidate"] == "cascade"
+    assert report["submission_strategy"]["new_direct_training_before_deadline_recommended"] is False
     assert report["release"]["source_code_license_selected"] is False
     assert report["remaining_work_classification"]["waived_not_completed"]
     summary = render_evidence_summary(report)
     assert "## Local artifact retention" in summary
     assert "13 representative" in summary
+    assert "passed 9/9" in summary
+    assert "32.20%" in summary
     assert "recorded proxy n=132 / 22 sessions" in summary
     assert json.loads(out.read_text(encoding="utf-8")) == report

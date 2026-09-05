@@ -1,6 +1,6 @@
 # Authoritative project evidence status
 
-Generated: `2026-09-01T05:52:29.292464+00:00`
+Generated: `2026-09-05T15:42:16.568668+00:00`
 
 **Verdict:** `not_thesis_ready_evidence_gates_pending`. Thesis-ready: **false**.
 
@@ -10,6 +10,7 @@ This table is generated from `EVIDENCE_STATUS.json`. Component and synthetic pro
 
 | Gate | Passed |
 |---|---:|
+| `working_persian_s2s_prototype` | yes |
 | `audited_export_100_to_200_hours` | yes |
 | `data_policy_resolved_under_documented_qa_waiver` | yes |
 | `deployment_eligible_persian_direct_model` | no |
@@ -33,23 +34,30 @@ This table is generated from `EVIDENCE_STATUS.json`. Component and synthetic pro
 | Automatic integrity audit | pass |
 | Human listening QA complete | no (waived) |
 
+## Working speech-to-speech system
+
+The real-service cascade passed 9/9 fixed group-disjoint validation rows with 0 rule-fallback rows. Minimum reply Persian-script fraction was 1.0; minimum reply audio RMS was 0.133529. This is a positive working user-turn prototype result and out-of-sample mechanics check, not semantic or population-level generalization, human quality, physical-target, or official browser-latency evidence.
+
 ## Direct Moshi trials and ablations
 
-| Trial | Context | Rank | Seed | Embeddings trained | Candidates | Val chunks/candidate | Runtime pass/fail per 9 | Min val loss | Eligible |
-|---|---:|---:|---:|---|---:|---:|---|---:|---:|
-| v1 | 20.0 | 64 | 20260823 | upstream broad embedding switch | 16 | n/a | n/a | n/a | no |
-| v2 | 100 | 64 | 20260827 | upstream broad embedding switch | 20 | 202 | 0/9, 0/9, 0/9, 2/7, 1/8, 1/8, 1/8, 1/8, 0/9, 1/8, 0/9, 0/9, 0/9, 0/9, 0/9, 0/9, 0/9, 0/9, 0/9, 0/9 | 1.734574 | no |
-| v3 | 100.0 | 128 | 20260827 | none | 5 | 202 | 0/9, 0/9, 0/9, 1/8, 0/9 | 1.879258 | no |
-| v4 | 100.0 | 128 | 20260827 | depformer_text_emb.weight, text_emb.weight | 5 | 202 | 1/8, 0/9, 0/9, 1/8, 0/9 | 1.879061 | no |
-| v5 | 100.0 | 128 | 20260827 | depformer_text_emb.weight, text_emb.weight | 5 | 202 | 0/9, 0/9, 0/9, 1/8, 1/8 | 1.867859 | no |
+| Trial | Scope | Context | Rank | Seed | Embeddings trained | Candidates | Val chunks/candidate | Runtime pass/fail per 9 | Min val loss | Eligible |
+|---|---|---:|---:|---:|---|---:|---:|---|---:|---:|
+| v1 | heldout_loss_then_postselection_runtime | 20.0 | 64 | 20260823 | upstream broad embedding switch | 16 | n/a | n/a | n/a | no |
+| v2 | validation_only_checkpoint_selection | 100 | 64 | 20260827 | upstream broad embedding switch | 20 | 202 | 0/9, 0/9, 0/9, 2/7, 1/8, 1/8, 1/8, 1/8, 0/9, 1/8, 0/9, 0/9, 0/9, 0/9, 0/9, 0/9, 0/9, 0/9, 0/9, 0/9 | 1.734574 | no |
+| v3 | validation_only_checkpoint_selection | 100.0 | 128 | 20260827 | none | 5 | 202 | 0/9, 0/9, 0/9, 1/8, 0/9 | 1.879258 | no |
+| v4 | validation_only_checkpoint_selection | 100.0 | 128 | 20260827 | depformer_text_emb.weight, text_emb.weight | 5 | 202 | 1/8, 0/9, 0/9, 1/8, 0/9 | 1.879061 | no |
+| v5 | validation_only_checkpoint_selection | 100.0 | 128 | 20260827 | depformer_text_emb.weight, text_emb.weight | 5 | 202 | 0/9, 0/9, 0/9, 1/8, 1/8 | 1.867859 | no |
+| v6.2 | train_only_in_sample_capacity_diagnostic | 12 | 64 | 20260901 | depformer_text_emb.weight, text_emb.weight, text_linear.frozen_W.weight | 4 | 32 | 0/9, 0/9, 0/9, 0/9 | 2.060297 | no |
 
-V1 was selected under its frozen loss protocol but failed later autoregressive runtime validation. V2–v5 each failed closed with zero eligible checkpoints; their frozen final tests remain untouched.
+V1 was selected under its frozen loss protocol but failed later autoregressive runtime validation. V2–v5 each failed closed with zero eligible checkpoints. V6.2 is a deliberately in-sample capacity diagnostic: its best post-step-50 text loss reduction was 32.20% but every checkpoint passed 0/9 direct-runtime rows. The v2–v6.2 final-test firewalls remain closed.
 
 V1 automatic held-out loss evidence used 204 rows / 331 chunks: selected total-loss mean 1.7272041083230523 with 95% CI [1.5866204233506902, 1.8677877932954143]. This is automatic loss evidence only and does not repair the runtime failure or support a perceptual/deployment claim.
 
 ## Local artifact retention
 
-The verified post-finalization cleanup reclaimed 41.01 GiB and retains 13 representative adapter tensors. Retained steps: v1=[500, 1000, 2000, 4000, 8000]; v2=[400, 2000]; v3=[400, 500]; v4=[400, 500]; v5=[400, 500].
+The verified post-finalization cleanup reclaimed 41.01 GiB and retains 13 representative v1–v5 adapter tensors. Retained steps: v1=[500, 1000, 2000, 4000, 8000]; v2=[400, 2000]; v3=[400, 500]; v4=[400, 500]; v5=[400, 500].
+
+V6.2 separately retains 4 current diagnostic checkpoints; they postdate that cleanup receipt.
 
 All retained adapter hashes match committed evidence, and all scientific results, configurations, runtime outputs, and certificates remain. The full set of negative intermediate tensors is intentionally not retained; exact tensor recreation would require rerunning the frozen training recipes. Historical candidate counts and verdicts remain attested by their committed certificates.
 
@@ -65,6 +73,10 @@ All retained adapter hashes match committed evidence, and all scientific results
 ## Reporting contract
 
 Denominators and observed failures are shown above. Model seeds are reported per trial; the Moshi data split is frozen by `source_session_id`. Confidence intervals are reported where estimable, including event and session-block intervals for the recorded automatic-label proxy. Official latency, independently labeled detector, and human-study intervals remain null because their qualifying denominators are zero. Exact timing and acceptance definitions are in `docs/METRICS.md`.
+
+## Submission architecture decision
+
+Production candidate: `cascade`. Direct Moshi role: `experimental_negative_result_with_positive_learning_signal`. Starting another direct-model training run before the deadline is not recommended because no validated corrective hypothesis remains, while the frozen cascade already has a positive proper-user-channel validation result.
 
 ## Remaining requirements
 

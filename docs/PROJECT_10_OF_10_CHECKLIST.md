@@ -1,6 +1,6 @@
 # Checklist for a defensible 10/10 thesis project
 
-Status date: 2026-09-01
+Status date: 2026-09-05
 
 This is the authoritative closure checklist. Mark an item complete only when its
 named artifact exists and its acceptance test passes. Implemented code,
@@ -32,8 +32,10 @@ Verified now:
 
 - [x] Formal data, model, duplex, latency, detector, hardware, and human-study
   requirements are represented by explicit gates.
-- [x] Working NeMo ASR → Qwen/rules → Piper cascade baseline and a
-  continuous-microphone browser interruption-control path.
+- [x] Working NeMo ASR → exact local Qwen → Piper cascade and a
+  continuous-microphone browser interruption-control path. The frozen
+  proper-user-channel validation passed 9/9 predeclared rows from a
+  source-session-group-isolated split with zero fallbacks.
 - [x] Legacy 7 MB reconstruction checkpoint is blocked from being described or
   loaded as a genuine direct speech-language model.
 - [x] Direct path selected: pinned Moshika 7B with the official
@@ -58,8 +60,10 @@ Verified now:
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
-- [x] Ruff and mypy pass on all 49 source files; all 140 tests pass and
-  branch-aware coverage is 63% with a 60% CI floor.
+- [x] The 2026-09-05 full local audit passes compile, Ruff, mypy on 49 source
+  files, all 169 tests, 64% branch-aware coverage with a 60% CI floor,
+  full-history/privacy/secret checks, general dependencies, the accepted
+  scientific-risk baseline, and all eight upstream pins.
 - [x] General dependencies have no known vulnerabilities; the pinned scientific
   lock has an exact, fail-closed accepted-risk baseline and mitigations.
 - [ ] Window QA: 0/40 reviewed.
@@ -73,7 +77,16 @@ Verified now:
   completed all 20 candidates, v3/v4 completed all five candidates, and v5
   completed all five reduced-semantic-codebook-weight candidates; v2 through
   v5 failed their unchanged autoregressive eligibility gates before final-test
-  access.
+  access. V6/v6.1/v6.2 then completed bounded train-only capacity diagnostics;
+  v6.2 passed its 30% learning gate with a 32.20% text-loss reduction but all
+  four candidates passed 0/9 direct-runtime rows, so no direct adapter is
+  promoted.
+- [x] The earlier cascade v4 train panel passed 9/9 but was subsequently found
+  to use assistant channel 0 as ASR input. It is retained as a component-chain
+  smoke test. Before reading any validation row, the channel was corrected to
+  audited user channel 1 in a frozen protocol; the unchanged real-service
+  cascade then passed 9/9 group-disjoint validation rows with zero rule
+  fallbacks and no final-test access.
 - [x] Real-audio automatic-label detector proxy completed once on 132 balanced
   events / 22 held-out sessions: accuracy 81.06%, interrupt F1 78.99%, FAR
   9.09%, and FRR 28.79%; it is explicitly ineligible as independent ground
@@ -85,23 +98,29 @@ Verified now:
 
 ## What remains now
 
-The generated evidence report reduces the active limited-scope closure path to
-five primary gates. These are the actual next tasks, in dependency order:
+The project now has the positive working result needed for submission. With two
+days remaining, the frozen cascade—not direct Moshi—is the production
+candidate. Starting another speculative direct training run is not recommended:
+v6.2 already shows that the current approach learns its in-sample objective but
+does not generate reliably, and no validated one-factor remedy remains.
 
-1. Produce a validation-eligible Persian direct-model checkpoint under a newly
-   frozen hypothesis, then—and only then—open that experiment's final test.
-2. Replace the completed automatic-label recorded-audio proxy with
-   independently human-reviewed event labels, then establish accuracy strictly
-   above 80% on a speaker/session-group-held-out test.
-3. Run the eligible final system on the physical 12–24 GB target GPU, with live
-   browser `playback_started` and `playback_stopped_ack` timing.
-4. Complete the consented 5–10-person Persian study, including at least two
-   participants aged 60+.
-5. Choose and add the source-code license.
+The submission-critical tasks, in order, are:
 
-After those gates pass, the remaining work is mechanical closeout: reconcile
-the manuscript/tables, freeze all final hashes and evidence, tag/push the
-submission, and verify a fresh full-history clone.
+1. Reconcile the thesis manuscript, abstract, conclusion, and result tables
+   with the exact cascade validation and v6.2 outcomes.
+2. Choose a source-code license; this is the only remaining repository decision
+   that requires the student.
+3. Run the final full test/lint/type/security/provenance audit, regenerate the
+   release snapshot, commit/tag, push, and verify remote parity.
+4. If and only if a physical 12–24 GB target GPU becomes available before the
+   freeze, run the already documented live-browser hardware/latency protocol.
+
+The strict-rubric research gaps remain independently human-reviewed detector
+labels, the 5–10-person study with two participants aged 60+, the waived
+listening reviews, official physical-target latency, and a deployment-eligible
+direct Moshi adapter if the rubric requires the direct architecture
+specifically. These cannot be fabricated. They must be reported as limitations
+if unavailable at submission.
 
 The 40-row window review, 24-row interaction review, and 24-pair synthesized-
 assistant listening review are explicitly **waived, not completed** for the
@@ -531,10 +550,37 @@ Corrective v2 run:
   training/pipeline certificates passed, and no selected-adapter or final-test
   stage created. `test_access_started=false` remains hash-bound.
 
-Exit remains open until a predeclared experiment yields a reproducible,
-loadable adapter that passes both scientific validation and frozen
-autoregressive Persian-output gates. V1 through v5 are finalized negative
-results and must not be promoted.
+Bounded v6 capacity diagnostics:
+
+- [x] Freeze v6 as a 32-row train-only diagnostic explicitly ineligible for
+  validation/generalization claims. Expand the Persian text adaptation scope,
+  reduce audio-loss weight, preserve all hashes, and keep the final test sealed.
+- [x] Complete v6 and its deterministic-text v6.1 follow-up. Preserve their
+  negative runtime reports rather than selecting from the diagnostic panel.
+- [x] Freeze v6.2 as a one-factor scheduled text-input-dropout test
+  (0.25→0.75), with the same base, 32 rows, rank-64 LoRA, full Persian text
+  embeddings/output head, audio weight 0.1, four milestones, and unchanged
+  nine-row runtime gates.
+- [x] Pass the exact v6.2 preflight/probe and complete 200/200 steps with all
+  four exact 677-tensor checkpoints, finite metrics, audited FP32 CPU-offloaded
+  AdamW, audited dropout at every milestone, and 16.577 GiB peak training
+  allocation.
+- [x] Re-evaluate all 32 train-only rows identically. Text loss changes from
+  0.812474 (step 50) to 0.638987, 0.550852, and 0.551183; the best later value
+  is a 32.20% reduction and passes the frozen ≥30% capacity gate. Total loss
+  reaches 2.060297 at step 200.
+- [x] Exercise all four checkpoints in the exact official server. Every server
+  is real and all static adapter checks pass, but every candidate passes 0/9
+  output rows; only 1/9 rows per candidate emits both text and speech.
+- [x] Finalize v6.2 honestly: positive in-sample learning/capacity evidence,
+  negative direct-generation evidence, selection null, no generalization or
+  deployment claim, and no final-test access.
+
+The direct-model exit remains open until a future predeclared representative
+experiment yields a reproducible adapter that passes scientific validation and
+frozen autoregressive Persian-output gates. V1 through v6.2 are finalized and
+must not be promoted. This does not reopen the project-level working-prototype
+gate: the properly channel-corrected cascade validation closes that gate.
 
 ## 7. Validate learning and model quality
 
@@ -551,19 +597,34 @@ Owner: Codex for automation; approved listeners for perceptual checks.
 - [x] Audit episode/session/time-span leakage; the one-time test manifest is
   group-isolated, hash-current, absent from training/validation, and was not
   used for checkpoint selection.
+- [x] Freeze a separate cascade validation before reading its rows, bind the
+  131-row manifest and independent channel/split audit, and predeclare nine
+  floor-spaced indices with unchanged v4 component/output thresholds.
+- [x] Correct the v4 development evaluator's assistant-channel input before
+  validation: the audited export is assistant 0 / user 1, so the validation
+  sends channel 1 to ASR. Preserve v4 as a component-chain smoke result.
+- [x] Pass the frozen cascade validation 9/9: source hashes, real NeMo ASR,
+  exact initialized Qwen, no fallback, ≥80% Persian script, and finite
+  non-silent normalized Piper audio all pass on every row; group split leaks
+  and final-test accesses are zero.
 - [ ] Evaluate Persian response relevance/coherence with a documented rubric and
   suitable semantic metrics; do not use WER against open-ended responses as the
   sole relevance metric.
 - [ ] Measure intelligibility separately, e.g. ASR CER/WER on content-controlled
   speech, with ASR limitations disclosed.
-- [ ] Check Persian script/pronunciation, silence-only output, English drift,
-  codec collapse, repeated loops, and unsafe/unusable failure modes.
+- [x] Automatically check Persian script, silence-only output, English drift,
+  codec collapse/replacement characters, repeated text absence, and unusable
+  direct outputs across the frozen panels.
+- [ ] Complete human Persian pronunciation, semantic relevance, and naturalness
+  review; automatic script/audio gates cannot replace listening.
 - [x] Detect and preserve the v1 silence/English-drift failure with matched
   official-server base and checkpoint controls; the negative result triggers
   v2 and is not relabelled as success.
 - [ ] Cover clean/noisy/overlap/interruption, long/short turn, out-of-domain, and
   elderly-speech conditions; retain representative failures.
-- [ ] Compare cascade, unadapted Moshika, and adapted Moshika on identical tests.
+- [x] Compare cascade, unadapted Moshika, and adapted Moshika under explicitly
+  separated, hash-bound automatic protocols. Do not imply that the cascade
+  mechanics panel and direct-model generation panel measure identical quality.
 - [ ] Report the supported source-response multi-voice ablation if useful; add
   hyperparameter ablations only when answering a thesis question.
 - [x] Report parameter/trainable counts, H100 time/memory, checkpoint size, and
@@ -576,6 +637,10 @@ final adapter causes the learned Persian response behavior.
 ## 8. Complete direct-model full-duplex integration
 
 Owner: Codex; secure client build complete, live integration after a valid adapter.
+
+Submission decision: the direct branch remains experimental. The cascade is the
+working production candidate; browser full-duplex control is implemented, but
+the live human/browser acknowledgements below remain uncollected.
 
 - [x] Build the exact pinned Moshi web-client source with the tracked,
   hash-verified security lock overlay in a digest-pinned Node 20 container;
@@ -595,8 +660,9 @@ Owner: Codex; secure client build complete, live integration after a valid adapt
   alone is not sufficient full duplex.
 - [ ] Test reconnect, cancellation, stale buffers, simultaneous turns, silence,
   malformed packets, and OOM recovery.
-- [ ] Keep cascade as labelled baseline; direct sessions must not silently fall
-  back to Qwen/Piper or formant synthesis.
+- [x] Keep model identity fail-closed: direct sessions never silently fall back
+  to the cascade, and the submitted cascade exposes any Qwen rule fallback or
+  Piper/formant fallback in telemetry. The passing validation used none.
 - [ ] Add end-to-end regression tests for model identity, adapter load, browser
   acknowledgements, cancellation, and retention mode.
 
@@ -720,17 +786,21 @@ Evidence/statistics:
   explicit null/reasons where it is not, model seeds, session-group split
   policy, and exact metric definitions in the generated status/report.
 - [x] Do not select thresholds, checkpoints, trials, or statistics after seeing
-  held-out results; the v2–v5 selectors are validation-only, predeclared, and
-  fail closed before final-test access.
-- [x] Reconcile repository README, dataset-card, review, and generated-result
-  numbers through v5; retain older flat-clip figures only where explicitly
-  labelled historical/provenance evidence.
+  held-out results; the v2–v5 selectors and the cascade validation are
+  predeclared and fail closed. V6–v6.2 are explicitly train-only diagnostics
+  and never open a final test.
+- [x] Reconcile repository README, review, checklist, and generated-result
+  numbers through v6.2 and the channel-corrected cascade validation; retain
+  older figures only where explicitly labelled historical/provenance evidence.
 - [x] Record the chained post-finalization storage policy: 13 representative
   adapters remain locally (v1: 500/1000/2000/4000/8000; v2: 400/2000; v3:
   400/500; v4: 400/500; v5: 400/500), every retained hash matches committed
   evidence, and 41.01 GiB was reclaimed cumulatively. Candidate counts and
   results are historical certificates; exact recreation of removed negative
   intermediate tensors requires retraining.
+- [x] Record four current v6.2 checkpoints separately from the v1–v5 cleanup
+  receipt; they are hash-bound by the training, reevaluation, and runtime
+  reports and postdate that receipt.
 - [ ] Reconcile the final thesis manuscript and submission tables after the
   remaining external evidence exists.
 
@@ -772,6 +842,14 @@ Final engineering audit:
   wheel, install it into an isolated temporary target without duplicating the
   verified dependency environment, run all 140 tests, verify the installed
   package imports from that target, and remove the temporary checkout.
+- [x] Run the post-validation local CI-equivalent audit on 2026-09-05: compile,
+  Ruff, and mypy pass; all 169 tests pass in 16.10 seconds; branch-aware
+  coverage is 64%; 351 tracked artifacts/history/privacy/secrets pass; general
+  dependencies have no known vulnerabilities; the exact scientific
+  accepted-risk baseline and all eight upstream pins pass.
+- [ ] Repeat the complete final engineering audit and fresh-clone verification
+  at the post-validation submission commit; the older audit remains valid
+  historical evidence but is not the final handoff.
 - [x] Confirm the complete 13-stage GitHub CI run `33475374049` passes at
   pushed commit `cd8e15f`, including compile, lint, type, history/privacy,
   dependency, test, coverage, and pinned scientific-risk gates.
@@ -781,8 +859,8 @@ Final engineering audit:
   and the corrected full remote run `33314972249` passed at commit `24ec60f`.
 - [ ] Reproduce a deployment-eligible direct-adapter load and frozen held-out
   inference in a separately provisioned clean scientific environment. This is
-  blocked honestly because v1–v5 produced no deployable adapter; opening a
-  v2–v5 final test without an eligible selection remains prohibited.
+  blocked honestly because v1–v6.2 produced no deployable adapter; opening a
+  v2–v6.2 final test without an eligible selection remains prohibited.
 - [x] Confirm by test that `features`/`metrics` retention modes write no
   WAV.
 - [x] Run full-history secret/private-path/size scans, general dependency audit,
@@ -809,25 +887,26 @@ privacy-safe repository at approved visibility, restricted handoff, immutable ta
 
 | Requirement | Conservative acceptance test | Current state | Final evidence |
 |---|---|---|---|
-| Working Persian S2S prototype | Final adapter produces relevant, intelligible Persian speech live | Pending | Adapter hash, runtime logs, held-out output |
+| Working Persian S2S prototype | Frozen system accepts audited user speech and emits Persian-script, non-silent speech on group-disjoint validation inputs | **Passed 9/9 automatic mechanics rows**; semantic/perceptual claims remain pending | `cascade_real_service_validation_panel.json`, protocol and runtime hashes |
 | Full duplex | Mic remains active; interruption stops playback and becomes next-turn context | Control implemented; direct model pending | Client traces and continuation tests |
 | End-to-end ≤500 ms | Max `T_first_audio` ≤500 ms unless another statistic is predeclared; always p50/p95/max | Pending | Physical-4090 `official_e2e` telemetry |
-| Open base adapted to Persian | Moshika 7B LoRA trained on the waiver-bound Persian response pairs | V1 through v5 are runtime-ineligible; no adapter is promoted and the v2–v5 final test remains untouched | Config, logs, adapter hashes, validation reports |
+| Open base adapted to Persian | Moshika 7B LoRA trained on the waiver-bound Persian response pairs | Training complete through v6.2. V6.2 shows a 32.20% in-sample text-loss reduction but 0/9 runtime rows for every checkpoint; no adapter is promoted and all later final tests remain untouched | Config, logs, adapter hashes, reevaluation/runtime reports |
 | 100–200 conversational hours | Final audited/exported hours in range; group-clean, no reused intervals | **108.584 exported h**, 6,754/6,754 pairs, zero audit failures | Conversation audit/export report |
 | Noise/overlap/interruption labels | Conditions present, QA complete, verified interruption, agreed precision | Automatic only | QA reports and final counts |
 | Classical detector >80% | Independently labeled real group-held-out event accuracy >80%, F1/FAR/FRR reported | Recorded-audio automatic-label proxy: 81.06% on 132 events / 22 sessions, but CI crosses 80% and official eligibility is false | Independently labeled held-out report/hash |
 | 12–24 GB evaluation | Full model fits/runs officially on physical 4090 | Pending | Preflight, VRAM, telemetry |
 | Human evaluation | 5–10 Persian speakers, ≥2 aged 60+, complete ratings | Pending | Study summary/analysis |
 | Elderly findings | Evidence from ≥2 aged 60+, cautiously interpreted | Pending | Age-stratified results |
-| Documented code/dataset | Reproducible code/metadata at approved visibility; restricted corpus handled per approval | Mostly implemented | Final repo/provenance/handoff |
+| Documented code/dataset | Reproducible code/metadata at approved visibility; restricted corpus handled per approval | Implemented; final post-validation snapshot/tag audit pending | Final repo/provenance/handoff |
 
 ## Inputs required from the student
 
-1. Record the unresolved supervisor decisions in section 1 before the
-   corresponding final outcome is selected or claimed.
+1. Reconcile the thesis manuscript/abstract/conclusion with the exact claim
+   boundaries in `docs/SUBMISSION_RESULTS.md`.
 2. Choose the project source-code license. If protected `main` is required,
    authorize an eligible GitHub plan or a visibility change.
-3. Provide the physical 4090 when available.
+3. Provide the physical 4090 if it becomes available before the submission
+   freeze; otherwise report the official hardware/latency gate as unavailable.
 4. Arrange the consented 5–10-person study with at least two participants aged
    60+, or obtain a written scope amendment.
 5. Optional strict-path recovery only: complete the preserved 40-row and 24-row

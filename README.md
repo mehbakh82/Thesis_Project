@@ -6,16 +6,24 @@ An evidence-first Persian speech prototype that keeps the microphone active duri
 
 | Requirement | Honest status |
 |---|---|
-| Working spoken conversation | Implemented as NeMo Persian ASR → local Qwen2.5-0.5B (rule fallback) → Piper Persian TTS |
+| Working spoken conversation | **Passed 9/9** predeclared rows from a 131-row source-session-group-isolated validation split: audited user channel 1 → real NeMo Persian ASR → exact local Qwen2.5-0.5B → Piper Persian TTS, with 0/9 rule fallbacks, 100% Persian-script replies by the declared measure, and non-silent audio on 9/9 |
 | Full-duplex control | Continuous browser PCM16 stream, rolling energy/F0/MFCC detector, server stop event, client stop acknowledgement |
-| Direct speech LLM | V1 remains rejected for English drift/near-silence. V2 completed 2,000 steps but passed at most 2/9 runtime rows. V3/V4 completed 500 steps and passed at most 1/9. V5 reduced only the first semantic-codebook multiplier from 100 to 10, completed 500 steps, improved fixed-scope loss from 2.082676 to 1.867859, but passed only 0/9, 0/9, 0/9, 1/9, and 1/9 rows. V2–v5 all failed closed; their fresh 14-session/11.894-hour final test remains untouched and no direct adapter is deployment-eligible. |
+| Direct speech LLM | Experimental, not deployed. V1–v5 remain negative under their frozen runtime gates. The train-only v6.2 scheduled-text-dropout diagnostic achieved a **32.20%** text-loss reduction from step 50 to its best later checkpoint, but steps 50/100/150/200 each passed **0/9** direct-runtime rows. This proves objective learning capacity only; no direct adapter is deployment-eligible and no v2–v6.2 final test was opened. |
 | 100–200 h conversation corpus | Full inventory: **775.887 h / 1,442 long episodes**. The production selection is **219.946 candidate h / 309 episodes** across four channels; 1,129 windows contain **207.154 automatically classified multi-speaker h**, **242.445 aligned staging h**, and **6,754 non-reused response pairs / 123.796 source-pair h**. The immutable Piper derivative is **108.584 measured stereo h**, inside the formal band |
 | Conversational interruption supervision | Raw speaker boundaries recover **770 conservative candidates** (717 interruption-like, 53 backchannel-like) from the 6,754 pairs. The preserved deterministic 24-row sheet was sampled from the earlier 712-candidate pool and covers all four channels / **168.3 seconds** of excerpt audio. They remain automatic candidates; **zero human-verified direct interruptions** are claimed under the waiver |
 | Barge-in >80% | Recorded-audio automatic-label proxy: 81.06% accuracy / 78.99% interrupt F1 on 132 events from 22 held-out sessions, but the session CI is 74.44–87.18% and human-verified labels are zero. Independent-label official evidence remains pending |
 | ≤500 ms and 12–24 GB official test | Pending live browser measurements on a physical 12–24 GB GPU |
 | Human study | Incomplete; 5–10 participants and at least two aged 60+ are still required. Raw WAV retention is optional |
 
-Machine-generated corpus evidence is in `results/diarized_episode_audit_combined_authorized.json`, `results/conversation_yield_estimate_combined.json`, and `results/corpus_audit.json`; study evidence is in `results/eval/human_study.json`. Neither synthetic latency nor an H100 memory cap is accepted as official end-to-end evidence.
+The main positive result is
+`results/eval/cascade_real_service_validation_panel.json`. Machine-generated
+corpus evidence is in `results/diarized_episode_audit_combined_authorized.json`,
+`results/conversation_yield_estimate_combined.json`, and
+`results/corpus_audit.json`; study evidence is in
+`results/eval/human_study.json`. The validation panel establishes working
+out-of-sample mechanics, not semantic relevance, human naturalness, or official
+browser latency. Neither synthetic latency nor an H100 memory cap is accepted
+as official end-to-end evidence.
 
 ## Architecture
 
@@ -32,11 +40,22 @@ LoRA, with all 23 audio embeddings frozen. V5 then reduced only the first
 semantic-codebook loss multiplier from 100 to 10. V3–v5 completed steps
 100–500 and failed the unchanged nine-row official-runtime eligibility rule.
 Selection returned null and the final-test firewall remained closed for every
-version.
+version. V6/v6.1 then isolated train-only Persian capacity and deterministic
+decoding; v6.2 added scheduled text-input dropout. Its positive in-sample
+learning signal did not transfer to reliable direct generation: all four
+candidate checkpoints passed 0/9 rows.
+
+The frozen cascade v4 development panel passed 9/9, but a subsequent audit
+found that it had fed assistant channel 0 to ASR. Before any validation-row
+execution, `docs/CASCADE_VALIDATION_PROTOCOL.md` corrected the input to audited
+user channel 1 and froze nine floor-spaced validation rows. The unchanged
+NeMo/Qwen/Piper chain then passed 9/9 with zero fallbacks and zero split leaks.
+That validation result—not the earlier train panel—is the working-system
+evidence.
 
 The project server remains deliberately cascade-only until a Persian adapter passes every gate. The v1 adapter loads in Kyutai's pinned official server but fails autoregressive Persian output, so it cannot activate the direct path. Checkpoint metadata alone can never activate either that failed adapter or the legacy reconstruction artifact.
 
-Post-finalization storage cleanup retains 13 representative adapter tensors:
+Post-finalization storage cleanup retains 13 representative v1–v5 adapters:
 v1 steps 500/1000/2000/4000/8000, v2 steps 400/2000, and v3/v4/v5 steps
 400/500. Their hashes match the committed experiment certificates. All
 candidate losses, runtime outputs, configurations, hashes, and negative
@@ -44,6 +63,8 @@ verdicts remain tracked, but tensors for other non-promoted candidates were
 deliberately removed; recreating them requires rerunning the frozen training
 recipe. The chained receipts record 41.01 GiB reclaimed; see
 `results/hardware/storage_cleanup_20260831.json`.
+Four exact v6.2 diagnostic checkpoints currently remain and postdate that
+cleanup receipt.
 
 ```text
 natural Persian user audio + approved next-turn text
@@ -119,6 +140,18 @@ final test or revise a finalized selection.
 .venv/bin/python scripts/run_moshi_v3_posttraining.py
 .venv-moshi/bin/python scripts/record_moshi_v3_training_run.py
 
+# Frozen positive working-system validation (write-once result already exists):
+.venv/bin/python scripts/evaluate_cascade_validation.py
+
+# Completed train-only v6.2 capacity diagnostic:
+.venv-moshi/bin/python scripts/reevaluate_moshi_v6_overfit.py \
+  --training-config configs/moshi_h100_v6_text_dropout.yaml \
+  --run-dir checkpoints/moshi_v6_text_dropout \
+  --metrics-out checkpoints/moshi_v6_text_dropout/metrics.reeval.jsonl \
+  --report-out results/moshi_v6_text_dropout_reevaluation.json \
+  --experiment-label v6_text_dropout
+.venv-moshi/bin/python scripts/evaluate_moshi_v6_overfit.py --text-dropout-followup
+
 # Historical v4 negative-result reproduction: rank-128 LoRA plus exactly two
 # text embeddings. The completed run selected no adapter and never accessed its
 # frozen final test; see docs/MOSHI_V4_RESULT.md.
@@ -182,6 +215,9 @@ See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/MOSHI_H100_RUNBOOK.md`,
 `docs/MANUAL_QA_FA.md`, `docs/INTERRUPTION_QA_FA.md`,
 `docs/MOSHI_V4_SELECTION_PROTOCOL.md`, `docs/MOSHI_V4_RESULT.md`,
 `docs/MOSHI_V5_SELECTION_PROTOCOL.md`, `docs/MOSHI_V5_RESULT.md`,
+`docs/MOSHI_V6_TEXT_DROPOUT_PROTOCOL.md`,
+`docs/CASCADE_REAL_SERVICE_PROTOCOL_V4.md`,
+`docs/CASCADE_VALIDATION_PROTOCOL.md`,
 `docs/RECORDED_BARGEIN_PROXY_PROTOCOL.md`,
 `docs/RIGHTS_REVIEW_FA.md`, `docs/SUPERVISOR_DECISIONS.md`, and
 `docs/REVIEW.md`.

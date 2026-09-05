@@ -35,6 +35,15 @@ ARTIFACTS: dict[str, str] = {
     "moshi_v5_training": "results/hardware/moshi_h100_v5_training.json",
     "moshi_v5_selection": "results/moshi_v5_checkpoint_selection.json",
     "moshi_v5_result": "docs/MOSHI_V5_RESULT.md",
+    "moshi_v6_2_config": "configs/moshi_h100_v6_text_dropout.yaml",
+    "moshi_v6_2_training": "results/hardware/moshi_v6_text_dropout_training.json",
+    "moshi_v6_2_reevaluation": "results/moshi_v6_text_dropout_reevaluation.json",
+    "moshi_v6_2_runtime": "results/moshi_v6_text_dropout_runtime.json",
+    "moshi_v6_2_protocol": "docs/MOSHI_V6_TEXT_DROPOUT_PROTOCOL.md",
+    "cascade_working_panel": "results/eval/cascade_real_service_train_panel_v4.json",
+    "cascade_working_protocol": "docs/CASCADE_REAL_SERVICE_PROTOCOL_V4.md",
+    "cascade_validation": "results/eval/cascade_real_service_validation_panel.json",
+    "cascade_validation_protocol": "docs/CASCADE_VALIDATION_PROTOCOL.md",
     "interrupt_bench": "results/eval/interrupt_bench.json",
     "interrupt_recorded_proxy": "results/eval/interrupt_recorded_proxy.json",
     "human_study": "results/eval/human_study.json",
@@ -111,6 +120,7 @@ def _selection_trial(
     )
     return {
         "version": version,
+        "evidence_scope": "validation_only_checkpoint_selection",
         "scientific_run_complete": bool(
             training_payload.get("training_run_passes")
             or selection.get("training_complete")
@@ -192,6 +202,150 @@ def _official_e2e_reports(root: Path) -> tuple[int, list[dict[str, Any]]]:
     return rows, reports
 
 
+def _v6_2_capacity_trial(
+    training: dict[str, Any],
+    reevaluation: dict[str, Any],
+    runtime: dict[str, Any],
+    config: dict[str, Any],
+) -> dict[str, Any]:
+    """Summarize v6.2 without promoting its train-only diagnostic to validation."""
+
+    loss_rows = reevaluation.get("candidates") or []
+    runtime_rows = runtime.get("candidates") or []
+    text_losses = [
+        float(row["text_eval_loss"])
+        for row in loss_rows
+        if row.get("text_eval_loss") is not None
+    ]
+    reduction = None
+    if len(text_losses) >= 2 and text_losses[0] > 0:
+        reduction = (text_losses[0] - min(text_losses[1:])) / text_losses[0]
+    checkpoints = training.get("checkpoints") or []
+    lora = config.get("lora") or {}
+    requirements = runtime.get("requirements") or {}
+    run_complete = bool(
+        training.get("status") == "passed"
+        and training.get("training_passes")
+        and reevaluation.get("status") == "passed"
+        and reevaluation.get("reevaluation_passes")
+        and runtime.get("status") == "passed"
+        and len(loss_rows) == 4
+        and len(runtime_rows) == 4
+        and all(requirements.values())
+    )
+    return {
+        "version": "v6.2",
+        "evidence_scope": "train_only_in_sample_capacity_diagnostic",
+        "scientific_run_complete": run_complete,
+        "scientific_validation_evidence": False,
+        "positive_learning_result": bool(reduction is not None and reduction >= 0.30),
+        "text_loss_reduction_fraction": round(reduction, 6) if reduction is not None else None,
+        "candidate_count": len(runtime_rows),
+        "eligible_candidate_count": 0,
+        "eligible_steps": [],
+        "selected_step": None,
+        "deployment_eligible": False,
+        "fixed_validation_losses": [row.get("eval_loss") for row in loss_rows],
+        "fixed_text_losses": [row.get("text_eval_loss") for row in loss_rows],
+        "fixed_audio_losses": [row.get("audio_eval_loss") for row in loss_rows],
+        "fixed_validation_samples_per_candidate": (
+            int(loss_rows[0].get("sample_count") or 0) if loss_rows else 0
+        ),
+        "runtime_panel_pass_counts": [
+            int(row.get("panel_pass_count") or 0) for row in runtime_rows
+        ],
+        "runtime_panel_failure_counts": [
+            int(row.get("panel_count") or 0) - int(row.get("panel_pass_count") or 0)
+            for row in runtime_rows
+        ],
+        "runtime_panel_size": (
+            int(runtime_rows[0].get("panel_count") or 0) if runtime_rows else 0
+        ),
+        "selection_failed_closed": runtime.get("selection") is None,
+        "diagnostic_outcome": runtime.get("diagnostic_outcome"),
+        "test_access_started": bool(
+            training.get("final_test_accessed")
+            or reevaluation.get("final_test_opened")
+            or runtime.get("final_test_accessed")
+        ),
+        "uncertainty": {
+            "interval": None,
+            "reason": "deterministic in-sample diagnostic; no generalization inference allowed",
+        },
+        "configuration": {
+            "context_seconds": config.get("duration_sec"),
+            "max_steps": config.get("max_steps"),
+            "seed": config.get("seed"),
+            "lora_rank": lora.get("rank"),
+            "upstream_ft_embed": lora.get("ft_embed"),
+            "selective_embeddings": (
+                checkpoints[0].get("full_parameters") if checkpoints else []
+            )
+            or [],
+            "peak_allocated_gb": (training.get("training") or {}).get(
+                "peak_allocated_gb"
+            ),
+        },
+    }
+
+
+def _cascade_result(payload: dict[str, Any]) -> dict[str, Any]:
+    """Accept only the exact, explicit real-service working-demo evidence class."""
+
+    samples = payload.get("samples") or []
+    claim = payload.get("claim") or {}
+    requirements = payload.get("requirements") or {}
+    working = bool(
+        payload.get("status") == "passed"
+        and payload.get("evidence_class")
+        == "real_service_group_disjoint_validation_mechanics"
+        and claim.get("positive_working_user_turn_result") is True
+        and claim.get("group_disjoint_validation_execution") is True
+        and claim.get("scientific_generalization_result") is False
+        and claim.get("official_end_to_end_latency_result") is False
+        and len(samples) == 9
+        and all(sample.get("passes") is True for sample in samples)
+        and requirements
+        and all(requirements.values())
+    )
+    reply_fractions = [
+        float((sample.get("reply_statistics") or {}).get("persian_letter_fraction") or 0.0)
+        for sample in samples
+    ]
+    audio_rms = [float(sample.get("reply_audio_rms") or 0.0) for sample in samples]
+    return {
+        "working_prototype": working,
+        "architecture": "NeMo Persian ASR -> local Qwen2.5-0.5B -> Piper Persian TTS",
+        "evidence_class": payload.get("evidence_class") or "missing",
+        "panel_scope": (payload.get("panel") or {}).get("selection"),
+        "split_unit": (payload.get("panel") or {}).get("split_unit"),
+        "input_channel": (payload.get("panel") or {}).get("selected_user_channel"),
+        "group_split_leaks": (payload.get("panel") or {}).get("group_split_leaks"),
+        "panel_rows": len(samples),
+        "passed_rows": sum(sample.get("passes") is True for sample in samples),
+        "fallback_rows": sum(
+            sample.get("responder_fallback_used") is True for sample in samples
+        ),
+        "language_retry_rows": sum(
+            sample.get("responder_language_retry_used") is True for sample in samples
+        ),
+        "minimum_reply_persian_letter_fraction": min(reply_fractions)
+        if reply_fractions
+        else None,
+        "minimum_reply_audio_rms": min(audio_rms) if audio_rms else None,
+        "timing_descriptive_only": payload.get("timing_descriptive_only") or {},
+        "scientific_generalization_result": False,
+        "official_end_to_end_latency_result": False,
+        "human_quality_result": False,
+        "limitations": [
+            "No independent semantic-relevance or human naturalness labels were collected.",
+            "A nine-row mechanics panel is not a population-level generalization estimate.",
+            "Full-turn generation time is not the thesis T_first_audio browser metric.",
+            "The H100 is outside the official 12-24 GB evaluation class.",
+        ],
+    }
+
+
 def build_evidence_status(
     out: str | Path | None = None,
     *,
@@ -217,6 +371,12 @@ def build_evidence_status(
     v4_selection = _read_json(project, ARTIFACTS["moshi_v4_selection"])
     v5_training = _read_json(project, ARTIFACTS["moshi_v5_training"])
     v5_selection = _read_json(project, ARTIFACTS["moshi_v5_selection"])
+    v6_2_config_path = project / ARTIFACTS["moshi_v6_2_config"]
+    v6_2_config = load_yaml(v6_2_config_path) if v6_2_config_path.is_file() else {}
+    v6_2_training = _read_json(project, ARTIFACTS["moshi_v6_2_training"])
+    v6_2_reevaluation = _read_json(project, ARTIFACTS["moshi_v6_2_reevaluation"])
+    v6_2_runtime = _read_json(project, ARTIFACTS["moshi_v6_2_runtime"])
+    cascade_payload = _read_json(project, ARTIFACTS["cascade_validation"])
     interrupt = _read_json(project, ARTIFACTS["interrupt_bench"])
     recorded_proxy = _read_json(project, ARTIFACTS["interrupt_recorded_proxy"])
     study = _read_json(project, ARTIFACTS["human_study"])
@@ -247,6 +407,7 @@ def build_evidence_status(
     trials = [
         {
             "version": "v1",
+            "evidence_scope": "heldout_loss_then_postselection_runtime",
             "scientific_run_complete": bool(v1_training.get("training_run_passes")),
             "candidate_count": int(v1_training.get("checkpoint_count") or 0),
             "eligible_candidate_count": 0,
@@ -277,8 +438,10 @@ def build_evidence_status(
         _selection_trial("v3", v3_selection, training=v3_training),
         _selection_trial("v4", v4_selection, training=v4_training),
         _selection_trial("v5", v5_selection, training=v5_training),
+        _v6_2_capacity_trial(v6_2_training, v6_2_reevaluation, v6_2_runtime, v6_2_config),
     ]
     direct_model_eligible = any(bool(trial["deployment_eligible"]) for trial in trials)
+    cascade = _cascade_result(cascade_payload)
 
     proposed = interrupt.get("proposed") or {}
     proposed_matrix = proposed.get("matrix") or []
@@ -330,6 +493,7 @@ def build_evidence_status(
     cleanup_space = cleanup.get("space") or {}
 
     gates = {
+        "working_persian_s2s_prototype": bool(cascade["working_prototype"]),
         "audited_export_100_to_200_hours": audited_export_ready,
         "data_policy_resolved_under_documented_qa_waiver": bool(
             audited_export_ready and not strict_human_qa
@@ -342,6 +506,9 @@ def build_evidence_status(
     }
     thesis_ready = all(gates.values())
     required = {
+        "working_persian_s2s_prototype": (
+            "Produce a repeatable real-service Persian speech-to-speech result."
+        ),
         "deployment_eligible_persian_direct_model": (
             "Produce a validation-eligible Persian direct-model checkpoint before opening "
             "that experiment's frozen final test."
@@ -363,7 +530,7 @@ def build_evidence_status(
     }
 
     payload: dict[str, Any] = {
-        "schema_version": 6,
+        "schema_version": 7,
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "authoritative": True,
         "thesis_ready": thesis_ready,
@@ -411,11 +578,15 @@ def build_evidence_status(
                 export.get("source_rows_permitting_redistribution") or 0
             ),
         },
+        "working_system": cascade,
         "direct_moshi": {
             "deployment_eligible": direct_model_eligible,
             "promoted_adapter": None,
             "trials": trials,
             "v2_to_v5_final_test_access_started": any(
+                bool(trial["test_access_started"]) for trial in trials[1:5]
+            ),
+            "v2_to_v6_2_final_test_access_started": any(
                 bool(trial["test_access_started"]) for trial in trials[1:]
             ),
             "v1_automatic_heldout_loss_evidence": {
@@ -434,8 +605,9 @@ def build_evidence_status(
                 "deployment_claim_allowed": False,
             },
             "conclusion": (
-                "V1 through v5 are scientific training evidence, but none is eligible for "
-                "deployment or thesis end-to-end claims."
+                "V1 through v5 are held-out/validation-governed negative trials. V6.2 is "
+                "positive in-sample learning evidence but negative direct-generation "
+                "evidence. No direct adapter is deployment eligible."
             ),
         },
         "local_artifact_retention": {
@@ -448,6 +620,7 @@ def build_evidence_status(
             ),
             "project_size_after": cleanup_space.get("project_du_after"),
             "representative_adapter_count": int(retained_adapters.get("count") or 0),
+            "current_v6_2_checkpoint_count": len(v6_2_training.get("checkpoints") or []),
             "representative_adapter_steps": {
                 version: list((retained_adapters.get(version) or {}).get("steps") or [])
                 for version in ("v1", "v2", "v3", "v4", "v5")
@@ -545,6 +718,19 @@ def build_evidence_status(
             "session_group_split_policy_reported": True,
             "no_post_test_selection": True,
         },
+        "submission_strategy": {
+            "production_candidate": "cascade",
+            "production_candidate_evidence": (
+                "real_service_group_disjoint_validation_mechanics"
+            ),
+            "direct_moshi_role": "experimental_negative_result_with_positive_learning_signal",
+            "new_direct_training_before_deadline_recommended": False,
+            "reason": (
+                "The frozen cascade has a positive proper-user-channel validation result; "
+                "v6.2 learned its train-only objective but failed every direct runtime row. "
+                "A new direct run would risk the evidence freeze without a validated remedy."
+            ),
+        },
         "release": {
             "source_code_license_selected": source_license_selected,
             "license_files": license_files,
@@ -556,6 +742,15 @@ def build_evidence_status(
             "conditional_closeout_after_evidence": [
                 "Reconcile the thesis manuscript and generated tables with final evidence.",
                 "Freeze the final evidence bundle, commit/tag it, push it, and verify a fresh clone.",
+            ],
+            "submission_critical_now": [
+                "Use the cascade as the submitted working system.",
+                "Copy the exact positive and negative result tables into the thesis manuscript.",
+                "Run the final repository audit, freeze the evidence snapshot, tag, and push.",
+            ],
+            "research_extension_not_deadline_critical": [
+                "Redesign and validate a direct Persian Moshi training objective on a "
+                "larger representative split."
             ],
             "waived_not_completed": [
                 "40-row window listening QA",
@@ -581,12 +776,14 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
 
     gates = payload.get("gates") or {}
     data = payload.get("data") or {}
+    working = payload.get("working_system") or {}
     direct = payload.get("direct_moshi") or {}
     detector = payload.get("detector") or {}
     latency = payload.get("latency_and_hardware") or {}
     study = payload.get("human_study") or {}
     release = payload.get("release") or {}
     retention = payload.get("local_artifact_retention") or {}
+    strategy = payload.get("submission_strategy") or {}
     v1_loss_evidence = direct.get("v1_automatic_heldout_loss_evidence") or {}
     v1_total_loss = v1_loss_evidence.get("selected_total_loss") or {}
     split_counts = data.get("split_counts") or {}
@@ -626,11 +823,22 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             f"| Automatic integrity audit | {'pass' if data.get('automatic_integrity_audit_passed') else 'fail'} |",
             f"| Human listening QA complete | {'yes' if data.get('human_review_complete') else 'no (waived)'} |",
             "",
+            "## Working speech-to-speech system",
+            "",
+            f"The real-service cascade passed {working.get('passed_rows', 0)}/"
+            f"{working.get('panel_rows', 0)} fixed group-disjoint validation rows with "
+            f"{working.get('fallback_rows', 0)} rule-fallback rows. Minimum reply Persian-script "
+            f"fraction was {working.get('minimum_reply_persian_letter_fraction')}; minimum reply "
+            f"audio RMS was {working.get('minimum_reply_audio_rms')}. This is a positive working "
+            "user-turn prototype result and out-of-sample mechanics check, not semantic or "
+            "population-level generalization, human quality, physical-target, or "
+            "official browser-latency evidence.",
+            "",
             "## Direct Moshi trials and ablations",
             "",
-            "| Trial | Context | Rank | Seed | Embeddings trained | Candidates | "
+            "| Trial | Scope | Context | Rank | Seed | Embeddings trained | Candidates | "
             "Val chunks/candidate | Runtime pass/fail per 9 | Min val loss | Eligible |",
-            "|---|---:|---:|---:|---|---:|---:|---|---:|---:|",
+            "|---|---|---:|---:|---:|---|---:|---:|---|---:|---:|",
         ]
     )
     for trial in direct.get("trials") or []:
@@ -656,7 +864,8 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             else "n/a"
         )
         lines.append(
-            f"| {trial.get('version')} | {config.get('context_seconds') or 'n/a'} | "
+            f"| {trial.get('version')} | {trial.get('evidence_scope') or 'n/a'} | "
+            f"{config.get('context_seconds') or 'n/a'} | "
             f"{config.get('lora_rank') or 'n/a'} | {config.get('seed') or 'n/a'} | "
             f"{embeddings} | {trial.get('candidate_count', 0)} | "
             f"{trial.get('fixed_validation_samples_per_candidate') or 'n/a'} | "
@@ -667,8 +876,12 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
         [
             "",
             "V1 was selected under its frozen loss protocol but failed later autoregressive "
-            "runtime validation. V2–v5 each failed closed with zero eligible checkpoints; "
-            "their frozen final tests remain untouched.",
+            "runtime validation. V2–v5 each failed closed with zero eligible checkpoints. "
+            "V6.2 is a deliberately in-sample capacity diagnostic: its best post-step-50 text "
+            "loss reduction was "
+            f"{100.0 * float((direct.get('trials') or [{}])[-1].get('text_loss_reduction_fraction') or 0.0):.2f}% "
+            "but every checkpoint passed 0/9 direct-runtime rows. The v2–v6.2 final-test "
+            "firewalls remain closed.",
             "",
             f"V1 automatic held-out loss evidence used {v1_loss_evidence.get('rows', 0)} "
             f"rows / {v1_loss_evidence.get('chunks', 0)} chunks: selected total-loss mean "
@@ -682,12 +895,15 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             f"The verified post-finalization cleanup reclaimed "
             f"{retention.get('observed_reclaimed_bytes', 0) / (1024**3):.2f} GiB and "
             f"retains {retention.get('representative_adapter_count', 0)} representative "
-            "adapter tensors. Retained steps: "
+            "v1–v5 adapter tensors. Retained steps: "
             + "; ".join(
                 f"{version}={steps}"
                 for version, steps in (retention.get("representative_adapter_steps") or {}).items()
             )
             + ".",
+            "",
+            f"V6.2 separately retains {retention.get('current_v6_2_checkpoint_count', 0)} "
+            "current diagnostic checkpoints; they postdate that cleanup receipt.",
             "",
             "All retained adapter hashes match committed evidence, and all scientific "
             "results, configurations, runtime outputs, and certificates remain. The full "
@@ -728,6 +944,14 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             "because their qualifying denominators are zero. Exact timing and acceptance "
             "definitions are in "
             "`docs/METRICS.md`.",
+            "",
+            "## Submission architecture decision",
+            "",
+            f"Production candidate: `{strategy.get('production_candidate')}`. Direct Moshi "
+            f"role: `{strategy.get('direct_moshi_role')}`. Starting another direct-model "
+            "training run before the deadline is not recommended because no validated "
+            "corrective hypothesis remains, while the frozen cascade already has a positive "
+            "proper-user-channel validation result.",
             "",
             "## Remaining requirements",
             "",

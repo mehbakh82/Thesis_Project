@@ -1,6 +1,6 @@
 {
-  "schema_version": 6,
-  "generated_at": "2026-09-01T05:52:29.292464+00:00",
+  "schema_version": 7,
+  "generated_at": "2026-09-05T15:42:16.568668+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -15,6 +15,7 @@
     ]
   },
   "gates": {
+    "working_persian_s2s_prototype": true,
     "audited_export_100_to_200_hours": true,
     "data_policy_resolved_under_documented_qa_waiver": true,
     "deployment_eligible_persian_direct_model": false,
@@ -60,12 +61,44 @@
     "human_verified_claim_allowed": false,
     "raw_redistribution_permitted_rows": 0
   },
+  "working_system": {
+    "working_prototype": true,
+    "architecture": "NeMo Persian ASR -> local Qwen2.5-0.5B -> Piper Persian TTS",
+    "evidence_class": "real_service_group_disjoint_validation_mechanics",
+    "panel_scope": "predeclared floor-spaced indices over 131 validation rows",
+    "split_unit": "source_session_id",
+    "input_channel": 1,
+    "group_split_leaks": 0,
+    "panel_rows": 9,
+    "passed_rows": 9,
+    "fallback_rows": 0,
+    "language_retry_rows": 0,
+    "minimum_reply_persian_letter_fraction": 1.0,
+    "minimum_reply_audio_rms": 0.133529,
+    "timing_descriptive_only": {
+      "metric": "full_turn_generation_ms",
+      "n": 9,
+      "p50_ms": 5584.736,
+      "p95_ms": 13045.919,
+      "max_ms": 13270.249
+    },
+    "scientific_generalization_result": false,
+    "official_end_to_end_latency_result": false,
+    "human_quality_result": false,
+    "limitations": [
+      "No independent semantic-relevance or human naturalness labels were collected.",
+      "A nine-row mechanics panel is not a population-level generalization estimate.",
+      "Full-turn generation time is not the thesis T_first_audio browser metric.",
+      "The H100 is outside the official 12-24 GB evaluation class."
+    ]
+  },
   "direct_moshi": {
     "deployment_eligible": false,
     "promoted_adapter": null,
     "trials": [
       {
         "version": "v1",
+        "evidence_scope": "heldout_loss_then_postselection_runtime",
         "scientific_run_complete": true,
         "candidate_count": 16,
         "eligible_candidate_count": 0,
@@ -88,6 +121,7 @@
       },
       {
         "version": "v2",
+        "evidence_scope": "validation_only_checkpoint_selection",
         "scientific_run_complete": true,
         "candidate_count": 20,
         "eligible_candidate_count": 0,
@@ -180,6 +214,7 @@
       },
       {
         "version": "v3",
+        "evidence_scope": "validation_only_checkpoint_selection",
         "scientific_run_complete": true,
         "candidate_count": 5,
         "eligible_candidate_count": 0,
@@ -227,6 +262,7 @@
       },
       {
         "version": "v4",
+        "evidence_scope": "validation_only_checkpoint_selection",
         "scientific_run_complete": true,
         "candidate_count": 5,
         "eligible_candidate_count": 0,
@@ -277,6 +313,7 @@
       },
       {
         "version": "v5",
+        "evidence_scope": "validation_only_checkpoint_selection",
         "scientific_run_complete": true,
         "candidate_count": 5,
         "eligible_candidate_count": 0,
@@ -324,9 +361,75 @@
           ],
           "peak_allocated_gb": 28.64000654220581
         }
+      },
+      {
+        "version": "v6.2",
+        "evidence_scope": "train_only_in_sample_capacity_diagnostic",
+        "scientific_run_complete": true,
+        "scientific_validation_evidence": false,
+        "positive_learning_result": true,
+        "text_loss_reduction_fraction": 0.322007,
+        "candidate_count": 4,
+        "eligible_candidate_count": 0,
+        "eligible_steps": [],
+        "selected_step": null,
+        "deployment_eligible": false,
+        "fixed_validation_losses": [
+          2.636405400931835,
+          2.245343677699566,
+          2.071541530545801,
+          2.0602970742620528
+        ],
+        "fixed_text_losses": [
+          0.8124743290245533,
+          0.6389869917184114,
+          0.5508518195711076,
+          0.5511828758753836
+        ],
+        "fixed_audio_losses": [
+          1.8239310719072819,
+          1.6063566859811544,
+          1.5206897109746933,
+          1.5091141983866692
+        ],
+        "fixed_validation_samples_per_candidate": 32,
+        "runtime_panel_pass_counts": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "runtime_panel_failure_counts": [
+          9,
+          9,
+          9,
+          9
+        ],
+        "runtime_panel_size": 9,
+        "selection_failed_closed": true,
+        "diagnostic_outcome": "negative",
+        "test_access_started": false,
+        "uncertainty": {
+          "interval": null,
+          "reason": "deterministic in-sample diagnostic; no generalization inference allowed"
+        },
+        "configuration": {
+          "context_seconds": 12,
+          "max_steps": 200,
+          "seed": 20260901,
+          "lora_rank": 64,
+          "upstream_ft_embed": false,
+          "selective_embeddings": [
+            "depformer_text_emb.weight",
+            "text_emb.weight",
+            "text_linear.frozen_W.weight"
+          ],
+          "peak_allocated_gb": 16.576905250549316
+        }
       }
     ],
     "v2_to_v5_final_test_access_started": false,
+    "v2_to_v6_2_final_test_access_started": false,
     "v1_automatic_heldout_loss_evidence": {
       "evidence_class": "automatic_model_loss_only",
       "rows": 204,
@@ -344,7 +447,7 @@
       "human_perceptual_claim_allowed": false,
       "deployment_claim_allowed": false
     },
-    "conclusion": "V1 through v5 are scientific training evidence, but none is eligible for deployment or thesis end-to-end claims."
+    "conclusion": "V1 through v5 are held-out/validation-governed negative trials. V6.2 is positive in-sample learning evidence but negative direct-generation evidence. No direct adapter is deployment eligible."
   },
   "local_artifact_retention": {
     "evidence_class": "post_finalization_storage_receipt",
@@ -352,6 +455,7 @@
     "observed_reclaimed_bytes": 44029079552,
     "project_size_after": "121G",
     "representative_adapter_count": 13,
+    "current_v6_2_checkpoint_count": 4,
     "representative_adapter_steps": {
       "v1": [
         500,
@@ -509,6 +613,13 @@
     "session_group_split_policy_reported": true,
     "no_post_test_selection": true
   },
+  "submission_strategy": {
+    "production_candidate": "cascade",
+    "production_candidate_evidence": "real_service_group_disjoint_validation_mechanics",
+    "direct_moshi_role": "experimental_negative_result_with_positive_learning_signal",
+    "new_direct_training_before_deadline_recommended": false,
+    "reason": "The frozen cascade has a positive proper-user-channel validation result; v6.2 learned its train-only objective but failed every direct runtime row. A new direct run would risk the evidence freeze without a validated remedy."
+  },
   "release": {
     "source_code_license_selected": false,
     "license_files": [],
@@ -532,6 +643,14 @@
     "conditional_closeout_after_evidence": [
       "Reconcile the thesis manuscript and generated tables with final evidence.",
       "Freeze the final evidence bundle, commit/tag it, push it, and verify a fresh clone."
+    ],
+    "submission_critical_now": [
+      "Use the cascade as the submitted working system.",
+      "Copy the exact positive and negative result tables into the thesis manuscript.",
+      "Run the final repository audit, freeze the evidence snapshot, tag, and push."
+    ],
+    "research_extension_not_deadline_critical": [
+      "Redesign and validate a direct Persian Moshi training objective on a larger representative split."
     ],
     "waived_not_completed": [
       "40-row window listening QA",
@@ -650,6 +769,60 @@
       "present": true,
       "bytes": 4466,
       "sha256": "c0d3ff6e900417cc2853ab735d2bc3fc8b99348596b16faf9f38ee272721f666"
+    },
+    "moshi_v6_2_config": {
+      "path": "configs/moshi_h100_v6_text_dropout.yaml",
+      "present": true,
+      "bytes": 1106,
+      "sha256": "06fa61cedd2cdcdfca7769f573498518c80830cd13be663bc32813c72596c8ae"
+    },
+    "moshi_v6_2_training": {
+      "path": "results/hardware/moshi_v6_text_dropout_training.json",
+      "present": true,
+      "bytes": 6080,
+      "sha256": "31ec8796bdf7b3afff9489fba2f00847898d000287e67f983e161c39c2544ff0"
+    },
+    "moshi_v6_2_reevaluation": {
+      "path": "results/moshi_v6_text_dropout_reevaluation.json",
+      "present": true,
+      "bytes": 4726,
+      "sha256": "b0b1f62c9a4076a9173bf7a98e05dcbd9e030294041f6f8fe9592b2b7cc00234"
+    },
+    "moshi_v6_2_runtime": {
+      "path": "results/moshi_v6_text_dropout_runtime.json",
+      "present": true,
+      "bytes": 130917,
+      "sha256": "6364d2bea9f989501db99698b8ed2821e9608947affa1669a05522f22e0913ec"
+    },
+    "moshi_v6_2_protocol": {
+      "path": "docs/MOSHI_V6_TEXT_DROPOUT_PROTOCOL.md",
+      "present": true,
+      "bytes": 8915,
+      "sha256": "11bbc1e568160ee013ca837eef8ec563b99cf45243ea1009045354bec7bb7ee1"
+    },
+    "cascade_working_panel": {
+      "path": "results/eval/cascade_real_service_train_panel_v4.json",
+      "present": true,
+      "bytes": 21656,
+      "sha256": "d6c166c7bb8d93f332c277bdb4ac1fef5bfdfe080985025d7ec0072cda738b36"
+    },
+    "cascade_working_protocol": {
+      "path": "docs/CASCADE_REAL_SERVICE_PROTOCOL_V4.md",
+      "present": true,
+      "bytes": 3010,
+      "sha256": "fd0c81243e45a92ec8da7848f7e70f25bb2a7512f48f1d7d0d90e9d74b4a3d82"
+    },
+    "cascade_validation": {
+      "path": "results/eval/cascade_real_service_validation_panel.json",
+      "present": true,
+      "bytes": 22598,
+      "sha256": "ae515381db2b72e9ed0b8dcb491c0765990732ed8bb8c46383499b9d60f89ced"
+    },
+    "cascade_validation_protocol": {
+      "path": "docs/CASCADE_VALIDATION_PROTOCOL.md",
+      "present": true,
+      "bytes": 3223,
+      "sha256": "e0616820953013d0f59871be717bca77efa4eb382b51cbc9ead3987547c033aa"
     },
     "interrupt_bench": {
       "path": "results/eval/interrupt_bench.json",

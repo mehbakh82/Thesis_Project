@@ -1,15 +1,24 @@
-# Comprehensive project review (updated 2026-09-01)
+# Comprehensive project review (updated 2026-09-05)
 
 ## Verdict
 
 The project has a strong thesis problem, useful infrastructure, and unusually good data-engineering effort, but the earlier implementation overstated two central claims: the trained artifact was not an end-to-end speech LLM, and the browser was not full duplex. The current revision corrects those claims, provides a functional modular cascade plus genuine continuous-microphone interruption control, constructs an auditable conversational training set, and adds a pinned official Moshi/Moshika LoRA path for genuine response-audio adaptation.
 
-Current engineering/research readiness: **9.0/10**. Earlier audited state:
+Current engineering/research readiness: **9.3/10**. Earlier audited state:
 **about 4/10**. A defensible 10/10 cannot be produced entirely in code because
-the active remaining evidence requires a deployment-eligible Persian direct
-model, independently reviewed detector labels, human participants, and live
-measurements on the forthcoming physical 4090. The original unwaived rubric also requires the
-preserved listening reviews.
+the strict remaining evidence requires independently reviewed detector labels,
+human participants, and live measurements on a physical 12–24 GB target GPU.
+The direct-model research objective also remains negative. The original
+unwaived rubric requires the preserved listening reviews.
+
+The submission now has a clear positive primary result. The frozen modular
+cascade passed all nine predeclared items from a 131-row
+source-session-group-isolated validation split, using audited user channel 1,
+real NeMo ASR, the exact local Qwen model, and Piper, with zero rule fallbacks,
+100% Persian-script replies by the declared automatic measure, and non-silent
+audio on every row. This establishes a working user-turn prototype and
+out-of-sample mechanics. It does not establish semantic relevance, perceptual
+naturalness, population-level generalization, or official browser latency.
 
 The student has explicitly waived the conversation and synthesized-assistant
 listening reviews for the time-constrained limited training run. The active
@@ -64,7 +73,7 @@ Corrections:
 - checkpoints declare `runtime_ready: false`;
 - legacy/untyped checkpoints fail closed;
 - serving is unconditionally cascade-only for the legacy artifact;
-- the genuine direct path now uses the pinned official Moshi runtime and LoRA trainer, a fail-closed stereo exporter, a production-audit-clean pinned local client, deterministic single-voice Persian assistant targets, immutable upstream metadata, and exact model-file verification. All three base blobs pass their pinned sizes and SHA-256 hashes. The waiver-bound export is complete at 6,754 pairs / 108.584 final stereo h; an independent audit verifies every artifact/channel/source interval with zero failures and reproduces 24/24 sampled assistant renders exactly. The exact full-shape H100 probe completed model/Mimi/data/loss/backward/fused-AdamW at loss 3.808453 and 22.707 GB peak, then wrote a real 967 MiB/699-tensor adapter through the CPU-offloaded checkpoint path. It was launch evidence only; subsequent v1 through v5 scientific runs completed but all failed the official-runtime generation gates described below.
+- the genuine direct path now uses the pinned official Moshi runtime and LoRA trainer, a fail-closed stereo exporter, a production-audit-clean pinned local client, deterministic single-voice Persian assistant targets, immutable upstream metadata, and exact model-file verification. All three base blobs pass their pinned sizes and SHA-256 hashes. The waiver-bound export is complete at 6,754 pairs / 108.584 final stereo h; an independent audit verifies every artifact/channel/source interval with zero failures and reproduces 24/24 sampled assistant renders exactly. The exact full-shape H100 probe completed model/Mimi/data/loss/backward/fused-AdamW at loss 3.808453 and 22.707 GB peak, then wrote a real 967 MiB/699-tensor adapter through the CPU-offloaded checkpoint path. It was launch evidence only; subsequent v1–v6.2 runs and diagnostics completed, but none passed the official-runtime generation gates described below.
 
 The later scientific v1 run completed all 8,000 steps and objective held-out
 controls, but official-server validation exposed a decisive generation failure:
@@ -108,6 +117,21 @@ out of nine. Speech rows declined from 9/9 at step 100 to 4/9 at step 500, and
 nonempty text remained predominantly English. V5 therefore also failed closed
 with a null selection; its final test remains untouched.
 
+V6 and v6.1 then moved to a deliberately small 32-row train-only capacity
+diagnostic to test whether the same base could memorize Persian
+response-generation behavior and whether deterministic text decoding repaired
+the exposure gap. They did not yield reliable direct output. V6.2 retained the
+same base/data/trainable shape, used rank-64 LoRA plus the full Persian text
+embeddings/output head, reduced audio loss weight to 0.1, and scheduled text
+input dropout from 0.25 to 0.75 over 200 steps. The exact run completed with
+16.577 GiB peak training allocation. Re-evaluation on all 32 in-sample rows
+reduced text loss from 0.812474 at step 50 to 0.550852 at step 150—a **32.20%**
+improvement that passed its predeclared capacity gate. Yet the official server
+panel passed 0/9 rows for every step 50/100/150/200 checkpoint; each generated
+text and speech on only 1/9 rows. V6.2 is therefore a positive learning/capacity
+result and a negative direct-generation result, not validation or deployment
+evidence. Its final test was not opened.
+
 All candidate tensors existed and were hash-verified when their experiments
 were certified. Chained receipt-backed cleanup has reclaimed 41.01 GiB while
 retaining 13 representative adapters and every result, configuration, runtime
@@ -115,7 +139,9 @@ output, certificate, and candidate hash. The removed non-promoted
 negative intermediates require retraining for exact tensor recreation; their
 historical findings remain fully attested and cannot be reopened for selection.
 
-The working system is now honestly modular: NeMo ASR → locally cached Qwen2.5-0.5B (rules if unavailable) → Piper/formant TTS.
+The submitted working system is therefore the modular cascade: NeMo ASR →
+locally cached Qwen2.5-0.5B → Piper. Rules and formant synthesis remain explicit
+fail-safe modes, but the passing validation used neither.
 
 ### 4. Barge-in
 
@@ -145,6 +171,13 @@ The current protocol:
 - reports client-observed first-audio and stop timing;
 - never substitutes synthetic audio for an empty microphone turn.
 
+The first 9/9 cascade development result was later found to have sent assistant
+channel 0, rather than user channel 1, to ASR. It is retained and downgraded to
+a component-chain smoke test. Before any validation-row execution, a new
+protocol bound the independent channel-order audit and corrected only this
+input. The resulting proper-user-channel validation passed 9/9 and is the
+canonical working-system result.
+
 ### 6. Study, privacy, and security
 
 Sessions now require an explicit consent checkbox. Audio, lossy-feature, and metrics-only retention modes are explicit; the default study mode stores no WAV. IDs are path-safe, existing sessions are not truncated, identity conflicts fail, labels/prompts are validated, and ratings use bounded 1–5 fields. S3 credentials are no longer parsed from shell aliases or placed in process arguments.
@@ -170,25 +203,30 @@ Added:
 - literal maximum latency reporting alongside p50/p95;
 - fail-closed aggregate evidence/status generation and explicit local artifact-
   retention reporting.
+- a frozen, write-once group-disjoint cascade validation that corrected channel
+  semantics before execution and passed 9/9 without fallback;
+- complete v6.2 training, corrected in-sample loss, official-runtime evidence,
+  and explicit separation of positive objective learning from negative
+  generation.
 
 ## Scoring
 
 | Dimension | Before | Current | Maximum |
 |---|---:|---:|---:|
-| Requirement alignment and claim discipline | 9 | 22 | 25 |
-| Architecture | 6 | 19 | 20 |
-| Implementation correctness | 7 | 18 | 20 |
+| Requirement alignment and claim discipline | 9 | 23 | 25 |
+| Architecture | 6 | 20 | 20 |
+| Implementation correctness | 7 | 19 | 20 |
 | Data engineering and provenance | 9 | 14 | 15 |
 | Evaluation quality | 2 | 8 | 10 |
 | Reproducibility, tests, security | 3 | 9 | 10 |
-| **Total** | **36/100** | **90/100** | **100/100** |
+| **Total** | **36/100** | **93/100** | **100/100** |
 
 ## Irreducible path to 10/10
 
-1. Freeze a new validation-only data/objective hypothesis and produce a Persian
-   direct checkpoint that passes the unchanged autoregressive eligibility
-   discipline. V1–v5 remain finalized negative results; no checkpoint fishing
-   or final-test access is allowed.
+1. Treat the validated cascade as the submitted production candidate. A future
+   direct-model claim requires a new, larger representative training design and
+   a predeclared validation hypothesis; v1–v6.2 remain finalized evidence and
+   must not be checkpoint-fished or relabelled.
 2. Replace the completed recorded-audio automatic-label proxy with
    independently human-reviewed event labels, then establish accuracy strictly
    above 80% on a speaker/session-group-held-out test. The current 81.06% proxy
@@ -203,6 +241,14 @@ Added:
    train internally on the restricted source corpus.
 6. Reconcile the final manuscript/tables, freeze hashes and evidence, tag/push
    the submission, and verify a fresh full-history clone.
+
+With two days remaining, another speculative direct-model training run is not
+recommended. It has no validated corrective hypothesis and could consume the
+time needed to freeze a demonstrably working system. The rational deadline
+strategy is to lead with the 9/9 group-disjoint cascade result, report v6.2 as a
+valuable negative ablation with a positive learning signal, complete the
+manuscript and repository audit, and add 4090 evidence only if the physical card
+actually becomes available in time.
 
 Until these evidence-producing steps are completed, claiming 10/10 would reduce rather than improve the thesis quality.
 
