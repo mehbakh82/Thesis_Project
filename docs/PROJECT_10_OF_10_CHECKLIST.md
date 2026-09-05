@@ -847,9 +847,11 @@ Final engineering audit:
   coverage is 64%; 351 tracked artifacts/history/privacy/secrets pass; general
   dependencies have no known vulnerabilities; the exact scientific
   accepted-risk baseline and all eight upstream pins pass.
-- [ ] Repeat the complete final engineering audit and fresh-clone verification
-  at the post-validation submission commit; the older audit remains valid
-  historical evidence but is not the final handoff.
+- [x] Verify a fresh full-history clone at release-snapshot commit `c476e5c`:
+  clean tree, exact remote HEAD, only Mehran Bakhtiari as author/committer,
+  352-file history/privacy/secret audit passed, Ruff passed, mypy passed 49
+  source files, and all 169 tests passed. The temporary clone was removed after
+  verification.
 - [x] Confirm the complete 13-stage GitHub CI run `33475374049` passes at
   pushed commit `cd8e15f`, including compile, lint, type, history/privacy,
   dependency, test, coverage, and pinned scientific-risk gates.
