@@ -1,0 +1,576 @@
+{
+  "schema_version": 3,
+  "created_at": "2026-09-05T13:02:55.910842+00:00",
+  "status": "failed",
+  "evidence_class": "real_service_train_only_working_demo",
+  "claim": {
+    "positive_working_result": false,
+    "scientific_generalization_result": false,
+    "official_end_to_end_latency_result": false,
+    "description": "Real NeMo ASR -> local Qwen -> Piper execution on a fixed train-only panel.",
+    "limitations": [
+      "The panel is in-sample and cannot establish generalization.",
+      "No independent human naturalness or task-success labels were collected.",
+      "Full-turn generation time is not the thesis T_first_audio browser metric.",
+      "The physical GPU is outside the official 12-24 GB evaluation class when reported as such."
+    ]
+  },
+  "versioned_correction": {
+    "parent_result": "results/eval/cascade_real_service_train_panel_v2.json",
+    "parent_status": "failed",
+    "changes": [
+      "strengthen the Qwen instruction to prohibit Latin-script output"
+    ]
+  },
+  "panel": {
+    "manifest": "data/processed/moshi_finetune_v6_overfit/train.jsonl",
+    "manifest_rows": 32,
+    "indices": [
+      0,
+      3,
+      7,
+      11,
+      15,
+      19,
+      23,
+      27,
+      31
+    ],
+    "selection": "predeclared evenly spread indices over the 32-row v6 train-only set",
+    "sealed_final_test_accessed": false
+  },
+  "components": {
+    "asr": {
+      "backend": "nemo-soroush-http",
+      "base_url": "http://127.0.0.1:8090",
+      "health": {
+        "http_status": 200,
+        "body_sha256": "a29ee2b15c494311c52521766e44af56a3ad2248e7a8ab465e5206463c13d288",
+        "latency_ms": 25.512,
+        "passes": true
+      }
+    },
+    "responder": {
+      "backend": "Qwen/Qwen2.5-0.5B-Instruct",
+      "requested_model": "Qwen/Qwen2.5-0.5B-Instruct",
+      "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+      "device": "cuda",
+      "model_class": "Qwen2ForCausalLM",
+      "model_load_seconds": 4.649,
+      "initialization_error": null
+    },
+    "tts": {
+      "backend_required": "piper",
+      "model": "models/piper/fa_IR-mana-medium.onnx"
+    }
+  },
+  "hardware": {
+    "device": "NVIDIA H100 NVL",
+    "total_gb": 93.09,
+    "official_size": false,
+    "path_b_possible": false
+  },
+  "thresholds": {
+    "minimum_text_characters": 4,
+    "minimum_persian_letter_fraction": 0.8,
+    "minimum_reply_audio_samples": 1600,
+    "minimum_reply_audio_rms": 0.001
+  },
+  "timing_descriptive_only": {
+    "metric": "full_turn_generation_ms",
+    "n": 9,
+    "p50_ms": 1581.533,
+    "p95_ms": 3902.356,
+    "max_ms": 5023.694
+  },
+  "samples": [
+    {
+      "panel_position": 0,
+      "manifest_row_index": 0,
+      "source_audio_sha256": "5bad7ce6b83c28f2b5474e0be25de0e2eeb4fd0e3adea1a41758eeac6e8aaa28",
+      "source_audio_format": {
+        "sample_rate": 16000,
+        "channels": 2,
+        "sample_width_bytes": 2,
+        "frames": 124927
+      },
+      "transcript_sha256": "cf2ed67cddb6bbe1da41aab63f4622f4807de7d391b7153d3f7618fba7716616",
+      "transcript_statistics": {
+        "characters": 43,
+        "letters": 35,
+        "persian_letters": 35,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_text_sha256": "a508388bb6b27008e80df1d7650ff0dbe5a89b1869012384033fdf03c08d1f17",
+      "reply_statistics": {
+        "characters": 43,
+        "letters": 34,
+        "persian_letters": 34,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_audio_samples": 59815,
+      "reply_audio_duration_seconds": 3.738437,
+      "reply_audio_rms": 0.209445,
+      "reply_audio_peak": 0.983678,
+      "full_turn_generation_ms": 5023.694,
+      "asr_error": null,
+      "responder_backend": "Qwen/Qwen2.5-0.5B-Instruct",
+      "responder_fallback_used": false,
+      "responder_error": null,
+      "tts_backend": "piper",
+      "requirements": {
+        "source_hash_matches_manifest": true,
+        "asr_succeeded": true,
+        "transcript_has_minimum_length": true,
+        "transcript_is_persian": true,
+        "qwen_backend_exact": true,
+        "qwen_initialization_succeeded": true,
+        "qwen_generation_succeeded_without_fallback": true,
+        "reply_has_minimum_length": true,
+        "reply_is_persian": true,
+        "piper_backend_exact": true,
+        "reply_audio_is_finite": true,
+        "reply_audio_has_minimum_length": true,
+        "reply_audio_is_non_silent": true,
+        "reply_audio_is_normalized": true
+      },
+      "passes": true
+    },
+    {
+      "panel_position": 1,
+      "manifest_row_index": 3,
+      "source_audio_sha256": "0efe2bba0fefb689678e3ed5c273a5a133e48f18fb1f9f10bc159c8d27a93359",
+      "source_audio_format": {
+        "sample_rate": 16000,
+        "channels": 2,
+        "sample_width_bytes": 2,
+        "frames": 104971
+      },
+      "transcript_sha256": "871c316a7a5a917058e606aa1364c4b9bbc13c2041a363a00cc4c49769b1cee7",
+      "transcript_statistics": {
+        "characters": 39,
+        "letters": 31,
+        "persian_letters": 31,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_text_sha256": "3b211552f08cd0d6182639d0035a9739e70e2a5dd0cf9e63101de0638d6c2f65",
+      "reply_statistics": {
+        "characters": 32,
+        "letters": 25,
+        "persian_letters": 25,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_audio_samples": 40868,
+      "reply_audio_duration_seconds": 2.55425,
+      "reply_audio_rms": 0.169469,
+      "reply_audio_peak": 0.999335,
+      "full_turn_generation_ms": 1700.295,
+      "asr_error": null,
+      "responder_backend": "Qwen/Qwen2.5-0.5B-Instruct",
+      "responder_fallback_used": false,
+      "responder_error": null,
+      "tts_backend": "piper",
+      "requirements": {
+        "source_hash_matches_manifest": true,
+        "asr_succeeded": true,
+        "transcript_has_minimum_length": true,
+        "transcript_is_persian": true,
+        "qwen_backend_exact": true,
+        "qwen_initialization_succeeded": true,
+        "qwen_generation_succeeded_without_fallback": true,
+        "reply_has_minimum_length": true,
+        "reply_is_persian": true,
+        "piper_backend_exact": true,
+        "reply_audio_is_finite": true,
+        "reply_audio_has_minimum_length": true,
+        "reply_audio_is_non_silent": true,
+        "reply_audio_is_normalized": true
+      },
+      "passes": true
+    },
+    {
+      "panel_position": 2,
+      "manifest_row_index": 7,
+      "source_audio_sha256": "727bfbf6d72b9ea495d791c32d7ef45d37f0a2135b1a28d74d76fad8a91f9552",
+      "source_audio_format": {
+        "sample_rate": 16000,
+        "channels": 2,
+        "sample_width_bytes": 2,
+        "frames": 89699
+      },
+      "transcript_sha256": "b3bfae0bf7ee72ebe4cbe3404ada0944fe1371b460fd453053eb159c7d143b65",
+      "transcript_statistics": {
+        "characters": 26,
+        "letters": 21,
+        "persian_letters": 21,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_text_sha256": "17208c1f69702c0104717d53ff0b921c899d3102985d3d1daec9d922f1e88074",
+      "reply_statistics": {
+        "characters": 55,
+        "letters": 43,
+        "persian_letters": 43,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_audio_samples": 68360,
+      "reply_audio_duration_seconds": 4.2725,
+      "reply_audio_rms": 0.157748,
+      "reply_audio_peak": 0.991455,
+      "full_turn_generation_ms": 2220.348,
+      "asr_error": null,
+      "responder_backend": "Qwen/Qwen2.5-0.5B-Instruct",
+      "responder_fallback_used": false,
+      "responder_error": null,
+      "tts_backend": "piper",
+      "requirements": {
+        "source_hash_matches_manifest": true,
+        "asr_succeeded": true,
+        "transcript_has_minimum_length": true,
+        "transcript_is_persian": true,
+        "qwen_backend_exact": true,
+        "qwen_initialization_succeeded": true,
+        "qwen_generation_succeeded_without_fallback": true,
+        "reply_has_minimum_length": true,
+        "reply_is_persian": true,
+        "piper_backend_exact": true,
+        "reply_audio_is_finite": true,
+        "reply_audio_has_minimum_length": true,
+        "reply_audio_is_non_silent": true,
+        "reply_audio_is_normalized": true
+      },
+      "passes": true
+    },
+    {
+      "panel_position": 3,
+      "manifest_row_index": 11,
+      "source_audio_sha256": "2a9c5fa88a6b08667b652153e4c553388c94d23a4694c0128acb6656e5f64c7b",
+      "source_audio_format": {
+        "sample_rate": 16000,
+        "channels": 2,
+        "sample_width_bytes": 2,
+        "frames": 80344
+      },
+      "transcript_sha256": "30a6a6f69224bdb0c0d3fcdee59b15ad0e753f955dbda7ca46f97c7d7c20d409",
+      "transcript_statistics": {
+        "characters": 19,
+        "letters": 16,
+        "persian_letters": 16,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_text_sha256": "c8d77ebcaf2af5738ed3f16161b85203b1d0c4d8d159f06842d401311d2d740c",
+      "reply_statistics": {
+        "characters": 39,
+        "letters": 32,
+        "persian_letters": 32,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_audio_samples": 44954,
+      "reply_audio_duration_seconds": 2.809625,
+      "reply_audio_rms": 0.218695,
+      "reply_audio_peak": 1.0,
+      "full_turn_generation_ms": 1537.501,
+      "asr_error": null,
+      "responder_backend": "Qwen/Qwen2.5-0.5B-Instruct",
+      "responder_fallback_used": false,
+      "responder_error": null,
+      "tts_backend": "piper",
+      "requirements": {
+        "source_hash_matches_manifest": true,
+        "asr_succeeded": true,
+        "transcript_has_minimum_length": true,
+        "transcript_is_persian": true,
+        "qwen_backend_exact": true,
+        "qwen_initialization_succeeded": true,
+        "qwen_generation_succeeded_without_fallback": true,
+        "reply_has_minimum_length": true,
+        "reply_is_persian": true,
+        "piper_backend_exact": true,
+        "reply_audio_is_finite": true,
+        "reply_audio_has_minimum_length": true,
+        "reply_audio_is_non_silent": true,
+        "reply_audio_is_normalized": true
+      },
+      "passes": true
+    },
+    {
+      "panel_position": 4,
+      "manifest_row_index": 15,
+      "source_audio_sha256": "4d3556994a5cf8fb4dff53f7099de8c08fb9782d6576409d04d7142ba3d16b03",
+      "source_audio_format": {
+        "sample_rate": 16000,
+        "channels": 2,
+        "sample_width_bytes": 2,
+        "frames": 101216
+      },
+      "transcript_sha256": "17b09eb93ec48cdca5c69f1f1ea6c0cd8af80248adcd85943aa2ecd7d39b1749",
+      "transcript_statistics": {
+        "characters": 42,
+        "letters": 34,
+        "persian_letters": 34,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_text_sha256": "79375a5088559aea5b93210108281dea4fbd77a523be0c8af77a7618dd8be1da",
+      "reply_statistics": {
+        "characters": 25,
+        "letters": 19,
+        "persian_letters": 19,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_audio_samples": 26750,
+      "reply_audio_duration_seconds": 1.671875,
+      "reply_audio_rms": 0.132233,
+      "reply_audio_peak": 1.0,
+      "full_turn_generation_ms": 1260.149,
+      "asr_error": null,
+      "responder_backend": "Qwen/Qwen2.5-0.5B-Instruct",
+      "responder_fallback_used": false,
+      "responder_error": null,
+      "tts_backend": "piper",
+      "requirements": {
+        "source_hash_matches_manifest": true,
+        "asr_succeeded": true,
+        "transcript_has_minimum_length": true,
+        "transcript_is_persian": true,
+        "qwen_backend_exact": true,
+        "qwen_initialization_succeeded": true,
+        "qwen_generation_succeeded_without_fallback": true,
+        "reply_has_minimum_length": true,
+        "reply_is_persian": true,
+        "piper_backend_exact": true,
+        "reply_audio_is_finite": true,
+        "reply_audio_has_minimum_length": true,
+        "reply_audio_is_non_silent": true,
+        "reply_audio_is_normalized": true
+      },
+      "passes": true
+    },
+    {
+      "panel_position": 5,
+      "manifest_row_index": 19,
+      "source_audio_sha256": "4b41dd8981a7781a0415fe43d7f9231b76ccec2ad30602a249643f9d7ed400b5",
+      "source_audio_format": {
+        "sample_rate": 16000,
+        "channels": 2,
+        "sample_width_bytes": 2,
+        "frames": 95210
+      },
+      "transcript_sha256": "d36226d574f1d234ac45dfdd56384b3cf2cab3dd741fb9cbfa46c83c3bf4fc14",
+      "transcript_statistics": {
+        "characters": 32,
+        "letters": 26,
+        "persian_letters": 26,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_text_sha256": "4ce593a341c83f6089d4af79f57d27cb5262a02653f0eaee89742bd43ea6b413",
+      "reply_statistics": {
+        "characters": 57,
+        "letters": 43,
+        "persian_letters": 43,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_audio_samples": 69103,
+      "reply_audio_duration_seconds": 4.318937,
+      "reply_audio_rms": 0.150432,
+      "reply_audio_peak": 0.990801,
+      "full_turn_generation_ms": 2188.407,
+      "asr_error": null,
+      "responder_backend": "Qwen/Qwen2.5-0.5B-Instruct",
+      "responder_fallback_used": false,
+      "responder_error": null,
+      "tts_backend": "piper",
+      "requirements": {
+        "source_hash_matches_manifest": true,
+        "asr_succeeded": true,
+        "transcript_has_minimum_length": true,
+        "transcript_is_persian": true,
+        "qwen_backend_exact": true,
+        "qwen_initialization_succeeded": true,
+        "qwen_generation_succeeded_without_fallback": true,
+        "reply_has_minimum_length": true,
+        "reply_is_persian": true,
+        "piper_backend_exact": true,
+        "reply_audio_is_finite": true,
+        "reply_audio_has_minimum_length": true,
+        "reply_audio_is_non_silent": true,
+        "reply_audio_is_normalized": true
+      },
+      "passes": true
+    },
+    {
+      "panel_position": 6,
+      "manifest_row_index": 23,
+      "source_audio_sha256": "70fc3b32307f2c82c8139c5bf5e783c516e5de22e665293816ad2e94e43dcda2",
+      "source_audio_format": {
+        "sample_rate": 16000,
+        "channels": 2,
+        "sample_width_bytes": 2,
+        "frames": 94670
+      },
+      "transcript_sha256": "7585b1a922c70f3029ca9b53358da493827069d188938992709b22fa2aa61c2e",
+      "transcript_statistics": {
+        "characters": 34,
+        "letters": 28,
+        "persian_letters": 28,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_text_sha256": "59b03d636ffe8493cdb36d3fa38e9a3f9564e71b68d7a08485b153f94f3ef343",
+      "reply_statistics": {
+        "characters": 27,
+        "letters": 23,
+        "persian_letters": 23,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_audio_samples": 35852,
+      "reply_audio_duration_seconds": 2.24075,
+      "reply_audio_rms": 0.132259,
+      "reply_audio_peak": 0.987114,
+      "full_turn_generation_ms": 1208.445,
+      "asr_error": null,
+      "responder_backend": "Qwen/Qwen2.5-0.5B-Instruct",
+      "responder_fallback_used": false,
+      "responder_error": null,
+      "tts_backend": "piper",
+      "requirements": {
+        "source_hash_matches_manifest": true,
+        "asr_succeeded": true,
+        "transcript_has_minimum_length": true,
+        "transcript_is_persian": true,
+        "qwen_backend_exact": true,
+        "qwen_initialization_succeeded": true,
+        "qwen_generation_succeeded_without_fallback": true,
+        "reply_has_minimum_length": true,
+        "reply_is_persian": true,
+        "piper_backend_exact": true,
+        "reply_audio_is_finite": true,
+        "reply_audio_has_minimum_length": true,
+        "reply_audio_is_non_silent": true,
+        "reply_audio_is_normalized": true
+      },
+      "passes": true
+    },
+    {
+      "panel_position": 7,
+      "manifest_row_index": 27,
+      "source_audio_sha256": "593c8085435ccdcd134de4bca01e88d1dd3e6b0c804e8ba9de52b7f749d269f3",
+      "source_audio_format": {
+        "sample_rate": 16000,
+        "channels": 2,
+        "sample_width_bytes": 2,
+        "frames": 131612
+      },
+      "transcript_sha256": "aceb92f594ab572937bfdd20a7e115413db61f74d64fdc1aefdfd4f36add9171",
+      "transcript_statistics": {
+        "characters": 33,
+        "letters": 27,
+        "persian_letters": 27,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_text_sha256": "754dc7397c3c3d1e8dd74cf0db02788ad8d59d4df767ea0d6df043743d0894b0",
+      "reply_statistics": {
+        "characters": 43,
+        "letters": 33,
+        "persian_letters": 15,
+        "persian_letter_fraction": 0.454545
+      },
+      "reply_audio_samples": 63716,
+      "reply_audio_duration_seconds": 3.98225,
+      "reply_audio_rms": 0.165314,
+      "reply_audio_peak": 1.0,
+      "full_turn_generation_ms": 1581.533,
+      "asr_error": null,
+      "responder_backend": "Qwen/Qwen2.5-0.5B-Instruct",
+      "responder_fallback_used": false,
+      "responder_error": null,
+      "tts_backend": "piper",
+      "requirements": {
+        "source_hash_matches_manifest": true,
+        "asr_succeeded": true,
+        "transcript_has_minimum_length": true,
+        "transcript_is_persian": true,
+        "qwen_backend_exact": true,
+        "qwen_initialization_succeeded": true,
+        "qwen_generation_succeeded_without_fallback": true,
+        "reply_has_minimum_length": true,
+        "reply_is_persian": false,
+        "piper_backend_exact": true,
+        "reply_audio_is_finite": true,
+        "reply_audio_has_minimum_length": true,
+        "reply_audio_is_non_silent": true,
+        "reply_audio_is_normalized": true
+      },
+      "passes": false
+    },
+    {
+      "panel_position": 8,
+      "manifest_row_index": 31,
+      "source_audio_sha256": "9d13fdca08abdcac248f4fa6a6856b2a6b6cb2e7050336b430c23d2af1dc39b6",
+      "source_audio_format": {
+        "sample_rate": 16000,
+        "channels": 2,
+        "sample_width_bytes": 2,
+        "frames": 93085
+      },
+      "transcript_sha256": "f50e7f978c0c94e96afa420b728744eaade727b172a878d9195bff9c1cf56ace",
+      "transcript_statistics": {
+        "characters": 13,
+        "letters": 12,
+        "persian_letters": 12,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_text_sha256": "f50e7f978c0c94e96afa420b728744eaade727b172a878d9195bff9c1cf56ace",
+      "reply_statistics": {
+        "characters": 13,
+        "letters": 12,
+        "persian_letters": 12,
+        "persian_letter_fraction": 1.0
+      },
+      "reply_audio_samples": 16347,
+      "reply_audio_duration_seconds": 1.021688,
+      "reply_audio_rms": 0.185604,
+      "reply_audio_peak": 1.0,
+      "full_turn_generation_ms": 1056.932,
+      "asr_error": null,
+      "responder_backend": "Qwen/Qwen2.5-0.5B-Instruct",
+      "responder_fallback_used": false,
+      "responder_error": null,
+      "tts_backend": "piper",
+      "requirements": {
+        "source_hash_matches_manifest": true,
+        "asr_succeeded": true,
+        "transcript_has_minimum_length": true,
+        "transcript_is_persian": true,
+        "qwen_backend_exact": true,
+        "qwen_initialization_succeeded": true,
+        "qwen_generation_succeeded_without_fallback": true,
+        "reply_has_minimum_length": true,
+        "reply_is_persian": true,
+        "piper_backend_exact": true,
+        "reply_audio_is_finite": true,
+        "reply_audio_has_minimum_length": true,
+        "reply_audio_is_non_silent": true,
+        "reply_audio_is_normalized": true
+      },
+      "passes": true
+    }
+  ],
+  "requirements": {
+    "train_only_manifest_exact_size": true,
+    "fixed_panel_exact": true,
+    "asr_health_passes": true,
+    "qwen_backend_loaded": true,
+    "qwen_initialization_succeeded": true,
+    "parent_result_preserved_and_bound": true,
+    "all_nine_samples_pass": false,
+    "final_test_not_accessed": true
+  },
+  "artifacts": {
+    "manifest_sha256": "efb9533504f947f9fece336a1ceccdd6ca14f2e05928add723e56e218a823645",
+    "piper_model_sha256": "e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126",
+    "piper_config_sha256": "d102276a05436613a05e1fbad8f125abcf8f56759aaf4fd36adf216653949997",
+    "protocol_sha256": "216a8f51b5fbdaecae356c890f1c7ba2afc6cd7c2ed6cad5f57cfca52eef8014",
+    "evaluator_sha256": "323b17b295b7180fd55eb9f18d9476e2ad3a79c833b3a3ce0094888172bccea3",
+    "runtime_cascade_sha256": "55297f311b7f6f6a4291c9c24bb07d620ad9da1a228f629e4656127be608f540",
+    "runtime_tts_sha256": "4a71347ac8778482ba520fa463515f377b3ec7e697175429bd30be1111848180",
+    "parent_result_sha256": "77e8e03af947659539efd650eb2e79c7e2a49a3a7bb55aeca5be91187e75bdbf"
+  }
+}
