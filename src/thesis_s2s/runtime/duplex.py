@@ -628,6 +628,12 @@ def build_app(
                                 "responder_error": getattr(
                                     talker, "last_responder_error", None
                                 ),
+                                "responder_generation_attempts": getattr(
+                                    talker, "last_responder_generation_attempts", None
+                                ),
+                                "responder_language_retry_used": getattr(
+                                    talker, "last_responder_language_retry_used", None
+                                ),
                             }
                         )
                         buf = []

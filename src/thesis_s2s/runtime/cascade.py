@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import time
+import unicodedata
 from typing import Any
 from urllib.error import URLError
 from urllib.request import Request, urlopen
@@ -26,6 +27,14 @@ def asr_http(wav_bytes: bytes, base: str | None = None) -> dict:
             return json.loads(resp.read().decode("utf-8"))
     except (URLError, TimeoutError, json.JSONDecodeError, OSError) as exc:
         return {"error": str(exc), "persian": None}
+
+
+def _persian_letter_fraction(text: str) -> float:
+    letters = [character for character in text if character.isalpha()]
+    persian = [
+        character for character in letters if "ARABIC" in unicodedata.name(character, "")
+    ]
+    return len(persian) / max(1, len(letters))
 
 
 def _reply_text(user_text: str) -> str:
@@ -55,6 +64,8 @@ class TextResponder:
         self.initialization_error: str | None = None
         self.last_fallback_used = True
         self.last_generation_error: str | None = None
+        self.last_generation_attempts = 0
+        self.last_language_retry_used = False
         if os.environ.get("TEXT_LLM_ENABLED", "1").lower() in {"0", "false", "no"}:
             return
         try:
@@ -77,42 +88,55 @@ class TextResponder:
 
     def reply(self, user_text: str) -> str:
         self.last_generation_error = None
+        self.last_generation_attempts = 0
+        self.last_language_retry_used = False
         if self.model is None or self.tokenizer is None:
             self.last_fallback_used = True
             return _reply_text(user_text)
-        messages = [
-            {
-                "role": "system",
-                "content": "فقط با خط فارسی و بدون هیچ حرف یا واژه لاتین، کوتاه و طبیعی پاسخ بده.",
-            },
-            {"role": "user", "content": user_text},
+        system_prompts = [
+            "فقط با خط فارسی و بدون هیچ حرف یا واژه لاتین، کوتاه و طبیعی پاسخ بده.",
+            (
+                "در یک جمله کوتاه و مرتبط پاسخ بده. پاسخ فقط باید شامل خط فارسی باشد؛ "
+                "هیچ کد، حرف انگلیسی یا واژه لاتین ننویس."
+            ),
         ]
-        try:
-            encoded: Any = self.tokenizer.apply_chat_template(
-                messages, add_generation_prompt=True, return_tensors="pt"
-            )
-            tokens: Any = getattr(encoded, "input_ids", None)
-            if tokens is None:
-                tokens = encoded
-            tokens = tokens.to(self.device)
-            attention_mask: Any = getattr(encoded, "attention_mask", None)
-            generation_arguments: dict[str, Any] = {
-                "input_ids": tokens,
-                "max_new_tokens": 64,
-                "do_sample": False,
-            }
-            if attention_mask is not None:
-                generation_arguments["attention_mask"] = attention_mask.to(self.device)
-            output = self.model.generate(**generation_arguments)
-            answer = str(
-                self.tokenizer.decode(output[0, tokens.shape[-1] :], skip_special_tokens=True)
-            ).strip()
-            if answer:
-                self.last_fallback_used = False
-                return answer
-            self.last_generation_error = "empty model response"
-        except Exception as exc:
-            self.last_generation_error = f"{type(exc).__name__}: {exc!r}"
+        for attempt_index, system_prompt in enumerate(system_prompts):
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_text},
+            ]
+            try:
+                self.last_generation_attempts += 1
+                encoded: Any = self.tokenizer.apply_chat_template(
+                    messages, add_generation_prompt=True, return_tensors="pt"
+                )
+                tokens: Any = getattr(encoded, "input_ids", None)
+                if tokens is None:
+                    tokens = encoded
+                tokens = tokens.to(self.device)
+                attention_mask: Any = getattr(encoded, "attention_mask", None)
+                generation_arguments: dict[str, Any] = {
+                    "input_ids": tokens,
+                    "max_new_tokens": 64,
+                    "do_sample": False,
+                }
+                if attention_mask is not None:
+                    generation_arguments["attention_mask"] = attention_mask.to(self.device)
+                output = self.model.generate(**generation_arguments)
+                answer = str(
+                    self.tokenizer.decode(output[0, tokens.shape[-1] :], skip_special_tokens=True)
+                ).strip()
+                if answer and _persian_letter_fraction(answer) >= 0.8:
+                    self.last_generation_error = None
+                    self.last_fallback_used = False
+                    return answer
+                self.last_generation_error = "model response failed the Persian-script constraint"
+                if attempt_index == 0:
+                    self.last_language_retry_used = True
+                    continue
+            except Exception as exc:
+                self.last_generation_error = f"{type(exc).__name__}: {exc!r}"
+                break
         self.last_fallback_used = True
         return _reply_text(user_text)
 
@@ -130,6 +154,8 @@ class CascadeTalker:
         self.last_reply_text = ""
         self.last_responder_fallback_used: bool | None = None
         self.last_responder_error: str | None = None
+        self.last_responder_generation_attempts: int | None = None
+        self.last_responder_language_retry_used: bool | None = None
         self.last_asr_error: str | None = None
 
     def reply_audio(self, user_audio: np.ndarray, text: str | None = None) -> np.ndarray:
@@ -145,10 +171,14 @@ class CascadeTalker:
             reply = "متأسفم، صدای شما را درست نشنیدم. لطفاً دوباره بگویید."
             self.last_responder_fallback_used = None
             self.last_responder_error = None
+            self.last_responder_generation_attempts = None
+            self.last_responder_language_retry_used = None
         else:
             reply = self.responder.reply(user_text)
             self.last_responder_fallback_used = self.responder.last_fallback_used
             self.last_responder_error = self.responder.last_generation_error
+            self.last_responder_generation_attempts = self.responder.last_generation_attempts
+            self.last_responder_language_retry_used = self.responder.last_language_retry_used
         audio, backend = synthesize(reply)
         self.backend = backend
         self.responder_backend = self.responder.backend

@@ -52,6 +52,8 @@ def test_cascade_generates_and_returns_the_complete_reply(monkeypatch):
     assert talker.last_reply_text == "سلام، چطورید؟"
     assert talker.last_responder_fallback_used is True
     assert talker.last_responder_error is None
+    assert talker.last_responder_generation_attempts == 0
+    assert talker.last_responder_language_retry_used is False
     assert talker.responder_initialization_error is None
     assert generated_text == [talker.last_reply_text]
     assert talker.backend == "test-tts"
@@ -75,6 +77,8 @@ def test_cascade_handles_failed_asr_without_inventing_a_transcript(monkeypatch):
     assert talker.last_asr_error == "offline"
     assert talker.last_responder_fallback_used is None
     assert talker.last_responder_error is None
+    assert talker.last_responder_generation_attempts is None
+    assert talker.last_responder_language_retry_used is None
     assert talker.responder_initialization_error is None
     assert "دوباره" in generated_text[0]
 
@@ -112,6 +116,42 @@ def test_text_responder_extracts_input_ids_from_batch_encoding(monkeypatch):
     assert responder.reply("سلام") == "پاسخ واقعی مدل"
     assert responder.last_fallback_used is False
     assert responder.last_generation_error is None
+    assert responder.last_generation_attempts == 1
+    assert responder.last_language_retry_used is False
+
+
+def test_text_responder_retries_qwen_once_for_non_persian_output(monkeypatch):
+    monkeypatch.setenv("TEXT_LLM_ENABLED", "0")
+    responder = TextResponder()
+    replies = iter(["visit example dot com", "این یک پاسخ فارسی است"])
+    prompts: list[str] = []
+
+    class FakeTokenizer:
+        def apply_chat_template(self, messages, **kwargs):
+            prompts.append(messages[0]["content"])
+            return SimpleNamespace(
+                input_ids=torch.tensor([[10, 11]]),
+                attention_mask=torch.tensor([[1, 1]]),
+            )
+
+        def decode(self, tokens, *, skip_special_tokens):
+            return next(replies)
+
+    class FakeModel:
+        def generate(self, **kwargs):
+            return torch.tensor([[10, 11, 12]])
+
+    responder.backend = responder.model_name
+    responder.tokenizer = FakeTokenizer()
+    responder.model = FakeModel()
+
+    assert responder.reply("یک سایت معرفی کن") == "این یک پاسخ فارسی است"
+    assert len(prompts) == 2
+    assert "هیچ کد" in prompts[1]
+    assert responder.last_fallback_used is False
+    assert responder.last_generation_error is None
+    assert responder.last_generation_attempts == 2
+    assert responder.last_language_retry_used is True
 
 
 def test_piper_runtime_output_is_clipped_to_pcm_range(monkeypatch):

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run v3 of the frozen train-only NeMo -> Qwen -> Piper acceptance panel."""
+"""Run v4 of the frozen train-only NeMo -> Qwen -> Piper acceptance panel."""
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ MIN_TEXT_LENGTH = 4
 MIN_PERSIAN_LETTER_FRACTION = 0.8
 MIN_AUDIO_SAMPLES = 1600
 MIN_AUDIO_RMS = 1e-3
-PARENT_RESULT_SHA256 = "77e8e03af947659539efd650eb2e79c7e2a49a3a7bb55aeca5be91187e75bdbf"
+PARENT_RESULT_SHA256 = "04b22fb4f4738bc238c9b1c647030176a3ece21aa427ebd91cb9fa08a16cd8a4"
 
 
 def sha256_file(path: Path) -> str:
@@ -142,10 +142,10 @@ def main() -> int:
         "--piper-model", type=Path, default=Path("models/piper/fa_IR-mana-medium.onnx")
     )
     parser.add_argument(
-        "--protocol", type=Path, default=Path("docs/CASCADE_REAL_SERVICE_PROTOCOL_V3.md")
+        "--protocol", type=Path, default=Path("docs/CASCADE_REAL_SERVICE_PROTOCOL_V4.md")
     )
     parser.add_argument(
-        "--out", type=Path, default=Path("results/eval/cascade_real_service_train_panel_v3.json")
+        "--out", type=Path, default=Path("results/eval/cascade_real_service_train_panel_v4.json")
     )
     args = parser.parse_args()
 
@@ -155,7 +155,7 @@ def main() -> int:
     output_path = (ROOT / args.out).resolve()
     piper_config_path = piper_path.with_suffix(piper_path.suffix + ".json")
     parent_result_path = (
-        ROOT / "results/eval/cascade_real_service_train_panel_v2.json"
+        ROOT / "results/eval/cascade_real_service_train_panel_v3.json"
     ).resolve()
     if output_path.exists():
         raise FileExistsError(f"refusing to overwrite evidence: {output_path}")
@@ -223,6 +223,11 @@ def main() -> int:
                 talker.last_responder_fallback_used is False
                 and talker.last_responder_error is None
             ),
+            "qwen_generation_attempts_bounded": (
+                talker.last_responder_generation_attempts in {1, 2}
+                and talker.last_responder_language_retry_used
+                == (talker.last_responder_generation_attempts == 2)
+            ),
             "reply_has_minimum_length": reply_stats["characters"] >= MIN_TEXT_LENGTH,
             "reply_is_persian": reply_stats["persian_letter_fraction"]
             >= MIN_PERSIAN_LETTER_FRACTION,
@@ -251,6 +256,10 @@ def main() -> int:
                 "responder_backend": talker.responder_backend,
                 "responder_fallback_used": talker.last_responder_fallback_used,
                 "responder_error": talker.last_responder_error,
+                "responder_generation_attempts": talker.last_responder_generation_attempts,
+                "responder_language_retry_used": (
+                    talker.last_responder_language_retry_used
+                ),
                 "tts_backend": talker.backend,
                 "requirements": requirements,
                 "passes": all(requirements.values()),
@@ -273,7 +282,7 @@ def main() -> int:
         "final_test_not_accessed": True,
     }
     report = {
-        "schema_version": 3,
+        "schema_version": 4,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "status": "passed" if all(requirements.values()) else "failed",
         "evidence_class": "real_service_train_only_working_demo",
@@ -290,10 +299,10 @@ def main() -> int:
             ],
         },
         "versioned_correction": {
-            "parent_result": "results/eval/cascade_real_service_train_panel_v2.json",
+            "parent_result": "results/eval/cascade_real_service_train_panel_v3.json",
             "parent_status": parent_result.get("status"),
             "changes": [
-                "strengthen the Qwen instruction to prohibit Latin-script output",
+                "retry Qwen once with a stricter Persian-only instruction after a script violation",
             ],
         },
         "panel": {
@@ -322,6 +331,7 @@ def main() -> int:
             "minimum_persian_letter_fraction": MIN_PERSIAN_LETTER_FRACTION,
             "minimum_reply_audio_samples": MIN_AUDIO_SAMPLES,
             "minimum_reply_audio_rms": MIN_AUDIO_RMS,
+            "maximum_qwen_generation_attempts": 2,
         },
         "timing_descriptive_only": {
             "metric": "full_turn_generation_ms",
