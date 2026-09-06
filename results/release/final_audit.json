@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-06T10:17:49Z",
-  "audited_commit": "193a0de543fb0d15feda12202e038d976e305fd5",
+  "generated_at": "2026-09-06T10:55:16Z",
+  "audited_commit": "619bd4628814467c3528565b4187bc91c965b63b",
   "git_identity": {
     "author": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>",
     "committer": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>"
@@ -22,7 +22,7 @@
     },
     "tracked_artifact_history_privacy_secret_audit": {
       "status": "passed",
-      "tracked_files": 358
+      "tracked_files": 362
     },
     "general_dependency_audit": {
       "status": "passed",
@@ -30,12 +30,12 @@
     },
     "pytest": {
       "status": "passed",
-      "tests": 178,
-      "seconds": 17.22
+      "tests": 182,
+      "seconds": 16.77
     },
     "branch_coverage": {
       "status": "passed",
-      "percent": 64,
+      "percent": 65,
       "required_percent": 60
     },
     "scientific_dependency_risk_drift": {
@@ -89,6 +89,30 @@
     "semantic_or_human_claim_allowed": false,
     "official_latency_claim_allowed": false
   },
+  "cascade_intelligibility_proxy": {
+    "status": "passed",
+    "evidence_class": "automatic_asr_roundtrip_intelligibility_proxy",
+    "predeclaration_commit": "3bb3a85bfc4a0ad6f22cafbc0c39215af6d5a431",
+    "parent_panel_sha256": "ae515381db2b72e9ed0b8dcb491c0765990732ed8bb8c46383499b9d60f89ced",
+    "artifact_sha256": "4c7cfb39e25739ee0e626614ffaac9843b32717154de45d3c706b7544051988d",
+    "protocol_sha256": "2ea35cb1add1c7583eef65b38719ae9ebcb5ab2613db70f9bb6ac64ff05e349b",
+    "evaluator_sha256": "113b6e1642b26a7fef6917b57ee01f445050c4d23cb2ee3f32adeada00c80475",
+    "error_metric_sha256": "7184bb622e709ec84042bca6170b16671986b99de505158e998b57c84beb1a99",
+    "test_sha256": "663276b058689ddca9a93dd8fcd2a32d9891c69412da9ec5d86914dc8a8add69",
+    "panel_rows": 9,
+    "asr_failures": 0,
+    "micro_wer": 0.304094,
+    "word_edits": 52,
+    "reference_words": 171,
+    "micro_cer": 0.071429,
+    "character_edits": 47,
+    "reference_characters": 658,
+    "canonical_input_and_reply_hashes_reproduced": true,
+    "plaintext_or_audio_stored": false,
+    "frozen_final_test_accessed": false,
+    "human_semantic_pronunciation_or_naturalness_claim_allowed": false,
+    "quality_threshold": null
+  },
   "duplex_transport_regression": {
     "tests": 4,
     "automatic_bargein_preroll_samples": 3200,
@@ -109,14 +133,16 @@
       "The server carries captured barge-in speech into the next turn.",
       "The transport remains reusable after cancellation and tested errors.",
       "Client-reported acknowledgements and runtime identity telemetry are ingested.",
-      "Metrics-only transport persistence writes no WAV."
+      "Metrics-only transport persistence writes no WAV.",
+      "The predeclared automatic NeMo round-trip proxy measured CER/WER on nine exactly reproduced cascade outputs without retaining plaintext or audio."
     ],
     "does_not_prove": [
       "Actual browser AudioBufferSourceNode stop behavior.",
       "Physical microphone continuity.",
       "Physical RTX 4090 fit or latency.",
       "Human semantic, pronunciation, or naturalness quality.",
-      "Deployment eligibility of any direct Moshi adapter."
+      "Deployment eligibility of any direct Moshi adapter.",
+      "Human intelligibility, pronunciation, naturalness, semantic relevance, or population quality from the automatic round-trip proxy."
     ]
   },
   "status": "passed"

@@ -61,7 +61,7 @@ Verified now:
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
 - [x] The 2026-09-06 full local audit passes compile, Ruff, mypy on 49 package
-  source files, all 178 tests, 64% branch-aware coverage with a 60% CI floor,
+  source files, all 182 tests, 65% branch-aware coverage with a 60% CI floor,
   full-history/privacy/secret checks, general dependencies, the accepted
   scientific-risk baseline, and all nine upstream pins.
 - [x] General dependencies have no known vulnerabilities; the pinned scientific
@@ -902,6 +902,11 @@ Final engineering audit:
   have zero known vulnerabilities; the exact 56-advisory scientific exception
   baseline passes; and all nine upstream pins are valid, with both present
   local checkouts matching exactly.
+- [x] Run the post-intelligibility local audit at `619bd46` on 2026-09-06:
+  compile, Ruff, and mypy pass; all 182 tests pass in 16.77 seconds; branch
+  coverage is 65%; all 362 tracked files pass the history/privacy/secret audit;
+  general dependencies have zero known vulnerabilities; the exact 56-advisory
+  scientific exception baseline and all nine upstream pins pass.
 - [x] Verify a fresh full-history clone at release-snapshot commit `c476e5c`:
   clean tree, exact remote HEAD, only Mehran Bakhtiari as author/committer,
   352-file history/privacy/secret audit passed, Ruff passed, mypy passed 49

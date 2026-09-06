@@ -26,7 +26,7 @@ Status date: 2026-09-06
   `enabled=true`, `paused=false`.
 - CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 49
   source files against the Python 3.10 target.
-- The measured branch-aware coverage is 64%; the enforced floor is 60%, raised
+- The measured branch-aware coverage is 65%; the enforced floor is 60%, raised
   from 35% while retaining a small non-flaky margin. Core conversation,
   Moshi-export, QA-policy, rights, and preflight modules are substantially above
   the aggregate.
@@ -58,9 +58,10 @@ Status date: 2026-09-06
 - The complete GitHub Actions run `34013864466` passed at duplex-ready commit
   `da6fed8` on 2026-09-06, including compile, lint, types, privacy/history,
   dependency, test/coverage, and pinned-scientific-risk jobs. The subsequent
-  local post-attribution audit passed all 178 tests, 64% branch coverage, the
-  358-file history/privacy scan, and all nine upstream pins; its final remote
-  run is recorded at release freeze.
+  prior remote release run `34027190028` passed every gate at `edae181`. The
+  subsequent post-intelligibility local audit at `619bd46` passed all 182 tests,
+  65% branch coverage, the 362-file history/privacy scan, general dependency
+  audit, exact scientific-risk baseline, and all nine upstream pins.
 
 ## Accepted pinned-training compatibility risks
 

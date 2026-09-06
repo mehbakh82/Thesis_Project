@@ -1,6 +1,6 @@
 {
   "schema_version": 10,
-  "generated_at": "2026-09-06T10:51:46.522295+00:00",
+  "generated_at": "2026-09-06T10:58:13.284909+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -764,14 +764,16 @@
         "The server carries captured barge-in speech into the next turn.",
         "The transport remains reusable after cancellation and tested errors.",
         "Client-reported acknowledgements and runtime identity telemetry are ingested.",
-        "Metrics-only transport persistence writes no WAV."
+        "Metrics-only transport persistence writes no WAV.",
+        "The predeclared automatic NeMo round-trip proxy measured CER/WER on nine exactly reproduced cascade outputs without retaining plaintext or audio."
       ],
       "does_not_prove": [
         "Actual browser AudioBufferSourceNode stop behavior.",
         "Physical microphone continuity.",
         "Physical RTX 4090 fit or latency.",
         "Human semantic, pronunciation, or naturalness quality.",
-        "Deployment eligibility of any direct Moshi adapter."
+        "Deployment eligibility of any direct Moshi adapter.",
+        "Human intelligibility, pronunciation, naturalness, semantic relevance, or population quality from the automatic round-trip proxy."
       ]
     }
   },
@@ -1061,8 +1063,8 @@
     "final_audit": {
       "path": "results/release/final_audit.json",
       "present": true,
-      "bytes": 4498,
-      "sha256": "fe998bba778097b8af2d5b690ae6824577f71b3ae5e4783c4d554ca6d7282a06"
+      "bytes": 6001,
+      "sha256": "4bb4f3ed36ffd25ecfa70dba950ed5fc4e737c80891b401eb74bb6bca15021e4"
     }
   }
 }
