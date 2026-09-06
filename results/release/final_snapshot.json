@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-06T11:05:05.597554+00:00",
+  "generated_at": "2026-09-06T15:33:08.104101+00:00",
   "python": "3.12.3",
   "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.39",
   "git": {
     "available": true,
-    "commit": "18036249623b3c237fea4045645a882560a1f5f2",
+    "commit": "4445ae245b78c9b64c9c1580133af48cdfbcdd01",
     "dirty": false
   },
   "gpu": {
@@ -25,16 +25,16 @@
       "utilization_gpu_percent"
     ],
     "rows": [
-      "NVIDIA H100 NVL, 595.71.05, 95830, 59558, 35764, 100"
+      "NVIDIA H100 NVL, 595.71.05, 95830, 67083, 28239, 0"
     ],
     "devices": [
       {
         "name": "NVIDIA H100 NVL",
         "driver_version": "595.71.05",
         "memory_total_mib": 95830,
-        "memory_used_mib": 59558,
-        "memory_free_mib": 35764,
-        "utilization_gpu_percent": 100
+        "memory_used_mib": 67083,
+        "memory_free_mib": 28239,
+        "utilization_gpu_percent": 0
       }
     ]
   },
@@ -44,7 +44,7 @@
     "numpy": "2.4.4",
     "peft": "0.20.0",
     "pydantic": "2.13.4",
-    "PyYAML": "6.0.3",
+    "PyYAML": "6.0.1",
     "scikit-learn": "1.8.0",
     "scipy": "1.17.1",
     "torch": "2.12.0",
@@ -67,8 +67,8 @@
       "bytes": 637
     },
     "README.md": {
-      "sha256": "126ac2ce95fc5752bbed76d6e3c8aa71604bd5d42d2b1d279bfcf296a53a94c4",
-      "bytes": 16783
+      "sha256": "628726d61a05108884f383d7cfba6e55d12db8aab1e4945cb572ac950bf07575",
+      "bytes": 17006
     },
     "THIRD_PARTY_NOTICES.md": {
       "sha256": "3715ac5bc5e337d99055bb7368b11ea55be44d5e428768fec32c0a29047f4747",
@@ -327,8 +327,8 @@
       "bytes": 6414
     },
     "docs/PROJECT_10_OF_10_CHECKLIST.md": {
-      "sha256": "f6eea6e03c7e45c4bf0d8246e96e38e01c1ca2d1e61061620b1086be1f21725b",
-      "bytes": 57737
+      "sha256": "51414f8051eecd02a795f3312bad3ed29225c5fe9c5d925f0cbe7ee92532f0f1",
+      "bytes": 58743
     },
     "docs/PROMPT_SHEET.md": {
       "sha256": "834713479073112fc0d2fc6f573d1fa742142863f4df67b98f680a856826ef78",
@@ -347,8 +347,8 @@
       "bytes": 2050
     },
     "docs/REPOSITORY_SECURITY.md": {
-      "sha256": "dc9ccc0b11e93c67c578c50ec8aa397da9ac24e1870d28bcb786441b474199c9",
-      "bytes": 6833
+      "sha256": "6306d9d7814c4fc0cce6a2d11c0b49bb4293d77e1301a00ee693e1c9d20e537d",
+      "bytes": 7220
     },
     "docs/REVIEW.md": {
       "sha256": "723c727bcac5f79941d03ef6ddb578c8c3108aadeaf077bf8d9ffff1973a240f",
@@ -359,8 +359,8 @@
       "bytes": 5915
     },
     "docs/SUBMISSION_RESULTS.md": {
-      "sha256": "8aa4c1fc60b2d179d23dac93b33c330317833660ce4a5d3b0ec153bfb8cd3569",
-      "bytes": 9596
+      "sha256": "f0624b01691d2a7dc2675bf8679b547d09d48c5d1bdfd583ad48759e6cdbd4f5",
+      "bytes": 10219
     },
     "docs/SUPERVISOR_DECISIONS.md": {
       "sha256": "b390f2d7db72f90e5ff2dbf465ecb4c5414d130b140cca507c8062ac7c906b07",
@@ -373,6 +373,10 @@
     "docs/SUPERVISOR_QUESTIONS_FA.md": {
       "sha256": "5b5079e2344d58de0f954a85c86d2d379e4be60ab7e1357e44ff89264264b7a1",
       "bytes": 12544
+    },
+    "docs/THESIS_REPORTING_FA.md": {
+      "sha256": "4cc6aaff94b01fee9a0ef6c640864e7e1aeff6110dc2b7a90489fba12f473418",
+      "bytes": 16792
     },
     "docs/YOUTUBE_CONVERSATION_PIPELINE.md": {
       "sha256": "cdca50edca535a459fc7afe553b07d5d6c8dc37a4cf1faff5bf1969e28cd880e",
@@ -1167,8 +1171,8 @@
       "bytes": 8444
     },
     "tests/test_evidence_status.py": {
-      "sha256": "f8908b53f9dc9ef5e8a95184d7b94692b8a86384c38934baea7c815f55915205",
-      "bytes": 19931
+      "sha256": "70cdd62e6d09051bb5fe0a4339aed4d2b06d532eb3c5470295b9f79fee7425e7",
+      "bytes": 21961
     },
     "tests/test_integrity.py": {
       "sha256": "509b402e47ca677beb204a8a42913ae4290f6340e7889ce786b0239fd3c54e40",
@@ -1291,5 +1295,5 @@
       "bytes": 1220
     }
   },
-  "file_count": 309
+  "file_count": 310
 }
