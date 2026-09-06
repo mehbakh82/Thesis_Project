@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-09-06T16:59:13.161662+00:00",
+  "status": "completed",
+  "evidence_class": "automatic_supervised_compact_responder_lora_training",
+  "claim": {
+    "training_completed": true,
+    "checkpoint_selected_by_development_loss_only": true,
+    "semantic_improvement_measured": false,
+    "human_quality_result": false,
+    "test_result": false
+  },
+  "data": {
+    "source_train_rows": 6419,
+    "source_development_rows": 39,
+    "eligible_train_rows": 2576,
+    "eligible_development_rows": 12,
+    "eligibility_rule": "first_nonempty_sentence_at_most_64_base_tokens",
+    "source_split_counts": {
+      "train": 6419,
+      "val": 131,
+      "test": 204,
+      "other": 0
+    },
+    "train_sessions": 152,
+    "development_sessions": 2,
+    "development_session_sha256": [
+      "20b9c9f30f140385942bc1311733ef0fcaa7a892f83cbca5e04b308984886f27",
+      "0fe76c73675252a81c2f14ce4dd1ed6e5fc96d5903130f945996c9ee671631ef"
+    ],
+    "human_verified": false,
+    "manual_qa_waived": true,
+    "internal_training_authorized": true,
+    "source_license_verified": false,
+    "redistribution_allowed": false
+  },
+  "base": {
+    "model": "Qwen/Qwen2.5-0.5B-Instruct",
+    "revision": "7ae557604adf67be50417f59c2c2f167def9a775"
+  },
+  "optimization": {
+    "seed": 20260906,
+    "compute_precision": "float32",
+    "system_prompt_sha256": "f0a5464d34bc27c1e7d379d99197d83fed73bf16d8b151321d861ca310f17a8b",
+    "assistant_only_loss": true,
+    "max_user_tokens": 256,
+    "max_response_tokens": 64,
+    "max_sequence_tokens": 512,
+    "lora_rank": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ],
+    "micro_batch_size": 8,
+    "gradient_accumulation": 4,
+    "effective_batch_size": 32,
+    "epochs": 2,
+    "learning_rate": 0.0002,
+    "weight_decay": 0.01,
+    "warmup_fraction": 0.05,
+    "warmup_steps": 9,
+    "optimizer_steps": 162,
+    "trainable_parameters": 8798208,
+    "total_parameters_with_adapter": 502830976
+  },
+  "base_development_assistant_token_loss": 3.72317968,
+  "epochs": [
+    {
+      "epoch": 1,
+      "optimizer_step": 81,
+      "train_assistant_token_loss": 2.85160689,
+      "train_assistant_tokens": 90557,
+      "development_assistant_token_loss": 2.6427749,
+      "development_assistant_tokens": 396,
+      "adapter_relative_path": "checkpoints/responder_lora_v1/epoch1",
+      "adapter_tree_sha256": "c16088776d80d941caa4747b41e8b959fcea37049785cf7ca3cb62c470ee021d",
+      "adapter_files": [
+        {
+          "path": "README.md",
+          "bytes": 5206,
+          "sha256": "706469298b27b8ef32e770a9e895a67113f00666bb0b7fd19198751041b0758b"
+        },
+        {
+          "path": "adapter_config.json",
+          "bytes": 1159,
+          "sha256": "84882ad184304b9dbae7a6b88000ef6127f9604f491c05f382be3aaf00584935"
+        },
+        {
+          "path": "adapter_model.safetensors",
+          "bytes": 35237104,
+          "sha256": "b7681f21d15a72433c8f13832f20b71a912da553c81b6c776db1f63e480c41bd"
+        }
+      ]
+    },
+    {
+      "epoch": 2,
+      "optimizer_step": 162,
+      "train_assistant_token_loss": 2.49797706,
+      "train_assistant_tokens": 90557,
+      "development_assistant_token_loss": 2.56223943,
+      "development_assistant_tokens": 396,
+      "adapter_relative_path": "checkpoints/responder_lora_v1/epoch2",
+      "adapter_tree_sha256": "ad47e8c854b7d0c95e3821b90770c4873bc1639175425ba1c1244b214bffe8fd",
+      "adapter_files": [
+        {
+          "path": "README.md",
+          "bytes": 5206,
+          "sha256": "706469298b27b8ef32e770a9e895a67113f00666bb0b7fd19198751041b0758b"
+        },
+        {
+          "path": "adapter_config.json",
+          "bytes": 1159,
+          "sha256": "84882ad184304b9dbae7a6b88000ef6127f9604f491c05f382be3aaf00584935"
+        },
+        {
+          "path": "adapter_model.safetensors",
+          "bytes": 35237104,
+          "sha256": "de3d46a6d433d928100b3a65433577969acbe78db8ccc5770ae5c25951016f2d"
+        }
+      ]
+    }
+  ],
+  "selection": {
+    "rule": "lowest_finite_development_assistant_token_loss",
+    "selected_epoch": 2,
+    "selected_adapter_relative_path": "checkpoints/responder_lora_v1/epoch2",
+    "selected_adapter_tree_sha256": "ad47e8c854b7d0c95e3821b90770c4873bc1639175425ba1c1244b214bffe8fd",
+    "development_loss_reduction_fraction_vs_base": 0.31181419
+  },
+  "validity_requirements": {
+    "locked_data_hashes_match": true,
+    "base_revision_exact": true,
+    "split_counts_exact": true,
+    "train_rows_exact": true,
+    "development_rows_exact": true,
+    "eligible_training_rows_exact": true,
+    "eligible_development_rows_exact": true,
+    "train_development_sessions_disjoint": true,
+    "all_loaded_rows_training_authorized": true,
+    "test_rows_not_in_loaders": true,
+    "exactly_two_epochs_completed": true,
+    "all_losses_finite": true,
+    "selected_adapter_tree_hashed": true
+  },
+  "environment": {
+    "python": "3.12.3",
+    "torch": "2.12.0+cu130",
+    "transformers": "5.9.0",
+    "peft": "0.20.0",
+    "cuda": "13.0",
+    "gpu": {
+      "device": "NVIDIA H100 NVL",
+      "total_gb": 93.09,
+      "official_size": false,
+      "path_b_possible": false
+    },
+    "cuda_visible_devices": null,
+    "wall_seconds": 157.329,
+    "peak_cuda_memory_bytes": 17264306688
+  },
+  "artifacts": {
+    "source_manifest_sha256": "aabf12268cce2854ef8b16ffd9339c6d703339c6b4c50a23a105447047a13a86",
+    "train_export_sha256": "a84c9f1f924e8544499bd502413c469d30a10b98ceefc4e5a1f853217af0e517",
+    "val_export_sha256": "a2762495830c82ce12d3dc4cc8469e2110ae21a77ea91f9b70498a6812e187a7",
+    "protocol_sha256": "0103e6aa7e48dbb388a19bd3ba551d634f5b1a2aa794874576c42bbfe73cc6a1",
+    "trainer_sha256": "7d66459cd7a9a719f136ab88fdb1540f1099b7f91411243fbfe4871175ffcc84"
+  },
+  "limitations": [
+    "Dialogue targets are automatically aligned and not manually verified.",
+    "Development loss is not evidence of response relevance or human quality.",
+    "The source license is unverified; adapters remain local and unredistributed.",
+    "The test split is unused, but combined-manifest metadata was audited before freeze."
+  ],
+  "privacy": {
+    "plaintext_user_text_stored": false,
+    "plaintext_response_text_stored": false,
+    "audio_stored": false,
+    "private_source_path_stored": false,
+    "adapter_committed_or_uploaded": false
+  }
+}
