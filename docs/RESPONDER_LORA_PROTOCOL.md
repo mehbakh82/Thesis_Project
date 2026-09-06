@@ -67,7 +67,7 @@ text, audio, or trained adapter is committed or redistributed.
   matching the deployed short-answer contract. Maximum sequence length is 512.
 - LoRA rank 16, alpha 32, dropout 0.05, no bias, applied to `q_proj`, `k_proj`,
   `v_proj`, `o_proj`, `gate_proj`, `up_proj`, and `down_proj`.
-- BF16, seed 20260906, micro-batch 8, gradient accumulation 4, effective batch
+- FP32, seed 20260906, micro-batch 8, gradient accumulation 4, effective batch
   32, AdamW, learning rate 0.0002, weight decay 0.01, gradient norm 1.0,
   5% linear warm-up followed by linear decay, exactly two epochs.
 - Base loss and loss after each epoch are measured on the 12 development rows
@@ -84,6 +84,13 @@ The training run is valid only if all locked hashes/counts/separation gates
 pass; every training and development row is authorized for internal training;
 no test row enters either loader; the exact base revision is present; all
 losses are finite; exactly two epochs complete; and an adapter tree is hashed.
+
+The first frozen execution at commit `5a4f472d98599b29ad8a32055859e80d24dab126`
+stopped before any checkpoint or semantic measurement: BF16 backward produced a
+non-finite gradient at reproduced batch 48/optimizer step 11. The failure is
+retained in `results/training/responder_lora_v1_attempt1_failed.json`. The only
+correction is FP32 compute; data, split, optimizer hyperparameters, panel, judge,
+and success thresholds remain frozen.
 
 ## Locked final semantic comparison
 

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-09-06T16:52:36Z",
+  "status": "failed_pre_measurement",
+  "frozen_commit": "5a4f472d98599b29ad8a32055859e80d24dab126",
+  "stage": "epoch_1_training",
+  "observed_error": "FloatingPointError: non-finite training loss",
+  "diagnosis": {
+    "base_development_loss_finite": true,
+    "first_batch_loss_finite": true,
+    "forward_logits_finite": true,
+    "first_reproduced_nonfinite_gradient_batch": 48,
+    "optimizer_steps_completed_before_nonfinite_gradient": 11,
+    "classification": "bf16_backward_numerical_instability"
+  },
+  "artifacts": {
+    "adapter_files_written": 0,
+    "training_report_written": false,
+    "semantic_evaluation_run": false
+  },
+  "correction_scope": {
+    "compute_precision_only": true,
+    "data_changed": false,
+    "split_changed": false,
+    "optimization_hyperparameters_changed": false,
+    "semantic_panel_or_threshold_changed": false
+  },
+  "privacy": {
+    "plaintext_user_text_stored": false,
+    "plaintext_response_text_stored": false,
+    "audio_stored": false
+  }
+}

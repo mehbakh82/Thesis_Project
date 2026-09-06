@@ -239,8 +239,7 @@ def evaluate_loss(model: Any, loader: Any, device: Any) -> tuple[float, int]:
         for batch in loader:
             batch = {key: value.to(device) for key, value in batch.items()}
             count = int((batch["labels"] != -100).sum().item())
-            with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
-                loss = model(**batch).loss
+            loss = model(**batch).loss
             weighted_loss += float(loss.item()) * count
             target_tokens += count
     model.train()
@@ -343,7 +342,7 @@ def main() -> int:
     from transformers.optimization import get_linear_schedule_with_warmup
 
     if not torch.cuda.is_available():
-        raise RuntimeError("the frozen run requires CUDA BF16 training")
+        raise RuntimeError("the frozen run requires CUDA FP32 training")
     random.seed(SEED)
     np.random.seed(SEED)
     torch.manual_seed(SEED)
@@ -386,7 +385,7 @@ def main() -> int:
     model: Any = AutoModelForCausalLM.from_pretrained(
         BASE_MODEL,
         local_files_only=True,
-        dtype=torch.bfloat16,
+        dtype=torch.float32,
     ).to("cuda")  # type: ignore[arg-type]
     model.config.use_cache = False
     base_dev_loss, dev_target_tokens = evaluate_loss(model, dev_loader, torch.device("cuda"))
@@ -424,8 +423,7 @@ def main() -> int:
         for batch_index, batch in enumerate(train_loader, start=1):
             batch = {key: value.to("cuda") for key, value in batch.items()}
             target_count = int((batch["labels"] != -100).sum().item())
-            with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
-                loss = model(**batch).loss
+            loss = model(**batch).loss
             if not torch.isfinite(loss):
                 raise FloatingPointError("non-finite training loss")
             (loss / GRADIENT_ACCUMULATION).backward()
@@ -559,6 +557,7 @@ def main() -> int:
         "base": {"model": BASE_MODEL, "revision": measured_revision},
         "optimization": {
             "seed": SEED,
+            "compute_precision": "float32",
             "system_prompt_sha256": sha256_text(SYSTEM_PROMPT),
             "assistant_only_loss": True,
             "max_user_tokens": MAX_USER_TOKENS,
