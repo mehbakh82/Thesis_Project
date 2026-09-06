@@ -59,7 +59,7 @@ Status date: 2026-09-06
   `da6fed8` on 2026-09-06, including compile, lint, types, privacy/history,
   dependency, test/coverage, and pinned-scientific-risk jobs. The subsequent
   prior remote release run `34027190028` passed every gate at `edae181`. The
-  subsequent post-intelligibility local audit at `619bd46` passed all 182 tests,
+  subsequent post-intelligibility local audit at `6b4a7e9` passed all 182 tests,
   65% branch coverage, the 362-file history/privacy scan, general dependency
   audit, exact scientific-risk baseline, and all nine upstream pins.
 

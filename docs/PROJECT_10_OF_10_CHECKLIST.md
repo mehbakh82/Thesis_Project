@@ -902,8 +902,8 @@ Final engineering audit:
   have zero known vulnerabilities; the exact 56-advisory scientific exception
   baseline passes; and all nine upstream pins are valid, with both present
   local checkouts matching exactly.
-- [x] Run the post-intelligibility local audit at `619bd46` on 2026-09-06:
-  compile, Ruff, and mypy pass; all 182 tests pass in 16.77 seconds; branch
+- [x] Run the post-intelligibility local audit at `6b4a7e9` on 2026-09-06:
+  compile, Ruff, and mypy pass; all 182 tests pass in 16.43 seconds; branch
   coverage is 65%; all 362 tracked files pass the history/privacy/secret audit;
   general dependencies have zero known vulnerabilities; the exact 56-advisory
   scientific exception baseline and all nine upstream pins pass.

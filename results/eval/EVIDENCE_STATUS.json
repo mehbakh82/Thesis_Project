@@ -1,6 +1,6 @@
 {
   "schema_version": 10,
-  "generated_at": "2026-09-06T10:58:13.284909+00:00",
+  "generated_at": "2026-09-06T11:04:27.237085+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1064,7 +1064,7 @@
       "path": "results/release/final_audit.json",
       "present": true,
       "bytes": 6001,
-      "sha256": "4bb4f3ed36ffd25ecfa70dba950ed5fc4e737c80891b401eb74bb6bca15021e4"
+      "sha256": "3ac5c83bd78f8b1616cd13df0fe8d2a912355950ebde30392615000a8cf8787a"
     }
   }
 }
