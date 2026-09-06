@@ -271,7 +271,19 @@ ELDERLY_HTML = """<!doctype html>
       ws.onmessage = async (ev) => {
         if (typeof ev.data === 'string') {
           const msg = JSON.parse(ev.data);
-          if (msg.event === 'stopped') stopPlayback('server_detector');
+          if (msg.event === 'stopped') {
+            // The server has retained the rolling microphone pre-roll. Keep
+            // streaming the same utterance so the user's interruption becomes
+            // the next conversational turn instead of being discarded.
+            collecting = true;
+            stopPlayback('server_detector');
+            log('پخش متوقف شد؛ ادامه دهید و برای پایان گفتار دکمه سبز را بزنید.');
+          }
+          else if (msg.event === 'cancelled') {
+            stopPlayback('server_cancel');
+            collecting = false;
+            log('نوبت جاری لغو شد.');
+          }
           else if (msg.event === 'error') log(msg.message);
           return;
         }
@@ -317,6 +329,7 @@ ELDERLY_HTML = """<!doctype html>
     };
     document.getElementById('stop').onclick = () => {
       interruptOnsetAt = performance.now();
+      collecting = true;
       ws.send(JSON.stringify({event:'interrupt', ...meta()}));
     };
     document.getElementById('rate').onclick = async () => {
@@ -510,6 +523,28 @@ def build_app(
                 )
             pending_turn = None
 
+        def begin_interruption_continuation() -> None:
+            """Carry captured barge-in pre-roll into the next user turn."""
+
+            nonlocal buf, collecting
+            if collecting:
+                return
+            pre_roll = session.controller.microphone_tail
+            buf = [pre_roll] if pre_roll.size else []
+            collecting = True
+
+        def reset_transport(*, discard_pending: bool = False) -> None:
+            """Return the socket to an idle, reusable state after cancellation/error."""
+
+            nonlocal buf, collecting, pending_turn
+            if session.controller.playing:
+                session.controller.stop_playback("transport_reset")
+            buf = []
+            collecting = False
+            if discard_pending:
+                pending_turn = None
+            session.log = TurnLog()
+
         try:
             while True:
                 message = await ws.receive()
@@ -518,9 +553,9 @@ def build_app(
                     return
                 if "bytes" in message and message["bytes"] is not None:
                     raw = message["bytes"]
-                    if len(raw) % 2:
+                    if not raw or len(raw) % 2:
                         await ws.send_json(
-                            {"event": "error", "message": "invalid PCM16 byte count"}
+                            {"event": "error", "message": "invalid or empty PCM16 frame"}
                         )
                         continue
                     pcm = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768.0
@@ -529,6 +564,7 @@ def build_app(
                     if session.controller.playing:
                         session.on_mic_while_playing(pcm)
                         if not session.controller.playing:
+                            begin_interruption_continuation()
                             await ws.send_json(
                                 {
                                     "event": "stopped",
@@ -540,6 +576,11 @@ def build_app(
                         payload = json.loads(message["text"])
                     except json.JSONDecodeError:
                         await ws.send_json({"event": "error", "message": "invalid JSON event"})
+                        continue
+                    if not isinstance(payload, dict):
+                        await ws.send_json(
+                            {"event": "error", "message": "JSON event must be an object"}
+                        )
                         continue
                     for key in (
                         "prompt_id",
@@ -576,6 +617,9 @@ def build_app(
                             local_meta.consent = False
                             await ws.send_json({"event": "error", "message": str(exc)})
                     if event == "begin_utterance":
+                        if session.controller.playing:
+                            session.controller.stop_playback("new_utterance")
+                            session.log.stopped = True
                         persist_pending()
                         session.log = TurnLog()
                         buf = []
@@ -585,12 +629,16 @@ def build_app(
                         session.controller.stop_playback("client")
                         session.log.stopped = True
                         session.log.t_barge_in_ms = session.controller.t_barge_in_ms()
+                        begin_interruption_continuation()
                         await ws.send_json(
                             {
                                 "event": "stopped",
                                 "server_detection_ms": session.log.t_barge_in_ms,
                             }
                         )
+                    elif event == "cancel":
+                        reset_transport(discard_pending=True)
+                        await ws.send_json({"event": "cancelled"})
                     elif event == "end_of_speech":
                         collecting = False
                         if not buf:
@@ -599,7 +647,18 @@ def build_app(
                             )
                             continue
                         user = np.concatenate(buf)
-                        reply = session.on_user_end(user)
+                        try:
+                            reply = session.on_user_end(user)
+                        except Exception as exc:
+                            error_name = (
+                                "generation_out_of_memory"
+                                if isinstance(exc, MemoryError)
+                                or "out of memory" in str(exc).lower()
+                                else "generation_failed"
+                            )
+                            reset_transport(discard_pending=True)
+                            await ws.send_json({"event": "error", "message": error_name})
+                            continue
                         pending_turn = {
                             "meta": local_meta,
                             "prompt_id": str(turn_meta.get("prompt_id") or "free"),
@@ -645,9 +704,13 @@ def build_app(
                             session.log.t_barge_in_ms = client_ms
                         session.log.stopped = True
                         persist_pending()
+                        if collecting:
+                            session.log = TurnLog()
                     elif event == "playback_ended":
                         session.controller.stop_playback("completed")
                         persist_pending()
+                    elif event not in {"hello", None}:
+                        await ws.send_json({"event": "error", "message": "unknown event"})
         except WebSocketDisconnect:
             persist_pending()
             return

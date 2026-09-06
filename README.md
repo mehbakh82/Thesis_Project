@@ -7,7 +7,7 @@ An evidence-first Persian speech prototype that keeps the microphone active duri
 | Requirement | Honest status |
 |---|---|
 | Working spoken conversation | **Passed 9/9** predeclared rows from a 131-row source-session-group-isolated validation split: audited user channel 1 → real NeMo Persian ASR → exact local Qwen2.5-0.5B → Piper Persian TTS, with 0/9 rule fallbacks, 100% Persian-script replies by the declared measure, and non-silent audio on 9/9 |
-| Full-duplex control | Continuous browser PCM16 stream, rolling energy/F0/MFCC detector, server stop event, client stop acknowledgement |
+| Full-duplex control | Continuous browser PCM16 stream, rolling energy/F0/MFCC detector, server stop event, client stop acknowledgement, and tested transport-level carry-over of the captured interruption into the next turn. Physical-browser traces remain pending |
 | Direct speech LLM | Experimental, not deployed. V1–v5 remain negative under their frozen runtime gates. The train-only v6.2 scheduled-text-dropout diagnostic achieved a **32.20%** text-loss reduction from step 50 to its best later checkpoint, but steps 50/100/150/200 each passed **0/9** direct-runtime rows. This proves objective learning capacity only; no direct adapter is deployment-eligible and no v2–v6.2 final test was opened. |
 | 100–200 h conversation corpus | Full inventory: **775.887 h / 1,442 long episodes**. The production selection is **219.946 candidate h / 309 episodes** across four channels; 1,129 windows contain **207.154 automatically classified multi-speaker h**, **242.445 aligned staging h**, and **6,754 non-reused response pairs / 123.796 source-pair h**. The immutable Piper derivative is **108.584 measured stereo h**, inside the formal band |
 | Conversational interruption supervision | Raw speaker boundaries recover **770 conservative candidates** (717 interruption-like, 53 backchannel-like) from the 6,754 pairs. The preserved deterministic 24-row sheet was sampled from the earlier 712-candidate pool and covers all four channels / **168.3 seconds** of excerpt audio. They remain automatic candidates; **zero human-verified direct interruptions** are claimed under the waiver |
@@ -29,6 +29,7 @@ as official end-to-end evidence.
 
 ```text
 continuous 16 kHz microphone ─┬─> rolling energy/F0/MFCC barge-in ─> stop browser source
+                              │                                      └─> retain mic pre-roll as next turn
                               └─> NeMo ASR ─> Qwen/rules ─> Piper ─> full PCM reply
 ```
 

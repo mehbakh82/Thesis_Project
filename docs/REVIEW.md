@@ -168,8 +168,19 @@ The current protocol:
 - sends complete reply PCM;
 - stops all live `AudioBufferSourceNode` instances on a server detector event;
 - acknowledges the actual client stop;
+- preserves the rolling microphone pre-roll and continues capture so an
+  interruption becomes the next user turn;
+- supports explicit cancellation and keeps the socket reusable after malformed
+  input, silence, or a generation/OOM error;
 - reports client-observed first-audio and stop timing;
 - never substitutes synthetic audio for an empty microphone turn.
+
+Four WebSocket-level regression tests prove the server transport state,
+continuation buffer, identity telemetry, acknowledgement persistence,
+cancellation, simultaneous-turn isolation, reconnect, error recovery, and
+metrics-only no-WAV retention. They do not execute a physical browser, audio
+device, or RTX 4090 and therefore do not complete the official live-client
+latency or perceptual gates.
 
 The first 9/9 cascade development result was later found to have sent assistant
 channel 0, rather than user channel 1, to ASR. It is retained and downgraded to

@@ -1,6 +1,6 @@
 # Checklist for a defensible 10/10 thesis project
 
-Status date: 2026-09-05
+Status date: 2026-09-06
 
 This is the authoritative closure checklist. Mark an item complete only when its
 named artifact exists and its acceptance test passes. Implemented code,
@@ -656,15 +656,25 @@ the live human/browser acknowledgements below remain uncollected.
 - [ ] Verify interruption stops every browser audio source and produces
   `playback_stopped_ack`.
 - [ ] Verify backchannels such as «آها»/«بله» follow the non-stopping policy.
-- [ ] Verify interrupted user speech becomes next-turn context; stopping playback
-  alone is not sufficient full duplex.
-- [ ] Test reconnect, cancellation, stale buffers, simultaneous turns, silence,
-  malformed packets, and OOM recovery.
+- [x] At the WebSocket transport level, preserve the detector's rolling
+  microphone pre-roll, continue collection after automatic/manual interruption,
+  and feed the complete captured interruption into the next user turn. The
+  regression proves a 3,200-sample pre-roll plus 1,600 continued samples become
+  one 4,800-sample next-turn input; physical-browser confirmation remains
+  separate.
+- [x] Test transport reconnect, explicit cancellation, stale-buffer isolation,
+  simultaneous new turns, silence, malformed PCM/JSON/events, and recovery
+  after a simulated generation OOM without replacing the live-browser gate.
 - [x] Keep model identity fail-closed: direct sessions never silently fall back
   to the cascade, and the submitted cascade exposes any Qwen rule fallback or
   Piper/formant fallback in telemetry. The passing validation used none.
-- [ ] Add end-to-end regression tests for model identity, adapter load, browser
-  acknowledgements, cancellation, and retention mode.
+- [x] Add WebSocket end-to-end regression tests for cascade identity/fallback
+  telemetry, client acknowledgement ingestion, interruption continuity,
+  cancellation, reconnect, state isolation, recoverable errors, and
+  metrics-only no-WAV retention.
+- [ ] Reproduce direct-adapter identity/load and actual browser source-stop
+  acknowledgement end to end. This remains impossible without a
+  deployment-eligible direct adapter and physical-browser run.
 
 Exit: repeatable live Persian direct S2S with generation, duplex listening,
 interruption, cancellation, and continued conversation using the final adapter.
@@ -847,6 +857,11 @@ Final engineering audit:
   coverage is 64%; 351 tracked artifacts/history/privacy/secrets pass; general
   dependencies have no known vulnerabilities; the exact scientific
   accepted-risk baseline and all eight upstream pins pass.
+- [x] Run the post-release transport audit on 2026-09-06: compile, Ruff, and
+  mypy pass; all 173 tests pass. Four WebSocket-level tests cover continuation,
+  acknowledgements, identity telemetry, cancellation, reconnect, simultaneous
+  turns, stale-buffer isolation, malformed/silent input, simulated OOM
+  recovery, and metrics-only no-WAV retention.
 - [x] Verify a fresh full-history clone at release-snapshot commit `c476e5c`:
   clean tree, exact remote HEAD, only Mehran Bakhtiari as author/committer,
   352-file history/privacy/secret audit passed, Ruff passed, mypy passed 49
@@ -890,7 +905,7 @@ privacy-safe repository at approved visibility, restricted handoff, immutable ta
 | Requirement | Conservative acceptance test | Current state | Final evidence |
 |---|---|---|---|
 | Working Persian S2S prototype | Frozen system accepts audited user speech and emits Persian-script, non-silent speech on group-disjoint validation inputs | **Passed 9/9 automatic mechanics rows**; semantic/perceptual claims remain pending | `cascade_real_service_validation_panel.json`, protocol and runtime hashes |
-| Full duplex | Mic remains active; interruption stops playback and becomes next-turn context | Control implemented; direct model pending | Client traces and continuation tests |
+| Full duplex | Mic remains active; interruption stops playback and becomes next-turn context | Server transport continuity passed; physical-browser source-stop/ack trace and direct model remain pending | WebSocket continuation tests; future client traces |
 | End-to-end ≤500 ms | Max `T_first_audio` ≤500 ms unless another statistic is predeclared; always p50/p95/max | Pending | Physical-4090 `official_e2e` telemetry |
 | Open base adapted to Persian | Moshika 7B LoRA trained on the waiver-bound Persian response pairs | Training complete through v6.2. V6.2 shows a 32.20% in-sample text-loss reduction but 0/9 runtime rows for every checkpoint; no adapter is promoted and all later final tests remain untouched | Config, logs, adapter hashes, reevaluation/runtime reports |
 | 100–200 conversational hours | Final audited/exported hours in range; group-clean, no reused intervals | **108.584 exported h**, 6,754/6,754 pairs, zero audit failures | Conversation audit/export report |

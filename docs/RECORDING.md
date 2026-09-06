@@ -13,6 +13,7 @@ python3 -m thesis_s2s.cli serve --record --study --session-id S001 --speaker-id 
 Open the local browser client and obtain explicit written and on-screen consent. Use a new path-safe `session_id` for each session and a stable pseudonymous `speaker_id` across that speaker's sessions.
 
 - The browser streams continuously during user collection and assistant playback; do not mute the microphone while the system talks.
+- After an interruption stops playback, continue the same utterance and press the green button once to end it. The rolling microphone pre-roll and subsequent speech form the next user turn.
 - 16 kHz WAV is stored under `data/recordings/<session_id>/` with `turns.jsonl` containing client and server timing separately.
 - Labels are `interrupt` / `backchannel` / `noise` / `none`; annotate overlap intervals and response pairs during export/curation.
 - Record `age_bin`, environment/noise condition, microphone, exact model versions, and `license=consent`.

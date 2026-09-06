@@ -14,6 +14,14 @@ continuous user microphone
     -> Persian Piper TTS
 ```
 
+At the WebSocket transport level, an automatic or manual barge-in now carries
+the detector's 450 ms rolling microphone pre-roll into continued capture, so
+the interruption becomes the next user turn. Regression tests also cover
+acknowledgement persistence, cancellation, simultaneous turns, reconnect,
+malformed/silent input, recoverable generation/OOM failure, identity telemetry,
+and metrics-only no-WAV retention. These tests do not replace a physical
+browser/audio-device trace.
+
 The direct Moshika/Moshi branch is an experimental research result, not the
 production path. Do not start another speculative direct training run before
 the deadline. V6.2 supplies a useful positive learning signal and a clear

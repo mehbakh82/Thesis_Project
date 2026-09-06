@@ -3,6 +3,7 @@
 ## Deployable path
 
 - `src/thesis_s2s/runtime/duplex.py` — FastAPI UI, continuous 16 kHz microphone stream, WebSocket protocol, browser playback acknowledgements, and study endpoints.
+- `tests/test_duplex_transport.py` — WebSocket-level regression of interruption pre-roll continuity, acknowledgement persistence, cancellation, simultaneous turns, reconnect, malformed/silent inputs, recoverable generation failure, runtime identity telemetry, and no-WAV metrics retention.
 - `src/thesis_s2s/runtime/cascade.py` — bounded NeMo HTTP ASR → local Qwen/rules response → Piper/formant TTS. This is the current working speech-to-speech path.
 - `src/thesis_s2s/runtime/tts.py` — Piper synthesis with a formant fallback for development only.
 - `src/thesis_s2s/runtime/session_log.py` — consent-gated, path-safe session WAV/JSONL storage and evidence-readiness summary.
