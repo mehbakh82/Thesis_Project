@@ -98,6 +98,7 @@ SNAPSHOT_FILES = (
     "results/eval/interrupt_recorded_proxy.json",
     "results/eval/EVIDENCE_STATUS.json",
     "results/eval/SUMMARY.md",
+    "results/release/final_audit.json",
 )
 SNAPSHOT_GLOBS = (
     "models/piper/*",
