@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-06T05:52:27Z",
-  "audited_commit": "2d1e1f687819618e78fc076f7b924bb96f196eff",
+  "generated_at": "2026-09-06T10:17:49Z",
+  "audited_commit": "193a0de543fb0d15feda12202e038d976e305fd5",
   "git_identity": {
     "author": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>",
     "committer": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>"
@@ -22,7 +22,7 @@
     },
     "tracked_artifact_history_privacy_secret_audit": {
       "status": "passed",
-      "tracked_files": 357
+      "tracked_files": 358
     },
     "general_dependency_audit": {
       "status": "passed",
@@ -30,8 +30,8 @@
     },
     "pytest": {
       "status": "passed",
-      "tests": 175,
-      "seconds": 16.22
+      "tests": 178,
+      "seconds": 17.22
     },
     "branch_coverage": {
       "status": "passed",
@@ -47,10 +47,31 @@
     },
     "upstream_pins": {
       "status": "passed",
-      "pins": 8,
+      "pins": 9,
       "present_checkouts": 2,
       "present_checkouts_match": true
     }
+  },
+  "runtime_attribution": {
+    "status": "passed",
+    "focused_tests": 3,
+    "locked_upstreams": 9,
+    "qwen_runtime": {
+      "model": "Qwen/Qwen2.5-0.5B-Instruct",
+      "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+      "license": "Apache-2.0",
+      "matches_positive_validation": true
+    },
+    "piper_runtime": {
+      "package": "piper-tts==1.7.0",
+      "license": "GPL-3.0-or-later",
+      "separate_voice_terms_documented": true
+    },
+    "source_code_license_selected": false,
+    "citation_sha256": "a60c5e3f43b4ab8a474bf29d92681fdb677c0006ff02ecfa9066772400b9b1c6",
+    "third_party_notices_sha256": "3715ac5bc5e337d99055bb7368b11ea55be44d5e428768fec32c0a29047f4747",
+    "upstreams_lock_sha256": "044ed53c24b5bd69a439d0a9755520c6d78b65d66d414ec4772c7df171384cdc",
+    "test_sha256": "c1415d07247fdda85f3f14d3a68a026a6835928b17481aa48e7e6a5697998c5c"
   },
   "cascade_descriptive_analysis": {
     "status": "passed",
