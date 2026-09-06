@@ -32,6 +32,10 @@ out-of-sample mechanics, not semantic relevance, human naturalness, or official
 browser latency. Neither synthetic latency nor an H100 memory cap is accepted
 as official end-to-end evidence.
 
+For the deadline handoff, `docs/THESIS_REPORTING_FA.md` provides copy-ready
+Persian text for the abstract, methods, exact result tables, discussion,
+limitations, and conclusion without promoting any pending evidence gate.
+
 ## Architecture
 
 ```text

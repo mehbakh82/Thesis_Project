@@ -515,3 +515,42 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert "micro CER=0.071429" in summary
     assert "3,200 pre-roll samples" in summary
     assert json.loads(out.read_text(encoding="utf-8")) == report
+
+
+def test_persian_thesis_reporting_tracks_authoritative_evidence() -> None:
+    root = Path(__file__).resolve().parents[1]
+    report = json.loads(
+        (root / "results/eval/EVIDENCE_STATUS.json").read_text(encoding="utf-8")
+    )
+    manuscript = (root / "docs/THESIS_REPORTING_FA.md").read_text(encoding="utf-8")
+    to_persian = str.maketrans("0123456789.", "۰۱۲۳۴۵۶۷۸۹٫")
+
+    exported_hours = f"{report['data']['exported_hours']:.3f}".translate(to_persian)
+    cer_percent = (
+        f"{100 * report['cascade_intelligibility_proxy']['character_error_rate']['micro']:.2f}"
+        .translate(to_persian)
+    )
+    wer_percent = (
+        f"{100 * report['cascade_intelligibility_proxy']['word_error_rate']['micro']:.2f}"
+        .translate(to_persian)
+    )
+    recorded_accuracy = (
+        f"{100 * report['detector']['recorded_proxy']['accuracy']:.2f}".translate(
+            to_persian
+        )
+    )
+
+    assert exported_hours in manuscript
+    assert f"CER تجمیعی بازبازشناسی | {cer_percent}٪" in manuscript
+    assert f"WER تجمیعی بازبازشناسی | {wer_percent}٪" in manuscript
+    assert f"دقت برابر {recorded_accuracy}٪" in manuscript
+    assert report["gates"]["working_persian_s2s_prototype"] is True
+    assert report["gates"]["audited_export_100_to_200_hours"] is True
+    assert report["gates"]["deployment_eligible_persian_direct_model"] is False
+    assert report["gates"]["real_group_heldout_detector_above_80_percent"] is False
+    assert report["gates"]["physical_12_to_24_gb_fit_and_live_latency"] is False
+    assert report["gates"]["human_study_complete"] is False
+    assert report["gates"]["source_code_license_selected"] is False
+    assert "Moshika با موفقیت برای فارسی تنظیم شد" in manuscript
+    assert "تأخیر سامانه کمتر از ۵۰۰ میلی‌ثانیه است" in manuscript
+    assert "مطالعه انسانی و ارزیابی اختصاصی سالمندان انجام نشد" in manuscript

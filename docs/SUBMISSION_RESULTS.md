@@ -198,6 +198,10 @@ artifact/history/privacy audit, and all 182 tests without access to the ignored
 private validation manifest. This establishes repository reproducibility; it
 does not change any scientific acceptance result above.
 
+A copy-ready Persian abstract, methods/results tables, discussion, limitations,
+and conclusion—bounded to these exact evidence classes—are provided in
+`docs/THESIS_REPORTING_FA.md`.
+
 1. Copy the two result tables and safe wording above into the thesis; update
    abstract, methods, results, discussion, limitations, and conclusion.
 2. Choose a source-code license.

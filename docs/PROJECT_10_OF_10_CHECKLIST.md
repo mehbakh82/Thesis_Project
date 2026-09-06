@@ -816,6 +816,10 @@ Evidence/statistics:
   reports and postdate that receipt.
 - [ ] Reconcile the final thesis manuscript and submission tables after the
   remaining external evidence exists.
+- [x] Prepare a copy-ready Persian manuscript handoff covering the abstract,
+  methods, exact result tables, discussion, limitations, conclusion, prohibited
+  overclaims, and canonical evidence paths in `docs/THESIS_REPORTING_FA.md`.
+  This does not mark the private manuscript itself as reconciled.
 
 Thesis narrative:
 
