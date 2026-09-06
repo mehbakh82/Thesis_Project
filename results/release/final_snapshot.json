@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-06T10:59:31.606171+00:00",
+  "generated_at": "2026-09-06T11:05:05.597554+00:00",
   "python": "3.12.3",
   "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.39",
   "git": {
     "available": true,
-    "commit": "2fcc2d035aec5eb97575752e90efbd3ff159be96",
+    "commit": "18036249623b3c237fea4045645a882560a1f5f2",
     "dirty": false
   },
   "gpu": {
@@ -327,7 +327,7 @@
       "bytes": 6414
     },
     "docs/PROJECT_10_OF_10_CHECKLIST.md": {
-      "sha256": "e08de09c5a0195c402f55571f52e95fd778dd92b97ba4e3365711d37a1c6db18",
+      "sha256": "f6eea6e03c7e45c4bf0d8246e96e38e01c1ca2d1e61061620b1086be1f21725b",
       "bytes": 57737
     },
     "docs/PROMPT_SHEET.md": {
@@ -347,7 +347,7 @@
       "bytes": 2050
     },
     "docs/REPOSITORY_SECURITY.md": {
-      "sha256": "f59f248b2dcd36eabc8d4d4487a716c8d4839bf7ab3aa590392d194be21dfa39",
+      "sha256": "dc9ccc0b11e93c67c578c50ec8aa397da9ac24e1870d28bcb786441b474199c9",
       "bytes": 6833
     },
     "docs/REVIEW.md": {
@@ -463,11 +463,11 @@
       "bytes": 1408
     },
     "results/eval/EVIDENCE_STATUS.json": {
-      "sha256": "1c7f5b3e7737060ce99f467fbf16ca0b3cef2aeee7ebd40b1aa0da698efe8772",
+      "sha256": "89f02ada47cde15524a605a4522f1975254ae849287bda7532e73947b084f95a",
       "bytes": 35239
     },
     "results/eval/SUMMARY.md": {
-      "sha256": "436cfefbc2327eb6afa93f899dccae59cb4e2ae6e298b2aa8c27234d0516eec9",
+      "sha256": "904e2a226865c8709bb5408fb705ac6a060140cb815dcbd9c946a5fcedf60d93",
       "bytes": 8071
     },
     "results/eval/cascade_intelligibility_proxy.json": {
@@ -667,7 +667,7 @@
       "bytes": 2173
     },
     "results/release/final_audit.json": {
-      "sha256": "4bb4f3ed36ffd25ecfa70dba950ed5fc4e737c80891b401eb74bb6bca15021e4",
+      "sha256": "3ac5c83bd78f8b1616cd13df0fe8d2a912355950ebde30392615000a8cf8787a",
       "bytes": 6001
     },
     "results/security/moshi_dependency_audit.json": {
@@ -1135,8 +1135,8 @@
       "bytes": 3637
     },
     "tests/test_cascade_intelligibility.py": {
-      "sha256": "663276b058689ddca9a93dd8fcd2a32d9891c69412da9ec5d86914dc8a8add69",
-      "bytes": 3804
+      "sha256": "24edaba9a44f03f3a2fd0ed3be19e15b6563d3fcd717d8db4a834b45712d489d",
+      "bytes": 3898
     },
     "tests/test_cascade_real_service.py": {
       "sha256": "6ec5091a56a8af85e459af28899d7051229ba92b12ba2c85c341c207991f01b6",
