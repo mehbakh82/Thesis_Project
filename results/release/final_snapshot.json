@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-06T05:54:21.441823+00:00",
+  "generated_at": "2026-09-06T10:19:42.583198+00:00",
   "python": "3.12.3",
   "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.39",
   "git": {
     "available": true,
-    "commit": "c0e877cd00bae0881d5f7217507312403f10d49f",
+    "commit": "6da01deda8083e83611b4d25d6a0a89295f5c7c7",
     "dirty": false
   },
   "gpu": {
@@ -25,15 +25,15 @@
       "utilization_gpu_percent"
     ],
     "rows": [
-      "NVIDIA H100 NVL, 595.71.05, 95830, 46827, 48495, 100"
+      "NVIDIA H100 NVL, 595.71.05, 95830, 59554, 35768, 100"
     ],
     "devices": [
       {
         "name": "NVIDIA H100 NVL",
         "driver_version": "595.71.05",
         "memory_total_mib": 95830,
-        "memory_used_mib": 46827,
-        "memory_free_mib": 48495,
+        "memory_used_mib": 59554,
+        "memory_free_mib": 35768,
         "utilization_gpu_percent": 100
       }
     ]
@@ -63,16 +63,16 @@
       "bytes": 815
     },
     "CITATION.cff": {
-      "sha256": "558b9d7cb2aa861b3be573c81d2761a2f02e8894024e2b44dd10cd105bf892c2",
-      "bytes": 574
+      "sha256": "a60c5e3f43b4ab8a474bf29d92681fdb677c0006ff02ecfa9066772400b9b1c6",
+      "bytes": 637
     },
     "README.md": {
       "sha256": "2bfef44c004b2ef822f046a61e7b4947be7121766f8bfa7eb66f063976258d10",
       "bytes": 16097
     },
     "THIRD_PARTY_NOTICES.md": {
-      "sha256": "baf85f0c9f0f47dec437a0280ffe20814e7ccc6157a72c1c7b92d18c6a0c58a6",
-      "bytes": 3080
+      "sha256": "3715ac5bc5e337d99055bb7368b11ea55be44d5e428768fec32c0a29047f4747",
+      "bytes": 4043
     },
     "checkpoints/llama_omni2_fa/persian_omni2.pt": {
       "sha256": "2f1c7680fb5524cd6d6306982c6828b61a9eee17de2dbefea2bdf61053869519",
@@ -323,8 +323,8 @@
       "bytes": 6414
     },
     "docs/PROJECT_10_OF_10_CHECKLIST.md": {
-      "sha256": "26820aa2e65b17ad6137d023b3204f967a466607a8de6774e28322edf2316d75",
-      "bytes": 55408
+      "sha256": "2ec92f422a981eb83d34e2d6d3531520aa1d58ccb8fca7dfa7282f14953a535e",
+      "bytes": 56720
     },
     "docs/PROMPT_SHEET.md": {
       "sha256": "834713479073112fc0d2fc6f573d1fa742142863f4df67b98f680a856826ef78",
@@ -343,8 +343,8 @@
       "bytes": 2050
     },
     "docs/REPOSITORY_SECURITY.md": {
-      "sha256": "b19e5040c99b523b0d660cb7d865c086d77bf26c934e5d6d61eab5a6ff256d02",
-      "bytes": 6324
+      "sha256": "e2557fb517dd5a320f54bce1f9e6ee93f643b0d4027b2ae24cb031b7509ab41c",
+      "bytes": 6722
     },
     "docs/REVIEW.md": {
       "sha256": "3341c56ac91f411ba3bca98dba9a0c1b5c764226747ffae4aac98836534f086c",
@@ -459,11 +459,11 @@
       "bytes": 1408
     },
     "results/eval/EVIDENCE_STATUS.json": {
-      "sha256": "ecad49d43180edebac46edbfdaa680379bb145e8d5631023a87001b7a7b945c6",
+      "sha256": "745bca662573fcf05bfa02854566821531b62dba476990a605c0bf91637b3df8",
       "bytes": 33039
     },
     "results/eval/SUMMARY.md": {
-      "sha256": "9fc96f6e83e1fe880e519ff89e612b2d7aa55dc4a4981620db406e3921c3cfd6",
+      "sha256": "0908188100f7ba4f913b26e0debb3a72e19fba1c691ed1643841edc15147bcad",
       "bytes": 7589
     },
     "results/eval/cascade_validation_descriptive_analysis.json": {
@@ -659,8 +659,8 @@
       "bytes": 2173
     },
     "results/release/final_audit.json": {
-      "sha256": "7233e7d16915bdd53dafe23447e90d9706e8f789b23f756b14db803b766883b5",
-      "bytes": 3613
+      "sha256": "fe998bba778097b8af2d5b690ae6824577f71b3ae5e4783c4d554ca6d7282a06",
+      "bytes": 4498
     },
     "results/security/moshi_dependency_audit.json": {
       "sha256": "86bfa98aa47237f554a972eee788731de4d0f8713f64e30969cef713b9918caf",
@@ -1102,6 +1102,10 @@
       "sha256": "4a71347ac8778482ba520fa463515f377b3ec7e697175429bd30be1111848180",
       "bytes": 10130
     },
+    "tests/test_attribution.py": {
+      "sha256": "c1415d07247fdda85f3f14d3a68a026a6835928b17481aa48e7e6a5697998c5c",
+      "bytes": 1820
+    },
     "tests/test_bakeoff_evidence.py": {
       "sha256": "a7a63b477ab07a157cc4264d8fd82aba1e3d15f628f0108774c616921afe1dfc",
       "bytes": 2094
@@ -1259,8 +1263,8 @@
       "bytes": 6444
     },
     "third_party/UPSTREAMS.lock.json": {
-      "sha256": "3a364398b3250d1663ac794f14309c12cb52e59a83cb06cf494beeca01ce40ad",
-      "bytes": 4914
+      "sha256": "044ed53c24b5bd69a439d0a9755520c6d78b65d66d414ec4772c7df171384cdc",
+      "bytes": 5421
     },
     "third_party/overlays/moshi-client/package-lock.json": {
       "sha256": "b6946e010d702f8fb2bf199418a63e300c61fda826a3ac5ceb052dd69704aa24",
@@ -1271,5 +1275,5 @@
       "bytes": 1220
     }
   },
-  "file_count": 304
+  "file_count": 305
 }
