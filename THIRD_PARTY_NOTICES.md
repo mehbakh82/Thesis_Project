@@ -4,6 +4,10 @@ This project does not relicense third-party source code, model weights, datasets
 
 ## Model repositories inspected
 
+- Qwen/Qwen2.5-0.5B-Instruct, revision
+  `7ae557604adf67be50417f59c2c2f167def9a775`: model files declare
+  Apache-2.0. This is the exact local text responder in the submitted cascade;
+  its weights are not committed here.
 - LLaMA-Omni2, revision `c8afa9061a9c2d2c1919f7293f5492d946869752`: no repository-level license file was observed at inspection time. Do not copy, redistribute, or build a release dependency on its code until terms are clarified.
 - Mini-Omni2, revision `75f450ea4e7dc1e52a7fc0e4dcf45b4c3d45ab98`: repository code declares MIT; model-weight and dependency terms must still be checked.
 - BayLing-Speech, revision `c63fd7221d1e6c2d22c85e781bc61e842835ed53`: repository code declares Apache-2.0; model/data/dependency terms remain separate.
@@ -17,9 +21,23 @@ No code from these repositories is vendored in this project.
 
 ## Models and services used at runtime
 
-NeMo, Qwen, Piper, Hugging Face Transformers, PyTorch, scikit-learn, SciPy, NumPy, FastAPI, and their models/dependencies retain their own licenses. Before distribution, record the exact model card, weight revision, license, and checksum in the release snapshot.
+The installed `piper-tts==1.7.0` runtime package is the maintained
+OHF-Voice implementation and declares GPL-3.0-or-later. This is separate from
+the Persian voice's MIT model-card and CC0 training-dataset declarations.
+`piper-tts` is an optional, non-vendored dependency, but any distributed
+installation or combined work that includes it must independently comply with
+its GPL terms; this project's eventual source-code license cannot override
+them. The older archived MIT Piper implementation is not the installed runtime.
 
-The local NeMo/diarization services are separate codebases and are not covered by this project's eventual code license.
+NVIDIA NeMo, Hugging Face Transformers, PyTorch, scikit-learn, SciPy, NumPy,
+FastAPI, and their models/dependencies retain their own licenses. Before any
+distribution, record the exact installed dependency closure and preserve all
+required license/notice texts. The release snapshot records the packages
+installed on the audited host but does not relicense them.
+
+The local NeMo/diarization services and the fine-tuned Persian ASR artifact are
+separate codebases/assets and are not covered by this project's eventual code
+license. This repository does not infer a license for that fine-tuned model.
 
 ## Data
 

@@ -1,7 +1,17 @@
 {
   "schema_version": 1,
-  "verified_at": "2026-08-23",
+  "verified_at": "2026-09-06",
   "upstreams": [
+    {
+      "name": "Qwen2.5-0.5B-Instruct",
+      "repository": "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct",
+      "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+      "checkout_dir": "qwen2.5-0.5b-instruct",
+      "license": "Apache-2.0",
+      "allowed_use": "Local inference and redistribution subject to Apache-2.0",
+      "training_entrypoint": null,
+      "notes": "Exact cached text responder used by the frozen positive cascade validation; model weights are not committed."
+    },
     {
       "name": "LLaMA-Omni2",
       "repository": "https://github.com/ictnlp/LLaMA-Omni2.git",

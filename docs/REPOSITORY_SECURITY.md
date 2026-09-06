@@ -36,6 +36,11 @@ Status date: 2026-09-06
   environment are independently pinned and hash-checked by
   `requirements-moshi.lock`, `third_party/UPSTREAMS.lock.json`, and the
   hardware/environment evidence.
+- The exact Qwen responder revision is pinned against the positive cascade
+  report, all nine upstream names/revisions must appear in
+  `THIRD_PARTY_NOTICES.md`, and citation/notice consistency is enforced by
+  regression tests. The installed optional Piper runtime's GPL-3.0-or-later
+  terms are explicitly separated from the Persian voice/model/data terms.
 - The pinned Moshi browser source is built with
   `scripts/build_moshi_client.py` from a hash-verified dependency overlay in a
   digest-pinned Node 20 container. Its served production graph has zero known
@@ -53,8 +58,9 @@ Status date: 2026-09-06
 - The complete GitHub Actions run `34013864466` passed at duplex-ready commit
   `da6fed8` on 2026-09-06, including compile, lint, types, privacy/history,
   dependency, test/coverage, and pinned-scientific-risk jobs. The subsequent
-  local post-analysis audit passed all 175 tests, 64% branch coverage, and the
-  same security gates; its final remote run is recorded at release freeze.
+  local post-attribution audit passed all 178 tests, 64% branch coverage, the
+  358-file history/privacy scan, and all nine upstream pins; its final remote
+  run is recorded at release freeze.
 
 ## Accepted pinned-training compatibility risks
 

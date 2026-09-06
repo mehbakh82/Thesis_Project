@@ -61,9 +61,9 @@ Verified now:
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
 - [x] The 2026-09-06 full local audit passes compile, Ruff, mypy on 49 package
-  source files, all 175 tests, 64% branch-aware coverage with a 60% CI floor,
+  source files, all 178 tests, 64% branch-aware coverage with a 60% CI floor,
   full-history/privacy/secret checks, general dependencies, the accepted
-  scientific-risk baseline, and all eight upstream pins.
+  scientific-risk baseline, and all nine upstream pins.
 - [x] General dependencies have no known vulnerabilities; the pinned scientific
   lock has an exact, fail-closed accepted-risk baseline and mitigations.
 - [ ] Window QA: 0/40 reviewed.
@@ -830,7 +830,15 @@ Thesis narrative:
   examples; semantic/perceptual errors were not inspected.
 - [ ] Add semantic, perceptual, and cautiously scoped elderly error analysis
   only if qualifying human evidence is actually collected; do not fabricate it.
-- [ ] Verify citations, bibliography, licenses, and third-party notices.
+- [x] Verify repository citation metadata and third-party boundaries: all nine
+  locked upstreams appear by name and exact revision in
+  `THIRD_PARTY_NOTICES.md`; the evaluated Qwen revision is Apache-2.0 and
+  lock-matched; the optional installed Piper runtime is GPL-3.0-or-later and is
+  separated from the Persian voice/model/data terms; the external Persian ASR
+  artifact is explicitly not relicensed. Regression tests enforce this map.
+- [ ] Verify the final thesis manuscript bibliography and select the project
+  source-code license; the manuscript is not stored in this repository and no
+  source license may be inferred.
 - [ ] Ensure abstract/conclusion/tables/demo make no claim beyond evidence.
 
 Final engineering audit:
@@ -881,6 +889,12 @@ Final engineering audit:
   `34013864466` passed every stage, and a fresh full-history private clone was
   clean at exact remote HEAD with the correct identity, 354-file tracked audit,
   Ruff, mypy on 49 source files, and all 173 then-current tests passing.
+- [x] Run the post-attribution local audit on 2026-09-06: compile, Ruff, and
+  mypy pass; all 178 tests pass in 17.22 seconds; branch coverage is 64%; all
+  358 tracked files pass the history/privacy/secret audit; general dependencies
+  have zero known vulnerabilities; the exact 56-advisory scientific exception
+  baseline passes; and all nine upstream pins are valid, with both present
+  local checkouts matching exactly.
 - [x] Verify a fresh full-history clone at release-snapshot commit `c476e5c`:
   clean tree, exact remote HEAD, only Mehran Bakhtiari as author/committer,
   352-file history/privacy/secret audit passed, Ruff passed, mypy passed 49
@@ -906,14 +920,18 @@ Final engineering audit:
   licenses.
 - [x] Parse all tracked JSON/JSONL/YAML/TOML and enforce their schemas where
   applicable.
-- [ ] Verify every final generated manifest, export, adapter, evaluation, and
-  release hash after those artifacts exist.
+- [x] Verify every currently finalized manifest, export, retained adapter,
+  evaluation, audit, and release-snapshot hash. The snapshot is generated only
+  from a clean parent commit and the fresh remote clone is independently tested.
+- [ ] Repeat the final snapshot/tag verification if a source license,
+  manuscript artifact, physical-4090 result, or human result is later added.
 - [x] Confirm no raw YouTube media, private source documents, participant
   identifiers, credentials, environments, caches, or restricted weights are
   tracked in any reachable revision.
-- [ ] Freeze evidence bundle: commit/tag, configs, locks, hashes, environments,
-  audits, metrics, logs, approved aggregate study data, and generated tables;
-  keep restricted media private.
+- [x] Freeze and push the current pre-license evidence bundle: configs, locks,
+  hashes, environments, audits, metrics, logs, approved aggregates, generated
+  tables, and privacy-safe descriptive analysis are snapshot-bound; restricted
+  media remains private.
 - [ ] Tag/push the submitted commit and tag; verify a fresh clone.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
