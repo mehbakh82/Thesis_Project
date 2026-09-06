@@ -1,0 +1,5434 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-09-06T17:05:55.982266+00:00",
+  "status": "valid_negative",
+  "evidence_class": "automatic_same_family_llm_as_judge_paired_responder_proxy",
+  "claim": {
+    "measurement_valid": true,
+    "predeclared_automatic_engineering_gate_passed": false,
+    "compact_responder_automatic_semantic_improvement": false,
+    "human_semantic_result": false,
+    "independent_dialogue_benchmark_result": false,
+    "factuality_or_safety_result": false,
+    "physical_4090_result": false,
+    "test_result": false
+  },
+  "panel": {
+    "split": "validation",
+    "split_unit": "source_session_id",
+    "manifest_rows": 131,
+    "indices": [
+      20,
+      21,
+      28,
+      29,
+      30,
+      31,
+      34,
+      36,
+      38,
+      39,
+      41,
+      42,
+      46,
+      49,
+      51,
+      52,
+      55,
+      58,
+      59,
+      85,
+      86,
+      87,
+      89,
+      90,
+      91,
+      93,
+      94,
+      102,
+      104,
+      105,
+      106,
+      109,
+      111,
+      114,
+      117,
+      119,
+      120,
+      123,
+      124,
+      127
+    ],
+    "sample_count": 40,
+    "previously_observed_indices_excluded": [
+      0,
+      16,
+      32,
+      48,
+      65,
+      81,
+      97,
+      113,
+      130
+    ],
+    "test_used": false
+  },
+  "responders": {
+    "base": {
+      "backend": "Qwen/Qwen2.5-0.5B-Instruct",
+      "revision": "7ae557604adf67be50417f59c2c2f167def9a775"
+    },
+    "lora": {
+      "backend": "Qwen/Qwen2.5-0.5B-Instruct+LoRA:ad47e8c854b7d0c9",
+      "base_revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+      "selected_epoch": 2,
+      "adapter_tree_sha256": "ad47e8c854b7d0c95e3821b90770c4873bc1639175425ba1c1244b214bffe8fd"
+    },
+    "reference": {
+      "type": "automatically_aligned_next_speaker_turn",
+      "human_verified": false,
+      "gold_answer": false
+    }
+  },
+  "judge": {
+    "container_name": "qwen3.8-27b-fp8",
+    "image_id": "sha256:ffb2d59b1c059a5bd8d781320c9f5189de8293693b7d95da54befddaa54abf52",
+    "image_ref": "vllm/vllm-openai@sha256:ffb2d59b1c059a5bd8d781320c9f5189de8293693b7d95da54befddaa54abf52",
+    "model_root": "Qwen/Qwen3.8-27B-FP8",
+    "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+    "served_model_name": "qwen3.8-27b",
+    "running": true,
+    "max_model_len": 65536,
+    "endpoint_scope": "loopback",
+    "temperature": 0,
+    "top_p": 1,
+    "seed": 20260906,
+    "max_tokens": 128,
+    "reasoning_enabled": false,
+    "response_format": "json_object",
+    "repeats_per_arm_row": 2,
+    "blinded_arm_order": true,
+    "system_prompt_sha256": "2e460136d3749c88ec48a3f5273418e4705d0aa07b7c618da7595967a2fe96ce",
+    "system_fingerprints": [
+      "vllm-0.26.0-7c845f74"
+    ]
+  },
+  "thresholds": {
+    "lora_relevance_mean_min": 2.0,
+    "lora_coherence_mean_min": 2.5,
+    "lora_minus_base_relevance_mean_min": 0.5,
+    "lora_minus_base_coherence_mean_min": 0.0,
+    "lora_relevance_win_rate_min": 0.6,
+    "lora_relevance_at_least_two_rate_min": 0.7
+  },
+  "aggregate": {
+    "rows": 40,
+    "judge_calls_expected": 240,
+    "judge_calls_valid": 240,
+    "judge_calls_failed": 0,
+    "base": {
+      "relevance": {
+        "mean": 1.1,
+        "p50": 0.0,
+        "p95": 4.0,
+        "min": 0,
+        "max": 4,
+        "histogram": {
+          "0": 42,
+          "1": 20,
+          "2": 2,
+          "3": 0,
+          "4": 16
+        }
+      },
+      "coherence": {
+        "mean": 0.95,
+        "p50": 1.0,
+        "p95": 3.05,
+        "min": 0,
+        "max": 4,
+        "histogram": {
+          "0": 38,
+          "1": 18,
+          "2": 18,
+          "3": 2,
+          "4": 4
+        }
+      },
+      "repeat_exact_agreement_rows": 40,
+      "repeat_exact_agreement_rate": 1.0
+    },
+    "lora": {
+      "relevance": {
+        "mean": 0.25,
+        "p50": 0.0,
+        "p95": 1.0,
+        "min": 0,
+        "max": 4,
+        "histogram": {
+          "0": 66,
+          "1": 12,
+          "2": 0,
+          "3": 0,
+          "4": 2
+        }
+      },
+      "coherence": {
+        "mean": 0.65,
+        "p50": 0.0,
+        "p95": 2.1,
+        "min": 0,
+        "max": 4,
+        "histogram": {
+          "0": 52,
+          "1": 12,
+          "2": 12,
+          "3": 0,
+          "4": 4
+        }
+      },
+      "repeat_exact_agreement_rows": 40,
+      "repeat_exact_agreement_rate": 1.0
+    },
+    "reference": {
+      "relevance": {
+        "mean": 1.55,
+        "p50": 1.0,
+        "p95": 4.0,
+        "min": 0,
+        "max": 4,
+        "histogram": {
+          "0": 20,
+          "1": 24,
+          "2": 20,
+          "3": 4,
+          "4": 12
+        }
+      },
+      "coherence": {
+        "mean": 1.7,
+        "p50": 2.0,
+        "p95": 3.0,
+        "min": 0,
+        "max": 3,
+        "histogram": {
+          "0": 2,
+          "1": 26,
+          "2": 46,
+          "3": 6,
+          "4": 0
+        }
+      },
+      "repeat_exact_agreement_rows": 40,
+      "repeat_exact_agreement_rate": 1.0
+    },
+    "paired": {
+      "lora_minus_base_relevance_mean": -0.85,
+      "lora_minus_base_coherence_mean": -0.3,
+      "lora_relevance_win_rows": 5,
+      "lora_relevance_win_rate": 0.125,
+      "lora_relevance_at_least_two_rows": 1,
+      "lora_relevance_at_least_two_rate": 0.025
+    }
+  },
+  "automatic_engineering_gate": {
+    "mechanically_valid": true,
+    "lora_relevance_mean_at_least_2_0": false,
+    "lora_coherence_mean_at_least_2_5": false,
+    "relevance_gain_at_least_0_50": false,
+    "coherence_gain_nonnegative": false,
+    "relevance_win_rate_at_least_0_60": false,
+    "relevance_at_least_two_rate_at_least_0_70": false
+  },
+  "samples": [
+    {
+      "manifest_row_index": 20,
+      "source_audio_sha256": "1715baed64ce076f437c76bb6b2094292ac8a59f5a97f0fce41cbd87f2feae64",
+      "input_transcript_sha256": "f4b72fa8abc0dc80b7ce9cba442353afe4dd56a422e2e296cb92029389480f7d",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a6ef7dbc1609f3481ae48e27e31eb1b81b58d28f655dcc2430e58f912687e33",
+      "arms": {
+        "lora": {
+          "reply_sha256": "6848cda0cc67b7b4c525ee49c343ac19608347ec45c824e71088b6dde5744863",
+          "script_statistics": {
+            "characters": 90,
+            "letters": 73,
+            "persian_letters": 73,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "c57043a0f9f4ed6700bf024735077c4e55e406f006a6dc335e763b0b215cd342"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "c57043a0f9f4ed6700bf024735077c4e55e406f006a6dc335e763b0b215cd342"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "ca12ce8d0c29a89b697d5d04a5daf853572ae1703a6ce640110931a0302093bd",
+          "script_statistics": {
+            "characters": 114,
+            "letters": 88,
+            "persian_letters": 88,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 1
+            },
+            {
+              "relevance": 1,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "60cb0615e06eef41e30124e9fe665e95f4f363191fb4b220482093dff673d240"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "60cb0615e06eef41e30124e9fe665e95f4f363191fb4b220482093dff673d240"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "218bfdecdf02cfb49f8a36fae32b327f50cef45580f3f5b5900bfc208e8d16ae",
+          "script_statistics": {
+            "characters": 75,
+            "letters": 60,
+            "persian_letters": 60,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 2
+            },
+            {
+              "relevance": 0,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "72d4f3f1a4e5c945e6e9eff984787141020b6cfda3ddc43ae623960617a261c3"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "72d4f3f1a4e5c945e6e9eff984787141020b6cfda3ddc43ae623960617a261c3"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 116472,
+      "lora_audio_rms": 0.18784957
+    },
+    {
+      "manifest_row_index": 21,
+      "source_audio_sha256": "d27507064629b4a0c01b31b92582f4d70bffe4854f3fd97e7d574aaeeb2cfde3",
+      "input_transcript_sha256": "cfc933b72464d993d7a606ea4318173140cfd331129ca60317fe841c8ec6849d",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "7d1d61be913142d879cd3704024e7e031514a2edf0d117c6566d9863c36eb0a8",
+      "arms": {
+        "base": {
+          "reply_sha256": "145b8af43a2ca78af27098c67fa1e0cdc5c39394a298071243695f53e02789ff",
+          "script_statistics": {
+            "characters": 117,
+            "letters": 88,
+            "persian_letters": 88,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 1
+            },
+            {
+              "relevance": 0,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "2d2cb6a17d3f1b46f4e8abd09318d41bb26728aae329965e5376a04c9c52aadb"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "2d2cb6a17d3f1b46f4e8abd09318d41bb26728aae329965e5376a04c9c52aadb"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "c17c1311d3208b5a9c531617cb7860a5507e0c132daa45da537ff16923d9f1ca",
+          "script_statistics": {
+            "characters": 72,
+            "letters": 58,
+            "persian_letters": 58,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 1
+            },
+            {
+              "relevance": 1,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "28f716e994df9bedd91e8d053c00fced39ec2d931b1cbae65cc1d53bcf35739d"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "28f716e994df9bedd91e8d053c00fced39ec2d931b1cbae65cc1d53bcf35739d"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "49a8fc3cea3b15f8991f0e86b920670892029e6c69bcdef10bd29b5124314796",
+          "script_statistics": {
+            "characters": 236,
+            "letters": 179,
+            "persian_letters": 179,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 2
+            },
+            {
+              "relevance": 0,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "70cf5e7e811221089c1e8c15d7abf597ed04ee9ebb51c4f5fa3e54ab9a668524"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "70cf5e7e811221089c1e8c15d7abf597ed04ee9ebb51c4f5fa3e54ab9a668524"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 87308,
+      "lora_audio_rms": 0.19216461
+    },
+    {
+      "manifest_row_index": 28,
+      "source_audio_sha256": "ce06f79514b95f81b2bc95f141696202489604f65ad35a63108bbcf52c0c6e28",
+      "input_transcript_sha256": "164e51464ee57632ad9f2264d299962d09d132c629a7b0208b33222b8591a055",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a6ef7dbc1609f3481ae48e27e31eb1b81b58d28f655dcc2430e58f912687e33",
+      "arms": {
+        "lora": {
+          "reply_sha256": "dfb0bb140405c7d06b2c929c72157413e19563a2e067b56fb0b55a2f87a8c83c",
+          "script_statistics": {
+            "characters": 7,
+            "letters": 5,
+            "persian_letters": 5,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "2ac22a9cdc9c236cfee072dfbe8d6dfc9e0e15cadad4b631d50856a6a39b0937"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "2ac22a9cdc9c236cfee072dfbe8d6dfc9e0e15cadad4b631d50856a6a39b0937"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "44507113f0a4fcef0df633336a4b7f13ed1435f898ee4edfa7b993cc2700aa7c",
+          "script_statistics": {
+            "characters": 64,
+            "letters": 49,
+            "persian_letters": 49,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 2
+            },
+            {
+              "relevance": 0,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "a126002b03f9f6292347eae998cfe456df8d54df079832be12e64957b9902e5b"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "a126002b03f9f6292347eae998cfe456df8d54df079832be12e64957b9902e5b"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "f27a90d18c4c56b855eff8b35a13c88535a6d3e3dae9390cf3ba61691381eda5",
+          "script_statistics": {
+            "characters": 226,
+            "letters": 179,
+            "persian_letters": 179,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 4,
+              "coherence": 3
+            },
+            {
+              "relevance": 4,
+              "coherence": 3
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "6ef9ce5eb0a396bb8bbf2c6bf871b54dae2aad07c0ce6081877c2ebbb456ca32"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "6ef9ce5eb0a396bb8bbf2c6bf871b54dae2aad07c0ce6081877c2ebbb456ca32"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 6316,
+      "lora_audio_rms": 0.06509247
+    },
+    {
+      "manifest_row_index": 29,
+      "source_audio_sha256": "d9cf7b5717a48aa1ca4384faa53e2cf8cbf34a73219d9a0c06d54679c5f569a2",
+      "input_transcript_sha256": "a383c7bac21301da01c7165420ec8dc6802762cdae21155f0d26e53973265774",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "016072f30fb50c802ee89aa25f826104ad2c16cefcfe78d8941739b61f0641fa",
+      "arms": {
+        "base": {
+          "reply_sha256": "cb0cf459ade3a1f09ec0ef5828eee7db3c2524e97c8e8c6c1dfbeec1c3127ee5",
+          "script_statistics": {
+            "characters": 119,
+            "letters": 93,
+            "persian_letters": 93,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "dd89675f95e87d5f5b147e531fedc00a04e7671e0c8cad9436d4a9b4adac3a7d"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "dd89675f95e87d5f5b147e531fedc00a04e7671e0c8cad9436d4a9b4adac3a7d"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "4b97325bed85257c32a353cb2909e1cdc38d35fa9bf5f2cf6a624618b2aba51e",
+          "script_statistics": {
+            "characters": 270,
+            "letters": 209,
+            "persian_letters": 209,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 2
+            },
+            {
+              "relevance": 1,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "e88005429f91e203fc7f2b83023fa6a51cbc5297f076fa134fe93bff55c6a088"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "e88005429f91e203fc7f2b83023fa6a51cbc5297f076fa134fe93bff55c6a088"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "cddbc55a3d878ce0d2f14587c238a9f9e568865407a4b6242cf3567013bd2f85",
+          "script_statistics": {
+            "characters": 34,
+            "letters": 28,
+            "persian_letters": 28,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "d34d4a8bb2832e69cf9a1393f2fd9bb9ac910d7beefecd934261c682a58ef239"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "d34d4a8bb2832e69cf9a1393f2fd9bb9ac910d7beefecd934261c682a58ef239"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 40496,
+      "lora_audio_rms": 0.15409295
+    },
+    {
+      "manifest_row_index": 30,
+      "source_audio_sha256": "a7d07bd61d26327f1de329ad9f491b36ef9752ce65ab6d85d9d996e07c3a700e",
+      "input_transcript_sha256": "ec0fa24a9df1709d94505453304fb62f3a523f886ac2ea924912e79c3cb71038",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "7d1d61be913142d879cd3704024e7e031514a2edf0d117c6566d9863c36eb0a8",
+      "arms": {
+        "base": {
+          "reply_sha256": "e9c44bb26b3f1d701dbaae40c888f8cb0c5e0e85ef14593abc3df29346ba9576",
+          "script_statistics": {
+            "characters": 124,
+            "letters": 96,
+            "persian_letters": 96,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "08f4519f169ecba807726376b0e38fc15188db5f7d111bffb2ad92474741baa9"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "08f4519f169ecba807726376b0e38fc15188db5f7d111bffb2ad92474741baa9"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "5f0dbe0d6d59ca8025969a9df21767da8d867692598e68f6fad3c35f464a2963",
+          "script_statistics": {
+            "characters": 102,
+            "letters": 78,
+            "persian_letters": 74,
+            "persian_letter_fraction": 0.948718
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 1
+            },
+            {
+              "relevance": 0,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "582ce361865223a447f745403ba941d2b3d75320c9718369843a6436fb417148"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "582ce361865223a447f745403ba941d2b3d75320c9718369843a6436fb417148"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "0f95387fe602ee439151f210e84c13d6fcf0f12e3369b572007bbd67f8bed63d",
+          "script_statistics": {
+            "characters": 519,
+            "letters": 404,
+            "persian_letters": 404,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 2,
+              "coherence": 2
+            },
+            {
+              "relevance": 2,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "187d3eb5f35a13e777d1e5d1f12a7854a34be32fc846891716db16d0fa54cd2f"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "187d3eb5f35a13e777d1e5d1f12a7854a34be32fc846891716db16d0fa54cd2f"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 126689,
+      "lora_audio_rms": 0.19807468
+    },
+    {
+      "manifest_row_index": 31,
+      "source_audio_sha256": "f8c9c1e759144f4445687ba5870996d4d5775f8f207b93f04a73a51bd1323d7e",
+      "input_transcript_sha256": "4209fc47c2d0060d6fd19993f4a81b39e8b9b7a5bdad43be475c3a9205fbf8de",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a6ef7dbc1609f3481ae48e27e31eb1b81b58d28f655dcc2430e58f912687e33",
+      "arms": {
+        "lora": {
+          "reply_sha256": "394f0bc3e0522791fbd3de4c7072f0145485e6f98a788670d9175e86fa721c5a",
+          "script_statistics": {
+            "characters": 46,
+            "letters": 38,
+            "persian_letters": 38,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 1
+            },
+            {
+              "relevance": 1,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "e80177bbb40a7daa73573cd33da19d8fd29b6cef4f76d739e791f8b409f56a32"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "e80177bbb40a7daa73573cd33da19d8fd29b6cef4f76d739e791f8b409f56a32"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "2cb31445b611ff7ab5c0edb32df8e346c370d95e9eeb8a02672a9eda41f53fec",
+          "script_statistics": {
+            "characters": 117,
+            "letters": 88,
+            "persian_letters": 88,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "72f0bf3603ea5e143c9ac504a526521301b6841e058ac78962450ca44c41cc92"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "72f0bf3603ea5e143c9ac504a526521301b6841e058ac78962450ca44c41cc92"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "13c0e64b8dabc3f092f4409a3ef785e307958a31c3168fa4fc29a4d4edd299d6",
+          "script_statistics": {
+            "characters": 1235,
+            "letters": 967,
+            "persian_letters": 967,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 2
+            },
+            {
+              "relevance": 1,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "28346431e28c71b99092f239068a803e73d6037d55a4c4dbdcdb58533f2a7c5a"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "28346431e28c71b99092f239068a803e73d6037d55a4c4dbdcdb58533f2a7c5a"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 59072,
+      "lora_audio_rms": 0.1945803
+    },
+    {
+      "manifest_row_index": 34,
+      "source_audio_sha256": "a5bbec544997eac81083d773cfd3888c58e25f4476031f45f33b9d39ebc0f7c3",
+      "input_transcript_sha256": "99db1b59dcb12c0687b4e8fb960667cf893552440eff08627c22c76f8fa0f682",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a68179395e365ad0d11b82d913ce5f84e590d495503a3e50488a3160e08dd46",
+      "arms": {
+        "reference": {
+          "reply_sha256": "8627ffaaf5b94813b72e53abde61aef4d16f2df12035baa97c2ad5141841ba10",
+          "script_statistics": {
+            "characters": 383,
+            "letters": 299,
+            "persian_letters": 299,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 2,
+              "coherence": 2
+            },
+            {
+              "relevance": 2,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "250ed44bf0e3d74611871bd2543bc575ab02eb603cd43c4e5db0acd6b0ef5867"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "250ed44bf0e3d74611871bd2543bc575ab02eb603cd43c4e5db0acd6b0ef5867"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "63aaebf0fd6420dc8b1ed0846460d47e9892e2706cb06d24b8bfb63ac7ff0518",
+          "script_statistics": {
+            "characters": 32,
+            "letters": 23,
+            "persian_letters": 19,
+            "persian_letter_fraction": 0.826087
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 0
+            },
+            {
+              "relevance": 1,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "46b1ca7e070aa4fc1a518439b3d8c4029618c993e40fd3713bd684283d2cd30c"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "46b1ca7e070aa4fc1a518439b3d8c4029618c993e40fd3713bd684283d2cd30c"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "9b97d973dfa09727f3cf6718dcb4d04e074a0b29cf717f62deeb01f5e883ce9f",
+          "script_statistics": {
+            "characters": 94,
+            "letters": 64,
+            "persian_letters": 64,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "460fabe71b611ef60715fcf78de84980c372cfade6b9974e9efcf8509e8dfde5"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "460fabe71b611ef60715fcf78de84980c372cfade6b9974e9efcf8509e8dfde5"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 47183,
+      "lora_audio_rms": 0.18584405
+    },
+    {
+      "manifest_row_index": 36,
+      "source_audio_sha256": "7cfeca1b836ce3b7777ae762bd15ce8bc2cd491a8080f40cb55f74c0bb3603b0",
+      "input_transcript_sha256": "d07d665509ade7645cd0bb309e1c9da5d248903dfa4cb6a9753742118c224103",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "8c8610a714c1757c6258a95cc902776dd017620cc459c9312087800b2d78dcb3",
+      "arms": {
+        "reference": {
+          "reply_sha256": "a1165e63398b4e2d94bcfac079e4bf56d6d220e2318aa338a5ae7a331c9019eb",
+          "script_statistics": {
+            "characters": 39,
+            "letters": 32,
+            "persian_letters": 32,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 2
+            },
+            {
+              "relevance": 1,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "89b2d24a713db3100fdef62a5d9b9132df84c29dfd3a3c577a3cc4259f5f925e"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "89b2d24a713db3100fdef62a5d9b9132df84c29dfd3a3c577a3cc4259f5f925e"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "cfb479fd646f8356f32e6aeea6ffab07baecd0a6e1bdb2099ed45f3c5c2f3002",
+          "script_statistics": {
+            "characters": 125,
+            "letters": 97,
+            "persian_letters": 97,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 2
+            },
+            {
+              "relevance": 1,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "72d96219da633e4821314577c03d5a6803ab22c47e57c0e64fed667cf2b6d4f5"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "72d96219da633e4821314577c03d5a6803ab22c47e57c0e64fed667cf2b6d4f5"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "9c76c45cf2a11a0e06b0cefd2cce0687e82c75a0215338f907479f50bdf6dfd4",
+          "script_statistics": {
+            "characters": 106,
+            "letters": 85,
+            "persian_letters": 85,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "20d4aa2ce62a7d9e38ff94b8ecdfcd0cbd7a80dfdfd37f068eca05cf05723b56"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "20d4aa2ce62a7d9e38ff94b8ecdfcd0cbd7a80dfdfd37f068eca05cf05723b56"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 132819,
+      "lora_audio_rms": 0.18600747
+    },
+    {
+      "manifest_row_index": 38,
+      "source_audio_sha256": "66337233841267e5ce950750eee084f6acc7aaa950fd1c4908f3c12e2d2b443e",
+      "input_transcript_sha256": "d929f5a374f9a3d1d0784d85428a611dff635c46e39a873bd0edb676b6758659",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "016072f30fb50c802ee89aa25f826104ad2c16cefcfe78d8941739b61f0641fa",
+      "arms": {
+        "base": {
+          "reply_sha256": "4bbd9658acb62d0990bf1dcdaaef52135b7c9d57e70af89befd1a4413cdf7351",
+          "script_statistics": {
+            "characters": 111,
+            "letters": 88,
+            "persian_letters": 88,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 4,
+              "coherence": 2
+            },
+            {
+              "relevance": 4,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "5e4580acf7fd5cbbd79e85413f1509e17d782160acddaa0ae4dbb15a32125e05"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "5e4580acf7fd5cbbd79e85413f1509e17d782160acddaa0ae4dbb15a32125e05"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "92b6af305c0e95184abb04eed18fc5e1abea9cc787cfab2a0708329bfffec1da",
+          "script_statistics": {
+            "characters": 38,
+            "letters": 29,
+            "persian_letters": 29,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 2
+            },
+            {
+              "relevance": 0,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "6c51c8dcbbbc2ed78351fc1a9b9b907affef9f2b64932f43ab319c39eb0d4544"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "6c51c8dcbbbc2ed78351fc1a9b9b907affef9f2b64932f43ab319c39eb0d4544"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "51844b3d8d9c758e685821a5a96208a32beb042f4cbfab197aaed10ff7d0cb5f",
+          "script_statistics": {
+            "characters": 40,
+            "letters": 29,
+            "persian_letters": 25,
+            "persian_letter_fraction": 0.862069
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 2
+            },
+            {
+              "relevance": 0,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "1d7c8ac57a64fb07e609d892d4a33eca057b6c9598347f45226caf9b9321b1c1"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "1d7c8ac57a64fb07e609d892d4a33eca057b6c9598347f45226caf9b9321b1c1"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 60372,
+      "lora_audio_rms": 0.18686987
+    },
+    {
+      "manifest_row_index": 39,
+      "source_audio_sha256": "47e6790bedca7b684a1de5f08abca8bb6e12ee705b174624a0499ab8689bba2a",
+      "input_transcript_sha256": "28dbef076a752aefdd36ccfb9c33721d5d225fdd00a6a20c614bc20166395941",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a68179395e365ad0d11b82d913ce5f84e590d495503a3e50488a3160e08dd46",
+      "arms": {
+        "reference": {
+          "reply_sha256": "0a21de3a6471982d6f60a7039c9159a63fd398e42cf71bb67c608617decf20d5",
+          "script_statistics": {
+            "characters": 200,
+            "letters": 155,
+            "persian_letters": 155,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 2,
+              "coherence": 1
+            },
+            {
+              "relevance": 2,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "8aa1f20862a00d26089459e35ca0db7a668e8c4cf1f932327bc507d2a7d051e5"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "8aa1f20862a00d26089459e35ca0db7a668e8c4cf1f932327bc507d2a7d051e5"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "2f7346d9fb4bdc26911346f6f2e1cb69f5b89f38cd7a5f9b36cfc46d500d724b",
+          "script_statistics": {
+            "characters": 41,
+            "letters": 33,
+            "persian_letters": 33,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "c2d95261c52bebf06962d0cc5eed8aee6c11c11e27340b4fa56775517ef4366a"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "c2d95261c52bebf06962d0cc5eed8aee6c11c11e27340b4fa56775517ef4366a"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "56e7e30440eb3fb0703fdbec95c467910ffd23c83ec13bf72017d00e59a28ce1",
+          "script_statistics": {
+            "characters": 106,
+            "letters": 82,
+            "persian_letters": 82,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 4,
+              "coherence": 2
+            },
+            {
+              "relevance": 4,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "65822974e58b360fa7d5716780c209377bd29a9d984bc9b5ffb57e4a108c4af9"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "65822974e58b360fa7d5716780c209377bd29a9d984bc9b5ffb57e4a108c4af9"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 41053,
+      "lora_audio_rms": 0.18434407
+    },
+    {
+      "manifest_row_index": 41,
+      "source_audio_sha256": "b8e8bd2fcab8333dab7f95c42eea1e74289091cce20afbd062a3dd8f96eafe16",
+      "input_transcript_sha256": "b84c752cc1a8cdb7a3fed374968e6f6b0e311e36ef39e44f9bb529fef7641fc9",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "016072f30fb50c802ee89aa25f826104ad2c16cefcfe78d8941739b61f0641fa",
+      "arms": {
+        "base": {
+          "reply_sha256": "8c85cb39417c5b7718b31de5677daf67ed99ab73aa61599a7392ca5c6403b6d4",
+          "script_statistics": {
+            "characters": 140,
+            "letters": 106,
+            "persian_letters": 106,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 0
+            },
+            {
+              "relevance": 1,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "8977f39598827b87af143ffb82c08d17c75f8b03dd0b3b3ca73fda3b9a31d421"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "8977f39598827b87af143ffb82c08d17c75f8b03dd0b3b3ca73fda3b9a31d421"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "9a73d472924a99fcd8ac46e27ae9a4f1818826bd539c244ec4340c19d527bd3f",
+          "script_statistics": {
+            "characters": 113,
+            "letters": 90,
+            "persian_letters": 90,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 2,
+              "coherence": 1
+            },
+            {
+              "relevance": 2,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "e06b6bef0f46c14011805566f7a5f46631fa9660a2ca6fa9984da0739fa147cc"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "e06b6bef0f46c14011805566f7a5f46631fa9660a2ca6fa9984da0739fa147cc"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "e09958babf717b5b5043de28686a58fff545cc1df13c89b875dd9e651ab6f109",
+          "script_statistics": {
+            "characters": 108,
+            "letters": 81,
+            "persian_letters": 77,
+            "persian_letter_fraction": 0.950617
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "a003e112d7b2ac50d0f0c31b9b7cee455ab6cf8f1dbbca1826637e72dd41c9e1"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "a003e112d7b2ac50d0f0c31b9b7cee455ab6cf8f1dbbca1826637e72dd41c9e1"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 118701,
+      "lora_audio_rms": 0.18415177
+    },
+    {
+      "manifest_row_index": 42,
+      "source_audio_sha256": "502bba9a0dfef5ad416e517a0f43b216bba8745be39246316205a22b181a23ed",
+      "input_transcript_sha256": "d11c538d9ff15afc55afa61490c9b796dad061dd1170799ed128e889d005616c",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a68179395e365ad0d11b82d913ce5f84e590d495503a3e50488a3160e08dd46",
+      "arms": {
+        "reference": {
+          "reply_sha256": "d6c96f61cf7cedb201fea13041650ef7c0e052822331a5ebdc47666421f94916",
+          "script_statistics": {
+            "characters": 28,
+            "letters": 23,
+            "persian_letters": 23,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 2
+            },
+            {
+              "relevance": 1,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b52e77fdb56cadcde024b12ef833b9b072d3fef9e799a1099e47f58e4b5f8e3d"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b52e77fdb56cadcde024b12ef833b9b072d3fef9e799a1099e47f58e4b5f8e3d"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "ae9ee896a475135fbe162847eb403de8904a9a6d4892be61a679ab1bdd7f9980",
+          "script_statistics": {
+            "characters": 55,
+            "letters": 45,
+            "persian_letters": 45,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 0
+            },
+            {
+              "relevance": 1,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "d4e23f0a1917665d60c8fe18346ca29b1e9f08d0ba59ca1e1eb9710ebfd4d8dc"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "d4e23f0a1917665d60c8fe18346ca29b1e9f08d0ba59ca1e1eb9710ebfd4d8dc"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "f361aee7a8798e119fc1fb3be05044297dcd1a1b42fe7cd293803736e3c37e6a",
+          "script_statistics": {
+            "characters": 70,
+            "letters": 52,
+            "persian_letters": 52,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 1
+            },
+            {
+              "relevance": 1,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "d42608e48b95fca9ba85cd5c663b072b4042ff096bd3bea5287695f02677b828"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "d42608e48b95fca9ba85cd5c663b072b4042ff096bd3bea5287695f02677b828"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 58143,
+      "lora_audio_rms": 0.16203679
+    },
+    {
+      "manifest_row_index": 46,
+      "source_audio_sha256": "e7582bf9c01d46fb4be97bfa267480b8d7ce4163bef4892391ac6549d10db235",
+      "input_transcript_sha256": "2490b3e57f4603da6607cea224a416763f614a217894b8e76a29c903d432328f",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a6ef7dbc1609f3481ae48e27e31eb1b81b58d28f655dcc2430e58f912687e33",
+      "arms": {
+        "lora": {
+          "reply_sha256": "4d5373b67146655ab6f776a2517f1a58f5061539010d9d4799d1785e32f15161",
+          "script_statistics": {
+            "characters": 83,
+            "letters": 66,
+            "persian_letters": 62,
+            "persian_letter_fraction": 0.939394
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "9f88dfd02bb326294b5fa7939e913f8f9a784a73ca179138ec538793020a99aa"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "9f88dfd02bb326294b5fa7939e913f8f9a784a73ca179138ec538793020a99aa"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "436b5e5b3e5a735b67191bc33e59633c926743a087f65841d9de0d293770d8ad",
+          "script_statistics": {
+            "characters": 117,
+            "letters": 82,
+            "persian_letters": 82,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "d1bb3c877c0e50e3995d3459551a87a33196df2741dd93c2ebf0acd8ccd1f299"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "d1bb3c877c0e50e3995d3459551a87a33196df2741dd93c2ebf0acd8ccd1f299"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "07181c2ff2d05b2f70833a958d1e469e5a916457a04011dc71d13b0c706b88bf",
+          "script_statistics": {
+            "characters": 767,
+            "letters": 608,
+            "persian_letters": 608,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 2,
+              "coherence": 1
+            },
+            {
+              "relevance": 2,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "d396c7a379de2063ee9283d5990ac97fa7908050a1ba596e9ea3272cdf3cc5c5"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "d396c7a379de2063ee9283d5990ac97fa7908050a1ba596e9ea3272cdf3cc5c5"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 93252,
+      "lora_audio_rms": 0.20682733
+    },
+    {
+      "manifest_row_index": 49,
+      "source_audio_sha256": "0c2217cae25923a72b4aa0e96c9cd67e6e0ec5f7c864a5a7e60b41301c6da0ef",
+      "input_transcript_sha256": "7c835aa60892c7decf29cf8f5433a425c31738cb46a047739c19bbc2478c4d14",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "fca2df89e4fe59479f36da0d1f7a78e397db1252dadc18827dc9da086d02de26",
+      "arms": {
+        "lora": {
+          "reply_sha256": "752246f47123ccc0ac5f0b0df11ff8f6e9bfc7b91304536d7b4d8159adc409f6",
+          "script_statistics": {
+            "characters": 110,
+            "letters": 85,
+            "persian_letters": 81,
+            "persian_letter_fraction": 0.952941
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b3885c63016d08385f6b24bd0c33aaeacf5a6411eb503282e6462beb57073877"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b3885c63016d08385f6b24bd0c33aaeacf5a6411eb503282e6462beb57073877"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "77dfaaa7d79e52569b0e95957265a791bd805c61bdec6af3cd92baff3e469e31",
+          "script_statistics": {
+            "characters": 905,
+            "letters": 702,
+            "persian_letters": 702,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 4,
+              "coherence": 2
+            },
+            {
+              "relevance": 4,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "73fa10e38ab34541dc284ace168105627415ad0cf53944b2ec6f10f784fe18cc"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "73fa10e38ab34541dc284ace168105627415ad0cf53944b2ec6f10f784fe18cc"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "2fd28634e904c16fb10e44fd2b36305cf98e091aec4a6b79983cd6fa146c0484",
+          "script_statistics": {
+            "characters": 105,
+            "letters": 81,
+            "persian_letters": 81,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "485b7914413cc1e9b4189e536778e4487a5a0519add08fec5bd21bb580106aad"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "485b7914413cc1e9b4189e536778e4487a5a0519add08fec5bd21bb580106aad"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 137834,
+      "lora_audio_rms": 0.22013977
+    },
+    {
+      "manifest_row_index": 51,
+      "source_audio_sha256": "88849369dc20459ab1dca9e8bba8652b8eb767014d62053d733182b94e072ba8",
+      "input_transcript_sha256": "8fe36fc6bc665df51f3095198da86d8b3cf286a323ff21bae14d6e99a69caa40",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "7d1d61be913142d879cd3704024e7e031514a2edf0d117c6566d9863c36eb0a8",
+      "arms": {
+        "base": {
+          "reply_sha256": "f8433e248273553c1b2e58124bee26c85a40d408cccedb6049e75d2ef720715c",
+          "script_statistics": {
+            "characters": 112,
+            "letters": 80,
+            "persian_letters": 80,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 0
+            },
+            {
+              "relevance": 1,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "ae43692d713182b80b387ac6893df0c7bd0b59f2f1a19c9db2d3b9d416ea27b5"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "ae43692d713182b80b387ac6893df0c7bd0b59f2f1a19c9db2d3b9d416ea27b5"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "6ff494e4ed433149a2a577f5a61b0b4f7525317348d991a051567b3ab6d10843",
+          "script_statistics": {
+            "characters": 46,
+            "letters": 33,
+            "persian_letters": 29,
+            "persian_letter_fraction": 0.878788
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 2
+            },
+            {
+              "relevance": 0,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "49436df8e271ae16da87de859411c8947cc3666799d0c1d7b8a08764243d2bc6"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "49436df8e271ae16da87de859411c8947cc3666799d0c1d7b8a08764243d2bc6"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "bbae2a73a297cb899c2c2c2343da26bb25f2cea7dd5f4c7e208c494f4ffe46aa",
+          "script_statistics": {
+            "characters": 1764,
+            "letters": 1398,
+            "persian_letters": 1398,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 2,
+              "coherence": 2
+            },
+            {
+              "relevance": 2,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "ad3d00bb2afb5ad8e9fefe0a569f5ffa1b586680159ecb6a6c39e7dfbc12ba6c"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "ad3d00bb2afb5ad8e9fefe0a569f5ffa1b586680159ecb6a6c39e7dfbc12ba6c"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 69475,
+      "lora_audio_rms": 0.21166146
+    },
+    {
+      "manifest_row_index": 52,
+      "source_audio_sha256": "445063fd8eb8f967f3489aac71d2a80640ee60a18143050e47495b5d4b49c71b",
+      "input_transcript_sha256": "2465a8ad4f8741fe361a1cfec9fc6cddad1614bfcded6a8d0c57d7d7e22e037e",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "fca2df89e4fe59479f36da0d1f7a78e397db1252dadc18827dc9da086d02de26",
+      "arms": {
+        "lora": {
+          "reply_sha256": "57aa180b3253994680e480f44c5d555bcca0c3fa48ca432a8fa681b9dbc90b1a",
+          "script_statistics": {
+            "characters": 105,
+            "letters": 84,
+            "persian_letters": 84,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "52d9e4859f2ae327c9ebb768b88d94294d7c2248345108d163dab6a137cef651"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "52d9e4859f2ae327c9ebb768b88d94294d7c2248345108d163dab6a137cef651"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "bbcab9d43041502318151d611cc655720efe14663257b6a11b60aa77d57a5f53",
+          "script_statistics": {
+            "characters": 1738,
+            "letters": 1371,
+            "persian_letters": 1371,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 4,
+              "coherence": 3
+            },
+            {
+              "relevance": 4,
+              "coherence": 3
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "c408bcffd19701836b4d37ab6fb90cfde3b169a16dfff3ffaf25b4743d58375f"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "c408bcffd19701836b4d37ab6fb90cfde3b169a16dfff3ffaf25b4743d58375f"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "3b9b59cc78ea571f7daec1250f2805cb5ee84fad6fd72eebde0227a01e74f5bc",
+          "script_statistics": {
+            "characters": 96,
+            "letters": 73,
+            "persian_letters": 73,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 0
+            },
+            {
+              "relevance": 1,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "915a8d98adbc868ae643f99d8beedb33c491a777349d0cb0c56c77cc55aa4b38"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "915a8d98adbc868ae643f99d8beedb33c491a777349d0cb0c56c77cc55aa4b38"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 97524,
+      "lora_audio_rms": 0.220456
+    },
+    {
+      "manifest_row_index": 55,
+      "source_audio_sha256": "0d9bd4f26ab70e724018842e37d916d19aa09c83b892e5791170ec08d76d2f0f",
+      "input_transcript_sha256": "1a09dca987c857ee29e79160d4b522c61fcbec5e99e634613ac86a08ac810564",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a68179395e365ad0d11b82d913ce5f84e590d495503a3e50488a3160e08dd46",
+      "arms": {
+        "reference": {
+          "reply_sha256": "b713f3fcc53c16852ae78fe505713b67580f5d5fae0089f199c308912ad08ff6",
+          "script_statistics": {
+            "characters": 112,
+            "letters": 87,
+            "persian_letters": 87,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 2,
+              "coherence": 1
+            },
+            {
+              "relevance": 2,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "8fc5ea60c5a7ac47e983533812ed3f0e36732c5c13f276c61006d7bf908be60d"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "8fc5ea60c5a7ac47e983533812ed3f0e36732c5c13f276c61006d7bf908be60d"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "46f0c13e23bd283d16e690ed8f6f04984a44a1dbac0a92849c4aded3900faf24",
+          "script_statistics": {
+            "characters": 34,
+            "letters": 27,
+            "persian_letters": 27,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "dba0a452527feb127212a4db5e3d114d0fcc5c454cb8ffc2357349804dcd661a"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "dba0a452527feb127212a4db5e3d114d0fcc5c454cb8ffc2357349804dcd661a"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "ff313d1ae93375f0171f69802dba9f7801c627582cc34e6be03c83363da8b142",
+          "script_statistics": {
+            "characters": 45,
+            "letters": 37,
+            "persian_letters": 37,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 2
+            },
+            {
+              "relevance": 1,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "f72af829bd15a90a6aed6f86699471b798051bf5750e6a134d86e02bc8d9cc5f"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "f72af829bd15a90a6aed6f86699471b798051bf5750e6a134d86e02bc8d9cc5f"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 44954,
+      "lora_audio_rms": 0.16828479
+    },
+    {
+      "manifest_row_index": 58,
+      "source_audio_sha256": "cdbc08d15abac2072a2b981ba58be25822fded7b4ea99146d6b2fe3e9b1a63ce",
+      "input_transcript_sha256": "d0bb8aefd07603883854136f60764654385375624880f61203704357b23f04ac",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a68179395e365ad0d11b82d913ce5f84e590d495503a3e50488a3160e08dd46",
+      "arms": {
+        "reference": {
+          "reply_sha256": "728e26ba961aa23fd624ff878f99a0633298dec76e05c16a6ae6d218fee5d2ce",
+          "script_statistics": {
+            "characters": 2159,
+            "letters": 1701,
+            "persian_letters": 1701,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 3,
+              "coherence": 2
+            },
+            {
+              "relevance": 3,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "e40ef24e8a12c761e80b0dcd237ab6b877a0a25f5f64e0fd786acf03654e1df3"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "e40ef24e8a12c761e80b0dcd237ab6b877a0a25f5f64e0fd786acf03654e1df3"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "16e4a145750a216acc9a3dbbaa1e9712239633963e79c8344110060eb8d38dea",
+          "script_statistics": {
+            "characters": 96,
+            "letters": 80,
+            "persian_letters": 80,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "50ec58a07059c7b7fe44670edc7bb6ea408755f154166174711dd94f9367869d"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "50ec58a07059c7b7fe44670edc7bb6ea408755f154166174711dd94f9367869d"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "abfac7382c7206f90ef79d2497647ce2b3ec12403df2444448b4c5ac6d98f18f",
+          "script_statistics": {
+            "characters": 117,
+            "letters": 95,
+            "persian_letters": 95,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 4,
+              "coherence": 2
+            },
+            {
+              "relevance": 4,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "08e40f2b6813c65c277d3d77018bbd98e0f6d95d9bbe6f91e323c6a6b08f3a02"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "08e40f2b6813c65c277d3d77018bbd98e0f6d95d9bbe6f91e323c6a6b08f3a02"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 82106,
+      "lora_audio_rms": 0.25800544
+    },
+    {
+      "manifest_row_index": 59,
+      "source_audio_sha256": "eaa42c76ec29a1d33f456658874bd684b9ec94bcb2b34ffa02bffd05da8f8062",
+      "input_transcript_sha256": "1cf072448f3468c825da2ee858d45ed6837ec6e7828116911ade254e32f5bde8",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a68179395e365ad0d11b82d913ce5f84e590d495503a3e50488a3160e08dd46",
+      "arms": {
+        "reference": {
+          "reply_sha256": "9929cf13a2a0715285be26b08ae9d342986191852e36b362c8db15dc70d3591b",
+          "script_statistics": {
+            "characters": 194,
+            "letters": 155,
+            "persian_letters": 155,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 4,
+              "coherence": 3
+            },
+            {
+              "relevance": 4,
+              "coherence": 3
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "11f67f2b1df34fae28baaf0fb6eabe59dc80f5669d0e9a1f543723cc81844579"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "11f67f2b1df34fae28baaf0fb6eabe59dc80f5669d0e9a1f543723cc81844579"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "bb2b9463623a720e60e4a7c0d18c9f6000a955022585588b56327fd3941008e7",
+          "script_statistics": {
+            "characters": 30,
+            "letters": 24,
+            "persian_letters": 24,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 2
+            },
+            {
+              "relevance": 0,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "44a84c1e415186cc9b26fb7fba455e69e8b6110a6d099813ad4a24e898c5a847"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "44a84c1e415186cc9b26fb7fba455e69e8b6110a6d099813ad4a24e898c5a847"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "fbc205d7ded2d54267bd522ccb99af782a5de1bfd6813831a68ca3bf4272df5a",
+          "script_statistics": {
+            "characters": 45,
+            "letters": 34,
+            "persian_letters": 34,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 4,
+              "coherence": 2
+            },
+            {
+              "relevance": 4,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "352fe9ffc31632bef97cb9b0b02f865686f90f0d052f30972f9550d129b0633c"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "352fe9ffc31632bef97cb9b0b02f865686f90f0d052f30972f9550d129b0633c"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 41425,
+      "lora_audio_rms": 0.20776117
+    },
+    {
+      "manifest_row_index": 85,
+      "source_audio_sha256": "1fb88425c98d271b0cffd2b436450536af0245da23fea342b69416d6c9e9393b",
+      "input_transcript_sha256": "9a7df47469d7d6a2e2a10bed43e28f67b288bc04d82b1b2c53b4ae7811c6282b",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a68179395e365ad0d11b82d913ce5f84e590d495503a3e50488a3160e08dd46",
+      "arms": {
+        "reference": {
+          "reply_sha256": "b8cdba735b89fca44d335be6ddcb1f2283f7a806d9bd96793331754323a1178e",
+          "script_statistics": {
+            "characters": 127,
+            "letters": 97,
+            "persian_letters": 93,
+            "persian_letter_fraction": 0.958763
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 2
+            },
+            {
+              "relevance": 0,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "d963782c0f86355d3929861f3371863a8ca5206629dfa3e9c652dbe280aa80bc"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "d963782c0f86355d3929861f3371863a8ca5206629dfa3e9c652dbe280aa80bc"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "076377786759d9e15183a319dc0fd3f8ed17931a29877030a7544e0e3a3792b8",
+          "script_statistics": {
+            "characters": 43,
+            "letters": 31,
+            "persian_letters": 27,
+            "persian_letter_fraction": 0.870968
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 2
+            },
+            {
+              "relevance": 0,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "d716e215c89656d6cd5fd9715fef9f8fe146078466db7c213ecab6af8b8dabe5"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "d716e215c89656d6cd5fd9715fef9f8fe146078466db7c213ecab6af8b8dabe5"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "988d0b55bc67e4feffbb2803f44cdfb2ad4997cbc0419ff0e37381ee6641cf84",
+          "script_statistics": {
+            "characters": 5,
+            "letters": 5,
+            "persian_letters": 5,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "6e6e97dd88c3a127705dd43ba314b55335d719574436d945b432acfadc34b715"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "6e6e97dd88c3a127705dd43ba314b55335d719574436d945b432acfadc34b715"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 65388,
+      "lora_audio_rms": 0.15288606
+    },
+    {
+      "manifest_row_index": 86,
+      "source_audio_sha256": "de4400df28e4893380ec56cc0a39c6e2f48c61c5180f7ee8950ec6c1b31a0191",
+      "input_transcript_sha256": "dab1cf882dcf4b42ae0df110f40b3adecefac597978bf2b9af276c867d6e2ac1",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "7d1d61be913142d879cd3704024e7e031514a2edf0d117c6566d9863c36eb0a8",
+      "arms": {
+        "base": {
+          "reply_sha256": "00d8e959b9a281d5d0fc5cf924ed4e2ec2992aac3f05efb8050e5de95ed7291d",
+          "script_statistics": {
+            "characters": 45,
+            "letters": 34,
+            "persian_letters": 34,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "e11230cb4d5f8409e3ca18c88f1530ac5ffe299baea3550724fc2b2b04e66c03"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "e11230cb4d5f8409e3ca18c88f1530ac5ffe299baea3550724fc2b2b04e66c03"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "6fba5120a430a3f0cb312763f33c597fa9be56ee30b3a19d685a83d6e6812ea4",
+          "script_statistics": {
+            "characters": 43,
+            "letters": 35,
+            "persian_letters": 35,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 1
+            },
+            {
+              "relevance": 1,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "19d42ca9da5dc1a642f469be43cd7d2545442be831209686ff8eb93593957320"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "19d42ca9da5dc1a642f469be43cd7d2545442be831209686ff8eb93593957320"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "2addd9c5023f19fe129788ba92693e3e90a8429aea795ef0ae2b53978bd54c05",
+          "script_statistics": {
+            "characters": 93,
+            "letters": 63,
+            "persian_letters": 51,
+            "persian_letter_fraction": 0.809524
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 1
+            },
+            {
+              "relevance": 0,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "72f82c87d60245fd3640af6cf2f281f9dd1dc5d3fd4b7ca4d3f80c995b56ade3"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "72f82c87d60245fd3640af6cf2f281f9dd1dc5d3fd4b7ca4d3f80c995b56ade3"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 49227,
+      "lora_audio_rms": 0.24130279
+    },
+    {
+      "manifest_row_index": 87,
+      "source_audio_sha256": "cb4417bddbb7eb37809cfa6c20c9679cb58e04c1c722a306ed8715db3affeafc",
+      "input_transcript_sha256": "d2378b5ec85e05c0acad0561ac88ac0de1d7c2bc49d51a255e0754f52c5efa28",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "016072f30fb50c802ee89aa25f826104ad2c16cefcfe78d8941739b61f0641fa",
+      "arms": {
+        "base": {
+          "reply_sha256": "852073bd0ffa68a22ff4f7b885c98f3a5dd8bfa299ede6fe33453985758fa49d",
+          "script_statistics": {
+            "characters": 18,
+            "letters": 15,
+            "persian_letters": 15,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "71a2174687ed54fe12800c3b8f65d51ee17aed26119aa841b1d153a542eff02a"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "71a2174687ed54fe12800c3b8f65d51ee17aed26119aa841b1d153a542eff02a"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "c6d6d504d4bdcbef8fe1b2a1e17f3254a116bbc822504e75ec32fafb629dce7e",
+          "script_statistics": {
+            "characters": 334,
+            "letters": 260,
+            "persian_letters": 256,
+            "persian_letter_fraction": 0.984615
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 1
+            },
+            {
+              "relevance": 1,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "05764311b3b6ce82f0f928797fe821b6069bd6c50041ad39ed38c4276ac3b08a"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "05764311b3b6ce82f0f928797fe821b6069bd6c50041ad39ed38c4276ac3b08a"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "1faf93ab65d0012e436343ac61427fde74c3bb18942071e334a146454c05311d",
+          "script_statistics": {
+            "characters": 66,
+            "letters": 52,
+            "persian_letters": 52,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 1
+            },
+            {
+              "relevance": 0,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "634e9da62605ea221055e56538628498bc4e2633c0d4333c057bb96759a08be1"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "634e9da62605ea221055e56538628498bc4e2633c0d4333c057bb96759a08be1"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 81363,
+      "lora_audio_rms": 0.21624649
+    },
+    {
+      "manifest_row_index": 89,
+      "source_audio_sha256": "de7747ec19056bc7f7caac8b0380346a0472d6490f90b2eca49cb3041ee77f2b",
+      "input_transcript_sha256": "a4790266fd5095756696bddb7d5ee803b985cb0e5b83fb2fe2be6952a8d5974e",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "fca2df89e4fe59479f36da0d1f7a78e397db1252dadc18827dc9da086d02de26",
+      "arms": {
+        "lora": {
+          "reply_sha256": "956cf1feebacaf0641bc02d5f1621e8c23fbf784473dc5a392f190ea95df228b",
+          "script_statistics": {
+            "characters": 32,
+            "letters": 21,
+            "persian_letters": 17,
+            "persian_letter_fraction": 0.809524
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 4
+            },
+            {
+              "relevance": 0,
+              "coherence": 4
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "3ce5892591f3cb910771309520feb54524dc8da45f3f9bae5cba1920b0ead976"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "3ce5892591f3cb910771309520feb54524dc8da45f3f9bae5cba1920b0ead976"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "2f4fbe3ac1d7a2ee5627953224e9d1a46223e08f2f47017cdd3f37952f37808f",
+          "script_statistics": {
+            "characters": 39,
+            "letters": 31,
+            "persian_letters": 31,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 1
+            },
+            {
+              "relevance": 1,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "82fc1c0ea057736cb523f7f13a6ad3208c4592193f61ea86e692c5ba2e992889"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "82fc1c0ea057736cb523f7f13a6ad3208c4592193f61ea86e692c5ba2e992889"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "b62e878eeedd017b8809193d16c47f321feb69e9ae23a61b2037d69fff69ebeb",
+          "script_statistics": {
+            "characters": 15,
+            "letters": 9,
+            "persian_letters": 9,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 4
+            },
+            {
+              "relevance": 0,
+              "coherence": 4
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "6d315d2f484e9aa92f4c33f53dfcbd4749ee58d0aa7a847ff9dc481951cc972b"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "6d315d2f484e9aa92f4c33f53dfcbd4749ee58d0aa7a847ff9dc481951cc972b"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 48855,
+      "lora_audio_rms": 0.16961858
+    },
+    {
+      "manifest_row_index": 90,
+      "source_audio_sha256": "445f5de22035e08345484c94524c2cea8030e270c611384a7dd513e777e69caf",
+      "input_transcript_sha256": "f31253e6afaf8d05c18ddd845c93d532c896a142e0a74cf1d549501fb7c54ffa",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a6ef7dbc1609f3481ae48e27e31eb1b81b58d28f655dcc2430e58f912687e33",
+      "arms": {
+        "lora": {
+          "reply_sha256": "cdb024e2c0d6b3d53d80a5715f9e033888b4828535840de26c7d7b06e1447648",
+          "script_statistics": {
+            "characters": 36,
+            "letters": 23,
+            "persian_letters": 19,
+            "persian_letter_fraction": 0.826087
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 2
+            },
+            {
+              "relevance": 0,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "9521afe4284462c35ccc54ecc5991371fc4db28e0dfb4b2bc6c79a661eb43769"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "9521afe4284462c35ccc54ecc5991371fc4db28e0dfb4b2bc6c79a661eb43769"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "871cbc361331dccf82a1d6256a93a356313b6ec84cb6d21895037867ed4402a0",
+          "script_statistics": {
+            "characters": 71,
+            "letters": 56,
+            "persian_letters": 56,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 1
+            },
+            {
+              "relevance": 1,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "696b73dce7b7092e8c339f6bdbaed171ca910c81f04e923fbe35eb18753cf2a0"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "696b73dce7b7092e8c339f6bdbaed171ca910c81f04e923fbe35eb18753cf2a0"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "8c3fb3e86510ce6fd1c0642d65b5cd2ddee6fc8188333cfedda633055e0201fd",
+          "script_statistics": {
+            "characters": 40,
+            "letters": 30,
+            "persian_letters": 26,
+            "persian_letter_fraction": 0.866667
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 1
+            },
+            {
+              "relevance": 1,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "445c143e1c3fa345a08528ffee1b76c2200bc66b7719b4cc72f8d20860a28ebf"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "445c143e1c3fa345a08528ffee1b76c2200bc66b7719b4cc72f8d20860a28ebf"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 60001,
+      "lora_audio_rms": 0.19442497
+    },
+    {
+      "manifest_row_index": 91,
+      "source_audio_sha256": "e89ec5a86c11d0e4026a6e0da12145d20551b67abb15c64fd5524e92ff2befad",
+      "input_transcript_sha256": "4453f6d192b2042831acdb7a6cd7bc262bbca7f99d2dc62231ce713c2daaf0d2",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "fca2df89e4fe59479f36da0d1f7a78e397db1252dadc18827dc9da086d02de26",
+      "arms": {
+        "lora": {
+          "reply_sha256": "899bcca927558cdf4be4a7e0d198ca5192ebbd4ec4272f8b8ddabc1823ec168a",
+          "script_statistics": {
+            "characters": 57,
+            "letters": 43,
+            "persian_letters": 39,
+            "persian_letter_fraction": 0.906977
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "e60c437b85361ab601bec5f02bd024854cd76866d30d76f617cf4fda52f20172"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "e60c437b85361ab601bec5f02bd024854cd76866d30d76f617cf4fda52f20172"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "18430943cf8af1d0e1ba8a21b29dfb4180f183465c37b784f0e1de78b63a5da5",
+          "script_statistics": {
+            "characters": 460,
+            "letters": 357,
+            "persian_letters": 357,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 4,
+              "coherence": 2
+            },
+            {
+              "relevance": 4,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "dbcba36b72848fdebbf7e4b105d65ac984f86dc0f4c9f5bd4e828d15d7bc3aa5"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "dbcba36b72848fdebbf7e4b105d65ac984f86dc0f4c9f5bd4e828d15d7bc3aa5"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "89a2d9995a48591f3a6401f6fa193561c45fddd81cf8427c118caa1dd58731e9",
+          "script_statistics": {
+            "characters": 105,
+            "letters": 79,
+            "persian_letters": 79,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "3f92db7da0ba0b6a2ae79bfc42604d6fcba0b2c8cb778f716cf6dba50bc7382e"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "3f92db7da0ba0b6a2ae79bfc42604d6fcba0b2c8cb778f716cf6dba50bc7382e"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 72075,
+      "lora_audio_rms": 0.1914788
+    },
+    {
+      "manifest_row_index": 93,
+      "source_audio_sha256": "eec10eee575466776e1d0ffcc6eb05140becfabce9a19b32f8ac9b6fad87cad1",
+      "input_transcript_sha256": "00d4db561e2935422ee9e2adbe4f0fd338ea32965bfaa25251db7739f200bc5f",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "016072f30fb50c802ee89aa25f826104ad2c16cefcfe78d8941739b61f0641fa",
+      "arms": {
+        "base": {
+          "reply_sha256": "d71d9fb7122150e920431a6ad6919da67fd7037be96b59b9d5112c7b4a4b5889",
+          "script_statistics": {
+            "characters": 112,
+            "letters": 87,
+            "persian_letters": 87,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 1
+            },
+            {
+              "relevance": 0,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "3d7e87586c8dfd5f43a6bd7fce380b46e526a9b635e8e136959b5c10eadf7790"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "3d7e87586c8dfd5f43a6bd7fce380b46e526a9b635e8e136959b5c10eadf7790"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "d0eccdf43ff878815f70424f0885f106ad03778cb1fd0e160ed4a060971b2103",
+          "script_statistics": {
+            "characters": 592,
+            "letters": 469,
+            "persian_letters": 469,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 2
+            },
+            {
+              "relevance": 1,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "e16fa7bfc7b3e678b9b13543509f196a0b4ae6afd87eb18b38739df944a37cd9"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "e16fa7bfc7b3e678b9b13543509f196a0b4ae6afd87eb18b38739df944a37cd9"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "22906f96efd29050a1780c3fb7f1ae99f6c025781989cea596c80e8f381ad258",
+          "script_statistics": {
+            "characters": 68,
+            "letters": 40,
+            "persian_letters": 36,
+            "persian_letter_fraction": 0.9
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "bd3c542c13bbf26b31622e7f072d62aaa734f667018b13f61370c95cb32c0844"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "bd3c542c13bbf26b31622e7f072d62aaa734f667018b13f61370c95cb32c0844"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 114243,
+      "lora_audio_rms": 0.19053935
+    },
+    {
+      "manifest_row_index": 94,
+      "source_audio_sha256": "e6f25e62ae2c0ddcfe120f88ab62885aa4aef36efd10beaba45ea61e528d24ab",
+      "input_transcript_sha256": "21ade5e90f6063e141732077ec087d5b27a730f9337f3f93485828e329eff9b1",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a6ef7dbc1609f3481ae48e27e31eb1b81b58d28f655dcc2430e58f912687e33",
+      "arms": {
+        "lora": {
+          "reply_sha256": "c4655bb646702e11ba29e105651bd6b76984999d43db84789221cae05298d308",
+          "script_statistics": {
+            "characters": 34,
+            "letters": 24,
+            "persian_letters": 20,
+            "persian_letter_fraction": 0.833333
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "6371b011f8f61fad3c6f8c8c2325a63b529ca2039a5298c1120ed39a6413709b"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "6371b011f8f61fad3c6f8c8c2325a63b529ca2039a5298c1120ed39a6413709b"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "4649e2d4810f444c5230f248692ee6f32c9547b4c6c39b2b9e5681f4d4a768cc",
+          "script_statistics": {
+            "characters": 118,
+            "letters": 95,
+            "persian_letters": 95,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 4,
+              "coherence": 2
+            },
+            {
+              "relevance": 4,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "5b5f4cd7c41766b015862895e65460219c0953cf8976e0cb66c5235a0ae7c078"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "5b5f4cd7c41766b015862895e65460219c0953cf8976e0cb66c5235a0ae7c078"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "bd3e635bec897e5cacaa2a44b8ddb9be7bbe046a66f1fe1715ad22ef34592f75",
+          "script_statistics": {
+            "characters": 699,
+            "letters": 549,
+            "persian_letters": 549,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 2,
+              "coherence": 1
+            },
+            {
+              "relevance": 2,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b3db0098b297fcee0dcc18bd69f000d8f29f560d8f35cedbba1ec51af71d5d2d"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b3db0098b297fcee0dcc18bd69f000d8f29f560d8f35cedbba1ec51af71d5d2d"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 51084,
+      "lora_audio_rms": 0.18437567
+    },
+    {
+      "manifest_row_index": 102,
+      "source_audio_sha256": "61ecc468505fad85a9a6752d9094254d483ae26ad2ef1a153710f4b29cec2ead",
+      "input_transcript_sha256": "45bfe94d7b28a7b748993799f0cec5ff35fb464a1cdc7f5296627ef713074b34",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "8c8610a714c1757c6258a95cc902776dd017620cc459c9312087800b2d78dcb3",
+      "arms": {
+        "reference": {
+          "reply_sha256": "3f241134f038a5871bd13aba0602e8ad107a16b5fbfa95eccf637bd9450913e8",
+          "script_statistics": {
+            "characters": 276,
+            "letters": 206,
+            "persian_letters": 206,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 2,
+              "coherence": 2
+            },
+            {
+              "relevance": 2,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b86b207727cba062f22c43c044f7b00dfc86c6d9168360cbbfc74cc35e4e18ae"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b86b207727cba062f22c43c044f7b00dfc86c6d9168360cbbfc74cc35e4e18ae"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "b612db5cbf201f466c7d875ce23d2e0f2f6398276d52e8d90708cdbf4725a3ca",
+          "script_statistics": {
+            "characters": 115,
+            "letters": 86,
+            "persian_letters": 86,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 0
+            },
+            {
+              "relevance": 1,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "a6259b497f0f0add36c1539d7e58760951d8a06c0deebfb3ff1e14761ebf58dc"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "a6259b497f0f0add36c1539d7e58760951d8a06c0deebfb3ff1e14761ebf58dc"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "f815e0f651994ad7a1f94a3aecee3fbbdbc89eec4c3b53155bfe414790107166",
+          "script_statistics": {
+            "characters": 79,
+            "letters": 64,
+            "persian_letters": 64,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "1128413f0432b747154364fa6cdd8accd03603db69fff0a1d403c47962429701"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "1128413f0432b747154364fa6cdd8accd03603db69fff0a1d403c47962429701"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 75047,
+      "lora_audio_rms": 0.2188821
+    },
+    {
+      "manifest_row_index": 104,
+      "source_audio_sha256": "992c09bd72dae538ecbe6cf580b43de4ece0a5d06fd848150347f4438eb7e724",
+      "input_transcript_sha256": "3514fae118fb9f58f9b806bb60c2f5ccf7430c978364a77fcbfeb959a8404cbf",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a68179395e365ad0d11b82d913ce5f84e590d495503a3e50488a3160e08dd46",
+      "arms": {
+        "reference": {
+          "reply_sha256": "5650e0a15db51ef0abf66fcef43b4e22c3addb63be944a05f5a1e77c1e96e42e",
+          "script_statistics": {
+            "characters": 948,
+            "letters": 751,
+            "persian_letters": 751,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 2,
+              "coherence": 2
+            },
+            {
+              "relevance": 2,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "ee31e0487b092274f19e15b65d88a16e354252a01e78aaaeb5beef251749ec2c"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "ee31e0487b092274f19e15b65d88a16e354252a01e78aaaeb5beef251749ec2c"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "a1d53188e115a37d56ece5ccc8018ff64dc56809ff2d217f4edc9d597d05f162",
+          "script_statistics": {
+            "characters": 46,
+            "letters": 34,
+            "persian_letters": 30,
+            "persian_letter_fraction": 0.882353
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "ad8f63630345c828894c5a1682ec997f2ae2f9988051615bc1afdba2954c76d1"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "ad8f63630345c828894c5a1682ec997f2ae2f9988051615bc1afdba2954c76d1"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "b269a57e83613362774dc29ecd131bfae13de4ec19851a8e317790a58080946b",
+          "script_statistics": {
+            "characters": 112,
+            "letters": 87,
+            "persian_letters": 87,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 2,
+              "coherence": 1
+            },
+            {
+              "relevance": 2,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b62dd8d36ce3c72267977c4f6098031825344237f7e8269839be80fb2996d1a3"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b62dd8d36ce3c72267977c4f6098031825344237f7e8269839be80fb2996d1a3"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 57400,
+      "lora_audio_rms": 0.24334477
+    },
+    {
+      "manifest_row_index": 105,
+      "source_audio_sha256": "34470f009b49beb9350d86e477b700aead5e5744c0a9bafcb239d4157dae88de",
+      "input_transcript_sha256": "3be33e2f8ec92cabd9b37de6384b3d6535e789092741bbcce78de19af5f644e6",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "8c8610a714c1757c6258a95cc902776dd017620cc459c9312087800b2d78dcb3",
+      "arms": {
+        "reference": {
+          "reply_sha256": "444c15bd71716b978556fc599fe518b310461fd773b0122d8547ce614e4d2d27",
+          "script_statistics": {
+            "characters": 1392,
+            "letters": 1086,
+            "persian_letters": 1086,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 2
+            },
+            {
+              "relevance": 1,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "fb878ac676901443dfbdee2d7cd34e6c5659a0cce2f6752569fcab835d659ea0"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "fb878ac676901443dfbdee2d7cd34e6c5659a0cce2f6752569fcab835d659ea0"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "4bbb8dd90735c71dd1e578dcd4ae28efca256f619241d4e8871e86663f2d3288",
+          "script_statistics": {
+            "characters": 112,
+            "letters": 87,
+            "persian_letters": 87,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "7d1f46530a10f331060232e53120d1b8d6752b76de80a72cc1b7eeb249f83ed9"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "7d1f46530a10f331060232e53120d1b8d6752b76de80a72cc1b7eeb249f83ed9"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "5b43e97224bb926922b2b111447e1825a2a7f2bb4d028e61653b8a3fdfe8f7bc",
+          "script_statistics": {
+            "characters": 70,
+            "letters": 55,
+            "persian_letters": 55,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "38f0cd498b6914f70e0d4435dd32d08d6412c4c29d6c114bfc67d201f440cc2a"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "38f0cd498b6914f70e0d4435dd32d08d6412c4c29d6c114bfc67d201f440cc2a"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 104955,
+      "lora_audio_rms": 0.12811659
+    },
+    {
+      "manifest_row_index": 106,
+      "source_audio_sha256": "eb86d4aab77f38228933fc51cbbd886a9704ee5cd08e72172cfef20ce17a43fd",
+      "input_transcript_sha256": "8b0bbd42d308657f0fefa24101e7ec5336afec8cc350f6253cefded1c4196ff1",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a68179395e365ad0d11b82d913ce5f84e590d495503a3e50488a3160e08dd46",
+      "arms": {
+        "reference": {
+          "reply_sha256": "4781f0dad9c5c09b4a067a1c7d23867a13f1f5997b3fc29d0106a83b11021f0f",
+          "script_statistics": {
+            "characters": 27,
+            "letters": 20,
+            "persian_letters": 20,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "e7faf95e94bfcea47df22b48661230e8836eb4ca08b9cb0750e4c33c7c5fc3fb"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "e7faf95e94bfcea47df22b48661230e8836eb4ca08b9cb0750e4c33c7c5fc3fb"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "f0460615a97beb92ce0c19e348ee01cc5353f1b56e83b0f8aaf8fd52cdc71728",
+          "script_statistics": {
+            "characters": 100,
+            "letters": 82,
+            "persian_letters": 82,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "3f342b72fcd31da25b259b7818c83838e844925311301c7ca24db24c37a33b64"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "3f342b72fcd31da25b259b7818c83838e844925311301c7ca24db24c37a33b64"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "23d92139b034bfc26f85e37381b92ca1eff684acd66ea839746e82fea8c32119",
+          "script_statistics": {
+            "characters": 83,
+            "letters": 65,
+            "persian_letters": 65,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 4,
+              "coherence": 0
+            },
+            {
+              "relevance": 4,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "f5360d6e2bfb46c40c605843ae11c941b8eab85c6d9ce5a51b1c6e2dd4551ceb"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "f5360d6e2bfb46c40c605843ae11c941b8eab85c6d9ce5a51b1c6e2dd4551ceb"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 96410,
+      "lora_audio_rms": 0.14612535
+    },
+    {
+      "manifest_row_index": 109,
+      "source_audio_sha256": "9527cdcaa0498aa7744d505ce551fd77f5f5a6204ed2da878efa7fea706088ac",
+      "input_transcript_sha256": "520e4fc47a71f18e90709cf46d712c2895473307a4c4292523ca92d6a32a00fa",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a68179395e365ad0d11b82d913ce5f84e590d495503a3e50488a3160e08dd46",
+      "arms": {
+        "reference": {
+          "reply_sha256": "d2a33f4336485965359ea4ec32848c372ec2abb4ed3c91402e619f23fcdc7643",
+          "script_statistics": {
+            "characters": 1730,
+            "letters": 1360,
+            "persian_letters": 1360,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 3,
+              "coherence": 2
+            },
+            {
+              "relevance": 3,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "db5c3ebe3356a3feef862aea0c5f96d8fd6e144e3b402f5c592ee805686ff6a1"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "db5c3ebe3356a3feef862aea0c5f96d8fd6e144e3b402f5c592ee805686ff6a1"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "9dff167df8ccec549d289db0bdad8c030cf1b5c22440144bd4b25b78eef292b0",
+          "script_statistics": {
+            "characters": 83,
+            "letters": 65,
+            "persian_letters": 61,
+            "persian_letter_fraction": 0.938462
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "8ca2fca0cd0a6f862b876ffb37089cb54d25912976eaab6c02f46179087911b2"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "8ca2fca0cd0a6f862b876ffb37089cb54d25912976eaab6c02f46179087911b2"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "9779cbd0e3e5be40c1e9f23503cb33e7a3972a542903cbd0ff30acaa6e4c5b26",
+          "script_statistics": {
+            "characters": 109,
+            "letters": 85,
+            "persian_letters": 85,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 4,
+              "coherence": 1
+            },
+            {
+              "relevance": 4,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "08b58e8248940717662fe648aca29a8a1250359731a79380e7eead9eb6607016"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "08b58e8248940717662fe648aca29a8a1250359731a79380e7eead9eb6607016"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 100311,
+      "lora_audio_rms": 0.2327996
+    },
+    {
+      "manifest_row_index": 111,
+      "source_audio_sha256": "bf50de34d8c2525e9e66a6d8da786e3332ebffeed0297b16ca164728e111eb5e",
+      "input_transcript_sha256": "e1090f626156883390de21edc951e1b9efd3d94f39dbfb47db0157c6ec88864e",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "fca2df89e4fe59479f36da0d1f7a78e397db1252dadc18827dc9da086d02de26",
+      "arms": {
+        "lora": {
+          "reply_sha256": "7ba3b7ec726044d8a891ef2205c0ed8c28d012e7e057fbe9ccaffcbca12511d9",
+          "script_statistics": {
+            "characters": 42,
+            "letters": 34,
+            "persian_letters": 34,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 1
+            },
+            {
+              "relevance": 0,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "656d69cac43e89aaf05f779ffe78ea30fc3862bcca742629e5eed97ca5c54556"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "656d69cac43e89aaf05f779ffe78ea30fc3862bcca742629e5eed97ca5c54556"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "6e3b54a6366d4ba5c573dbcfdbf96c3f71876637485a8e937bf1bb9b40d3db42",
+          "script_statistics": {
+            "characters": 590,
+            "letters": 460,
+            "persian_letters": 460,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 2
+            },
+            {
+              "relevance": 0,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "8869c66ba2bc187cb6d2755a7a9ace87948781f92da5844f8ab122f071680837"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "8869c66ba2bc187cb6d2755a7a9ace87948781f92da5844f8ab122f071680837"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "4d532818b38b3a843110d343daa3ffca5eda41bab6a2247a8485d0c62faf79ff",
+          "script_statistics": {
+            "characters": 77,
+            "letters": 62,
+            "persian_letters": 62,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 1
+            },
+            {
+              "relevance": 0,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "178b02ced33b94c0e37b32959653a535ad411d3d9ac4b3ac6c4cc71665e59ce4"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "178b02ced33b94c0e37b32959653a535ad411d3d9ac4b3ac6c4cc71665e59ce4"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 46998,
+      "lora_audio_rms": 0.23365086
+    },
+    {
+      "manifest_row_index": 114,
+      "source_audio_sha256": "b559e642fd3b66505b93719eb1828f2bc117bffb11a06d1ce4193c904021938e",
+      "input_transcript_sha256": "c1e053aa2a68935fd0741f57ee74509e096f0d761a831d2d050da214e1b7ba1d",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "fca2df89e4fe59479f36da0d1f7a78e397db1252dadc18827dc9da086d02de26",
+      "arms": {
+        "lora": {
+          "reply_sha256": "127a9a7b4a48380cf7d79f4e67c827289e994e45c2af23c391fa6c459ba7371d",
+          "script_statistics": {
+            "characters": 98,
+            "letters": 81,
+            "persian_letters": 81,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "4d752e9255446a56804bb10f24bb330775fe3575f9c8ae778b480b4727cce5d6"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "4d752e9255446a56804bb10f24bb330775fe3575f9c8ae778b480b4727cce5d6"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "5877d6d5ce717173aad4c9aa5416fc8bd63aaf30ea57373477f1bcb78b16aabc",
+          "script_statistics": {
+            "characters": 236,
+            "letters": 180,
+            "persian_letters": 180,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 1
+            },
+            {
+              "relevance": 0,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "5f44125ed54fe6592b30179e0dfa7f535a2ede2e22674049fcb5fc8e42704d41"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "5f44125ed54fe6592b30179e0dfa7f535a2ede2e22674049fcb5fc8e42704d41"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "35f448cb87add315510d184aabd2dd7683a7e311a1056842e947868873c5541f",
+          "script_statistics": {
+            "characters": 117,
+            "letters": 89,
+            "persian_letters": 89,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "c3432b6dca63d5146f0c8cb76eb57c89028f1bbe11ca9d0fe56a96fc872cb763"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "c3432b6dca63d5146f0c8cb76eb57c89028f1bbe11ca9d0fe56a96fc872cb763"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 105698,
+      "lora_audio_rms": 0.18942221
+    },
+    {
+      "manifest_row_index": 117,
+      "source_audio_sha256": "2b8f061ff5054f700399a9633b248799af8ae502a94b108fba0b7e95bfa5021d",
+      "input_transcript_sha256": "58f711d72ec77064531214eadfc3fcbf7ee4f9a6b446960921cc164bedd62541",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a6ef7dbc1609f3481ae48e27e31eb1b81b58d28f655dcc2430e58f912687e33",
+      "arms": {
+        "lora": {
+          "reply_sha256": "41042b650bb2edf69239b020932aafbce3ca619ac95048ea9b5d36c9a84446be",
+          "script_statistics": {
+            "characters": 90,
+            "letters": 68,
+            "persian_letters": 64,
+            "persian_letter_fraction": 0.941176
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "8071c366204b6f4baf94f572d898a5988c912ad162108c85db00a73a63c9b65b"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "8071c366204b6f4baf94f572d898a5988c912ad162108c85db00a73a63c9b65b"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "27a85a73b0d81bb4a390cd695d92432d14756b4ddfbe420721eb1198ecdbdf51",
+          "script_statistics": {
+            "characters": 116,
+            "letters": 85,
+            "persian_letters": 85,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "8e90b1744e9a15fcf2eabf8a0e9a9f97d772a4ae81e83bfb96cff56568fae63a"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "8e90b1744e9a15fcf2eabf8a0e9a9f97d772a4ae81e83bfb96cff56568fae63a"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "2bc2c4393130d95ff520b3955590b5e87514b55df473d798fb7bb53379eb5137",
+          "script_statistics": {
+            "characters": 249,
+            "letters": 197,
+            "persian_letters": 197,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 4,
+              "coherence": 2
+            },
+            {
+              "relevance": 4,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "003ec7fc171d028175ae40d613d8acff4780b7a7c452a21377083091860120eb"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "003ec7fc171d028175ae40d613d8acff4780b7a7c452a21377083091860120eb"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 112385,
+      "lora_audio_rms": 0.15351517
+    },
+    {
+      "manifest_row_index": 119,
+      "source_audio_sha256": "73e05f5cd055c7b18ed4e168372711a2b0dc78fed6828b9d06951fecc429307a",
+      "input_transcript_sha256": "4f9ffcd1d0c0a1ff58b5959774d879fa2fa032f10b56a5afdb6c8201acd256ca",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "016072f30fb50c802ee89aa25f826104ad2c16cefcfe78d8941739b61f0641fa",
+      "arms": {
+        "base": {
+          "reply_sha256": "f9fd721bd9b6c9049e2bb8f9bb7a63153541d95367d0b050c85d0b4063c5356c",
+          "script_statistics": {
+            "characters": 73,
+            "letters": 56,
+            "persian_letters": 56,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 4,
+              "coherence": 3
+            },
+            {
+              "relevance": 4,
+              "coherence": 3
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "32d461b4137803fecf05fddd5976ba91d3eea9dc81b2bdf0cf88772e6c8ca1db"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "32d461b4137803fecf05fddd5976ba91d3eea9dc81b2bdf0cf88772e6c8ca1db"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "780b7e4b1fc7d8521a4a704a853d3ac8133bfa1ff51b640ce52b6dbcd67cdd4a",
+          "script_statistics": {
+            "characters": 16,
+            "letters": 14,
+            "persian_letters": 14,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 2
+            },
+            {
+              "relevance": 1,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "521b50b9048a4971f0597ee0fc45b4b58a53ca82021a7287704f97493a088522"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "521b50b9048a4971f0597ee0fc45b4b58a53ca82021a7287704f97493a088522"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "c46a0cc367c8e79976c04cec5ab3580953a5ef6ef7105b447c10974b0a63ab68",
+          "script_statistics": {
+            "characters": 41,
+            "letters": 33,
+            "persian_letters": 33,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 2
+            },
+            {
+              "relevance": 1,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b516257663e4c81301f85f8b6fdc110ef788c0870440d784ee40736de80d7f1e"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b516257663e4c81301f85f8b6fdc110ef788c0870440d784ee40736de80d7f1e"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 48298,
+      "lora_audio_rms": 0.16241373
+    },
+    {
+      "manifest_row_index": 120,
+      "source_audio_sha256": "4a3d4f7fbe337c9feaf3aa99f59253c60933a4125ae2e1e4bcf61afcca1bad36",
+      "input_transcript_sha256": "c33be711c7a935cd9ac9324a6529e1984f4083fe63ce35e9c26f6d420e1dbba3",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "fca2df89e4fe59479f36da0d1f7a78e397db1252dadc18827dc9da086d02de26",
+      "arms": {
+        "lora": {
+          "reply_sha256": "0ddfa879dd771bd29eed68651b601f65b7d5ab460569aafeed06231b008f8ec5",
+          "script_statistics": {
+            "characters": 109,
+            "letters": 85,
+            "persian_letters": 81,
+            "persian_letter_fraction": 0.952941
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "09ee9aae8236b1fdbe616715edcf43569781333b52f47d683432dac6d266a420"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "09ee9aae8236b1fdbe616715edcf43569781333b52f47d683432dac6d266a420"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "ee8fe6f9cc59d3e419314d243912a9d478bb35fa1d2ba50f66b2ed81b978eebc",
+          "script_statistics": {
+            "characters": 1155,
+            "letters": 900,
+            "persian_letters": 900,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 1
+            },
+            {
+              "relevance": 0,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "86d675fa45f2d0abe7487554a659f0b187d55717fe0976d10f5fe00a1f4997eb"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "86d675fa45f2d0abe7487554a659f0b187d55717fe0976d10f5fe00a1f4997eb"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "c0884bcaccc6f2fa8d8d1004dff7b7b4801a70e579ba553b191fb0ed9d33a11c",
+          "script_statistics": {
+            "characters": 63,
+            "letters": 48,
+            "persian_letters": 48,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 4
+            },
+            {
+              "relevance": 0,
+              "coherence": 4
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "a98c1efd59a9af4096c4c591798fc7177658f796ad94f6f96e746f099eed2fcb"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "a98c1efd59a9af4096c4c591798fc7177658f796ad94f6f96e746f099eed2fcb"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 112942,
+      "lora_audio_rms": 0.17506972
+    },
+    {
+      "manifest_row_index": 123,
+      "source_audio_sha256": "d2ac406d91597658dcc617a103e7ea939ae4cfddf1e0085d4fa410533a0af19c",
+      "input_transcript_sha256": "2cbd5019d152c4fb6e8c1eac0eae7f5769f8711b73bc05f56ab9a7dbbcb8b76b",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a68179395e365ad0d11b82d913ce5f84e590d495503a3e50488a3160e08dd46",
+      "arms": {
+        "reference": {
+          "reply_sha256": "03406a139db28a6fe7a0ea065ae6f14e9a2504c51374b84028c1b199a6c1c7d4",
+          "script_statistics": {
+            "characters": 309,
+            "letters": 247,
+            "persian_letters": 247,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 2
+            },
+            {
+              "relevance": 0,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b0a9f33a2d366b833dd00ef224e9fb030a54a8013baa7f2665ce4aef55311eea"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b0a9f33a2d366b833dd00ef224e9fb030a54a8013baa7f2665ce4aef55311eea"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "86869ff4f20f03553ec47a2acec8f761e1eb845760e5cd8200275b37071ae79a",
+          "script_statistics": {
+            "characters": 78,
+            "letters": 60,
+            "persian_letters": 56,
+            "persian_letter_fraction": 0.933333
+          },
+          "scores": [
+            {
+              "relevance": 4,
+              "coherence": 4
+            },
+            {
+              "relevance": 4,
+              "coherence": 4
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "3e1ee12c5ebbac0066344c025527e7dace867df2cf6d493d61f722c2f8fd222e"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "3e1ee12c5ebbac0066344c025527e7dace867df2cf6d493d61f722c2f8fd222e"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "b068a8a1f966ee713037391d6e61596b846f0e6ded2429e7620791ddc2d31718",
+          "script_statistics": {
+            "characters": 112,
+            "letters": 87,
+            "persian_letters": 87,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 1
+            },
+            {
+              "relevance": 0,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b6848f1570ca4c45e3d1ca129295227c7f87daa9a0871e1f8b54962950c01b27"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b6848f1570ca4c45e3d1ca129295227c7f87daa9a0871e1f8b54962950c01b27"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 97339,
+      "lora_audio_rms": 0.17821978
+    },
+    {
+      "manifest_row_index": 124,
+      "source_audio_sha256": "4d7dd0c03c6fa8786100623a93bd56a97f416c0182d28e7460c4c493031a2752",
+      "input_transcript_sha256": "9ec9f4240747d4ebe2ae4b4a9904509464803f0f181ee07ffde3f90506e186d6",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "1a68179395e365ad0d11b82d913ce5f84e590d495503a3e50488a3160e08dd46",
+      "arms": {
+        "reference": {
+          "reply_sha256": "1294083579cbaedc3c91d59668afcb14aa7049ab66c29a92e9ec41181444909e",
+          "script_statistics": {
+            "characters": 48,
+            "letters": 38,
+            "persian_letters": 38,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 1
+            },
+            {
+              "relevance": 1,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b55d23b34f8725c71dd69c880a3e3bd224bdd4431e41e0a32f7fa8c5eb6f0b64"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "b55d23b34f8725c71dd69c880a3e3bd224bdd4431e41e0a32f7fa8c5eb6f0b64"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "bf832004606e6736e87fcea251ee762cd16e20c090c468ff394aa5e34a81c7ad",
+          "script_statistics": {
+            "characters": 39,
+            "letters": 32,
+            "persian_letters": 32,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "6e5a93ddbd9d5a3ba34c9d8b678b66409fd7828f650172837b5fb6e470a73141"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "6e5a93ddbd9d5a3ba34c9d8b678b66409fd7828f650172837b5fb6e470a73141"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "base": {
+          "reply_sha256": "23e89d98da0878505944bba1d430366ce7b719f96775482aced8ce7992f09d14",
+          "script_statistics": {
+            "characters": 127,
+            "letters": 95,
+            "persian_letters": 95,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "105626a91a6c71b1e5a9634bfca3b8d66dd2a3986903826a906145f9adbc7637"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "105626a91a6c71b1e5a9634bfca3b8d66dd2a3986903826a906145f9adbc7637"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 46440,
+      "lora_audio_rms": 0.14745989
+    },
+    {
+      "manifest_row_index": 127,
+      "source_audio_sha256": "cabac3ada13653f6fe153675d77df4ead4febbe72010aa4b1e9cb9e0eb33316a",
+      "input_transcript_sha256": "0cc5bd4d5006503854b66a6241a393ba6d07fd5dbde250d06d30462f42fa7453",
+      "selected_user_channel": 1,
+      "arm_order_sha256": "7d1d61be913142d879cd3704024e7e031514a2edf0d117c6566d9863c36eb0a8",
+      "arms": {
+        "base": {
+          "reply_sha256": "407f619ab46e6a7ef08187db61bdbcf423916247c7795fe6d6b17c55f76bc7e7",
+          "script_statistics": {
+            "characters": 115,
+            "letters": 94,
+            "persian_letters": 94,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 2
+            },
+            {
+              "relevance": 1,
+              "coherence": 2
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "f8a7bcdb27d61d32c1f93a748ad1fe8913c1517689236de93ef8ba5f8f08e790"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "f8a7bcdb27d61d32c1f93a748ad1fe8913c1517689236de93ef8ba5f8f08e790"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "lora": {
+          "reply_sha256": "9ac3aca5a479ab46e8596fb5d8ee877e52e1224858002505512b349de7d54aa7",
+          "script_statistics": {
+            "characters": 104,
+            "letters": 81,
+            "persian_letters": 81,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 0,
+              "coherence": 0
+            },
+            {
+              "relevance": 0,
+              "coherence": 0
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "2a61494257765f4009b7b38789a5318dfd45c1f701ad1c73bbe7227ed4c996ea"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "2a61494257765f4009b7b38789a5318dfd45c1f701ad1c73bbe7227ed4c996ea"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        },
+        "reference": {
+          "reply_sha256": "85f371a0cb7df3e315fcc527da4afe2f5d736eb07d94ce0d59c624dfa44e8e59",
+          "script_statistics": {
+            "characters": 851,
+            "letters": 662,
+            "persian_letters": 662,
+            "persian_letter_fraction": 1.0
+          },
+          "scores": [
+            {
+              "relevance": 1,
+              "coherence": 1
+            },
+            {
+              "relevance": 1,
+              "coherence": 1
+            }
+          ],
+          "judge_metadata": [
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "8751d9ee1721c42edbffeb55f74663dc1f5664d52350aca42630b970dd6ec934"
+            },
+            {
+              "response_model": "qwen3.8-27b",
+              "system_fingerprint": "vllm-0.26.0-7c845f74",
+              "finish_reason": "stop",
+              "request_sha256": "8751d9ee1721c42edbffeb55f74663dc1f5664d52350aca42630b970dd6ec934"
+            }
+          ],
+          "judge_errors": [
+            null,
+            null
+          ],
+          "repeat_exact_agreement": true
+        }
+      },
+      "base_fallback_used": false,
+      "lora_fallback_used": false,
+      "lora_tts_backend": "piper",
+      "lora_audio_samples": 98639,
+      "lora_audio_rms": 0.19302864
+    }
+  ],
+  "validity_requirements": {
+    "training_report_completed": true,
+    "training_report_all_validity_gates_passed": true,
+    "training_protocol_hash_current": true,
+    "training_script_hash_current": true,
+    "adapter_tree_hash_current": true,
+    "adapter_file_manifest_nonempty": true,
+    "source_manifest_hash_exact": true,
+    "validation_manifest_hash_exact": true,
+    "base_revision_exact": true,
+    "panel_indices_exact": true,
+    "previously_observed_rows_excluded": true,
+    "exactly_forty_rows_measured": true,
+    "all_240_judge_calls_valid": true,
+    "all_judge_responses_finished": true,
+    "base_backend_exact": true,
+    "lora_backend_exact": true,
+    "no_base_fallback": true,
+    "no_lora_fallback": true,
+    "all_base_replies_persian_script": true,
+    "all_lora_replies_persian_script": true,
+    "piper_backend_exact_for_all_lora_replies": true,
+    "all_lora_audio_nonempty_finite": true,
+    "audited_user_channel_used": true,
+    "test_not_used": true,
+    "judge_container_running": true,
+    "judge_image_id_exact": true,
+    "judge_image_ref_exact": true,
+    "judge_container_model_root_exact": true,
+    "judge_container_revision_exact": true,
+    "judge_container_served_name_exact": true,
+    "judge_service_model_root_exact": true,
+    "judge_service_served_name_exact": true
+  },
+  "hardware": {
+    "device": "NVIDIA H100 NVL",
+    "total_gb": 93.09,
+    "official_size": false,
+    "path_b_possible": false
+  },
+  "artifacts": {
+    "source_manifest_sha256": "aabf12268cce2854ef8b16ffd9339c6d703339c6b4c50a23a105447047a13a86",
+    "validation_manifest_sha256": "a2762495830c82ce12d3dc4cc8469e2110ae21a77ea91f9b70498a6812e187a7",
+    "training_report_sha256": "ac129db419251d2a11c3b3e16ea5f7ef16217b9ef862cf6288937ba4ee750c8c",
+    "adapter_tree_sha256": "ad47e8c854b7d0c95e3821b90770c4873bc1639175425ba1c1244b214bffe8fd",
+    "protocol_sha256": "0103e6aa7e48dbb388a19bd3ba551d634f5b1a2aa794874576c42bbfe73cc6a1",
+    "trainer_sha256": "7d66459cd7a9a719f136ab88fdb1540f1099b7f91411243fbfe4871175ffcc84",
+    "evaluator_sha256": "c540d5a480b5f112a81c1c1144114a05a9c8c64d92a288be89fea1bd2692bc24",
+    "piper_model_sha256": "e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126"
+  },
+  "limitations": [
+    "This is an automatic LLM-as-judge proxy, not human semantic evaluation.",
+    "Judge and responder use different weights but are from the Qwen family.",
+    "The rubric has not been calibrated against independent Persian ratings.",
+    "Reference turns are automatically aligned and not human-verified gold answers.",
+    "The panel excludes previously observed rows but contains only three source sessions.",
+    "Scores do not establish factuality, safety, naturalness, or population usefulness.",
+    "The source license is unverified; the adapter remains local and unredistributed."
+  ],
+  "privacy": {
+    "plaintext_input_transcripts_stored": false,
+    "plaintext_base_replies_stored": false,
+    "plaintext_lora_replies_stored": false,
+    "plaintext_reference_replies_stored": false,
+    "judge_rationales_stored": false,
+    "audio_stored": false,
+    "project_text_sent_beyond_loopback": false,
+    "adapter_committed_or_uploaded": false
+  }
+}
