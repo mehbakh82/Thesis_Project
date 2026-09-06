@@ -7,6 +7,7 @@ An evidence-first Persian speech prototype that keeps the microphone active duri
 | Requirement | Honest status |
 |---|---|
 | Working spoken conversation | **Passed 9/9** predeclared rows from a 131-row source-session-group-isolated validation split: audited user channel 1 → real NeMo Persian ASR → exact local Qwen2.5-0.5B → Piper Persian TTS, with 0/9 rule fallbacks, 100% Persian-script replies by the declared measure, and non-silent audio on 9/9 |
+| Synthesized-speech intelligibility proxy | **Measured validly on the same 9/9 outputs:** exact transcript/reply hashes reproduced, zero ASR failures, NeMo round-trip micro CER **7.14%** (47/658 character edits) and micro WER **30.41%** (52/171 word edits). This automatic single-voice proxy is not a human pronunciation/naturalness result |
 | Full-duplex control | Continuous browser PCM16 stream, rolling energy/F0/MFCC detector, server stop event, client stop acknowledgement, and tested transport-level carry-over of the captured interruption into the next turn. Physical-browser traces remain pending |
 | Direct speech LLM | Experimental, not deployed. V1–v5 remain negative under their frozen runtime gates. The train-only v6.2 scheduled-text-dropout diagnostic achieved a **32.20%** text-loss reduction from step 50 to its best later checkpoint, but steps 50/100/150/200 each passed **0/9** direct-runtime rows. This proves objective learning capacity only; no direct adapter is deployment-eligible and no v2–v6.2 final test was opened. |
 | 100–200 h conversation corpus | Full inventory: **775.887 h / 1,442 long episodes**. The production selection is **219.946 candidate h / 309 episodes** across four channels; 1,129 windows contain **207.154 automatically classified multi-speaker h**, **242.445 aligned staging h**, and **6,754 non-reused response pairs / 123.796 source-pair h**. The immutable Piper derivative is **108.584 measured stereo h**, inside the formal band |
@@ -19,7 +20,10 @@ The main positive result is
 `results/eval/cascade_real_service_validation_panel.json`. Machine-generated
 privacy-safe descriptive analysis of that exact report is in
 `results/eval/cascade_validation_descriptive_analysis.json`; it reads and
-emits aggregate statistics and hashes, not transcript or reply plaintext.
+emits aggregate statistics and hashes, not transcript or reply plaintext. The
+separately predeclared automatic synthesized-speech proxy is in
+`results/eval/cascade_intelligibility_proxy.json`; its NeMo round-trip CER/WER
+does not replace semantic or human listening evaluation.
 Corpus evidence is in `results/diarized_episode_audit_combined_authorized.json`,
 `results/conversation_yield_estimate_combined.json`, and
 `results/corpus_audit.json`; study evidence is in
@@ -146,6 +150,9 @@ final test or revise a finalized selection.
 
 # Frozen positive working-system validation (write-once result already exists):
 .venv/bin/python scripts/evaluate_cascade_validation.py
+
+# Frozen automatic intelligibility proxy (write-once result already exists):
+.venv/bin/python scripts/evaluate_cascade_intelligibility.py
 
 # Completed train-only v6.2 capacity diagnostic:
 .venv-moshi/bin/python scripts/reevaluate_moshi_v6_overfit.py \

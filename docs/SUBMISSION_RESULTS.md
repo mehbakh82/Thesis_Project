@@ -95,6 +95,33 @@ reviewed, this analysis cannot assess semantic relevance, ASR correctness,
 pronunciation, naturalness, human quality, elderly performance, or population
 generalization.
 
+## Automatic synthesized-speech intelligibility proxy
+
+The protocol in `docs/CASCADE_INTELLIGIBILITY_PROTOCOL.md` was committed and
+pushed at `3bb3a85` before the measurement. It bound the unchanged validation
+report and manifest, the same nine indices, exact Qwen revision, Piper model,
+normalization, CER/WER definitions, validity gates, privacy policy, and absence
+of a quality threshold. The resulting
+`results/eval/cascade_intelligibility_proxy.json` reproduced every canonical
+input-transcript and reply hash and completed both ASR calls on all nine rows.
+
+| Automatic round-trip measure | Result |
+|---|---:|
+| Valid rows / ASR failures | **9 / 0** |
+| Reference words / word edits | 171 / 52 |
+| Micro / macro-mean WER | **30.41% / 32.01%** |
+| WER p50 / p95 / max | 28.00% / 49.40% / 54.55% |
+| Reference characters / character edits | 658 / 47 |
+| Micro / macro-mean CER | **7.14% / 7.13%** |
+| CER p50 / p95 / max | 7.50% / 9.40% / 9.62% |
+
+This supports only an automatic single-voice content-preservation proxy. The
+same ASR family is used in the system and measurement, Persian spacing makes
+WER substantially harsher than CER, and nine outputs cannot establish human
+intelligibility, pronunciation, naturalness, semantic quality, or population
+generalization. No confidence interval or after-the-fact passing threshold is
+reported.
+
 ## Direct-model result
 
 V6.2 was a deliberately train-only 32-row capacity diagnostic with rank-64
@@ -151,6 +178,8 @@ Do not claim:
 |---|---|
 | Working cascade | `results/eval/cascade_real_service_validation_panel.json` |
 | Cascade descriptive analysis | `results/eval/cascade_validation_descriptive_analysis.json` |
+| Automatic cascade intelligibility proxy | `results/eval/cascade_intelligibility_proxy.json` |
+| Frozen intelligibility protocol | `docs/CASCADE_INTELLIGIBILITY_PROTOCOL.md` |
 | Frozen cascade protocol | `docs/CASCADE_VALIDATION_PROTOCOL.md` |
 | Duplex transport continuity | `results/release/final_audit.json` |
 | V6.2 training integrity | `results/hardware/moshi_v6_text_dropout_training.json` |

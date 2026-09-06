@@ -198,6 +198,17 @@ rows. No plaintext or frozen final-test row was accessed, so this is useful
 timing/error characterization but not semantic, perceptual, elderly, latency,
 or generalization evidence.
 
+A separately predeclared, hash-bound content-controlled proxy then reproduced
+all nine canonical input-transcript and reply hashes and retranscribed each
+Piper waveform through the real NeMo service with zero ASR failures. Across 171
+reference words / 658 reference characters, micro WER was 30.41% (52 edits)
+and micro CER was 7.14% (47 edits); row-macro means were 32.01% and 7.13%.
+The difference illustrates sensitivity to Persian tokenization/spacing. This
+strengthens automatic evidence that the synthesized audio preserves much of
+its intended character content, but the same-ASR, nine-output, single-voice
+design is not a human intelligibility, pronunciation, naturalness, semantic,
+or population result and no post-hoc pass threshold is claimed.
+
 ### 6. Study, privacy, and security
 
 Sessions now require an explicit consent checkbox. Audio, lossy-feature, and metrics-only retention modes are explicit; the default study mode stores no WAV. IDs are path-safe, existing sessions are not truncated, identity conflicts fail, labels/prompts are validated, and ratings use bounded 1–5 fields. S3 credentials are no longer parsed from shell aliases or placed in process arguments.
@@ -231,6 +242,9 @@ Added:
 - privacy-safe descriptive analysis of the canonical cascade panel, including
   success/failure denominators, length/timing risks, row extremes, source hash,
   and explicit non-claims.
+- predeclared privacy-safe NeMo round-trip CER/WER for the exact nine cascade
+  replies, with complete hash reproduction, zero ASR failures, and explicit
+  automatic-only claim boundaries.
 
 ## Scoring
 

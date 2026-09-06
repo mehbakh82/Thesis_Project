@@ -35,7 +35,25 @@ Only `official_e2e` rows may be used to claim that a thesis latency gate was met
 
 Official tables require a physical GPU with **12–24 GB** VRAM. Training may use the H100 NVL, but a software memory cap does not make a 93 GB H100 an eligible card. Such runs must be labelled `memory_capped: true` and unofficial.
 
+## Automatic synthesized-speech CER/WER proxy
+
+For content-controlled cascade speech, the generated reply text is the
+reference and the real NeMo transcription of its Piper waveform is the
+hypothesis. Both are passed through the deterministic Persian verbatim
+normalizer. Word tokens split on whitespace and treat ZWNJ as a boundary;
+character tokens are Unicode code points excluding whitespace and ZWNJ.
+
+Report per-row and macro mean/p50/p95/maximum error rates. Micro WER/CER are the
+sum of Levenshtein edits divided by the summed reference word/character counts.
+ASR failures stay in the denominator and invalidate the frozen measurement.
+
+This is an `automatic_asr_roundtrip_intelligibility_proxy`, not
+`official_e2e`, semantic, pronunciation, naturalness, human-intelligibility, or
+population evidence. The same ASR family participates in the system and proxy,
+and the nine single-voice outputs do not justify a confidence interval or an
+after-the-fact quality threshold. See
+`docs/CASCADE_INTELLIGIBILITY_PROTOCOL.md`.
+
 ## Barge-in accuracy
 
 Provisional primary metric: event-level interrupt vs other **accuracy ≥ 0.80** on speaker/session-held-out real interactions. Also report interrupt F1, FAR, FRR, denominators, and 95% confidence intervals. Energy-only VAD is the baseline. Confirm event-level versus frame-level interpretation with the supervisor.
-

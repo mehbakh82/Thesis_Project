@@ -610,8 +610,11 @@ Owner: Codex for automation; approved listeners for perceptual checks.
 - [ ] Evaluate Persian response relevance/coherence with a documented rubric and
   suitable semantic metrics; do not use WER against open-ended responses as the
   sole relevance metric.
-- [ ] Measure intelligibility separately, e.g. ASR CER/WER on content-controlled
-  speech, with ASR limitations disclosed.
+- [x] Measure synthesized-speech intelligibility separately under a protocol
+  pushed before execution: the exact nine cascade outputs reproduced their
+  canonical hashes, round-trip NeMo ASR had 0/9 failures, micro CER was 7.14%
+  (47/658 edits), and micro WER was 30.41% (52/171 edits). This is explicitly an
+  automatic single-voice proxy, not human pronunciation/naturalness evidence.
 - [x] Automatically check Persian script, silence-only output, English drift,
   codec collapse/replacement characters, repeated text absence, and unusable
   direct outputs across the frozen panels.
@@ -828,6 +831,10 @@ Thesis narrative:
   0/9 automatic-gate failures, length/timing distributions, risk counts, row
   extremes, and a hash-bound claim boundary. The panel has no mechanics failure
   examples; semantic/perceptual errors were not inspected.
+- [x] Include the separately predeclared automatic intelligibility proxy:
+  nine exact reproduced outputs, zero ASR failures, micro CER/WER with complete
+  denominators and distributions, no post-hoc threshold, no plaintext, and
+  explicit same-ASR/single-voice/N=9 limitations.
 - [ ] Add semantic, perceptual, and cautiously scoped elderly error analysis
   only if qualifying human evidence is actually collected; do not fabricate it.
 - [x] Verify repository citation metadata and third-party boundaries: all nine
@@ -930,8 +937,8 @@ Final engineering audit:
   tracked in any reachable revision.
 - [x] Freeze and push the current pre-license evidence bundle: configs, locks,
   hashes, environments, audits, metrics, logs, approved aggregates, generated
-  tables, and privacy-safe descriptive analysis are snapshot-bound; restricted
-  media remains private.
+  tables, privacy-safe descriptive analysis, and the automatic intelligibility
+  proxy are snapshot-bound; restricted media remains private.
 - [ ] Tag/push the submitted commit and tag; verify a fresh clone.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
@@ -941,7 +948,7 @@ privacy-safe repository at approved visibility, restricted handoff, immutable ta
 
 | Requirement | Conservative acceptance test | Current state | Final evidence |
 |---|---|---|---|
-| Working Persian S2S prototype | Frozen system accepts audited user speech and emits Persian-script, non-silent speech on group-disjoint validation inputs | **Passed 9/9 automatic mechanics rows**; semantic/perceptual claims remain pending | `cascade_real_service_validation_panel.json`, protocol and runtime hashes |
+| Working Persian S2S prototype | Frozen system accepts audited user speech and emits Persian-script, non-silent speech on group-disjoint validation inputs | **Passed 9/9 automatic mechanics rows**; automatic NeMo round-trip micro CER 7.14% / WER 30.41% with 0 failures; semantic/human-perceptual claims remain pending | Cascade validation and intelligibility reports/protocols |
 | Full duplex | Mic remains active; interruption stops playback and becomes next-turn context | Server transport continuity passed; physical-browser source-stop/ack trace and direct model remain pending | WebSocket continuation tests; future client traces |
 | End-to-end ≤500 ms | Max `T_first_audio` ≤500 ms unless another statistic is predeclared; always p50/p95/max | Pending | Physical-4090 `official_e2e` telemetry |
 | Open base adapted to Persian | Moshika 7B LoRA trained on the waiver-bound Persian response pairs | Training complete through v6.2. V6.2 shows a 32.20% in-sample text-loss reduction but 0/9 runtime rows for every checkpoint; no adapter is promoted and all later final tests remain untouched | Config, logs, adapter hashes, reevaluation/runtime reports |

@@ -13,6 +13,12 @@ def _write(root: Path, relative: str, payload: dict) -> None:
     path.write_text(json.dumps(payload), encoding="utf-8")
 
 
+def _write_text(root: Path, relative: str, payload: str) -> None:
+    path = root / relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(payload, encoding="utf-8")
+
+
 def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path) -> None:
     _write(
         tmp_path,
@@ -234,6 +240,78 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
             },
         },
     )
+    _write_text(
+        tmp_path,
+        "docs/CASCADE_INTELLIGIBILITY_PROTOCOL.md",
+        "frozen automatic round-trip intelligibility protocol\n",
+    )
+    intelligibility_protocol_sha256 = sha256_file(
+        tmp_path / "docs/CASCADE_INTELLIGIBILITY_PROTOCOL.md"
+    )
+    intelligibility_samples = [
+        {
+            "input_asr_error": None,
+            "roundtrip_asr_error": None,
+            "matches_parent_input_transcript": True,
+            "matches_parent_reply": True,
+            "responder_backend": "Qwen/Qwen2.5-0.5B-Instruct",
+            "responder_fallback_used": False,
+            "tts_backend": "piper",
+        }
+        for _ in range(9)
+    ]
+    _write(
+        tmp_path,
+        "results/eval/cascade_intelligibility_proxy.json",
+        {
+            "status": "valid",
+            "evidence_class": "automatic_asr_roundtrip_intelligibility_proxy",
+            "claim": {
+                "measurement_valid": True,
+                "automatic_intelligibility_proxy_measured": True,
+                "human_intelligibility_result": False,
+                "pronunciation_or_naturalness_result": False,
+                "semantic_relevance_result": False,
+                "population_generalization_result": False,
+            },
+            "panel": {"sample_count": 9, "final_test_accessed": False},
+            "aggregate": {
+                "rows": 9,
+                "asr_failures": 0,
+                "exact_word_match_rows": 0,
+                "exact_character_match_rows": 0,
+                "word_error_rate": {
+                    "micro": 0.304094,
+                    "reference_words": 171,
+                    "edits": 52,
+                },
+                "character_error_rate": {
+                    "micro": 0.071429,
+                    "reference_characters": 658,
+                    "edits": 47,
+                },
+            },
+            "threshold": None,
+            "samples": intelligibility_samples,
+            "validity_requirements": {
+                "parent_panel_passed": True,
+                "all_reply_text_reproduced": True,
+                "all_roundtrip_asr_calls_succeeded": True,
+                "final_test_not_accessed": True,
+            },
+            "artifacts": {
+                "parent_panel_sha256": cascade_sha256,
+                "protocol_sha256": intelligibility_protocol_sha256,
+            },
+            "privacy": {
+                "plaintext_input_transcripts_stored": False,
+                "plaintext_reply_text_stored": False,
+                "plaintext_roundtrip_transcripts_stored": False,
+                "audio_stored": False,
+            },
+            "limitations": ["automatic proxy only"],
+        },
+    )
     _write(
         tmp_path,
         "results/eval/interrupt_bench.json",
@@ -370,7 +448,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
 
     assert report["authoritative"] is True
-    assert report["schema_version"] == 9
+    assert report["schema_version"] == 10
     assert report["thesis_ready"] is False
     assert report["generation_policy"]["reads_frozen_final_test_rows"] is False
     assert report["gates"]["audited_export_100_to_200_hours"] is True
@@ -384,6 +462,12 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
         "reply_audio_over_8_seconds": 3,
         "full_turn_over_10_seconds": 2,
     }
+    assert report["cascade_intelligibility_proxy"]["verified"] is True
+    assert report["cascade_intelligibility_proxy"]["word_error_rate"]["micro"] == 0.304094
+    assert (
+        report["cascade_intelligibility_proxy"]["character_error_rate"]["micro"]
+        == 0.071429
+    )
     assert report["gates"]["data_policy_resolved_under_documented_qa_waiver"] is True
     assert report["data"]["strict_human_qa_complete"] is False
     assert report["data"]["exported_hours"] == 108.584
@@ -426,5 +510,8 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert "## Duplex transport" in summary
     assert "## Privacy-safe descriptive error analysis" in summary
     assert "descriptive Pearson r=0.885282" in summary
+    assert "## Automatic synthesized-speech intelligibility proxy" in summary
+    assert "Micro WER=0.304094" in summary
+    assert "micro CER=0.071429" in summary
     assert "3,200 pre-roll samples" in summary
     assert json.loads(out.read_text(encoding="utf-8")) == report

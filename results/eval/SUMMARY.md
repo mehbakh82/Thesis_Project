@@ -1,6 +1,6 @@
 # Authoritative project evidence status
 
-Generated: `2026-09-06T10:18:41.293143+00:00`
+Generated: `2026-09-06T10:51:46.522295+00:00`
 
 **Verdict:** `not_thesis_ready_evidence_gates_pending`. Thesis-ready: **false**.
 
@@ -41,6 +41,10 @@ The real-service cascade passed 9/9 fixed group-disjoint validation rows with 0 
 ## Privacy-safe descriptive error analysis
 
 The hash-bound post-hoc analysis is verified. It found 9/9 automatic mechanics successes and 0 mechanics failures. Of the nine rows, 3 had transcripts over 1,000 characters, 3 had replies over 8 seconds, and 2 took over 10 seconds for complete generation. Transcript length and full-turn time had descriptive Pearson r=0.885282. This small, post-hoc association is not inferential, and full-turn time is not official first-audio latency. Plaintext was not read or emitted; semantic relevance, pronunciation, naturalness, human quality, elderly performance, and population generalization remain unmeasured.
+
+## Automatic synthesized-speech intelligibility proxy
+
+The predeclared NeMo round-trip measurement is verified on 9 exact reproduced validation outputs with 0 ASR failures. Micro WER=0.304094 over 171 reference words; micro CER=0.071429 over 658 reference characters. No quality threshold was introduced after observation. This automatic single-voice ASR proxy does not establish human intelligibility, pronunciation, naturalness, semantic relevance, or population generalization.
 
 ## Duplex transport
 

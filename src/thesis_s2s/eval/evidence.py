@@ -46,6 +46,8 @@ ARTIFACTS: dict[str, str] = {
     "cascade_descriptive_analysis": (
         "results/eval/cascade_validation_descriptive_analysis.json"
     ),
+    "cascade_intelligibility_proxy": "results/eval/cascade_intelligibility_proxy.json",
+    "cascade_intelligibility_protocol": "docs/CASCADE_INTELLIGIBILITY_PROTOCOL.md",
     "cascade_validation_protocol": "docs/CASCADE_VALIDATION_PROTOCOL.md",
     "interrupt_bench": "results/eval/interrupt_bench.json",
     "interrupt_recorded_proxy": "results/eval/interrupt_recorded_proxy.json",
@@ -403,6 +405,79 @@ def _cascade_descriptive_result(
     }
 
 
+def _cascade_intelligibility_result(
+    payload: dict[str, Any],
+    *,
+    expected_parent_sha256: str | None,
+    expected_protocol_sha256: str | None,
+) -> dict[str, Any]:
+    """Accept only the predeclared, hash-bound, privacy-safe round-trip proxy."""
+
+    claim = payload.get("claim") or {}
+    panel = payload.get("panel") or {}
+    aggregate = payload.get("aggregate") or {}
+    requirements = payload.get("validity_requirements") or {}
+    artifacts = payload.get("artifacts") or {}
+    privacy = payload.get("privacy") or {}
+    samples = payload.get("samples") or []
+    word = aggregate.get("word_error_rate") or {}
+    character = aggregate.get("character_error_rate") or {}
+    verified = bool(
+        payload.get("status") == "valid"
+        and payload.get("evidence_class")
+        == "automatic_asr_roundtrip_intelligibility_proxy"
+        and claim.get("measurement_valid") is True
+        and claim.get("automatic_intelligibility_proxy_measured") is True
+        and claim.get("human_intelligibility_result") is False
+        and claim.get("pronunciation_or_naturalness_result") is False
+        and claim.get("semantic_relevance_result") is False
+        and claim.get("population_generalization_result") is False
+        and expected_parent_sha256
+        and artifacts.get("parent_panel_sha256") == expected_parent_sha256
+        and expected_protocol_sha256
+        and artifacts.get("protocol_sha256") == expected_protocol_sha256
+        and int(panel.get("sample_count") or 0) == 9
+        and panel.get("final_test_accessed") is False
+        and int(aggregate.get("rows") or 0) == 9
+        and int(aggregate.get("asr_failures") or 0) == 0
+        and int(word.get("reference_words") or 0) > 0
+        and int(character.get("reference_characters") or 0) > 0
+        and payload.get("threshold") is None
+        and len(samples) == 9
+        and all(
+            sample.get("input_asr_error") is None
+            and sample.get("roundtrip_asr_error") is None
+            and sample.get("matches_parent_input_transcript") is True
+            and sample.get("matches_parent_reply") is True
+            and sample.get("responder_backend") == "Qwen/Qwen2.5-0.5B-Instruct"
+            and sample.get("responder_fallback_used") is False
+            and sample.get("tts_backend") == "piper"
+            for sample in samples
+        )
+        and requirements
+        and all(requirements.values())
+        and privacy.get("plaintext_input_transcripts_stored") is False
+        and privacy.get("plaintext_reply_text_stored") is False
+        and privacy.get("plaintext_roundtrip_transcripts_stored") is False
+        and privacy.get("audio_stored") is False
+    )
+    return {
+        "verified": verified,
+        "evidence_class": payload.get("evidence_class") or "missing",
+        "panel_rows": int(aggregate.get("rows") or 0),
+        "asr_failures": int(aggregate.get("asr_failures") or 0),
+        "exact_word_match_rows": int(aggregate.get("exact_word_match_rows") or 0),
+        "exact_character_match_rows": int(
+            aggregate.get("exact_character_match_rows") or 0
+        ),
+        "word_error_rate": word,
+        "character_error_rate": character,
+        "threshold": payload.get("threshold"),
+        "claim_boundary": claim,
+        "limitations": payload.get("limitations") or [],
+    }
+
+
 def build_evidence_status(
     out: str | Path | None = None,
     *,
@@ -436,6 +511,9 @@ def build_evidence_status(
     cascade_payload = _read_json(project, ARTIFACTS["cascade_validation"])
     cascade_analysis_payload = _read_json(
         project, ARTIFACTS["cascade_descriptive_analysis"]
+    )
+    cascade_intelligibility_payload = _read_json(
+        project, ARTIFACTS["cascade_intelligibility_proxy"]
     )
     interrupt = _read_json(project, ARTIFACTS["interrupt_bench"])
     recorded_proxy = _read_json(project, ARTIFACTS["interrupt_recorded_proxy"])
@@ -508,6 +586,16 @@ def build_evidence_status(
         cascade_analysis_payload,
         expected_source_sha256=(
             sha256_file(cascade_report_path) if cascade_report_path.is_file() else None
+        ),
+    )
+    cascade_protocol_path = project / ARTIFACTS["cascade_intelligibility_protocol"]
+    cascade_intelligibility = _cascade_intelligibility_result(
+        cascade_intelligibility_payload,
+        expected_parent_sha256=(
+            sha256_file(cascade_report_path) if cascade_report_path.is_file() else None
+        ),
+        expected_protocol_sha256=(
+            sha256_file(cascade_protocol_path) if cascade_protocol_path.is_file() else None
         ),
     )
 
@@ -618,7 +706,7 @@ def build_evidence_status(
     }
 
     payload: dict[str, Any] = {
-        "schema_version": 9,
+        "schema_version": 10,
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "authoritative": True,
         "thesis_ready": thesis_ready,
@@ -668,6 +756,7 @@ def build_evidence_status(
         },
         "working_system": cascade,
         "cascade_descriptive_analysis": cascade_analysis,
+        "cascade_intelligibility_proxy": cascade_intelligibility,
         "direct_moshi": {
             "deployment_eligible": direct_model_eligible,
             "promoted_adapter": None,
@@ -888,6 +977,7 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
     strategy = payload.get("submission_strategy") or {}
     transport = payload.get("duplex_transport") or {}
     cascade_analysis = payload.get("cascade_descriptive_analysis") or {}
+    cascade_intelligibility = payload.get("cascade_intelligibility_proxy") or {}
     v1_loss_evidence = direct.get("v1_automatic_heldout_loss_evidence") or {}
     v1_total_loss = v1_loss_evidence.get("selected_total_loss") or {}
     split_counts = data.get("split_counts") or {}
@@ -957,6 +1047,22 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             "first-audio latency. Plaintext was not read or emitted; semantic relevance, "
             "pronunciation, naturalness, human quality, elderly performance, and "
             "population generalization remain unmeasured.",
+            "",
+            "## Automatic synthesized-speech intelligibility proxy",
+            "",
+            f"The predeclared NeMo round-trip measurement is "
+            f"{'verified' if cascade_intelligibility.get('verified') else 'not verified'} "
+            f"on {cascade_intelligibility.get('panel_rows', 0)} exact reproduced validation "
+            f"outputs with {cascade_intelligibility.get('asr_failures', 0)} ASR failures. "
+            f"Micro WER="
+            f"{(cascade_intelligibility.get('word_error_rate') or {}).get('micro')} over "
+            f"{(cascade_intelligibility.get('word_error_rate') or {}).get('reference_words', 0)} "
+            f"reference words; micro CER="
+            f"{(cascade_intelligibility.get('character_error_rate') or {}).get('micro')} over "
+            f"{(cascade_intelligibility.get('character_error_rate') or {}).get('reference_characters', 0)} "
+            "reference characters. No quality threshold was introduced after observation. "
+            "This automatic single-voice ASR proxy does not establish human intelligibility, "
+            "pronunciation, naturalness, semantic relevance, or population generalization.",
             "",
             "## Duplex transport",
             "",

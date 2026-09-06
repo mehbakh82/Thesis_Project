@@ -46,8 +46,12 @@
 - `scripts/analyze_cascade_validation.py` — privacy-safe post-hoc analysis of
   the already-open cascade panel; emits distributions, risk counts, row
   extremes, and hashes without transcript/reply plaintext or final-test access.
+- `scripts/evaluate_cascade_intelligibility.py` — predeclared, write-once
+  NeMo round-trip CER/WER proxy over the exact nine reproduced cascade outputs;
+  emits hashes/counts only and cannot be interpreted as human or semantic
+  evidence.
 - `src/thesis_s2s/eval/evidence.py` — fail-closed aggregation of current
-  dataset, v1–v6.2 model, cascade/descriptive, detector, hardware, study,
+  dataset, v1–v6.2 model, cascade/descriptive/intelligibility-proxy, detector, hardware, study,
   duplex, and release evidence into authoritative JSON plus generated Markdown
   tables without opening frozen final-test rows.
 - `results/hardware/storage_cleanup_20260831.json` — chained hash-verified local

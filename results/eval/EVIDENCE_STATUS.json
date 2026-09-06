@@ -1,6 +1,6 @@
 {
-  "schema_version": 9,
-  "generated_at": "2026-09-06T10:18:41.293143+00:00",
+  "schema_version": 10,
+  "generated_at": "2026-09-06T10:51:46.522295+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -186,6 +186,48 @@
       "semantic_relevance": "not_measured",
       "human_pronunciation_and_naturalness": "not_measured"
     }
+  },
+  "cascade_intelligibility_proxy": {
+    "verified": true,
+    "evidence_class": "automatic_asr_roundtrip_intelligibility_proxy",
+    "panel_rows": 9,
+    "asr_failures": 0,
+    "exact_word_match_rows": 0,
+    "exact_character_match_rows": 0,
+    "word_error_rate": {
+      "micro": 0.304094,
+      "macro_mean": 0.32011,
+      "p50": 0.28,
+      "p95": 0.494,
+      "max": 0.545455,
+      "reference_words": 171,
+      "edits": 52
+    },
+    "character_error_rate": {
+      "micro": 0.071429,
+      "macro_mean": 0.071256,
+      "p50": 0.075,
+      "p95": 0.094,
+      "max": 0.096154,
+      "reference_characters": 658,
+      "edits": 47
+    },
+    "threshold": null,
+    "claim_boundary": {
+      "measurement_valid": true,
+      "automatic_intelligibility_proxy_measured": true,
+      "human_intelligibility_result": false,
+      "pronunciation_or_naturalness_result": false,
+      "semantic_relevance_result": false,
+      "population_generalization_result": false
+    },
+    "limitations": [
+      "This is automatic ASR round-trip evidence, not a human listening result.",
+      "The same ASR family participates in the system and in this proxy.",
+      "Nine outputs from one synthesized voice do not establish population intelligibility.",
+      "CER/WER do not measure pronunciation quality, naturalness, semantics, or usefulness.",
+      "No post-hoc quality threshold or confidence interval is asserted."
+    ]
   },
   "direct_moshi": {
     "deployment_eligible": false,
@@ -944,6 +986,18 @@
       "bytes": 3477,
       "sha256": "03eb727a06617ad5d23a89fb02dd6e7354ce9101e9b094d2f99125cffbfc88e4"
     },
+    "cascade_intelligibility_proxy": {
+      "path": "results/eval/cascade_intelligibility_proxy.json",
+      "present": true,
+      "bytes": 14014,
+      "sha256": "4c7cfb39e25739ee0e626614ffaac9843b32717154de45d3c706b7544051988d"
+    },
+    "cascade_intelligibility_protocol": {
+      "path": "docs/CASCADE_INTELLIGIBILITY_PROTOCOL.md",
+      "present": true,
+      "bytes": 3323,
+      "sha256": "2ea35cb1add1c7583eef65b38719ae9ebcb5ab2613db70f9bb6ac64ff05e349b"
+    },
     "cascade_validation_protocol": {
       "path": "docs/CASCADE_VALIDATION_PROTOCOL.md",
       "present": true,
@@ -995,8 +1049,8 @@
     "metrics_definition": {
       "path": "docs/METRICS.md",
       "present": true,
-      "bytes": 2493,
-      "sha256": "7178cff7a723ac07e04a1b23c732e543df759af17471419ae4495b33f0fbcdc9"
+      "bytes": 3520,
+      "sha256": "7c8b8b5ba0b3a6e7c58a214103fad53ef54a7a8fd6b1cce29c9708855a699c2b"
     },
     "storage_cleanup": {
       "path": "results/hardware/storage_cleanup_20260831.json",
