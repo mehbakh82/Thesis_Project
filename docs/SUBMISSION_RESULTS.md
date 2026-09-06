@@ -119,6 +119,7 @@ Do not claim:
 |---|---|
 | Working cascade | `results/eval/cascade_real_service_validation_panel.json` |
 | Frozen cascade protocol | `docs/CASCADE_VALIDATION_PROTOCOL.md` |
+| Duplex transport continuity | `results/release/final_audit.json` |
 | V6.2 training integrity | `results/hardware/moshi_v6_text_dropout_training.json` |
 | V6.2 losses | `results/moshi_v6_text_dropout_reevaluation.json` |
 | V6.2 runtime failure | `results/moshi_v6_text_dropout_runtime.json` |

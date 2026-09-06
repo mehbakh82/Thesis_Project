@@ -286,6 +286,31 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
             "postconditions": {"all_retained_adapter_hashes_verified": True},
         },
     )
+    _write(
+        tmp_path,
+        "results/release/final_audit.json",
+        {
+            "status": "passed",
+            "duplex_transport_regression": {
+                "tests": 4,
+                "automatic_bargein_preroll_samples": 3200,
+                "continued_capture_samples": 1600,
+                "next_turn_input_samples": 4800,
+                "client_acknowledgement_ingestion": "passed",
+                "identity_and_fallback_telemetry": "passed",
+                "explicit_cancellation": "passed",
+                "simultaneous_turn_isolation": "passed",
+                "reconnect": "passed",
+                "malformed_and_silent_input_recovery": "passed",
+                "simulated_generation_oom_recovery": "passed",
+                "metrics_retention_writes_no_wav": "passed",
+                "evidence_class": "automated_websocket_transport_regression",
+            },
+            "claim_boundary": {
+                "does_not_prove": ["Actual browser AudioBufferSourceNode stop behavior."]
+            },
+        },
+    )
 
     out = tmp_path / "results/eval/EVIDENCE_STATUS.json"
     report = build_evidence_status(
@@ -295,7 +320,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
 
     assert report["authoritative"] is True
-    assert report["schema_version"] == 7
+    assert report["schema_version"] == 8
     assert report["thesis_ready"] is False
     assert report["generation_policy"]["reads_frozen_final_test_rows"] is False
     assert report["gates"]["audited_export_100_to_200_hours"] is True
@@ -329,6 +354,9 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert report["detector"]["recorded_proxy"]["official_detector_eligible"] is False
     assert report["gates"]["real_group_heldout_detector_above_80_percent"] is False
     assert report["reporting_contract"]["failure_denominators_included"] is True
+    assert report["duplex_transport"]["automated_websocket_regression_passed"] is True
+    assert report["duplex_transport"]["next_turn_input_samples"] == 4800
+    assert report["duplex_transport"]["physical_browser_verified"] is False
     assert report["submission_strategy"]["production_candidate"] == "cascade"
     assert report["submission_strategy"]["new_direct_training_before_deadline_recommended"] is False
     assert report["release"]["source_code_license_selected"] is False
@@ -339,4 +367,6 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert "passed 9/9" in summary
     assert "32.20%" in summary
     assert "recorded proxy n=132 / 22 sessions" in summary
+    assert "## Duplex transport" in summary
+    assert "3,200 pre-roll samples" in summary
     assert json.loads(out.read_text(encoding="utf-8")) == report

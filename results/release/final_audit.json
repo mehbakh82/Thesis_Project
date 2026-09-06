@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-06T05:14:49Z",
+  "audited_commit": "f9796197d483bcf7b01fcc37780bd7478fe9c776",
+  "git_identity": {
+    "author": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>",
+    "committer": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>"
+  },
+  "environment": {
+    "python": "3.12.3",
+    "hardware_class": "H100 engineering host",
+    "physical_browser_executed": false,
+    "physical_rtx_4090_executed": false
+  },
+  "checks": {
+    "worktree_clean_before_receipt": true,
+    "compileall": "passed",
+    "ruff": "passed",
+    "mypy": {
+      "status": "passed",
+      "source_files": 49
+    },
+    "tracked_artifact_history_privacy_secret_audit": {
+      "status": "passed",
+      "tracked_files": 353
+    },
+    "general_dependency_audit": {
+      "status": "passed",
+      "known_vulnerabilities": 0
+    },
+    "pytest": {
+      "status": "passed",
+      "tests": 173,
+      "seconds": 16.12
+    },
+    "branch_coverage": {
+      "status": "passed",
+      "percent": 64,
+      "required_percent": 60
+    },
+    "scientific_dependency_risk_drift": {
+      "status": "passed",
+      "policy": "temporary-compatibility-exception",
+      "accepted_unique_advisories": 56,
+      "raw_findings": 58,
+      "note": "Passed means every finding exactly matches the reviewed baseline; the scientific environment is not vulnerability-free."
+    },
+    "upstream_pins": {
+      "status": "passed",
+      "pins": 8,
+      "present_checkouts": 2,
+      "present_checkouts_match": true
+    }
+  },
+  "duplex_transport_regression": {
+    "tests": 4,
+    "automatic_bargein_preroll_samples": 3200,
+    "continued_capture_samples": 1600,
+    "next_turn_input_samples": 4800,
+    "client_acknowledgement_ingestion": "passed",
+    "identity_and_fallback_telemetry": "passed",
+    "explicit_cancellation": "passed",
+    "simultaneous_turn_isolation": "passed",
+    "reconnect": "passed",
+    "malformed_and_silent_input_recovery": "passed",
+    "simulated_generation_oom_recovery": "passed",
+    "metrics_retention_writes_no_wav": "passed",
+    "evidence_class": "automated_websocket_transport_regression"
+  },
+  "claim_boundary": {
+    "proves": [
+      "The server carries captured barge-in speech into the next turn.",
+      "The transport remains reusable after cancellation and tested errors.",
+      "Client-reported acknowledgements and runtime identity telemetry are ingested.",
+      "Metrics-only transport persistence writes no WAV."
+    ],
+    "does_not_prove": [
+      "Actual browser AudioBufferSourceNode stop behavior.",
+      "Physical microphone continuity.",
+      "Physical RTX 4090 fit or latency.",
+      "Human semantic, pronunciation, or naturalness quality.",
+      "Deployment eligibility of any direct Moshi adapter."
+    ]
+  },
+  "status": "passed"
+}

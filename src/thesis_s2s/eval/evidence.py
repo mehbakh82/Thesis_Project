@@ -53,6 +53,7 @@ ARTIFACTS: dict[str, str] = {
     "latency_h100_uncapped": "results/eval/latency_bench_path_b.json",
     "metrics_definition": "docs/METRICS.md",
     "storage_cleanup": "results/hardware/storage_cleanup_20260831.json",
+    "final_audit": "results/release/final_audit.json",
 }
 
 
@@ -381,6 +382,7 @@ def build_evidence_status(
     recorded_proxy = _read_json(project, ARTIFACTS["interrupt_recorded_proxy"])
     study = _read_json(project, ARTIFACTS["human_study"])
     cleanup = _read_json(project, ARTIFACTS["storage_cleanup"])
+    final_audit = _read_json(project, ARTIFACTS["final_audit"])
     final_hardware_path = project / "results/hardware/final_preflight.json"
     hardware = (
         _read_json(project, "results/hardware/final_preflight.json")
@@ -491,6 +493,26 @@ def build_evidence_status(
     )
     cleanup_postconditions = cleanup.get("postconditions") or {}
     cleanup_space = cleanup.get("space") or {}
+    transport = final_audit.get("duplex_transport_regression") or {}
+    transport_checks = (
+        "client_acknowledgement_ingestion",
+        "identity_and_fallback_telemetry",
+        "explicit_cancellation",
+        "simultaneous_turn_isolation",
+        "reconnect",
+        "malformed_and_silent_input_recovery",
+        "simulated_generation_oom_recovery",
+        "metrics_retention_writes_no_wav",
+    )
+    transport_regression_passed = bool(
+        final_audit.get("status") == "passed"
+        and transport.get("evidence_class") == "automated_websocket_transport_regression"
+        and int(transport.get("tests") or 0) >= 4
+        and all(transport.get(name) == "passed" for name in transport_checks)
+        and int(transport.get("automatic_bargein_preroll_samples") or 0)
+        + int(transport.get("continued_capture_samples") or 0)
+        == int(transport.get("next_turn_input_samples") or -1)
+    )
 
     gates = {
         "working_persian_s2s_prototype": bool(cascade["working_prototype"]),
@@ -530,7 +552,7 @@ def build_evidence_status(
     }
 
     payload: dict[str, Any] = {
-        "schema_version": 7,
+        "schema_version": 8,
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "authoritative": True,
         "thesis_ready": thesis_ready,
@@ -718,6 +740,19 @@ def build_evidence_status(
             "session_group_split_policy_reported": True,
             "no_post_test_selection": True,
         },
+        "duplex_transport": {
+            "automated_websocket_regression_passed": transport_regression_passed,
+            "evidence_class": transport.get("evidence_class") or "missing",
+            "test_count": int(transport.get("tests") or 0),
+            "bargein_preroll_samples": int(
+                transport.get("automatic_bargein_preroll_samples") or 0
+            ),
+            "continued_capture_samples": int(transport.get("continued_capture_samples") or 0),
+            "next_turn_input_samples": int(transport.get("next_turn_input_samples") or 0),
+            "physical_browser_verified": False,
+            "official_full_duplex_evidence": False,
+            "claim_boundary": final_audit.get("claim_boundary") or {},
+        },
         "submission_strategy": {
             "production_candidate": "cascade",
             "production_candidate_evidence": (
@@ -784,6 +819,7 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
     release = payload.get("release") or {}
     retention = payload.get("local_artifact_retention") or {}
     strategy = payload.get("submission_strategy") or {}
+    transport = payload.get("duplex_transport") or {}
     v1_loss_evidence = direct.get("v1_automatic_heldout_loss_evidence") or {}
     v1_total_loss = v1_loss_evidence.get("selected_total_loss") or {}
     split_counts = data.get("split_counts") or {}
@@ -833,6 +869,18 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             "user-turn prototype result and out-of-sample mechanics check, not semantic or "
             "population-level generalization, human quality, physical-target, or "
             "official browser-latency evidence.",
+            "",
+            "## Duplex transport",
+            "",
+            "The automated WebSocket regression "
+            f"{'passed' if transport.get('automated_websocket_regression_passed') else 'is pending'} "
+            f"with {transport.get('test_count', 0)} tests. It verifies "
+            f"{transport.get('bargein_preroll_samples', 0):,} pre-roll samples plus "
+            f"{transport.get('continued_capture_samples', 0):,} continued samples become a "
+            f"{transport.get('next_turn_input_samples', 0):,}-sample next-turn input, together "
+            "with acknowledgement ingestion, identity telemetry, cancellation, reconnect, "
+            "state isolation, error recovery, and metrics-only no-WAV retention. Actual "
+            "browser source-stop, microphone, and physical-target evidence remain pending.",
             "",
             "## Direct Moshi trials and ablations",
             "",

@@ -1,6 +1,6 @@
 {
-  "schema_version": 7,
-  "generated_at": "2026-09-05T15:47:21.654885+00:00",
+  "schema_version": 8,
+  "generated_at": "2026-09-06T05:17:24.094986+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -613,6 +613,31 @@
     "session_group_split_policy_reported": true,
     "no_post_test_selection": true
   },
+  "duplex_transport": {
+    "automated_websocket_regression_passed": true,
+    "evidence_class": "automated_websocket_transport_regression",
+    "test_count": 4,
+    "bargein_preroll_samples": 3200,
+    "continued_capture_samples": 1600,
+    "next_turn_input_samples": 4800,
+    "physical_browser_verified": false,
+    "official_full_duplex_evidence": false,
+    "claim_boundary": {
+      "proves": [
+        "The server carries captured barge-in speech into the next turn.",
+        "The transport remains reusable after cancellation and tested errors.",
+        "Client-reported acknowledgements and runtime identity telemetry are ingested.",
+        "Metrics-only transport persistence writes no WAV."
+      ],
+      "does_not_prove": [
+        "Actual browser AudioBufferSourceNode stop behavior.",
+        "Physical microphone continuity.",
+        "Physical RTX 4090 fit or latency.",
+        "Human semantic, pronunciation, or naturalness quality.",
+        "Deployment eligibility of any direct Moshi adapter."
+      ]
+    }
+  },
   "submission_strategy": {
     "production_candidate": "cascade",
     "production_candidate_evidence": "real_service_group_disjoint_validation_mechanics",
@@ -877,6 +902,12 @@
       "present": true,
       "bytes": 3662,
       "sha256": "5d87d5f4155b8055ba0060849d7902a73c6a1ce218547bc0b5eb6553bc64639f"
+    },
+    "final_audit": {
+      "path": "results/release/final_audit.json",
+      "present": true,
+      "bytes": 2837,
+      "sha256": "c62467302d4181c998fa12405d861ca76c44f22459f96284bf8977605ec9df37"
     }
   }
 }

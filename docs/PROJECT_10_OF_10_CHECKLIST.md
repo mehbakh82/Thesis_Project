@@ -857,11 +857,16 @@ Final engineering audit:
   coverage is 64%; 351 tracked artifacts/history/privacy/secrets pass; general
   dependencies have no known vulnerabilities; the exact scientific
   accepted-risk baseline and all eight upstream pins pass.
-- [x] Run the post-release transport audit on 2026-09-06: compile, Ruff, and
-  mypy pass; all 173 tests pass. Four WebSocket-level tests cover continuation,
-  acknowledgements, identity telemetry, cancellation, reconnect, simultaneous
-  turns, stale-buffer isolation, malformed/silent input, simulated OOM
-  recovery, and metrics-only no-WAV retention.
+- [x] Run the post-release transport audit on 2026-09-06 at `f979619`:
+  compile, Ruff, and mypy pass; all 173 tests pass in 16.12 seconds; branch
+  coverage is 64%; 353 tracked files pass the history/privacy/secret audit;
+  general dependencies have no known vulnerabilities; the exact 56-advisory
+  scientific exception baseline and all eight upstream pins pass. Four
+  WebSocket-level tests cover continuation, acknowledgements, identity
+  telemetry, cancellation, reconnect, simultaneous turns, stale-buffer
+  isolation, malformed/silent input, simulated OOM recovery, and metrics-only
+  no-WAV retention. The machine-readable receipt is
+  `results/release/final_audit.json`.
 - [x] Verify a fresh full-history clone at release-snapshot commit `c476e5c`:
   clean tree, exact remote HEAD, only Mehran Bakhtiari as author/committer,
   352-file history/privacy/secret audit passed, Ruff passed, mypy passed 49

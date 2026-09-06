@@ -45,6 +45,7 @@ hf_cache/
 *.pt
 results/release/*.json
 !results/release/final_snapshot.json
+!results/release/final_audit.json
 !tests/fixtures/**
 
 # experiment dumps

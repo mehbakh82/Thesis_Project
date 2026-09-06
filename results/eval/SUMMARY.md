@@ -1,6 +1,6 @@
 # Authoritative project evidence status
 
-Generated: `2026-09-05T15:47:21.654885+00:00`
+Generated: `2026-09-06T05:17:24.094986+00:00`
 
 **Verdict:** `not_thesis_ready_evidence_gates_pending`. Thesis-ready: **false**.
 
@@ -37,6 +37,10 @@ This table is generated from `EVIDENCE_STATUS.json`. Component and synthetic pro
 ## Working speech-to-speech system
 
 The real-service cascade passed 9/9 fixed group-disjoint validation rows with 0 rule-fallback rows. Minimum reply Persian-script fraction was 1.0; minimum reply audio RMS was 0.133529. This is a positive working user-turn prototype result and out-of-sample mechanics check, not semantic or population-level generalization, human quality, physical-target, or official browser-latency evidence.
+
+## Duplex transport
+
+The automated WebSocket regression passed with 4 tests. It verifies 3,200 pre-roll samples plus 1,600 continued samples become a 4,800-sample next-turn input, together with acknowledgement ingestion, identity telemetry, cancellation, reconnect, state isolation, error recovery, and metrics-only no-WAV retention. Actual browser source-stop, microphone, and physical-target evidence remain pending.
 
 ## Direct Moshi trials and ablations
 

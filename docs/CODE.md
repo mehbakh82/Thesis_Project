@@ -47,6 +47,9 @@
 - `results/hardware/storage_cleanup_20260831.json` — chained hash-verified local
   retention receipt separating historically certified candidate sets from the
   13 representative adapter tensors that remain after v5 cleanup.
+- `results/release/final_audit.json` — commit-bound CI-equivalent and
+  WebSocket transport regression receipt with explicit physical-browser,
+  4090, human-quality, and direct-adapter claim exclusions.
 - `src/thesis_s2s/metrics.py` — validated latency, detector, and hardware-gate calculations.
 
 See `docs/REVIEW.md` for the audit verdict and the remaining evidence required by the thesis definition.
