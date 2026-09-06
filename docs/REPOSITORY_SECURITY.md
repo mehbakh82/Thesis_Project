@@ -61,7 +61,12 @@ Status date: 2026-09-06
   prior remote release run `34027190028` passed every gate at `edae181`. The
   subsequent post-intelligibility local audit at `6b4a7e9` passed all 182 tests,
   65% branch coverage, the 362-file history/privacy scan, general dependency
-  audit, exact scientific-risk baseline, and all nine upstream pins.
+  audit, exact scientific-risk baseline, and all nine upstream pins. The final
+  CI-portable pre-license evidence freeze at `fe32e6a` then passed the complete
+  GitHub Actions run `34029248788`. A clean fresh full-history clone of that
+  exact remote commit independently passed Ruff, mypy on 49 source files, the
+  362-file tracked-artifact/history/privacy audit, and all 182 tests while the
+  ignored private validation manifest was absent, as intended.
 
 ## Accepted pinned-training compatibility risks
 

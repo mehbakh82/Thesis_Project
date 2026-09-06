@@ -907,6 +907,14 @@ Final engineering audit:
   coverage is 65%; all 362 tracked files pass the history/privacy/secret audit;
   general dependencies have zero known vulnerabilities; the exact 56-advisory
   scientific exception baseline and all nine upstream pins pass.
+- [x] Verify the CI-portable pre-license evidence freeze at `fe32e6a`:
+  GitHub Actions run `34029248788` passed every stage, including compile,
+  Ruff, mypy, the 362-file history/privacy/secret audit, general dependency
+  audit, all 182 tests, coverage, and scientific-risk drift audit. A fresh
+  full-history clone was clean at the exact remote commit, contained no private
+  validation manifest, used only Mehran Bakhtiari as author/committer, and
+  independently passed Ruff, mypy on 49 source files, the tracked-artifact
+  audit, and all 182 tests. Its temporary 119 MB clone was then removed.
 - [x] Verify a fresh full-history clone at release-snapshot commit `c476e5c`:
   clean tree, exact remote HEAD, only Mehran Bakhtiari as author/committer,
   352-file history/privacy/secret audit passed, Ruff passed, mypy passed 49
@@ -963,7 +971,7 @@ privacy-safe repository at approved visibility, restricted handoff, immutable ta
 | 12–24 GB evaluation | Full model fits/runs officially on physical 4090 | Pending | Preflight, VRAM, telemetry |
 | Human evaluation | 5–10 Persian speakers, ≥2 aged 60+, complete ratings | Pending | Study summary/analysis |
 | Elderly findings | Evidence from ≥2 aged 60+, cautiously interpreted | Pending | Age-stratified results |
-| Documented code/dataset | Reproducible code/metadata at approved visibility; restricted corpus handled per approval | Implemented; final post-validation snapshot/tag audit pending | Final repo/provenance/handoff |
+| Documented code/dataset | Reproducible code/metadata at approved visibility; restricted corpus handled per approval | Implemented and remotely/fresh-clone verified at pre-license evidence commit `fe32e6a`; a submission tag remains contingent on the student's license/manuscript decision | Final repo/provenance/handoff |
 
 ## Inputs required from the student
 

@@ -189,7 +189,14 @@ Do not claim:
 | Detector proxy | `results/eval/interrupt_recorded_proxy.json` |
 | Aggregate status | `results/eval/EVIDENCE_STATUS.json`, `results/eval/SUMMARY.md` |
 
-## Remaining two-day path
+## Deadline handoff
+
+The CI-portable pre-license evidence freeze at `fe32e6a` is pushed to the
+private GitHub repository. GitHub Actions run `34029248788` passed every gate,
+and an independent fresh full-history clone passed Ruff, mypy, the tracked
+artifact/history/privacy audit, and all 182 tests without access to the ignored
+private validation manifest. This establishes repository reproducibility; it
+does not change any scientific acceptance result above.
 
 1. Copy the two result tables and safe wording above into the thesis; update
    abstract, methods, results, discussion, limitations, and conclusion.
