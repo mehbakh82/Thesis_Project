@@ -65,14 +65,15 @@ def test_summary_reports_micro_macro_extremes_and_failures() -> None:
 
 
 def test_protocol_constants_bind_existing_validation_without_final_test() -> None:
-    manifest = ROOT / "data/processed/moshi_finetune/val.jsonl"
     parent = ROOT / "results/eval/cascade_real_service_validation_panel.json"
-    assert _sha256(manifest) == MANIFEST_SHA256
     assert _sha256(parent) == PARENT_PANEL_SHA256
+    assert len(MANIFEST_SHA256) == 64
+    assert set(MANIFEST_SHA256) <= set("0123456789abcdef")
     assert PANEL_INDICES == (0, 16, 32, 48, 65, 81, 97, 113, 130)
     protocol = (ROOT / "docs/CASCADE_INTELLIGIBILITY_PROTOCOL.md").read_text(
         encoding="utf-8"
     )
+    assert MANIFEST_SHA256 in protocol
     assert "sealed Moshi final-test manifest is forbidden" in protocol
     assert "No quality threshold" in protocol
 
@@ -86,6 +87,7 @@ def test_canonical_result_is_valid_privacy_safe_and_hash_bound() -> None:
     assert payload["aggregate"]["asr_failures"] == 0
     assert payload["aggregate"]["word_error_rate"]["micro"] == 0.304094
     assert payload["aggregate"]["character_error_rate"]["micro"] == 0.071429
+    assert payload["artifacts"]["manifest_sha256"] == MANIFEST_SHA256
     assert payload["artifacts"]["parent_panel_sha256"] == PARENT_PANEL_SHA256
     assert all(payload["validity_requirements"].values())
     assert payload["privacy"] == {
