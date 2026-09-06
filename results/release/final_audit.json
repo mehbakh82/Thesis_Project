@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-06T05:14:49Z",
-  "audited_commit": "f9796197d483bcf7b01fcc37780bd7478fe9c776",
+  "generated_at": "2026-09-06T05:52:27Z",
+  "audited_commit": "2d1e1f687819618e78fc076f7b924bb96f196eff",
   "git_identity": {
     "author": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>",
     "committer": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>"
@@ -22,7 +22,7 @@
     },
     "tracked_artifact_history_privacy_secret_audit": {
       "status": "passed",
-      "tracked_files": 353
+      "tracked_files": 357
     },
     "general_dependency_audit": {
       "status": "passed",
@@ -30,8 +30,8 @@
     },
     "pytest": {
       "status": "passed",
-      "tests": 173,
-      "seconds": 16.12
+      "tests": 175,
+      "seconds": 16.22
     },
     "branch_coverage": {
       "status": "passed",
@@ -51,6 +51,22 @@
       "present_checkouts": 2,
       "present_checkouts_match": true
     }
+  },
+  "cascade_descriptive_analysis": {
+    "status": "passed",
+    "evidence_class": "post_hoc_privacy_safe_descriptive_error_analysis",
+    "source_report_sha256": "ae515381db2b72e9ed0b8dcb491c0765990732ed8bb8c46383499b9d60f89ced",
+    "artifact_sha256": "03eb727a06617ad5d23a89fb02dd6e7354ce9101e9b094d2f99125cffbfc88e4",
+    "analyzer_sha256": "9341cbfbef98e4aa12cfd94caf843caa5b9463fdb8115f59903002cb4f9504f7",
+    "test_sha256": "28840002d9dd01c80610303470cab261285e93a5a44b3df79c15801411ee3752",
+    "focused_tests": 2,
+    "panel_rows": 9,
+    "mechanics_passes": 9,
+    "mechanics_failures": 0,
+    "plaintext_read_or_emitted": false,
+    "frozen_final_test_accessed": false,
+    "semantic_or_human_claim_allowed": false,
+    "official_latency_claim_allowed": false
   },
   "duplex_transport_regression": {
     "tests": 4,
