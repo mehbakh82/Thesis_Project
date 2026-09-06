@@ -60,8 +60,8 @@ Verified now:
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
-- [x] The 2026-09-05 full local audit passes compile, Ruff, mypy on 49 source
-  files, all 169 tests, 64% branch-aware coverage with a 60% CI floor,
+- [x] The 2026-09-06 full local audit passes compile, Ruff, mypy on 49 package
+  source files, all 175 tests, 64% branch-aware coverage with a 60% CI floor,
   full-history/privacy/secret checks, general dependencies, the accepted
   scientific-risk baseline, and all eight upstream pins.
 - [x] General dependencies have no known vulnerabilities; the pinned scientific
@@ -824,8 +824,12 @@ Thesis narrative:
   non-redistribution, split isolation, and limitations.
 - [x] Compare cascade, base Moshika, adapted Moshika, and justified ablations
   without conflating evidence.
-- [ ] Include real error analysis, successes, failures, and cautiously scoped
-  elderly findings.
+- [x] Include privacy-safe real validation mechanics analysis: 9/9 successes,
+  0/9 automatic-gate failures, length/timing distributions, risk counts, row
+  extremes, and a hash-bound claim boundary. The panel has no mechanics failure
+  examples; semantic/perceptual errors were not inspected.
+- [ ] Add semantic, perceptual, and cautiously scoped elderly error analysis
+  only if qualifying human evidence is actually collected; do not fabricate it.
 - [ ] Verify citations, bibliography, licenses, and third-party notices.
 - [ ] Ensure abstract/conclusion/tables/demo make no claim beyond evidence.
 
@@ -867,6 +871,16 @@ Final engineering audit:
   isolation, malformed/silent input, simulated OOM recovery, and metrics-only
   no-WAV retention. The machine-readable receipt is
   `results/release/final_audit.json`.
+- [x] Run the post-analysis local audit on 2026-09-06: compile, Ruff, and mypy
+  pass; all 175 tests pass in 16.22 seconds; branch coverage is 64%; 357
+  tracked files pass the history/privacy/secret audit; general dependencies
+  have zero known vulnerabilities; the exact 56-advisory scientific exception
+  baseline and all eight upstream pins pass. The current H100 is correctly
+  rejected as official 12–24 GB evaluation hardware.
+- [x] Verify the prior duplex-ready remote release at `da6fed8`: GitHub CI run
+  `34013864466` passed every stage, and a fresh full-history private clone was
+  clean at exact remote HEAD with the correct identity, 354-file tracked audit,
+  Ruff, mypy on 49 source files, and all 173 then-current tests passing.
 - [x] Verify a fresh full-history clone at release-snapshot commit `c476e5c`:
   clean tree, exact remote HEAD, only Mehran Bakhtiari as author/committer,
   352-file history/privacy/secret audit passed, Ruff passed, mypy passed 49

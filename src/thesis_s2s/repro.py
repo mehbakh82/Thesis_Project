@@ -96,6 +96,7 @@ SNAPSHOT_FILES = (
     "results/bargein/feature_heldout_report.json",
     "results/eval/human_study.json",
     "results/eval/interrupt_recorded_proxy.json",
+    "results/eval/cascade_validation_descriptive_analysis.json",
     "results/eval/EVIDENCE_STATUS.json",
     "results/eval/SUMMARY.md",
     "results/release/final_audit.json",

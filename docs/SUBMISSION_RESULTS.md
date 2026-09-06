@@ -1,6 +1,6 @@
 # Submission results and claim boundary
 
-Status date: 2026-09-05
+Status date: 2026-09-06
 
 ## Final architecture decision
 
@@ -63,6 +63,38 @@ component-chain smoke test. The issue was found and corrected to audited user
 channel 1 before any validation row was read; the validation protocol and
 evaluator were committed at `b0366e7` before the one-time run.
 
+## Privacy-safe descriptive error analysis
+
+The canonical post-hoc artifact is
+`results/eval/cascade_validation_descriptive_analysis.json`, hash-bound to the
+unchanged validation report (`ae515381db2b72e9ed0b8dcb491c0765990732ed8bb8c46383499b9d60f89ced`).
+It processed only the report's aggregate measurements and hashes; it did not
+read or emit transcript/reply plaintext and did not access the frozen final
+test.
+
+| Observation | Result |
+|---|---:|
+| Automatic mechanics successes / failures | **9 / 0** |
+| ASR errors / responder fallbacks / language retries | 0 / 0 / 0 |
+| Unique transcript / reply hashes | 9 / 9 |
+| Transcript characters p50 / p95 / max | 445 / 3977.8 / 5031 |
+| Reply characters p50 / p95 / max | 110 / 115.6 / 116 |
+| Reply-audio seconds p50 / p95 / max | 7.465 / 9.629 / 9.857 |
+| Rows with transcript >1000 characters | 3/9 |
+| Rows with reply audio >8 seconds | 3/9 |
+| Rows with complete generation >10 seconds | 2/9 |
+| Transcript-length/full-turn Pearson correlation | 0.885 (descriptive) |
+
+No automatic mechanics failure occurred in this small panel. The principal
+observed engineering risk is instead long complete-response time, especially
+for long ASR transcripts: the longest transcript and slowest turn were both
+manifest row 32 (5031 characters; 13270.249 ms). This is a post-hoc descriptive
+association over nine cases, not an inferential result or an official
+`T_first_audio` measurement. Because plaintext and audio were deliberately not
+reviewed, this analysis cannot assess semantic relevance, ASR correctness,
+pronunciation, naturalness, human quality, elderly performance, or population
+generalization.
+
 ## Direct-model result
 
 V6.2 was a deliberately train-only 32-row capacity diagnostic with rank-64
@@ -118,6 +150,7 @@ Do not claim:
 | Claim | Canonical evidence |
 |---|---|
 | Working cascade | `results/eval/cascade_real_service_validation_panel.json` |
+| Cascade descriptive analysis | `results/eval/cascade_validation_descriptive_analysis.json` |
 | Frozen cascade protocol | `docs/CASCADE_VALIDATION_PROTOCOL.md` |
 | Duplex transport continuity | `results/release/final_audit.json` |
 | V6.2 training integrity | `results/hardware/moshi_v6_text_dropout_training.json` |
@@ -132,9 +165,9 @@ Do not claim:
 1. Copy the two result tables and safe wording above into the thesis; update
    abstract, methods, results, discussion, limitations, and conclusion.
 2. Choose a source-code license.
-3. Complete the final repository audit and regenerate the release snapshot.
-4. Freeze a submission commit and tag, push both, and verify a clean
-   full-history clone.
+3. Regenerate the release snapshot after the final license/manuscript choice.
+4. Freeze/tag that submission commit, push it, and verify a clean full-history
+   clone.
 5. Run the physical-target/browser protocol only if suitable hardware arrives
    before the freeze. Otherwise report it as unavailable future work.
 

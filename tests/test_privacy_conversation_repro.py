@@ -317,6 +317,10 @@ def test_upstream_lock_and_release_snapshot(tmp_path: Path, monkeypatch):
     final_audit = tmp_path / "results" / "release" / "final_audit.json"
     final_audit.parent.mkdir(parents=True)
     final_audit.write_text("{}", encoding="utf-8")
+    cascade_analysis = (
+        tmp_path / "results" / "eval" / "cascade_validation_descriptive_analysis.json"
+    )
+    cascade_analysis.write_text("{}", encoding="utf-8")
     legacy_dir = tmp_path / "checkpoints" / "llama_omni2_fa"
     legacy_dir.mkdir(parents=True)
     (legacy_dir / "persian_omni2.pt").write_bytes(b"historical")
@@ -331,6 +335,7 @@ def test_upstream_lock_and_release_snapshot(tmp_path: Path, monkeypatch):
     assert "results/eval/interrupt_recorded_proxy.json" in report["files"]
     assert "results/hardware/storage_cleanup_20260831.json" in report["files"]
     assert "results/release/final_audit.json" in report["files"]
+    assert "results/eval/cascade_validation_descriptive_analysis.json" in report["files"]
     assert "src/generated.egg-info/PKG-INFO" not in report["files"]
     assert (tmp_path / "snapshot.json").is_file()
 

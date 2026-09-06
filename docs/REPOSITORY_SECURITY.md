@@ -1,6 +1,6 @@
 # Repository security and reproducibility review
 
-Status date: 2026-08-30
+Status date: 2026-09-06
 
 ## Controls that are enforced
 
@@ -24,14 +24,14 @@ Status date: 2026-08-30
 - GitHub dependency vulnerability alerts and automated security fixes are
   enabled; the authenticated API reports alerts available and automated fixes
   `enabled=true`, `paused=false`.
-- CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 48
+- CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 49
   source files against the Python 3.10 target.
-- The measured branch-aware coverage is 63%; the enforced floor is 60%, raised
+- The measured branch-aware coverage is 64%; the enforced floor is 60%, raised
   from 35% while retaining a small non-flaky margin. Core conversation,
   Moshi-export, QA-policy, rights, and preflight modules are substantially above
   the aggregate.
 - `pip-audit --requirement requirements.txt --strict` reported no known
-  vulnerabilities on 2026-08-24 and is an enforced CI gate.
+  vulnerabilities on 2026-09-06 and is an enforced CI gate.
 - Critical Moshi assets, upstream revisions, and the isolated training
   environment are independently pinned and hash-checked by
   `requirements-moshi.lock`, `third_party/UPSTREAMS.lock.json`, and the
@@ -46,12 +46,15 @@ Status date: 2026-08-30
   finding fails the build, and the npm development server is prohibited.
 - Post-finalization storage cleanup removed only ignored/regenerable assets and
   non-promoted negative checkpoint tensors after their hashes and derived
-  evidence were committed. Eleven representative adapters remain hash-verified;
+  evidence were committed. Thirteen representative v1–v5 adapters remain
+  hash-verified, alongside four separately retained v6.2 diagnostic checkpoints;
   the receipt uses no private absolute host path and is included in the release
   snapshot and authoritative evidence aggregation.
-- The complete GitHub Actions run `33314972249` passed at commit `24ec60f` on
-  2026-08-30, including compile, lint, types, privacy/history, dependency,
-  test/coverage, and pinned-scientific-risk jobs.
+- The complete GitHub Actions run `34013864466` passed at duplex-ready commit
+  `da6fed8` on 2026-09-06, including compile, lint, types, privacy/history,
+  dependency, test/coverage, and pinned-scientific-risk jobs. The subsequent
+  local post-analysis audit passed all 175 tests, 64% branch coverage, and the
+  same security gates; its final remote run is recorded at release freeze.
 
 ## Accepted pinned-training compatibility risks
 

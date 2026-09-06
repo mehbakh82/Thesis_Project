@@ -1,6 +1,6 @@
 {
-  "schema_version": 8,
-  "generated_at": "2026-09-06T05:19:59.341409+00:00",
+  "schema_version": 9,
+  "generated_at": "2026-09-06T05:50:30.824240+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -91,6 +91,101 @@
       "Full-turn generation time is not the thesis T_first_audio browser metric.",
       "The H100 is outside the official 12-24 GB evaluation class."
     ]
+  },
+  "cascade_descriptive_analysis": {
+    "verified": true,
+    "evidence_scope": "post_hoc_privacy_safe_descriptive_error_analysis",
+    "source_report_sha256": "ae515381db2b72e9ed0b8dcb491c0765990732ed8bb8c46383499b9d60f89ced",
+    "panel_rows": 9,
+    "passed_rows": 9,
+    "failed_rows": 0,
+    "execution_outcomes": {
+      "asr_error_rows": 0,
+      "responder_fallback_rows": 0,
+      "language_retry_rows": 0,
+      "unique_transcript_hashes": 9,
+      "unique_reply_hashes": 9,
+      "duplicate_transcript_rows": 0,
+      "duplicate_reply_rows": 0
+    },
+    "distributions": {
+      "transcript_characters": {
+        "n": 9,
+        "minimum": 35.0,
+        "p50": 445.0,
+        "p95": 3977.8,
+        "maximum": 5031.0
+      },
+      "reply_characters": {
+        "n": 9,
+        "minimum": 47.0,
+        "p50": 110.0,
+        "p95": 115.6,
+        "maximum": 116.0
+      },
+      "reply_audio_seconds": {
+        "n": 9,
+        "minimum": 3.448187,
+        "p50": 7.46525,
+        "p95": 9.629325,
+        "maximum": 9.856875
+      },
+      "reply_audio_rms": {
+        "n": 9,
+        "minimum": 0.133529,
+        "p50": 0.184925,
+        "p95": 0.203706,
+        "maximum": 0.21065
+      },
+      "full_turn_generation_ms": {
+        "n": 9,
+        "minimum": 2072.4,
+        "p50": 5584.736,
+        "p95": 13045.919,
+        "maximum": 13270.249
+      }
+    },
+    "descriptive_risk_counts": {
+      "transcript_over_1000_characters": 3,
+      "reply_audio_over_8_seconds": 3,
+      "full_turn_over_10_seconds": 2,
+      "full_turn_over_500_ms_not_official_latency": 9
+    },
+    "row_extremes": {
+      "longest_transcript_characters": {
+        "manifest_row_index": 32,
+        "value": 5031.0
+      },
+      "slowest_full_turn_ms": {
+        "manifest_row_index": 32,
+        "value": 13270.249
+      },
+      "longest_reply_audio_seconds": {
+        "manifest_row_index": 48,
+        "value": 9.856875
+      },
+      "lowest_reply_audio_rms": {
+        "manifest_row_index": 81,
+        "value": 0.133529
+      }
+    },
+    "transcript_length_full_turn_pearson_r": 0.885282,
+    "claim_boundary": {
+      "post_hoc": true,
+      "plaintext_transcripts_or_replies_read_or_emitted": false,
+      "final_test_accessed": false,
+      "scientific_generalization_claim_allowed": false,
+      "semantic_quality_claim_allowed": false,
+      "human_quality_claim_allowed": false,
+      "official_latency_claim_allowed": false,
+      "note": "This analysis describes the already-open nine-row validation report. It is not a new held-out evaluation and cannot replace semantic, human, browser, or physical-target evidence."
+    },
+    "interpretation": {
+      "mechanics": "9/9 rows passed every predeclared automatic gate.",
+      "primary_engineering_risk": "Long inputs and complete-response synthesis produce multi-second full-turn time; streaming first-audio latency remains unmeasured.",
+      "semantic_relevance": "not_measured",
+      "human_pronunciation_and_naturalness": "not_measured"
+    }
   },
   "direct_moshi": {
     "deployment_eligible": false,
@@ -843,6 +938,12 @@
       "bytes": 22598,
       "sha256": "ae515381db2b72e9ed0b8dcb491c0765990732ed8bb8c46383499b9d60f89ced"
     },
+    "cascade_descriptive_analysis": {
+      "path": "results/eval/cascade_validation_descriptive_analysis.json",
+      "present": true,
+      "bytes": 3477,
+      "sha256": "03eb727a06617ad5d23a89fb02dd6e7354ce9101e9b094d2f99125cffbfc88e4"
+    },
     "cascade_validation_protocol": {
       "path": "docs/CASCADE_VALIDATION_PROTOCOL.md",
       "present": true,
@@ -877,7 +978,7 @@
       "path": "results/hardware/final_preflight.json",
       "present": true,
       "bytes": 20284,
-      "sha256": "4638af11159841ede0ef19a8f39ce552b20400d4053daed8d4137ffa9a63fda7"
+      "sha256": "3f339294c0f2275c96872562fbef41a63885bbaf647ca1bd34d0a3c16153cb57"
     },
     "latency_h100_capped": {
       "path": "results/eval/latency_bench.json",

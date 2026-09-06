@@ -1,6 +1,6 @@
 # Authoritative project evidence status
 
-Generated: `2026-09-06T05:19:59.341409+00:00`
+Generated: `2026-09-06T05:50:30.824240+00:00`
 
 **Verdict:** `not_thesis_ready_evidence_gates_pending`. Thesis-ready: **false**.
 
@@ -37,6 +37,10 @@ This table is generated from `EVIDENCE_STATUS.json`. Component and synthetic pro
 ## Working speech-to-speech system
 
 The real-service cascade passed 9/9 fixed group-disjoint validation rows with 0 rule-fallback rows. Minimum reply Persian-script fraction was 1.0; minimum reply audio RMS was 0.133529. This is a positive working user-turn prototype result and out-of-sample mechanics check, not semantic or population-level generalization, human quality, physical-target, or official browser-latency evidence.
+
+## Privacy-safe descriptive error analysis
+
+The hash-bound post-hoc analysis is verified. It found 9/9 automatic mechanics successes and 0 mechanics failures. Of the nine rows, 3 had transcripts over 1,000 characters, 3 had replies over 8 seconds, and 2 took over 10 seconds for complete generation. Transcript length and full-turn time had descriptive Pearson r=0.885282. This small, post-hoc association is not inferential, and full-turn time is not official first-audio latency. Plaintext was not read or emitted; semantic relevance, pronunciation, naturalness, human quality, elderly performance, and population generalization remain unmeasured.
 
 ## Duplex transport
 

@@ -17,7 +17,10 @@ An evidence-first Persian speech prototype that keeps the microphone active duri
 
 The main positive result is
 `results/eval/cascade_real_service_validation_panel.json`. Machine-generated
-corpus evidence is in `results/diarized_episode_audit_combined_authorized.json`,
+privacy-safe descriptive analysis of that exact report is in
+`results/eval/cascade_validation_descriptive_analysis.json`; it reads and
+emits aggregate statistics and hashes, not transcript or reply plaintext.
+Corpus evidence is in `results/diarized_episode_audit_combined_authorized.json`,
 `results/conversation_yield_estimate_combined.json`, and
 `results/corpus_audit.json`; study evidence is in
 `results/eval/human_study.json`. The validation panel establishes working

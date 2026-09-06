@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from thesis_s2s.eval.evidence import build_evidence_status, render_evidence_summary
+from thesis_s2s.repro import sha256_file
 
 
 def _write(root: Path, relative: str, payload: dict) -> None:
@@ -184,6 +185,55 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
             ],
         },
     )
+    cascade_sha256 = sha256_file(
+        tmp_path / "results/eval/cascade_real_service_validation_panel.json"
+    )
+    _write(
+        tmp_path,
+        "results/eval/cascade_validation_descriptive_analysis.json",
+        {
+            "status": "complete",
+            "analysis_scope": "post_hoc_privacy_safe_descriptive_error_analysis",
+            "source_status": "passed",
+            "source_report_sha256": cascade_sha256,
+            "panel_rows": 9,
+            "panel_passed_rows": 9,
+            "panel_failed_rows": 0,
+            "report_gate_failures": [],
+            "sample_requirement_failure_counts": {},
+            "analysis_integrity": {
+                "all_required_measurements_and_hashes_present": True
+            },
+            "execution_outcomes": {
+                "asr_error_rows": 0,
+                "responder_fallback_rows": 0,
+                "language_retry_rows": 1,
+                "unique_transcript_hashes": 9,
+                "unique_reply_hashes": 9,
+                "duplicate_transcript_rows": 0,
+                "duplicate_reply_rows": 0,
+            },
+            "distributions": {
+                "full_turn_generation_ms": {"p50": 5500.0, "p95": 13000.0}
+            },
+            "descriptive_risk_counts": {
+                "transcript_over_1000_characters": 3,
+                "reply_audio_over_8_seconds": 3,
+                "full_turn_over_10_seconds": 2,
+            },
+            "row_extremes": {},
+            "transcript_length_full_turn_pearson_r": 0.885282,
+            "interpretation": {"semantic_relevance": "not_measured"},
+            "claim_boundary": {
+                "plaintext_transcripts_or_replies_read_or_emitted": False,
+                "final_test_accessed": False,
+                "scientific_generalization_claim_allowed": False,
+                "semantic_quality_claim_allowed": False,
+                "human_quality_claim_allowed": False,
+                "official_latency_claim_allowed": False,
+            },
+        },
+    )
     _write(
         tmp_path,
         "results/eval/interrupt_bench.json",
@@ -320,7 +370,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
 
     assert report["authoritative"] is True
-    assert report["schema_version"] == 8
+    assert report["schema_version"] == 9
     assert report["thesis_ready"] is False
     assert report["generation_policy"]["reads_frozen_final_test_rows"] is False
     assert report["gates"]["audited_export_100_to_200_hours"] is True
@@ -328,6 +378,12 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert report["working_system"]["passed_rows"] == 9
     assert report["working_system"]["fallback_rows"] == 0
     assert report["working_system"]["input_channel"] == 1
+    assert report["cascade_descriptive_analysis"]["verified"] is True
+    assert report["cascade_descriptive_analysis"]["descriptive_risk_counts"] == {
+        "transcript_over_1000_characters": 3,
+        "reply_audio_over_8_seconds": 3,
+        "full_turn_over_10_seconds": 2,
+    }
     assert report["gates"]["data_policy_resolved_under_documented_qa_waiver"] is True
     assert report["data"]["strict_human_qa_complete"] is False
     assert report["data"]["exported_hours"] == 108.584
@@ -368,5 +424,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert "32.20%" in summary
     assert "recorded proxy n=132 / 22 sessions" in summary
     assert "## Duplex transport" in summary
+    assert "## Privacy-safe descriptive error analysis" in summary
+    assert "descriptive Pearson r=0.885282" in summary
     assert "3,200 pre-roll samples" in summary
     assert json.loads(out.read_text(encoding="utf-8")) == report

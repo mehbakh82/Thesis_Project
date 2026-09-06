@@ -1,4 +1,4 @@
-# Comprehensive project review (updated 2026-09-05)
+# Comprehensive project review (updated 2026-09-06)
 
 ## Verdict
 
@@ -189,6 +189,15 @@ protocol bound the independent channel-order audit and corrected only this
 input. The resulting proper-user-channel validation passed 9/9 and is the
 canonical working-system result.
 
+A hash-bound post-hoc descriptive analysis of the same already-open report
+found no automatic mechanics failures. It did identify the main engineering
+risk: 3/9 transcripts exceeded 1,000 characters, 3/9 synthesized replies
+exceeded eight seconds, and 2/9 complete turns exceeded ten seconds. The
+descriptive transcript-length/full-turn correlation is 0.885 over only nine
+rows. No plaintext or frozen final-test row was accessed, so this is useful
+timing/error characterization but not semantic, perceptual, elderly, latency,
+or generalization evidence.
+
 ### 6. Study, privacy, and security
 
 Sessions now require an explicit consent checkbox. Audio, lossy-feature, and metrics-only retention modes are explicit; the default study mode stores no WAV. IDs are path-safe, existing sessions are not truncated, identity conflicts fail, labels/prompts are validated, and ratings use bounded 1–5 fields. S3 credentials are no longer parsed from shell aliases or placed in process arguments.
@@ -219,6 +228,9 @@ Added:
 - complete v6.2 training, corrected in-sample loss, official-runtime evidence,
   and explicit separation of positive objective learning from negative
   generation.
+- privacy-safe descriptive analysis of the canonical cascade panel, including
+  success/failure denominators, length/timing risks, row extremes, source hash,
+  and explicit non-claims.
 
 ## Scoring
 

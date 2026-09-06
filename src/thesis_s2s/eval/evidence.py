@@ -43,6 +43,9 @@ ARTIFACTS: dict[str, str] = {
     "cascade_working_panel": "results/eval/cascade_real_service_train_panel_v4.json",
     "cascade_working_protocol": "docs/CASCADE_REAL_SERVICE_PROTOCOL_V4.md",
     "cascade_validation": "results/eval/cascade_real_service_validation_panel.json",
+    "cascade_descriptive_analysis": (
+        "results/eval/cascade_validation_descriptive_analysis.json"
+    ),
     "cascade_validation_protocol": "docs/CASCADE_VALIDATION_PROTOCOL.md",
     "interrupt_bench": "results/eval/interrupt_bench.json",
     "interrupt_recorded_proxy": "results/eval/interrupt_recorded_proxy.json",
@@ -347,6 +350,59 @@ def _cascade_result(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _cascade_descriptive_result(
+    payload: dict[str, Any], *, expected_source_sha256: str | None
+) -> dict[str, Any]:
+    """Accept only a complete, hash-bound, non-claiming post-hoc analysis."""
+
+    execution = payload.get("execution_outcomes") or {}
+    integrity = payload.get("analysis_integrity") or {}
+    boundary = payload.get("claim_boundary") or {}
+    verified = bool(
+        payload.get("status") == "complete"
+        and payload.get("analysis_scope")
+        == "post_hoc_privacy_safe_descriptive_error_analysis"
+        and expected_source_sha256
+        and payload.get("source_report_sha256") == expected_source_sha256
+        and payload.get("source_status") == "passed"
+        and int(payload.get("panel_rows") or 0) == 9
+        and int(payload.get("panel_passed_rows") or 0) == 9
+        and int(payload.get("panel_failed_rows") or 0) == 0
+        and payload.get("report_gate_failures") == []
+        and payload.get("sample_requirement_failure_counts") == {}
+        and integrity.get("all_required_measurements_and_hashes_present") is True
+        and int(execution.get("asr_error_rows") or 0) == 0
+        and int(execution.get("responder_fallback_rows") or 0) == 0
+        and int(execution.get("unique_transcript_hashes") or 0) == 9
+        and int(execution.get("unique_reply_hashes") or 0) == 9
+        and int(execution.get("duplicate_transcript_rows") or 0) == 0
+        and int(execution.get("duplicate_reply_rows") or 0) == 0
+        and boundary.get("plaintext_transcripts_or_replies_read_or_emitted") is False
+        and boundary.get("final_test_accessed") is False
+        and boundary.get("scientific_generalization_claim_allowed") is False
+        and boundary.get("semantic_quality_claim_allowed") is False
+        and boundary.get("human_quality_claim_allowed") is False
+        and boundary.get("official_latency_claim_allowed") is False
+    )
+    return {
+        "verified": verified,
+        "evidence_scope": payload.get("analysis_scope") or "missing",
+        "source_report_sha256": payload.get("source_report_sha256"),
+        "panel_rows": int(payload.get("panel_rows") or 0),
+        "passed_rows": int(payload.get("panel_passed_rows") or 0),
+        "failed_rows": int(payload.get("panel_failed_rows") or 0),
+        "execution_outcomes": execution,
+        "distributions": payload.get("distributions") or {},
+        "descriptive_risk_counts": payload.get("descriptive_risk_counts") or {},
+        "row_extremes": payload.get("row_extremes") or {},
+        "transcript_length_full_turn_pearson_r": payload.get(
+            "transcript_length_full_turn_pearson_r"
+        ),
+        "claim_boundary": boundary,
+        "interpretation": payload.get("interpretation") or {},
+    }
+
+
 def build_evidence_status(
     out: str | Path | None = None,
     *,
@@ -378,6 +434,9 @@ def build_evidence_status(
     v6_2_reevaluation = _read_json(project, ARTIFACTS["moshi_v6_2_reevaluation"])
     v6_2_runtime = _read_json(project, ARTIFACTS["moshi_v6_2_runtime"])
     cascade_payload = _read_json(project, ARTIFACTS["cascade_validation"])
+    cascade_analysis_payload = _read_json(
+        project, ARTIFACTS["cascade_descriptive_analysis"]
+    )
     interrupt = _read_json(project, ARTIFACTS["interrupt_bench"])
     recorded_proxy = _read_json(project, ARTIFACTS["interrupt_recorded_proxy"])
     study = _read_json(project, ARTIFACTS["human_study"])
@@ -444,6 +503,13 @@ def build_evidence_status(
     ]
     direct_model_eligible = any(bool(trial["deployment_eligible"]) for trial in trials)
     cascade = _cascade_result(cascade_payload)
+    cascade_report_path = project / ARTIFACTS["cascade_validation"]
+    cascade_analysis = _cascade_descriptive_result(
+        cascade_analysis_payload,
+        expected_source_sha256=(
+            sha256_file(cascade_report_path) if cascade_report_path.is_file() else None
+        ),
+    )
 
     proposed = interrupt.get("proposed") or {}
     proposed_matrix = proposed.get("matrix") or []
@@ -552,7 +618,7 @@ def build_evidence_status(
     }
 
     payload: dict[str, Any] = {
-        "schema_version": 8,
+        "schema_version": 9,
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "authoritative": True,
         "thesis_ready": thesis_ready,
@@ -601,6 +667,7 @@ def build_evidence_status(
             ),
         },
         "working_system": cascade,
+        "cascade_descriptive_analysis": cascade_analysis,
         "direct_moshi": {
             "deployment_eligible": direct_model_eligible,
             "promoted_adapter": None,
@@ -820,6 +887,7 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
     retention = payload.get("local_artifact_retention") or {}
     strategy = payload.get("submission_strategy") or {}
     transport = payload.get("duplex_transport") or {}
+    cascade_analysis = payload.get("cascade_descriptive_analysis") or {}
     v1_loss_evidence = direct.get("v1_automatic_heldout_loss_evidence") or {}
     v1_total_loss = v1_loss_evidence.get("selected_total_loss") or {}
     split_counts = data.get("split_counts") or {}
@@ -869,6 +937,26 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             "user-turn prototype result and out-of-sample mechanics check, not semantic or "
             "population-level generalization, human quality, physical-target, or "
             "official browser-latency evidence.",
+            "",
+            "## Privacy-safe descriptive error analysis",
+            "",
+            f"The hash-bound post-hoc analysis is "
+            f"{'verified' if cascade_analysis.get('verified') else 'not verified'}. It found "
+            f"{cascade_analysis.get('passed_rows', 0)}/{cascade_analysis.get('panel_rows', 0)} "
+            "automatic mechanics successes and "
+            f"{cascade_analysis.get('failed_rows', 0)} mechanics failures. Of the nine rows, "
+            f"{(cascade_analysis.get('descriptive_risk_counts') or {}).get('transcript_over_1000_characters', 0)} "
+            "had transcripts over 1,000 characters, "
+            f"{(cascade_analysis.get('descriptive_risk_counts') or {}).get('reply_audio_over_8_seconds', 0)} "
+            "had replies over 8 seconds, and "
+            f"{(cascade_analysis.get('descriptive_risk_counts') or {}).get('full_turn_over_10_seconds', 0)} "
+            "took over 10 seconds for complete generation. Transcript length and full-turn "
+            f"time had descriptive Pearson r="
+            f"{cascade_analysis.get('transcript_length_full_turn_pearson_r')}. This small, "
+            "post-hoc association is not inferential, and full-turn time is not official "
+            "first-audio latency. Plaintext was not read or emitted; semantic relevance, "
+            "pronunciation, naturalness, human quality, elderly performance, and "
+            "population generalization remain unmeasured.",
             "",
             "## Duplex transport",
             "",
