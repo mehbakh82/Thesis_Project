@@ -66,7 +66,13 @@ Status date: 2026-09-06
   GitHub Actions run `34029248788`. A clean fresh full-history clone of that
   exact remote commit independently passed Ruff, mypy on 49 source files, the
   362-file tracked-artifact/history/privacy audit, and all 182 tests while the
-  ignored private validation manifest was absent, as intended.
+  ignored private validation manifest was absent, as intended. The subsequent
+  Persian-reporting freeze at `a0c4fcc` passed GitHub Actions run
+  `34042698214`, including Ruff, mypy, 183 tests, coverage, all privacy and
+  dependency gates, and the scientific-risk drift audit. A fresh full-history
+  clone independently reproduced its exact remote HEAD, sole Mehran Bakhtiari
+  author/committer identity, 363-file tracked audit, 310-file release snapshot,
+  and all 183 tests. The clone was removed after verification.
 
 ## Accepted pinned-training compatibility risks
 

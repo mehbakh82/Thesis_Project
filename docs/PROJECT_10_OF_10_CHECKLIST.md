@@ -956,7 +956,10 @@ Final engineering audit:
   hashes, environments, audits, metrics, logs, approved aggregates, generated
   tables, privacy-safe descriptive analysis, and the automatic intelligibility
   proxy are snapshot-bound; restricted media remains private.
-- [ ] Tag/push the submitted commit and tag; verify a fresh clone.
+- [x] Tag and push the pre-license submission handoff. The final reconciled
+  release-record commit is frozen as `submission-final-prelicense-2026-09-06`;
+  its full-history clone, identity, snapshot, tracked-artifact audit, test
+  suite, remote parity, and tag-triggered CI are independently verified.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.
@@ -975,7 +978,7 @@ privacy-safe repository at approved visibility, restricted handoff, immutable ta
 | 12–24 GB evaluation | Full model fits/runs officially on physical 4090 | Pending | Preflight, VRAM, telemetry |
 | Human evaluation | 5–10 Persian speakers, ≥2 aged 60+, complete ratings | Pending | Study summary/analysis |
 | Elderly findings | Evidence from ≥2 aged 60+, cautiously interpreted | Pending | Age-stratified results |
-| Documented code/dataset | Reproducible code/metadata at approved visibility; restricted corpus handled per approval | Implemented and remotely/fresh-clone verified at pre-license evidence commit `fe32e6a`; a submission tag remains contingent on the student's license/manuscript decision | Final repo/provenance/handoff |
+| Documented code/dataset | Reproducible code/metadata at approved visibility; restricted corpus handled per approval | Implemented, snapshot-bound, remotely verified, fresh-clone verified, and frozen under `submission-final-prelicense-2026-09-06`; the source-license choice remains a separate student decision | Final repo/provenance/handoff |
 
 ## Inputs required from the student
 
