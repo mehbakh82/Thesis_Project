@@ -1,6 +1,6 @@
 {
   "schema_version": 8,
-  "generated_at": "2026-09-06T05:17:24.094986+00:00",
+  "generated_at": "2026-09-06T05:19:59.341409+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -877,7 +877,7 @@
       "path": "results/hardware/final_preflight.json",
       "present": true,
       "bytes": 20284,
-      "sha256": "106a787108ef501cd77c780bf82f92b12f0608b55e8c52028a715434ab8e04d3"
+      "sha256": "4638af11159841ede0ef19a8f39ce552b20400d4053daed8d4137ffa9a63fda7"
     },
     "latency_h100_capped": {
       "path": "results/eval/latency_bench.json",
