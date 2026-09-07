@@ -1,6 +1,6 @@
 {
-  "schema_version": 10,
-  "generated_at": "2026-09-06T11:04:27.237085+00:00",
+  "schema_version": 11,
+  "generated_at": "2026-09-06T18:01:28.321000+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -16,6 +16,7 @@
   },
   "gates": {
     "working_persian_s2s_prototype": true,
+    "automatic_semantic_final_test_passed": true,
     "audited_export_100_to_200_hours": true,
     "data_policy_resolved_under_documented_qa_waiver": true,
     "deployment_eligible_persian_direct_model": false,
@@ -90,6 +91,38 @@
       "A nine-row mechanics panel is not a population-level generalization estimate.",
       "Full-turn generation time is not the thesis T_first_audio browser metric.",
       "The H100 is outside the official 12-24 GB evaluation class."
+    ]
+  },
+  "qwen4b_v2_automatic_final_test": {
+    "verified": true,
+    "status": "passed",
+    "evidence_class": "automatic_same_family_llm_as_judge_qwen4b_prompt_v2_final_test",
+    "architecture": "NeMo Persian ASR -> Qwen3-4B-Instruct-2507 prompt-v2 -> Piper Persian TTS",
+    "split": "test",
+    "split_unit": "source_session_id",
+    "rows": 40,
+    "judge_calls_valid": 240,
+    "judge_calls_failed": 0,
+    "base_relevance_mean": 1.425,
+    "candidate_relevance_mean": 3.15,
+    "candidate_coherence_mean": 3.325,
+    "relevance_gain": 1.725,
+    "coherence_gain": 1.8,
+    "relevance_win_rate": 0.675,
+    "relevance_at_least_two_rate": 0.875,
+    "automatic_gate_passed": true,
+    "human_semantic_result": false,
+    "independent_benchmark_result": false,
+    "factuality_or_safety_result": false,
+    "physical_4090_result": false,
+    "limitations": [
+      "This is an automatic LLM-as-judge proxy, not human semantic evaluation.",
+      "Judge and candidate use different weights but are from the Qwen family.",
+      "The rubric has not been calibrated against independent Persian ratings.",
+      "Reference turns are automatically aligned and not human-verified gold answers.",
+      "Scores do not establish factuality, safety, naturalness, or population usefulness.",
+      "Physical RTX 4090 coexistence and browser latency remain unmeasured.",
+      "Test metadata/text lengths were aggregate-audited before freeze, but no test model outcome was used before Stage-A eligibility passed."
     ]
   },
   "cascade_descriptive_analysis": {
@@ -778,11 +811,11 @@
     }
   },
   "submission_strategy": {
-    "production_candidate": "cascade",
-    "production_candidate_evidence": "real_service_group_disjoint_validation_mechanics",
+    "production_candidate": "qwen4b_v2_cascade",
+    "production_candidate_evidence": "automatic_same_family_llm_as_judge_qwen4b_prompt_v2_final_test",
     "direct_moshi_role": "experimental_negative_result_with_positive_learning_signal",
     "new_direct_training_before_deadline_recommended": false,
-    "reason": "The frozen cascade has a positive proper-user-channel validation result; v6.2 learned its train-only objective but failed every direct runtime row. A new direct run would risk the evidence freeze without a validated remedy."
+    "reason": "The frozen Qwen3-4B prompt-v2 cascade passed every predeclared automatic semantic final-test gate after a passed development eligibility stage; v6.2 learned its train-only objective but failed every direct runtime row. A new direct run would risk the evidence freeze without a validated remedy."
   },
   "release": {
     "source_code_license_selected": false,
@@ -1006,6 +1039,48 @@
       "bytes": 3223,
       "sha256": "e0616820953013d0f59871be717bca77efa4eb382b51cbc9ead3987547c033aa"
     },
+    "responder_lora_training": {
+      "path": "results/training/responder_lora_v1.json",
+      "present": true,
+      "bytes": 6469,
+      "sha256": "ac129db419251d2a11c3b3e16ea5f7ef16217b9ef862cf6288937ba4ee750c8c"
+    },
+    "responder_lora_semantic": {
+      "path": "results/eval/responder_lora_semantic_proxy.json",
+      "present": true,
+      "bytes": 178596,
+      "sha256": "f14783370897d9e01d8f73b57214e52c9241978113cec7fa30138f158204a1b1"
+    },
+    "qwen4b_v1_semantic": {
+      "path": "results/eval/qwen4b_responder_semantic_proxy.json",
+      "present": true,
+      "bytes": 181076,
+      "sha256": "e7789734031c418147534c24f9f7defda258be22aa08e0dec83d432ea271e0e5"
+    },
+    "qwen4b_v2_protocol": {
+      "path": "docs/QWEN4B_CASCADE_V2_PROTOCOL.md",
+      "present": true,
+      "bytes": 4894,
+      "sha256": "1de00f1a4ed66fb730ca5fbd441ec9cd2cd408669a2ea9b6b7bc789624ffb510"
+    },
+    "qwen4b_v2_evaluator": {
+      "path": "scripts/evaluate_qwen4b_responder_v2.py",
+      "present": true,
+      "bytes": 31528,
+      "sha256": "9379e1c13409d5c98cbe2c42461c8f4c72c7bb9204eedb4ac01ed2a777e92b19"
+    },
+    "qwen4b_v2_development": {
+      "path": "results/eval/qwen4b_responder_v2_development_proxy.json",
+      "present": true,
+      "bytes": 38538,
+      "sha256": "eafacdb1eac95a0c57fc996f4e3949f36eeed7eaa941ee837753cb8434dacb5b"
+    },
+    "qwen4b_v2_final": {
+      "path": "results/eval/qwen4b_responder_v2_final_test_proxy.json",
+      "present": true,
+      "bytes": 181309,
+      "sha256": "97e29206c74f8489ee870b53495bc4dc007d922bf1f84402499a44e046e64d24"
+    },
     "interrupt_bench": {
       "path": "results/eval/interrupt_bench.json",
       "present": true,
@@ -1051,8 +1126,8 @@
     "metrics_definition": {
       "path": "docs/METRICS.md",
       "present": true,
-      "bytes": 3520,
-      "sha256": "7c8b8b5ba0b3a6e7c58a214103fad53ef54a7a8fd6b1cce29c9708855a699c2b"
+      "bytes": 4646,
+      "sha256": "cbb013600e1ba349b190c2fbe4d24e61d4facf9fd524db2f961aa5afc4dae836"
     },
     "storage_cleanup": {
       "path": "results/hardware/storage_cleanup_20260831.json",

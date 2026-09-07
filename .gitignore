@@ -35,6 +35,7 @@ data/recordings/
 
 # model checkpoints
 checkpoints/
+/models/qwen3-4b-instruct-2507
 *.onnx
 third_party/checkouts/
 hf_cache/

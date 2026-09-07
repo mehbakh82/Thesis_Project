@@ -4,10 +4,16 @@ This project does not relicense third-party source code, model weights, datasets
 
 ## Model repositories inspected
 
+- Qwen/Qwen3-4B-Instruct-2507, revision
+  `cdbee75f17c01a7cc42f958dc650907174af0554`: model files declare
+  Apache-2.0. This is the exact prompt-v2 responder in the submitted cascade;
+  its 28-file, 8,060,919,167-byte local tree has SHA-256
+  `cde447f1326f10c4126061914c57c3664551649286ad6411bffe3d1aa3e3b978`,
+  and its weights are not committed here.
 - Qwen/Qwen2.5-0.5B-Instruct, revision
   `7ae557604adf67be50417f59c2c2f167def9a775`: model files declare
-  Apache-2.0. This is the exact local text responder in the submitted cascade;
-  its weights are not committed here.
+  Apache-2.0. This is the exact historical baseline responder used in the
+  mechanics and comparison panels; its weights are not committed here.
 - LLaMA-Omni2, revision `c8afa9061a9c2d2c1919f7293f5492d946869752`: no repository-level license file was observed at inspection time. Do not copy, redistribute, or build a release dependency on its code until terms are clarified.
 - Mini-Omni2, revision `75f450ea4e7dc1e52a7fc0e4dcf45b4c3d45ab98`: repository code declares MIT; model-weight and dependency terms must still be checked.
 - BayLing-Speech, revision `c63fd7221d1e6c2d22c85e781bc61e842835ed53`: repository code declares Apache-2.0; model/data/dependency terms remain separate.

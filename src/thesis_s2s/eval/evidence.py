@@ -1,8 +1,9 @@
 """Fail-closed aggregation of the project's thesis evidence.
 
-This module reads only aggregate, non-final-test artifacts. It deliberately
-never discovers or opens a frozen Moshi test manifest: selection eligibility
-must be established before a versioned final test can be accessed.
+This module reads only committed aggregate artifacts. It never discovers or
+opens private manifests. Frozen final-test reports are accepted only when their
+predeclared prerequisites, hashes, model identities, counts, privacy boundary,
+and automatic gates all verify exactly.
 """
 
 from __future__ import annotations
@@ -49,6 +50,13 @@ ARTIFACTS: dict[str, str] = {
     "cascade_intelligibility_proxy": "results/eval/cascade_intelligibility_proxy.json",
     "cascade_intelligibility_protocol": "docs/CASCADE_INTELLIGIBILITY_PROTOCOL.md",
     "cascade_validation_protocol": "docs/CASCADE_VALIDATION_PROTOCOL.md",
+    "responder_lora_training": "results/training/responder_lora_v1.json",
+    "responder_lora_semantic": "results/eval/responder_lora_semantic_proxy.json",
+    "qwen4b_v1_semantic": "results/eval/qwen4b_responder_semantic_proxy.json",
+    "qwen4b_v2_protocol": "docs/QWEN4B_CASCADE_V2_PROTOCOL.md",
+    "qwen4b_v2_evaluator": "scripts/evaluate_qwen4b_responder_v2.py",
+    "qwen4b_v2_development": "results/eval/qwen4b_responder_v2_development_proxy.json",
+    "qwen4b_v2_final": "results/eval/qwen4b_responder_v2_final_test_proxy.json",
     "interrupt_bench": "results/eval/interrupt_bench.json",
     "interrupt_recorded_proxy": "results/eval/interrupt_recorded_proxy.json",
     "human_study": "results/eval/human_study.json",
@@ -478,6 +486,107 @@ def _cascade_intelligibility_result(
     }
 
 
+def _qwen4b_v2_final_result(
+    payload: dict[str, Any],
+    *,
+    expected_protocol_sha256: str | None,
+    expected_evaluator_sha256: str | None,
+    expected_development_sha256: str | None,
+) -> dict[str, Any]:
+    """Verify the frozen prompt-v2 automatic semantic final-test certificate."""
+
+    claim = payload.get("claim") or {}
+    panel = payload.get("panel") or {}
+    aggregate = payload.get("aggregate") or {}
+    candidate = aggregate.get("qwen4b_v2") or {}
+    paired = aggregate.get("paired") or {}
+    requirements = payload.get("validity_requirements") or {}
+    gates = payload.get("automatic_engineering_gate") or {}
+    responder = (payload.get("responders") or {}).get("qwen4b_v2") or {}
+    artifacts = payload.get("artifacts") or {}
+    privacy = payload.get("privacy") or {}
+    samples = payload.get("samples") or []
+    verified = bool(
+        payload.get("status") == "passed"
+        and payload.get("stage") == "final_test"
+        and payload.get("evidence_class")
+        == "automatic_same_family_llm_as_judge_qwen4b_prompt_v2_final_test"
+        and claim.get("measurement_valid") is True
+        and claim.get("predeclared_automatic_engineering_gate_passed") is True
+        and claim.get("final_test_unlocked") is True
+        and claim.get("automatic_final_test_result") is True
+        and claim.get("automatic_final_test_gate_passed") is True
+        and claim.get("human_semantic_result") is False
+        and claim.get("independent_dialogue_benchmark_result") is False
+        and claim.get("factuality_or_safety_result") is False
+        and claim.get("physical_4090_result") is False
+        and panel.get("split") == "test"
+        and panel.get("split_unit") == "source_session_id"
+        and int(panel.get("manifest_rows") or 0) == 204
+        and int(panel.get("sample_count") or 0) == 40
+        and len(panel.get("indices") or []) == 40
+        and int(aggregate.get("rows") or 0) == 40
+        and int(aggregate.get("judge_calls_expected") or 0) == 240
+        and int(aggregate.get("judge_calls_valid") or 0) == 240
+        and int(aggregate.get("judge_calls_failed") or 0) == 0
+        and len(samples) == 40
+        and requirements
+        and all(value is True for value in requirements.values())
+        and gates
+        and all(value is True for value in gates.values())
+        and responder.get("backend")
+        == "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554:prompt-v2"
+        and responder.get("revision") == "cdbee75f17c01a7cc42f958dc650907174af0554"
+        and responder.get("tree_sha256")
+        == "cde447f1326f10c4126061914c57c3664551649286ad6411bffe3d1aa3e3b978"
+        and responder.get("license") == "Apache-2.0"
+        and artifacts.get("stage_export_sha256")
+        == "44d5912201ed359dabe3c026b6ae605b3bf946538e83116f57514448ed0794fe"
+        and expected_protocol_sha256
+        and artifacts.get("protocol_sha256") == expected_protocol_sha256
+        and expected_evaluator_sha256
+        and artifacts.get("evaluator_sha256") == expected_evaluator_sha256
+        and expected_development_sha256
+        and artifacts.get("development_report_sha256") == expected_development_sha256
+        and privacy
+        and all(value is False for value in privacy.values())
+    )
+    return {
+        "verified": verified,
+        "status": payload.get("status") or "missing",
+        "evidence_class": payload.get("evidence_class") or "missing",
+        "architecture": (
+            "NeMo Persian ASR -> Qwen3-4B-Instruct-2507 prompt-v2 -> Piper Persian TTS"
+        ),
+        "split": panel.get("split"),
+        "split_unit": panel.get("split_unit"),
+        "rows": int(aggregate.get("rows") or 0),
+        "judge_calls_valid": int(aggregate.get("judge_calls_valid") or 0),
+        "judge_calls_failed": int(aggregate.get("judge_calls_failed") or 0),
+        "base_relevance_mean": (
+            ((aggregate.get("base") or {}).get("relevance") or {}).get("mean")
+        ),
+        "candidate_relevance_mean": (candidate.get("relevance") or {}).get("mean"),
+        "candidate_coherence_mean": (candidate.get("coherence") or {}).get("mean"),
+        "relevance_gain": paired.get("candidate_minus_base_relevance_mean"),
+        "coherence_gain": paired.get("candidate_minus_base_coherence_mean"),
+        "relevance_win_rate": paired.get("candidate_relevance_win_rate"),
+        "relevance_at_least_two_rate": paired.get(
+            "candidate_relevance_at_least_two_rate"
+        ),
+        "automatic_gate_passed": bool(
+            claim.get("automatic_final_test_gate_passed")
+            and gates
+            and all(gates.values())
+        ),
+        "human_semantic_result": False,
+        "independent_benchmark_result": False,
+        "factuality_or_safety_result": False,
+        "physical_4090_result": False,
+        "limitations": payload.get("limitations") or [],
+    }
+
+
 def build_evidence_status(
     out: str | Path | None = None,
     *,
@@ -515,6 +624,7 @@ def build_evidence_status(
     cascade_intelligibility_payload = _read_json(
         project, ARTIFACTS["cascade_intelligibility_proxy"]
     )
+    qwen4b_v2_final_payload = _read_json(project, ARTIFACTS["qwen4b_v2_final"])
     interrupt = _read_json(project, ARTIFACTS["interrupt_bench"])
     recorded_proxy = _read_json(project, ARTIFACTS["interrupt_recorded_proxy"])
     study = _read_json(project, ARTIFACTS["human_study"])
@@ -598,6 +708,23 @@ def build_evidence_status(
             sha256_file(cascade_protocol_path) if cascade_protocol_path.is_file() else None
         ),
     )
+    qwen4b_protocol_path = project / ARTIFACTS["qwen4b_v2_protocol"]
+    qwen4b_evaluator_path = project / ARTIFACTS["qwen4b_v2_evaluator"]
+    qwen4b_development_path = project / ARTIFACTS["qwen4b_v2_development"]
+    qwen4b_final = _qwen4b_v2_final_result(
+        qwen4b_v2_final_payload,
+        expected_protocol_sha256=(
+            sha256_file(qwen4b_protocol_path) if qwen4b_protocol_path.is_file() else None
+        ),
+        expected_evaluator_sha256=(
+            sha256_file(qwen4b_evaluator_path) if qwen4b_evaluator_path.is_file() else None
+        ),
+        expected_development_sha256=(
+            sha256_file(qwen4b_development_path)
+            if qwen4b_development_path.is_file()
+            else None
+        ),
+    )
 
     proposed = interrupt.get("proposed") or {}
     proposed_matrix = proposed.get("matrix") or []
@@ -670,6 +797,7 @@ def build_evidence_status(
 
     gates = {
         "working_persian_s2s_prototype": bool(cascade["working_prototype"]),
+        "automatic_semantic_final_test_passed": bool(qwen4b_final["verified"]),
         "audited_export_100_to_200_hours": audited_export_ready,
         "data_policy_resolved_under_documented_qa_waiver": bool(
             audited_export_ready and not strict_human_qa
@@ -684,6 +812,10 @@ def build_evidence_status(
     required = {
         "working_persian_s2s_prototype": (
             "Produce a repeatable real-service Persian speech-to-speech result."
+        ),
+        "automatic_semantic_final_test_passed": (
+            "Pass the frozen automatic semantic final test after predeclared development "
+            "eligibility without changing its thresholds."
         ),
         "deployment_eligible_persian_direct_model": (
             "Produce a validation-eligible Persian direct-model checkpoint before opening "
@@ -706,7 +838,7 @@ def build_evidence_status(
     }
 
     payload: dict[str, Any] = {
-        "schema_version": 10,
+        "schema_version": 11,
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "authoritative": True,
         "thesis_ready": thesis_ready,
@@ -755,6 +887,7 @@ def build_evidence_status(
             ),
         },
         "working_system": cascade,
+        "qwen4b_v2_automatic_final_test": qwen4b_final,
         "cascade_descriptive_analysis": cascade_analysis,
         "cascade_intelligibility_proxy": cascade_intelligibility,
         "direct_moshi": {
@@ -910,14 +1043,19 @@ def build_evidence_status(
             "claim_boundary": final_audit.get("claim_boundary") or {},
         },
         "submission_strategy": {
-            "production_candidate": "cascade",
+            "production_candidate": (
+                "qwen4b_v2_cascade" if qwen4b_final["verified"] else "cascade"
+            ),
             "production_candidate_evidence": (
-                "real_service_group_disjoint_validation_mechanics"
+                "automatic_same_family_llm_as_judge_qwen4b_prompt_v2_final_test"
+                if qwen4b_final["verified"]
+                else "real_service_group_disjoint_validation_mechanics"
             ),
             "direct_moshi_role": "experimental_negative_result_with_positive_learning_signal",
             "new_direct_training_before_deadline_recommended": False,
             "reason": (
-                "The frozen cascade has a positive proper-user-channel validation result; "
+                "The frozen Qwen3-4B prompt-v2 cascade passed every predeclared automatic "
+                "semantic final-test gate after a passed development eligibility stage; "
                 "v6.2 learned its train-only objective but failed every direct runtime row. "
                 "A new direct run would risk the evidence freeze without a validated remedy."
             ),
@@ -978,6 +1116,7 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
     transport = payload.get("duplex_transport") or {}
     cascade_analysis = payload.get("cascade_descriptive_analysis") or {}
     cascade_intelligibility = payload.get("cascade_intelligibility_proxy") or {}
+    qwen4b_final = payload.get("qwen4b_v2_automatic_final_test") or {}
     v1_loss_evidence = direct.get("v1_automatic_heldout_loss_evidence") or {}
     v1_total_loss = v1_loss_evidence.get("selected_total_loss") or {}
     split_counts = data.get("split_counts") or {}
@@ -1028,6 +1167,24 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             "population-level generalization, human quality, physical-target, or "
             "official browser-latency evidence.",
             "",
+            "## Automatic semantic final test",
+            "",
+            f"The frozen Qwen3-4B prompt-v2 cascade result is "
+            f"{'verified and passed' if qwen4b_final.get('verified') else 'not verified'} "
+            f"on {qwen4b_final.get('rows', 0)} group-disjoint test rows with "
+            f"{qwen4b_final.get('judge_calls_valid', 0)} valid judge calls and "
+            f"{qwen4b_final.get('judge_calls_failed', 0)} failures. Mean relevance improved "
+            f"from {qwen4b_final.get('base_relevance_mean')} for the frozen 0.5B baseline to "
+            f"{qwen4b_final.get('candidate_relevance_mean')}; candidate coherence was "
+            f"{qwen4b_final.get('candidate_coherence_mean')}. Relevance gain was "
+            f"{qwen4b_final.get('relevance_gain')}, coherence gain "
+            f"{qwen4b_final.get('coherence_gain')}, paired relevance win rate "
+            f"{qwen4b_final.get('relevance_win_rate')}, and relevance-at-least-two rate "
+            f"{qwen4b_final.get('relevance_at_least_two_rate')}. Every predeclared automatic "
+            "engineering gate passed. This is an automatic same-family LLM-as-judge proxy, "
+            "not a human or independent benchmark; it does not establish factuality, safety, "
+            "naturalness, population usefulness, physical-4090 fit, or browser latency.",
+            "",
             "## Privacy-safe descriptive error analysis",
             "",
             f"The hash-bound post-hoc analysis is "
@@ -1044,9 +1201,10 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             f"time had descriptive Pearson r="
             f"{cascade_analysis.get('transcript_length_full_turn_pearson_r')}. This small, "
             "post-hoc association is not inferential, and full-turn time is not official "
-            "first-audio latency. Plaintext was not read or emitted; semantic relevance, "
-            "pronunciation, naturalness, human quality, elderly performance, and "
-            "population generalization remain unmeasured.",
+            "first-audio latency. Plaintext was not read or emitted; this nine-row "
+            "post-hoc analysis did not measure semantics. The separate frozen automatic "
+            "semantic final test is reported above; pronunciation, naturalness, human "
+            "quality, elderly performance, and population generalization remain unmeasured.",
             "",
             "## Automatic synthesized-speech intelligibility proxy",
             "",
@@ -1192,8 +1350,8 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             f"Production candidate: `{strategy.get('production_candidate')}`. Direct Moshi "
             f"role: `{strategy.get('direct_moshi_role')}`. Starting another direct-model "
             "training run before the deadline is not recommended because no validated "
-            "corrective hypothesis remains, while the frozen cascade already has a positive "
-            "proper-user-channel validation result.",
+            "corrective hypothesis remains, while the prompt-v2 cascade has passed both its "
+            "eligibility stage and frozen automatic semantic final test.",
             "",
             "## Remaining requirements",
             "",

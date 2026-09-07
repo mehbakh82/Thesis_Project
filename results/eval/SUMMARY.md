@@ -1,6 +1,6 @@
 # Authoritative project evidence status
 
-Generated: `2026-09-06T11:04:27.237085+00:00`
+Generated: `2026-09-06T18:01:28.321000+00:00`
 
 **Verdict:** `not_thesis_ready_evidence_gates_pending`. Thesis-ready: **false**.
 
@@ -11,6 +11,7 @@ This table is generated from `EVIDENCE_STATUS.json`. Component and synthetic pro
 | Gate | Passed |
 |---|---:|
 | `working_persian_s2s_prototype` | yes |
+| `automatic_semantic_final_test_passed` | yes |
 | `audited_export_100_to_200_hours` | yes |
 | `data_policy_resolved_under_documented_qa_waiver` | yes |
 | `deployment_eligible_persian_direct_model` | no |
@@ -38,9 +39,13 @@ This table is generated from `EVIDENCE_STATUS.json`. Component and synthetic pro
 
 The real-service cascade passed 9/9 fixed group-disjoint validation rows with 0 rule-fallback rows. Minimum reply Persian-script fraction was 1.0; minimum reply audio RMS was 0.133529. This is a positive working user-turn prototype result and out-of-sample mechanics check, not semantic or population-level generalization, human quality, physical-target, or official browser-latency evidence.
 
+## Automatic semantic final test
+
+The frozen Qwen3-4B prompt-v2 cascade result is verified and passed on 40 group-disjoint test rows with 240 valid judge calls and 0 failures. Mean relevance improved from 1.425 for the frozen 0.5B baseline to 3.15; candidate coherence was 3.325. Relevance gain was 1.725, coherence gain 1.8, paired relevance win rate 0.675, and relevance-at-least-two rate 0.875. Every predeclared automatic engineering gate passed. This is an automatic same-family LLM-as-judge proxy, not a human or independent benchmark; it does not establish factuality, safety, naturalness, population usefulness, physical-4090 fit, or browser latency.
+
 ## Privacy-safe descriptive error analysis
 
-The hash-bound post-hoc analysis is verified. It found 9/9 automatic mechanics successes and 0 mechanics failures. Of the nine rows, 3 had transcripts over 1,000 characters, 3 had replies over 8 seconds, and 2 took over 10 seconds for complete generation. Transcript length and full-turn time had descriptive Pearson r=0.885282. This small, post-hoc association is not inferential, and full-turn time is not official first-audio latency. Plaintext was not read or emitted; semantic relevance, pronunciation, naturalness, human quality, elderly performance, and population generalization remain unmeasured.
+The hash-bound post-hoc analysis is verified. It found 9/9 automatic mechanics successes and 0 mechanics failures. Of the nine rows, 3 had transcripts over 1,000 characters, 3 had replies over 8 seconds, and 2 took over 10 seconds for complete generation. Transcript length and full-turn time had descriptive Pearson r=0.885282. This small, post-hoc association is not inferential, and full-turn time is not official first-audio latency. Plaintext was not read or emitted; this nine-row post-hoc analysis did not measure semantics. The separate frozen automatic semantic final test is reported above; pronunciation, naturalness, human quality, elderly performance, and population generalization remain unmeasured.
 
 ## Automatic synthesized-speech intelligibility proxy
 
@@ -88,7 +93,7 @@ Denominators and observed failures are shown above. Model seeds are reported per
 
 ## Submission architecture decision
 
-Production candidate: `cascade`. Direct Moshi role: `experimental_negative_result_with_positive_learning_signal`. Starting another direct-model training run before the deadline is not recommended because no validated corrective hypothesis remains, while the frozen cascade already has a positive proper-user-channel validation result.
+Production candidate: `qwen4b_v2_cascade`. Direct Moshi role: `experimental_negative_result_with_positive_learning_signal`. Starting another direct-model training run before the deadline is not recommended because no validated corrective hypothesis remains, while the prompt-v2 cascade has passed both its eligibility stage and frozen automatic semantic final test.
 
 ## Remaining requirements
 

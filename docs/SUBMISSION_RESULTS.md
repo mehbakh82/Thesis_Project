@@ -10,7 +10,7 @@ Use the modular cascade as the submitted working system:
 continuous user microphone
     -> classical rolling barge-in detector and browser stop control
     -> NeMo Persian ASR
-    -> exact local Qwen2.5-0.5B-Instruct
+    -> exact Qwen3-4B-Instruct-2507, prompt-v2
     -> Persian Piper TTS
 ```
 
@@ -30,7 +30,35 @@ validation result.
 
 ## Primary positive result
 
-The canonical artifact is
+The canonical headline artifact is
+`results/eval/qwen4b_responder_v2_final_test_proxy.json`. The protocol,
+indices, thresholds, model hashes, privacy policy, and Stage-A prerequisite
+were frozen before execution. Stage A passed on seven previously unused
+validation rows; only then was the 40-row, five-session test panel opened.
+
+| Frozen automatic final-test measure | Result |
+|---|---:|
+| Group-disjoint test rows | **40** |
+| Valid / expected judge calls | **240 / 240** |
+| Failed judge calls | **0** |
+| Qwen3-4B prompt-v2 relevance | **3.150 / 4** |
+| Frozen Qwen2.5-0.5B baseline relevance | 1.425 / 4 |
+| Relevance / coherence gain | **+1.725 / +1.800** |
+| Qwen3-4B prompt-v2 coherence | **3.325 / 4** |
+| Paired relevance wins | **27/40 (67.5%)** |
+| Candidate relevance ≥2 | **35/40 (87.5%)** |
+| Candidate retries / invalid audio | **0 / 0** |
+| Predeclared automatic gates | **7/7 passed** |
+
+This is positive automatic semantic engineering evidence. The judge used
+different weights but the same Qwen family, and the rubric was not calibrated
+to independent Persian human ratings. It is not human evaluation, an
+independent dialogue benchmark, a factuality/safety result, a physical-4090
+test, or a browser-latency result.
+
+## Foundational mechanics result
+
+The canonical mechanics artifact is
 `results/eval/cascade_real_service_validation_panel.json`.
 
 | Measure | Result |
@@ -52,7 +80,7 @@ The canonical artifact is
 | Descriptive full-turn time p50 / p95 / max | 5584.736 / 13045.919 / 13270.249 ms |
 | Final-test rows accessed | 0 |
 
-This is a positive working user-turn result and a group-disjoint,
+This remains a positive working user-turn result and a group-disjoint,
 out-of-sample mechanics check. The timing values measure complete
 ASR-plus-response-plus-full-TTS generation on an H100; they are not streaming
 browser `T_first_audio` and cannot satisfy the 500 ms requirement.
@@ -153,19 +181,20 @@ opened.
 Recommended:
 
 > We implemented a Persian full-duplex speech prototype using a modular
-> NeMo–Qwen–Piper cascade and a continuous-microphone barge-in controller. In a
-> frozen nine-item panel drawn from a source-session-group-isolated validation
-> split, the real component chain passed all automatic execution, Persian
-> script, no-fallback, and non-silent-audio gates. Direct Moshika adaptation
-> showed measurable in-sample objective learning but failed the predeclared
-> autoregressive runtime criterion, motivating use of the cascade as the final
-> prototype and preserving the direct-model result as a negative ablation.
+> NeMo–Qwen3-4B–Piper cascade and a continuous-microphone barge-in controller.
+> After a frozen development eligibility stage passed, a 40-row,
+> source-session-group-isolated final test passed every predeclared automatic
+> semantic gate: relevance improved from 1.425 to 3.150, coherence reached
+> 3.325, and paired relevance win rate was 67.5%. The result uses a same-family
+> automatic judge and is not human evaluation. Direct Moshika adaptation
+> learned its bounded objective but failed its autoregressive runtime criterion
+> and is retained as a negative ablation.
 
 Do not claim:
 
 - that direct Moshi works in Persian;
-- that the nine-row cascade panel proves semantic response quality,
-  naturalness, or population-level generalization;
+- that the automatic semantic result is human/independent or proves
+  naturalness, factuality, safety, or population-level usefulness;
 - that full-turn H100 time is browser first-audio latency;
 - that the system satisfies the physical 12–24 GB or ≤500 ms gate;
 - that automatic interaction labels are independently human verified;
@@ -176,6 +205,9 @@ Do not claim:
 
 | Claim | Canonical evidence |
 |---|---|
+| Automatic semantic final-test pass | `results/eval/qwen4b_responder_v2_final_test_proxy.json` |
+| Frozen eligibility result | `results/eval/qwen4b_responder_v2_development_proxy.json` |
+| Frozen prompt-v2 protocol | `docs/QWEN4B_CASCADE_V2_PROTOCOL.md` |
 | Working cascade | `results/eval/cascade_real_service_validation_panel.json` |
 | Cascade descriptive analysis | `results/eval/cascade_validation_descriptive_analysis.json` |
 | Automatic cascade intelligibility proxy | `results/eval/cascade_intelligibility_proxy.json` |

@@ -3,6 +3,19 @@
   "verified_at": "2026-09-06",
   "upstreams": [
     {
+      "name": "Qwen3-4B-Instruct-2507",
+      "repository": "https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507",
+      "revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+      "checkout_dir": "qwen3-4b-instruct-2507",
+      "license": "Apache-2.0",
+      "allowed_use": "Local inference and redistribution subject to Apache-2.0",
+      "training_entrypoint": null,
+      "tree_sha256": "cde447f1326f10c4126061914c57c3664551649286ad6411bffe3d1aa3e3b978",
+      "files": 28,
+      "bytes": 8060919167,
+      "notes": "Exact local prompt-v2 responder used by the passed frozen automatic final test; model weights are not committed."
+    },
+    {
       "name": "Qwen2.5-0.5B-Instruct",
       "repository": "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct",
       "revision": "7ae557604adf67be50417f59c2c2f167def9a775",

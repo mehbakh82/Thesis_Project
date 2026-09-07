@@ -1,4 +1,4 @@
-"""NeMo streaming cascade baseline: ASR HTTP + small LLM/text + Piper/formant TTS."""
+"""NeMo streaming cascade: ASR HTTP + validated local responder + Piper TTS."""
 
 from __future__ import annotations
 
@@ -6,6 +6,7 @@ import json
 import os
 import time
 import unicodedata
+from pathlib import Path
 from typing import Any
 from urllib.error import URLError
 from urllib.request import Request, urlopen
@@ -15,6 +16,19 @@ import numpy as np
 from thesis_s2s import SAMPLE_RATE
 from thesis_s2s.data.verbatim import verbatim_normalize
 from thesis_s2s.runtime.tts import FormantTalker, synthesize
+
+QWEN4B_MODEL = "Qwen/Qwen3-4B-Instruct-2507"
+QWEN4B_PROJECT_DIR = Path(__file__).resolve().parents[3] / "models/qwen3-4b-instruct-2507"
+QWEN4B_PROMPT_V2 = (
+    "متن کاربر ممکن است خروجی ناقص گفتاربه‌متن باشد. منظور اصلی قابل‌فهم را تشخیص بده و "
+    "دقیقاً یک جمله کامل و روان فارسی با حداکثر بیست‌وپنج واژه بنویس که مستقیماً به همان "
+    "منظور پاسخ دهد. متن کاربر را تکرار نکن، جمله را نیمه‌تمام نگذار، حرف لاتین، فهرست یا "
+    "توضیح حاشیه‌ای ننویس. اگر هیچ منظوری قابل‌فهم نیست، در یک جمله درخواست تکرار کن."
+)
+QWEN4B_RETRY_PROMPT_V2 = (
+    "فقط یک جمله کامل، کوتاه، روان و مرتبط با منظور اصلی کاربر به خط فارسی بنویس. "
+    "هیچ حرف لاتین، کد، فهرست، تکرار ورودی یا جمله نیمه‌تمام ننویس."
+)
 
 
 def asr_http(wav_bytes: bytes, base: str | None = None) -> dict:
@@ -54,8 +68,19 @@ class TextResponder:
     """Local Persian Qwen responder with a deterministic rule fallback."""
 
     def __init__(self, model_name: str | None = None):
-        self.model_name = model_name or os.environ.get(
-            "TEXT_LLM_MODEL", "Qwen/Qwen2.5-0.5B-Instruct"
+        configured_model = model_name or os.environ.get("TEXT_LLM_MODEL")
+        self.model_name = configured_model or QWEN4B_MODEL
+        self.model_source = (
+            str(QWEN4B_PROJECT_DIR)
+            if configured_model is None and QWEN4B_PROJECT_DIR.is_dir()
+            else self.model_name
+        )
+        configured_profile = os.environ.get("TEXT_LLM_PROMPT_PROFILE", "auto")
+        self.prompt_profile = (
+            "qwen4b_v2"
+            if configured_profile == "qwen4b_v2"
+            or (configured_profile == "auto" and QWEN4B_MODEL in self.model_name)
+            else "legacy"
         )
         self.backend = "rules"
         self.model: Any = None
@@ -73,11 +98,13 @@ class TextResponder:
             from transformers import AutoModelForCausalLM, AutoTokenizer
 
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, local_files_only=True)
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                self.model_source, local_files_only=True
+            )
             loaded_model: Any = AutoModelForCausalLM.from_pretrained(
-                self.model_name,
+                self.model_source,
                 local_files_only=True,
-                torch_dtype=torch.bfloat16 if self.device == "cuda" else torch.float32,
+                dtype=torch.bfloat16 if self.device == "cuda" else torch.float32,
             )
             self.model = loaded_model.to(self.device).eval()
             self.backend = self.model_name
@@ -93,13 +120,17 @@ class TextResponder:
         if self.model is None or self.tokenizer is None:
             self.last_fallback_used = True
             return _reply_text(user_text)
-        system_prompts = [
-            "فقط با خط فارسی و بدون هیچ حرف یا واژه لاتین، کوتاه و طبیعی پاسخ بده.",
-            (
-                "در یک جمله کوتاه و مرتبط پاسخ بده. پاسخ فقط باید شامل خط فارسی باشد؛ "
-                "هیچ کد، حرف انگلیسی یا واژه لاتین ننویس."
-            ),
-        ]
+        system_prompts = (
+            [QWEN4B_PROMPT_V2, QWEN4B_RETRY_PROMPT_V2]
+            if self.prompt_profile == "qwen4b_v2"
+            else [
+                "فقط با خط فارسی و بدون هیچ حرف یا واژه لاتین، کوتاه و طبیعی پاسخ بده.",
+                (
+                    "در یک جمله کوتاه و مرتبط پاسخ بده. پاسخ فقط باید شامل خط فارسی باشد؛ "
+                    "هیچ کد، حرف انگلیسی یا واژه لاتین ننویس."
+                ),
+            ]
+        )
         for attempt_index, system_prompt in enumerate(system_prompts):
             messages = [
                 {"role": "system", "content": system_prompt},
@@ -142,7 +173,7 @@ class TextResponder:
 
 
 class CascadeTalker:
-    """Working Persian ASR -> text responder -> full Piper/formant speech baseline."""
+    """Persian ASR -> Qwen3-4B prompt-v2 -> full Piper/formant speech system."""
 
     def __init__(self, responder: TextResponder | None = None):
         self.responder = responder or TextResponder()

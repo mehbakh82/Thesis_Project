@@ -25,7 +25,7 @@ def test_every_locked_upstream_is_revisioned_in_third_party_notices() -> None:
     notices = (ROOT / "THIRD_PARTY_NOTICES.md").read_text(encoding="utf-8")
 
     assert lock["verified_at"] == "2026-09-06"
-    assert len(lock["upstreams"]) == 9
+    assert len(lock["upstreams"]) == 10
     for upstream in lock["upstreams"]:
         assert upstream["name"] in notices
         assert upstream["revision"] in notices
@@ -52,3 +52,24 @@ def test_qwen_lock_matches_the_exact_positive_validation_runtime() -> None:
     assert qwen["repository"].endswith(responder["requested_model"])
     assert qwen["revision"] == responder["revision"]
     assert qwen["license"] == "Apache-2.0"
+
+
+def test_qwen4b_lock_matches_the_frozen_final_test() -> None:
+    lock = json.loads(
+        (ROOT / "third_party/UPSTREAMS.lock.json").read_text(encoding="utf-8")
+    )
+    result = json.loads(
+        (ROOT / "results/eval/qwen4b_responder_v2_final_test_proxy.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    qwen = next(
+        row for row in lock["upstreams"] if row["name"] == "Qwen3-4B-Instruct-2507"
+    )
+    responder = result["responders"]["qwen4b_v2"]
+
+    assert qwen["revision"] == responder["revision"]
+    assert qwen["tree_sha256"] == responder["tree_sha256"]
+    assert qwen["files"] == responder["files"]
+    assert qwen["bytes"] == responder["bytes"]
+    assert qwen["license"] == responder["license"] == "Apache-2.0"

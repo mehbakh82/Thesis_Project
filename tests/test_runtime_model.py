@@ -85,6 +85,7 @@ def test_cascade_handles_failed_asr_without_inventing_a_transcript(monkeypatch):
 
 def test_text_responder_extracts_input_ids_from_batch_encoding(monkeypatch):
     monkeypatch.setenv("TEXT_LLM_ENABLED", "0")
+    monkeypatch.setenv("TEXT_LLM_PROMPT_PROFILE", "legacy")
     responder = TextResponder()
 
     class FakeTokenizer:
@@ -122,6 +123,7 @@ def test_text_responder_extracts_input_ids_from_batch_encoding(monkeypatch):
 
 def test_text_responder_retries_qwen_once_for_non_persian_output(monkeypatch):
     monkeypatch.setenv("TEXT_LLM_ENABLED", "0")
+    monkeypatch.setenv("TEXT_LLM_PROMPT_PROFILE", "legacy")
     responder = TextResponder()
     replies = iter(["visit example dot com", "این یک پاسخ فارسی است"])
     prompts: list[str] = []
@@ -152,6 +154,21 @@ def test_text_responder_retries_qwen_once_for_non_persian_output(monkeypatch):
     assert responder.last_generation_error is None
     assert responder.last_generation_attempts == 2
     assert responder.last_language_retry_used is True
+
+
+def test_default_responder_uses_validated_qwen4b_prompt_v2(monkeypatch):
+    monkeypatch.setenv("TEXT_LLM_ENABLED", "0")
+    monkeypatch.delenv("TEXT_LLM_MODEL", raising=False)
+    monkeypatch.delenv("TEXT_LLM_PROMPT_PROFILE", raising=False)
+
+    responder = TextResponder()
+
+    assert responder.model_name == "Qwen/Qwen3-4B-Instruct-2507"
+    assert responder.prompt_profile == "qwen4b_v2"
+    assert responder.model_source in {
+        "Qwen/Qwen3-4B-Instruct-2507",
+        str(cascade.QWEN4B_PROJECT_DIR),
+    }
 
 
 def test_piper_runtime_output_is_clipped_to_pcm_range(monkeypatch):

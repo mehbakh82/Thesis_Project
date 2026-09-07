@@ -36,6 +36,11 @@ Verified now:
   continuous-microphone browser interruption-control path. The frozen
   proper-user-channel validation passed 9/9 predeclared rows from a
   source-session-group-isolated split with zero fallbacks.
+- [x] Final responder promoted to exact Qwen3-4B-Instruct-2507 prompt-v2. Its
+  seven-row frozen eligibility stage passed, then its 40-row/five-session
+  final test passed all seven automatic gates with 240/240 valid judge calls:
+  relevance 3.150 versus 1.425, coherence 3.325, gains +1.725/+1.800,
+  paired relevance win rate 67.5%, and relevance ≥2 on 87.5% of rows.
 - [x] Legacy 7 MB reconstruction checkpoint is blocked from being described or
   loaded as a genuine direct speech-language model.
 - [x] Direct path selected: pinned Moshika 7B with the official
@@ -60,10 +65,10 @@ Verified now:
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
-- [x] The 2026-09-06 full local audit passes compile, Ruff, mypy on 49 package
-  source files, all 182 tests, 65% branch-aware coverage with a 60% CI floor,
-  full-history/privacy/secret checks, general dependencies, the accepted
-  scientific-risk baseline, and all nine upstream pins.
+- [x] The full local audit passes compile, Ruff, mypy, the complete test suite,
+  branch-aware coverage with its CI floor, full-history/privacy/secret checks,
+  general dependencies, the accepted scientific-risk baseline, and all ten
+  upstream pins. The final release audit below records the definitive counts.
 - [x] General dependencies have no known vulnerabilities; the pinned scientific
   lock has an exact, fail-closed accepted-risk baseline and mitigations.
 - [ ] Window QA: 0/40 reviewed.
@@ -98,20 +103,18 @@ Verified now:
 
 ## What remains now
 
-The project now has the positive working result needed for submission. With two
-days remaining, the frozen cascade—not direct Moshi—is the production
-candidate. Starting another speculative direct training run is not recommended:
-v6.2 already shows that the current approach learns its in-sample objective but
-does not generate reliably, and no validated one-factor remedy remains.
+The project now has the positive automatic semantic result needed for
+submission. The frozen Qwen3-4B prompt-v2 cascade—not direct Moshi—is the
+production candidate. Direct Moshika remains a valuable negative ablation.
 
 The submission-critical tasks, in order, are:
 
-1. Reconcile the thesis manuscript, abstract, conclusion, and result tables
-   with the exact cascade validation and v6.2 outcomes.
+1. Copy the reconciled abstract, conclusion, and result tables from
+   `docs/THESIS_REPORTING_FA.md` into the private thesis manuscript.
 2. Choose a source-code license; this is the only remaining repository decision
    that requires the student.
-3. Run the final full test/lint/type/security/provenance audit, regenerate the
-   release snapshot, commit/tag, push, and verify remote parity.
+3. Run the final release audit, regenerate the snapshot, commit/tag, push, and
+   verify remote parity.
 4. If and only if a physical 12–24 GB target GPU becomes available before the
    freeze, run the already documented live-browser hardware/latency protocol.
 
@@ -607,9 +610,11 @@ Owner: Codex for automation; approved listeners for perceptual checks.
   exact initialized Qwen, no fallback, ≥80% Persian script, and finite
   non-silent normalized Piper audio all pass on every row; group split leaks
   and final-test accesses are zero.
-- [ ] Evaluate Persian response relevance/coherence with a documented rubric and
-  suitable semantic metrics; do not use WER against open-ended responses as the
-  sole relevance metric.
+- [x] Evaluate Persian response relevance/coherence with a documented,
+  predeclared rubric: prompt-v2 passed eligibility and then all seven automatic
+  gates on 40 final-test rows with 240/240 valid blinded calls. The judge has
+  different weights but the same Qwen family and is not a human/independent
+  benchmark; WER was not used as the relevance metric.
 - [x] Measure synthesized-speech intelligibility separately under a protocol
   pushed before execution: the exact nine cascade outputs reproduced their
   canonical hashes, round-trip NeMo ASR had 0/9 failures, micro CER was 7.14%
@@ -839,9 +844,12 @@ Thesis narrative:
   nine exact reproduced outputs, zero ASR failures, micro CER/WER with complete
   denominators and distributions, no post-hoc threshold, no plaintext, and
   explicit same-ASR/single-voice/N=9 limitations.
+- [x] Include the prompt-v2 two-stage automatic semantic result, all
+  denominators and thresholds, the 0.5B comparison, the weak automatically
+  aligned reference limitation, and the same-family/non-human claim boundary.
 - [ ] Add semantic, perceptual, and cautiously scoped elderly error analysis
   only if qualifying human evidence is actually collected; do not fabricate it.
-- [x] Verify repository citation metadata and third-party boundaries: all nine
+- [x] Verify repository citation metadata and third-party boundaries: all ten
   locked upstreams appear by name and exact revision in
   `THIRD_PARTY_NOTICES.md`; the evaluated Qwen revision is Apache-2.0 and
   lock-matched; the optional installed Piper runtime is GPL-3.0-or-later and is
@@ -850,7 +858,9 @@ Thesis narrative:
 - [ ] Verify the final thesis manuscript bibliography and select the project
   source-code license; the manuscript is not stored in this repository and no
   source license may be inferred.
-- [ ] Ensure abstract/conclusion/tables/demo make no claim beyond evidence.
+- [x] Ensure repository-provided abstract/conclusion/tables/demo wording makes
+  no claim beyond evidence. The private manuscript still requires student
+  copy/paste and bibliography review.
 
 Final engineering audit:
 
@@ -968,7 +978,7 @@ privacy-safe repository at approved visibility, restricted handoff, immutable ta
 
 | Requirement | Conservative acceptance test | Current state | Final evidence |
 |---|---|---|---|
-| Working Persian S2S prototype | Frozen system accepts audited user speech and emits Persian-script, non-silent speech on group-disjoint validation inputs | **Passed 9/9 automatic mechanics rows**; automatic NeMo round-trip micro CER 7.14% / WER 30.41% with 0 failures; semantic/human-perceptual claims remain pending | Cascade validation and intelligibility reports/protocols |
+| Working Persian S2S prototype | Frozen system accepts audited user speech and emits Persian-script, non-silent speech on group-disjoint inputs; relevance/coherence uses a predeclared automatic rubric | **Passed 40-row automatic semantic final test:** relevance 3.150 vs 1.425, coherence 3.325, all seven gates; also passed 9/9 mechanics rows and round-trip CER 7.14% / WER 30.41%. Human-perceptual claims remain pending | Qwen4B prompt-v2 protocol/development/final reports; cascade mechanics/intelligibility reports |
 | Full duplex | Mic remains active; interruption stops playback and becomes next-turn context | Server transport continuity passed; physical-browser source-stop/ack trace and direct model remain pending | WebSocket continuation tests; future client traces |
 | End-to-end ≤500 ms | Max `T_first_audio` ≤500 ms unless another statistic is predeclared; always p50/p95/max | Pending | Physical-4090 `official_e2e` telemetry |
 | Open base adapted to Persian | Moshika 7B LoRA trained on the waiver-bound Persian response pairs | Training complete through v6.2. V6.2 shows a 32.20% in-sample text-loss reduction but 0/9 runtime rows for every checkpoint; no adapter is promoted and all later final tests remain untouched | Config, logs, adapter hashes, reevaluation/runtime reports |

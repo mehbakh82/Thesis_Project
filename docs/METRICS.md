@@ -54,6 +54,27 @@ and the nine single-voice outputs do not justify a confidence interval or an
 after-the-fact quality threshold. See
 `docs/CASCADE_INTELLIGIBILITY_PROTOCOL.md`.
 
+## Automatic semantic responder final test
+
+The prompt-v2 protocol fixes a two-stage design. Seven previously unused
+validation rows form the eligibility stage; only a complete pass unlocks 40
+metadata-preselected test rows across all five held-out source sessions.
+Three blinded arms (Qwen2.5-0.5B baseline, Qwen3-4B prompt-v2 candidate, and
+automatically aligned next-speaker reference) receive two deterministic judge
+calls for relevance and coherence on a 0–4 scale.
+
+The predeclared candidate gates are: relevance mean ≥2.0, coherence mean ≥2.5,
+relevance gain over baseline ≥0.5, nonnegative coherence gain, paired relevance
+win rate ≥0.60, relevance-at-least-two rate ≥0.70, and complete mechanical
+validity. Failed calls stay in the denominator and invalidate the result.
+
+This evidence class is
+`automatic_same_family_llm_as_judge_qwen4b_prompt_v2_final_test`. It is not
+human semantic evaluation, an independent dialogue benchmark, factuality or
+safety evaluation, naturalness evidence, population evidence, physical-4090
+evidence, or official browser latency. See
+`docs/QWEN4B_CASCADE_V2_PROTOCOL.md`.
+
 ## Barge-in accuracy
 
 Provisional primary metric: event-level interrupt vs other **accuracy ≥ 0.80** on speaker/session-held-out real interactions. Also report interrupt F1, FAR, FRR, denominators, and 95% confidence intervals. Energy-only VAD is the baseline. Confirm event-level versus frame-level interpretation with the supervisor.

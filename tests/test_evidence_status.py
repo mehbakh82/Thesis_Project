@@ -448,11 +448,12 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
 
     assert report["authoritative"] is True
-    assert report["schema_version"] == 10
+    assert report["schema_version"] == 11
     assert report["thesis_ready"] is False
     assert report["generation_policy"]["reads_frozen_final_test_rows"] is False
     assert report["gates"]["audited_export_100_to_200_hours"] is True
     assert report["gates"]["working_persian_s2s_prototype"] is True
+    assert report["gates"]["automatic_semantic_final_test_passed"] is False
     assert report["working_system"]["passed_rows"] == 9
     assert report["working_system"]["fallback_rows"] == 0
     assert report["working_system"]["input_channel"] == 1
@@ -515,6 +516,27 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert "micro CER=0.071429" in summary
     assert "3,200 pre-roll samples" in summary
     assert json.loads(out.read_text(encoding="utf-8")) == report
+
+
+def test_committed_qwen4b_final_test_is_verified_fail_closed() -> None:
+    root = Path(__file__).resolve().parents[1]
+    report = build_evidence_status(root=root, generated_at="2026-09-06T00:00:00+00:00")
+    final = report["qwen4b_v2_automatic_final_test"]
+
+    assert report["gates"]["automatic_semantic_final_test_passed"] is True
+    assert report["submission_strategy"]["production_candidate"] == "qwen4b_v2_cascade"
+    assert final["verified"] is True
+    assert final["rows"] == 40
+    assert final["judge_calls_valid"] == 240
+    assert final["judge_calls_failed"] == 0
+    assert final["base_relevance_mean"] == 1.425
+    assert final["candidate_relevance_mean"] == 3.15
+    assert final["candidate_coherence_mean"] == 3.325
+    assert final["relevance_gain"] == 1.725
+    assert final["coherence_gain"] == 1.8
+    assert final["relevance_win_rate"] == 0.675
+    assert final["relevance_at_least_two_rate"] == 0.875
+    assert final["human_semantic_result"] is False
 
 
 def test_persian_thesis_reporting_tracks_authoritative_evidence() -> None:

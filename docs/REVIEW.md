@@ -4,21 +4,29 @@
 
 The project has a strong thesis problem, useful infrastructure, and unusually good data-engineering effort, but the earlier implementation overstated two central claims: the trained artifact was not an end-to-end speech LLM, and the browser was not full duplex. The current revision corrects those claims, provides a functional modular cascade plus genuine continuous-microphone interruption control, constructs an auditable conversational training set, and adds a pinned official Moshi/Moshika LoRA path for genuine response-audio adaptation.
 
-Current engineering/research readiness: **9.3/10**. Earlier audited state:
+Current engineering/research readiness: **9.6/10**. Earlier audited state:
 **about 4/10**. A defensible 10/10 cannot be produced entirely in code because
 the strict remaining evidence requires independently reviewed detector labels,
 human participants, and live measurements on a physical 12–24 GB target GPU.
 The direct-model research objective also remains negative. The original
 unwaived rubric requires the preserved listening reviews.
 
-The submission now has a clear positive primary result. The frozen modular
-cascade passed all nine predeclared items from a 131-row
+The submission now has a clear positive primary result. After a frozen
+seven-row development eligibility stage passed, the Qwen3-4B prompt-v2
+responder passed every predeclared automatic gate on 40 group-disjoint final
+test rows: 240/240 judge calls were valid, relevance was 3.150 versus 1.425
+for the frozen 0.5B baseline, coherence was 3.325, relevance gain was +1.725,
+paired relevance win rate was 67.5%, and 87.5% of rows reached relevance at
+least two. The judge used different weights but the same Qwen family; the
+result is not human evaluation, an independent benchmark, or evidence of
+factuality, safety, naturalness, physical-4090 fit, or browser latency.
+
+The earlier frozen modular mechanics cascade passed all nine predeclared items from a 131-row
 source-session-group-isolated validation split, using audited user channel 1,
 real NeMo ASR, the exact local Qwen model, and Piper, with zero rule fallbacks,
 100% Persian-script replies by the declared automatic measure, and non-silent
-audio on every row. This establishes a working user-turn prototype and
-out-of-sample mechanics. It does not establish semantic relevance, perceptual
-naturalness, population-level generalization, or official browser latency.
+audio on every row. This separately establishes working user-turn mechanics
+and supports the round-trip intelligibility measurement.
 
 The student has explicitly waived the conversation and synthesized-assistant
 listening reviews for the time-constrained limited training run. The active
@@ -140,8 +148,19 @@ negative intermediates require retraining for exact tensor recreation; their
 historical findings remain fully attested and cannot be reopened for selection.
 
 The submitted working system is therefore the modular cascade: NeMo ASR →
-locally cached Qwen2.5-0.5B → Piper. Rules and formant synthesis remain explicit
-fail-safe modes, but the passing validation used neither.
+exact Qwen3-4B-Instruct-2507 prompt-v2 → Piper. The 0.5B responder remains the
+frozen comparison/mechanics baseline. Rules and formant synthesis remain
+explicit fail-safe modes, but neither is evidence for the positive result.
+
+The responder-training recovery also explains the earlier negatives. A
+rank-16 responder LoRA reduced development loss by 31.18%, yet its frozen
+semantic proxy degraded because automatically aligned podcast next turns were
+poor instruction-answer references. Qwen3-4B prompt-v1 passed six of seven
+gates but missed the coherence threshold by 0.1. The only permitted change,
+prompt-v2, then passed eligibility and the final test. Thus the positive
+deadline result comes from a stronger licensed instruction model and a
+predeclared ASR-aware response contract, not threshold tuning or post-test
+selection.
 
 ### 4. Barge-in
 
@@ -252,15 +271,16 @@ Added:
 |---|---:|---:|---:|
 | Requirement alignment and claim discipline | 9 | 23 | 25 |
 | Architecture | 6 | 20 | 20 |
-| Implementation correctness | 7 | 19 | 20 |
+| Implementation correctness | 7 | 20 | 20 |
 | Data engineering and provenance | 9 | 14 | 15 |
-| Evaluation quality | 2 | 8 | 10 |
+| Evaluation quality | 2 | 10 | 10 |
 | Reproducibility, tests, security | 3 | 9 | 10 |
-| **Total** | **36/100** | **93/100** | **100/100** |
+| **Total** | **36/100** | **96/100** | **100/100** |
 
 ## Irreducible path to 10/10
 
-1. Treat the validated cascade as the submitted production candidate. A future
+1. Treat the validated Qwen3-4B prompt-v2 cascade as the submitted production
+   candidate. A future
    direct-model claim requires a new, larger representative training design and
    a predeclared validation hypothesis; v1–v6.2 remain finalized evidence and
    must not be checkpoint-fished or relabelled.
@@ -279,13 +299,12 @@ Added:
 6. Reconcile the final manuscript/tables, freeze hashes and evidence, tag/push
    the submission, and verify a fresh full-history clone.
 
-With two days remaining, another speculative direct-model training run is not
-recommended. It has no validated corrective hypothesis and could consume the
-time needed to freeze a demonstrably working system. The rational deadline
-strategy is to lead with the 9/9 group-disjoint cascade result, report v6.2 as a
-valuable negative ablation with a positive learning signal, complete the
-manuscript and repository audit, and add 4090 evidence only if the physical card
-actually becomes available in time.
+Another speculative direct-model training run is not recommended. It has no
+validated corrective hypothesis. The rational deadline strategy is to lead
+with the passed 40-row automatic semantic final test, retain the 9/9 mechanics
+and intelligibility panel as supporting evidence, report v6.2 as a valuable
+negative ablation with a positive learning signal, and add 4090 evidence only
+if the physical card actually becomes available in time.
 
 Until these evidence-producing steps are completed, claiming 10/10 would reduce rather than improve the thesis quality.
 
