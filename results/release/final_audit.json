@@ -1,7 +1,7 @@
 {
-  "schema_version": 2,
-  "generated_at": "2026-09-07T05:46:34Z",
-  "audited_commit": "6d973c122a95d3cd4d12ca47fe30106ec0c3e6fd",
+  "schema_version": 3,
+  "generated_at": "2026-09-07T06:21:53Z",
+  "audited_commit": "67bd922b278535bdae661953933b4c8df1039a57",
   "git_identity": {
     "author": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>",
     "committer": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>"
@@ -22,7 +22,7 @@
     },
     "tracked_artifact_history_privacy_secret_audit": {
       "status": "passed",
-      "tracked_files": 384
+      "tracked_files": 386
     },
     "general_dependency_audit": {
       "status": "passed",
@@ -30,8 +30,8 @@
     },
     "pytest": {
       "status": "passed",
-      "tests": 205,
-      "seconds": 15.80
+      "tests": 206,
+      "seconds": 17.04
     },
     "branch_coverage": {
       "status": "passed",
@@ -54,7 +54,7 @@
   },
   "runtime_attribution": {
     "status": "passed",
-    "focused_tests": 4,
+    "focused_tests": 5,
     "locked_upstreams": 10,
     "qwen_runtime": {
       "model": "Qwen/Qwen3-4B-Instruct-2507",
@@ -72,11 +72,13 @@
       "license": "GPL-3.0-or-later",
       "separate_voice_terms_documented": true
     },
-    "source_code_license_selected": false,
-    "citation_sha256": "a60c5e3f43b4ab8a474bf29d92681fdb677c0006ff02ecfa9066772400b9b1c6",
-    "third_party_notices_sha256": "697c5c548d5273e30e32060c7c2b686da7bf569a1218ffb6dd7f4426b26b6934",
+    "source_code_license_selected": true,
+    "source_code_license": "Apache-2.0",
+    "license_sha256": "183c5508dbf8d5f8571728dcf16cf3da23fd308011d7053dc7949c8479dd16e9",
+    "citation_sha256": "524812220340c3740e35e9f3a4f3106a01c00fdcb769b2ea2140a7bcbe3de215",
+    "third_party_notices_sha256": "8855250d8cb0d631b8e6fc0307b674feceb55188c3d96acf598d228685018536",
     "upstreams_lock_sha256": "a66f2d2b6412c92edfb66f114915a52c1145b59b576b0e24156f262de290fba8",
-    "test_sha256": "c14d5f1124964fe6a99f8a4e191e6fbb949d9921814aafa58e8bc28e39778862"
+    "test_sha256": "88559cb039daff58831dd6ba1f1075766c9615aa5f473fd7e61d423c3b983a28"
   },
   "cascade_descriptive_analysis": {
     "status": "passed",
@@ -178,6 +180,27 @@
       "Deployment eligibility of any direct Moshi adapter.",
       "Human intelligibility, pronunciation, naturalness, semantic relevance, or population quality from the automatic round-trip proxy."
     ]
+  },
+  "apache_closeout": {
+    "status": "passed",
+    "license": "Apache-2.0",
+    "license_file": "LICENSE",
+    "license_sha256": "183c5508dbf8d5f8571728dcf16cf3da23fd308011d7053dc7949c8479dd16e9",
+    "package_wheel_built_without_dependency_download": true,
+    "wheel_contains_license": true,
+    "wheel_metadata_license_file": "LICENSE",
+    "third_party_and_restricted_artifacts_explicitly_excluded": true
+  },
+  "qwen35_local_compatibility": {
+    "status": "passed",
+    "artifact": "results/hardware/qwen35_local_smoke.json",
+    "artifact_sha256": "0af27f7c996d731c708c156aae8c9e8c894822d137dab10f555faaacb9162086",
+    "models_initialized": 2,
+    "persian_generations_observed": 2,
+    "synthetic_prompt_only": true,
+    "project_development_or_final_rows_accessed": false,
+    "models_promoted": 0,
+    "claim_boundary": "Compatibility smoke only; no semantic, latency, throughput, deployment, or model-selection claim."
   },
   "status": "passed"
 }
