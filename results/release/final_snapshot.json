@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-07T05:49:06.751642+00:00",
+  "generated_at": "2026-09-07T05:52:06.706552+00:00",
   "python": "3.12.3",
   "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.39",
   "git": {
     "available": true,
-    "commit": "656a6d1e1fd1ced1c88823f4efbb9a50587bccf6",
+    "commit": "408004889c73687a540da6384d55429af4fe55a9",
     "dirty": false
   },
   "gpu": {
@@ -331,8 +331,8 @@
       "bytes": 6414
     },
     "docs/PROJECT_10_OF_10_CHECKLIST.md": {
-      "sha256": "edda49a13d0a5eab5cac45660fb9458eca395d4df0e70f7835a9f5d63cf7641c",
-      "bytes": 59852
+      "sha256": "1d795c2f995538d17c1507dd40eefc4b733aba0e750536812595e8057999f2fc",
+      "bytes": 60602
     },
     "docs/PROMPT_SHEET.md": {
       "sha256": "834713479073112fc0d2fc6f573d1fa742142863f4df67b98f680a856826ef78",
@@ -367,8 +367,8 @@
       "bytes": 7590
     },
     "docs/REVIEW.md": {
-      "sha256": "ac5c2197a276a8008367876fabc815883f3fa9224fa510f33b88992ba00cded6",
-      "bytes": 20667
+      "sha256": "a3b39aedb25aab8ee565eda2b7bc660658ac01cb8951bd5dff9c7815ce306ef5",
+      "bytes": 20734
     },
     "docs/RIGHTS_REVIEW_FA.md": {
       "sha256": "7194102cd2a936f541c3bb617380d6ffbdd2928f8859f5fd00342901b481492b",
@@ -483,11 +483,11 @@
       "bytes": 1408
     },
     "results/eval/EVIDENCE_STATUS.json": {
-      "sha256": "a92a71d6e01634f3201908fe5474af787b3586e633ca48408b85285ffd5bca56",
+      "sha256": "adb0b0caded296bcc06ecd8f553d7e5002b6b7403322cb3fcbcf9a01f0fa4e2b",
       "bytes": 38672
     },
     "results/eval/SUMMARY.md": {
-      "sha256": "26fd7c3dd59c171819a956d4aaea8d4ed33d7ed99a97d98ed494d6515dfe7398",
+      "sha256": "723ba22a8768888a9c2f135c9986d22cc76c364d51601b6bbd94bac41f5e8506",
       "bytes": 8919
     },
     "results/eval/cascade_intelligibility_proxy.json": {
@@ -707,7 +707,7 @@
       "bytes": 2173
     },
     "results/release/final_audit.json": {
-      "sha256": "7f63bfc61bc6fe37c048d8ff109b85f74a75beac37913261fa2a8f571b30ac62",
+      "sha256": "67c0efa8ad4f28c32a81cae7423e502c71212fe36445869599a51eaa1f7a9815",
       "bytes": 7823
     },
     "results/security/moshi_dependency_audit.json": {
