@@ -182,17 +182,17 @@
 \label{sec:cascade}
 
 سامانه تحویل‌شده پروژه یک زنجیره آبشاری است که کنترل تمام‌دوطرفه روی آن
-سوار شده است. شکل~\ref{fig:arch} این معماری را نشان می‌دهد.
+سوار شده است. \mbox{شکل~\ref{fig:arch}} این معماری را نشان می‌دهد.
 
 \begin{figure}[ht]
 \centering
 \begin{latin}
-\scalebox{0.93}{%
+\scalebox{0.95}{%
 \begin{tikzpicture}[
   box/.style={draw,rounded corners=2pt,align=center,font=\scriptsize,
               minimum height=9mm,inner sep=3pt,text width=24mm},
   client/.style={box,fill=black!5},
-  lbl/.style={font=\tiny,inner sep=1.5pt,fill=white},
+  lbl/.style={font=\scriptsize,inner sep=1.5pt,fill=white},
   ar/.style={-{Latex[length=1.8mm]},thin},
   dashar/.style={ar,dashed}
 ]
@@ -200,7 +200,7 @@
 \node[client] (mic) at (0,0) {continuous mic\\16 kHz PCM16};
 
 % ---- duplex control path (upper row) ----
-\node[box] (feat) at (3.1,0)   {rolling features\\energy / $F_0$ / MFCC};
+\node[box] (feat) at (3.1,0)   {rolling features\\energy / F0 / MFCC};
 \node[box] (det)  at (6.2,0)   {GBDT barge-in\\classifier};
 \node[box] (ctl)  at (9.3,0)   {playback\\controller};
 
@@ -219,20 +219,19 @@
 \draw[ar] (llm)  -- (tts);
 
 % end of speech hands the captured turn to the response chain
-\draw[ar] (mic.south) -- ++(0,-1.4) -- (asr.west)
-      node[lbl,pos=0.62] {end of speech};
+\draw[ar] (mic.south) |- (asr.west)
+      node[lbl,pos=0.18] {end of speech};
 
 % synthesised reply is scheduled by the browser
-\draw[ar] (tts.east) -- (spk.south west)
-      node[lbl,pos=0.5] {full PCM reply};
+\draw[ar] (tts.east) -- (spk.south west);
 
 % accepted barge-in stops the active source
 \draw[ar] (ctl.east) -- (spk.north west)
-      node[lbl,pos=0.5] {stop source};
+      node[lbl,pos=0.55] {stop source};
 
-% retained pre-roll becomes the next user turn
-\draw[dashar] (ctl.north) -- ++(0,0.8) -| (asr.north)
-      node[lbl,pos=0.3] {450 ms pre-roll becomes next turn};
+% retained pre-roll is routed between the two rows into the ASR turn
+\draw[dashar] (ctl.south) -- ++(0,-0.50) -| (asr.north)
+      node[lbl,pos=0.42] {450 ms pre-roll to next turn};
 \end{tikzpicture}}
 \end{latin}
 \caption{معماری سامانه تحویل‌شده. ردیف بالا مسیر کنترل تمام‌دوطرفه و ردیف
@@ -425,7 +424,7 @@ $T_{\text{barge\_in}}$ در این نوشتار گزارش نمی‌شوند.}
 \label{sec:evidence-first}
 
 بخش بزرگی از سهم روشمند این پروژه، در چگونگی «گزارش» نتایج است.
-تجربه تلاش اولیه (بخش~\ref{sec:early-attempt}) نشان داد که یک مصنوع
+تجربه تلاش اولیه (\mbox{بخش~\ref{sec:early-attempt}}) نشان داد که یک مصنوع
 می‌تواند زیان کاهنده و ظاهر موفق داشته باشد و در همان حال هیچ ادعای
 معناداری را پشتیبانی نکند. برای پرهیز از تکرار این وضعیت، پنج قاعده
 عملیاتی تعریف و در کد اعمال شد.

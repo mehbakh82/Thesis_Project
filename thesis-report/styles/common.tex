@@ -5,7 +5,7 @@
 
 
 \usepackage{amssymb,amsmath}
-\usepackage[colorlinks,linkcolor=blue,citecolor=blue]{hyperref}
+\usepackage[colorlinks,linkcolor=blue,citecolor=blue,urlcolor=blue,filecolor=blue]{hyperref}
 \usepackage[usenames,dvipsnames]{pstricks}
 \usepackage{graphicx,subfigure,wrapfig}
 \usepackage{geometry}
@@ -32,6 +32,33 @@
 \usepackage[localize=on,extrafootnotefeatures]{xepersian}
 \usepackage[noend]{algpseudocode}
 \input{styles/alg-fa}
+
+% bidi/xepersian reset hyperref colours after they load. Internal links and
+% citations were already blue; URLs defaulted to magenta unless restated here.
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue,
+  filecolor=blue,
+  runcolor=blue
+}
+
+% hyperref + bidi can split a \ref link's start/end markers across a line
+% break, or reorder them inside an RTL paragraph. The PDF then paints one
+% full-width annotation over two lines (seen on شکل~\ref{fig:arch},
+% بخش~\ref{sec:early-attempt}, and جدول~\ref{tab:req-status} in the full
+% report). An \mbox keeps those markers on one line. The copy is taken
+% after hyperref has finished patching \ref, and \RenewDocumentCommand
+% is required because \DeclareRobustCommand will not overwrite \ref.
+\AddToHook{begindocument/end}{%
+  \NewCommandCopy{\ThesisOrigRef}{\ref}%
+  \RenewDocumentCommand{\ref}{s m}{%
+    \IfBooleanTF{#1}%
+      {\mbox{\ThesisOrigRef*{#2}}}%
+      {\mbox{\ThesisOrigRef{#2}}}%
+  }%
+}
 
 
 % -------------------- Page Layout --------------------

@@ -41,23 +41,23 @@
 \label{sec:cascade}
 
 سامانه تحویل‌شده یک زنجیره آبشاری با کنترل تمام‌دوطرفه بیرونی است
-(شکل~\ref{fig:arch}). پیاده‌سازی بر \en{PyTorch}~\cite{paszke2019pytorch}
+(\mbox{شکل~\ref{fig:arch}}). پیاده‌سازی بر \en{PyTorch}~\cite{paszke2019pytorch}
 و \en{Transformers}~\cite{wolf2020transformers} استوار است.
 
 \begin{figure}[ht]
 \centering
 \begin{latin}
-\scalebox{0.88}{%
+\scalebox{0.95}{%
 \begin{tikzpicture}[
   box/.style={draw,rounded corners=2pt,align=center,font=\scriptsize,
               minimum height=9mm,inner sep=3pt,text width=24mm},
   client/.style={box,fill=black!5},
-  lbl/.style={font=\tiny,inner sep=1.5pt,fill=white},
+  lbl/.style={font=\scriptsize,inner sep=1.5pt,fill=white},
   ar/.style={-{Latex[length=1.8mm]},thin},
   dashar/.style={ar,dashed}
 ]
 \node[client] (mic) at (0,0) {continuous mic\\16 kHz PCM16};
-\node[box] (feat) at (3.1,0)   {rolling features\\energy / $F_0$ / MFCC};
+\node[box] (feat) at (3.1,0)   {rolling features\\energy / F0 / MFCC};
 \node[box] (det)  at (6.2,0)   {GBDT barge-in\\classifier};
 \node[box] (ctl)  at (9.3,0)   {playback\\controller};
 \node[box] (asr)  at (3.1,-2.3) {NeMo Persian\\ASR};
@@ -69,14 +69,13 @@
 \draw[ar] (det)  -- (ctl);
 \draw[ar] (asr)  -- (llm);
 \draw[ar] (llm)  -- (tts);
-\draw[ar] (mic.south) -- ++(0,-1.4) -- (asr.west)
-      node[lbl,pos=0.62] {end of speech};
-\draw[ar] (tts.east) -- (spk.south west)
-      node[lbl,pos=0.5] {full PCM reply};
+\draw[ar] (mic.south) |- (asr.west)
+      node[lbl,pos=0.18] {end of speech};
+\draw[ar] (tts.east) -- (spk.south west);
 \draw[ar] (ctl.east) -- (spk.north west)
-      node[lbl,pos=0.5] {stop source};
-\draw[dashar] (ctl.north) -- ++(0,0.8) -| (asr.north)
-      node[lbl,pos=0.3] {450 ms pre-roll becomes next turn};
+      node[lbl,pos=0.55] {stop source};
+\draw[dashar] (ctl.south) -- ++(0,-0.50) -| (asr.north)
+      node[lbl,pos=0.42] {450 ms pre-roll to next turn};
 \end{tikzpicture}}
 \end{latin}
 \caption{معماری سامانه تحویل‌شده. ردیف بالا مسیر کنترل تمام‌دوطرفه و ردیف
