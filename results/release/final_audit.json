@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-09-07T17:39:51Z",
-  "audited_commit": "0002e352d88dff39002a61e5b278c19199a60436",
+  "generated_at": "2026-09-07T17:59:02Z",
+  "audited_commit": "bcb8f3a29879a62d43473c3e7a02f9545ef5a23a",
   "git_identity": {
     "author": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>",
     "committer": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>"
@@ -31,7 +31,7 @@
     "pytest": {
       "status": "passed",
       "tests": 206,
-      "seconds": 10.74
+      "seconds": 17.05
     },
     "branch_coverage": {
       "status": "passed",
@@ -221,6 +221,12 @@
       "worst_overfull_hbox_pt": 0.0
     },
     "scientific_figures_regenerated_to_temporary_output": 8,
+    "bibliography": {
+      "cited_keys": 50,
+      "tracked_entries": 50,
+      "missing_keys": 0,
+      "unused_entries": 0
+    },
     "chat_markdown_files_tracked": 0,
     "template_attribution_retained": true,
     "template_license": "CC-BY-4.0",
