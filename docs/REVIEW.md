@@ -296,8 +296,9 @@ Added:
    speech path.
 5. Select the project source-code license. This is separate from permission to
    train internally on the restricted source corpus.
-6. Reconcile the final manuscript/tables, freeze hashes and evidence, tag/push
-   the submission, and verify a fresh full-history clone.
+6. Copy the reconciled repository-provided text/tables into the private
+   manuscript and verify its bibliography. The code/evidence bundle itself is
+   frozen under `submission-final-qwen4b-2026-09-07`.
 
 Another speculative direct-model training run is not recommended. It has no
 validated corrective hypothesis. The rational deadline strategy is to lead

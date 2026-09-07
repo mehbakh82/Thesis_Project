@@ -107,15 +107,13 @@ The project now has the positive automatic semantic result needed for
 submission. The frozen Qwen3-4B prompt-v2 cascade—not direct Moshi—is the
 production candidate. Direct Moshika remains a valuable negative ablation.
 
-The submission-critical tasks, in order, are:
+The remaining student/external tasks are:
 
 1. Copy the reconciled abstract, conclusion, and result tables from
    `docs/THESIS_REPORTING_FA.md` into the private thesis manuscript.
 2. Choose a source-code license; this is the only remaining repository decision
    that requires the student.
-3. Run the final release audit, regenerate the snapshot, commit/tag, push, and
-   verify remote parity.
-4. If and only if a physical 12–24 GB target GPU becomes available before the
+3. If and only if a physical 12–24 GB target GPU becomes available before the
    freeze, run the already documented live-browser hardware/latency protocol.
 
 The strict-rubric research gaps remain independently human-reviewed detector
@@ -921,6 +919,14 @@ Final engineering audit:
   coverage is 65%; all 362 tracked files pass the history/privacy/secret audit;
   general dependencies have zero known vulnerabilities; the exact 56-advisory
   scientific exception baseline and all nine upstream pins pass.
+- [x] Run the final Qwen3-4B release audit on 2026-09-07: exact 4B runtime
+  initialization and first-attempt Persian generation passed without fallback;
+  compile/Ruff/mypy passed; all 205 tests passed in 15.80 seconds; branch
+  coverage was 65%; all 384 tracked files passed full-history/privacy/secret
+  audit; the general dependency environment had zero known vulnerabilities;
+  the exact scientific-risk exception had no drift; and all ten upstream pins
+  passed. The 40-row final-test certificate remained hash-verified with 240/240
+  valid judge calls and all seven automatic gates passed.
 - [x] Verify the CI-portable pre-license evidence freeze at `fe32e6a`:
   GitHub Actions run `34029248788` passed every stage, including compile,
   Ruff, mypy, the 362-file history/privacy/secret audit, general dependency
@@ -970,6 +976,10 @@ Final engineering audit:
   release-record commit is frozen as `submission-final-prelicense-2026-09-06`;
   its full-history clone, identity, snapshot, tracked-artifact audit, test
   suite, remote parity, and tag-triggered CI are independently verified.
+- [x] Freeze the positive Qwen3-4B release as
+  `submission-final-qwen4b-2026-09-07`; its final snapshot binds the new
+  protocol, eligibility report, final-test report, runtime, attribution,
+  aggregate evidence, audit receipt, and thesis-ready documentation.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.
