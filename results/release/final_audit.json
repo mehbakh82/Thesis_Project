@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-09-07T13:29:55Z",
-  "audited_commit": "93e55ab8e3c40bba0f857c99c649bd15d92e9773",
+  "generated_at": "2026-09-07T17:39:51Z",
+  "audited_commit": "0002e352d88dff39002a61e5b278c19199a60436",
   "git_identity": {
     "author": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>",
     "committer": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>"
@@ -31,7 +31,7 @@
     "pytest": {
       "status": "passed",
       "tests": 206,
-      "seconds": 15.89
+      "seconds": 10.74
     },
     "branch_coverage": {
       "status": "passed",
@@ -196,14 +196,15 @@
     "directory": "thesis-report",
     "tracked_files": 67,
     "latex_source_files": 32,
-    "source_tree_git_oid": "f2ece55f9ae3f1a58b14eabf77c77ba56cba1607",
-    "source_files_modified_during_integration": false,
+    "source_tree_git_oid": "9ac2619efa6c0bccc11d1534282c33250de65a8a",
+    "release_iteration": 2,
+    "assistant_modified_report_sources_during_release_integration": false,
     "validation_method": "full rebuild of an isolated temporary copy",
     "texlive_image_resolved": "ghcr.io/xu-cheng/texlive-full@sha256:11383430b9a3e48c0b79339f34d8092f942f897d91ab3749d4899d06731fea7f",
     "full": {
       "path": "thesis-report/thesis.pdf",
-      "sha256": "d55ada85b3e91c9c6b4be4a6c1e619ea1eac669d778d6942a0c7c1fd817b58da",
-      "bytes": 553583,
+      "sha256": "4a70960c41389ebb3ba9621ab6d1c2b716c00b8e4e613ab30a3e21abfd8ea060",
+      "bytes": 553385,
       "pages": 100,
       "latex_errors": 0,
       "undefined_references_or_citations": 0,
@@ -211,8 +212,8 @@
     },
     "concise": {
       "path": "thesis-report/thesis-short.pdf",
-      "sha256": "eb7f9b4276401ca8f0e92009c07f43f66295e4c971ad1593551bbd55688ba490",
-      "bytes": 245706,
+      "sha256": "f6743059660d025d5af9c478eb3b7e49b48f0d81a16055a849756c8cad3e4b19",
+      "bytes": 244409,
       "pages": 29,
       "page_limit": 30,
       "latex_errors": 0,

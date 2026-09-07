@@ -232,11 +232,14 @@ establishes repository reproducibility; it does not change any scientific
 acceptance result above.
 
 The final full and concise Persian reports are included with their LaTeX
-sources under `thesis-report/` and frozen as
-`submission-final-reports-2026-09-07`. The full PDF is 100 pages with SHA-256
-`d55ada85b3e91c9c6b4be4a6c1e619ea1eac669d778d6942a0c7c1fd817b58da`;
+sources under `thesis-report/`. The initial report release remains preserved
+as `submission-final-reports-2026-09-07`; the current readability, RTL-link,
+and architecture-diagram refinements are frozen as
+`submission-final-reports-v2-2026-09-07`. The full PDF is 100 pages with
+SHA-256
+`4a70960c41389ebb3ba9621ab6d1c2b716c00b8e4e613ab30a3e21abfd8ea060`;
 the concise PDF is 29 pages with SHA-256
-`eb7f9b4276401ca8f0e92009c07f43f66295e4c971ad1593551bbd55688ba490`.
+`f6743059660d025d5af9c478eb3b7e49b48f0d81a16055a849756c8cad3e4b19`.
 Both sources rebuilt cleanly in an isolated temporary copy. The report source
 retains the upstream template attribution and its CC-BY-4.0 boundary; the
 repository Apache-2.0 license does not relicense that template or its bundled

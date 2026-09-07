@@ -996,10 +996,13 @@ Final engineering audit:
   `submission-final-apache2-2026-09-07`; its regenerated evidence, audit,
   snapshot, branch/tag CI, and fresh full-history clone verification preserve
   the positive Qwen3-4B result and the non-promotion boundary for Qwen3.5.
-- [x] Prepare the final manuscript release as
-  `submission-final-reports-2026-09-07`: exact chat transcript filenames and
-  LaTeX auxiliary outputs are ignored, while both final PDFs, LaTeX sources,
-  bibliography, figures, fonts, and template support files are release-bound.
+- [x] Preserve the initial manuscript release as
+  `submission-final-reports-2026-09-07`, then freeze the validated readability,
+  RTL-link, and architecture-diagram refinements as
+  `submission-final-reports-v2-2026-09-07`. Exact chat transcript filenames
+  and LaTeX auxiliary outputs remain ignored, while both final PDFs, LaTeX
+  sources, bibliography, figures, fonts, and template support files are
+  release-bound.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.
