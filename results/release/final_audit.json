@@ -54,7 +54,7 @@
   },
   "runtime_attribution": {
     "status": "passed",
-    "focused_tests": 5,
+    "focused_tests": 4,
     "locked_upstreams": 10,
     "qwen_runtime": {
       "model": "Qwen/Qwen3-4B-Instruct-2507",
