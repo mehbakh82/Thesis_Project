@@ -971,8 +971,12 @@ Final engineering audit:
 - [x] Repeat the final snapshot/tag verification after selecting the source
   license; the Apache-2.0 handoff is frozen as
   `submission-final-apache2-2026-09-07`.
-- [ ] Repeat the final snapshot/tag verification if a later
-  manuscript artifact, physical-4090 result, or human result is later added.
+- [x] Repeat the local audit and final snapshot/tag process after adding the
+  manuscript artifact: the untouched report source tree and both final PDFs
+  are tracked under `thesis-report/`; an isolated rebuild produced a clean
+  100-page full edition and a clean 29-page concise edition. The PDF hashes,
+  page counts, source-tree object, retained CC-BY-4.0 template attribution,
+  and Apache-2.0 boundary are recorded in the final audit.
 - [x] Confirm no raw YouTube media, private source documents, participant
   identifiers, credentials, environments, caches, or restricted weights are
   tracked in any reachable revision.
@@ -992,6 +996,10 @@ Final engineering audit:
   `submission-final-apache2-2026-09-07`; its regenerated evidence, audit,
   snapshot, branch/tag CI, and fresh full-history clone verification preserve
   the positive Qwen3-4B result and the non-promotion boundary for Qwen3.5.
+- [x] Prepare the final manuscript release as
+  `submission-final-reports-2026-09-07`: exact chat transcript filenames and
+  LaTeX auxiliary outputs are ignored, while both final PDFs, LaTeX sources,
+  bibliography, figures, fonts, and template support files are release-bound.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.
@@ -1010,19 +1018,17 @@ privacy-safe repository at approved visibility, restricted handoff, immutable ta
 | 12–24 GB evaluation | Full model fits/runs officially on physical 4090 | Pending | Preflight, VRAM, telemetry |
 | Human evaluation | 5–10 Persian speakers, ≥2 aged 60+, complete ratings | Pending | Study summary/analysis |
 | Elderly findings | Evidence from ≥2 aged 60+, cautiously interpreted | Pending | Age-stratified results |
-| Documented code/dataset | Reproducible code/metadata at approved visibility; restricted corpus handled per approval | Implemented, Apache-2.0 licensed for project-owned source/documentation, snapshot-bound, remotely verified, fresh-clone verified, and frozen under `submission-final-apache2-2026-09-07`; restricted artifacts retain separate terms | Final repo/provenance/handoff |
+| Documented code/dataset | Reproducible code/metadata at approved visibility; restricted corpus handled per approval | Implemented, Apache-2.0 licensed for project-owned source/documentation, with final full/concise report PDFs and sources included under `thesis-report/`; the adapted template retains CC-BY-4.0 attribution and restricted artifacts retain separate terms | Final repo/provenance/handoff/report audit |
 
 ## Inputs required from the student
 
-1. Reconcile the thesis manuscript/abstract/conclusion with the exact claim
-   boundaries in `docs/SUBMISSION_RESULTS.md`.
-2. If protected `main` is required, authorize an eligible GitHub plan or a
+1. If protected `main` is required, authorize an eligible GitHub plan or a
    visibility change.
-3. Provide the physical 4090 if it becomes available before the submission
+2. Provide the physical 4090 if it becomes available before the submission
    freeze; otherwise report the official hardware/latency gate as unavailable.
-4. Arrange the consented 5–10-person study with at least two participants aged
+3. Arrange the consented 5–10-person study with at least two participants aged
    60+, or obtain a written scope amendment.
-5. Optional strict-path recovery only: complete the preserved 40-row and 24-row
+4. Optional strict-path recovery only: complete the preserved 40-row and 24-row
    listening sheets. They are deliberately waived—not fabricated—for the active
    limited run and do not block its export/probe/training path.
 

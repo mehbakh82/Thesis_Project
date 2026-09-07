@@ -231,6 +231,18 @@ verification. The ignored private validation manifest remains absent. This
 establishes repository reproducibility; it does not change any scientific
 acceptance result above.
 
+The final full and concise Persian reports are included with their LaTeX
+sources under `thesis-report/` and frozen as
+`submission-final-reports-2026-09-07`. The full PDF is 100 pages with SHA-256
+`d55ada85b3e91c9c6b4be4a6c1e619ea1eac669d778d6942a0c7c1fd817b58da`;
+the concise PDF is 29 pages with SHA-256
+`eb7f9b4276401ca8f0e92009c07f43f66295e4c971ad1593551bbd55688ba490`.
+Both sources rebuilt cleanly in an isolated temporary copy. The report source
+retains the upstream template attribution and its CC-BY-4.0 boundary; the
+repository Apache-2.0 license does not relicense that template or its bundled
+support assets. Private chat Markdown and LaTeX auxiliary outputs are absent
+from the release.
+
 Local Qwen3.5-0.8B and Qwen3.5-4B checkpoints both initialized and emitted
 Persian in bounded synthetic text-only compatibility smokes. The 0.8B model is
 a useful future low-memory/latency ablation and the 4B model is a plausible
@@ -243,14 +255,12 @@ A copy-ready Persian abstract, methods/results tables, discussion, limitations,
 and conclusion—bounded to these exact evidence classes—are provided in
 `docs/THESIS_REPORTING_FA.md`.
 
-1. Copy the two result tables and safe wording above into the thesis; update
-   abstract, methods, results, discussion, limitations, and conclusion.
-2. Apache-2.0 is selected for repository-owned source and documentation. It
+1. Apache-2.0 is selected for repository-owned source and documentation. It
    does not relicense third-party components, weights, data, adapters,
    restricted media, generated derivatives, or participant material.
-3. Regenerate the release only if a tracked manuscript artifact,
-   physical-target result, or human result is later added.
-4. Run the physical-target/browser protocol only if suitable hardware arrives
+2. Regenerate the release only if the manuscript, a physical-target result,
+   or a human result is later added.
+3. Run the physical-target/browser protocol only if suitable hardware arrives
    before the freeze. Otherwise report it as unavailable future work.
 
 Human study, independent detector labels, waived listening QA, and a redesigned

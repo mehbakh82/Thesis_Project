@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-09-07T06:27:07Z",
-  "audited_commit": "aae9dec03f0c74477745e6b9c0c44c95fd05e189",
+  "generated_at": "2026-09-07T13:29:55Z",
+  "audited_commit": "93e55ab8e3c40bba0f857c99c649bd15d92e9773",
   "git_identity": {
     "author": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>",
     "committer": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>"
@@ -22,7 +22,7 @@
     },
     "tracked_artifact_history_privacy_secret_audit": {
       "status": "passed",
-      "tracked_files": 386
+      "tracked_files": 454
     },
     "general_dependency_audit": {
       "status": "passed",
@@ -31,7 +31,7 @@
     "pytest": {
       "status": "passed",
       "tests": 206,
-      "seconds": 16.36
+      "seconds": 15.89
     },
     "branch_coverage": {
       "status": "passed",
@@ -76,7 +76,7 @@
     "source_code_license": "Apache-2.0",
     "license_sha256": "183c5508dbf8d5f8571728dcf16cf3da23fd308011d7053dc7949c8479dd16e9",
     "citation_sha256": "524812220340c3740e35e9f3a4f3106a01c00fdcb769b2ea2140a7bcbe3de215",
-    "third_party_notices_sha256": "8855250d8cb0d631b8e6fc0307b674feceb55188c3d96acf598d228685018536",
+    "third_party_notices_sha256": "bc9a1ce3355528d1e9f46a06f466b73fd97746f6c65833ebf492de67ec69e358",
     "upstreams_lock_sha256": "a66f2d2b6412c92edfb66f114915a52c1145b59b576b0e24156f262de290fba8",
     "test_sha256": "88559cb039daff58831dd6ba1f1075766c9615aa5f473fd7e61d423c3b983a28"
   },
@@ -190,6 +190,40 @@
     "wheel_contains_license": true,
     "wheel_metadata_license_file": "LICENSE",
     "third_party_and_restricted_artifacts_explicitly_excluded": true
+  },
+  "thesis_reports": {
+    "status": "passed",
+    "directory": "thesis-report",
+    "tracked_files": 67,
+    "latex_source_files": 32,
+    "source_tree_git_oid": "f2ece55f9ae3f1a58b14eabf77c77ba56cba1607",
+    "source_files_modified_during_integration": false,
+    "validation_method": "full rebuild of an isolated temporary copy",
+    "texlive_image_resolved": "ghcr.io/xu-cheng/texlive-full@sha256:11383430b9a3e48c0b79339f34d8092f942f897d91ab3749d4899d06731fea7f",
+    "full": {
+      "path": "thesis-report/thesis.pdf",
+      "sha256": "d55ada85b3e91c9c6b4be4a6c1e619ea1eac669d778d6942a0c7c1fd817b58da",
+      "bytes": 553583,
+      "pages": 100,
+      "latex_errors": 0,
+      "undefined_references_or_citations": 0,
+      "worst_overfull_hbox_pt": 0.93268
+    },
+    "concise": {
+      "path": "thesis-report/thesis-short.pdf",
+      "sha256": "eb7f9b4276401ca8f0e92009c07f43f66295e4c971ad1593551bbd55688ba490",
+      "bytes": 245706,
+      "pages": 29,
+      "page_limit": 30,
+      "latex_errors": 0,
+      "undefined_references_or_citations": 0,
+      "worst_overfull_hbox_pt": 0.0
+    },
+    "scientific_figures_regenerated_to_temporary_output": 8,
+    "chat_markdown_files_tracked": 0,
+    "template_attribution_retained": true,
+    "template_license": "CC-BY-4.0",
+    "project_license_boundary_documented": true
   },
   "qwen35_local_compatibility": {
     "status": "passed",
