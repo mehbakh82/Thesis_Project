@@ -1,0 +1,73 @@
+
+% -------------------------------------------------------
+%  Custom Definitions
+% -------------------------------------------------------
+
+
+\newcommand{\OPT}{\ensuremath{\mathop{\mathrm{OPT}}}}
+\newcommand{\APX}{\ensuremath{\mathop{\mathrm{APX}}}}
+\newcommand{\ALG}{\ensuremath{\mathop{\mathrm{ALG}}}}
+
+
+% -------------------- Latin and Mono Fonts --------------------
+
+% Free substitutes available in any full TeX Live installation, so the document
+% builds without relying on system-installed commercial fonts.
+\setlatintextfont[Scale=0.94]{TeX Gyre Termes}
+\setmonofont[Scale=0.86]{DejaVu Sans Mono}
+
+
+% -------------------- Math Digits --------------------
+
+% xepersian maps digits inside math mode onto the Persian digit font, which
+% turns a subscript such as $F_0$ into "F٠" -- visually a full stop. Formulae
+% therefore keep Latin digits, while structural counters (including equation
+% numbers) stay Persian.
+\DefaultMathDigits
+
+
+% -------------------- Numeric Values --------------------
+
+% xepersian maps ASCII digits onto the Persian digit font, and bidi then treats
+% a decimal point or thousands separator as a run boundary. The two digit groups
+% around the separator are consequently reordered, so "3.150" is typeset as
+% "150.3". Wrapping the value in an explicit left-to-right run avoids the
+% reordering. Every measured quantity in this thesis therefore uses \N{...},
+% while structural counters (chapters, sections, pages, captions) keep the
+% automatic Persian digits.
+\newcommand{\N}[1]{\lr{#1}}
+% Missing measured value in a numeric table cell. An ASCII em-dash (---)
+% is typeset as a heavy rule in this template; an explicit LTR en-dash
+% stays a compact placeholder.
+\newcommand{\ناموجود}{\lr{--}}
+
+% Latin technical terms and identifiers inside Persian sentences.
+\newcommand{\en}[1]{\lr{#1}}
+
+
+% -------------------- Table Helpers --------------------
+
+% Right-aligned numeric column and a fixed-width left-aligned text column.
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% -------------------- Page Breaking --------------------
+
+% Avoid single lines stranded at the top or bottom of a page.
+\widowpenalty=10000
+\clubpenalty=10000
+\displaywidowpenalty=10000
+
+
+% -------------------- Claim Boundaries --------------------
+
+% A claim-boundary note stating what a result may and may not be used to
+% assert. Wrapped in a minipage so the note is never split across pages and
+% always stays with the result it qualifies.
+\newcommand{\مرزادعا}[1]{%
+  \par\vspace{0.15em}%
+  \noindent\begin{minipage}{\linewidth}%
+    {\footnotesize\itshape #1\par}%
+  \end{minipage}%
+  \par\vspace{0.35em}}
+

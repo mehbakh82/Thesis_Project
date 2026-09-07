@@ -17,7 +17,19 @@ from thesis_s2s.data.qa_policy import load_qa_waiver
 from thesis_s2s.metrics import gpu_inventory, write_json
 
 SHA256_RE = re.compile(r"^[0-9a-f]{40}$")
-SNAPSHOT_DIRS = ("configs", "docs", "scripts", "src", "tests")
+SNAPSHOT_DIRS = ("configs", "docs", "scripts", "src", "tests", "thesis-report")
+SNAPSHOT_EXCLUDED_SUFFIXES = {
+    ".aux",
+    ".bbl",
+    ".blg",
+    ".fdb_latexmk",
+    ".fls",
+    ".lof",
+    ".log",
+    ".lot",
+    ".out",
+    ".toc",
+}
 SNAPSHOT_FILES = (
     ".env.example",
     ".gitignore",
@@ -1134,7 +1146,8 @@ def release_snapshot(out_json: Path | None = None) -> dict:
                 if path.is_file()
                 and "__pycache__" not in path.parts
                 and not any(part.endswith(".egg-info") for part in path.parts)
-                and path.suffix not in {".pyc", ".orig", ".rej"}
+                and path.suffix
+                not in SNAPSHOT_EXCLUDED_SUFFIXES | {".pyc", ".orig", ".rej"}
             )
     paths.update(root / name for name in SNAPSHOT_FILES if (root / name).is_file())
     for pattern in SNAPSHOT_GLOBS:

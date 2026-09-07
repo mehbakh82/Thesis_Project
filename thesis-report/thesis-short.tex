@@ -1,0 +1,50 @@
+% Concise edition of the B.Sc. project report (maximum 30 pages).
+% The full seven-chapter report remains in thesis.tex / thesis.pdf.
+
+\documentclass[oneside,a4paper,12pt]{book}
+
+\input{styles/common.tex}
+\input{styles/custom.tex}
+
+% Slightly tighter than the full report so the 30-page cap is met by
+% cutting front/back matter and compressing chapters, not by shrinking type
+% to an unreadable size. 12 pt body type is unchanged.
+\renewcommand{\baselinestretch}{1.22}
+\linespread{1.38}
+\setlength{\parskip}{0.22em}
+\setcounter{tocdepth}{1}
+\raggedbottom
+
+\renewcommand{\مرزادعا}[1]{%
+  \par\vspace{0.08em}%
+  \noindent\begin{minipage}{\linewidth}%
+    {\footnotesize\itshape #1\par}%
+  \end{minipage}%
+  \par\vspace{0.18em}}
+
+\begin{document}
+
+\include{front/info}
+\pagestyle{empty}
+\include{front/template/title-short}
+
+\pagestyle{plain}
+\pagenumbering{tartibi}
+\include{front/abstract}
+
+\tableofcontents
+
+\pagenumbering{arabic}
+\include{chapters/short/introduction}
+\include{chapters/short/background}
+\include{chapters/short/method}
+\include{chapters/short/results}
+\include{chapters/short/conclusions}
+
+\include{bibs/bibs}
+
+\pagestyle{empty}
+\include{front/abstract-eng}
+\include{front/template/title-eng-short}
+
+\end{document}

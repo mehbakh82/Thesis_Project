@@ -22,6 +22,20 @@ rclone.conf
 # local thesis planning and source-definition documents
 /cursor_bsc_thesis_project_planning.md
 /تعریف پروژه.docx
+/codex_review_and_improve_thesis_project.md
+/cursor_bsc_thesis_project_report.md
+
+# LaTeX build products (the two final report PDFs remain tracked)
+/thesis-report/**/*.aux
+/thesis-report/**/*.bbl
+/thesis-report/**/*.blg
+/thesis-report/**/*.fdb_latexmk
+/thesis-report/**/*.fls
+/thesis-report/**/*.lof
+/thesis-report/**/*.log
+/thesis-report/**/*.lot
+/thesis-report/**/*.out
+/thesis-report/**/*.toc
 
 # large data
 data/raw/

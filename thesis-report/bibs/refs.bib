@@ -1,0 +1,589 @@
+%-----------------------------------------------------
+%
+%  References for:
+%  A Speech-to-Speech Large Language Model for Persian
+%  Mehran Bakhtiari, B.Sc. project, 2026
+%
+%-----------------------------------------------------
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% End-to-end and full-duplex spoken dialogue models
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@techreport{defossez2024moshi,
+  title     = {Moshi: A Speech-Text Foundation Model for Real-Time Dialogue},
+  author    = {D{\'e}fossez, Alexandre and Mazar{\'e}, Laurent and Orsini, Manu
+               and Royer, Am{\'e}lie and P{\'e}rez, Patrick and J{\'e}gou, Herv{\'e}
+               and Grave, Edouard and Zeghidour, Neil},
+  institution = {Kyutai},
+  year      = {2024},
+  note      = {arXiv:2410.00037},
+  url       = {https://arxiv.org/abs/2410.00037}
+}
+
+@inproceedings{fang2025llamaomni2,
+  title     = {{LLaMA-Omni 2}: {LLM}-Based Real-Time Spoken Chatbot with
+               Autoregressive Streaming Speech Synthesis},
+  author    = {Fang, Qingkai and Zhou, Yan and Guo, Shoutao and
+               Zhang, Shaolei and Feng, Yang},
+  booktitle = {Proceedings of the 63rd Annual Meeting of the Association for
+               Computational Linguistics (Volume 1: Long Papers)},
+  pages     = {18617--18629},
+  address   = {Vienna, Austria},
+  publisher = {Association for Computational Linguistics},
+  year      = {2025},
+  doi       = {10.18653/v1/2025.acl-long.912}
+}
+
+@inproceedings{fang2025llamaomni,
+  title     = {{LLaMA-Omni}: Seamless Speech Interaction with Large Language Models},
+  author    = {Fang, Qingkai and Guo, Shoutao and Zhou, Yan and Ma, Zhengrui and
+               Zhang, Shaolei and Feng, Yang},
+  booktitle = {Proceedings of the 13th International Conference on Learning
+               Representations},
+  year      = {2025}
+}
+
+@article{xie2024miniomni2,
+  title   = {{Mini-Omni2}: Towards Open-Source {GPT-4o} with Vision, Speech and
+             Duplex Capabilities},
+  author  = {Xie, Zhifei and Wu, Changqiao},
+  journal = {arXiv preprint arXiv:2410.11190},
+  year    = {2024},
+  url     = {https://arxiv.org/abs/2410.11190}
+}
+
+@inproceedings{wang2025freezeomni,
+  title     = {{Freeze-Omni}: A Smart and Low Latency Speech-to-Speech Dialogue
+               Model with Frozen {LLM}},
+  author    = {Wang, Xiong and Li, Yangze and Fu, Chaoyou and Zhang, Yike and
+               Shen, Yunhang and Xie, Lei and Li, Ke and Sun, Xing and Ma, Long},
+  booktitle = {Proceedings of the 42nd International Conference on Machine
+               Learning},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {267},
+  pages     = {63345--63354},
+  publisher = {PMLR},
+  year      = {2025}
+}
+
+@article{xu2025qwen25omni,
+  title   = {{Qwen2.5-Omni} Technical Report},
+  author  = {Xu, Jin and Guo, Zhifang and He, Jinzheng and Hu, Hangrui and
+             He, Ting and Bai, Shuai and Chen, Keqin and Wang, Jialin and
+             Fan, Yang and Dang, Kai and Zhang, Bin and Wang, Xiong and
+             Chu, Yunfei and Lin, Junyang},
+  journal = {arXiv preprint arXiv:2503.20215},
+  year    = {2025},
+  url     = {https://arxiv.org/abs/2503.20215}
+}
+
+@misc{roy2026personaplex,
+  title   = {{PersonaPlex}: Voice and Role Control for Full Duplex
+             Conversational Speech Models},
+  author  = {Roy, Rajarshi and Raiman, Jonathan and Lee, Sang-gil and
+             Ene, Teodor-Dumitru and Kirby, Robert and Kim, Sungwon and
+             Kim, Jaehyeon and Catanzaro, Bryan},
+  year    = {2026},
+  note    = {arXiv:2602.06053},
+  url     = {https://arxiv.org/abs/2602.06053}
+}
+
+@article{nguyen2023dgslm,
+  title   = {Generative Spoken Dialogue Language Modeling},
+  author  = {Nguyen, Tu Anh and Kharitonov, Eugene and Copet, Jade and
+             Adi, Yossi and Hsu, Wei-Ning and Elkahky, Ali and
+             Tomasello, Paden and Algayres, Robin and Sagot, Beno{\^\i}t and
+             Mohamed, Abdelrahman and Dupoux, Emmanuel},
+  journal = {Transactions of the Association for Computational Linguistics},
+  volume  = {11},
+  pages   = {250--266},
+  year    = {2023}
+}
+
+@article{zeng2024glm4voice,
+  title   = {{GLM-4-Voice}: Towards Intelligent and Human-Like End-to-End Spoken
+             Chatbot},
+  author  = {Zeng, Aohan and Du, Zhengxiao and Liu, Mingdao and Wang, Kedong and
+             Jiang, Shengmin and Zhao, Lei and Dong, Yuxiao and Tang, Jie},
+  journal = {arXiv preprint arXiv:2412.02612},
+  year    = {2024}
+}
+
+@article{du2024cosyvoice2,
+  title   = {{CosyVoice 2}: Scalable Streaming Speech Synthesis with Large
+             Language Models},
+  author  = {Du, Zhihao and Wang, Yuxuan and Chen, Qian and Shi, Xian and
+             Lv, Xiang and Zhao, Tianyu and Gao, Zhifu and Yang, Yexin and
+             Gao, Changfeng and Wang, Hui and Yu, Fan and Liu, Huadai and
+             Sheng, Zhengyan and Gu, Yue and Deng, Chong and Wang, Wen and
+             Zhang, Shiliang and Yan, Zhijie and Zhou, Jingren},
+  journal = {arXiv preprint arXiv:2412.10117},
+  year    = {2024}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Text language models used in the cascade
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@article{qwen2025qwen25,
+  title   = {{Qwen2.5} Technical Report},
+  author  = {Yang, An and Yang, Baosong and Zhang, Beichen and Hui, Binyuan and
+             Zheng, Bo and Yu, Bowen and Li, Chengyuan and Liu, Dayiheng and
+             Huang, Fei and Wei, Haoran and Lin, Huan and Yang, Jian and
+             Tu, Jianhong and Zhang, Jianwei and Yang, Jianxin and Zhou, Jingren
+             and Lin, Junyang and Dang, Kai and Others},
+  journal = {arXiv preprint arXiv:2412.15115},
+  year    = {2025},
+  url     = {https://arxiv.org/abs/2412.15115}
+}
+
+@article{qwen2025qwen3,
+  title   = {{Qwen3} Technical Report},
+  author  = {Yang, An and Li, Anfeng and Yang, Baosong and Zhang, Beichen and
+             Hui, Binyuan and Zheng, Bo and Yu, Bowen and Gao, Chang and
+             Huang, Chengen and Lv, Chenxu and Others},
+  journal = {arXiv preprint arXiv:2505.09388},
+  year    = {2025},
+  url     = {https://arxiv.org/abs/2505.09388}
+}
+
+@inproceedings{vaswani2017attention,
+  title     = {Attention Is All You Need},
+  author    = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and
+               Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N. and
+               Kaiser, {\L}ukasz and Polosukhin, Illia},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {30},
+  pages     = {5998--6008},
+  year      = {2017}
+}
+
+@inproceedings{ouyang2022instructgpt,
+  title     = {Training Language Models to Follow Instructions with Human
+               Feedback},
+  author    = {Ouyang, Long and Wu, Jeffrey and Jiang, Xu and Almeida, Diogo and
+               Wainwright, Carroll and Mishkin, Pamela and Zhang, Chong and
+               Agarwal, Sandhini and Slama, Katarina and Ray, Alex and
+               Others},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {35},
+  pages     = {27730--27744},
+  year      = {2022}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Parameter-efficient adaptation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@inproceedings{hu2022lora,
+  title     = {{LoRA}: Low-Rank Adaptation of Large Language Models},
+  author    = {Hu, Edward J. and Shen, Yelong and Wallis, Phillip and
+               Allen-Zhu, Zeyuan and Li, Yuanzhi and Wang, Shean and
+               Wang, Lu and Chen, Weizhu},
+  booktitle = {Proceedings of the 10th International Conference on Learning
+               Representations},
+  year      = {2022}
+}
+
+@inproceedings{houlsby2019adapters,
+  title     = {Parameter-Efficient Transfer Learning for {NLP}},
+  author    = {Houlsby, Neil and Giurgiu, Andrei and Jastrzebski, Stanislaw and
+               Morrone, Bruna and De Laroussilhe, Quentin and Gesmundo, Andrea
+               and Attariyan, Mona and Gelly, Sylvain},
+  booktitle = {Proceedings of the 36th International Conference on Machine
+               Learning},
+  pages     = {2790--2799},
+  year      = {2019}
+}
+
+@inproceedings{li2021prefixtuning,
+  title     = {Prefix-Tuning: Optimizing Continuous Prompts for Generation},
+  author    = {Li, Xiang Lisa and Liang, Percy},
+  booktitle = {Proceedings of the 59th Annual Meeting of the Association for
+               Computational Linguistics},
+  pages     = {4582--4597},
+  year      = {2021}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Speech recognition
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@inproceedings{radford2023whisper,
+  title     = {Robust Speech Recognition via Large-Scale Weak Supervision},
+  author    = {Radford, Alec and Kim, Jong Wook and Xu, Tao and Brockman, Greg
+               and McLeavey, Christine and Sutskever, Ilya},
+  booktitle = {Proceedings of the 40th International Conference on Machine
+               Learning},
+  pages     = {28492--28518},
+  year      = {2023}
+}
+
+@inproceedings{gulati2020conformer,
+  title     = {Conformer: Convolution-Augmented Transformer for Speech
+               Recognition},
+  author    = {Gulati, Anmol and Qin, James and Chiu, Chung-Cheng and
+               Parmar, Niki and Zhang, Yu and Yu, Jiahui and Han, Wei and
+               Wang, Shibo and Zhang, Zhengdong and Wu, Yonghui and
+               Pang, Ruoming},
+  booktitle = {Proceedings of Interspeech},
+  pages     = {5036--5040},
+  year      = {2020}
+}
+
+@inproceedings{graves2006ctc,
+  title     = {Connectionist Temporal Classification: Labelling Unsegmented
+               Sequence Data with Recurrent Neural Networks},
+  author    = {Graves, Alex and Fern{\'a}ndez, Santiago and Gomez, Faustino and
+               Schmidhuber, J{\"u}rgen},
+  booktitle = {Proceedings of the 23rd International Conference on Machine
+               Learning},
+  pages     = {369--376},
+  year      = {2006}
+}
+
+@inproceedings{graves2012rnnt,
+  title     = {Sequence Transduction with Recurrent Neural Networks},
+  author    = {Graves, Alex},
+  booktitle = {ICML Workshop on Representation Learning},
+  year      = {2012},
+  note      = {arXiv:1211.3711}
+}
+
+@misc{kuchaiev2019nemo,
+  title  = {{NeMo}: A Toolkit for Building {AI} Applications Using Neural
+            Modules},
+  author = {Kuchaiev, Oleksii and Li, Jason and Nguyen, Huyen and
+            Hrinchuk, Oleksii and Leary, Ryan and Ginsburg, Boris and
+            Kriman, Samuel and Beliaev, Stanislav and Lavrukhin, Vitaly and
+            Cook, Jack and Others},
+  year   = {2019},
+  note   = {arXiv:1909.09577}
+}
+
+@inproceedings{ardila2020commonvoice,
+  title     = {Common Voice: A Massively-Multilingual Speech Corpus},
+  author    = {Ardila, Rosana and Branson, Megan and Davis, Kelly and
+               Kohler, Michael and Meyer, Josh and Henretty, Michael and
+               Morais, Reuben and Saunders, Lindsay and Tyers, Francis and
+               Weber, Gregor},
+  booktitle = {Proceedings of the 12th Language Resources and Evaluation
+               Conference},
+  pages     = {4218--4222},
+  year      = {2020}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Speech synthesis
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@inproceedings{kim2021vits,
+  title     = {Conditional Variational Autoencoder with Adversarial Learning for
+               End-to-End Text-to-Speech},
+  author    = {Kim, Jaehyeon and Kong, Jungil and Son, Juhee},
+  booktitle = {Proceedings of the 38th International Conference on Machine
+               Learning},
+  pages     = {5530--5540},
+  year      = {2021}
+}
+
+@inproceedings{qharabagh2025manatts,
+  title     = {{ManaTTS} {P}ersian: A Recipe for Creating {TTS} Datasets for
+               Lower-Resource Languages},
+  author    = {Qharabagh, Mahta Fetrat and Dehghanian, Zahra and
+               Rabiee, Hamid R.},
+  booktitle = {Proceedings of the 2025 Conference of the Nations of the Americas
+               Chapter of the Association for Computational Linguistics: Human
+               Language Technologies (Volume 1: Long Papers)},
+  pages     = {9177--9206},
+  address   = {Albuquerque, New Mexico},
+  publisher = {Association for Computational Linguistics},
+  year      = {2025},
+  doi       = {10.18653/v1/2025.naacl-long.464}
+}
+
+@misc{piper2023,
+  title        = {Piper: A Fast, Local Neural Text-to-Speech System},
+  author       = {{Rhasspy Project}},
+  year         = {2023},
+  howpublished = {\url{https://github.com/rhasspy/piper}}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Neural audio codecs and audio language modeling
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@article{defossez2023encodec,
+  title   = {High Fidelity Neural Audio Compression},
+  author  = {D{\'e}fossez, Alexandre and Copet, Jade and Synnaeve, Gabriel and
+             Adi, Yossi},
+  journal = {Transactions on Machine Learning Research},
+  year    = {2023}
+}
+
+@article{zeghidour2021soundstream,
+  title   = {{SoundStream}: An End-to-End Neural Audio Codec},
+  author  = {Zeghidour, Neil and Luebs, Alejandro and Omran, Ahmed and
+             Skoglund, Jan and Tagliasacchi, Marco},
+  journal = {IEEE/ACM Transactions on Audio, Speech, and Language Processing},
+  volume  = {30},
+  pages   = {495--507},
+  year    = {2021}
+}
+
+@article{borsos2023audiolm,
+  title   = {{AudioLM}: A Language Modeling Approach to Audio Generation},
+  author  = {Borsos, Zal{\'a}n and Marinier, Rapha{\"e}l and Vincent, Damien and
+             Kharitonov, Eugene and Pietquin, Olivier and Sharifi, Matt and
+             Roblek, Dominik and Teboul, Olivier and Grangier, David and
+             Tagliasacchi, Marco and Zeghidour, Neil},
+  journal = {IEEE/ACM Transactions on Audio, Speech, and Language Processing},
+  volume  = {31},
+  pages   = {2523--2533},
+  year    = {2023}
+}
+
+@inproceedings{lee2022rqvae,
+  title     = {Autoregressive Image Generation Using Residual Quantization},
+  author    = {Lee, Doyup and Kim, Chiheon and Kim, Saehoon and Cho, Minsu and
+               Han, Wook-Shin},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and
+               Pattern Recognition},
+  pages     = {11523--11532},
+  year      = {2022}
+}
+
+@article{wang2023valle,
+  title   = {Neural Codec Language Models Are Zero-Shot Text to Speech
+             Synthesizers},
+  author  = {Wang, Chengyi and Chen, Sanyuan and Wu, Yu and Zhang, Ziqiang and
+             Zhou, Long and Liu, Shujie and Chen, Zhuo and Liu, Yanqing and
+             Wang, Huaming and Li, Jinyu and He, Lei and Zhao, Sheng and
+             Wei, Furu},
+  journal = {arXiv preprint arXiv:2301.02111},
+  year    = {2023}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Turn-taking, barge-in and voice activity detection
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@article{skantze2021turntaking,
+  title   = {Turn-Taking in Conversational Systems and Human-Robot Interaction:
+             A Review},
+  author  = {Skantze, Gabriel},
+  journal = {Computer Speech \& Language},
+  volume  = {67},
+  pages   = {101178},
+  year    = {2021}
+}
+
+@article{sacks1974turntaking,
+  title   = {A Simplest Systematics for the Organization of Turn-Taking for
+             Conversation},
+  author  = {Sacks, Harvey and Schegloff, Emanuel A. and Jefferson, Gail},
+  journal = {Language},
+  volume  = {50},
+  number  = {4},
+  pages   = {696--735},
+  year    = {1974}
+}
+
+@article{sohn1999vad,
+  title   = {A Statistical Model-Based Voice Activity Detection},
+  author  = {Sohn, Jongseo and Kim, Nam Soo and Sung, Wonyong},
+  journal = {IEEE Signal Processing Letters},
+  volume  = {6},
+  number  = {1},
+  pages   = {1--3},
+  year    = {1999}
+}
+
+@inproceedings{bredin2020pyannote,
+  title     = {Pyannote.Audio: Neural Building Blocks for Speaker Diarization},
+  author    = {Bredin, Herv{\'e} and Yin, Ruiqing and Coria, Juan Manuel and
+               Gelly, Gregory and Korshunov, Pavel and Lavechin, Marvin and
+               Fustes, Diego and Titeux, Hadrien and Bouaziz, Wassim and
+               Gill, Marie-Philippe},
+  booktitle = {Proceedings of the IEEE International Conference on Acoustics,
+               Speech and Signal Processing},
+  pages     = {7124--7128},
+  year      = {2020}
+}
+
+@inproceedings{park2022msdd,
+  title     = {Multi-Scale Speaker Diarization with Dynamic Scale Weighting},
+  author    = {Park, Tae Jin and Koluguri, Nithin Rao and Balam, Jagadeesh and
+               Ginsburg, Boris},
+  booktitle = {Proceedings of Interspeech},
+  pages     = {5080--5084},
+  year      = {2022}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Acoustic features and classical machine learning
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@article{davis1980mfcc,
+  title   = {Comparison of Parametric Representations for Monosyllabic Word
+             Recognition in Continuously Spoken Sentences},
+  author  = {Davis, Steven B. and Mermelstein, Paul},
+  journal = {IEEE Transactions on Acoustics, Speech, and Signal Processing},
+  volume  = {28},
+  number  = {4},
+  pages   = {357--366},
+  year    = {1980}
+}
+
+@article{decheveigne2002yin,
+  title   = {{YIN}, a Fundamental Frequency Estimator for Speech and Music},
+  author  = {de Cheveign{\'e}, Alain and Kawahara, Hideki},
+  journal = {The Journal of the Acoustical Society of America},
+  volume  = {111},
+  number  = {4},
+  pages   = {1917--1930},
+  year    = {2002}
+}
+
+@article{friedman2001gbm,
+  title   = {Greedy Function Approximation: A Gradient Boosting Machine},
+  author  = {Friedman, Jerome H.},
+  journal = {Annals of Statistics},
+  volume  = {29},
+  number  = {5},
+  pages   = {1189--1232},
+  year    = {2001}
+}
+
+@article{pedregosa2011sklearn,
+  title   = {Scikit-Learn: Machine Learning in {P}ython},
+  author  = {Pedregosa, Fabian and Varoquaux, Ga{\"e}l and Gramfort, Alexandre
+             and Michel, Vincent and Thirion, Bertrand and Grisel, Olivier and
+             Blondel, Mathieu and Prettenhofer, Peter and Weiss, Ron and
+             Dubourg, Vincent and Vanderplas, Jake and Passos, Alexandre and
+             Cournapeau, David and Brucher, Matthieu and Perrot, Matthieu and
+             Duchesnay, {\'E}douard},
+  journal = {Journal of Machine Learning Research},
+  volume  = {12},
+  pages   = {2825--2830},
+  year    = {2011}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Evaluation methodology and statistics
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@inproceedings{zheng2023mtbench,
+  title     = {Judging {LLM}-as-a-Judge with {MT-Bench} and Chatbot Arena},
+  author    = {Zheng, Lianmin and Chiang, Wei-Lin and Sheng, Ying and
+               Zhuang, Siyuan and Wu, Zhanghao and Zhuang, Yonghao and
+               Lin, Zi and Li, Zhuohan and Li, Dacheng and Xing, Eric P. and
+               Zhang, Hao and Gonzalez, Joseph E. and Stoica, Ion},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {36},
+  pages     = {46595--46623},
+  year      = {2023}
+}
+
+@article{levenshtein1966,
+  title   = {Binary Codes Capable of Correcting Deletions, Insertions, and
+             Reversals},
+  author  = {Levenshtein, Vladimir I.},
+  journal = {Soviet Physics Doklady},
+  volume  = {10},
+  number  = {8},
+  pages   = {707--710},
+  year    = {1966}
+}
+
+@article{wilson1927interval,
+  title   = {Probable Inference, the Law of Succession, and Statistical
+             Inference},
+  author  = {Wilson, Edwin B.},
+  journal = {Journal of the American Statistical Association},
+  volume  = {22},
+  number  = {158},
+  pages   = {209--212},
+  year    = {1927}
+}
+
+@book{efron1994bootstrap,
+  title     = {An Introduction to the Bootstrap},
+  author    = {Efron, Bradley and Tibshirani, Robert J.},
+  publisher = {Chapman \& Hall/CRC},
+  year      = {1994}
+}
+
+@article{itu1996p800,
+  title       = {Methods for Subjective Determination of Transmission Quality},
+  author      = {{International Telecommunication Union}},
+  journal     = {ITU-T Recommendation P.800},
+  year        = {1996}
+}
+
+@inproceedings{ranzato2016scheduledsampling,
+  title     = {Sequence Level Training with Recurrent Neural Networks},
+  author    = {Ranzato, Marc'Aurelio and Chopra, Sumit and Auli, Michael and
+               Zaremba, Wojciech},
+  booktitle = {Proceedings of the 4th International Conference on Learning
+               Representations},
+  year      = {2016}
+}
+
+@inproceedings{bengio2015scheduledsampling,
+  title     = {Scheduled Sampling for Sequence Prediction with Recurrent Neural
+               Networks},
+  author    = {Bengio, Samy and Vinyals, Oriol and Jaitly, Navdeep and
+               Shazeer, Noam},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {28},
+  pages     = {1171--1179},
+  year      = {2015}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Software and tooling
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@inproceedings{paszke2019pytorch,
+  title     = {{PyTorch}: An Imperative Style, High-Performance Deep Learning
+               Library},
+  author    = {Paszke, Adam and Gross, Sam and Massa, Francisco and
+               Lerer, Adam and Bradbury, James and Chanan, Gregory and
+               Killeen, Trevor and Lin, Zeming and Gimelshein, Natalia and
+               Antiga, Luca and Others},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {32},
+  pages     = {8024--8035},
+  year      = {2019}
+}
+
+@inproceedings{wolf2020transformers,
+  title     = {Transformers: State-of-the-Art Natural Language Processing},
+  author    = {Wolf, Thomas and Debut, Lysandre and Sanh, Victor and
+               Chaumond, Julien and Delangue, Clement and Moi, Anthony and
+               Cistac, Pierric and Rault, Tim and Louf, R{\'e}mi and
+               Funtowicz, Morgan and Others},
+  booktitle = {Proceedings of the 2020 Conference on Empirical Methods in
+               Natural Language Processing: System Demonstrations},
+  pages     = {38--45},
+  year      = {2020}
+}
+
+@misc{moshifinetune2024,
+  title        = {Moshi-Finetune: {LoRA} Fine-Tuning for {M}oshi},
+  author       = {{Kyutai Labs}},
+  year         = {2024},
+  howpublished = {\url{https://github.com/kyutai-labs/moshi-finetune}}
+}

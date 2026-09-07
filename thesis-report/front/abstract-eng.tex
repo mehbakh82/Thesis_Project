@@ -1,0 +1,59 @@
+
+% -------------------------------------------------------
+%  English Abstract
+% -------------------------------------------------------
+
+\begin{latin}
+
+\begin{center}
+\textbf{Abstract}
+\end{center}
+\baselineskip=.8\baselineskip
+
+This project designs, implements and evaluates a prototype Persian
+speech-to-speech system that operates in full-duplex mode: the user microphone
+stays open while the assistant reply is playing, and a classical detector
+decision can stop the active browser audio source and carry the captured speech
+forward as the next user turn. To bound execution risk, two tracks were pursued
+in parallel: direct low-rank adaptation of the open-weight Moshika
+speech-to-speech model to Persian, and a modular cascade combining NeMo Persian
+speech recognition, an exact Qwen3-4B-Instruct-2507 text responder under a
+frozen prompt, and Persian Piper speech synthesis.
+
+A derived conversational corpus was constructed from an internal archive of
+Persian spoken content, yielding 6,754 user/response pairs and 108.584 measured
+hours of stereo training audio. Training, validation and test partitions were
+isolated by source session identifier, and no group leakage was observed. An
+interruption detector was implemented from energy, fundamental-frequency and
+MFCC features with a gradient-boosted classifier.
+
+After a predeclared seven-row eligibility stage passed, the Qwen3-4B prompt-v2
+responder passed every one of seven predeclared automatic gates on a 40-row,
+source-session-group-disjoint final test. All 240 expected judge calls were
+valid, mean response relevance improved from 1.425 for the frozen
+Qwen2.5-0.5B baseline to 3.150, mean coherence reached 3.325, and the paired
+relevance win rate was 67.5\%. The judge was a same-family Qwen3.8-27B-FP8
+model, so this metric is not a human or independent evaluation. The mechanical
+cascade chain, with the Qwen2.5-0.5B responder, produced a Persian transcript,
+a Persian reply and non-silent audio on 9 of 9 frozen validation rows with zero
+rule-based fallbacks. An automatic re-recognition proxy over those same nine
+outputs measured 7.14\% character error rate and 30.41\% word error rate. The
+nine-row mechanics panel was not re-run after the responder was promoted to
+Qwen3-4B.
+
+The direct track, by contrast, reduced its teacher-forced objective across six
+experimental generations but never produced a checkpoint satisfying the frozen
+autoregressive runtime criterion. Generation v6.2 achieved a 32.20\% reduction
+in in-sample text loss, yet all four of its checkpoints passed 0 of 9 runtime
+rows. That track is therefore reported as a negative result with a positive
+learning signal, and the cascade is treated as the delivered prototype. Browser
+measurement on a physical 12--24 GB GPU, proof of a 500 ms end-to-end latency
+bound, independently human-verified interruption labels, and a 5--10 participant
+listening study were not completed within the project deadline and remain
+explicit limitations.
+
+\bigskip\noindent\textbf{Keywords}:
+Speech-to-speech, full-duplex dialogue, barge-in detection, Persian language,
+large language models, cascaded systems, parameter-efficient adaptation
+
+\end{latin}

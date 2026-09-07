@@ -55,6 +55,18 @@ For the deadline handoff, `docs/THESIS_REPORTING_FA.md` provides copy-ready
 Persian text for the abstract, methods, exact result tables, discussion,
 limitations, and conclusion without promoting any pending evidence gate.
 
+## Thesis reports
+
+The submission-ready Persian reports and their LaTeX sources are under
+[`thesis-report`](thesis-report/):
+
+- [`thesis.pdf`](thesis-report/thesis.pdf) — full report.
+- [`thesis-short.pdf`](thesis-report/thesis-short.pdf) — concise report.
+
+The included report README and source headers retain attribution for the
+Creative Commons Attribution 4.0 Persian thesis template on which the reports
+are based. See `THIRD_PARTY_NOTICES.md` for the license boundary.
+
 ## Architecture
 
 ```text

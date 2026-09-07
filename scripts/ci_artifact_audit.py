@@ -31,7 +31,9 @@ FORBIDDEN_PREFIXES = (
 )
 FORBIDDEN_EXACT = {
     ".env",
+    "codex_review_and_improve_thesis_project.md",
     "cursor_bsc_thesis_project_planning.md",
+    "cursor_bsc_thesis_project_report.md",
     "تعریف پروژه.docx",
 }
 FORBIDDEN_SUFFIXES = {
@@ -104,11 +106,25 @@ def parse_structured(path: Path, text: str) -> None:
 
 
 def history_audit() -> list[str]:
-    """Scan every reachable revision without handing a token to a third party."""
+    """Scan release refs without handing repository contents to a third party.
+
+    Local tool-managed refs (for example ``refs/codex/turn-diffs``) can contain
+    worktree snapshots of intentionally ignored files. They are never pushed,
+    so the release boundary is branches, tags, and remote-tracking refs.
+    """
 
     errors: list[str] = []
     objects = subprocess.run(
-        ["git", "-C", str(ROOT), "rev-list", "--objects", "--all"],
+        [
+            "git",
+            "-C",
+            str(ROOT),
+            "rev-list",
+            "--objects",
+            "--branches",
+            "--tags",
+            "--remotes",
+        ],
         check=True,
         capture_output=True,
         text=True,
@@ -125,7 +141,15 @@ def history_audit() -> list[str]:
             errors.append(f"forbidden binary/secret suffix exists in Git history: {relative}")
 
     commits = subprocess.run(
-        ["git", "-C", str(ROOT), "rev-list", "--all"],
+        [
+            "git",
+            "-C",
+            str(ROOT),
+            "rev-list",
+            "--branches",
+            "--tags",
+            "--remotes",
+        ],
         check=True,
         capture_output=True,
         text=True,

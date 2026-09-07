@@ -23,7 +23,17 @@ This project does not relicense third-party source code, model weights, datasets
 - Moshika-PyTorch-BF16 weights, revision `a49141e28b3d9c947cf9aa5314431e1b11cbd2f5`: CC BY 4.0; all three training-time blob hashes and sizes are pinned in `third_party/UPSTREAMS.lock.json`.
 - Mana-Persian-Piper, revision `ad9dd8518bedf517bd7cbc9f63b8e5c844bf5bc0`: the model card declares MIT and Mana-TTS declares CC0; the pinned ONNX SHA-256 is `e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126`. It is used as a deterministic single-speaker assistant target and is not redistributed here.
 
-No code from these repositories is vendored in this project.
+No code from the model/runtime repositories listed above is vendored in this
+project.
+
+## Thesis report template
+
+The LaTeX report sources under `thesis-report/` adapt Hamid
+Zarrabi-Zadeh's Persian thesis template, with contributions credited in the
+upstream source. The template is licensed under Creative Commons Attribution
+4.0; its attribution header and README are retained. The repository's
+Apache-2.0 license does not replace that license or the separate notices
+embedded in bundled LaTeX support files and fonts.
 
 ## Models and services used at runtime
 

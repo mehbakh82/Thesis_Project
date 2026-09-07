@@ -304,6 +304,11 @@ def test_upstream_lock_and_release_snapshot(tmp_path: Path, monkeypatch):
         folder = tmp_path / name
         folder.mkdir()
         (folder / "evidence.txt").write_text(name, encoding="utf-8")
+    report_dir = tmp_path / "thesis-report"
+    report_dir.mkdir()
+    (report_dir / "thesis.tex").write_text("report source", encoding="utf-8")
+    (report_dir / "thesis.pdf").write_bytes(b"%PDF-1.7\n")
+    (report_dir / "thesis.aux").write_text("generated", encoding="utf-8")
     egg_info = tmp_path / "src" / "generated.egg-info"
     egg_info.mkdir()
     (egg_info / "PKG-INFO").write_text("generated", encoding="utf-8")
@@ -341,6 +346,9 @@ def test_upstream_lock_and_release_snapshot(tmp_path: Path, monkeypatch):
     assert "results/release/final_audit.json" in report["files"]
     assert "results/hardware/qwen35_local_smoke.json" in report["files"]
     assert "results/eval/cascade_validation_descriptive_analysis.json" in report["files"]
+    assert "thesis-report/thesis.tex" in report["files"]
+    assert "thesis-report/thesis.pdf" in report["files"]
+    assert "thesis-report/thesis.aux" not in report["files"]
     assert "src/generated.egg-info/PKG-INFO" not in report["files"]
     assert (tmp_path / "snapshot.json").is_file()
 
