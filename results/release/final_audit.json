@@ -1,7 +1,7 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-09-06T11:03:50Z",
-  "audited_commit": "6b4a7e9d2eac2ca3a9cf66608a551a3b617a9127",
+  "schema_version": 2,
+  "generated_at": "2026-09-07T05:46:34Z",
+  "audited_commit": "6d973c122a95d3cd4d12ca47fe30106ec0c3e6fd",
   "git_identity": {
     "author": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>",
     "committer": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>"
@@ -22,7 +22,7 @@
     },
     "tracked_artifact_history_privacy_secret_audit": {
       "status": "passed",
-      "tracked_files": 362
+      "tracked_files": 384
     },
     "general_dependency_audit": {
       "status": "passed",
@@ -30,8 +30,8 @@
     },
     "pytest": {
       "status": "passed",
-      "tests": 182,
-      "seconds": 16.43
+      "tests": 205,
+      "seconds": 15.80
     },
     "branch_coverage": {
       "status": "passed",
@@ -47,20 +47,25 @@
     },
     "upstream_pins": {
       "status": "passed",
-      "pins": 9,
+      "pins": 10,
       "present_checkouts": 2,
       "present_checkouts_match": true
     }
   },
   "runtime_attribution": {
     "status": "passed",
-    "focused_tests": 3,
-    "locked_upstreams": 9,
+    "focused_tests": 5,
+    "locked_upstreams": 10,
     "qwen_runtime": {
-      "model": "Qwen/Qwen2.5-0.5B-Instruct",
-      "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+      "model": "Qwen/Qwen3-4B-Instruct-2507",
+      "revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
       "license": "Apache-2.0",
-      "matches_positive_validation": true
+      "tree_sha256": "cde447f1326f10c4126061914c57c3664551649286ad6411bffe3d1aa3e3b978",
+      "matches_positive_final_test": true,
+      "runtime_smoke_initialized": true,
+      "runtime_smoke_prompt_profile": "qwen4b_v2",
+      "runtime_smoke_fallback_used": false,
+      "runtime_smoke_generation_attempts": 1
     },
     "piper_runtime": {
       "package": "piper-tts==1.7.0",
@@ -69,9 +74,9 @@
     },
     "source_code_license_selected": false,
     "citation_sha256": "a60c5e3f43b4ab8a474bf29d92681fdb677c0006ff02ecfa9066772400b9b1c6",
-    "third_party_notices_sha256": "3715ac5bc5e337d99055bb7368b11ea55be44d5e428768fec32c0a29047f4747",
-    "upstreams_lock_sha256": "044ed53c24b5bd69a439d0a9755520c6d78b65d66d414ec4772c7df171384cdc",
-    "test_sha256": "c1415d07247fdda85f3f14d3a68a026a6835928b17481aa48e7e6a5697998c5c"
+    "third_party_notices_sha256": "697c5c548d5273e30e32060c7c2b686da7bf569a1218ffb6dd7f4426b26b6934",
+    "upstreams_lock_sha256": "a66f2d2b6412c92edfb66f114915a52c1145b59b576b0e24156f262de290fba8",
+    "test_sha256": "c14d5f1124964fe6a99f8a4e191e6fbb949d9921814aafa58e8bc28e39778862"
   },
   "cascade_descriptive_analysis": {
     "status": "passed",
@@ -113,6 +118,34 @@
     "human_semantic_pronunciation_or_naturalness_claim_allowed": false,
     "quality_threshold": null
   },
+  "qwen4b_prompt_v2_final_test": {
+    "status": "passed",
+    "evidence_class": "automatic_same_family_llm_as_judge_qwen4b_prompt_v2_final_test",
+    "predeclaration_commit": "a27a36235b5a35572a6fa3f0748cb3d105a8b082",
+    "eligibility_commit": "fd1552ba931aeb8d107e663ef41cd27bd470b5e0",
+    "result_commit": "dfd5ec4371ffbc440bea5a1948579caad0842ccb",
+    "artifact_sha256": "97e29206c74f8489ee870b53495bc4dc007d922bf1f84402499a44e046e64d24",
+    "protocol_sha256": "1de00f1a4ed66fb730ca5fbd441ec9cd2cd408669a2ea9b6b7bc789624ffb510",
+    "evaluator_sha256": "9379e1c13409d5c98cbe2c42461c8f4c72c7bb9204eedb4ac01ed2a777e92b19",
+    "development_report_sha256": "eafacdb1eac95a0c57fc996f4e3949f36eeed7eaa941ee837753cb8434dacb5b",
+    "test_rows": 40,
+    "source_sessions": 5,
+    "judge_calls_valid": 240,
+    "judge_calls_failed": 0,
+    "base_relevance_mean": 1.425,
+    "candidate_relevance_mean": 3.15,
+    "candidate_coherence_mean": 3.325,
+    "relevance_gain": 1.725,
+    "coherence_gain": 1.8,
+    "paired_relevance_win_rate": 0.675,
+    "relevance_at_least_two_rate": 0.875,
+    "predeclared_automatic_gates_passed": "7/7",
+    "candidate_retries": 0,
+    "privacy_flags_all_false": true,
+    "human_or_independent_claim_allowed": false,
+    "factuality_safety_naturalness_claim_allowed": false,
+    "physical_4090_or_browser_latency_claim_allowed": false
+  },
   "duplex_transport_regression": {
     "tests": 4,
     "automatic_bargein_preroll_samples": 3200,
@@ -134,13 +167,14 @@
       "The transport remains reusable after cancellation and tested errors.",
       "Client-reported acknowledgements and runtime identity telemetry are ingested.",
       "Metrics-only transport persistence writes no WAV.",
-      "The predeclared automatic NeMo round-trip proxy measured CER/WER on nine exactly reproduced cascade outputs without retaining plaintext or audio."
+      "The predeclared automatic NeMo round-trip proxy measured CER/WER on nine exactly reproduced cascade outputs without retaining plaintext or audio.",
+      "The frozen Qwen3-4B prompt-v2 responder passed every predeclared automatic semantic final-test gate after a passed eligibility stage."
     ],
     "does_not_prove": [
       "Actual browser AudioBufferSourceNode stop behavior.",
       "Physical microphone continuity.",
       "Physical RTX 4090 fit or latency.",
-      "Human semantic, pronunciation, or naturalness quality.",
+      "Human semantic, pronunciation, or naturalness quality from the automatic semantic proxy.",
       "Deployment eligibility of any direct Moshi adapter.",
       "Human intelligibility, pronunciation, naturalness, semantic relevance, or population quality from the automatic round-trip proxy."
     ]

@@ -1,6 +1,6 @@
 {
   "schema_version": 11,
-  "generated_at": "2026-09-06T18:01:28.321000+00:00",
+  "generated_at": "2026-09-07T05:48:37.608537+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -798,13 +798,14 @@
         "The transport remains reusable after cancellation and tested errors.",
         "Client-reported acknowledgements and runtime identity telemetry are ingested.",
         "Metrics-only transport persistence writes no WAV.",
-        "The predeclared automatic NeMo round-trip proxy measured CER/WER on nine exactly reproduced cascade outputs without retaining plaintext or audio."
+        "The predeclared automatic NeMo round-trip proxy measured CER/WER on nine exactly reproduced cascade outputs without retaining plaintext or audio.",
+        "The frozen Qwen3-4B prompt-v2 responder passed every predeclared automatic semantic final-test gate after a passed eligibility stage."
       ],
       "does_not_prove": [
         "Actual browser AudioBufferSourceNode stop behavior.",
         "Physical microphone continuity.",
         "Physical RTX 4090 fit or latency.",
-        "Human semantic, pronunciation, or naturalness quality.",
+        "Human semantic, pronunciation, or naturalness quality from the automatic semantic proxy.",
         "Deployment eligibility of any direct Moshi adapter.",
         "Human intelligibility, pronunciation, naturalness, semantic relevance, or population quality from the automatic round-trip proxy."
       ]
@@ -1138,8 +1139,8 @@
     "final_audit": {
       "path": "results/release/final_audit.json",
       "present": true,
-      "bytes": 6001,
-      "sha256": "3ac5c83bd78f8b1616cd13df0fe8d2a912355950ebde30392615000a8cf8787a"
+      "bytes": 7823,
+      "sha256": "7f63bfc61bc6fe37c048d8ff109b85f74a75beac37913261fa2a8f571b30ac62"
     }
   }
 }
