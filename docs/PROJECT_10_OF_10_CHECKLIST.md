@@ -113,12 +113,16 @@ The project now has the positive automatic semantic result needed for
 submission. The frozen Qwen3-4B prompt-v2 cascade—not direct Moshi—is the
 production candidate. Direct Moshika remains a valuable negative ablation.
 
-The remaining student/external tasks are:
+The final full and concise manuscripts are now tracked under `thesis-report/`,
+reconciled to the frozen evidence, and independently rebuilt. No further
+training or engineering-owned manuscript task is required for the current
+submission. The remaining student/external actions are:
 
-1. Copy the reconciled abstract, conclusion, and result tables from
-   `docs/THESIS_REPORTING_FA.md` into the private thesis manuscript.
-2. If and only if a physical 12–24 GB target GPU becomes available before the
-   freeze, run the already documented live-browser hardware/latency protocol.
+1. Submit the required PDF edition and the repository/tag identified in the
+   release handoff.
+2. If and only if a physical 12–24 GB target GPU becomes available before a
+   later evidence freeze, run the already documented live-browser
+   hardware/latency protocol.
 
 The strict-rubric research gaps remain independently human-reviewed detector
 labels, the 5–10-person study with two participants aged 60+, the waived
@@ -821,12 +825,13 @@ Evidence/statistics:
 - [x] Record four current v6.2 checkpoints separately from the v1–v5 cleanup
   receipt; they are hash-bound by the training, reevaluation, and runtime
   reports and postdate that receipt.
-- [ ] Reconcile the final thesis manuscript and submission tables after the
-  remaining external evidence exists.
+- [x] Reconcile the final full and concise thesis manuscripts and submission
+  tables to the frozen evidence. Unavailable external evidence is represented
+  explicitly as a limitation rather than estimated or backfilled.
 - [x] Prepare a copy-ready Persian manuscript handoff covering the abstract,
   methods, exact result tables, discussion, limitations, conclusion, prohibited
-  overclaims, and canonical evidence paths in `docs/THESIS_REPORTING_FA.md`.
-  This does not mark the private manuscript itself as reconciled.
+  overclaims, and canonical evidence paths in `docs/THESIS_REPORTING_FA.md`;
+  reconcile those boundaries into both tracked manuscript editions.
 
 Thesis narrative:
 
@@ -857,13 +862,16 @@ Thesis narrative:
   lock-matched; the optional installed Piper runtime is GPL-3.0-or-later and is
   separated from the Persian voice/model/data terms; the external Persian ASR
   artifact is explicitly not relicensed. Regression tests enforce this map.
-- [ ] Verify the final thesis manuscript bibliography; the manuscript is not
-  stored in this repository.
+- [x] Verify the final thesis manuscript bibliography: all 50 cited keys resolve
+  to exactly 50 tracked bibliography entries, with no missing or unused entry;
+  isolated full and concise builds report zero undefined citations or
+  references.
 - [x] Select Apache-2.0 for repository-owned source/documentation without
   relicensing third-party/model/data/adapter artifacts.
 - [x] Ensure repository-provided abstract/conclusion/tables/demo wording makes
-  no claim beyond evidence. The private manuscript still requires student
-  copy/paste and bibliography review.
+  no claim beyond evidence; the tracked full and concise manuscripts preserve
+  the same explicit automatic/human, H100/target-hardware, and
+  component/direct-model boundaries.
 
 Final engineering audit:
 
