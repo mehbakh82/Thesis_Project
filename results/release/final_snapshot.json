@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-07T06:29:32.426958+00:00",
+  "generated_at": "2026-09-07T13:34:18.948102+00:00",
   "python": "3.12.3",
   "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.39",
   "git": {
     "available": true,
-    "commit": "018cad5b4154b291ceaba981821afc213b54ca86",
+    "commit": "bf1057444c906464cac97131292a73e8e8814b50",
     "dirty": false
   },
   "gpu": {
@@ -25,15 +25,15 @@
       "utilization_gpu_percent"
     ],
     "rows": [
-      "NVIDIA H100 NVL, 595.71.05, 95830, 64161, 31161, 0"
+      "NVIDIA H100 NVL, 595.71.05, 95830, 93669, 1653, 0"
     ],
     "devices": [
       {
         "name": "NVIDIA H100 NVL",
         "driver_version": "595.71.05",
         "memory_total_mib": 95830,
-        "memory_used_mib": 64161,
-        "memory_free_mib": 31161,
+        "memory_used_mib": 93669,
+        "memory_free_mib": 1653,
         "utilization_gpu_percent": 0
       }
     ]
@@ -59,8 +59,8 @@
       "bytes": 927
     },
     ".gitignore": {
-      "sha256": "d4d17a29623732e828767b6eb36832422108c09db4c13609457ad8f7b47e6e03",
-      "bytes": 846
+      "sha256": "f3b764c8bb51572dff8077dc6fb406394c917cd41413df6b618554689fd0e0f4",
+      "bytes": 1242
     },
     "CITATION.cff": {
       "sha256": "524812220340c3740e35e9f3a4f3106a01c00fdcb769b2ea2140a7bcbe3de215",
@@ -71,12 +71,12 @@
       "bytes": 11346
     },
     "README.md": {
-      "sha256": "388e80073b57472706412df019dacf191eb82ce621776f6f4a0c759d6b6e1c1e",
-      "bytes": 19842
+      "sha256": "f6691331b772c3cd0165c83e2d3369bd2a9b536196b13b9d4313a46c7f2a697f",
+      "bytes": 20322
     },
     "THIRD_PARTY_NOTICES.md": {
-      "sha256": "8855250d8cb0d631b8e6fc0307b674feceb55188c3d96acf598d228685018536",
-      "bytes": 4555
+      "sha256": "bc9a1ce3355528d1e9f46a06f466b73fd97746f6c65833ebf492de67ec69e358",
+      "bytes": 5015
     },
     "checkpoints/llama_omni2_fa/persian_omni2.pt": {
       "sha256": "2f1c7680fb5524cd6d6306982c6828b61a9eee17de2dbefea2bdf61053869519",
@@ -335,8 +335,8 @@
       "bytes": 6414
     },
     "docs/PROJECT_10_OF_10_CHECKLIST.md": {
-      "sha256": "42eaf58664f261bdb2b0be4772cdcbaca061c176db3552ee93ab7d9a12675285",
-      "bytes": 61426
+      "sha256": "0e2342bdb2d95696edf4b7f9daf273d97d7b36f57a5070611a4aaf7c2d472ddd",
+      "bytes": 61920
     },
     "docs/PROMPT_SHEET.md": {
       "sha256": "834713479073112fc0d2fc6f573d1fa742142863f4df67b98f680a856826ef78",
@@ -379,8 +379,8 @@
       "bytes": 5915
     },
     "docs/SUBMISSION_RESULTS.md": {
-      "sha256": "3488dae29f3b75cc072d7b521fc2edfebcc85523e5784da785d7b5dba03570ea",
-      "bytes": 12461
+      "sha256": "12cc15dd2b757dbbff1f7264a022c654f55da0a809ecda8c3a9361386667585e",
+      "bytes": 13000
     },
     "docs/SUPERVISOR_DECISIONS.md": {
       "sha256": "b390f2d7db72f90e5ff2dbf465ecb4c5414d130b140cca507c8062ac7c906b07",
@@ -487,11 +487,11 @@
       "bytes": 1408
     },
     "results/eval/EVIDENCE_STATUS.json": {
-      "sha256": "19b3de624b0529ddeab02d42da1e31c35a042bc16d1a721c3da77efcaf1d8cbc",
-      "bytes": 38579
+      "sha256": "b376e2ba01d09c496c44c0b837e10f63aa0ff22fdf6350076c9d7eb9f1c59dff",
+      "bytes": 38580
     },
     "results/eval/SUMMARY.md": {
-      "sha256": "dccffa688f9a8a1faaccb0ff3d89ef866e4ed5d342736c064b648d4e18813e0d",
+      "sha256": "573c061ae41f3b51108c9414448f80ad91c5c5c2c421a782445afdd4b0dc0f04",
       "bytes": 8862
     },
     "results/eval/cascade_intelligibility_proxy.json": {
@@ -715,8 +715,8 @@
       "bytes": 2173
     },
     "results/release/final_audit.json": {
-      "sha256": "e1c939ce0da3daec8d44ab00e52900810a16dc34f0c22c26f1d4c5db93dac95f",
-      "bytes": 8889
+      "sha256": "9d07228913264e292452e95cd86ece2cf2dbf4a568e822efaa2c3b508f16c12d",
+      "bytes": 10218
     },
     "results/security/moshi_dependency_audit.json": {
       "sha256": "86bfa98aa47237f554a972eee788731de4d0f8713f64e30969cef713b9918caf",
@@ -743,8 +743,8 @@
       "bytes": 9088
     },
     "scripts/ci_artifact_audit.py": {
-      "sha256": "61e2b21386881c25693d4c0dcdc2f5c9d47ad05bf2a62801667329047adf60a5",
-      "bytes": 6023
+      "sha256": "d676cccbb9fb2dc45e729d151f0a4dd4cd9b1d1ae48fe0ccca80eb5bd7a4a3e4",
+      "bytes": 6611
     },
     "scripts/evaluate_cascade_intelligibility.py": {
       "sha256": "113b6e1642b26a7fef6917b57ee01f445050c4d23cb2ee3f32adeada00c80475",
@@ -825,6 +825,10 @@
     "scripts/finalize_moshi_v2_negative_selection.py": {
       "sha256": "aece92661b40620831098250572b6e43d88e80ba00399689e53f4d23031d8e1e",
       "bytes": 8345
+    },
+    "scripts/make_thesis_figures.py": {
+      "sha256": "db7521a8706af8e646cfa7878d7d47263a3cdfea3fde40d0d313a7c4c66c6eca",
+      "bytes": 24775
     },
     "scripts/moshi_runtime_panel.py": {
       "sha256": "f9782432064d68bbd507ad5559e86406b4e2bd9d8b93269895862c79d2cbc331",
@@ -1167,8 +1171,8 @@
       "bytes": 20909
     },
     "src/thesis_s2s/repro.py": {
-      "sha256": "afee7c716677aa991227371879d9ff3b51b9e561a8f9dd9f890f119e68edb03f",
-      "bytes": 48942
+      "sha256": "f0efa11195a525e639dfaecb03750b098e94b0a7d3540c8b3f302f8fe6c1100c",
+      "bytes": 49165
     },
     "src/thesis_s2s/runtime/__init__.py": {
       "sha256": "94dd29c6b3f956bdd1baee914fc4d86ae4e6ac4b41724cd34a76f3fde4f7d8b8",
@@ -1343,8 +1347,8 @@
       "bytes": 7843
     },
     "tests/test_privacy_conversation_repro.py": {
-      "sha256": "29150c42db57380fd5bfb80598e44fecbfa22f79b614d7a0f5d2865ab996fdb4",
-      "bytes": 26796
+      "sha256": "80f0d108d760d08d9d4058236760e2981852a64ed73a12d20742c057a075f6e2",
+      "bytes": 27249
     },
     "tests/test_qa_waiver.py": {
       "sha256": "7c24a7fcb66aa8e50803f5402844f34badaa86a66bcb63ac801fb23f91ca29a9",
@@ -1374,6 +1378,274 @@
       "sha256": "1b66f262f0004dc3bd60c7579efe3d44feeea4934ede891ec153757fd41a9dc2",
       "bytes": 7083
     },
+    "thesis-report/README.md": {
+      "sha256": "92d7e34c73a57e91f2d31d2213a99c79c25df4f29efd8ff04c5d8d1cf0765875",
+      "bytes": 241
+    },
+    "thesis-report/bibs/bibs.tex": {
+      "sha256": "ad3188ccb6b075e1ad8407b5f9b4849fc006a5d0f3c9956d0df97993e3bc77cf",
+      "bytes": 414
+    },
+    "thesis-report/bibs/full.bib": {
+      "sha256": "1298a0dc6172e46db115a3c79a9b018e564b56411764ae7f895bfbef30a96b66",
+      "bytes": 11823
+    },
+    "thesis-report/bibs/refs.bib": {
+      "sha256": "482a30a58526f1c48384d2aa8c4b2e7cb0c33b91983a1b314874e0c7413ce0b1",
+      "bytes": 22154
+    },
+    "thesis-report/build.sh": {
+      "sha256": "a093467f5e807f42ce0b23f165abd33b6944c78c8db110431dc343de2c06019c",
+      "bytes": 4375
+    },
+    "thesis-report/chapters/appendix.tex": {
+      "sha256": "685f473e9dc91100b88afb1e47a630dee866cc46954b15baedbd02e62d2b2906",
+      "bytes": 15632
+    },
+    "thesis-report/chapters/conclusions.tex": {
+      "sha256": "341b3551c0458fc54c08e4e1e8c604b3bd6734f9352581b2481961ba0c3068ea",
+      "bytes": 15097
+    },
+    "thesis-report/chapters/discussion.tex": {
+      "sha256": "b2dcb4d187d2fa8df7c8d789562e8dc4f6027b183c1ae2c727fce0045a5ca265",
+      "bytes": 25031
+    },
+    "thesis-report/chapters/introduction.tex": {
+      "sha256": "1beca4d511d40b70f58bcb32f6f626ef1b6c68cf354bb4e554e745d8116e76f1",
+      "bytes": 19764
+    },
+    "thesis-report/chapters/literature.tex": {
+      "sha256": "33ff976c3b520821d87f3288f7a9dd205ad0e978932442bac074420f3d4a9b86",
+      "bytes": 22132
+    },
+    "thesis-report/chapters/method.tex": {
+      "sha256": "c85b553350021039cc2b5888267e7108d0dc23f5b1d71ad2c444d648dbfeeb66",
+      "bytes": 36600
+    },
+    "thesis-report/chapters/preliminaries.tex": {
+      "sha256": "4e86df5d3c4164182a339d41394a3d53a32e69c9fc7ad22eb26af5081cc50529",
+      "bytes": 30108
+    },
+    "thesis-report/chapters/results.tex": {
+      "sha256": "e3c4da4a7ea9d1b3fa935e31798a653276a819ca206c2868eb1182fd3907f414",
+      "bytes": 46775
+    },
+    "thesis-report/chapters/short/background.tex": {
+      "sha256": "b12ec1e3163113c249e70a0f7b735120b60ea64d2267e0184bc7bd771f49358d",
+      "bytes": 8335
+    },
+    "thesis-report/chapters/short/conclusions.tex": {
+      "sha256": "67af18edec78c0d16ff6ad599689d6a256c40280ebf72028a491cc05180ec1f6",
+      "bytes": 4872
+    },
+    "thesis-report/chapters/short/introduction.tex": {
+      "sha256": "51a501440de11a0a42f3fd5b979c19a93f451199b4e6068e700b2f71f2fbf8fa",
+      "bytes": 10967
+    },
+    "thesis-report/chapters/short/method.tex": {
+      "sha256": "3d3e49a3c5fbf0cadd2491bfc31c992cd6b7847aa86fc291323feea16c8da466",
+      "bytes": 15093
+    },
+    "thesis-report/chapters/short/results.tex": {
+      "sha256": "591bf65d8c4e022bd59059767690da0f00871efdba1c9955dc54eec54bae9fe9",
+      "bytes": 19229
+    },
+    "thesis-report/figs/bargein_proxy.pdf": {
+      "sha256": "109378eae45ada781f132acc06e2565fdcb8fd264f77bb77363ad9f82a901a1a",
+      "bytes": 21814
+    },
+    "thesis-report/figs/cascade_panel.pdf": {
+      "sha256": "ae730b1f0143cefa63673d946e34a019cfb4c96fc2c77532cf22a9b29c9ccad5",
+      "bytes": 23570
+    },
+    "thesis-report/figs/corpus_funnel.pdf": {
+      "sha256": "68e46bcb25b8772546b38f571d866b6159cb2f06aa1aed58f45d5c8d94065247",
+      "bytes": 16785
+    },
+    "thesis-report/figs/cover.svg": {
+      "sha256": "38e40a19df81d36361cb79162a6f2329a4ec53409419d8ddfdd93b56d6bcbc79",
+      "bytes": 2593
+    },
+    "thesis-report/figs/cover.tex": {
+      "sha256": "ba0b0c2b36d0c7e240c3617123cdf3dd1ad08faca75b35718eb1fce4a7696195",
+      "bytes": 759
+    },
+    "thesis-report/figs/k-center.pdf": {
+      "sha256": "b834e3ab605d11c6d760f5b948a9fa0bec9f9b7c61d0eb963fde785d555275b5",
+      "bytes": 3923
+    },
+    "thesis-report/figs/moshi_trials_summary.pdf": {
+      "sha256": "3204cf32b2229a0ea1220d308d05b1453b13c4f6f2ae3f5e4f0ec854dc0b6d87",
+      "bytes": 17058
+    },
+    "thesis-report/figs/moshi_v1_training.pdf": {
+      "sha256": "f2df5c5903e537e4a76af2cd3e8ca335a96a6bc6cd3aa9dd92676ab9f8f7beec",
+      "bytes": 31812
+    },
+    "thesis-report/figs/moshi_v2_loss_vs_runtime.pdf": {
+      "sha256": "7763167deab6d82fd4808a3f106308f43f08d3faa9b1c985bb08a1b6bd4918bb",
+      "bytes": 19406
+    },
+    "thesis-report/figs/moshi_v62_diagnostic.pdf": {
+      "sha256": "69deb516e73c0ba557f306b70698d868270e05325ae57cf27d68015bd16ff1e7",
+      "bytes": 22158
+    },
+    "thesis-report/figs/outlier.pdf": {
+      "sha256": "e0dba7c40cab38509b26c64edbd8669c9209d6fc6ddc6b2354b87d8deb6c3115",
+      "bytes": 4656
+    },
+    "thesis-report/figs/readme.txt": {
+      "sha256": "574a6c8c4ee86108db57125f46efa1515dae825f0e4f392dd4dc07f85fca60b0",
+      "bytes": 80
+    },
+    "thesis-report/figs/semantic_final_test.pdf": {
+      "sha256": "3cb4f7f8688219f833bfcc5169aecc8249645822821c44f4c95b6ad7ad73265b",
+      "bytes": 19485
+    },
+    "thesis-report/figs/strip.pdf": {
+      "sha256": "f4b1e2d7df4f3af5be2142b2c443d496819c3407b2d63501a1db018255fd0f45",
+      "bytes": 33596
+    },
+    "thesis-report/figs/test.drawio": {
+      "sha256": "91ef20c8449e75e0625612f81a6920acd3c45ec9bf91ed1afb4ed5527069e18c",
+      "bytes": 28407
+    },
+    "thesis-report/figs/test.drawio.pdf": {
+      "sha256": "317a72607c658511a6e8cb1d278bcae222c2589c98886ecb1eca6b2944346270",
+      "bytes": 31135
+    },
+    "thesis-report/figs/triangles.pdf": {
+      "sha256": "514d9b0a15dd79a8e1053178a0e30822a94547f1cb875a7b49596fc774c8ddc2",
+      "bytes": 4429
+    },
+    "thesis-report/front/abstract-eng.tex": {
+      "sha256": "e138d1fad8ba9bb014f05636de2cde4e04eaaf306d7310bcbfa2e72050dfd755",
+      "bytes": 3179
+    },
+    "thesis-report/front/abstract.tex": {
+      "sha256": "7a62599d9e3a65387569d3a3a0978d0f5e32c2dc57fe08905287283775071524",
+      "bytes": 4719
+    },
+    "thesis-report/front/acknowledge.tex": {
+      "sha256": "375a3eaed05d954608f93a48a5dbd2bedb5922e2906003aaec70982a6c292a5a",
+      "bytes": 1929
+    },
+    "thesis-report/front/dictionary.tex": {
+      "sha256": "f3888d137cc4edbfb177c1042099e4d62ca4c91d1473df7739b35162ec9bb1e2",
+      "bytes": 4601
+    },
+    "thesis-report/front/info.tex": {
+      "sha256": "998e8f74015a90f533394c1ba90a774f9dc9a6410bd6f9aec9f0a6d54739e1b2",
+      "bytes": 1630
+    },
+    "thesis-report/front/template/besmellah.tex": {
+      "sha256": "5b748dac55e72dcced47158ad36083c4aba88c58e6edc328665da3fca565cc7d",
+      "bytes": 238
+    },
+    "thesis-report/front/template/declaration.tex": {
+      "sha256": "5f7972f9e2a284176a2174ae50f1e361836bfd0a2ed0cf7750ef82eac9c27a62",
+      "bytes": 2671
+    },
+    "thesis-report/front/template/images/besmellah.jpg": {
+      "sha256": "d95bd9d99b9dcb720651e0cf70a5741936acb7b6989d8425aadd3ca7fb3db05e",
+      "bytes": 39989
+    },
+    "thesis-report/front/template/images/logo.pdf": {
+      "sha256": "9f7f4d2da7dc7378789d31efac6b68ff334ec814d1c059fa6690eba62ae4ed56",
+      "bytes": 12921
+    },
+    "thesis-report/front/template/signatures.tex": {
+      "sha256": "e3e0b2b9d2ec534b992e7b92cc1d56cfabd76d35771ebf6b1b25d2d363e4758f",
+      "bytes": 985
+    },
+    "thesis-report/front/template/title-eng-short.tex": {
+      "sha256": "280b902408a8a6b5bd912c59e657bb06f761dff37e4dc5a117202704b86c9b51",
+      "bytes": 591
+    },
+    "thesis-report/front/template/title-eng.tex": {
+      "sha256": "430e83654adb5cf00f23a761803f1603c090f0fec1069468918be474f44bb736",
+      "bytes": 615
+    },
+    "thesis-report/front/template/title-short.tex": {
+      "sha256": "8c8211c8c2fa23825b145ee92a47d89831fd1d3e51cb559704ec7473389b19c9",
+      "bytes": 596
+    },
+    "thesis-report/front/template/title.tex": {
+      "sha256": "bdd5f6da48041f8f61081f1c3ab8b0688478bc0c758041bb5dc1b4c6025c487a",
+      "bytes": 725
+    },
+    "thesis-report/styles/alg-fa.tex": {
+      "sha256": "42a98922da49d0e55787ce5648e6a03891583fce52168993fa075a5dd7a15546",
+      "bytes": 1411
+    },
+    "thesis-report/styles/common.tex": {
+      "sha256": "119da6b972e6ff876ba4779089c01beaa520a4a7eec9784dc40480f80d0f2a21",
+      "bytes": 6046
+    },
+    "thesis-report/styles/custom.tex": {
+      "sha256": "4c9d6e45baa44dbe5f297420cdad4e4870a82e09e5ec23bcbd6a66d8dbe4dadb",
+      "bytes": 2702
+    },
+    "thesis-report/styles/fonts/Sharif1.3-Regular.ttf": {
+      "sha256": "cd6a62e5856835c027a29bd3369bbf38e97da22af3df4a084ed93656dc9bef34",
+      "bytes": 211716
+    },
+    "thesis-report/styles/fonts/Sharif1.3-SemiBold.ttf": {
+      "sha256": "2760c6c6be3f4013d15a0a320a3315b4772ce92037a6bd7d001c1b80b6feba87",
+      "bytes": 219776
+    },
+    "thesis-report/styles/fonts/XB Niloofar.ttf": {
+      "sha256": "8a61773ac5d21780b50a36d2763f529ef5d7cbabfd3fb4635c133736523f3b18",
+      "bytes": 1253488
+    },
+    "thesis-report/styles/fonts/XB NiloofarBd.ttf": {
+      "sha256": "edc0888141a85eb25daf6a674d58ad0e2d5595be820eb62e1c71b8fa8f068e6e",
+      "bytes": 1258396
+    },
+    "thesis-report/styles/fonts/XB NiloofarBdIt.ttf": {
+      "sha256": "b5b332e0202272812bf52564e212062fb479f403ee9d9a11831e9ca7d917c9d9",
+      "bytes": 1267332
+    },
+    "thesis-report/styles/fonts/XB NiloofarIt.ttf": {
+      "sha256": "726dc3b3bb593fb0930772a2c87dc05e2362c881f681e54ca7d409e9d2ab8968",
+      "bytes": 1262644
+    },
+    "thesis-report/styles/packages/algorithm.sty": {
+      "sha256": "b75e7b673bc8ff6c038d1a54bebd3a8d1c76efddce02c10bdad88df66a061422",
+      "bytes": 3250
+    },
+    "thesis-report/styles/packages/algorithmic.sty": {
+      "sha256": "f7c85214bfa2c621f80fe79cf87260fa64a7b57f8ef24c7939493a7d00353e16",
+      "bytes": 9319
+    },
+    "thesis-report/styles/packages/algorithmicx.sty": {
+      "sha256": "e0944185f2b13c708bb5db7c9a6af1a40a633f171c81c3876de6ba6f1550e507",
+      "bytes": 26772
+    },
+    "thesis-report/styles/packages/algpseudocode.sty": {
+      "sha256": "61a870b84d7b56b684c5c6f27ae5b61a962625604b9963256127239d6c774fed",
+      "bytes": 3458
+    },
+    "thesis-report/styles/packages/unsrtabbrv.bst": {
+      "sha256": "ed44a2ed2842d5988fff4d3443bd1d2fbe3d55995d730e339b4c778423080f56",
+      "bytes": 17964
+    },
+    "thesis-report/thesis-short.pdf": {
+      "sha256": "eb7f9b4276401ca8f0e92009c07f43f66295e4c971ad1593551bbd55688ba490",
+      "bytes": 245706
+    },
+    "thesis-report/thesis-short.tex": {
+      "sha256": "d95fc3a8d6a917f3c0577f0cbfe3244138788601a7b78b1a86d90c400e60582a",
+      "bytes": 1241
+    },
+    "thesis-report/thesis.pdf": {
+      "sha256": "d55ada85b3e91c9c6b4be4a6c1e619ea1eac669d778d6942a0c7c1fd817b58da",
+      "bytes": 553583
+    },
+    "thesis-report/thesis.tex": {
+      "sha256": "b3b8f160543e47d1516b1c276132b09acd93b8377282c88284b5a2fa0b0a5a1b",
+      "bytes": 2245
+    },
     "third_party/UPSTREAMS.lock.json": {
       "sha256": "a66f2d2b6412c92edfb66f114915a52c1145b59b576b0e24156f262de290fba8",
       "bytes": 6070
@@ -1387,5 +1659,5 @@
       "bytes": 1220
     }
   },
-  "file_count": 333
+  "file_count": 401
 }
