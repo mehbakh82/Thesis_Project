@@ -308,6 +308,7 @@ def test_upstream_lock_and_release_snapshot(tmp_path: Path, monkeypatch):
     egg_info.mkdir()
     (egg_info / "PKG-INFO").write_text("generated", encoding="utf-8")
     (tmp_path / "README.md").write_text("snapshot", encoding="utf-8")
+    (tmp_path / "LICENSE").write_text("Apache License, Version 2.0", encoding="utf-8")
     recorded_proxy = tmp_path / "results" / "eval" / "interrupt_recorded_proxy.json"
     recorded_proxy.parent.mkdir(parents=True)
     recorded_proxy.write_text("{}", encoding="utf-8")
@@ -317,6 +318,8 @@ def test_upstream_lock_and_release_snapshot(tmp_path: Path, monkeypatch):
     final_audit = tmp_path / "results" / "release" / "final_audit.json"
     final_audit.parent.mkdir(parents=True)
     final_audit.write_text("{}", encoding="utf-8")
+    qwen35_smoke = tmp_path / "results" / "hardware" / "qwen35_local_smoke.json"
+    qwen35_smoke.write_text("{}", encoding="utf-8")
     cascade_analysis = (
         tmp_path / "results" / "eval" / "cascade_validation_descriptive_analysis.json"
     )
@@ -330,11 +333,13 @@ def test_upstream_lock_and_release_snapshot(tmp_path: Path, monkeypatch):
     report = release_snapshot(tmp_path / "snapshot.json")
     assert report["file_count"] >= 5
     assert report["files"]["README.md"]["sha256"]
+    assert report["files"]["LICENSE"]["sha256"]
     assert "checkpoints/llama_omni2_fa/persian_omni2.pt" in report["files"]
     assert "checkpoints/llama_omni2_fa/dummy_adapter.pt" not in report["files"]
     assert "results/eval/interrupt_recorded_proxy.json" in report["files"]
     assert "results/hardware/storage_cleanup_20260831.json" in report["files"]
     assert "results/release/final_audit.json" in report["files"]
+    assert "results/hardware/qwen35_local_smoke.json" in report["files"]
     assert "results/eval/cascade_validation_descriptive_analysis.json" in report["files"]
     assert "src/generated.egg-info/PKG-INFO" not in report["files"]
     assert (tmp_path / "snapshot.json").is_file()

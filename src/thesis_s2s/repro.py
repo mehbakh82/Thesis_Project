@@ -21,6 +21,7 @@ SNAPSHOT_DIRS = ("configs", "docs", "scripts", "src", "tests")
 SNAPSHOT_FILES = (
     ".env.example",
     ".gitignore",
+    "LICENSE",
     "README.md",
     "pyproject.toml",
     "requirements.txt",
@@ -45,6 +46,7 @@ SNAPSHOT_FILES = (
     "results/hardware/moshi_h100_profile_probe_attempt1.json",
     "results/hardware/moshi_h100_profile_probe_attempt2.json",
     "results/hardware/moshi_client_build.json",
+    "results/hardware/qwen35_local_smoke.json",
     "results/conversation_rights_report.json",
     "results/conversation_source_authorization_report_combined.json",
     "results/conversation_noise_report.json",
