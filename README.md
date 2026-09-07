@@ -16,6 +16,7 @@ An evidence-first Persian speech prototype that keeps the microphone active duri
 | Barge-in >80% | Recorded-audio automatic-label proxy: 81.06% accuracy / 78.99% interrupt F1 on 132 events from 22 held-out sessions, but the session CI is 74.44–87.18% and human-verified labels are zero. Independent-label official evidence remains pending |
 | ≤500 ms and 12–24 GB official test | Pending live browser measurements on a physical 12–24 GB GPU |
 | Human study | Incomplete; 5–10 participants and at least two aged 60+ are still required. Raw WAV retention is optional |
+| Project source license | **Apache-2.0 selected.** It covers repository-owned code/documentation only; third-party software, weights, datasets, adapters, restricted media, and generated derivatives retain their separate terms |
 
 The headline positive result is
 `results/eval/qwen4b_responder_v2_final_test_proxy.json`. It was opened only
@@ -41,6 +42,14 @@ positive predeclared automatic test result; human naturalness, independent
 benchmarking, and official browser latency remain outside its claim boundary.
 Neither synthetic latency nor an H100 memory cap is accepted as official
 end-to-end evidence.
+
+Two additional local Apache-2.0 checkpoints, Qwen3.5-0.8B and Qwen3.5-4B,
+were also verified to initialize and produce Persian in bounded synthetic
+text-only smoke tests. They are useful future low-memory and upgrade candidates,
+respectively, but neither was allowed to replace the frozen Qwen3-4B responder:
+they have not passed a newly predeclared group-disjoint semantic evaluation,
+and the already-open final panel cannot be reused for model selection. See
+`results/hardware/qwen35_local_smoke.json`.
 
 For the deadline handoff, `docs/THESIS_REPORTING_FA.md` provides copy-ready
 Persian text for the abstract, methods, exact result tables, discussion,
@@ -261,3 +270,11 @@ See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/MOSHI_H100_RUNBOOK.md`,
 
 The ordered evidence and delivery path to a fully complete project is tracked
 in `docs/PROJECT_10_OF_10_CHECKLIST.md`.
+
+## License
+
+Repository-owned source code and documentation are licensed under the Apache
+License 2.0; see `LICENSE`. This grant excludes third-party components, model
+and voice weights, datasets, trained artifacts, restricted media/captions, and
+participant material. Their separate terms and release boundaries are recorded
+in `THIRD_PARTY_NOTICES.md` and `docs/DATA_PROVENANCE.md`.

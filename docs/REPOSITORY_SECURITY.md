@@ -98,9 +98,9 @@ upstream Moshi/trainer migration.
 
 ## Deliberately unresolved decisions
 
-- No source-code license has been selected. Until the student/supervisor chooses
-  one, the absence of a license grants no public reuse permission. This is kept
-  distinct from model, voice, source-corpus, and adapter rights documented in
+- The project-owned source and documentation are now licensed under
+  Apache-2.0. This does not alter the separate model, voice, source-corpus,
+  generated-derivative, participant-material, and adapter rights documented in
   `THIRD_PARTY_NOTICES.md`.
 - Protected main-branch rules cannot be enabled for this private repository
   under the current GitHub plan: the branch-protection API returns HTTP 403.

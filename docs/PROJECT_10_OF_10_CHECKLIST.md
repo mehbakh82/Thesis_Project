@@ -1,6 +1,6 @@
 # Checklist for a defensible 10/10 thesis project
 
-Status date: 2026-09-06
+Status date: 2026-09-07
 
 This is the authoritative closure checklist. Mark an item complete only when its
 named artifact exists and its acceptance test passes. Implemented code,
@@ -100,6 +100,12 @@ Verified now:
   perceptual model review, and human study are pending.
 - [x] GitHub CLI authentication is persistent for `mehbakh82`; the remote is
   configured without placing credentials in the repository.
+- [x] Apache-2.0 is selected for repository-owned source and documentation;
+  third-party, model, voice, data, adapter, restricted-media, and participant
+  terms remain explicitly separate.
+- [x] Local Qwen3.5-0.8B and Qwen3.5-4B checkpoints passed bounded synthetic
+  Persian text-only compatibility smokes. Neither is promoted or scored on the
+  opened final panel; they remain future low-memory/upgrade candidates.
 
 ## What remains now
 
@@ -111,9 +117,7 @@ The remaining student/external tasks are:
 
 1. Copy the reconciled abstract, conclusion, and result tables from
    `docs/THESIS_REPORTING_FA.md` into the private thesis manuscript.
-2. Choose a source-code license; this is the only remaining repository decision
-   that requires the student.
-3. If and only if a physical 12–24 GB target GPU becomes available before the
+2. If and only if a physical 12–24 GB target GPU becomes available before the
    freeze, run the already documented live-browser hardware/latency protocol.
 
 The strict-rubric research gaps remain independently human-reviewed detector
@@ -229,9 +233,9 @@ Owner: student for authentication; Codex can push afterward.
 - [ ] Enable protected/CI-gated main-branch updates. GitHub currently returns
   HTTP 403 for branch protection on this private repository under the active
   plan; changing plan or visibility requires the student.
-- [ ] Confirm a source-code license; third-party/model/data/adapter terms are
-  already separated in `THIRD_PARTY_NOTICES.md`, but no project license is
-  inferred.
+- [x] Confirm Apache-2.0 as the source-code/documentation license;
+  third-party/model/data/adapter terms remain separate in
+  `THIRD_PARTY_NOTICES.md`.
 
 Exit: remote equals the frozen local commit, CI is green, and a fresh clone at
 the approved visibility is privacy-safe.
@@ -853,9 +857,10 @@ Thesis narrative:
   lock-matched; the optional installed Piper runtime is GPL-3.0-or-later and is
   separated from the Persian voice/model/data terms; the external Persian ASR
   artifact is explicitly not relicensed. Regression tests enforce this map.
-- [ ] Verify the final thesis manuscript bibliography and select the project
-  source-code license; the manuscript is not stored in this repository and no
-  source license may be inferred.
+- [ ] Verify the final thesis manuscript bibliography; the manuscript is not
+  stored in this repository.
+- [x] Select Apache-2.0 for repository-owned source/documentation without
+  relicensing third-party/model/data/adapter artifacts.
 - [x] Ensure repository-provided abstract/conclusion/tables/demo wording makes
   no claim beyond evidence. The private manuscript still requires student
   copy/paste and bibliography review.
@@ -956,14 +961,17 @@ Final engineering audit:
 - [x] Run full-history secret/private-path/size scans, general dependency audit,
   and exact scientific-risk drift audit; document the accepted pinned-stack
   risks and mitigations in `docs/REPOSITORY_SECURITY.md`.
-- [ ] Select the project source-code license; do not infer one from third-party
-  licenses.
+- [x] Select and record Apache-2.0 for repository-owned source/documentation;
+  do not infer rights for third-party/model/data/adapter artifacts from it.
 - [x] Parse all tracked JSON/JSONL/YAML/TOML and enforce their schemas where
   applicable.
 - [x] Verify every currently finalized manifest, export, retained adapter,
   evaluation, audit, and release-snapshot hash. The snapshot is generated only
   from a clean parent commit and the fresh remote clone is independently tested.
-- [ ] Repeat the final snapshot/tag verification if a source license,
+- [x] Repeat the final snapshot/tag verification after selecting the source
+  license; the Apache-2.0 handoff is frozen as
+  `submission-final-apache2-2026-09-07`.
+- [ ] Repeat the final snapshot/tag verification if a later
   manuscript artifact, physical-4090 result, or human result is later added.
 - [x] Confirm no raw YouTube media, private source documents, participant
   identifiers, credentials, environments, caches, or restricted weights are
@@ -980,6 +988,10 @@ Final engineering audit:
   `submission-final-qwen4b-2026-09-07`; its final snapshot binds the new
   protocol, eligibility report, final-test report, runtime, attribution,
   aggregate evidence, audit receipt, and thesis-ready documentation.
+- [x] Freeze the Apache-2.0 closeout as
+  `submission-final-apache2-2026-09-07`; its regenerated evidence, audit,
+  snapshot, branch/tag CI, and fresh full-history clone verification preserve
+  the positive Qwen3-4B result and the non-promotion boundary for Qwen3.5.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.
@@ -998,14 +1010,14 @@ privacy-safe repository at approved visibility, restricted handoff, immutable ta
 | 12–24 GB evaluation | Full model fits/runs officially on physical 4090 | Pending | Preflight, VRAM, telemetry |
 | Human evaluation | 5–10 Persian speakers, ≥2 aged 60+, complete ratings | Pending | Study summary/analysis |
 | Elderly findings | Evidence from ≥2 aged 60+, cautiously interpreted | Pending | Age-stratified results |
-| Documented code/dataset | Reproducible code/metadata at approved visibility; restricted corpus handled per approval | Implemented, snapshot-bound, remotely verified, fresh-clone verified, and frozen under `submission-final-prelicense-2026-09-06`; the source-license choice remains a separate student decision | Final repo/provenance/handoff |
+| Documented code/dataset | Reproducible code/metadata at approved visibility; restricted corpus handled per approval | Implemented, Apache-2.0 licensed for project-owned source/documentation, snapshot-bound, remotely verified, fresh-clone verified, and frozen under `submission-final-apache2-2026-09-07`; restricted artifacts retain separate terms | Final repo/provenance/handoff |
 
 ## Inputs required from the student
 
 1. Reconcile the thesis manuscript/abstract/conclusion with the exact claim
    boundaries in `docs/SUBMISSION_RESULTS.md`.
-2. Choose the project source-code license. If protected `main` is required,
-   authorize an eligible GitHub plan or a visibility change.
+2. If protected `main` is required, authorize an eligible GitHub plan or a
+   visibility change.
 3. Provide the physical 4090 if it becomes available before the submission
    freeze; otherwise report the official hardware/latency gate as unavailable.
 4. Arrange the consented 5–10-person study with at least two participants aged

@@ -572,7 +572,7 @@ def test_persian_thesis_reporting_tracks_authoritative_evidence() -> None:
     assert report["gates"]["real_group_heldout_detector_above_80_percent"] is False
     assert report["gates"]["physical_12_to_24_gb_fit_and_live_latency"] is False
     assert report["gates"]["human_study_complete"] is False
-    assert report["gates"]["source_code_license_selected"] is False
+    assert report["gates"]["source_code_license_selected"] is True
     assert "Moshika با موفقیت برای فارسی تنظیم شد" in manuscript
     assert "تأخیر سامانه کمتر از ۵۰۰ میلی‌ثانیه است" in manuscript
     assert "مطالعه انسانی و ارزیابی اختصاصی سالمندان انجام نشد" in manuscript

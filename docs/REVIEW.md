@@ -1,10 +1,10 @@
-# Comprehensive project review (updated 2026-09-06)
+# Comprehensive project review (updated 2026-09-07)
 
 ## Verdict
 
 The project has a strong thesis problem, useful infrastructure, and unusually good data-engineering effort, but the earlier implementation overstated two central claims: the trained artifact was not an end-to-end speech LLM, and the browser was not full duplex. The current revision corrects those claims, provides a functional modular cascade plus genuine continuous-microphone interruption control, constructs an auditable conversational training set, and adds a pinned official Moshi/Moshika LoRA path for genuine response-audio adaptation.
 
-Current engineering/research readiness: **9.6/10**. Earlier audited state:
+Current engineering/research readiness: **9.7/10**. Earlier audited state:
 **about 4/10**. A defensible 10/10 cannot be produced entirely in code because
 the strict remaining evidence requires independently reviewed detector labels,
 human participants, and live measurements on a physical 12–24 GB target GPU.
@@ -20,6 +20,12 @@ paired relevance win rate was 67.5%, and 87.5% of rows reached relevance at
 least two. The judge used different weights but the same Qwen family; the
 result is not human evaluation, an independent benchmark, or evidence of
 factuality, safety, naturalness, physical-4090 fit, or browser latency.
+
+Local Qwen3.5-0.8B and Qwen3.5-4B checkpoints also passed bounded synthetic
+Persian initialization/generation smoke tests. They are credible future
+low-memory and responder-upgrade candidates, but are not promoted: neither has
+passed a newly predeclared group-disjoint evaluation, and the opened final
+panel cannot be reused for post-test model selection.
 
 The earlier frozen modular mechanics cascade passed all nine predeclared items from a 131-row
 source-session-group-isolated validation split, using audited user channel 1,
@@ -274,8 +280,8 @@ Added:
 | Implementation correctness | 7 | 20 | 20 |
 | Data engineering and provenance | 9 | 14 | 15 |
 | Evaluation quality | 2 | 10 | 10 |
-| Reproducibility, tests, security | 3 | 9 | 10 |
-| **Total** | **36/100** | **96/100** | **100/100** |
+| Reproducibility, tests, security | 3 | 10 | 10 |
+| **Total** | **36/100** | **97/100** | **100/100** |
 
 ## Irreducible path to 10/10
 
@@ -294,11 +300,10 @@ Added:
 4. Recruit 5–10 Persian speakers, including at least two aged 60+, and complete
    consented ratings and naturalness/satisfaction/error analysis on the final
    speech path.
-5. Select the project source-code license. This is separate from permission to
-   train internally on the restricted source corpus.
-6. Copy the reconciled repository-provided text/tables into the private
+5. Copy the reconciled repository-provided text/tables into the private
    manuscript and verify its bibliography. The code/evidence bundle itself is
-   frozen under `submission-final-qwen4b-2026-09-07`.
+   licensed under Apache-2.0 and frozen under
+   `submission-final-apache2-2026-09-07`.
 
 Another speculative direct-model training run is not recommended. It has no
 validated corrective hypothesis. The rational deadline strategy is to lead

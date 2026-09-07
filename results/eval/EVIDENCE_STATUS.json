@@ -1,6 +1,6 @@
 {
   "schema_version": 11,
-  "generated_at": "2026-09-07T05:50:08.433010+00:00",
+  "generated_at": "2026-09-07T06:16:27.592741+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -23,7 +23,7 @@
     "real_group_heldout_detector_above_80_percent": false,
     "physical_12_to_24_gb_fit_and_live_latency": false,
     "human_study_complete": false,
-    "source_code_license_selected": false
+    "source_code_license_selected": true
   },
   "data": {
     "conversation_pairs": 6754,
@@ -819,24 +819,24 @@
     "reason": "The frozen Qwen3-4B prompt-v2 cascade passed every predeclared automatic semantic final-test gate after a passed development eligibility stage; v6.2 learned its train-only objective but failed every direct runtime row. A new direct run would risk the evidence freeze without a validated remedy."
   },
   "release": {
-    "source_code_license_selected": false,
-    "license_files": [],
+    "source_code_license_selected": true,
+    "license_files": [
+      "LICENSE"
+    ],
     "immutable_submission_tag_created": false
   },
   "required_to_complete": [
     "Produce a validation-eligible Persian direct-model checkpoint before opening that experiment's frozen final test.",
     "Obtain independently human-reviewed recorded labels and establish >80% on a speaker/session-group-held-out test; the automatic YouTube proxy is not ground truth.",
     "Run the final system and client-acknowledged latency protocol on a physical 12–24 GB GPU such as the planned RTX 4090.",
-    "Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+.",
-    "Select and add the project source-code license."
+    "Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+."
   ],
   "remaining_work_classification": {
     "active_evidence_gates": [
       "Produce a validation-eligible Persian direct-model checkpoint before opening that experiment's frozen final test.",
       "Obtain independently human-reviewed recorded labels and establish >80% on a speaker/session-group-held-out test; the automatic YouTube proxy is not ground truth.",
       "Run the final system and client-acknowledged latency protocol on a physical 12–24 GB GPU such as the planned RTX 4090.",
-      "Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+.",
-      "Select and add the project source-code license."
+      "Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+."
     ],
     "conditional_closeout_after_evidence": [
       "Reconcile the thesis manuscript and generated tables with final evidence.",

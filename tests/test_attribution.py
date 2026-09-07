@@ -16,6 +16,18 @@ def test_citation_metadata_identifies_repository_and_author() -> None:
     assert citation["authors"] == [
         {"given-names": "Mehran", "family-names": "Bakhtiari"}
     ]
+    assert citation["license"] == "Apache-2.0"
+
+
+def test_project_license_is_apache_2_and_preserves_third_party_boundaries() -> None:
+    license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")
+    notices = (ROOT / "THIRD_PARTY_NOTICES.md").read_text(encoding="utf-8")
+
+    assert "Apache License" in license_text
+    assert "Version 2.0, January 2004" in license_text
+    assert "Copyright 2026 Mehran Bakhtiari" in license_text
+    assert "Repository-owned source code and documentation" in notices
+    assert "does not cover or relicense third-party code" in notices
 
 
 def test_every_locked_upstream_is_revisioned_in_third_party_notices() -> None:

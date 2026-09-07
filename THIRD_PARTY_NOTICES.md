@@ -54,4 +54,8 @@ license. This repository does not infer a license for that fine-tuned model.
 
 ## Project license status
 
-The repository author and supervisor must approve the project-code license before public release. The supervisor question sheet proposes Apache-2.0. Until that decision is recorded, no license is granted merely by access to this source tree.
+Repository-owned source code and documentation are licensed under Apache-2.0;
+see `LICENSE`. That license does not cover or relicense third-party code,
+dependency packages, model/voice weights, trained adapters, restricted source
+media, captions, participant material, or generated derivatives. Each remains
+subject to the terms and distribution boundary documented above.

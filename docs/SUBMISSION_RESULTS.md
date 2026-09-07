@@ -223,14 +223,21 @@ Do not claim:
 
 ## Deadline handoff
 
-The Persian-reporting pre-license evidence freeze at `a0c4fcc` is pushed to
-the private GitHub repository. GitHub Actions run `34042698214` passed every
-gate, and an independent fresh full-history clone passed the tracked
-artifact/history/privacy audit and all 183 tests. The snapshot binds 310
-reproducibility-critical files, including the Persian reporting handoff. The
-ignored private validation manifest was absent, as intended. This establishes
-repository reproducibility; it does not change any scientific acceptance
-result above.
+The positive Qwen3-4B evidence release is preserved under
+`submission-final-qwen4b-2026-09-07`. The Apache-2.0 closeout is preserved
+under `submission-final-apache2-2026-09-07`, with regenerated aggregate
+evidence, audit/snapshot receipts, remote CI, and fresh full-history clone
+verification. The ignored private validation manifest remains absent. This
+establishes repository reproducibility; it does not change any scientific
+acceptance result above.
+
+Local Qwen3.5-0.8B and Qwen3.5-4B checkpoints both initialized and emitted
+Persian in bounded synthetic text-only compatibility smokes. The 0.8B model is
+a useful future low-memory/latency ablation and the 4B model is a plausible
+future responder upgrade. Neither is promoted: no new predeclared
+group-disjoint comparison was run, and the already-open final panel must not be
+reused for post-test selection. The compatibility-only receipt is
+`results/hardware/qwen35_local_smoke.json`.
 
 A copy-ready Persian abstract, methods/results tables, discussion, limitations,
 and conclusion—bounded to these exact evidence classes—are provided in
@@ -238,10 +245,11 @@ and conclusion—bounded to these exact evidence classes—are provided in
 
 1. Copy the two result tables and safe wording above into the thesis; update
    abstract, methods, results, discussion, limitations, and conclusion.
-2. Choose a source-code license.
-3. The current pre-license repository freeze, tag, CI, and fresh-clone
-   verification are complete. Regenerate them only if a license, tracked
-   manuscript artifact, physical-target result, or human result is later added.
+2. Apache-2.0 is selected for repository-owned source and documentation. It
+   does not relicense third-party components, weights, data, adapters,
+   restricted media, generated derivatives, or participant material.
+3. Regenerate the release only if a tracked manuscript artifact,
+   physical-target result, or human result is later added.
 4. Run the physical-target/browser protocol only if suitable hardware arrives
    before the freeze. Otherwise report it as unavailable future work.
 

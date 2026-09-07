@@ -1,6 +1,6 @@
 # Authoritative project evidence status
 
-Generated: `2026-09-07T05:50:08.433010+00:00`
+Generated: `2026-09-07T06:16:27.592741+00:00`
 
 **Verdict:** `not_thesis_ready_evidence_gates_pending`. Thesis-ready: **false**.
 
@@ -18,7 +18,7 @@ This table is generated from `EVIDENCE_STATUS.json`. Component and synthetic pro
 | `real_group_heldout_detector_above_80_percent` | no |
 | `physical_12_to_24_gb_fit_and_live_latency` | no |
 | `human_study_complete` | no |
-| `source_code_license_selected` | no |
+| `source_code_license_selected` | yes |
 
 ## Dataset and export
 
@@ -85,7 +85,7 @@ All retained adapter hashes match committed evidence, and all scientific results
 | Detector | synthetic accuracy=1.0; recorded proxy n=132 / 22 sessions, accuracy=0.8106060606060606, F1=0.7899159663865547, session CI=[0.7444, 0.8718]; automatic labels, not official ground truth | pending |
 | Hardware/latency | NVIDIA H100 NVL; official E2E rows=0 | pending |
 | Human study | participants=1, aged 60+=1, complete ratings=0 | pending |
-| Project license | not selected | pending |
+| Project license | LICENSE | pass |
 
 ## Reporting contract
 
@@ -101,6 +101,5 @@ Production candidate: `qwen4b_v2_cascade`. Direct Moshi role: `experimental_nega
 - Obtain independently human-reviewed recorded labels and establish >80% on a speaker/session-group-held-out test; the automatic YouTube proxy is not ground truth.
 - Run the final system and client-acknowledged latency protocol on a physical 12–24 GB GPU such as the planned RTX 4090.
 - Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+.
-- Select and add the project source-code license.
 
 No claim should exceed these evidence classes. In particular, the H100 measurements are engineering/training evidence, not physical-4090 official latency evidence; synthetic accuracy and the recorded automatic-label proxy are not independently labeled official detector evidence.

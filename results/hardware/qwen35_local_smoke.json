@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-07T06:10:17Z",
+  "purpose": "bounded_local_text_only_compatibility_smoke_not_model_selection",
+  "parent_commit": "3ac72c7b7984d90b1327471a66a66494be0be125",
+  "environment": {
+    "gpu": "NVIDIA H100 NVL",
+    "official_target_hardware": false,
+    "python": "3.12.3",
+    "torch": "2.12.0+cu130",
+    "transformers": "5.9.0",
+    "dtype": "bfloat16",
+    "implementation": "AutoModelForCausalLM text-only; PyTorch fallback path",
+    "optional_fast_path_installed": false
+  },
+  "protocol": {
+    "synthetic_prompt_only": true,
+    "project_development_or_final_rows_accessed": false,
+    "do_sample": false,
+    "thinking_enabled": false,
+    "system_prompt": "فقط فارسی، طبیعی و در حداکثر دو جمله پاسخ بده.",
+    "user_prompt": "سلام! برای تمرکز هنگام درس خواندن چه پیشنهادی داری؟",
+    "claim_boundary": "Initialization and one Persian generation are compatibility evidence only, not a semantic, latency, throughput, quality, deployment, or model-selection benchmark. Peak allocation is PyTorch process allocation, not whole-system VRAM."
+  },
+  "models": [
+    {
+      "model": "Qwen/Qwen3.5-0.8B",
+      "revision": "23c69c53358a07516b5827588b3fdb12ae78fd65",
+      "license": "Apache-2.0",
+      "license_sha256": "bbedc3fda3305820b977265f01b8619d87570a6739de3a5582c3464840f1e57a",
+      "local_tree_files": 51,
+      "local_tree_bytes": 1775680346,
+      "load_seconds_observed": 1.919,
+      "generation_seconds_observed": 5.744,
+      "new_tokens": 43,
+      "peak_torch_allocated_bytes": 1560074752,
+      "response": "برای تمرکز بهتر در درس خواندن، بهترین راه استفاده از تکنیک‌های ذهنی مثل تقسیم درس به بخش‌های کوچک و مرور سریع آن‌ها در طول روز است.",
+      "persian_generation_observed": true,
+      "recommended_role": "future_low_memory_latency_ablation_or_fallback_after_new_evaluation",
+      "promoted": false
+    },
+    {
+      "model": "Qwen/Qwen3.5-4B",
+      "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+      "license": "Apache-2.0",
+      "license_sha256": "bbedc3fda3305820b977265f01b8619d87570a6739de3a5582c3464840f1e57a",
+      "local_tree_files": 32,
+      "local_tree_bytes": 9342914836,
+      "load_seconds_observed": 3.491,
+      "generation_seconds_observed": 7.423,
+      "new_tokens": 78,
+      "peak_torch_allocated_bytes": 8495500288,
+      "response": "برای تمرکز بهتر، تکنیک پومودورو را امتحان کنید که در آن ۲۵ دقیقه درس می‌خوانید و سپس ۵ دقیقه استراحت می‌کنید. همچنین محیط را آرام نگه دارید و موبایل را در اتاق دیگری بگذارید تا حواس‌پرتی‌ها کم شود.",
+      "persian_generation_observed": true,
+      "recommended_role": "future_responder_upgrade_candidate_after_new_predeclared_group_disjoint_evaluation",
+      "promoted": false
+    }
+  ],
+  "release_decision": {
+    "production_responder_unchanged": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554:prompt-v2",
+    "reason": "The production responder already passed its frozen development eligibility and final test. Reusing the opened final panel to select either newly discovered checkpoint would create post-test selection bias.",
+    "new_models_useful": true,
+    "new_models_scientifically_selected": false
+  }
+}

@@ -9,6 +9,7 @@ description = "Persian full-duplex speech-to-speech thesis prototype"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{ name = "Mehran Bakhtiari" }]
+license = { file = "LICENSE" }
 dependencies = [
   "numpy>=1.24",
   "scipy>=1.10",

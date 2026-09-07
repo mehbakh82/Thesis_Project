@@ -8,6 +8,7 @@ authors:
 version: 0.1.0
 date-released: 2026-08-23
 repository-code: "https://github.com/mehbakh82/Thesis_Project"
+license: Apache-2.0
 abstract: >-
   Evidence-first Persian full-duplex speech prototype with a continuous
   microphone, classical barge-in control, conversational-data audits, and
