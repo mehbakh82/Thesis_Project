@@ -41,7 +41,8 @@ Therefore Moshi is the implementation path, while the cascade remains the deploy
 Controlled comparison remains missing for the direct track, but
 the documentary shortlist now also
 includes MiniCPM-o 4.5, Covo-Audio-Chat-FD, BayLing-Duplex, DuplexOmni,
-Qwen3-ASR, Omnilingual-ASR, Qwen3.5-4B/0.8B, and Qwen3-TTS. The machine-readable
+Qwen3-ASR, Shenava-Koochik, Rade-ASR-CTC-3B-fa, Omnilingual-ASR,
+Qwen3.5-4B/0.8B, Qwen3-TTS, and MOSS-TTS-Nano-Persian. The machine-readable
 audit fails closed on Persian quality, adaptation, or 24 GB fields that have not
 been verified. A newly frozen, equal-channel, session-disjoint 40-row responder
 development comparison retained Qwen3-4B: Qwen3.5-4B had zero relevance gain
@@ -52,6 +53,10 @@ comparison also retained the fine-tuned NeMo service: CER/WER was
 0.230119/0.371593, versus 0.383788/0.651363 for Qwen3-ASR-1.7B and
 0.492509/0.807747 for Qwen3-ASR-0.6B. Its separately locked final panel remains
 sealed because neither challenger passed the predeclared development gate.
+An explicitly post-hoc Shenava screen reused only that open development panel:
+it was faster (median CPU RTF 0.016045) but worse on CER/WER
+(0.241644/0.403156), so NeMo remained selected and the final panel stayed
+sealed.
 The TTS comparison also retained Mana-Piper on 40 identical Persian response
 texts: CER/WER was 0.174401/0.342520, versus 0.250892/0.494094 for Meta
 MMS-TTS Persian, with no failures in either arm. Its final panel likewise

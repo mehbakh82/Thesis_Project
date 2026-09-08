@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "evidence_class": "proposal_requirements_alignment_audit",
+  "proposal": {
+    "path": "Thesis Proposal Template.docx",
+    "sha256": "658a75f01f0d25cb18e601f8f5d36438c0c3780666a0f95c8fe529a6d68f90b4",
+    "hash_verified": true,
+    "document_status": "unsigned_template_with_unfilled_identity_and_signature_fields"
+  },
+  "scoring_contract": {
+    "criteria": 5,
+    "traceability_percent": 100.0,
+    "substantial_implementation_percent": 80.0,
+    "strict_acceptance_percent": 0.0,
+    "warning": "Implementation coverage is not acceptance. A criterion passes only with its proposal-level evidence."
+  },
+  "criteria": [
+    {
+      "id": "dataset_100_to_200_annotated_hours",
+      "proposal_criterion": ">=100 hours with turn boundaries and overlap labels",
+      "substantially_implemented": true,
+      "strictly_passed": false,
+      "observed": {
+        "exported_hours": 108.584,
+        "pairs": 6754,
+        "group_split_leaks": 0,
+        "strict_human_qa_complete": false
+      },
+      "gap": "Quantity and machine integrity pass; turn/overlap labels are automatic and listening QA is waived."
+    },
+    {
+      "id": "direct_s2s_persian_finetune",
+      "proposal_criterion": "fine-tuned direct S2S model with reduced loss and intelligible Persian output",
+      "substantially_implemented": true,
+      "strictly_passed": false,
+      "observed": {
+        "trials": 6,
+        "deployment_eligible": false,
+        "positive_learning_trial": true
+      },
+      "gap": "Moshika training produced a positive loss signal, but every direct runtime candidate failed and no adapter was promoted."
+    },
+    {
+      "id": "streaming_latency_500_ms",
+      "proposal_criterion": "qualifying <=500 ms end-to-end latency on one 12-24 GB GPU",
+      "substantially_implemented": true,
+      "strictly_passed": false,
+      "observed": {
+        "transport_regression_passed": true,
+        "physical_target_ready": false,
+        "official_e2e_rows": 0
+      },
+      "gap": "Streaming transport exists, but no physical target/browser rows establish mean, p90, or maximum latency."
+    },
+    {
+      "id": "full_duplex_interrupt_80_f1_150_ms",
+      "proposal_criterion": ">=0.80 interrupt F1 plus <=150 ms stop/adaptation behavior",
+      "substantially_implemented": true,
+      "strictly_passed": false,
+      "observed": {
+        "automatic_proxy_accuracy": 0.8106060606060606,
+        "automatic_proxy_interrupt_f1": 0.7899159663865547,
+        "human_verified_labels": 0,
+        "official_full_duplex_evidence": false
+      },
+      "gap": "The automatic-label proxy has 0.8106 accuracy but only 0.7899 F1; independent labels and physical <=150 ms traces are absent."
+    },
+    {
+      "id": "human_mos_3_5_elderly",
+      "proposal_criterion": "MOS >=3.5 from 5-10 Persian speakers including >=2 aged 60+",
+      "substantially_implemented": false,
+      "strictly_passed": false,
+      "observed": {
+        "participants": 1,
+        "elderly_participants": 1,
+        "complete_ratings": 0,
+        "mos_mean": null
+      },
+      "gap": "Study tooling exists, but there are zero complete ratings and no qualifying MOS or elderly finding."
+    }
+  ],
+  "proposal_internal_ambiguities": [
+    "The problem statement binds p90 latency, the objective table binds average latency, and neither defines the timing endpoints.",
+    "The detector objective says accuracy >=80% while labeling the criterion F1; accuracy and F1 are not interchangeable.",
+    "The final note allows an undergraduate project to prioritize latency or full duplex, but no filled or signed scope choice is present."
+  ],
+  "architecture_mismatch": {
+    "proposal_requires_no_intermediate_text": true,
+    "positive_production_candidate_is_cascade": true,
+    "direct_branch_deployment_eligible": false,
+    "strictly_aligned": false
+  },
+  "verdict": "directionally_aligned_but_not_strictly_requirement_complete"
+}

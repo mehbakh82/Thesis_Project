@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "stage": "preinference_posthoc_screen_plan",
+  "generated_at": "2026-09-08T14:50:39.728955+00:00",
+  "source_sha256": "aabf12268cce2854ef8b16ffd9339c6d703339c6b4c50a23a105447047a13a86",
+  "asr_v1_plan_sha256": "ca73a72c5f27b9459ccdf4298c282fb153af3b03c2709dcb23bbb89bb542f0ef",
+  "asr_v1_evaluator_sha256": "d9b2f6fb9d71dd47cac31792f5ae0efbc7aaa87b97acfc28fbe7a6febf2b3aab",
+  "protocol_sha256": "5087045171850da41b4e6c36977da4d1c5b2bcf12f08b93b157980d1335a8261",
+  "evaluator_sha256": "85150bbd661ecb242811137bde5b246c6b1bea4ff281a1c94649b8ff9b5465af",
+  "development": {
+    "rows": 40,
+    "sessions": 8,
+    "channels": {
+      "Digiato": 20,
+      "Zoomit": 20
+    },
+    "seconds": 272.465,
+    "row_id_sequence_sha256": "f24ff720dcd37184976565cbad0e9f1d14d807129aeccbcee466fb708010c139",
+    "session_set_sha256": "c016dc98e32a80173c9cef58d137e9bf725dc5af80088f7757aced83d1936617",
+    "row_hashes": [
+      "3e3f9d962d83e6a6565b7416408765e8a49aac22f9a4c2556bb9a68d45be18f7",
+      "62a0bd0fbbe48e5c88aa42915aaf11300b85da62fa17c5c4ba5a8d020a6bbfd1",
+      "f8046548453a181405d533c1e8ad7e4fdf491cd25023f5a9f463d29fc76a0ad1",
+      "422bcdb55de25ca019a5e25ae4658cc84c6833f36b050339ff257805caa6f9b7",
+      "8ee2ea1e78993b2d82d8f5459e86b97c4e1dbeedc639b1022bcc78395affb455",
+      "b6a7443f1c3712c75679d56ed330e01eaf32e2d9a1914c8402efd2ba0425e3b3",
+      "e95a9b492db82cd536eaa45c7d0632f3a8e2428f074a1534d83ffb9e7c5906dc",
+      "3da022f8589bedd0fc2375ec373e57536dd7c6b34e28f5f37c938aecb7094c1b",
+      "fc9265524eb8d9a9cccc5316d489132345e1a65431f4c69b44594bb42484d80f",
+      "66e29bbb51916ffa9edcd27f5818abcb50b763a444a6f38033661929087fc2bb",
+      "fc4b0193f1d708c545b4578d74b0c6e1e650809ebafacb5c5313534f8addddef",
+      "76c0deff8797de9bdab68ef3669e4235133868b3e3ca39da0dd3b01332842d64",
+      "07a340a69e02a2f7f4cb71b3585804de2b6f49fcc3f19a6d854c7bf897b682a1",
+      "2bb838fd3784a801ca97197513351433562789c8901afa4894a2e7e2dcf99903",
+      "8084489746528219fb1b7af0a145e6d2323e44c9f4bb5c2b647e58a0673cc58e",
+      "dd2f09c0a5e3cd2f04e5c4332cfacdfb339f5050c0b4c081c089157cc6ecddb1",
+      "e7cd13d2b271ec139e8722de50891e7e761a65bc9b0854e012d89e08de35cfe5",
+      "9793e8d015892cc2e88b7d27904f557b89477d85a1c7cd671cbeeff4d93d4fa8",
+      "880e4541d74b55b4ccdd41ab2aa32d640914f053644de4c472d282f8148b15a7",
+      "32bc626d29883d56d318ab6dae56c63b32bbcb8302b80a85e5cd0d8686d1d644",
+      "89edfe93f3ed0d4d85f73c9c631ca9fc83c18e5fd41c20dd7e59ba1fb91f4cd4",
+      "993f6a5edee30273b60aff817232b49743963837a4614600e7e2179ed657fa76",
+      "e2e10aad7efcb1ce53ab59dda604abac40436c378eb22352280d10c9b45fe929",
+      "58d1dc9c63e84bb94a38a0c27671e8349a4265d35b9ff4360b61763e93e6a8d3",
+      "9a989a61d78fb56fe847860b87a9ac21dfc6442a8159bef39a9cf850694c1d21",
+      "005c666187a80fd40fb5e3f1788aef1fcf0e32889ee1b7f59a26222d9a21cd74",
+      "5da1b867eb80195f12e0ed4a4c154f6151568d7fd8ef4b44921f2f9aa1d7de6f",
+      "a9c2982585693a92591135ba4a404384b1eac4fc575690870f91387cc654cd0d",
+      "f57e13cf892868cb191f095a721aefd5706ef24c2484442b6d8a06b317610373",
+      "a5e128eeeeb931aebfc74d6282c9515b269481a7ec24eae715bdef05e2abaca8",
+      "5aaee3f40298a5663a7e4f4dbe529dcdd88dd12295b770fdaa195f46e3838a69",
+      "7d7c2d58f7ba2ede33058be89ca36748c92f1131ff2cb3f1e88dfe50fba62fdd",
+      "02be4722681bdfbb42081d77955e42d651b53f00ff4f15cb720bebca42ed6da6",
+      "aa13c976fcdf623791f2647565ac93a8b29c818b155842c123a7ee406c99a5b7",
+      "db71e65f4668a53817aadb322b6dc987620904a949e4d1cc5f2ee8d26b8fa179",
+      "1cfe1e357e3614c11bde1127f3245a3725bd5a3fefb7e3f043eb08621e8a5e92",
+      "e6cb7d1e5bb230b2bf965edb7170fcc793615dc4f3e7e1edfadb1c54510605b2",
+      "76bc81e08e7432d92e7636d6d2faf502bdb002973c95638abc7078b16da34b93",
+      "fd71483706bef7e48666c0b21757104b4eb0862a60158dde80534ecdb9c7fbb6",
+      "eae61fb95ef5fdea52cb2710eeb3a01edd8097b4cd359868edd4c33df597a7e4"
+    ]
+  },
+  "model_identities": {
+    "nemo-persian-finetune": {
+      "api_image": "sha256:1c681f0d7cc6f192aa753efd98cedb0ef2db2c47fb8159d52912f9c03d7ad1b7",
+      "triton_image": "sha256:96b53a69eeff0b9783baf36eaa07d54701c7bbe652fcbe6af140f8d5569d5606",
+      "observed_images": {
+        "asr_nemo_soroush_api": "sha256:1c681f0d7cc6f192aa753efd98cedb0ef2db2c47fb8159d52912f9c03d7ad1b7",
+        "asr_nemo_soroush_triton": "sha256:96b53a69eeff0b9783baf36eaa07d54701c7bbe652fcbe6af140f8d5569d5606"
+      },
+      "health": {
+        "status": "ok"
+      },
+      "provenance_sha256": "307c90f98dc72e4f0ac56a5c9cdf1f5963bc06a2d4c3446c09d00ee4436d7deb"
+    },
+    "shenava-koochik-v1.0-sherpa-onnx": {
+      "repository": "Reza2kn/Shenava-Koochik-v1.0-sherpa-onnx",
+      "files": 6,
+      "bytes": 458849411,
+      "file_manifest": {
+        ".gitattributes": {
+          "bytes": 1519,
+          "sha256": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361"
+        },
+        "LICENSE": {
+          "bytes": 11358,
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        "README.md": {
+          "bytes": 3385,
+          "sha256": "6613cb1eeb337c43847aed4e037caf54e32fecc9385280a3dd8cff0db9f9767e"
+        },
+        "model.onnx": {
+          "bytes": 458819249,
+          "sha256": "6a564b5541920ce1c37bbc91d22e4b3a6838648b9b327eb88997e8db1f90950d"
+        },
+        "persian_itn.py": {
+          "bytes": 1664,
+          "sha256": "5c4f9e3aa064248fc48357e62072bbb9a1bf1e0ed053b58db5672172fcb89b1b"
+        },
+        "tokens.txt": {
+          "bytes": 12236,
+          "sha256": "8e192963f6e666dfa5721e5cbd4710bc1ef592460a45f08cefc94b2db16a6954"
+        }
+      },
+      "revision": "f063f38cb38fe02df39887ac65c441b755ab25a2",
+      "model_sha256": "6a564b5541920ce1c37bbc91d22e4b3a6838648b9b327eb88997e8db1f90950d",
+      "license": "Apache-2.0"
+    }
+  },
+  "runtime_packages": {
+    "numpy": "2.4.4",
+    "sherpa-onnx": "1.13.7",
+    "soundfile": "0.13.1"
+  },
+  "posthoc_not_predeclared": true,
+  "final_panel_accessed": false,
+  "plaintext_retained": false
+}

@@ -3,7 +3,7 @@
   "evidence_class": "requirements_constrained_static_model_audit",
   "as_of": "2026-09-08",
   "catalog": "configs/model_selection_audit.yaml",
-  "catalog_sha256": "722d8d0af841a9a98f34bb7f6aa8fbbab1b3a46a9a3b8392d6a0902b9e1cb0ff",
+  "catalog_sha256": "c5ba232757c9e3ebfb9e6ffc559c59b8b8d75275444a3a46cd78c3551ffdc3b8",
   "claim_boundary": "This audit validates declared evidence and fail-closed eligibility. It does not run models, establish unreported Persian quality, or prove global optimality.",
   "tracks": {
     "direct_s2s": {
@@ -520,7 +520,8 @@
       "eligible_candidates": [
         "nemo-persian-finetune",
         "qwen3-asr-1.7b",
-        "qwen3-asr-0.6b"
+        "qwen3-asr-0.6b",
+        "shenava-koochik-v1.0-sherpa-onnx"
       ],
       "catalog_comparison_complete": true,
       "candidates": {
@@ -657,6 +658,97 @@
             }
           },
           "notes": "Low-memory challenger; substantially worse than the incumbent on the frozen project panel."
+        },
+        "shenava-koochik-v1.0-sherpa-onnx": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "persian_support": {
+              "criterion": "persian_support",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/Reza2kn/Shenava-Koochik-v1.0-sherpa-onnx",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "streaming_or_service_runtime": {
+              "criterion": "streaming_or_service_runtime",
+              "minimum": "documented",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/asr_shenava_supplemental_v1_screen.json",
+                "present": true,
+                "sha256": "feb3a02a613f16338e60bcefe7f142b235b7a32fb5fc4bf0e67361c8599d02ee"
+              },
+              "notes": ""
+            },
+            "project_persian_evaluation": {
+              "criterion": "project_persian_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/asr_shenava_supplemental_v1_screen.json",
+                "present": true,
+                "sha256": "feb3a02a613f16338e60bcefe7f142b235b7a32fb5fc4bf0e67361c8599d02ee"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Post-hoc supplemental screen was faster but less accurate than NeMo; it cannot be promoted from the reused open development panel."
+        },
+        "rade-asr-ctc-3b-fa": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "project_persian_evaluation"
+          ],
+          "criteria": {
+            "persian_support": {
+              "criterion": "persian_support",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/RadeAI/Rade-ASR-CTC-3B-fa",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "streaming_or_service_runtime": {
+              "criterion": "streaming_or_service_runtime",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/RadeAI/Rade-ASR-CTC-3B-fa",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "project_persian_evaluation": {
+              "criterion": "project_persian_evaluation",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "local",
+                "path": "results/hardware/rade_asr_runtime_attempt.json",
+                "present": true,
+                "sha256": "e38a42e58c73706a5da929060b79db504e22a562abc5d99ef4b9366d88ecd510"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Current Apache-2.0 Persian checkpoint. Its exact inference stack imported on CUDA, but the deadline-bounded 6.16 GB checkpoint transfer did not complete, so no inference or Persian quality claim is made."
         },
         "omnilingual-asr": {
           "eligible": false,
@@ -1006,6 +1098,53 @@
             }
           },
           "notes": "Streaming and trainable, but official released language support excludes Persian."
+        },
+        "moss-tts-nano-persian": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "persian_output",
+            "realtime_path",
+            "project_intelligibility_evaluation"
+          ],
+          "criteria": {
+            "persian_output": {
+              "criterion": "persian_output",
+              "minimum": "verified",
+              "status": "documented",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/nimaaaAI/MOSS-TTS-Nano-Persian",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "realtime_path": {
+              "criterion": "realtime_path",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/nimaaaAI/MOSS-TTS-Nano-Persian",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "project_intelligibility_evaluation": {
+              "criterion": "project_intelligibility_evaluation",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/nimaaaAI/MOSS-TTS-Nano-Persian",
+                "declared": true
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Apache-2.0 Persian voice-cloning checkpoint; clean reference speech is unavailable, its card limits practical utterances to about five seconds, and no fair project comparison was run."
         }
       }
     }

@@ -194,6 +194,30 @@ tracks:
           project_persian_evaluation:
             status: verified
             source: local:results/eval/asr_candidates_v1_development.json
+      shenava-koochik-v1.0-sherpa-onnx:
+        notes: Post-hoc supplemental screen was faster but less accurate than NeMo; it cannot be promoted from the reused open development panel.
+        evidence:
+          persian_support:
+            status: documented
+            source: https://huggingface.co/Reza2kn/Shenava-Koochik-v1.0-sherpa-onnx
+          streaming_or_service_runtime:
+            status: verified
+            source: local:results/eval/asr_shenava_supplemental_v1_screen.json
+          project_persian_evaluation:
+            status: verified
+            source: local:results/eval/asr_shenava_supplemental_v1_screen.json
+      rade-asr-ctc-3b-fa:
+        notes: Current Apache-2.0 Persian checkpoint. Its exact inference stack imported on CUDA, but the deadline-bounded 6.16 GB checkpoint transfer did not complete, so no inference or Persian quality claim is made.
+        evidence:
+          persian_support:
+            status: documented
+            source: https://huggingface.co/RadeAI/Rade-ASR-CTC-3B-fa
+          streaming_or_service_runtime:
+            status: documented
+            source: https://huggingface.co/RadeAI/Rade-ASR-CTC-3B-fa
+          project_persian_evaluation:
+            status: unknown
+            source: local:results/hardware/rade_asr_runtime_attempt.json
       omnilingual-asr:
         notes: Broad multilingual challenger; Persian-specific project evaluation is absent.
         evidence:
@@ -298,3 +322,15 @@ tracks:
           project_intelligibility_evaluation:
             status: unknown
             source: https://github.com/QwenLM/Qwen3-TTS
+      moss-tts-nano-persian:
+        notes: Apache-2.0 Persian voice-cloning checkpoint; clean reference speech is unavailable, its card limits practical utterances to about five seconds, and no fair project comparison was run.
+        evidence:
+          persian_output:
+            status: documented
+            source: https://huggingface.co/nimaaaAI/MOSS-TTS-Nano-Persian
+          realtime_path:
+            status: unknown
+            source: https://huggingface.co/nimaaaAI/MOSS-TTS-Nano-Persian
+          project_intelligibility_evaluation:
+            status: unknown
+            source: https://huggingface.co/nimaaaAI/MOSS-TTS-Nano-Persian

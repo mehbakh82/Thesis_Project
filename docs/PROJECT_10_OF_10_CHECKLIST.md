@@ -20,13 +20,20 @@ an item explicitly says they are.
 
 ## Post-release model/data selection hardening
 
+- [x] Bind the newly supplied detailed proposal by SHA-256 and add a
+  fail-closed requirements-alignment receipt. All five primary objectives are
+  traceable, four have substantial implementation, and zero fully pass their
+  strict proposal-level acceptance criteria; see
+  `docs/PROPOSAL_ALIGNMENT_AUDIT.md`.
+
 - [x] Replace ambiguous “best model” wording with an executable,
   requirements-constrained audit that separates project-verified evidence,
   official documentation, failures, and unknowns.
 - [x] Add current direct candidates: PersonaPlex, Qwen3-Omni, MiniCPM-o 4.5,
   Covo-Audio-Chat-FD, BayLing-Duplex, and DuplexOmni.
-- [x] Add current component challengers: Qwen3-ASR 1.7B/0.6B,
-  Omnilingual-ASR, local Qwen3.5-4B/0.8B, and Qwen3-TTS.
+- [x] Add current component challengers: Qwen3-ASR 1.7B/0.6B, Shenava
+  Koochik, Rade-ASR-CTC-3B-fa, Omnilingual-ASR, local Qwen3.5-4B/0.8B,
+  Qwen3-TTS, and MOSS-TTS-Nano-Persian.
 - [x] Preserve the frozen Qwen3-4B result and prohibit reuse of its opened final
   panel for Qwen3.5 selection.
 - [x] Add `audit-model-selection` with fail-closed source validation and unit
@@ -42,6 +49,19 @@ an item explicitly says they are.
   NeMo won decisively: CER/WER 0.230119/0.371593 versus
   0.383788/0.651363 for 1.7B and 0.492509/0.807747 for 0.6B. The frozen rule
   retained NeMo and kept the separate 40-row final panel sealed.
+- [x] Run an explicitly post-hoc Shenava-Koochik supplemental screen on the
+  already-open ASR development panel without accessing the final panel.
+  Shenava completed 40/40 rows and was substantially faster on CPU (median RTF
+  0.016045 versus 0.095592), but its CER/WER 0.241644/0.403156 was worse than
+  NeMo's 0.230119/0.371593; the paired CER interval
+  [-0.016063, 0.044917] crossed zero. NeMo remains selected and no new
+  confirmation panel is warranted.
+- [x] Attempt the exact Rade-ASR-CTC-3B-fa runtime without misreporting a model
+  result. Torch 2.8.0, fairseq2 0.6, Omnilingual-ASR 0.2.0, CUDA, and the
+  inference pipeline imported successfully; the deadline-bounded 6.16 GB
+  checkpoint transfer did not complete, so inference was not attempted and
+  project Persian quality remains unknown. See
+  `results/hardware/rade_asr_runtime_attempt.json`.
 - [x] Run Qwen3-4B versus Qwen3.5-4B/0.8B on a newly frozen equal-channel,
   session-disjoint 40-row development panel. All three arms completed 40/40
   generations and 80/80 judge calls. Qwen3.5-4B produced zero mean relevance

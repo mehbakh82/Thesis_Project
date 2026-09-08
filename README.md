@@ -61,6 +61,13 @@ challenger passed the predeclared promotion gate. See
 `docs/ASR_CANDIDATE_COMPARISON_V1.md` and
 `results/eval/asr_candidates_v1_development.json`.
 
+A later, explicitly post-hoc screen evaluated the compact Shenava-Koochik
+sherpa-ONNX release on that already-open development panel. It was much faster
+on CPU (median RTF 0.016045) but less accurate (CER/WER
+0.241644/0.403156), so it did not advance and no final panel was opened. See
+`docs/ASR_SHENAVA_SUPPLEMENTAL_V1.md` and
+`results/eval/asr_shenava_supplemental_v1_screen.json`.
+
 The TTS track now has the same controlled treatment. On a new equal-channel,
 session-disjoint 40-text development panel, Mana-Piper achieved CER/WER
 0.174401/0.342520 versus 0.250892/0.494094 for Meta MMS-TTS Persian; both arms
@@ -76,6 +83,14 @@ Its reproducible commands are `thesis-s2s audit-model-selection` and
 `thesis-s2s audit-conversation-balance`; the resulting receipts deliberately
 fail closed rather than converting upstream model-card claims into empirical
 Persian evidence.
+
+The newly supplied detailed proposal is mapped requirement by requirement in
+[`docs/PROPOSAL_ALIGNMENT_AUDIT.md`](docs/PROPOSAL_ALIGNMENT_AUDIT.md). Its
+SHA-bound receipt reports 100% traceability, 80% substantial implementation
+coverage, and 0/5 strict proposal-level criteria fully proven. These are three
+different measures: implementation coverage must not be reported as acceptance.
+Regenerate the receipt with
+`.venv/bin/python scripts/audit_proposal_alignment.py`.
 
 For the deadline handoff, `docs/THESIS_REPORTING_FA.md` provides copy-ready
 Persian text for the abstract, methods, exact result tables, discussion,

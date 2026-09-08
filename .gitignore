@@ -2,6 +2,13 @@
 .venv-moshi/
 .venv-qwen-asr/
 .venv-tts/
+.venv-shenava/
+.venv-rade/
+.rade-tmp/
+.rade-pip-cache/
+.rade-model/
+.rade-hf/
+.rade-config/
 .venv/
 __pycache__/
 *.pyc
@@ -24,6 +31,7 @@ rclone.conf
 # local thesis planning and source-definition documents
 /cursor_bsc_thesis_project_planning.md
 /تعریف پروژه.docx
+/Thesis Proposal Template.docx
 /codex_review_and_improve_thesis_project.md
 /cursor_bsc_thesis_project_report.md
 

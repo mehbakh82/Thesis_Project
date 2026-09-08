@@ -44,7 +44,7 @@ checkpoints passed 0/9 frozen direct-runtime rows.
 | Track | Current selection | Current selection eligible? | Why no global-best claim |
 |---|---|---:|---|
 | Direct S2S | Moshika 7B engineering baseline | No | Failed Persian runtime output; no same-panel comparison |
-| ASR | Fine-tuned Persian NeMo service | Yes | Controlled comparison retained NeMo; Omnilingual-ASR remains unevaluated and the references are automatic captions |
+| ASR | Fine-tuned Persian NeMo service | Yes | Controlled and post-hoc screens retained NeMo; Rade/Omnilingual remain unevaluated and the references are automatic captions |
 | Responder | Qwen3-4B prompt-v2 | Yes | Controlled three-arm development comparison retained it; evidence is automatic-proxy and catalog-bounded, not a global claim |
 | TTS | Mana Persian Piper | Yes | Controlled automatic comparison retained Piper; human listening remains absent |
 
@@ -55,11 +55,22 @@ documented 24 GB deployment path. The current catalog links only official
 repositories/model cards and retains `unknown` wherever those sources do not
 establish a requirement.
 
+The candidate refresh inspected official repositories/model cards available on
+2026-09-08. In addition to the evaluated Qwen3-ASR and MMS releases, it covers
+Shenava-Koochik, Rade-ASR-CTC-3B-fa, and MOSS-TTS-Nano-Persian. This is a
+dated, requirements-constrained catalog—not a permanent or exhaustive claim
+over every unpublished, gated, or future checkpoint.
+
 The highest-value component challengers are:
 
 1. **ASR:** the controlled post-release comparison is complete. Both
    Qwen3-ASR challengers were substantially worse than fine-tuned NeMo on the
-   frozen Digiato/Zoomit development panel, so NeMo is retained.
+   frozen Digiato/Zoomit development panel. A later post-hoc Shenava screen
+   was far faster but also less accurate, so NeMo is retained. Rade-ASR's exact
+   Torch/fairseq2/Omnilingual runtime imported successfully on CUDA, but a
+   deadline-bounded attempt could not complete its 6.16 GB checkpoint transfer;
+   therefore no inference or quality result exists. Even a favorable post-hoc
+   screen could not fairly promote it from the open development panel.
 2. **Responder:** the controlled post-release comparison is complete. Local
    Qwen3.5-4B tied the incumbent's mean relevance and improved mean coherence
    by 0.075, but its 15% row win rate and zero relevance gain failed the frozen
@@ -67,6 +78,9 @@ The highest-value component challengers are:
 3. **TTS:** the controlled automatic comparison is complete. Meta MMS-TTS
    Persian was mechanically valid but materially worse than Mana-Piper, so
    Piper is retained. Released Qwen3-TTS support still excludes Persian.
+   MOSS-TTS-Nano-Persian requires clean reference speech unavailable to this
+   project and documents a roughly five-second practical utterance limit, so a
+   fair like-for-like deployment comparison was not run.
 4. **Direct S2S:** retain Moshika only as the reproducible negative baseline.
    Do not start another full run until a candidate passes a 32-row Persian
    memorization and autoregressive-output gate.
@@ -123,6 +137,30 @@ automatic captions rather than human-clean transcripts, and it establishes a
 catalog-bounded choice rather than global ASR optimality. See
 `docs/ASR_CANDIDATE_COMPARISON_V1.md` and the receipts under
 `results/eval/asr_candidates_v1_*`.
+
+### Post-hoc Shenava supplemental screen
+
+Shenava-Koochik was discovered after the ASR v1 candidates and thresholds were
+frozen. Retroactively inserting it into that experiment would misstate the
+chronology, so `scripts/evaluate_asr_shenava_supplemental_v1.py` reused only
+the already-open development panel and was frozen as an explicitly post-hoc
+screen. It did not access the sealed final panel and could not directly promote
+the challenger.
+
+| Arm | Micro CER | Micro WER | RTF p50 | Outcome |
+|---|---:|---:|---:|---|
+| Fine-tuned NeMo rerun | 0.230119 | 0.371593 | 0.095592 | Retained incumbent |
+| Shenava-Koochik sherpa-ONNX | 0.241644 | 0.403156 | 0.016045 | Did not advance |
+
+Both arms completed all 40 rows. Shenava-minus-NeMo absolute CER reduction was
+-0.011525 and WER reduction was -0.031563; the paired eight-session bootstrap
+interval for its CER difference was [-0.016063, 0.044917]. Thus the challenger
+failed the predeclared material-gain, nonworse-WER, and confidence gates. The
+result establishes excellent CPU speed but no accuracy improvement on this
+automatic-caption panel. Possible overlap between Shenava's reported
+VisualEars training source and the project sources is unknown. See
+`docs/ASR_SHENAVA_SUPPLEMENTAL_V1.md` and the hash/count-only receipts under
+`results/eval/asr_shenava_supplemental_v1_*`.
 
 ## Completed TTS comparison
 

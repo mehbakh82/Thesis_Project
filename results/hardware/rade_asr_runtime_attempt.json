@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "evidence_class": "bounded_runtime_compatibility_attempt",
+  "attempt_date": "2026-09-08",
+  "candidate": {
+    "repository": "RadeAI/Rade-ASR-CTC-3B-fa",
+    "revision": "70129ddc4237bcced50ed10dedc51bc288dff95d",
+    "checkpoint": "model_fp16.pt",
+    "checkpoint_declared_bytes": 6163122260,
+    "checkpoint_lfs_sha256": "3f3c114486f6958491c035606f2a90017196c09c5ec258764b7d8469eaa9c23e",
+    "readme_sha256": "9cf520e908fcf810bceb4e781073788e2540631a494a5b48b34980d6d5f0bfde",
+    "config_sha256": "d460942dfacd1da16051dca2d3b84cf8d5447739efdbd1ab43c7d5388290067c"
+  },
+  "runtime": {
+    "python": "3.12.3",
+    "torch": "2.8.0+cu128",
+    "fairseq2": "0.6",
+    "omnilingual_asr": "0.2.0",
+    "cuda_available": true,
+    "pipeline_import_passed": true,
+    "pipeline_import_note": "Used a process-local lazy-import shim to avoid importing unused training-only parquet datasets; no installed third-party file was modified.",
+    "packaging_note": "omnilingual-asr 0.2.0 declares Python <=3.12, which excludes Python patch releases above 3.12.0 under PEP 440; installation used --ignore-requires-python on Python 3.12."
+  },
+  "checkpoint_transfer": {
+    "ordinary_http_partial_bytes_observed": 41943040,
+    "ordinary_http_projected_minutes_at_observed_rate": "75-80",
+    "chunked_backend_partial_bytes_observed": 614157,
+    "chunked_backend_no_growth_observation_seconds": 64,
+    "completed": false,
+    "stopped_reason": "deadline-bounded transfer; ordinary HTTP was too slow and the chunked backend stalled"
+  },
+  "inference": {
+    "attempted": false,
+    "reason": "checkpoint transfer did not complete",
+    "project_persian_quality_evidence": false
+  },
+  "selection_effect": "none; Rade remains documentary-only and NeMo remains the retained evaluated ASR"
+}

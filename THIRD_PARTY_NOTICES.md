@@ -27,6 +27,13 @@ This project does not relicense third-party source code, model weights, datasets
   CC-BY-NC-4.0. It is used only as a non-commercial thesis comparison
   candidate; its weights and generated audio are not committed or
   redistributed, and the repository's Apache-2.0 license does not cover it.
+- Shenava-Koochik v1.0 sherpa-ONNX
+  (`Reza2kn/Shenava-Koochik-v1.0-sherpa-onnx`), revision
+  `f063f38cb38fe02df39887ac65c441b755ab25a2`: the pinned checkout contains an
+  Apache-2.0 license and model-card declaration. Its `model.onnx` SHA-256 is
+  `6a564b5541920ce1c37bbc91d22e4b3a6838648b9b327eb88997e8db1f90950d`.
+  It was used only for a local thesis comparison; its weights are not
+  committed or redistributed.
 
 No code from the model/runtime repositories listed above is vendored in this
 project.
