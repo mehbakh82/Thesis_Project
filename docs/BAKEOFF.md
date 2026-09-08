@@ -1,6 +1,15 @@
 # Model and codec investigation
 
-**Status: component survey only.** Run `python3 -m thesis_s2s.cli bakeoff` to regenerate `results/bakeoff/bakeoff_report.json`.
+**Status: component survey only.** Run `thesis-s2s bakeoff` to regenerate
+`results/bakeoff/bakeoff_report.json`. The current source-backed candidate
+catalog and fail-closed requirements audit are separate:
+
+```bash
+thesis-s2s audit-model-selection
+```
+
+See `docs/MODEL_AND_DATA_SELECTION_AUDIT.md` and
+`results/model_selection_audit.json`.
 
 ## What actually ran
 
@@ -27,3 +36,19 @@ The earlier local LLaMA-Omni2 encoder/reconstruction ablation remains runtime-in
 
 Therefore Moshi is the implementation path, while the cascade remains the deployable baseline until a Persian adapter passes the stated evidence gates. See `results/bakeoff/DECISION.md`, `docs/MOSHI_H100_RUNBOOK.md`, and `docs/REVIEW.md`.
 
+## Post-release candidate refresh (2026-09-08)
+
+Controlled comparisons remain missing for the direct and TTS tracks, but
+the documentary shortlist now also
+includes MiniCPM-o 4.5, Covo-Audio-Chat-FD, BayLing-Duplex, DuplexOmni,
+Qwen3-ASR, Omnilingual-ASR, Qwen3.5-4B/0.8B, and Qwen3-TTS. The machine-readable
+audit fails closed on Persian quality, adaptation, or 24 GB fields that have not
+been verified. A newly frozen, equal-channel, session-disjoint 40-row responder
+development comparison retained Qwen3-4B: Qwen3.5-4B had zero relevance gain
+and a 15% row win rate, while Qwen3.5-0.8B regressed. The separately locked final
+panel remains sealed. This is a catalog-bounded automatic-proxy result, not a
+global-best claim. A separate frozen 40-row Digiato/Zoomit ASR development
+comparison also retained the fine-tuned NeMo service: CER/WER was
+0.230119/0.371593, versus 0.383788/0.651363 for Qwen3-ASR-1.7B and
+0.492509/0.807747 for Qwen3-ASR-0.6B. Its separately locked final panel remains
+sealed because neither challenger passed the predeclared development gate.

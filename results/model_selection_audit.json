@@ -1,0 +1,977 @@
+{
+  "schema_version": 2,
+  "evidence_class": "requirements_constrained_static_model_audit",
+  "as_of": "2026-09-08",
+  "catalog": "configs/model_selection_audit.yaml",
+  "catalog_sha256": "293609efeb717435ca4be63c2f26e44eb0b2f307481a1332bde0fc28097e65f6",
+  "claim_boundary": "This audit validates declared evidence and fail-closed eligibility. It does not run models, establish unreported Persian quality, or prove global optimality.",
+  "tracks": {
+    "direct_s2s": {
+      "purpose": "Select a trainable native full-duplex Persian speech model for the direct branch.",
+      "current_selection": "moshika-7b",
+      "current_selection_fully_eligible": false,
+      "controlled_same_panel_comparison": false,
+      "eligible_candidates": [],
+      "catalog_comparison_complete": false,
+      "candidates": {
+        "moshika-7b": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "persian_speech_output"
+          ],
+          "criteria": {
+            "native_full_duplex": {
+              "criterion": "native_full_duplex",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/kyutai-labs/moshi",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_inference": {
+              "criterion": "public_inference",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/kyutai-labs/moshi",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_adaptation": {
+              "criterion": "public_adaptation",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/kyutai-labs/moshi-finetune",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "persian_speech_output": {
+              "criterion": "persian_speech_output",
+              "minimum": "verified",
+              "status": "failed",
+              "meets": false,
+              "source": {
+                "kind": "local",
+                "path": "results/moshi_v6_text_dropout_runtime.json",
+                "present": true,
+                "sha256": "6364d2bea9f989501db99698b8ed2821e9608947affa1669a05522f22e0913ec"
+              },
+              "notes": "Every v6.2 checkpoint passed 0/9 frozen runtime rows."
+            },
+            "target_24gb_path": {
+              "criterion": "target_24gb_path",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/kyutai-labs/moshi",
+                "declared": true
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Reproducible engineering baseline; v1-v6.2 produced no eligible Persian runtime checkpoint."
+        },
+        "personaplex-7b-v1": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "public_adaptation",
+            "persian_speech_output",
+            "target_24gb_path"
+          ],
+          "criteria": {
+            "native_full_duplex": {
+              "criterion": "native_full_duplex",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/nvidia/personaplex-7b-v1",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_inference": {
+              "criterion": "public_inference",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/NVIDIA/personaplex",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_adaptation": {
+              "criterion": "public_adaptation",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/NVIDIA/personaplex",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "persian_speech_output": {
+              "criterion": "persian_speech_output",
+              "minimum": "verified",
+              "status": "failed",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/nvidia/personaplex-7b-v1",
+                "declared": true
+              },
+              "notes": "Official use case is English speech input and English speech response."
+            },
+            "target_24gb_path": {
+              "criterion": "target_24gb_path",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/nvidia/personaplex-7b-v1",
+                "declared": true
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Strong full-duplex behavior, but the official release is English input/output."
+        },
+        "qwen3-omni-30b-a3b": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "native_full_duplex",
+            "public_adaptation",
+            "persian_speech_output",
+            "target_24gb_path"
+          ],
+          "criteria": {
+            "native_full_duplex": {
+              "criterion": "native_full_duplex",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/QwenLM/Qwen3-Omni",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_inference": {
+              "criterion": "public_inference",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/QwenLM/Qwen3-Omni",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_adaptation": {
+              "criterion": "public_adaptation",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/QwenLM/Qwen3-Omni",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "persian_speech_output": {
+              "criterion": "persian_speech_output",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/QwenLM/Qwen3-Omni",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "target_24gb_path": {
+              "criterion": "target_24gb_path",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/QwenLM/Qwen3-Omni",
+                "declared": true
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Strong streaming omni model, but not a verified native-duplex Persian 24 GB adaptation path."
+        },
+        "minicpm-o-4.5": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "public_adaptation",
+            "persian_speech_output"
+          ],
+          "criteria": {
+            "native_full_duplex": {
+              "criterion": "native_full_duplex",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/OpenBMB/MiniCPM-V",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_inference": {
+              "criterion": "public_inference",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/OpenBMB/MiniCPM-V",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_adaptation": {
+              "criterion": "public_adaptation",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/OpenBMB/MiniCPM-V",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "persian_speech_output": {
+              "criterion": "persian_speech_output",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/OpenBMB/MiniCPM-V",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "target_24gb_path": {
+              "criterion": "target_24gb_path",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/OpenBMB/MiniCPM-V",
+                "declared": true
+              },
+              "notes": "Quantized llama.cpp path is documented; standard PyTorch path requests 28 GB."
+            }
+          },
+          "notes": "Current full-duplex candidate; Persian behavior and adaptation remain unverified."
+        },
+        "covo-audio-chat-fd": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "public_inference",
+            "public_adaptation",
+            "persian_speech_output",
+            "target_24gb_path"
+          ],
+          "criteria": {
+            "native_full_duplex": {
+              "criterion": "native_full_duplex",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/Tencent/Covo-Audio",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_inference": {
+              "criterion": "public_inference",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/tencent/Covo-Audio-Chat",
+                "declared": true
+              },
+              "notes": "The public checkpoint is Chat, not the described full-duplex variant."
+            },
+            "public_adaptation": {
+              "criterion": "public_adaptation",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/Tencent/Covo-Audio",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "persian_speech_output": {
+              "criterion": "persian_speech_output",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/tencent/Covo-Audio-Chat",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "target_24gb_path": {
+              "criterion": "target_24gb_path",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/Tencent/Covo-Audio",
+                "declared": true
+              },
+              "notes": ""
+            }
+          },
+          "notes": "The paper describes an FD variant, while the public checkpoint is the English/Chinese Chat model."
+        },
+        "bayling-duplex": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "public_adaptation",
+            "persian_speech_output",
+            "target_24gb_path"
+          ],
+          "criteria": {
+            "native_full_duplex": {
+              "criterion": "native_full_duplex",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/BayLing-Models/BayLing-Duplex",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_inference": {
+              "criterion": "public_inference",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/BayLing-Models/BayLing-Duplex",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_adaptation": {
+              "criterion": "public_adaptation",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/BayLing-Models/BayLing-Duplex",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "persian_speech_output": {
+              "criterion": "persian_speech_output",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/BayLing-Models/BayLing-Duplex",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "target_24gb_path": {
+              "criterion": "target_24gb_path",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/BayLing-Models/BayLing-Duplex",
+                "declared": true
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Native-duplex inference release; Persian adaptation and target fit are unverified."
+        },
+        "duplexomni": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "persian_speech_output",
+            "target_24gb_path"
+          ],
+          "criteria": {
+            "native_full_duplex": {
+              "criterion": "native_full_duplex",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/MuyeHuang/DuplexOmni",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_inference": {
+              "criterion": "public_inference",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/MuyeHuang/DuplexOmni",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_adaptation": {
+              "criterion": "public_adaptation",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/MuyeHuang/DuplexOmni",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "persian_speech_output": {
+              "criterion": "persian_speech_output",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/MuyeHuang/DuplexOmni",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "target_24gb_path": {
+              "criterion": "target_24gb_path",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/MuyeHuang/DuplexOmni",
+                "declared": true
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Public research pipeline with very large external assets; no verified Persian/24 GB result."
+        }
+      }
+    },
+    "asr": {
+      "purpose": "Select the Persian streaming ASR component on project data.",
+      "current_selection": "nemo-persian-finetune",
+      "current_selection_fully_eligible": true,
+      "controlled_same_panel_comparison": true,
+      "eligible_candidates": [
+        "nemo-persian-finetune",
+        "qwen3-asr-1.7b",
+        "qwen3-asr-0.6b"
+      ],
+      "catalog_comparison_complete": true,
+      "candidates": {
+        "nemo-persian-finetune": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "persian_support": {
+              "criterion": "persian_support",
+              "minimum": "documented",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/cascade_intelligibility_proxy.json",
+                "present": true,
+                "sha256": "4c7cfb39e25739ee0e626614ffaac9843b32717154de45d3c706b7544051988d"
+              },
+              "notes": ""
+            },
+            "streaming_or_service_runtime": {
+              "criterion": "streaming_or_service_runtime",
+              "minimum": "documented",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/cascade_real_service_validation_panel.json",
+                "present": true,
+                "sha256": "ae515381db2b72e9ed0b8dcb491c0765990732ed8bb8c46383499b9d60f89ced"
+              },
+              "notes": ""
+            },
+            "project_persian_evaluation": {
+              "criterion": "project_persian_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/cascade_intelligibility_proxy.json",
+                "present": true,
+                "sha256": "4c7cfb39e25739ee0e626614ffaac9843b32717154de45d3c706b7544051988d"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Existing service retained by the leakage-conscious controlled development comparison."
+        },
+        "qwen3-asr-1.7b": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "persian_support": {
+              "criterion": "persian_support",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/QwenLM/Qwen3-ASR",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "streaming_or_service_runtime": {
+              "criterion": "streaming_or_service_runtime",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/QwenLM/Qwen3-ASR",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "project_persian_evaluation": {
+              "criterion": "project_persian_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/asr_candidates_v1_development.json",
+                "present": true,
+                "sha256": "4759d850fe7fcb3f7a6cf3dd4b5a346047e465a90d2b0312b40b0805bd14d649"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Strongest new ASR challenger; substantially worse than the incumbent on the frozen project panel."
+        },
+        "qwen3-asr-0.6b": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "persian_support": {
+              "criterion": "persian_support",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/QwenLM/Qwen3-ASR",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "streaming_or_service_runtime": {
+              "criterion": "streaming_or_service_runtime",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/QwenLM/Qwen3-ASR",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "project_persian_evaluation": {
+              "criterion": "project_persian_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/asr_candidates_v1_development.json",
+                "present": true,
+                "sha256": "4759d850fe7fcb3f7a6cf3dd4b5a346047e465a90d2b0312b40b0805bd14d649"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Low-memory challenger; substantially worse than the incumbent on the frozen project panel."
+        },
+        "omnilingual-asr": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "streaming_or_service_runtime",
+            "project_persian_evaluation"
+          ],
+          "criteria": {
+            "persian_support": {
+              "criterion": "persian_support",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/facebookresearch/omnilingual-asr",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "streaming_or_service_runtime": {
+              "criterion": "streaming_or_service_runtime",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/facebookresearch/omnilingual-asr",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "project_persian_evaluation": {
+              "criterion": "project_persian_evaluation",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/facebookresearch/omnilingual-asr",
+                "declared": true
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Broad multilingual challenger; Persian-specific project evaluation is absent."
+        }
+      }
+    },
+    "responder": {
+      "purpose": "Select the local Persian text responder without reusing an opened final panel.",
+      "current_selection": "qwen3-4b-instruct-2507-prompt-v2",
+      "current_selection_fully_eligible": true,
+      "controlled_same_panel_comparison": true,
+      "eligible_candidates": [
+        "qwen3-4b-instruct-2507-prompt-v2",
+        "qwen3.5-4b",
+        "qwen3.5-0.8b"
+      ],
+      "catalog_comparison_complete": true,
+      "candidates": {
+        "qwen3-4b-instruct-2507-prompt-v2": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "local_initialization": {
+              "criterion": "local_initialization",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/qwen4b_responder_v2_final_test_proxy.json",
+                "present": true,
+                "sha256": "97e29206c74f8489ee870b53495bc4dc007d922bf1f84402499a44e046e64d24"
+              },
+              "notes": ""
+            },
+            "persian_generation": {
+              "criterion": "persian_generation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/qwen4b_responder_v2_final_test_proxy.json",
+                "present": true,
+                "sha256": "97e29206c74f8489ee870b53495bc4dc007d922bf1f84402499a44e046e64d24"
+              },
+              "notes": ""
+            },
+            "group_disjoint_semantic_evaluation": {
+              "criterion": "group_disjoint_semantic_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/qwen4b_responder_v2_final_test_proxy.json",
+                "present": true,
+                "sha256": "97e29206c74f8489ee870b53495bc4dc007d922bf1f84402499a44e046e64d24"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Frozen positive final result and retained by the post-release controlled development comparison."
+        },
+        "qwen3.5-4b": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "local_initialization": {
+              "criterion": "local_initialization",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/hardware/qwen35_local_smoke.json",
+                "present": true,
+                "sha256": "0af27f7c996d731c708c156aae8c9e8c894822d137dab10f555faaacb9162086"
+              },
+              "notes": ""
+            },
+            "persian_generation": {
+              "criterion": "persian_generation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/hardware/qwen35_local_smoke.json",
+                "present": true,
+                "sha256": "0af27f7c996d731c708c156aae8c9e8c894822d137dab10f555faaacb9162086"
+              },
+              "notes": ""
+            },
+            "group_disjoint_semantic_evaluation": {
+              "criterion": "group_disjoint_semantic_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_candidates_v1_development.json",
+                "present": true,
+                "sha256": "8d4ec2f24d49af0d5162fdb6b9b6021a97ad8afaa4ce56799ec5c15f6810b426"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Mechanically valid on the controlled panel but not promoted (zero mean relevance gain; 15% row win rate)."
+        },
+        "qwen3.5-0.8b": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "local_initialization": {
+              "criterion": "local_initialization",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/hardware/qwen35_local_smoke.json",
+                "present": true,
+                "sha256": "0af27f7c996d731c708c156aae8c9e8c894822d137dab10f555faaacb9162086"
+              },
+              "notes": ""
+            },
+            "persian_generation": {
+              "criterion": "persian_generation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/hardware/qwen35_local_smoke.json",
+                "present": true,
+                "sha256": "0af27f7c996d731c708c156aae8c9e8c894822d137dab10f555faaacb9162086"
+              },
+              "notes": ""
+            },
+            "group_disjoint_semantic_evaluation": {
+              "criterion": "group_disjoint_semantic_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_candidates_v1_development.json",
+                "present": true,
+                "sha256": "8d4ec2f24d49af0d5162fdb6b9b6021a97ad8afaa4ce56799ec5c15f6810b426"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Mechanically valid low-memory ablation; not promoted after relevance and coherence regressions."
+        }
+      }
+    },
+    "tts": {
+      "purpose": "Select a locally deployable Persian speech synthesizer.",
+      "current_selection": "mana-persian-piper",
+      "current_selection_fully_eligible": true,
+      "controlled_same_panel_comparison": false,
+      "eligible_candidates": [
+        "mana-persian-piper"
+      ],
+      "catalog_comparison_complete": false,
+      "candidates": {
+        "mana-persian-piper": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "persian_output": {
+              "criterion": "persian_output",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/cascade_intelligibility_proxy.json",
+                "present": true,
+                "sha256": "4c7cfb39e25739ee0e626614ffaac9843b32717154de45d3c706b7544051988d"
+              },
+              "notes": ""
+            },
+            "realtime_path": {
+              "criterion": "realtime_path",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/MahtaFetrat/Mana-Persian-Piper",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "project_intelligibility_evaluation": {
+              "criterion": "project_intelligibility_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/cascade_intelligibility_proxy.json",
+                "present": true,
+                "sha256": "4c7cfb39e25739ee0e626614ffaac9843b32717154de45d3c706b7544051988d"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Deterministic lightweight Persian synthesizer used by the positive cascade."
+        },
+        "qwen3-tts": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "persian_output",
+            "project_intelligibility_evaluation"
+          ],
+          "criteria": {
+            "persian_output": {
+              "criterion": "persian_output",
+              "minimum": "verified",
+              "status": "failed",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/QwenLM/Qwen3-TTS",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "realtime_path": {
+              "criterion": "realtime_path",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/QwenLM/Qwen3-TTS",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "project_intelligibility_evaluation": {
+              "criterion": "project_intelligibility_evaluation",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/QwenLM/Qwen3-TTS",
+                "declared": true
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Streaming and trainable, but official released language support excludes Persian."
+        }
+      }
+    }
+  },
+  "model_selection_audit": {
+    "passes": false,
+    "blockers": [
+      "direct_s2s:current_selection_not_fully_eligible",
+      "direct_s2s:fewer_than_two_fully_eligible_candidates",
+      "direct_s2s:no_controlled_same_panel_comparison",
+      "tts:fewer_than_two_fully_eligible_candidates",
+      "tts:no_controlled_same_panel_comparison"
+    ],
+    "catalog_bounded_selection_claim_allowed": false,
+    "global_best_model_claim_allowed": false
+  }
+}

@@ -13,6 +13,17 @@ def main(argv: list[str] | None = None) -> None:
 
     p_bake = sub.add_parser("bakeoff")
     p_bake.add_argument("--no-hf", action="store_true")
+    p_model_audit = sub.add_parser("audit-model-selection")
+    p_model_audit.add_argument(
+        "--catalog",
+        type=Path,
+        default=Path("configs/model_selection_audit.yaml"),
+    )
+    p_model_audit.add_argument(
+        "--out",
+        type=Path,
+        default=Path("results/model_selection_audit.json"),
+    )
     sub.add_parser("cosyvoice-probe")
     p_s3 = sub.add_parser("s3-inventory")
     p_s3.add_argument("--out", type=Path, default=Path("results/s3_inventory.json"))
@@ -116,6 +127,19 @@ def main(argv: list[str] | None = None) -> None:
     p_conv_audit.add_argument("--out", type=Path, default=Path("results/conversation_audit.json"))
     p_conv_audit.add_argument("--no-check-files", action="store_true")
     p_conv_audit.add_argument("--qa-waiver", type=Path, default=None)
+    p_balance = sub.add_parser("audit-conversation-balance")
+    p_balance.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("data/processed/manifests/conversations.jsonl"),
+    )
+    p_balance.add_argument(
+        "--out",
+        type=Path,
+        default=Path("results/conversation_balance_audit.json"),
+    )
+    p_balance.add_argument("--max-channel-share", type=float, default=0.55)
+    p_balance.add_argument("--min-channels", type=int, default=4)
     p_omni_export = sub.add_parser("export-omni2-data")
     p_omni_export.add_argument(
         "--manifest", type=Path, default=Path("data/processed/manifests/conversations.jsonl")
@@ -438,6 +462,11 @@ def main(argv: list[str] | None = None) -> None:
         from thesis_s2s.bakeoff.run import run_bakeoff
 
         print(json.dumps(run_bakeoff(allow_hf=not args.no_hf), indent=2, default=str)[:5000])
+    elif args.cmd == "audit-model-selection":
+        from thesis_s2s.eval.model_selection import audit_model_selection
+
+        report = audit_model_selection(args.catalog, args.out)
+        print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "cosyvoice-probe":
         from thesis_s2s.bakeoff.codecs import probe_cosyvoice2
         from thesis_s2s.config import project_root
@@ -559,6 +588,16 @@ def main(argv: list[str] | None = None) -> None:
             args.out,
             check_files=not args.no_check_files,
             qa_waiver_path=args.qa_waiver,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "audit-conversation-balance":
+        from thesis_s2s.data.conversation_balance import audit_conversation_balance
+
+        report = audit_conversation_balance(
+            args.manifest,
+            args.out,
+            max_channel_hour_share=args.max_channel_share,
+            min_channels=args.min_channels,
         )
         print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "export-omni2-data":

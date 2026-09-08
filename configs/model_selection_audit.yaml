@@ -1,0 +1,288 @@
+schema_version: 1
+as_of: "2026-09-08"
+
+# Evidence states:
+#   verified   measured inside this repository under a recorded protocol
+#   documented stated by an official upstream source, but not measured here
+#   failed     explicitly unsupported or failed the project gate
+#   unknown    no adequate evidence; always fails closed
+tracks:
+  direct_s2s:
+    purpose: Select a trainable native full-duplex Persian speech model for the direct branch.
+    current_selection: moshika-7b
+    controlled_same_panel_comparison: false
+    requirements:
+      native_full_duplex: {minimum: documented}
+      public_inference: {minimum: documented}
+      public_adaptation: {minimum: documented}
+      persian_speech_output: {minimum: verified}
+      target_24gb_path: {minimum: documented}
+    candidates:
+      moshika-7b:
+        notes: Reproducible engineering baseline; v1-v6.2 produced no eligible Persian runtime checkpoint.
+        evidence:
+          native_full_duplex:
+            status: documented
+            source: https://github.com/kyutai-labs/moshi
+          public_inference:
+            status: documented
+            source: https://github.com/kyutai-labs/moshi
+          public_adaptation:
+            status: documented
+            source: https://github.com/kyutai-labs/moshi-finetune
+          persian_speech_output:
+            status: failed
+            source: local:results/moshi_v6_text_dropout_runtime.json
+            notes: Every v6.2 checkpoint passed 0/9 frozen runtime rows.
+          target_24gb_path:
+            status: documented
+            source: https://github.com/kyutai-labs/moshi
+      personaplex-7b-v1:
+        notes: Strong full-duplex behavior, but the official release is English input/output.
+        evidence:
+          native_full_duplex:
+            status: documented
+            source: https://huggingface.co/nvidia/personaplex-7b-v1
+          public_inference:
+            status: documented
+            source: https://github.com/NVIDIA/personaplex
+          public_adaptation:
+            status: unknown
+            source: https://github.com/NVIDIA/personaplex
+          persian_speech_output:
+            status: failed
+            source: https://huggingface.co/nvidia/personaplex-7b-v1
+            notes: Official use case is English speech input and English speech response.
+          target_24gb_path:
+            status: unknown
+            source: https://huggingface.co/nvidia/personaplex-7b-v1
+      qwen3-omni-30b-a3b:
+        notes: Strong streaming omni model, but not a verified native-duplex Persian 24 GB adaptation path.
+        evidence:
+          native_full_duplex:
+            status: unknown
+            source: https://github.com/QwenLM/Qwen3-Omni
+          public_inference:
+            status: documented
+            source: https://github.com/QwenLM/Qwen3-Omni
+          public_adaptation:
+            status: unknown
+            source: https://github.com/QwenLM/Qwen3-Omni
+          persian_speech_output:
+            status: unknown
+            source: https://github.com/QwenLM/Qwen3-Omni
+          target_24gb_path:
+            status: unknown
+            source: https://github.com/QwenLM/Qwen3-Omni
+      minicpm-o-4.5:
+        notes: Current full-duplex candidate; Persian behavior and adaptation remain unverified.
+        evidence:
+          native_full_duplex:
+            status: documented
+            source: https://github.com/OpenBMB/MiniCPM-V
+          public_inference:
+            status: documented
+            source: https://github.com/OpenBMB/MiniCPM-V
+          public_adaptation:
+            status: unknown
+            source: https://github.com/OpenBMB/MiniCPM-V
+          persian_speech_output:
+            status: unknown
+            source: https://github.com/OpenBMB/MiniCPM-V
+          target_24gb_path:
+            status: documented
+            source: https://github.com/OpenBMB/MiniCPM-V
+            notes: Quantized llama.cpp path is documented; standard PyTorch path requests 28 GB.
+      covo-audio-chat-fd:
+        notes: The paper describes an FD variant, while the public checkpoint is the English/Chinese Chat model.
+        evidence:
+          native_full_duplex:
+            status: documented
+            source: https://github.com/Tencent/Covo-Audio
+          public_inference:
+            status: unknown
+            source: https://huggingface.co/tencent/Covo-Audio-Chat
+            notes: The public checkpoint is Chat, not the described full-duplex variant.
+          public_adaptation:
+            status: unknown
+            source: https://github.com/Tencent/Covo-Audio
+          persian_speech_output:
+            status: unknown
+            source: https://huggingface.co/tencent/Covo-Audio-Chat
+          target_24gb_path:
+            status: unknown
+            source: https://github.com/Tencent/Covo-Audio
+      bayling-duplex:
+        notes: Native-duplex inference release; Persian adaptation and target fit are unverified.
+        evidence:
+          native_full_duplex:
+            status: documented
+            source: https://github.com/BayLing-Models/BayLing-Duplex
+          public_inference:
+            status: documented
+            source: https://github.com/BayLing-Models/BayLing-Duplex
+          public_adaptation:
+            status: unknown
+            source: https://github.com/BayLing-Models/BayLing-Duplex
+          persian_speech_output:
+            status: unknown
+            source: https://github.com/BayLing-Models/BayLing-Duplex
+          target_24gb_path:
+            status: unknown
+            source: https://github.com/BayLing-Models/BayLing-Duplex
+      duplexomni:
+        notes: Public research pipeline with very large external assets; no verified Persian/24 GB result.
+        evidence:
+          native_full_duplex:
+            status: documented
+            source: https://github.com/MuyeHuang/DuplexOmni
+          public_inference:
+            status: documented
+            source: https://github.com/MuyeHuang/DuplexOmni
+          public_adaptation:
+            status: documented
+            source: https://github.com/MuyeHuang/DuplexOmni
+          persian_speech_output:
+            status: unknown
+            source: https://github.com/MuyeHuang/DuplexOmni
+          target_24gb_path:
+            status: unknown
+            source: https://github.com/MuyeHuang/DuplexOmni
+
+  asr:
+    purpose: Select the Persian streaming ASR component on project data.
+    current_selection: nemo-persian-finetune
+    controlled_same_panel_comparison: true
+    requirements:
+      persian_support: {minimum: documented}
+      streaming_or_service_runtime: {minimum: documented}
+      project_persian_evaluation: {minimum: verified}
+    candidates:
+      nemo-persian-finetune:
+        notes: Existing service retained by the leakage-conscious controlled development comparison.
+        evidence:
+          persian_support:
+            status: verified
+            source: local:results/eval/cascade_intelligibility_proxy.json
+          streaming_or_service_runtime:
+            status: verified
+            source: local:results/eval/cascade_real_service_validation_panel.json
+          project_persian_evaluation:
+            status: verified
+            source: local:results/eval/cascade_intelligibility_proxy.json
+      qwen3-asr-1.7b:
+        notes: Strongest new ASR challenger; substantially worse than the incumbent on the frozen project panel.
+        evidence:
+          persian_support:
+            status: documented
+            source: https://github.com/QwenLM/Qwen3-ASR
+          streaming_or_service_runtime:
+            status: documented
+            source: https://github.com/QwenLM/Qwen3-ASR
+          project_persian_evaluation:
+            status: verified
+            source: local:results/eval/asr_candidates_v1_development.json
+      qwen3-asr-0.6b:
+        notes: Low-memory challenger; substantially worse than the incumbent on the frozen project panel.
+        evidence:
+          persian_support:
+            status: documented
+            source: https://github.com/QwenLM/Qwen3-ASR
+          streaming_or_service_runtime:
+            status: documented
+            source: https://github.com/QwenLM/Qwen3-ASR
+          project_persian_evaluation:
+            status: verified
+            source: local:results/eval/asr_candidates_v1_development.json
+      omnilingual-asr:
+        notes: Broad multilingual challenger; Persian-specific project evaluation is absent.
+        evidence:
+          persian_support:
+            status: documented
+            source: https://github.com/facebookresearch/omnilingual-asr
+          streaming_or_service_runtime:
+            status: unknown
+            source: https://github.com/facebookresearch/omnilingual-asr
+          project_persian_evaluation:
+            status: unknown
+            source: https://github.com/facebookresearch/omnilingual-asr
+
+  responder:
+    purpose: Select the local Persian text responder without reusing an opened final panel.
+    current_selection: qwen3-4b-instruct-2507-prompt-v2
+    controlled_same_panel_comparison: true
+    requirements:
+      local_initialization: {minimum: verified}
+      persian_generation: {minimum: verified}
+      group_disjoint_semantic_evaluation: {minimum: verified}
+    candidates:
+      qwen3-4b-instruct-2507-prompt-v2:
+        notes: Frozen positive final result and retained by the post-release controlled development comparison.
+        evidence:
+          local_initialization:
+            status: verified
+            source: local:results/eval/qwen4b_responder_v2_final_test_proxy.json
+          persian_generation:
+            status: verified
+            source: local:results/eval/qwen4b_responder_v2_final_test_proxy.json
+          group_disjoint_semantic_evaluation:
+            status: verified
+            source: local:results/eval/qwen4b_responder_v2_final_test_proxy.json
+      qwen3.5-4b:
+        notes: Mechanically valid on the controlled panel but not promoted (zero mean relevance gain; 15% row win rate).
+        evidence:
+          local_initialization:
+            status: verified
+            source: local:results/hardware/qwen35_local_smoke.json
+          persian_generation:
+            status: verified
+            source: local:results/hardware/qwen35_local_smoke.json
+          group_disjoint_semantic_evaluation:
+            status: verified
+            source: local:results/eval/responder_candidates_v1_development.json
+      qwen3.5-0.8b:
+        notes: Mechanically valid low-memory ablation; not promoted after relevance and coherence regressions.
+        evidence:
+          local_initialization:
+            status: verified
+            source: local:results/hardware/qwen35_local_smoke.json
+          persian_generation:
+            status: verified
+            source: local:results/hardware/qwen35_local_smoke.json
+          group_disjoint_semantic_evaluation:
+            status: verified
+            source: local:results/eval/responder_candidates_v1_development.json
+
+  tts:
+    purpose: Select a locally deployable Persian speech synthesizer.
+    current_selection: mana-persian-piper
+    controlled_same_panel_comparison: false
+    requirements:
+      persian_output: {minimum: verified}
+      realtime_path: {minimum: documented}
+      project_intelligibility_evaluation: {minimum: verified}
+    candidates:
+      mana-persian-piper:
+        notes: Deterministic lightweight Persian synthesizer used by the positive cascade.
+        evidence:
+          persian_output:
+            status: verified
+            source: local:results/eval/cascade_intelligibility_proxy.json
+          realtime_path:
+            status: documented
+            source: https://huggingface.co/MahtaFetrat/Mana-Persian-Piper
+          project_intelligibility_evaluation:
+            status: verified
+            source: local:results/eval/cascade_intelligibility_proxy.json
+      qwen3-tts:
+        notes: Streaming and trainable, but official released language support excludes Persian.
+        evidence:
+          persian_output:
+            status: failed
+            source: https://github.com/QwenLM/Qwen3-TTS
+          realtime_path:
+            status: documented
+            source: https://github.com/QwenLM/Qwen3-TTS
+          project_intelligibility_evaluation:
+            status: unknown
+            source: https://github.com/QwenLM/Qwen3-TTS

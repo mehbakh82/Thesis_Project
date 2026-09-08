@@ -44,12 +44,29 @@ Neither synthetic latency nor an H100 memory cap is accepted as official
 end-to-end evidence.
 
 Two additional local Apache-2.0 checkpoints, Qwen3.5-0.8B and Qwen3.5-4B,
-were also verified to initialize and produce Persian in bounded synthetic
-text-only smoke tests. They are useful future low-memory and upgrade candidates,
-respectively, but neither was allowed to replace the frozen Qwen3-4B responder:
-they have not passed a newly predeclared group-disjoint semantic evaluation,
-and the already-open final panel cannot be reused for model selection. See
-`results/hardware/qwen35_local_smoke.json`.
+were compared with Qwen3-4B on a newly frozen, equal-channel, session-disjoint
+40-row development panel. All arms completed 40/40 generations and 80/80 judge
+calls. Qwen3.5-4B tied mean relevance (3.475), improved coherence by 0.075, but
+won only 6/40 rows and failed the predeclared material-gain rule; Qwen3.5-0.8B
+regressed. Qwen3-4B is therefore retained and the separately locked final panel
+remains unopened. See `docs/RESPONDER_CANDIDATE_COMPARISON_V1.md` and
+`results/eval/responder_candidates_v1_development.json`.
+
+The ASR track was likewise tested on a newly frozen, leakage-conscious 40-row
+Digiato/Zoomit development panel. The fine-tuned NeMo service achieved
+CER/WER 0.230119/0.371593, outperforming Qwen3-ASR-1.7B
+(0.383788/0.651363) and Qwen3-ASR-0.6B (0.492509/0.807747). NeMo is retained;
+the separately locked 40-row final panel remains unopened because neither
+challenger passed the predeclared promotion gate. See
+`docs/ASR_CANDIDATE_COMPARISON_V1.md` and
+`results/eval/asr_candidates_v1_development.json`.
+
+The post-release model/data hardening audit is documented in
+[`docs/MODEL_AND_DATA_SELECTION_AUDIT.md`](docs/MODEL_AND_DATA_SELECTION_AUDIT.md).
+Its reproducible commands are `thesis-s2s audit-model-selection` and
+`thesis-s2s audit-conversation-balance`; the resulting receipts deliberately
+fail closed rather than converting upstream model-card claims into empirical
+Persian evidence.
 
 For the deadline handoff, `docs/THESIS_REPORTING_FA.md` provides copy-ready
 Persian text for the abstract, methods, exact result tables, discussion,

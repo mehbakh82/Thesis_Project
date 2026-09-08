@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "evidence_class": "deterministic_manifest_balance_audit",
+  "manifest": "data/processed/manifests/conversations.jsonl",
+  "manifest_sha256": "aabf12268cce2854ef8b16ffd9339c6d703339c6b4c50a23a105447047a13a86",
+  "requirements": {
+    "max_channel_hour_share": 0.55,
+    "minimum_channels": 4
+  },
+  "totals": {
+    "pairs": 6754,
+    "source_pair_hours": 123.795553,
+    "channels": 4,
+    "sessions": 162,
+    "human_verified_rows": 0
+  },
+  "channels": {
+    "Digiato": {
+      "pairs": 1104,
+      "pair_share": 0.163459,
+      "sessions": 21,
+      "source_pair_hours": 7.945021,
+      "hour_share": 0.064179,
+      "user_hours": 4.028294,
+      "source_response_hours": 3.871696,
+      "human_verified_rows": 0,
+      "interaction_candidates": 255
+    },
+    "Mehran Rowshan Persian": {
+      "pairs": 1302,
+      "pair_share": 0.192775,
+      "sessions": 51,
+      "source_pair_hours": 17.995783,
+      "hour_share": 0.145367,
+      "user_hours": 8.727288,
+      "source_response_hours": 9.18236,
+      "human_verified_rows": 0,
+      "interaction_candidates": 96
+    },
+    "Tabaghe16": {
+      "pairs": 3881,
+      "pair_share": 0.574622,
+      "sessions": 77,
+      "source_pair_hours": 92.782454,
+      "hour_share": 0.749481,
+      "user_hours": 48.2928,
+      "source_response_hours": 44.401925,
+      "human_verified_rows": 0,
+      "interaction_candidates": 357
+    },
+    "Zoomit": {
+      "pairs": 467,
+      "pair_share": 0.069144,
+      "sessions": 13,
+      "source_pair_hours": 5.072295,
+      "hour_share": 0.040973,
+      "user_hours": 2.53292,
+      "source_response_hours": 2.497264,
+      "human_verified_rows": 0,
+      "interaction_candidates": 62
+    }
+  },
+  "dominance": {
+    "channel": "Tabaghe16",
+    "hours": 92.782454,
+    "hour_share": 0.749481,
+    "balance_gate_passes": false,
+    "hours_to_replace_at_fixed_total": 24.6949,
+    "non_dominant_hours_to_add_if_retaining_all": 44.899818
+  },
+  "quality_boundaries": {
+    "invalid_rows": [],
+    "all_rows_human_verified": false,
+    "automatic_balance_is_human_quality_evidence": false
+  },
+  "recommendations": [
+    "At a fixed 123.796 h total, replace at least 24.695 h of Tabaghe16 with other sources.",
+    "If retaining every Tabaghe16 pair, add at least 44.900 h from other sources.",
+    "Complete the preserved listening QA before making human-quality claims."
+  ],
+  "strict_representative_balance_passes": false
+}

@@ -1,6 +1,6 @@
 # Checklist for a defensible 10/10 thesis project
 
-Status date: 2026-09-07
+Status date: 2026-09-08
 
 This is the authoritative closure checklist. Mark an item complete only when its
 named artifact exists and its acceptance test passes. Implemented code,
@@ -17,6 +17,45 @@ an item explicitly says they are.
   item or authorize the corresponding strict claim.
 - A written supervisor-approved scope amendment can replace a requirement; an
   informal assumption cannot.
+
+## Post-release model/data optimality hardening
+
+- [x] Replace ambiguous “best model” wording with an executable,
+  requirements-constrained audit that separates project-verified evidence,
+  official documentation, failures, and unknowns.
+- [x] Add current direct candidates: PersonaPlex, Qwen3-Omni, MiniCPM-o 4.5,
+  Covo-Audio-Chat-FD, BayLing-Duplex, and DuplexOmni.
+- [x] Add current component challengers: Qwen3-ASR 1.7B/0.6B,
+  Omnilingual-ASR, local Qwen3.5-4B/0.8B, and Qwen3-TTS.
+- [x] Preserve the frozen Qwen3-4B result and prohibit reuse of its opened final
+  panel for Qwen3.5 selection.
+- [x] Add `audit-model-selection` with fail-closed source validation and unit
+  tests; generate `results/model_selection_audit.json`.
+- [x] Add `audit-conversation-balance` with exact source/session/hour shares,
+  remediation arithmetic, and unit tests; generate
+  `results/conversation_balance_audit.json`.
+- [x] Quantify the final imbalance: Tabaghe16 is 74.9481% of source-pair hours;
+  a fixed-size repair replaces 24.694900 h, while a retain-all repair adds
+  44.899818 non-Tabaghe hours and remains under 200 h.
+- [x] Run NeMo versus Qwen3-ASR-1.7B/0.6B on a newly frozen, leakage-conscious
+  40-row Persian development panel (20 Digiato + 20 Zoomit; 272.465 seconds).
+  NeMo won decisively: CER/WER 0.230119/0.371593 versus
+  0.383788/0.651363 for 1.7B and 0.492509/0.807747 for 0.6B. The frozen rule
+  retained NeMo and kept the separate 40-row final panel sealed.
+- [x] Run Qwen3-4B versus Qwen3.5-4B/0.8B on a newly frozen equal-channel,
+  session-disjoint 40-row development panel. All three arms completed 40/40
+  generations and 80/80 judge calls. Qwen3.5-4B produced zero mean relevance
+  gain and only 6/40 row wins; Qwen3.5-0.8B regressed. The frozen rule retained
+  Qwen3-4B and kept the separately locked 40-row final panel unopened.
+- [ ] Build a versioned, more balanced corpus only after at least 44.900 new
+  high-confidence non-Tabaghe pair hours pass the same audits. Do not overwrite
+  the frozen submission corpus or mix incompatible result versions.
+- [ ] Evaluate a second genuinely Persian TTS on the same text, latency,
+  intelligibility, and human-listening protocol. Qwen3-TTS is not eligible
+  without Persian adaptation and verification.
+- [ ] Promote a replacement direct model only after public adaptation,
+  project-verified Persian output, native duplex runtime, and physical 24 GB fit
+  all pass; currently no candidate qualifies.
 
 The active conversation-data policy is the transparent, student-authorized
 automatic-only waiver in `docs/QA_WAIVER.md`. It permits limited internal
