@@ -130,6 +130,8 @@ SNAPSHOT_FILES = (
     "results/eval/asr_candidates_v1_development_attempt1_failed.json",
     "results/eval/asr_candidates_v1_plan.json",
     "results/eval/asr_candidates_v1_development.json",
+    "results/eval/tts_candidates_v1_plan.json",
+    "results/eval/tts_candidates_v1_development.json",
     "results/eval/EVIDENCE_STATUS.json",
     "results/eval/SUMMARY.md",
     "results/release/final_audit.json",

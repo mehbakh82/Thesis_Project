@@ -256,7 +256,7 @@ tracks:
   tts:
     purpose: Select a locally deployable Persian speech synthesizer.
     current_selection: mana-persian-piper
-    controlled_same_panel_comparison: false
+    controlled_same_panel_comparison: true
     requirements:
       persian_output: {minimum: verified}
       realtime_path: {minimum: documented}
@@ -269,11 +269,23 @@ tracks:
             status: verified
             source: local:results/eval/cascade_intelligibility_proxy.json
           realtime_path:
-            status: documented
-            source: https://huggingface.co/MahtaFetrat/Mana-Persian-Piper
+            status: verified
+            source: local:results/eval/tts_candidates_v1_development.json
           project_intelligibility_evaluation:
             status: verified
-            source: local:results/eval/cascade_intelligibility_proxy.json
+            source: local:results/eval/tts_candidates_v1_development.json
+      facebook-mms-tts-fas:
+        notes: Mechanically valid Persian challenger; retained only as an evaluated negative because CER/WER were worse than Mana-Piper.
+        evidence:
+          persian_output:
+            status: verified
+            source: local:results/eval/tts_candidates_v1_development.json
+          realtime_path:
+            status: verified
+            source: local:results/eval/tts_candidates_v1_development.json
+          project_intelligibility_evaluation:
+            status: verified
+            source: local:results/eval/tts_candidates_v1_development.json
       qwen3-tts:
         notes: Streaming and trainable, but official released language support excludes Persian.
         evidence:

@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "stage": "preinference_plan",
+  "generated_at": "2026-09-08T14:20:54.613158+00:00",
+  "source_sha256": "aabf12268cce2854ef8b16ffd9339c6d703339c6b4c50a23a105447047a13a86",
+  "protocol_sha256": "d7d6fa5b322e2480e01eb5b4cf288b47fd2401e0a22680b4be9c9dc8c43b408b",
+  "evaluator_sha256": "7959f86a40f609e3d208e8f8b1203dd03396aee21cf93c5feeed41cefc64f7c6",
+  "selection_seed": "20260908-tts-candidates-v1",
+  "development": {
+    "rows": 40,
+    "sessions": 8,
+    "channels": {
+      "Digiato": 10,
+      "Mehran Rowshan Persian": 10,
+      "Tabaghe16": 10,
+      "Zoomit": 10
+    },
+    "reference_words": 490,
+    "reference_characters": 1979,
+    "row_id_sequence_sha256": "138830d64bd92e64a07f2d7ad4083253419d11cc7868aed13fbaf02845f1a963",
+    "session_set_sha256": "961f440ecd1e3046ea22cc73b634bee51a1f79dca75037bcfa681a93ecb6de90",
+    "reference_sequence_sha256": "e66dc57832993e9c7c82190c25cddb9b87b5d7ac86934a78da37dbf40117c67d",
+    "row_hashes": [
+      "d81e5d4e18f1e0fe05d5795e429f2b0b45b6756231fd5110652523ff847da78d",
+      "600668098a4f7c74d802f9d5350aba6f49714f1c1aee054757900b8812b74757",
+      "3d76a3f2dfab2eac8413810abe68e9daa073ffd42b42704dd96fa71add474706",
+      "6d8ead905648ecc308e978b93d584259005f0ad38f063b63e6ac6fb6939df0bb",
+      "021546c1553deccfb56a02f00dfabbb0af0b0301bd4cd3808e2e79b3f4aa0415",
+      "6a7cd330971756596f17dfc0ccbefd995637c65f407f685a399c2c315fe210c5",
+      "bff770d2cdd493ac1c8d01aec922db0494ec09ad783dea1b47454b5c2906a12f",
+      "39f1d75493f76d86f6c305d78fda3c467012a993230c83f90a2be3f85c31907e",
+      "9e759d2e5d13de9ce62dedea8e3d2cc9f7a038986a9bffb57889c3a14c878dd0",
+      "2f9474a18a01ed783ab97c12169543b34262274a27ddfb0080797beaa06f47b9",
+      "77948799ace3acfd33a3886e2d5be446bf9b868c944b27f848af8ee7525017c3",
+      "ac3d515b673cfa97156d33916fbac9fc19827f1356e2f39162f52d1bde6c6e28",
+      "797b7a620ad9f39166a8e1f1eb9ee2948824353ee1e4dee4ec9c14c810737b3e",
+      "a3fc799c4b295ff16bd410aaa3e0c44496f1ad8668669dbd963c7e476d746986",
+      "28e992f076356eb4043be7258c0a516231087a1945d99aa5c6a877f56033b6c9",
+      "acddb3cc3319522bc8bd242f5fb38bb51b5c409d0c6560fefc40a66afe44dbb7",
+      "9957ab0841791bb2c8178db319fbde6c7fdbce07f58c7ab63ce2c9c9d08ea3dc",
+      "623833b2c1b17b5b9790795618c07723c7f7f39307721de12616d2290bebd810",
+      "6a5f70b5819075d7d338a2c2800f57871d0e2e9300ecada65bc5add7e0f1ea78",
+      "051ca8fdc1cb6b7eeef457123e6c9f5d95460d41cfee0e71b073b10322a2c116",
+      "959a03b39b624bc3607f18f9a590a786736deb13e3bd1ba2cf4026c5076f9f7c",
+      "a536e15c75a854657932a4ab87e08655109aa25a7b8397e2adf31e7077bb2f4b",
+      "dc60219cc72597186908bb302a146728d2c495ea806e3a05aa666f46b1d8d198",
+      "76b548a1f3f4d169447b93b78218c48d97448e347f61fed0b5b7cae709e638cf",
+      "a3cb41c52f1e8dba2a8483b2d6542d59e7bdf164c9b41f36b823ffdad0bc38f8",
+      "b09948f1914a9a67db9259baec2f56e5f751a343965e5f9f771fd8f9a916630e",
+      "3c691ccda53f6c8f4c5f1596f389dc928518232f533e5d086a86ac73925202be",
+      "795f0cea900f38517f05f5da1d34a79ee7aa5eab7a4ab0f3e6681bf4017364d3",
+      "1202d3fc3425033d976be6f085952ca231a61589b08265e7660fa2cf80218346",
+      "ac41b997a384284b50dd029f6a70bf3f2a81c7908af7b3eaaeb09af7095b1825",
+      "7a40b944b80920811372d49a5932bd64b49521ed762390728ff66bf43e2128b5",
+      "c31231d4074f5921ebf66011e32480a891df621a69174a8ba2f93bd3e0486f50",
+      "338a31ed43f1d026f39d126ce4ed15b358379241f7e1bedfaf4a508114fc8185",
+      "ad9d010299d8f738ad55a157a541f2f5e8f407badb33a374bffb262304f408f2",
+      "5b14f27fd1d72910bde201ff10bcdec80b2db1a4d8178be50546b04964ef6653",
+      "850dd5b0579e07bc99cc82ed5efbbaac44e0a8ade52ec677489cf2a6c8f7335a",
+      "0905d31ab968bceb5214c91a757021f276a69fb46d4a1bcaabeaa7c182bb5552",
+      "521e2f20759ce37025ad785e23ca0ff563e786bb0801317e7f299079d2607940",
+      "bba185f75d4d3333a8f4a35434ee3ad3d83078ef0de2d609c52904c7d884de17",
+      "1f762578af34328b3b4037d733f298d76d5882ad4cf3b57a047afc562612e5df"
+    ]
+  },
+  "final": {
+    "rows": 40,
+    "sessions": 8,
+    "channels": {
+      "Digiato": 10,
+      "Mehran Rowshan Persian": 10,
+      "Tabaghe16": 10,
+      "Zoomit": 10
+    },
+    "reference_words": 524,
+    "reference_characters": 2010,
+    "row_id_sequence_sha256": "4f4b8c4836ea15db2ad2fb1e590e5edbc0c02e8c403294c6c41bc6ed4aa5f741",
+    "session_set_sha256": "8d65dce97157a14ad50c3953d3d36b6e727746d008f247a1b941e66b5679cd97",
+    "reference_sequence_sha256": "7f3c36adb9dc10b192fef1d483b85579841e3a2faddc85bac24498c4c0b3d890",
+    "row_hashes": [
+      "371f03a425c3e8822b23f9f1a88575c081b476e53fc107844e746560fe594890",
+      "d36d54dc889225c80307f71a3b3d84177eb6cbb326f18a9ce84987f81bef3b98",
+      "5375747a04dbab9dd5a9a5dda96e550e4c18d4c26b7017637a403e4fa5c716e2",
+      "47adb443495c43fa4ea6f8a5d010f7b491f9cc92a1edcd43d464e1e9da647a92",
+      "72b7a527a86b9122d0aa879bfb99dbe24137cb8706fdbbfe291c48958aeedf45",
+      "ba5b3b2142027b383f09e3d5b36a25f795495efacfcf93b0fc370ae905cef545",
+      "1222f9479b14749fa0afa206782cbdf56755effa08b8d3b5ff948b19c970f9dc",
+      "9149c99d10297e8bb0acd2372b7e9b1ed989fd33e86dbff9e6a5c1b4f2d66be6",
+      "8fedc3bf0559b0548d86c97b95f53b5a18def051f6abb91794c174828488d2e5",
+      "7c1799663d642772e364dd3189cada525f234ed22c973b9fd95945190f167a38",
+      "b57fc33ad16eea65b36e34597f97618d24f88afb1fa575761b5b78cbc3c500f6",
+      "b59a831ec1f998d5b990401a0f156f53d9102dfa9ea04b8500050cf445a2643e",
+      "d93b581cae7938ca94d0b744df9719cf294546b59c5643256a79b0975d4de304",
+      "fec90750be0457183c5a12fd0b6ac24d9852e8e6f2bd49dea2cb2a5782644f0e",
+      "aebb837639896762aad030599057206655f7692e3fc1e81be46b675486988a99",
+      "eb7e808361a4d23e53da64b7cd72732c8b0f84934c9e00c980c27fbf3e45a9ec",
+      "9978b4a51b399f80fbd7d641d7fe5dc28a8d0253629fe6cc5208964219ff4a3d",
+      "ba3cf20ab94849ef6a755265b50f9e3767ec818bbfb83ed1a505e8a5f8c0a6f6",
+      "5dab93af7e1ec3066ee8e89f0f2c4c70248ba02d1127aed9e2d7b78b65c0bbc4",
+      "8481e0811eea3e886218d2bc2bfd2ab70ce0de7d41707fdca2b6f4587773c983",
+      "10619e75e439595c4175cef831f45af38169cc72ea5e714d7d9eb4f9fc7767c4",
+      "1c15af1aa3e73ffb426ee7a67a17bd133802aafd6e7ad6acbfb708ea23adeaa5",
+      "3cc8a404ee8ee4d268bf1ab3130d60ac4e0c56f84608993302be462c7b16302a",
+      "4ea08087fd600c7378272c54d4809e4938d6f692cafe0479d340d4c29728ceb7",
+      "01937fe05ed7ad57a4e60e8880c93e4f2cfac2a1ddcb44af14a040530b417add",
+      "e337784c675956673ef06726ac4258ef82fb4ef6dc60fc2016a9199ae99de919",
+      "59f62ce29a5182dd3a708bf15c203e7b12e0f8bcb1a629241e4ea9ee8b9a6037",
+      "c63c3bd7af941c5093b3788da7eb159006efaa76ef1b9f217311163b298bb313",
+      "d822f6ca366711a9fec452240e7231e127f6b75211eaf0ea49e98d1c1ead377b",
+      "5646de4c11293d3e540f2f7ffddd69243cb3f0261fc0e52e6b92e3d1f1dc0f23",
+      "955e02b3055a4e13bfba2a3478a726cfa153345cc3fedf272cf9f703478bf8ff",
+      "8423f9ac568a75fd63e7cec1e19e92e1c97c7e524d306e5a235d78abab8d5f87",
+      "a135bb9d9a43608b810f1c27da4957726759ae4d1231ffdd29a864fb015e5083",
+      "74a4ac4e016d4995490084486e5f43cf4176546778dd68ade5a7fd7e4a68eaf4",
+      "c8191370d9c1f36ab622d2b702cfcc9036420c41ea012c6d70e98588d618279f",
+      "e69071ed3c80fa8bd6207eb0601166aefae65c92a441e397f39aaa5bbd2f00c9",
+      "1c1133e1b2b0f07a87d4a128863d1251d5cab8f51b3d599efc893ab30a1f2a98",
+      "d519018c5fea880dc4b42dd4deb97ce522a64ec78fa7b439af1f362d5754e99e",
+      "d9750a4466dcd268b9e0d127b55878f2e15314b5e5b05b6bace4e0649e88e0dc",
+      "4cc3a524f503b66536d873a923505af4770e00718ab3df283e5bbd36136df0a5"
+    ]
+  },
+  "model_identities": {
+    "mana-persian-piper": {
+      "repository": "MahtaFetrat/Mana-Persian-Piper",
+      "model": {
+        "bytes": 63531379,
+        "sha256": "e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126"
+      },
+      "config": {
+        "bytes": 7088,
+        "sha256": "d102276a05436613a05e1fbad8f125abcf8f56759aaf4fd36adf216653949997"
+      },
+      "deterministic_noise_scale": 0.0,
+      "deterministic_noise_w_scale": 0.0
+    },
+    "facebook-mms-tts-fas": {
+      "repository": "facebook/mms-tts-fas",
+      "revision": "8818d36618d125a0b40b5d2b2713a852877e9b68",
+      "license": "CC-BY-NC-4.0",
+      "files": 7,
+      "bytes": 145240111,
+      "file_manifest": {
+        ".gitattributes": {
+          "bytes": 1519,
+          "sha256": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361"
+        },
+        "README.md": {
+          "bytes": 3978,
+          "sha256": "629745b879c9792dce636c1391fba6936e8c5f7fe4e809a44897530a25f05dd2"
+        },
+        "config.json": {
+          "bytes": 1641,
+          "sha256": "d76f3cad35e24a6d10f9d65d833555b7ab8020d8fa8d30eb5d70070ef15ae315"
+        },
+        "model.safetensors": {
+          "bytes": 145232120,
+          "sha256": "e8c9bcaa7bea01679769e07196753833107f93f720b822ecc96f2ff899402b7c"
+        },
+        "special_tokens_map.json": {
+          "bytes": 48,
+          "sha256": "4bf177481394471ba5e05ed9c2e0255b4ec6bfecf2d8b8e55a8bb60880f5849c"
+        },
+        "tokenizer_config.json": {
+          "bytes": 288,
+          "sha256": "06c280af709a6e50e687e4988cc330d7dba6f224f6b0d96de19b35a6ab65367c"
+        },
+        "vocab.json": {
+          "bytes": 517,
+          "sha256": "3cdfbff9053c12deb64cbdd8cae1068358cd95f0f2176b86e534b66bc848f277"
+        }
+      }
+    }
+  },
+  "runtime_packages": {
+    "numpy": "2.4.4",
+    "piper-tts": "1.7.0",
+    "torch": "2.12.0",
+    "transformers": "5.9.0",
+    "uroman": "1.3.1.1"
+  },
+  "nemo_identity": {
+    "api_image": "sha256:1c681f0d7cc6f192aa753efd98cedb0ef2db2c47fb8159d52912f9c03d7ad1b7",
+    "triton_image": "sha256:96b53a69eeff0b9783baf36eaa07d54701c7bbe652fcbe6af140f8d5569d5606",
+    "observed_images": {
+      "asr_nemo_soroush_api": "sha256:1c681f0d7cc6f192aa753efd98cedb0ef2db2c47fb8159d52912f9c03d7ad1b7",
+      "asr_nemo_soroush_triton": "sha256:96b53a69eeff0b9783baf36eaa07d54701c7bbe652fcbe6af140f8d5569d5606"
+    },
+    "health": {
+      "status": "ok"
+    },
+    "provenance_sha256": "307c90f98dc72e4f0ac56a5c9cdf1f5963bc06a2d4c3446c09d00ee4436d7deb"
+  },
+  "dependencies": {
+    "asr_evaluator_sha256": "d9b2f6fb9d71dd47cac31792f5ae0efbc7aaa87b97acfc28fbe7a6febf2b3aab",
+    "responder_evaluator_sha256": "cc5b5ebcc725e1a214153e152ae191242985def1c1aeeac16c24e17716bc0929"
+  },
+  "session_disjoint": true,
+  "responder_sessions_excluded": true,
+  "plaintext_retained": false
+}

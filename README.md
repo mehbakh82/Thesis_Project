@@ -61,6 +61,15 @@ challenger passed the predeclared promotion gate. See
 `docs/ASR_CANDIDATE_COMPARISON_V1.md` and
 `results/eval/asr_candidates_v1_development.json`.
 
+The TTS track now has the same controlled treatment. On a new equal-channel,
+session-disjoint 40-text development panel, Mana-Piper achieved CER/WER
+0.174401/0.342520 versus 0.250892/0.494094 for Meta MMS-TTS Persian; both arms
+completed 40/40 rows. The paired session-bootstrap interval favored Piper, so
+Piper is retained and the locked final panel remains unopened. This is an
+automatic NeMo round-trip intelligibility result, not human naturalness or
+pronunciation evidence. See `docs/TTS_CANDIDATE_COMPARISON_V1.md` and
+`results/eval/tts_candidates_v1_development.json`.
+
 The post-release model/data hardening audit is documented in
 [`docs/MODEL_AND_DATA_SELECTION_AUDIT.md`](docs/MODEL_AND_DATA_SELECTION_AUDIT.md).
 Its reproducible commands are `thesis-s2s audit-model-selection` and

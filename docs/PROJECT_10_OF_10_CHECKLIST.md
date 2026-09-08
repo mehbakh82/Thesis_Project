@@ -18,7 +18,7 @@ an item explicitly says they are.
 - A written supervisor-approved scope amendment can replace a requirement; an
   informal assumption cannot.
 
-## Post-release model/data optimality hardening
+## Post-release model/data selection hardening
 
 - [x] Replace ambiguous “best model” wording with an executable,
   requirements-constrained audit that separates project-verified evidence,
@@ -50,9 +50,14 @@ an item explicitly says they are.
 - [ ] Build a versioned, more balanced corpus only after at least 44.900 new
   high-confidence non-Tabaghe pair hours pass the same audits. Do not overwrite
   the frozen submission corpus or mix incompatible result versions.
-- [ ] Evaluate a second genuinely Persian TTS on the same text, latency,
-  intelligibility, and human-listening protocol. Qwen3-TTS is not eligible
-  without Persian adaptation and verification.
+- [x] Evaluate a second genuinely Persian TTS on identical text and automatic
+  latency/intelligibility metrics. On a new equal-channel 40-row panel,
+  Mana-Piper achieved CER/WER 0.174401/0.342520 versus
+  0.250892/0.494094 for Meta MMS-TTS Persian; both completed 40/40 rows. The
+  paired 95% CER-difference interval [0.029315, 0.130514] retained Piper and
+  kept the separately locked final panel sealed.
+- [ ] Complete human Persian naturalness/pronunciation listening for the TTS
+  choice. Automatic ASR round-trip evidence cannot complete this item.
 - [ ] Promote a replacement direct model only after public adaptation,
   project-verified Persian output, native duplex runtime, and physical 24 GB fit
   all pass; currently no candidate qualifies.

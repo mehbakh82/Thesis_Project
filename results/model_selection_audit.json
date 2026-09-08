@@ -3,7 +3,7 @@
   "evidence_class": "requirements_constrained_static_model_audit",
   "as_of": "2026-09-08",
   "catalog": "configs/model_selection_audit.yaml",
-  "catalog_sha256": "293609efeb717435ca4be63c2f26e44eb0b2f307481a1332bde0fc28097e65f6",
+  "catalog_sha256": "722d8d0af841a9a98f34bb7f6aa8fbbab1b3a46a9a3b8392d6a0902b9e1cb0ff",
   "claim_boundary": "This audit validates declared evidence and fail-closed eligibility. It does not run models, establish unreported Persian quality, or prove global optimality.",
   "tracks": {
     "direct_s2s": {
@@ -862,11 +862,12 @@
       "purpose": "Select a locally deployable Persian speech synthesizer.",
       "current_selection": "mana-persian-piper",
       "current_selection_fully_eligible": true,
-      "controlled_same_panel_comparison": false,
+      "controlled_same_panel_comparison": true,
       "eligible_candidates": [
-        "mana-persian-piper"
+        "mana-persian-piper",
+        "facebook-mms-tts-fas"
       ],
-      "catalog_comparison_complete": false,
+      "catalog_comparison_complete": true,
       "candidates": {
         "mana-persian-piper": {
           "eligible": true,
@@ -888,12 +889,13 @@
             "realtime_path": {
               "criterion": "realtime_path",
               "minimum": "documented",
-              "status": "documented",
+              "status": "verified",
               "meets": true,
               "source": {
-                "kind": "remote",
-                "url": "https://huggingface.co/MahtaFetrat/Mana-Persian-Piper",
-                "declared": true
+                "kind": "local",
+                "path": "results/eval/tts_candidates_v1_development.json",
+                "present": true,
+                "sha256": "6f47200b3fd92899bd2b55adaead8a6d964cde4204d58f57d7c86f84556ce334"
               },
               "notes": ""
             },
@@ -904,14 +906,60 @@
               "meets": true,
               "source": {
                 "kind": "local",
-                "path": "results/eval/cascade_intelligibility_proxy.json",
+                "path": "results/eval/tts_candidates_v1_development.json",
                 "present": true,
-                "sha256": "4c7cfb39e25739ee0e626614ffaac9843b32717154de45d3c706b7544051988d"
+                "sha256": "6f47200b3fd92899bd2b55adaead8a6d964cde4204d58f57d7c86f84556ce334"
               },
               "notes": ""
             }
           },
           "notes": "Deterministic lightweight Persian synthesizer used by the positive cascade."
+        },
+        "facebook-mms-tts-fas": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "persian_output": {
+              "criterion": "persian_output",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/tts_candidates_v1_development.json",
+                "present": true,
+                "sha256": "6f47200b3fd92899bd2b55adaead8a6d964cde4204d58f57d7c86f84556ce334"
+              },
+              "notes": ""
+            },
+            "realtime_path": {
+              "criterion": "realtime_path",
+              "minimum": "documented",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/tts_candidates_v1_development.json",
+                "present": true,
+                "sha256": "6f47200b3fd92899bd2b55adaead8a6d964cde4204d58f57d7c86f84556ce334"
+              },
+              "notes": ""
+            },
+            "project_intelligibility_evaluation": {
+              "criterion": "project_intelligibility_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/tts_candidates_v1_development.json",
+                "present": true,
+                "sha256": "6f47200b3fd92899bd2b55adaead8a6d964cde4204d58f57d7c86f84556ce334"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Mechanically valid Persian challenger; retained only as an evaluated negative because CER/WER were worse than Mana-Piper."
         },
         "qwen3-tts": {
           "eligible": false,
@@ -967,9 +1015,7 @@
     "blockers": [
       "direct_s2s:current_selection_not_fully_eligible",
       "direct_s2s:fewer_than_two_fully_eligible_candidates",
-      "direct_s2s:no_controlled_same_panel_comparison",
-      "tts:fewer_than_two_fully_eligible_candidates",
-      "tts:no_controlled_same_panel_comparison"
+      "direct_s2s:no_controlled_same_panel_comparison"
     ],
     "catalog_bounded_selection_claim_allowed": false,
     "global_best_model_claim_allowed": false

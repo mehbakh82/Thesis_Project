@@ -46,7 +46,7 @@ checkpoints passed 0/9 frozen direct-runtime rows.
 | Direct S2S | Moshika 7B engineering baseline | No | Failed Persian runtime output; no same-panel comparison |
 | ASR | Fine-tuned Persian NeMo service | Yes | Controlled comparison retained NeMo; Omnilingual-ASR remains unevaluated and the references are automatic captions |
 | Responder | Qwen3-4B prompt-v2 | Yes | Controlled three-arm development comparison retained it; evidence is automatic-proxy and catalog-bounded, not a global claim |
-| TTS | Mana Persian Piper | Yes | No second Persian TTS passed the same intelligibility/latency panel |
+| TTS | Mana Persian Piper | Yes | Controlled automatic comparison retained Piper; human listening remains absent |
 
 The current direct shortlist is Moshika, PersonaPlex, Qwen3-Omni,
 MiniCPM-o 4.5, Covo-Audio-Chat-FD, BayLing-Duplex, and DuplexOmni. None has
@@ -64,8 +64,9 @@ The highest-value component challengers are:
    Qwen3.5-4B tied the incumbent's mean relevance and improved mean coherence
    by 0.075, but its 15% row win rate and zero relevance gain failed the frozen
    promotion thresholds. Qwen3.5-0.8B regressed. Retain Qwen3-4B prompt-v2.
-3. **TTS:** retain Mana-Piper unless a Persian-adapted challenger is evaluated.
-   Released Qwen3-TTS language support does not include Persian.
+3. **TTS:** the controlled automatic comparison is complete. Meta MMS-TTS
+   Persian was mechanically valid but materially worse than Mana-Piper, so
+   Piper is retained. Released Qwen3-TTS support still excludes Persian.
 4. **Direct S2S:** retain Moshika only as the reproducible negative baseline.
    Do not start another full run until a candidate passes a 32-row Persian
    memorization and autoregressive-output gate.
@@ -123,7 +124,32 @@ catalog-bounded choice rather than global ASR optimality. See
 `docs/ASR_CANDIDATE_COMPARISON_V1.md` and the receipts under
 `results/eval/asr_candidates_v1_*`.
 
-## Controlled comparison protocol for remaining tracks
+## Completed TTS comparison
+
+`scripts/evaluate_tts_candidates_v1.py` froze 40 project-representative
+response texts from eight train-partition sessions, balanced 10 per source and
+disjoint from both responder-candidate panels. Both arms synthesized all 40
+texts and completed every NeMo round-trip call:
+
+| Arm | Micro CER | Micro WER | Render RTF p50 | Outcome |
+|---|---:|---:|---:|---|
+| Mana Persian Piper | 0.174401 | 0.342520 | 0.033745 | Retained incumbent |
+| Meta MMS-TTS Persian | 0.250892 | 0.494094 | 0.122488 | Not promoted |
+
+MMS-minus-Piper CER had a paired session-bootstrap 95% interval of
+[0.029315, 0.130514], entirely favoring Piper. The challenger therefore failed
+the frozen minimum 0.02 CER-reduction and nonworse-WER gates; the separate
+40-text final panel remains sealed. The MMS checkpoint was pinned to revision
+`8818d36618d125a0b40b5d2b2713a852877e9b68`; its CC-BY-NC-4.0 weights are not
+redistributed and do not inherit this repository's Apache-2.0 license.
+
+This establishes only automatic round-trip intelligibility and full-render
+latency on one ASR. It does not establish human naturalness, pronunciation,
+speaker preference, or true first-audio streaming latency. See
+`docs/TTS_CANDIDATE_COMPARISON_V1.md` and the hash-only receipts under
+`results/eval/tts_candidates_v1_*`.
+
+## Controlled comparison protocol for remaining or future tracks
 
 A future promotion must use a new, frozen, session-disjoint development and
 test set. It must not reuse either the opened 40-row Qwen3-4B final panel or the
@@ -211,9 +237,9 @@ These cannot be manufactured by code or inferred from automatic proxies:
 - no physical RTX 4090/browser latency run exists;
 - no human Persian naturalness/pronunciation study exists;
 - no current direct model produces deployment-eligible Persian speech;
-- controlled current-candidate comparisons remain incomplete for TTS and
-  direct S2S; the responder and ASR comparisons are complete and retained
-  Qwen3-4B and fine-tuned NeMo, respectively.
+- controlled current-candidate comparison remains incomplete for direct S2S;
+  responder, ASR, and automatic TTS comparisons are complete and retained
+  Qwen3-4B, fine-tuned NeMo, and Mana-Piper, respectively.
 
 The new audits improve the project by making those boundaries executable and
 quantitative. They do not alter the frozen positive cascade result, the negative

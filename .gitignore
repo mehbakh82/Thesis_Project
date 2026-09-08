@@ -1,6 +1,7 @@
 .venv-omni2/
 .venv-moshi/
 .venv-qwen-asr/
+.venv-tts/
 .venv/
 __pycache__/
 *.pyc

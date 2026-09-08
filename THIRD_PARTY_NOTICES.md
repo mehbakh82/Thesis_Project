@@ -22,6 +22,11 @@ This project does not relicense third-party source code, model weights, datasets
 - Moshi-Finetune, revision `2acc879fe7c48f885a18f6cc9548bccb2674d87b`: trainer code is Apache-2.0; trained adapters remain subject to base-weight and dataset terms.
 - Moshika-PyTorch-BF16 weights, revision `a49141e28b3d9c947cf9aa5314431e1b11cbd2f5`: CC BY 4.0; all three training-time blob hashes and sizes are pinned in `third_party/UPSTREAMS.lock.json`.
 - Mana-Persian-Piper, revision `ad9dd8518bedf517bd7cbc9f63b8e5c844bf5bc0`: the model card declares MIT and Mana-TTS declares CC0; the pinned ONNX SHA-256 is `e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126`. It is used as a deterministic single-speaker assistant target and is not redistributed here.
+- Meta MMS-TTS Persian (`facebook/mms-tts-fas`), revision
+  `8818d36618d125a0b40b5d2b2713a852877e9b68`: the model card declares
+  CC-BY-NC-4.0. It is used only as a non-commercial thesis comparison
+  candidate; its weights and generated audio are not committed or
+  redistributed, and the repository's Apache-2.0 license does not cover it.
 
 No code from the model/runtime repositories listed above is vendored in this
 project.

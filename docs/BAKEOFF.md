@@ -38,7 +38,7 @@ Therefore Moshi is the implementation path, while the cascade remains the deploy
 
 ## Post-release candidate refresh (2026-09-08)
 
-Controlled comparisons remain missing for the direct and TTS tracks, but
+Controlled comparison remains missing for the direct track, but
 the documentary shortlist now also
 includes MiniCPM-o 4.5, Covo-Audio-Chat-FD, BayLing-Duplex, DuplexOmni,
 Qwen3-ASR, Omnilingual-ASR, Qwen3.5-4B/0.8B, and Qwen3-TTS. The machine-readable
@@ -52,3 +52,7 @@ comparison also retained the fine-tuned NeMo service: CER/WER was
 0.230119/0.371593, versus 0.383788/0.651363 for Qwen3-ASR-1.7B and
 0.492509/0.807747 for Qwen3-ASR-0.6B. Its separately locked final panel remains
 sealed because neither challenger passed the predeclared development gate.
+The TTS comparison also retained Mana-Piper on 40 identical Persian response
+texts: CER/WER was 0.174401/0.342520, versus 0.250892/0.494094 for Meta
+MMS-TTS Persian, with no failures in either arm. Its final panel likewise
+remains sealed. This is an automatic ASR round-trip result, not human listening.
