@@ -28,7 +28,7 @@ Status date: 2026-09-09
 - GitHub dependency vulnerability alerts and automated security fixes are
   enabled; the authenticated API reports alerts available and automated fixes
   `enabled=true`, `paused=false`.
-- CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 49
+- CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 51
   source files against the Python 3.10 target.
 - The measured branch-aware coverage is 65%; the enforced floor is 60%, raised
   from 35% while retaining a small non-flaky margin. Core conversation,

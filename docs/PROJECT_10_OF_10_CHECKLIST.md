@@ -133,8 +133,10 @@ Verified now:
   branch-aware coverage with its CI floor, full-history/privacy/secret checks,
   general dependencies, the accepted scientific-risk baseline, and all ten
   upstream pins. The final release audit below records the definitive counts.
-- [x] General dependencies have no known vulnerabilities; the pinned scientific
-  lock has an exact, fail-closed accepted-risk baseline and mitigations.
+- [x] General dependencies have exactly one narrow reviewed exception
+  (Accelerate 1.14.0 / CVE-2026-69112, with no fixed release); all other
+  findings and any policy drift fail closed. The pinned scientific lock has a
+  separate exact accepted-risk baseline and mitigations.
 - [ ] Window QA: 0/40 reviewed.
 - [ ] Interaction QA: 0/24 reviewed.
 - [x] Waiver-bound Moshi export/audit: 6,754 pairs / 108.584 measured stereo
