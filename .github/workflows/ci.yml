@@ -20,7 +20,8 @@ jobs:
           # Validate the strictest supported interpreter boundary. Newer
           # interpreters are exercised by local development and training.
           python-version: "3.10"
-          cache: pip
+          # Do not cache pip here. The resolved PyTorch/CUDA wheel cache can
+          # exceed the hosted runner's free disk during post-job archival.
       - name: Install
         run: python -m pip install --upgrade pip && python -m pip install -e ".[dev]"
       - name: Compile
