@@ -27,6 +27,106 @@ def _channel(row: dict[str, Any]) -> str:
     return session.split("/", 1)[0] if "/" in session else "unknown"
 
 
+def merge_conversation_pair_manifests(
+    input_paths: list[str | Path],
+    out_path: str | Path,
+    report_path: str | Path,
+    *,
+    root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Merge disjoint pair manifests and fail closed on identity or split errors."""
+
+    if len(input_paths) < 2:
+        raise ValueError("at least two pair manifests are required")
+    project = Path(root or project_root()).resolve()
+
+    def resolve(path: str | Path) -> Path:
+        value = Path(path)
+        return value if value.is_absolute() else project / value
+
+    inputs = [resolve(path) for path in input_paths]
+    output = resolve(out_path)
+    report_file = resolve(report_path)
+    if output in inputs:
+        raise ValueError("pair-merge output must differ from every input")
+
+    rows: list[dict[str, Any]] = []
+    input_receipts: list[dict[str, Any]] = []
+    seen_ids: set[str] = set()
+    session_splits: dict[str, set[str]] = defaultdict(set)
+    invalid_rows: list[dict[str, Any]] = []
+    channel_seconds: dict[str, float] = defaultdict(float)
+    for source in inputs:
+        source_rows = load_jsonl(source)
+        input_receipts.append(
+            {
+                "manifest": portable_path(source, root=project),
+                "sha256": sha256_file(source),
+                "pairs": len(source_rows),
+            }
+        )
+        for line_number, row in enumerate(source_rows, start=1):
+            utt_id = str(row.get("utt_id") or "").strip()
+            split = str(row.get("split") or "").strip()
+            session = str(row.get("session_id") or "").strip()
+            duration = float(row.get("duration") or 0.0)
+            reasons: list[str] = []
+            if not utt_id:
+                reasons.append("missing_utt_id")
+            elif utt_id in seen_ids:
+                reasons.append("duplicate_utt_id")
+            if split not in {"train", "val", "test"}:
+                reasons.append("invalid_split")
+            if not session:
+                reasons.append("missing_session_id")
+            if duration <= 0.0:
+                reasons.append("non_positive_duration")
+            if reasons:
+                invalid_rows.append(
+                    {
+                        "manifest": portable_path(source, root=project),
+                        "line": line_number,
+                        "utt_id": utt_id,
+                        "reasons": reasons,
+                    }
+                )
+                continue
+            seen_ids.add(utt_id)
+            session_splits[session].add(split)
+            channel_seconds[_channel(row)] += duration
+            rows.append(row)
+
+    leaks = sorted(session for session, splits in session_splits.items() if len(splits) > 1)
+    if invalid_rows:
+        raise ValueError(f"pair manifests contain {len(invalid_rows)} invalid row(s)")
+    if leaks:
+        raise ValueError(f"pair manifests contain {len(leaks)} cross-split session leak(s)")
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    write_jsonl(output, rows)
+    total_seconds = sum(channel_seconds.values())
+    report = {
+        "schema_version": 1,
+        "evidence_class": "deterministic_pair_manifest_merge",
+        "inputs": input_receipts,
+        "out_manifest": portable_path(output, root=project),
+        "out_manifest_sha256": sha256_file(output),
+        "pairs": len(rows),
+        "source_pair_hours": round(total_seconds / 3600.0, 6),
+        "channel_hours": {
+            channel: round(seconds / 3600.0, 6)
+            for channel, seconds in sorted(channel_seconds.items())
+        },
+        "sessions": len(session_splits),
+        "duplicate_utt_ids": 0,
+        "invalid_rows": 0,
+        "session_group_split_leaks": 0,
+        "merge_gate_passes": True,
+    }
+    write_json(report_file, report)
+    return report
+
+
 def audit_conversation_balance(
     manifest_path: str | Path,
     out_path: str | Path,
@@ -251,16 +351,36 @@ def select_balanced_conversation_pairs(
     write_jsonl(output_file, selected_rows)
     total_seconds = minority_seconds + selected_dominant_seconds
     selected_by_channel: dict[str, float] = defaultdict(float)
+    split_summary: dict[str, dict[str, Any]] = defaultdict(
+        lambda: {"pairs": 0, "seconds": 0.0, "sessions": set(), "channels": set()}
+    )
+    session_splits: dict[str, set[str]] = defaultdict(set)
+    invalid_split_rows = 0
     for row in selected_rows:
-        selected_by_channel[_channel(row)] += max(0.0, float(row.get("duration") or 0.0))
+        channel = _channel(row)
+        duration = max(0.0, float(row.get("duration") or 0.0))
+        split = str(row.get("split") or "")
+        session = str(row.get("session_id") or "")
+        selected_by_channel[channel] += duration
+        if split not in {"train", "val", "test"}:
+            invalid_split_rows += 1
+        split_item = split_summary[split]
+        split_item["pairs"] += 1
+        split_item["seconds"] += duration
+        split_item["sessions"].add(session)
+        split_item["channels"].add(channel)
+        session_splits[session].add(split)
     largest_share = max(selected_by_channel.values(), default=0.0) / total_seconds
     utt_ids = [str(row.get("utt_id") or "") for row in selected_rows]
+    session_group_split_leaks = sum(len(splits) > 1 for splits in session_splits.values())
     gate = bool(
         min_hours <= total_seconds / 3600.0 <= max_hours
         and largest_share <= target_max_channel_share + 1e-12
         and len(selected_by_channel) >= 2
         and all(utt_ids)
         and len(utt_ids) == len(set(utt_ids))
+        and invalid_split_rows == 0
+        and session_group_split_leaks == 0
     )
     report = {
         "schema_version": 1,
@@ -290,6 +410,17 @@ def select_balanced_conversation_pairs(
         "selected_dominant_sessions": len(
             {str(row.get("session_id") or "") for _, row in selected_dominant}
         ),
+        "split_summary": {
+            split: {
+                "pairs": int(item["pairs"]),
+                "hours": round(float(item["seconds"]) / 3600.0, 6),
+                "sessions": len(item["sessions"]),
+                "channels": sorted(item["channels"]),
+            }
+            for split, item in sorted(split_summary.items())
+        },
+        "invalid_split_rows": invalid_split_rows,
+        "session_group_split_leaks": session_group_split_leaks,
         "selection_gate_passes": gate,
         "training_ready": False,
     }

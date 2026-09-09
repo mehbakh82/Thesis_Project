@@ -17,12 +17,15 @@ from thesis_s2s.data.conversation import (
     estimate_conversation_pair_yield,
 )
 from thesis_s2s.data.conversation_balance import (
+    merge_conversation_pair_manifests,
     plan_balanced_supplement,
     select_balanced_conversation_pairs,
 )
 from thesis_s2s.data.conversation_selection import (
     audit_episode_selection,
+    load_jsonl,
     select_conversation_episodes,
+    write_jsonl,
 )
 from thesis_s2s.data.diarize import (
     align_reference_segments,
@@ -372,6 +375,7 @@ def test_final_balance_selection_retains_minority_and_is_deterministic(tmp_path:
                     "session_id": f"{channel}/session-{index % 2}",
                     "channel": channel,
                     "duration": 3600.0,
+                    "split": "train" if index % 2 == 0 else "val",
                 }
             )
     source.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
@@ -389,9 +393,44 @@ def test_final_balance_selection_retains_minority_and_is_deterministic(tmp_path:
     assert report["retained_all_minority_pairs"] is True
     assert report["selected_hours"] == 108.0
     assert report["largest_channel_share"] < 0.54
+    assert report["invalid_split_rows"] == 0
+    assert report["session_group_split_leaks"] == 0
+    assert set(report["split_summary"]) == {"train", "val"}
     assert sum(row["channel"] != "Tabaghe16" for row in selected) == 50
     assert first.read_bytes() == second.read_bytes()
     assert report["out_manifest_sha256"] == repeated["out_manifest_sha256"]
+
+
+def test_pair_manifest_merge_is_hash_bound_and_rejects_duplicates(tmp_path: Path) -> None:
+    first = tmp_path / "first.jsonl"
+    second = tmp_path / "second.jsonl"
+    out = tmp_path / "merged.jsonl"
+    report_path = tmp_path / "merge.json"
+    base = {
+        "duration": 10.0,
+        "channel": "A",
+        "split": "train",
+    }
+    write_jsonl(first, [{**base, "utt_id": "a", "session_id": "A/one"}])
+    write_jsonl(
+        second,
+        [{**base, "utt_id": "b", "session_id": "A/two", "channel": "B"}],
+    )
+
+    report = merge_conversation_pair_manifests(
+        [first, second], out, report_path, root=tmp_path
+    )
+
+    assert report["pairs"] == 2
+    assert report["merge_gate_passes"] is True
+    assert len(report["inputs"]) == 2
+    assert len(load_jsonl(out)) == 2
+
+    write_jsonl(second, [{**base, "utt_id": "a", "session_id": "A/two"}])
+    with pytest.raises(ValueError, match="invalid row"):
+        merge_conversation_pair_manifests(
+            [first, second], out, report_path, root=tmp_path
+        )
 
 
 def test_primary_and_reserve_window_merge_is_atomic_and_rejects_duplicates(tmp_path: Path):

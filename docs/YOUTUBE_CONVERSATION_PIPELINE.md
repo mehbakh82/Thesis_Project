@@ -217,6 +217,55 @@ Measured final state:
 - noise evidence: primary 639 clean / 243 moderate / 59 noisy / 6 unestimated windows plus reserve 157 clean / 25 moderate windows;
 - interaction evidence: 5,411 pairs remain conservatively `overlap_unattributed`; raw speaker boundaries expose 770 stricter automatic candidates (717 interruption-like / 53 backchannel-like) across all four channels, with zero human-verified direct interruptions under the waiver.
 
+### Balanced v2 (post-training recommended corpus)
+
+The frozen corpus above remains the input attributed to completed Moshi runs.
+Balanced v2 is a separate, later lineage: 105 disjoint Digiato/Zoomit episodes
+with at least 95% local chunk coverage were prepared and diarized, then combined
+with the frozen authorized windows using the opt-in
+`max_duration_interval_v2` adjacent-turn selector. The two pair manifests are
+merged with hash receipts and duplicate/split-leak rejection before a
+deterministic session-round-robin cap is applied to Tabaghe16:
+
+```bash
+.venv/bin/python -m thesis_s2s.cli estimate-conversation-yield \
+  --manifest data/processed/manifests/conversation_balance_v2_extension_windows_diarized.jsonl \
+  --pair-selection-method max_duration_interval_v2 \
+  --out results/conversation_balance_v2_extension_yield.json
+
+.venv/bin/python -m thesis_s2s.cli merge-conversation-pairs \
+  --inputs \
+    data/processed/manifests/conversation_balance_v2_pairs_all_initial.jsonl \
+    data/processed/manifests/conversation_balance_v2_pairs_extension.jsonl \
+  --out-jsonl data/processed/manifests/conversation_balance_v2_pairs_all.jsonl \
+  --report results/conversation_balance_v2_pair_merge.json
+
+.venv/bin/python -m thesis_s2s.cli select-balanced-conversations \
+  --manifest data/processed/manifests/conversation_balance_v2_pairs_all.jsonl \
+  --out-jsonl data/processed/manifests/conversations_balanced_v2.jsonl \
+  --report results/conversation_balance_v2_selection.json \
+  --target-max-channel-share 0.54 --min-hours 100 --max-hours 200
+
+.venv/bin/python -m thesis_s2s.cli audit-conversation-balance \
+  --manifest data/processed/manifests/conversations_balanced_v2.jsonl \
+  --out results/conversation_balance_v2_audit.json \
+  --max-channel-share 0.55 --min-channels 4
+
+.venv/bin/python -m thesis_s2s.cli audit-conversations \
+  --manifest data/processed/manifests/conversations_balanced_v2.jsonl \
+  --out results/conversation_balanced_v2_audit.json \
+  --qa-waiver configs/conversation_qa_waiver.yaml
+```
+
+The complete pool has 8,787 pairs / 164.830 h and no duplicate IDs or
+cross-split session leaks. The final selection has 6,551 pairs / 110.374 h / 186
+sessions: Digiato 17.921 h, Mehran Rowshan Persian 24.800 h, Tabaghe16 59.602 h,
+and Zoomit 8.050 h. Every minority-source pair is retained, the dominant share
+is 54.0%, and the structural audit reports 0 missing files, 0 reused spans, 0
+split leaks, and 6,551/6,551 authorized/common-waiver rows. These remain
+automatic labels; v2 does not complete listening QA or verified-interruption
+requirements and was not used by the completed model runs.
+
 The 40-row window QA handoff covers five windows from every channel × automatic
 pass/reject stratum and balances clean, moderate, noisy, and unestimated
 conditions. A second deterministic sheet sampled six interaction candidates

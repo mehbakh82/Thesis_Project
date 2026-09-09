@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "operation": "balanced_v2_disposable_derivative_cleanup",
+  "performed_at_utc": "2026-09-09",
+  "deleted": {
+    "unselected_candidate_wav_files": 4472,
+    "unselected_candidate_bytes": 6266552794,
+    "standalone_initial_export_wav_files": 1690,
+    "standalone_initial_export_bytes_from_retained_pcm_manifest": 922200920,
+    "total_files": 6162,
+    "total_bytes": 7188753714
+  },
+  "verification": {
+    "exact_deletion_list_sha256": "800c17943f533e8273fcaa86ab74596ebf5d94fa5e10c37370e9c190c6c18c30",
+    "final_manifest": "data/processed/manifests/conversations_balanced_v2.jsonl",
+    "final_manifest_sha256": "f1a1848b64640ec6b2881f9c122bae59f477c2192b74695331558ffabf2e18ac",
+    "final_referenced_audio_files": 13102,
+    "missing_final_files_after_cleanup": 0,
+    "post_cleanup_audit": "results/conversation_balanced_v2_audit.json",
+    "post_cleanup_audit_sha256": "1f419e92be747b57f8b23f1cc85234785e50d371d347194ed27c747376c574c0",
+    "post_cleanup_training_ready_under_qa_waiver": true
+  },
+  "retained": [
+    "all source/reconstructed conversation windows",
+    "all preparation, diarization, authorization, and pair manifests",
+    "every WAV referenced by the final balanced-v2 manifest"
+  ],
+  "limitations": {
+    "direct_undo_available": false,
+    "regeneration_available": true,
+    "candidate_manifests_remain_hash_evidence_but_pruned_wavs_must_be_rebuilt_before_reselection": true
+  }
+}

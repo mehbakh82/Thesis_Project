@@ -1,6 +1,6 @@
 {
   "schema_version": 11,
-  "generated_at": "2026-09-07T17:59:55.719863+00:00",
+  "generated_at": "2026-09-09T14:20:54.859995+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -60,7 +60,23 @@
     "strict_human_qa_complete": false,
     "qa_waiver_is_a_documented_limitation_not_an_open_action": true,
     "human_verified_claim_allowed": false,
-    "raw_redistribution_permitted_rows": 0
+    "raw_redistribution_permitted_rows": 0,
+    "balanced_v2": {
+      "evidence_scope": "post_training_recommended_corpus",
+      "used_by_existing_moshi_runs": false,
+      "pairs": 6551,
+      "source_pair_hours": 110.374,
+      "sessions": 186,
+      "speakers": 480,
+      "channels": 4,
+      "largest_channel_share": 0.54,
+      "balance_gate_passed": true,
+      "training_ready_under_documented_qa_waiver": true,
+      "missing_files": 0,
+      "reused_source_spans": 0,
+      "session_group_split_leaks": 0,
+      "human_review_complete": false
+    }
   },
   "working_system": {
     "working_prototype": true,
@@ -865,6 +881,18 @@
       "present": true,
       "bytes": 3339,
       "sha256": "e46cf34bedfb471e47d6c927ce4331e93761ce0b580cd6ead8fc8a60961b8182"
+    },
+    "conversation_balanced_v2_audit": {
+      "path": "results/conversation_balanced_v2_audit.json",
+      "present": true,
+      "bytes": 3351,
+      "sha256": "1f419e92be747b57f8b23f1cc85234785e50d371d347194ed27c747376c574c0"
+    },
+    "conversation_balance_v2_audit": {
+      "path": "results/conversation_balance_v2_audit.json",
+      "present": true,
+      "bytes": 2258,
+      "sha256": "90be3f864a2531b3d1884f084e39b7ce3edd464bef544e2ccd1f15fd5e081d4d"
     },
     "moshi_export_report": {
       "path": "results/moshi_export_report.json",

@@ -157,6 +157,10 @@ def main(argv: list[str] | None = None) -> None:
     p_balance_select.add_argument("--target-max-channel-share", type=float, default=0.54)
     p_balance_select.add_argument("--min-hours", type=float, default=100.0)
     p_balance_select.add_argument("--max-hours", type=float, default=200.0)
+    p_pair_merge = sub.add_parser("merge-conversation-pairs")
+    p_pair_merge.add_argument("--inputs", type=Path, nargs="+", required=True)
+    p_pair_merge.add_argument("--out-jsonl", type=Path, required=True)
+    p_pair_merge.add_argument("--report", type=Path, required=True)
     p_balance_plan = sub.add_parser("plan-balance-supplement")
     p_balance_plan.add_argument(
         "--inventory",
@@ -672,6 +676,17 @@ def main(argv: list[str] | None = None) -> None:
             target_max_channel_share=args.target_max_channel_share,
             min_hours=args.min_hours,
             max_hours=args.max_hours,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "merge-conversation-pairs":
+        from thesis_s2s.data.conversation_balance import (
+            merge_conversation_pair_manifests,
+        )
+
+        report = merge_conversation_pair_manifests(
+            args.inputs,
+            args.out_jsonl,
+            args.report,
         )
         print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "plan-balance-supplement":

@@ -5,13 +5,13 @@
 - Name: `fa-s2s-duplex-mix` (working title)
 - Language: Persian (fa-IR)
 - Intended use: train/evaluate a full-duplex speech-to-speech prototype
-- Last updated: 2026-08-30
+- Last updated: 2026-09-09
 
 ## Splits (status)
 
 | Split | Source | License | Publish? | Status |
 |---|---|---|---|---|
-| Internal conversation candidates | University S3 YouTube archive | Supervisor-approved internal thesis use; source licenses not independently verified | No raw audio | Full inventory **775.887 caption h**. Final deterministic plan: **219.946 candidate h / 309 episodes / 1129 windows / 244.733 staging h**; **207.154 automatic multi-speaker h** and **123.796 non-reused source-pair h / 6754 pairs**. Authorization passes for all 1129 windows; strict 40-row window QA and 24-row/short-excerpt interaction QA remain unperformed under the documented student waiver. |
+| Internal conversation candidates | University S3 YouTube archive | Supervisor-approved internal thesis use; source licenses not independently verified | No raw audio | Frozen training corpus: **6,754 pairs / 123.796 source-pair h**. Recommended balanced v2: **6,551 pairs / 110.374 source-pair h / 186 sessions / four channels**, with a **54.0%** largest-source share. V2 was produced after the completed Moshi runs and is not claimed as their input. Strict listening QA remains unperformed under the documented student waiver. |
 | Synthetic duplex | tiled harmonic overlap mixer | synthetic | Yes, clearly labeled | **20.0 h**; plumbing and regression use only, not evidence of conversational speech quality. |
 | Optional local audio | Lab/home interactions | consent | Only if separately approved | **not_collected; not definition-required** (0.000 h, 0 turns, elderly_turns=0). Default study kit is `serve --study --retention features`; it stores no WAV. |
 | Pointers | Common Voice fa | CC-0 | Pointers only | Not downloaded here |
@@ -34,6 +34,16 @@ Raw speaker boundaries in the current production manifest recover **770 conserva
 `results/conversation_audit.json` verifies the built waiver-bound corpus: **6754 pairs / 123.796 h / 162 sessions / 407 speaker IDs**, with 0 missing files, 0 reused spans, and 0 session-split leaks. Limited waiver readiness is **True**; strict coverage and every human-verification claim remain false.
 Under the waiver, the 770 candidates may remain training pseudo-label metadata, but none becomes a human-verified label.
 `results/moshi_export_report.json` and the independent audit verify **6754 exported pairs / 108.584 final stereo h**; splits {"test": 204, "train": 6419, "val": 131}, machine audit **True**, 24-row unreviewed sample prepared, assistant re-synthesis match **True**, waiver readiness **True**. Strict final readiness remains false solely where human listening is required.
+
+The post-training balanced-v2 lineage adds 105 locally covered Digiato/Zoomit
+episodes without overlapping the frozen selection. Its deterministic merge
+contains 8,787 candidate pairs / 164.830 source-pair h. The final session-fair
+selector retains every minority-source pair and selects 6,551 pairs / 110.374 h:
+Digiato 17.921 h, Mehran Rowshan Persian 24.800 h, Tabaghe16 59.602 h, and
+Zoomit 8.050 h. `results/conversation_balance_v2_audit.json` passes four-source
+coverage and the 55% ceiling; `results/conversation_balanced_v2_audit.json`
+passes file, non-reuse, authorization, waiver, and group-split gates with 0
+missing files, 0 reused spans, and 0 leaks. No human-verified label is inferred.
 
 Staging hours preserve conversational context and gaps, whereas pair hours count only non-reused adjacent-turn spans. They are intentionally audited as different measures; the final pair set is inside the 100–200 h thesis band.
 

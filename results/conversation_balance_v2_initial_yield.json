@@ -1,0 +1,42 @@
+{
+  "source_manifest": "data/processed/manifests/conversation_balance_v2_windows_diarized.jsonl",
+  "source_manifest_sha256": "73abea487b1ca4b207c311cc70e4a401f29cd3999ff8251e26d91f6d925f04f9",
+  "source_windows": 126,
+  "estimated_pairs": 845,
+  "estimated_pair_hours": 8.037,
+  "hours_100_to_200": false,
+  "label_counts": {
+    "overlap_unattributed": 763,
+    "none": 82
+  },
+  "automatic_interaction_candidate_counts": {
+    "interrupt": 146,
+    "backchannel": 1
+  },
+  "automatic_interaction_candidates": 147,
+  "automatic_direct_interruption_candidates": 146,
+  "automatic_backchannel_candidates": 1,
+  "human_verified_interaction_counts": {},
+  "human_verified_direct_interruption_pairs": 0,
+  "direct_interruption_pairs": 0,
+  "unattributed_overlap_pairs": 763,
+  "channel_hours": {
+    "Digiato": 6.248,
+    "Zoomit": 1.789
+  },
+  "skipped": {
+    "not_adjacent_response": 540,
+    "valid_adjacent_candidate_not_selected": 661,
+    "not_verified_multi_speaker": 79
+  },
+  "candidate_rule": {
+    "method": "caption_speaker_plus_raw_boundary_v1",
+    "pair_selection_method": "max_duration_interval_v2",
+    "minimum_raw_turn_match_ratio": 0.5,
+    "caption_boundary_tolerance_s": 0.5,
+    "minimum_raw_overlap_s": 0.2
+  },
+  "non_mutating_estimate": true,
+  "training_ready": false,
+  "warning": "This estimate writes no training clips and does not replace manual QA, rights application, file checks, or the final conversation audit. Automatic interaction candidates and overlap_unattributed are not human-verified interruption claims."
+}

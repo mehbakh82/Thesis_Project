@@ -11,7 +11,7 @@ An evidence-first Persian speech prototype that keeps the microphone active duri
 | Synthesized-speech intelligibility proxy | **Measured validly on the same 9/9 outputs:** exact transcript/reply hashes reproduced, zero ASR failures, NeMo round-trip micro CER **7.14%** (47/658 character edits) and micro WER **30.41%** (52/171 word edits). This automatic single-voice proxy is not a human pronunciation/naturalness result |
 | Full-duplex control | Continuous browser PCM16 stream, rolling energy/F0/MFCC detector, server stop event, client stop acknowledgement, and tested transport-level carry-over of the captured interruption into the next turn. Physical-browser traces remain pending |
 | Direct speech LLM | Experimental, not deployed. V1–v5 remain negative under their frozen runtime gates. The train-only v6.2 scheduled-text-dropout diagnostic achieved a **32.20%** text-loss reduction from step 50 to its best later checkpoint, but steps 50/100/150/200 each passed **0/9** direct-runtime rows. This proves objective learning capacity only; no direct adapter is deployment-eligible and no v2–v6.2 final test was opened. |
-| 100–200 h conversation corpus | Full inventory: **775.887 h / 1,442 long episodes**. The production selection is **219.946 candidate h / 309 episodes** across four channels; 1,129 windows contain **207.154 automatically classified multi-speaker h**, **242.445 aligned staging h**, and **6,754 non-reused response pairs / 123.796 source-pair h**. The immutable Piper derivative is **108.584 measured stereo h**, inside the formal band |
+| 100–200 h conversation corpus | The immutable corpus used by the completed Moshi runs remains **6,754 pairs / 123.796 source-pair h**, with a **108.584 h** Piper derivative. A disjoint-supplement, session-fair **balanced v2** now passes independently at **6,551 pairs / 110.374 source-pair h / 186 sessions / four channels**, with Tabaghe16 capped at **54.0%**. V2 is recommended for future training and was not retroactively attributed to completed runs |
 | Conversational interruption supervision | Raw speaker boundaries recover **770 conservative candidates** (717 interruption-like, 53 backchannel-like) from the 6,754 pairs. The preserved deterministic 24-row sheet was sampled from the earlier 712-candidate pool and covers all four channels / **168.3 seconds** of excerpt audio. They remain automatic candidates; **zero human-verified direct interruptions** are claimed under the waiver |
 | Barge-in >80% | Recorded-audio automatic-label proxy: 81.06% accuracy / 78.99% interrupt F1 on 132 events from 22 held-out sessions, but the session CI is 74.44–87.18% and human-verified labels are zero. Independent-label official evidence remains pending |
 | ≤500 ms and 12–24 GB official test | Pending live browser measurements on a physical 12–24 GB GPU |
@@ -36,7 +36,10 @@ separately predeclared automatic synthesized-speech proxy is in
 does not replace the separate automatic semantic test or human listening.
 Corpus evidence is in `results/diarized_episode_audit_combined_authorized.json`,
 `results/conversation_yield_estimate_combined.json`, and
-`results/corpus_audit.json`; study evidence is in
+`results/corpus_audit.json`. The post-training balanced-v2 corpus is separately
+bound by `results/conversation_balance_v2_selection.json`,
+`results/conversation_balance_v2_audit.json`, and
+`results/conversation_balanced_v2_audit.json`; study evidence is in
 `results/eval/human_study.json`. The final semantic panel establishes a
 positive predeclared automatic test result; human naturalness, independent
 benchmarking, and official browser latency remain outside its claim boundary.
@@ -214,6 +217,9 @@ final test or revise a finalized selection.
 .venv/bin/python -m thesis_s2s.cli audit-alignment
 .venv/bin/python -m thesis_s2s.cli build-conversations --in-jsonl data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl
 .venv/bin/python -m thesis_s2s.cli audit-conversations
+.venv/bin/python -m thesis_s2s.cli merge-conversation-pairs --help
+.venv/bin/python -m thesis_s2s.cli select-balanced-conversations --help
+.venv/bin/python -m thesis_s2s.cli audit-conversation-balance --help
 .venv/bin/python -m thesis_s2s.cli export-moshi-data --assistant-audio-mode piper
 .venv/bin/python -m thesis_s2s.cli audit-moshi-data
 .venv/bin/python -m thesis_s2s.cli serve --study --retention features

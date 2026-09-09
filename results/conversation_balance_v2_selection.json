@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "evidence_class": "deterministic_session_fair_balance_selection",
+  "source_manifest": "data/processed/manifests/conversation_balance_v2_pairs_all.jsonl",
+  "source_manifest_sha256": "570e6551491c62f1cd53e8426f1a36f56f89a7f73c5a6e029eadd4f1f80724c2",
+  "out_manifest": "data/processed/manifests/conversations_balanced_v2.jsonl",
+  "out_manifest_sha256": "f1a1848b64640ec6b2881f9c122bae59f477c2192b74695331558ffabf2e18ac",
+  "policy": {
+    "target_max_channel_share": 0.54,
+    "min_hours": 100.0,
+    "max_hours": 200.0,
+    "minority_policy": "retain_all",
+    "dominant_policy": "deterministic_session_round_robin"
+  },
+  "dominant_channel": "Tabaghe16",
+  "input_pairs": 8787,
+  "selected_pairs": 6551,
+  "selected_hours": 110.374005,
+  "selected_hours_by_channel": {
+    "Digiato": 17.92123,
+    "Mehran Rowshan Persian": 24.80036,
+    "Tabaghe16": 59.601947,
+    "Zoomit": 8.050468
+  },
+  "largest_channel_share": 0.54,
+  "retained_all_minority_pairs": true,
+  "selected_dominant_sessions": 77,
+  "split_summary": {
+    "test": {
+      "pairs": 219,
+      "hours": 1.670861,
+      "sessions": 5,
+      "channels": [
+        "Digiato",
+        "Mehran Rowshan Persian",
+        "Tabaghe16",
+        "Zoomit"
+      ]
+    },
+    "train": {
+      "pairs": 6112,
+      "hours": 103.188249,
+      "sessions": 174,
+      "channels": [
+        "Digiato",
+        "Mehran Rowshan Persian",
+        "Tabaghe16",
+        "Zoomit"
+      ]
+    },
+    "val": {
+      "pairs": 220,
+      "hours": 5.514895,
+      "sessions": 7,
+      "channels": [
+        "Digiato",
+        "Mehran Rowshan Persian",
+        "Tabaghe16"
+      ]
+    }
+  },
+  "invalid_split_rows": 0,
+  "session_group_split_leaks": 0,
+  "selection_gate_passes": true,
+  "training_ready": false
+}

@@ -34,7 +34,7 @@ Regenerate the bound receipt with:
 
 | Proposal criterion | Current evidence | Status |
 |---|---|---|
-| At least 100 h annotated Persian conversation with turn/overlap labels | 6,754 pairs, 108.584 exported stereo hours, zero machine audit failures and zero group leaks; labels remain automatic and listening QA is explicitly waived | Partially aligned; quantity/integrity pass, annotation confidence does not |
+| At least 100 h annotated Persian conversation with turn/overlap labels | Frozen training derivative: 6,754 pairs / 108.584 exported stereo h. Recommended balanced v2: 6,551 pairs / 110.374 source-pair h / four channels, 54.0% maximum source share, zero missing files/reused spans/group leaks; labels remain automatic and listening QA is explicitly waived | Partially aligned; quantity, integrity, and v2 source-balance pass, annotation confidence does not |
 | Fine-tune a direct S2S model; lower Persian loss and produce intelligible speech | Six Moshika experiment generations are preserved; v6.2 reduced in-sample text loss 32.20%, but every candidate passed 0/9 direct-runtime rows | Partially aligned; training exists, intelligible direct output fails |
 | Streaming end-to-end latency at or below 500 ms on one target GPU | Streaming/WebSocket transport and client acknowledgement instrumentation exist; qualifying physical 12–24 GB/browser rows are zero | Implemented but unproven; threshold not passed |
 | Full duplex with at least 80% detector F1 and interruption handling within 150 ms | Continuous capture/cancel/next-turn transport is regression-tested. The automatic-label real-audio proxy has 81.06% accuracy but 78.99% interrupt F1; independently labeled and physical timing evidence is absent | Implemented but threshold/evidence fail |
@@ -85,8 +85,10 @@ claim of having delivered a direct S2S LLM remain stronger than the evidence.
   working cascade and full-duplex control path exist, while the direct branch
   remains negative and latency is not officially measured.
 - **Persian conversational dataset:** achieved in internal, automatically
-  annotated form and at the required quantity; not eligible for public raw-data
-  release and not human-verified.
+  annotated form and at the required quantity. The post-training balanced v2
+  also passes the four-source/55%-ceiling audit, but is not retroactively
+  attributed to completed training. Raw data is not eligible for public release
+  and labels are not human-verified.
 - **Consumer-GPU latency and detector measurements:** not achieved. H100 and
   automatic proxy evidence cannot be relabeled as RTX 4090/independent evidence.
 - **Elderly-user qualitative findings:** not achieved.
@@ -123,4 +125,3 @@ human/elderly evaluation. The safe thesis claim is therefore:
 > A reproducible Persian full-duplex cascade prototype with positive automatic
 > semantic evidence, plus a comprehensive but unsuccessful direct-S2S
 > adaptation study—not a completed low-latency direct Persian S2S system.
-

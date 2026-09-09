@@ -67,9 +67,12 @@ an item explicitly says they are.
   generations and 80/80 judge calls. Qwen3.5-4B produced zero mean relevance
   gain and only 6/40 row wins; Qwen3.5-0.8B regressed. The frozen rule retained
   Qwen3-4B and kept the separately locked 40-row final panel unopened.
-- [ ] Build a versioned, more balanced corpus only after at least 44.900 new
-  high-confidence non-Tabaghe pair hours pass the same audits. Do not overwrite
-  the frozen submission corpus or mix incompatible result versions.
+- [x] Build a versioned balanced corpus without overwriting the frozen training
+  corpus or mixing result versions. Balanced v2 uses a disjoint 105-episode
+  Digiato/Zoomit supplement and deterministic session-fair selection; it passes
+  at 6,551 pairs / 110.374 h / four channels / 186 sessions, with Tabaghe16 at
+  54.0%, zero missing files, zero reused spans, and zero split leaks. It is
+  explicitly not attributed to the already completed Moshi runs.
 - [x] Evaluate a second genuinely Persian TTS on identical text and automatic
   latency/intelligibility metrics. On a new equal-channel 40-row panel,
   Mana-Piper achieved CER/WER 0.174401/0.342520 versus
@@ -117,6 +120,8 @@ Verified now:
 - [x] Authorized staging: 309 episodes / 1,129 windows / 219.946 candidate
   hours / 207.154 automatic multi-speaker hours / 242.445 aligned hours.
 - [x] Built corpus: 6,754 non-reused pairs / 123.796 source-pair hours.
+- [x] Built and independently audited balanced v2: 6,551 pairs / 110.374
+  source-pair hours / 186 sessions / four channels; largest source 54.0%.
 - [x] Internal thesis training is supervisor-approved for all 1,129 windows;
   raw-data redistribution remains prohibited.
 - [x] 770 conservative interaction candidates recovered: 717
@@ -375,6 +380,10 @@ Active waiver alternative:
   `thesis_coverage_ok=false` and all three human/strict claims false.
 - [x] Freeze waiver, conversation-manifest, split-manifest, WAV/metadata,
   assistant-voice, export-report, and independent-audit hashes used by training.
+- [x] Preserve the completed training lineage while publishing a separate
+  recommended balanced-v2 lineage. Its 6,551 pairs / 110.374 source-pair hours
+  pass authorization, common-waiver, file, non-reuse, split, and source-balance
+  gates; no completed model is claimed to have used v2.
 
 The following is the preserved strict path and remains incomplete:
 
@@ -1102,7 +1111,7 @@ privacy-safe repository at approved visibility, restricted handoff, immutable ta
 | Full duplex | Mic remains active; interruption stops playback and becomes next-turn context | Server transport continuity passed; physical-browser source-stop/ack trace and direct model remain pending | WebSocket continuation tests; future client traces |
 | End-to-end ≤500 ms | Max `T_first_audio` ≤500 ms unless another statistic is predeclared; always p50/p95/max | Pending | Physical-4090 `official_e2e` telemetry |
 | Open base adapted to Persian | Moshika 7B LoRA trained on the waiver-bound Persian response pairs | Training complete through v6.2. V6.2 shows a 32.20% in-sample text-loss reduction but 0/9 runtime rows for every checkpoint; no adapter is promoted and all later final tests remain untouched | Config, logs, adapter hashes, reevaluation/runtime reports |
-| 100–200 conversational hours | Final audited/exported hours in range; group-clean, no reused intervals | **108.584 exported h**, 6,754/6,754 pairs, zero audit failures | Conversation audit/export report |
+| 100–200 conversational hours | Final audited/exported hours in range; group-clean, no reused intervals | Frozen trained derivative: **108.584 exported h**, 6,754/6,754 pairs. Recommended balanced v2: **110.374 source-pair h**, 6,551 pairs, four channels, 54.0% maximum share. Both have zero reuse/leaks; v2 was not used by completed runs | Conversation audit/export report; balanced-v2 selection/balance/structural audits |
 | Noise/overlap/interruption labels | Conditions present, QA complete, verified interruption, agreed precision | Automatic only | QA reports and final counts |
 | Classical detector >80% | Independently labeled real group-held-out event accuracy >80%, F1/FAR/FRR reported | Recorded-audio automatic-label proxy: 81.06% on 132 events / 22 sessions, but CI crosses 80% and official eligibility is false | Independently labeled held-out report/hash |
 | 12–24 GB evaluation | Full model fits/runs officially on physical 4090 | Pending | Preflight, VRAM, telemetry |

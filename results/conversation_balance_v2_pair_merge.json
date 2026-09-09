@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "evidence_class": "deterministic_pair_manifest_merge",
+  "inputs": [
+    {
+      "manifest": "data/processed/manifests/conversation_balance_v2_pairs_all_initial.jsonl",
+      "sha256": "b7c7faf9c34d924fffb4cf7a4070a43928613208caec4fbbebc0c318e3ad3cba",
+      "pairs": 8521
+    },
+    {
+      "manifest": "data/processed/manifests/conversation_balance_v2_pairs_extension.jsonl",
+      "sha256": "02c07589c58f2a93af2f4da8e7f992d8f61ae5a1f77f407179a069c039697c26",
+      "pairs": 266
+    }
+  ],
+  "out_manifest": "data/processed/manifests/conversation_balance_v2_pairs_all.jsonl",
+  "out_manifest_sha256": "570e6551491c62f1cd53e8426f1a36f56f89a7f73c5a6e029eadd4f1f80724c2",
+  "pairs": 8787,
+  "source_pair_hours": 164.830208,
+  "channel_hours": {
+    "Digiato": 17.92123,
+    "Mehran Rowshan Persian": 24.80036,
+    "Tabaghe16": 114.05815,
+    "Zoomit": 8.050468
+  },
+  "sessions": 186,
+  "duplicate_utt_ids": 0,
+  "invalid_rows": 0,
+  "session_group_split_leaks": 0,
+  "merge_gate_passes": true
+}

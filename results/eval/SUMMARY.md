@@ -1,6 +1,6 @@
 # Authoritative project evidence status
 
-Generated: `2026-09-07T17:59:55.719863+00:00`
+Generated: `2026-09-09T14:20:54.859995+00:00`
 
 **Verdict:** `not_thesis_ready_evidence_gates_pending`. Thesis-ready: **false**.
 
@@ -34,6 +34,9 @@ This table is generated from `EVIDENCE_STATUS.json`. Component and synthetic pro
 | Split policy | source-session-group isolated |
 | Automatic integrity audit | pass |
 | Human listening QA complete | no (waived) |
+| Balanced v2 pairs (not used by completed Moshi runs) | 6,551 |
+| Balanced v2 source-pair hours | 110.374 |
+| Balanced v2 largest source share | 54.0% |
 
 ## Working speech-to-speech system
 

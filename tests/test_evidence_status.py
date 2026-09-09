@@ -27,6 +27,30 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
     _write(
         tmp_path,
+        "results/conversation_balanced_v2_audit.json",
+        {
+            "pairs": 6551,
+            "hours": 110.374,
+            "sessions": 186,
+            "speakers": 480,
+            "training_ready_under_qa_waiver": True,
+            "missing_files": 0,
+            "reused_source_spans": 0,
+            "session_group_split_leaks": 0,
+            "human_verified_rows": 0,
+        },
+    )
+    _write(
+        tmp_path,
+        "results/conversation_balance_v2_audit.json",
+        {
+            "totals": {"channels": 4},
+            "dominance": {"hour_share": 0.54},
+            "strict_representative_balance_passes": True,
+        },
+    )
+    _write(
+        tmp_path,
         "results/moshi_export_report.json",
         {
             "training_ready_under_qa_waiver": True,
@@ -472,6 +496,22 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert report["gates"]["data_policy_resolved_under_documented_qa_waiver"] is True
     assert report["data"]["strict_human_qa_complete"] is False
     assert report["data"]["exported_hours"] == 108.584
+    assert report["data"]["balanced_v2"] == {
+        "evidence_scope": "post_training_recommended_corpus",
+        "used_by_existing_moshi_runs": False,
+        "pairs": 6551,
+        "source_pair_hours": 110.374,
+        "sessions": 186,
+        "speakers": 480,
+        "channels": 4,
+        "largest_channel_share": 0.54,
+        "balance_gate_passed": True,
+        "training_ready_under_documented_qa_waiver": True,
+        "missing_files": 0,
+        "reused_source_spans": 0,
+        "session_group_split_leaks": 0,
+        "human_review_complete": False,
+    }
     assert report["direct_moshi"]["deployment_eligible"] is False
     assert report["direct_moshi"]["trials"][3]["runtime_panel_pass_counts"] == [1, 0]
     assert report["direct_moshi"]["trials"][4]["runtime_panel_pass_counts"] == [0, 1]

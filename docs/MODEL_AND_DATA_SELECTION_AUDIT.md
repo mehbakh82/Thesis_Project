@@ -234,8 +234,8 @@ this Persian protocol and hardware constraint.”
 
 ## Exact data balance result
 
-The existing natural-source manifest has 6,754 pairs, 162 sessions, and
-123.795553 source-pair hours:
+The frozen corpus used by the completed Moshi experiments has 6,754 pairs,
+162 sessions, and 123.795553 source-pair hours:
 
 | Source | Pairs | Sessions | Hours | Hour share |
 |---|---:|---:|---:|---:|
@@ -244,23 +244,31 @@ The existing natural-source manifest has 6,754 pairs, 162 sessions, and
 | Digiato | 1,104 | 21 | 7.945021 | 6.4179% |
 | Zoomit | 467 | 13 | 5.072295 | 4.0973% |
 
-Integrity remains strong: zero invalid rows in this audit, zero reused spans in
-the existing conversation audit, and zero session-group split leaks. Source
-representativeness does not pass the original 55% maximum-share target.
+Integrity remains strong, but this historical version does not pass the 55%
+maximum-share target. The previously recorded remediation arithmetic was a
+fixed-size replacement of 24.694900 Tabaghe16 hours or a retain-all addition of
+44.899818 non-Tabaghe hours.
 
-Two mathematically exact remediation choices are recorded:
+That recommendation is now implemented as a separate balanced v2 rather than
+rewriting training history. It uses a hash-bound local-audio supplement,
+versioned maximum-duration interval selector, duplicate-safe pair merge, and
+deterministic session-round-robin cap of the dominant source:
 
-- At the same 123.795553-hour total, replace at least **24.694900 hours** of
-  Tabaghe16 pairs with other sources.
-- If retaining every current Tabaghe16 pair, add at least **44.899818 hours**
-  from non-Tabaghe sources, producing at least 168.695371 total hours.
+| Source | Pairs | Sessions | Hours | Hour share |
+|---|---:|---:|---:|---:|
+| Tabaghe16 | 2,126 | 77 | 59.601947 | 54.0000% |
+| Mehran Rowshan Persian | 1,580 | 51 | 24.800360 | 22.4694% |
+| Digiato | 2,091 | 37 | 17.921230 | 16.2368% |
+| Zoomit | 754 | 21 | 8.050468 | 7.2938% |
 
-The second plan remains within the thesis 100--200-hour band. Prefer new
-podcasts such as Iman Khoraminezhad and Karnakon plus unused high-confidence
-Mehran/Digiato/Zoomit sessions. Apply the same episode reconstruction,
-diarization, alignment, authorization, non-reuse, and group-split audits. Do not
-silently replace the frozen submission corpus: create a versioned v2 manifest
-and rerun every dependent training/evaluation receipt.
+The final v2 total is **6,551 pairs / 110.374005 source-pair hours / 186
+sessions**. Every minority pair is retained; the largest source is exactly
+54.0%, below the independent 55% gate. File-backed audit reports zero missing
+files, reused source intervals, invalid split rows, or group leaks and confirms
+all 6,551 rows are internally authorized and bound to the same QA waiver. This
+closes the quantitative representativeness recommendation without adding the
+Iman Khoraminezhad or Karnakon channels. V2 is the recommended future corpus;
+the completed Moshi results remain correctly attributed to frozen v1.
 
 Kooshiar remains unsuitable as the main source of adjacent conversational
 responses because it is predominantly monologue. It can be used in a separate

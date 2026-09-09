@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "evidence_class": "deterministic_manifest_balance_audit",
+  "manifest": "data/processed/manifests/conversations_balanced_v2.jsonl",
+  "manifest_sha256": "f1a1848b64640ec6b2881f9c122bae59f477c2192b74695331558ffabf2e18ac",
+  "requirements": {
+    "max_channel_hour_share": 0.55,
+    "minimum_channels": 4
+  },
+  "totals": {
+    "pairs": 6551,
+    "source_pair_hours": 110.374005,
+    "channels": 4,
+    "sessions": 186,
+    "human_verified_rows": 0
+  },
+  "channels": {
+    "Digiato": {
+      "pairs": 2091,
+      "pair_share": 0.319188,
+      "sessions": 37,
+      "source_pair_hours": 17.92123,
+      "hour_share": 0.162368,
+      "user_hours": 9.043959,
+      "source_response_hours": 8.784595,
+      "human_verified_rows": 0,
+      "interaction_candidates": 447
+    },
+    "Mehran Rowshan Persian": {
+      "pairs": 1580,
+      "pair_share": 0.241185,
+      "sessions": 51,
+      "source_pair_hours": 24.80036,
+      "hour_share": 0.224694,
+      "user_hours": 12.065661,
+      "source_response_hours": 12.615504,
+      "human_verified_rows": 0,
+      "interaction_candidates": 95
+    },
+    "Tabaghe16": {
+      "pairs": 2126,
+      "pair_share": 0.324531,
+      "sessions": 77,
+      "source_pair_hours": 59.601947,
+      "hour_share": 0.54,
+      "user_hours": 28.809895,
+      "source_response_hours": 30.746995,
+      "human_verified_rows": 0,
+      "interaction_candidates": 180
+    },
+    "Zoomit": {
+      "pairs": 754,
+      "pair_share": 0.115097,
+      "sessions": 21,
+      "source_pair_hours": 8.050468,
+      "hour_share": 0.072938,
+      "user_hours": 3.98879,
+      "source_response_hours": 3.990511,
+      "human_verified_rows": 0,
+      "interaction_candidates": 85
+    }
+  },
+  "dominance": {
+    "channel": "Tabaghe16",
+    "hours": 59.601947,
+    "hour_share": 0.54,
+    "balance_gate_passes": true,
+    "hours_to_replace_at_fixed_total": 0.0,
+    "non_dominant_hours_to_add_if_retaining_all": 0.0
+  },
+  "quality_boundaries": {
+    "invalid_rows": [],
+    "all_rows_human_verified": false,
+    "automatic_balance_is_human_quality_evidence": false
+  },
+  "recommendations": [
+    "Complete the preserved listening QA before making human-quality claims."
+  ],
+  "strict_representative_balance_passes": true
+}

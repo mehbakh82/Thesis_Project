@@ -19,6 +19,8 @@ from thesis_s2s.repro import sha256_file
 
 ARTIFACTS: dict[str, str] = {
     "conversation_audit": "results/conversation_audit.json",
+    "conversation_balanced_v2_audit": "results/conversation_balanced_v2_audit.json",
+    "conversation_balance_v2_audit": "results/conversation_balance_v2_audit.json",
     "moshi_export_report": "results/moshi_export_report.json",
     "moshi_export_audit": "results/moshi_export_audit.json",
     "moshi_v1_training": "results/hardware/moshi_h100_training.json",
@@ -597,6 +599,8 @@ def build_evidence_status(
 
     project = Path(root or project_root()).resolve()
     conversation = _read_json(project, ARTIFACTS["conversation_audit"])
+    balanced_v2 = _read_json(project, ARTIFACTS["conversation_balanced_v2_audit"])
+    balance_v2 = _read_json(project, ARTIFACTS["conversation_balance_v2_audit"])
     export = _read_json(project, ARTIFACTS["moshi_export_report"])
     export_audit = _read_json(project, ARTIFACTS["moshi_export_audit"])
     v1_training = _read_json(project, ARTIFACTS["moshi_v1_training"])
@@ -885,6 +889,30 @@ def build_evidence_status(
             "raw_redistribution_permitted_rows": int(
                 export.get("source_rows_permitting_redistribution") or 0
             ),
+            "balanced_v2": {
+                "evidence_scope": "post_training_recommended_corpus",
+                "used_by_existing_moshi_runs": False,
+                "pairs": int(balanced_v2.get("pairs") or 0),
+                "source_pair_hours": float(balanced_v2.get("hours") or 0.0),
+                "sessions": int(balanced_v2.get("sessions") or 0),
+                "speakers": int(balanced_v2.get("speakers") or 0),
+                "channels": int((balance_v2.get("totals") or {}).get("channels") or 0),
+                "largest_channel_share": float(
+                    (balance_v2.get("dominance") or {}).get("hour_share") or 0.0
+                ),
+                "balance_gate_passed": bool(
+                    balance_v2.get("strict_representative_balance_passes")
+                ),
+                "training_ready_under_documented_qa_waiver": bool(
+                    balanced_v2.get("training_ready_under_qa_waiver")
+                ),
+                "missing_files": int(balanced_v2.get("missing_files") or 0),
+                "reused_source_spans": int(balanced_v2.get("reused_source_spans") or 0),
+                "session_group_split_leaks": int(
+                    balanced_v2.get("session_group_split_leaks") or 0
+                ),
+                "human_review_complete": bool(balanced_v2.get("human_verified_rows")),
+            },
         },
         "working_system": cascade,
         "qwen4b_v2_automatic_final_test": qwen4b_final,
@@ -1155,6 +1183,9 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             "| Split policy | source-session-group isolated |",
             f"| Automatic integrity audit | {'pass' if data.get('automatic_integrity_audit_passed') else 'fail'} |",
             f"| Human listening QA complete | {'yes' if data.get('human_review_complete') else 'no (waived)'} |",
+            f"| Balanced v2 pairs (not used by completed Moshi runs) | {(data.get('balanced_v2') or {}).get('pairs', 0):,} |",
+            f"| Balanced v2 source-pair hours | {(data.get('balanced_v2') or {}).get('source_pair_hours', 0):.3f} |",
+            f"| Balanced v2 largest source share | {100 * (data.get('balanced_v2') or {}).get('largest_channel_share', 0):.1f}% |",
             "",
             "## Working speech-to-speech system",
             "",

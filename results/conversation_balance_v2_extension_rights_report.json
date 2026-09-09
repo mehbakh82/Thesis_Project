@@ -1,0 +1,27 @@
+{
+  "source_manifest": "data/processed/manifests/conversation_balance_v2_extension_windows_noise_labeled.jsonl",
+  "rights_csv": "data/processed/manifests/conversation_balance_v2_rights_review.csv",
+  "out_manifest": "data/processed/manifests/conversation_balance_v2_extension_windows_authorized.jsonl",
+  "source_windows": 61,
+  "source_channels": [
+    "Digiato",
+    "Zoomit"
+  ],
+  "decision_scopes": 2,
+  "authorized_channels": [
+    "Digiato",
+    "Zoomit"
+  ],
+  "license_verified_channels": [],
+  "authorized_hours": 11.289,
+  "license_verified_hours": 0,
+  "counts": {
+    "authorized_windows": 61,
+    "supervisor_authorized_windows": 61
+  },
+  "training_authorization_gate_passes": true,
+  "rights_gate_passes": true,
+  "license_gate_passes": false,
+  "license_and_research_authorization_are_distinct": true,
+  "redistribution_is_separate": true
+}
