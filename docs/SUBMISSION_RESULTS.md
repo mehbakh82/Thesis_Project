@@ -1,6 +1,6 @@
 # Submission results and claim boundary
 
-Status date: 2026-09-07
+Status date: 2026-09-09
 
 ## Final architecture decision
 
@@ -27,6 +27,17 @@ production path. Do not start another speculative direct training run before
 the deadline. V6.2 supplies a useful positive learning signal and a clear
 negative generation result, while the cascade already has a frozen positive
 validation result.
+
+## Post-training balanced corpus result
+
+The immutable 6,754-pair / 108.584-hour Piper derivative remains the corpus
+actually used by completed Moshi runs. A separate balanced-v2 lineage is now
+recommended for future experiments: 6,551 pairs / 110.374 source-pair hours /
+186 sessions across Digiato, Mehran Rowshan Persian, Tabaghe16, and Zoomit.
+The largest source share is 54.0%; independent audits report zero missing files,
+reused source spans, invalid splits, or session-group leaks and confirm all rows
+carry the same authorization and QA-waiver binding. This is automatic-only
+training data, not human-verified conversation or interruption evidence.
 
 ## Primary positive result
 
@@ -246,13 +257,13 @@ repository Apache-2.0 license does not relicense that template or its bundled
 support assets. Private chat Markdown and LaTeX auxiliary outputs are absent
 from the release.
 
-Local Qwen3.5-0.8B and Qwen3.5-4B checkpoints both initialized and emitted
-Persian in bounded synthetic text-only compatibility smokes. The 0.8B model is
-a useful future low-memory/latency ablation and the 4B model is a plausible
-future responder upgrade. Neither is promoted: no new predeclared
-group-disjoint comparison was run, and the already-open final panel must not be
-reused for post-test selection. The compatibility-only receipt is
-`results/hardware/qwen35_local_smoke.json`.
+Local Qwen3.5-0.8B and Qwen3.5-4B checkpoints passed compatibility smokes and a
+newly frozen equal-channel, session-disjoint 40-row development comparison
+against Qwen3-4B. All arms completed 40/40 generations and 80/80 judge calls.
+Qwen3.5-4B tied mean relevance but won only 6/40 rows; Qwen3.5-0.8B regressed.
+Neither passed the frozen promotion rule, so Qwen3-4B remains selected and the
+separate final panel remains unopened. See
+`results/eval/responder_candidates_v1_development.json`.
 
 A copy-ready Persian abstract, methods/results tables, discussion, limitations,
 and conclusion—bounded to these exact evidence classes—are provided in

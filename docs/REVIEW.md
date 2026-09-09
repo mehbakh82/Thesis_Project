@@ -1,15 +1,17 @@
-# Comprehensive project review (updated 2026-09-07)
+# Comprehensive project review (updated 2026-09-09)
 
 ## Verdict
 
 The project has a strong thesis problem, useful infrastructure, and unusually good data-engineering effort, but the earlier implementation overstated two central claims: the trained artifact was not an end-to-end speech LLM, and the browser was not full duplex. The current revision corrects those claims, provides a functional modular cascade plus genuine continuous-microphone interruption control, constructs an auditable conversational training set, and adds a pinned official Moshi/Moshika LoRA path for genuine response-audio adaptation.
 
-Current engineering/research readiness: **9.7/10**. Earlier audited state:
+Current engineering/research readiness: **9.8/10**. Earlier audited state:
 **about 4/10**. A defensible 10/10 cannot be produced entirely in code because
 the strict remaining evidence requires independently reviewed detector labels,
 human participants, and live measurements on a physical 12–24 GB target GPU.
 The direct-model research objective also remains negative. The original
-unwaived rubric requires the preserved listening reviews.
+unwaived rubric requires the preserved listening reviews. This 9.8 score rates
+repository engineering and research governance; under the conservative
+proposal acceptance contract, zero of five conjunctive criteria fully close.
 
 The submission now has a clear positive primary result. After a frozen
 seven-row development eligibility stage passed, the Qwen3-4B prompt-v2
@@ -21,11 +23,12 @@ least two. The judge used different weights but the same Qwen family; the
 result is not human evaluation, an independent benchmark, or evidence of
 factuality, safety, naturalness, physical-4090 fit, or browser latency.
 
-Local Qwen3.5-0.8B and Qwen3.5-4B checkpoints also passed bounded synthetic
-Persian initialization/generation smoke tests. They are credible future
-low-memory and responder-upgrade candidates, but are not promoted: neither has
-passed a newly predeclared group-disjoint evaluation, and the opened final
-panel cannot be reused for post-test model selection.
+Local Qwen3.5-0.8B and Qwen3.5-4B checkpoints were subsequently compared with
+Qwen3-4B on a newly frozen equal-channel, session-disjoint 40-row development
+panel, leaving a separate final panel sealed. All arms completed 40/40
+generations and 80/80 judge calls. Qwen3.5-4B tied mean relevance but won only
+6/40 rows; Qwen3.5-0.8B regressed. Neither met the predeclared promotion rule,
+so Qwen3-4B remains the evidence-backed responder.
 
 The earlier frozen modular mechanics cascade passed all nine predeclared items from a 131-row
 source-session-group-isolated validation split, using audited user channel 1,
@@ -63,6 +66,15 @@ The original ASR ingest remains a substantial reusable result, but it is no long
 The final authorized staging set contains 309 episodes and 1,129 windows (244.733 h). The deterministic reserve selector targets the binding final corpus measure rather than padding audio: 219.946 h of candidate audio, 207.154 h automatically classified as multi-speaker, and 242.445 h with aligned captions. The estimator and production builder both yield 6,754 adjacent-turn pairs / 123.796 source-pair h across Digiato, Mehran Rowshan Persian, Tabaghe16, and Zoomit. The file-backed waiver audit verifies 162 sessions, 407 speaker IDs, zero missing files, zero reused spans, zero split leakage, and all 6,754 pairs authorized; strict human-QA coverage remains false. Inputs, decisions, pairs, waiver, and audit are content-hashed.
 
 The project's supervisor approved internal research training on the crawled public YouTube material. The authorization report therefore admits all 1,129 windows for internal training while correctly leaving redistribution disabled; internal-use approval is not represented as an open-content license.
+
+A post-training balanced-v2 lineage closes the quantitative source-balance
+recommendation without rewriting experiment history. It uses a disjoint
+105-episode Digiato/Zoomit supplement and deterministic session-fair dominant
+source cap. Independent audits pass at 6,551 pairs / 110.374 source-pair hours /
+186 sessions / four channels; Tabaghe16 is 54.0%, every minority-source pair is
+retained, all files and authorization/waiver bindings are present, and reused
+spans/split leaks are zero. V2 is recommended for future training and is not
+retroactively attributed to completed Moshi runs.
 
 The remaining corpus limitations are explicit:
 
@@ -278,10 +290,10 @@ Added:
 | Requirement alignment and claim discipline | 9 | 23 | 25 |
 | Architecture | 6 | 20 | 20 |
 | Implementation correctness | 7 | 20 | 20 |
-| Data engineering and provenance | 9 | 14 | 15 |
+| Data engineering and provenance | 9 | 15 | 15 |
 | Evaluation quality | 2 | 10 | 10 |
 | Reproducibility, tests, security | 3 | 10 | 10 |
-| **Total** | **36/100** | **97/100** | **100/100** |
+| **Total** | **36/100** | **98/100** | **100/100** |
 
 ## Irreducible path to 10/10
 
@@ -303,7 +315,7 @@ Added:
 5. Copy the reconciled repository-provided text/tables into the private
    manuscript and verify its bibliography. The code/evidence bundle itself is
    licensed under Apache-2.0 and frozen under
-   `submission-final-apache2-2026-09-07`.
+   `submission-balanced-v2-2026-09-09`.
 
 Another speculative direct-model training run is not recommended. It has no
 validated corrective hypothesis. The rational deadline strategy is to lead
