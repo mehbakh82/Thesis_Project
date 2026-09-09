@@ -1,6 +1,6 @@
 # Checklist for a defensible 10/10 thesis project
 
-Status date: 2026-09-08
+Status date: 2026-09-09
 
 This is the authoritative closure checklist. Mark an item complete only when its
 named artifact exists and its acceptance test passes. Implemented code,
@@ -1012,6 +1012,11 @@ Final engineering audit:
   the exact scientific-risk exception had no drift; and all ten upstream pins
   passed. The 40-row final-test certificate remained hash-verified with 240/240
   valid judge calls and all seven automatic gates passed.
+- [x] Repair and verify the post-proposal CI privacy/security regression at
+  `86e53bf`: GitHub Actions run `34318501572` passed all stages on 2026-09-09,
+  including the 496-file full-history/privacy audit, frozen evaluator/source
+  binding, the narrow reviewed application-dependency policy, all 227 tests,
+  coverage, and the exact Moshi advisory-drift audit.
 - [x] Verify the CI-portable pre-license evidence freeze at `fe32e6a`:
   GitHub Actions run `34029248788` passed every stage, including compile,
   Ruff, mypy, the 362-file history/privacy/secret audit, general dependency

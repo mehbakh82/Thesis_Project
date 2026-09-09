@@ -84,6 +84,11 @@ Status date: 2026-09-09
   clone independently reproduced its exact remote HEAD, sole Mehran Bakhtiari
   author/committer identity, 363-file tracked audit, 310-file release snapshot,
   and all 183 tests. The clone was removed after verification.
+- The post-proposal CI/security repair at `86e53bf` passed the complete GitHub
+  Actions run `34318501572` on 2026-09-09. All stages passed, including the
+  496-file full-history/privacy audit, frozen evaluator/source binding, the
+  narrow reviewed application-dependency policy, all 227 tests, coverage, and
+  the exact Moshi advisory-drift audit.
 
 ## Accepted pinned-training compatibility risks
 
