@@ -8,6 +8,7 @@ from scripts.audit_moshi_dependencies import (
     _expected_findings,
     _load_object,
     _observed_findings,
+    _resolved_versions,
 )
 
 APPLICATION_POLICY = Path("configs/application_dependency_risk_policy.json")
@@ -42,8 +43,23 @@ def test_reviewed_application_dependency_policy_is_narrow() -> None:
 
     assert errors == []
     assert expected == {
-        "accelerate": {"version": "1.14.0", "advisories": {"CVE-2026-69112"}}
+        "accelerate": {
+            "version": "1.15.0",
+            "advisories": {"CVE-2026-69112"},
+            "allow_unreported_by_scanner": True,
+        }
     }
+
+
+def test_known_scanner_unmapped_risk_requires_exact_resolved_version() -> None:
+    expected, errors = _expected_findings(_load_object(APPLICATION_POLICY))
+    assert errors == []
+
+    assert _compare_findings(expected, {}, {"accelerate": "1.15.0"}) == []
+    drift = _compare_findings(expected, {}, {"accelerate": "1.16.0"})
+    assert any("version drift" in error for error in drift)
+    missing = _compare_findings(expected, {}, {})
+    assert any("lacks resolved package evidence" in error for error in missing)
 
 
 def test_observed_findings_deduplicates_rows_but_counts_raw_rows() -> None:
@@ -58,6 +74,8 @@ def test_observed_findings_deduplicates_rows_but_counts_raw_rows() -> None:
     }
 
     observed, raw_count = _observed_findings(payload)
+    resolved = _resolved_versions(payload)
 
     assert observed["example"]["advisories"] == {"CVE-1"}
     assert raw_count == 2
+    assert resolved == {"example": "1.0"}

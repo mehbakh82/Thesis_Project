@@ -139,9 +139,12 @@ Verified now:
   general dependencies, the accepted scientific-risk baseline, and all ten
   upstream pins. The final release audit below records the definitive counts.
 - [x] General dependencies have exactly one narrow reviewed exception
-  (Accelerate 1.14.0 / CVE-2026-69112, with no fixed release); all other
-  findings and any policy drift fail closed. The pinned scientific lock has a
-  separate exact accepted-risk baseline and mitigations.
+  (Accelerate 1.15.0 / conservatively carried CVE-2026-69112 risk, with no
+  declared fixed release). The official 1.15.0 wheel retains the relevant
+  unvalidated path join. If the scanner feed omits it, CI still requires the
+  exact pinned version and preserves it as a known scanner-unmapped risk; all
+  other findings and any version/policy drift fail closed. The pinned
+  scientific lock has a separate exact accepted-risk baseline and mitigations.
 - [ ] Window QA: 0/40 reviewed.
 - [ ] Interaction QA: 0/24 reviewed.
 - [x] Waiver-bound Moshi export/audit: 6,754 pairs / 108.584 measured stereo
@@ -309,10 +312,11 @@ Owner: student for authentication; Codex can push afterward.
   `scripts/verify_frozen_evaluator_sources.py`.
 - [x] GitHub dependency vulnerability alerts and automated security fixes are
   enabled and verified through the authenticated API.
-- [x] Review the newly published Accelerate 1.14.0 CVE-2026-69112 after no
-  fixed release became available. CI now permits only that exact
-  package/version/advisory under trusted hash-inventoried local-model controls
-  and fails on every added, changed, or stale dependency risk.
+- [x] Review Accelerate CVE-2026-69112 and the later 1.15.0 wheel after no fixed
+  release became available. The 1.15.0 code retains the relevant path join, so
+  CI pins that exact wheel-era version under trusted hash-inventoried local-model
+  controls and fails closed if scanner-feed omission is accompanied by missing
+  or changed resolved-package evidence.
 - [ ] Enable protected/CI-gated main-branch updates. GitHub currently returns
   HTTP 403 for branch protection on this private repository under the active
   plan; changing plan or visibility requires the student.

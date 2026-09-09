@@ -1,15 +1,21 @@
 {
   "schema_version": 1,
-  "status": "temporary-no-fixed-release-exception",
+  "status": "temporary-known-scanner-unmapped-exception",
   "reviewed_at": "2026-09-09",
   "scope": "General application and optional responder-training requirements resolved by CI.",
   "review_command": ".venv/bin/python scripts/audit_application_dependencies.py",
-  "removal_condition": "Remove when pip-audit no longer reports CVE-2026-69112 or a released compatible Accelerate version contains the accepted upstream fix.",
+  "removal_condition": "Remove only if the advisory is withdrawn or after adopting a released compatible Accelerate version declared unaffected/fixed; scanner-feed disappearance alone is not remediation.",
   "accepted_risks": [
     {
       "package": "accelerate",
-      "version": "1.14.0",
-      "upstream_constraint": "CVE-2026-69112 was published after Accelerate 1.14.0; as of 2026-09-09 no fixed release or patched version is declared by the advisory, and upstream closed the proposed fix under its threat-model policy.",
+      "version": "1.15.0",
+      "upstream_constraint": "CVE-2026-69112 names Accelerate through 1.14.0 and declares no fixed release. On 2026-09-09 the official 1.15.0 wheel still joined unvalidated weight_map values to checkpoint_folder in accelerate/utils/modeling.py, so this project conservatively carries the same risk forward. GitHub's advisory has no supported-ecosystem package mapping, so pip-audit feeds may omit it even while the reviewed code-level risk remains.",
+      "reviewed_wheel_sha256": "97eacca0b73e45cb867dbf8c5d5d4dc32219544300e0c8992c7334dc2ef33cec",
+      "allow_unreported_by_scanner": true,
+      "references": [
+        "https://github.com/advisories/GHSA-4j2p-28q2-5m79",
+        "https://github.com/huggingface/accelerate/releases"
+      ],
       "advisories": [
         "CVE-2026-69112"
       ],

@@ -40,6 +40,7 @@ def _expected_findings(policy: dict) -> tuple[dict[str, dict], list[str]]:
         version = str(risk.get("version") or "").strip()
         advisories = risk.get("advisories")
         mitigations = risk.get("mitigations")
+        allow_unreported = risk.get("allow_unreported_by_scanner", False)
         if not package or package in expected:
             errors.append(f"invalid or duplicate policy package: {package!r}")
             continue
@@ -58,7 +59,13 @@ def _expected_findings(policy: dict) -> tuple[dict[str, dict], list[str]]:
             str(item).strip() for item in mitigations
         ):
             errors.append(f"{package}: non-empty mitigations are required")
-        expected[package] = {"version": version, "advisories": advisory_set}
+        if not isinstance(allow_unreported, bool):
+            errors.append(f"{package}: allow_unreported_by_scanner must be boolean")
+        expected[package] = {
+            "version": version,
+            "advisories": advisory_set,
+            "allow_unreported_by_scanner": allow_unreported,
+        }
     return expected, errors
 
 
@@ -120,14 +127,42 @@ def _observed_findings(payload: dict) -> tuple[dict[str, dict], int]:
     return observed, raw_count
 
 
-def _compare_findings(expected: dict[str, dict], observed: dict[str, dict]) -> list[str]:
+def _resolved_versions(payload: dict) -> dict[str, str]:
+    """Return every dependency version resolved by pip-audit, including clean rows."""
+
+    return {
+        str(dependency.get("name") or "").strip().lower(): str(
+            dependency.get("version") or ""
+        ).strip()
+        for dependency in payload["dependencies"]
+        if str(dependency.get("name") or "").strip()
+    }
+
+
+def _compare_findings(
+    expected: dict[str, dict],
+    observed: dict[str, dict],
+    resolved_versions: dict[str, str] | None = None,
+) -> list[str]:
     errors: list[str] = []
     for package in sorted(set(expected) | set(observed)):
         if package not in expected:
             errors.append(f"unreviewed vulnerable package: {package}")
             continue
         if package not in observed:
-            errors.append(f"stale accepted risk no longer reported: {package}")
+            if not expected[package].get("allow_unreported_by_scanner"):
+                errors.append(f"stale accepted risk no longer reported: {package}")
+                continue
+            if resolved_versions is None or package not in resolved_versions:
+                errors.append(
+                    f"{package}: scanner-unmapped risk lacks resolved package evidence"
+                )
+                continue
+            if expected[package]["version"] != resolved_versions[package]:
+                errors.append(
+                    f"{package}: version drift: expected {expected[package]['version']}, "
+                    f"resolved {resolved_versions[package]}"
+                )
             continue
         if expected[package]["version"] != observed[package]["version"]:
             errors.append(
@@ -156,8 +191,14 @@ def main(
     expected, errors = _expected_findings(policy)
     audit, audit_exit, audit_message = _run_audit(args.lock)
     observed, raw_count = _observed_findings(audit)
+    resolved_versions = _resolved_versions(audit)
 
-    errors.extend(_compare_findings(expected, observed))
+    errors.extend(_compare_findings(expected, observed, resolved_versions))
+    known_unmapped = {
+        package: finding
+        for package, finding in expected.items()
+        if finding.get("allow_unreported_by_scanner") and package not in observed
+    }
 
     result = {
         "schema_version": 1,
@@ -176,16 +217,26 @@ def main(
             }
             for package, finding in sorted(observed.items())
         },
+        "known_scanner_unmapped_risks": {
+            package: {
+                "resolved_version": resolved_versions.get(package),
+                "advisories": sorted(finding["advisories"]),
+            }
+            for package, finding in sorted(known_unmapped.items())
+        },
+        "reviewed_package_versions": {
+            package: resolved_versions.get(package) for package in sorted(expected)
+        },
         "unique_accepted_advisories": sum(
-            len(finding["advisories"]) for finding in observed.values()
+            len(finding["advisories"]) for finding in expected.values()
         ),
         "raw_audit_findings": raw_count,
         "errors": errors,
         "passed": not errors,
         "note": (
-            "A passing status means every current finding exactly matches a reviewed, "
-            "upstream-constrained exception; it does not mean the environment has no "
-            "known vulnerabilities."
+            "A passing status means every scanner-reported finding and every explicitly "
+            "known scanner-unmapped risk matches a reviewed exact-version exception; it "
+            "does not mean the environment has no known vulnerabilities."
         ),
     }
     encoded = json.dumps(result, ensure_ascii=False, indent=2) + "\n"

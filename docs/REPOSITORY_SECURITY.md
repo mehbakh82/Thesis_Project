@@ -36,10 +36,13 @@ Status date: 2026-09-09
   the aggregate.
 - The general requirements audit remains fail-closed on unreviewed drift. On
   2026-09-09, pip-audit began reporting CVE-2026-69112 in Accelerate 1.14.0.
-  No fixed release is declared, and upstream closed the proposed patch under
-  its threat-model policy. The narrow reviewed policy permits exactly that one
-  package/version/advisory while requiring trusted, pinned local model inputs;
-  any added finding, version change, or stale exception fails CI. See
+  The scanner feed later stopped mapping it and the resolver advanced to 1.15.0.
+  No fixed release is declared, and direct inspection of the official 1.15.0
+  wheel found the same unvalidated `weight_map` path join. The narrow policy
+  pins 1.15.0, preserves the known risk whether or not the scanner emits it,
+  and records the reviewed wheel hash. Any added finding, version change,
+  missing resolved package, or policy drift fails CI. Trusted, pinned local
+  model inputs remain mandatory. See
   `configs/application_dependency_risk_policy.json` and
   `results/security/application_dependency_audit.json`; reproduce it with
   `python scripts/audit_application_dependencies.py`.
