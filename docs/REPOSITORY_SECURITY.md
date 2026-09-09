@@ -1,6 +1,6 @@
 # Repository security and reproducibility review
 
-Status date: 2026-09-06
+Status date: 2026-09-09
 
 ## Controls that are enforced
 
@@ -18,6 +18,10 @@ Status date: 2026-09-06
   reachable Git revision for the same credential classes and forbidden paths.
   It performs the history scan locally and does not pass a repository token to
   a third-party action.
+- Frozen candidate results remain bound to their exact pre-portability evaluator
+  and protocol blobs. `scripts/verify_frozen_evaluator_sources.py` retrieves
+  those blobs from their full commit ID, verifies their SHA-256 values and every
+  declared receipt binding, and separately pins the current path-portable files.
 - GitHub Actions has read-only repository permissions, fetches complete history,
   and pins the first-party checkout and Python setup actions to immutable commit
   SHAs.
@@ -30,8 +34,15 @@ Status date: 2026-09-06
   from 35% while retaining a small non-flaky margin. Core conversation,
   Moshi-export, QA-policy, rights, and preflight modules are substantially above
   the aggregate.
-- `pip-audit --requirement requirements.txt --strict` reported no known
-  vulnerabilities on 2026-09-06 and is an enforced CI gate.
+- The general requirements audit remains fail-closed on unreviewed drift. On
+  2026-09-09, pip-audit began reporting CVE-2026-69112 in Accelerate 1.14.0.
+  No fixed release is declared, and upstream closed the proposed patch under
+  its threat-model policy. The narrow reviewed policy permits exactly that one
+  package/version/advisory while requiring trusted, pinned local model inputs;
+  any added finding, version change, or stale exception fails CI. See
+  `configs/application_dependency_risk_policy.json` and
+  `results/security/application_dependency_audit.json`; reproduce it with
+  `python scripts/audit_application_dependencies.py`.
 - Critical Moshi assets, upstream revisions, and the isolated training
   environment are independently pinned and hash-checked by
   `requirements-moshi.lock`, `third_party/UPSTREAMS.lock.json`, and the
@@ -76,8 +87,14 @@ Status date: 2026-09-06
 
 ## Accepted pinned-training compatibility risks
 
-The general application audit is clean. The isolated scientific Moshi lock is
-separate: after upgrading its independently patchable packaging tool from pip
+The application-policy exception above is separate from the older isolated
+Moshi environment risks below. Neither passing audit means “no
+vulnerabilities”; each means there is no unreviewed drift from its explicit
+policy.
+
+The general application audit has the single reviewed exception above. The
+isolated scientific Moshi lock is separate: after upgrading its independently
+patchable packaging tool from pip
 24.0 to 26.2, the audit reports 58 rows (56 unique advisory identifiers) in
 three upstream-constrained packages.
 

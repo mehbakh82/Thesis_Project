@@ -31,8 +31,10 @@ jobs:
         run: mypy --no-incremental src/thesis_s2s
       - name: Tracked artifact, history, privacy, and secret audit
         run: python scripts/ci_artifact_audit.py
-      - name: Dependency vulnerability audit
-        run: pip-audit --requirement requirements.txt --strict
+      - name: Frozen evaluator source and receipt audit
+        run: python scripts/verify_frozen_evaluator_sources.py
+      - name: Application dependency vulnerability and risk-drift audit
+        run: python scripts/audit_application_dependencies.py --out results/security/application_dependency_audit.json
       - name: Test
         run: coverage run -m pytest -q
       - name: Coverage

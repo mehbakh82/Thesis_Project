@@ -47,7 +47,7 @@ CURRENT_ARM = "nemo-persian-finetune"
 QWEN_ARMS = ("qwen3-asr-1.7b", "qwen3-asr-0.6b")
 ALL_ARMS = (CURRENT_ARM, *QWEN_ARMS)
 PROTOCOL = ROOT / "docs" / "ASR_CANDIDATE_COMPARISON_V1.md"
-PROVENANCE = Path("/mnt/md0/mehbakh/asr_nemo_soroush/ROADMAP_3_MONTHS_FA.md")
+MODEL_ROOT = ROOT / "models"
 BOOTSTRAP_DRAWS = 10_000
 
 
@@ -162,7 +162,7 @@ def model_identity(path: Path, repository: str) -> dict[str, Any]:
     }
 
 
-def nemo_identity(api_url: str, timeout: float) -> dict[str, Any]:
+def nemo_identity(api_url: str, timeout: float, provenance: Path) -> dict[str, Any]:
     import urllib.request
 
     images = {}
@@ -185,7 +185,7 @@ def nemo_identity(api_url: str, timeout: float) -> dict[str, Any]:
         "triton_image": NEMO_TRITON_IMAGE,
         "observed_images": images,
         "health": health,
-        "provenance_sha256": sha256_file(PROVENANCE),
+        "provenance_sha256": sha256_file(provenance),
     }
 
 
@@ -422,8 +422,18 @@ def main() -> int:
     )
     parser.add_argument("--nemo-url", default="http://127.0.0.1:8090")
     parser.add_argument("--timeout", type=float, default=30.0)
-    parser.add_argument("--qwen17-dir", type=Path, default=Path("/mnt/md0/models/Qwen3-ASR-1.7B"))
-    parser.add_argument("--qwen06-dir", type=Path, default=Path("/mnt/md0/models/Qwen3-ASR-0.6B"))
+    parser.add_argument(
+        "--nemo-provenance",
+        type=Path,
+        required=True,
+        help="private NeMo training-provenance document; its SHA-256 is verified",
+    )
+    parser.add_argument(
+        "--qwen17-dir", type=Path, default=MODEL_ROOT / "Qwen3-ASR-1.7B"
+    )
+    parser.add_argument(
+        "--qwen06-dir", type=Path, default=MODEL_ROOT / "Qwen3-ASR-0.6B"
+    )
     parser.add_argument(
         "--plan-out", type=Path, default=ROOT / "results/eval/asr_candidates_v1_plan.json"
     )
@@ -438,13 +448,13 @@ def main() -> int:
     args = parser.parse_args()
 
     os.environ["ASR_TIMEOUT_SECONDS"] = str(args.timeout)
-    if sha256_file(PROVENANCE) != PROVENANCE_SHA256:
+    if sha256_file(args.nemo_provenance) != PROVENANCE_SHA256:
         raise RuntimeError("NeMo training-provenance document drift")
     rows = load_source(args.source)
     panels = select_panels(rows)
     model_dirs = {"qwen3-asr-1.7b": args.qwen17_dir, "qwen3-asr-0.6b": args.qwen06_dir}
     identities = {
-        CURRENT_ARM: nemo_identity(args.nemo_url, args.timeout),
+        CURRENT_ARM: nemo_identity(args.nemo_url, args.timeout, args.nemo_provenance),
         "qwen3-asr-1.7b": model_identity(args.qwen17_dir, "Qwen/Qwen3-ASR-1.7B"),
         "qwen3-asr-0.6b": model_identity(args.qwen06_dir, "Qwen/Qwen3-ASR-0.6B"),
     }

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "scope": "General application and optional responder-training requirements resolved by CI.",
+  "reviewed_at": "2026-09-09",
+  "policy_status": "temporary-no-fixed-release-exception",
+  "policy_sha256": "09bdc840d1a26e4479f60270d46bf968fb64ff047b5cdc43d6505f7f1e3c8616",
+  "lock_sha256": "77d79429dc8104772916a267a73b8003fbdda25a640e77a9dd48238488534278",
+  "audit_exit": 1,
+  "audit_message": "Found 1 known vulnerability in 1 package",
+  "vulnerable_packages": {
+    "accelerate": {
+      "version": "1.14.0",
+      "advisories": [
+        "CVE-2026-69112"
+      ]
+    }
+  },
+  "unique_accepted_advisories": 1,
+  "raw_audit_findings": 1,
+  "errors": [],
+  "passed": true,
+  "note": "A passing status means every current finding exactly matches a reviewed, upstream-constrained exception; it does not mean the environment has no known vulnerabilities."
+}

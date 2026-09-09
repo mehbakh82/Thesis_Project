@@ -15,8 +15,8 @@ service?
 The incumbent's provenance document states that its then-unused YouTube pool
 included Digiato and Zoomit, while about 250 hours of Tabaghe16 had already
 been used for fine-tuning. Therefore this experiment excludes Tabaghe16 and
-Mehran Rowshan Persian. The external provenance file is
-`/mnt/md0/mehbakh/asr_nemo_soroush/ROADMAP_3_MONTHS_FA.md`, expected SHA-256
+Mehran Rowshan Persian. The private external provenance document's location is
+supplied explicitly at runtime and is not recorded in the repository. Its expected SHA-256 is
 `307c90f98dc72e4f0ac56a5c9cdf1f5963bc06a2d4c3446c09d00ee4436d7deb`.
 This removes known project-side overlap; undocumented upstream pretraining
 contamination cannot be ruled out.
@@ -97,8 +97,16 @@ streaming service/browser test.
 ## Commands
 
 ```bash
-.venv-qwen-asr/bin/python scripts/evaluate_asr_candidates_v1.py --stage plan
-.venv-qwen-asr/bin/python scripts/evaluate_asr_candidates_v1.py --stage development
+.venv-qwen-asr/bin/python scripts/evaluate_asr_candidates_v1.py \
+  --stage plan --nemo-provenance /path/to/private-provenance.md
+.venv-qwen-asr/bin/python scripts/evaluate_asr_candidates_v1.py \
+  --stage development --nemo-provenance /path/to/private-provenance.md
 ```
 
 Run `--stage final` only if development reports that the final lock is open.
+
+The portable path-interface refactor occurred after this experiment was frozen.
+The exact evaluator and protocol blobs bound by the receipts remain available
+at the commit and hashes enforced by `configs/frozen_evaluator_sources.json`;
+`scripts/verify_frozen_evaluator_sources.py` verifies both those historical
+blobs and the current portable files.

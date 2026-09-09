@@ -174,7 +174,7 @@ def main() -> int:
     parser.add_argument(
         "--shenava-dir",
         type=Path,
-        default=Path("/mnt/md0/models/Shenava-Koochik-v1.0-sherpa-onnx"),
+        default=ROOT / "models" / "Shenava-Koochik-v1.0-sherpa-onnx",
     )
     parser.add_argument("--nemo-url", default="http://127.0.0.1:8090")
     parser.add_argument("--timeout", type=float, default=30.0)

@@ -296,8 +296,16 @@ Owner: student for authentication; Codex can push afterward.
   rejects forbidden/oversized artifacts and private paths, scans all reachable
   revisions for secrets, audits general dependencies, and fails on scientific
   dependency-risk drift.
+- [x] Remove private absolute workstation paths from the current candidate
+  evaluators without rebinding frozen outcomes. The portable files and exact
+  historical blobs/receipt bindings are independently hash-verified in CI by
+  `scripts/verify_frozen_evaluator_sources.py`.
 - [x] GitHub dependency vulnerability alerts and automated security fixes are
   enabled and verified through the authenticated API.
+- [x] Review the newly published Accelerate 1.14.0 CVE-2026-69112 after no
+  fixed release became available. CI now permits only that exact
+  package/version/advisory under trusted hash-inventoried local-model controls
+  and fails on every added, changed, or stale dependency risk.
 - [ ] Enable protected/CI-gated main-branch updates. GitHub currently returns
   HTTP 403 for branch protection on this private repository under the active
   plan; changing plan or visibility requires the student.

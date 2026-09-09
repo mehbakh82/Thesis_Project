@@ -468,7 +468,7 @@ def main() -> int:
         "--piper-model", type=Path, default=ROOT / "models/piper/fa_IR-mana-medium.onnx"
     )
     parser.add_argument(
-        "--mms-dir", type=Path, default=Path("/mnt/md0/models/MMS-TTS-fas")
+        "--mms-dir", type=Path, default=ROOT / "models" / "MMS-TTS-fas"
     )
     parser.add_argument("--nemo-url", default="http://127.0.0.1:8090")
     parser.add_argument("--timeout", type=float, default=30.0)

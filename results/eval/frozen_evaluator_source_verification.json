@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "historical_commit": "8e2681365f47c32f18b73bc4d90cb5297fd4524e",
+  "entries_verified": 5,
+  "receipt_bindings_verified": 13,
+  "entries": [
+    {
+      "path": "scripts/evaluate_asr_candidates_v1.py",
+      "current_sha256": "0e3b45b96b36b86906eb6107fe12dc7216ef7060374c2a30fc6232da957714a9",
+      "historical_sha256": "d9b2f6fb9d71dd47cac31792f5ae0efbc7aaa87b97acfc28fbe7a6febf2b3aab",
+      "receipt_bindings_verified": 4
+    },
+    {
+      "path": "scripts/evaluate_responder_candidates_v1.py",
+      "current_sha256": "377739ff49743d95d262b41ffd944a90e41f2c00410ce155ebb58e58daec0915",
+      "historical_sha256": "cc5b5ebcc725e1a214153e152ae191242985def1c1aeeac16c24e17716bc0929",
+      "receipt_bindings_verified": 3
+    },
+    {
+      "path": "scripts/evaluate_tts_candidates_v1.py",
+      "current_sha256": "0f244f490f5b8e88b7fb960e99721ef6eb6479acf0edf57dfb8788744406d8da",
+      "historical_sha256": "7959f86a40f609e3d208e8f8b1203dd03396aee21cf93c5feeed41cefc64f7c6",
+      "receipt_bindings_verified": 2
+    },
+    {
+      "path": "scripts/evaluate_asr_shenava_supplemental_v1.py",
+      "current_sha256": "08643849e0f64de0826405fae0b9571a556665a949fa3b594e83f1a79e08bcc2",
+      "historical_sha256": "85150bbd661ecb242811137bde5b246c6b1bea4ff281a1c94649b8ff9b5465af",
+      "receipt_bindings_verified": 2
+    },
+    {
+      "path": "docs/ASR_CANDIDATE_COMPARISON_V1.md",
+      "current_sha256": "11ab5508e2a42b9ffcbba062bd1370940d4846da4dda1e7a5219036831f133a4",
+      "historical_sha256": "9413d0f81782bcb4b1b3dda5ce8f1ef6ab226d0ea14d443ede0859694b2d0380",
+      "receipt_bindings_verified": 2
+    }
+  ]
+}

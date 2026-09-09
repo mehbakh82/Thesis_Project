@@ -41,6 +41,7 @@ REPEATS = 2
 CURRENT_ARM = "qwen3-4b-instruct-2507-prompt-v2"
 JUDGE_MODEL = "qwen3.8-27b"
 PROTOCOL = ROOT / "docs" / "RESPONDER_CANDIDATE_COMPARISON_V1.md"
+MODEL_ROOT = ROOT / "models"
 
 PROMPT = (
     "متن کاربر ممکن است خروجی ناقص گفتاربه‌متن باشد. منظور اصلی قابل‌فهم را تشخیص بده و "
@@ -53,17 +54,17 @@ MODEL_SPECS = {
     CURRENT_ARM: {
         "model": "Qwen/Qwen3-4B-Instruct-2507",
         "revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
-        "default_dir": Path("/mnt/md0/models/Qwen3-4B-Instruct"),
+        "default_dir": MODEL_ROOT / "Qwen3-4B-Instruct",
     },
     "qwen3.5-4b": {
         "model": "Qwen/Qwen3.5-4B",
         "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
-        "default_dir": Path("/mnt/md0/models/Qwen3.5-4B"),
+        "default_dir": MODEL_ROOT / "Qwen3.5-4B",
     },
     "qwen3.5-0.8b": {
         "model": "Qwen/Qwen3.5-0.8B",
         "revision": "23c69c53358a07516b5827588b3fdb12ae78fd65",
-        "default_dir": Path("/mnt/md0/models/Qwen3.5-0.8b"),
+        "default_dir": MODEL_ROOT / "Qwen3.5-0.8b",
     },
 }
 

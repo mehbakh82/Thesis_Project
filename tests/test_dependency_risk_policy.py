@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from scripts.audit_moshi_dependencies import (
     DEFAULT_POLICY,
     _compare_findings,
@@ -7,6 +9,8 @@ from scripts.audit_moshi_dependencies import (
     _load_object,
     _observed_findings,
 )
+
+APPLICATION_POLICY = Path("configs/application_dependency_risk_policy.json")
 
 
 def test_reviewed_moshi_dependency_policy_is_well_formed() -> None:
@@ -31,6 +35,15 @@ def test_dependency_risk_comparison_fails_closed_on_drift() -> None:
     observed["torch"]["advisories"].add("PYSEC-FUTURE-NEW")
     errors = _compare_findings(expected, observed)
     assert any("unreviewed advisories" in error for error in errors)
+
+
+def test_reviewed_application_dependency_policy_is_narrow() -> None:
+    expected, errors = _expected_findings(_load_object(APPLICATION_POLICY))
+
+    assert errors == []
+    assert expected == {
+        "accelerate": {"version": "1.14.0", "advisories": {"CVE-2026-69112"}}
+    }
 
 
 def test_observed_findings_deduplicates_rows_but_counts_raw_rows() -> None:

@@ -143,10 +143,12 @@ def _compare_findings(expected: dict[str, dict], observed: dict[str, dict]) -> l
     return errors
 
 
-def main() -> int:
+def main(
+    *, default_policy: Path = DEFAULT_POLICY, default_lock: Path = DEFAULT_LOCK
+) -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--policy", type=Path, default=DEFAULT_POLICY)
-    parser.add_argument("--lock", type=Path, default=DEFAULT_LOCK)
+    parser.add_argument("--policy", type=Path, default=default_policy)
+    parser.add_argument("--lock", type=Path, default=default_lock)
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
 

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "status": "temporary-no-fixed-release-exception",
+  "reviewed_at": "2026-09-09",
+  "scope": "General application and optional responder-training requirements resolved by CI.",
+  "review_command": ".venv/bin/python scripts/audit_application_dependencies.py",
+  "removal_condition": "Remove when pip-audit no longer reports CVE-2026-69112 or a released compatible Accelerate version contains the accepted upstream fix.",
+  "accepted_risks": [
+    {
+      "package": "accelerate",
+      "version": "1.14.0",
+      "upstream_constraint": "CVE-2026-69112 was published after Accelerate 1.14.0; as of 2026-09-09 no fixed release or patched version is declared by the advisory, and upstream closed the proposed fix under its threat-model policy.",
+      "advisories": [
+        "CVE-2026-69112"
+      ],
+      "mitigations": [
+        "Load only repository-pinned or SHA-256-inventoried model directories and checkpoint shards selected by the trusted operator.",
+        "Do not accept model paths, checkpoint indexes, shard paths, FIFOs, or other model artifacts from browser/API request payloads.",
+        "Keep model loading local and single-operator; this exception does not authorize a public multi-tenant model-loading service.",
+        "The drift audit fails on any package/version/advisory change and makes a stale exception fail once the finding disappears."
+      ]
+    }
+  ]
+}
