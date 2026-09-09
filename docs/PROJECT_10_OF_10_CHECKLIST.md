@@ -317,9 +317,10 @@ Owner: student for authentication; Codex can push afterward.
   CI pins that exact wheel-era version under trusted hash-inventoried local-model
   controls and fails closed if scanner-feed omission is accompanied by missing
   or changed resolved-package evidence.
-- [ ] Enable protected/CI-gated main-branch updates. GitHub currently returns
-  HTTP 403 for branch protection on this private repository under the active
-  plan; changing plan or visibility requires the student.
+- [ ] Enable protected/CI-gated main-branch updates. Revalidated on 2026-09-09:
+  GitHub returns HTTP 403 for both classic branch protection and repository
+  rulesets on this private repository under the active plan; changing plan or
+  visibility requires the student.
 - [x] Confirm Apache-2.0 as the source-code/documentation license;
   third-party/model/data/adapter terms remain separate in
   `THIRD_PARTY_NOTICES.md`.
@@ -1103,6 +1104,19 @@ Final engineering audit:
   and LaTeX auxiliary outputs remain ignored, while both final PDFs, LaTeX
   sources, bibliography, figures, fonts, and template support files are
   release-bound.
+- [x] Freeze the post-training source-balanced corpus and reconciled evidence
+  handoff at commit `f53e602` under the annotated tag
+  `submission-balanced-v2-2026-09-09`. The clean full-history clone passed all
+  235 tests, Ruff, mypy over 51 source files, the 510-file history/privacy/
+  secret audit, frozen-source receipt verification, and both dependency-risk
+  gates. Branch and tag-triggered CI runs `34366895680` and `34367625360`
+  passed on that exact commit.
+- [x] Remove the only non-failing CI annotation after the evidence freeze. The
+  optional pip cache attempted to archive the large PyTorch/CUDA wheel cache
+  and exhausted hosted-runner scratch space after all checks had passed;
+  cache-only follow-up `6edb522` disables that archival. Warning-free run
+  `34368546413` then passed every substantive gate without changing any model,
+  corpus, evaluation, or manuscript artifact.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

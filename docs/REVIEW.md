@@ -315,7 +315,10 @@ Added:
 5. Copy the reconciled repository-provided text/tables into the private
    manuscript and verify its bibliography. The code/evidence bundle itself is
    licensed under Apache-2.0 and frozen under
-   `submission-balanced-v2-2026-09-09`.
+   `submission-balanced-v2-2026-09-09`. A later workflow-only commit disables
+   pip caching after GitHub's runner exhausted scratch space while saving the
+   large PyTorch/CUDA wheel cache; its warning-free CI run passed every gate and
+   does not alter the frozen scientific evidence.
 
 Another speculative direct-model training run is not recommended. It has no
 validated corrective hypothesis. The rational deadline strategy is to lead

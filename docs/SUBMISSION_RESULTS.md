@@ -234,6 +234,14 @@ Do not claim:
 
 ## Deadline handoff
 
+The post-training source-balanced corpus and reconciled evidence bundle are
+frozen at `submission-balanced-v2-2026-09-09`. That exact tagged commit passed
+235 tests, Ruff, mypy, the 510-file history/privacy/secret audit, frozen-source
+receipt verification, coverage, and both dependency-risk gates in branch and
+tag-triggered CI. A later workflow-only main-branch commit removed an optional
+pip-cache save that exceeded GitHub runner scratch space after successful
+checks; its warning-free CI run also passed and changed no scientific result.
+
 The positive Qwen3-4B evidence release is preserved under
 `submission-final-qwen4b-2026-09-07`. The Apache-2.0 closeout is preserved
 under `submission-final-apache2-2026-09-07`, with regenerated aggregate
