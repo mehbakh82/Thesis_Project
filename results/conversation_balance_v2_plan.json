@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "evidence_class": "deterministic_balance_supplement_plan",
+  "status": "planned",
+  "frozen_v1_mutated": false,
+  "inputs": {
+    "inventory": "data/processed/manifests/youtube_episode_inventory.jsonl",
+    "inventory_sha256": "c20f9873ba406869b652f44d154bb418081cce1adc9a3addc08d67846e487d29",
+    "current_pairs": "data/processed/manifests/conversations.jsonl",
+    "current_pairs_sha256": "aabf12268cce2854ef8b16ffd9339c6d703339c6b4c50a23a105447047a13a86",
+    "used_windows": "data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl",
+    "used_windows_sha256": "b7afb3df52fcfadb91d639808db18382cfbfd006750891b2248a125393177440",
+    "current_yield_report": "results/conversation_yield_estimate_combined_v2.json",
+    "current_yield_report_sha256": "36ee18018d056288fed89f3195e8edc0cbc6804b5f242e5bc5b082dcf9218986",
+    "current_pair_hours_source": "bound_non_mutating_yield_report",
+    "local_chunk_manifest": "data/processed/manifests/youtube_all.jsonl",
+    "local_chunk_manifest_sha256": "88fec58889284f37696fca3dbba9d7979450d6b7d98eba003820635450097605",
+    "local_manifest_existing_audio_rows": 219617,
+    "local_manifest_covered_source_csvs": 549,
+    "local_manifest_source_csvs_passing_coverage": 545
+  },
+  "policy": {
+    "allowed_channels": [
+      "Digiato",
+      "Mehran Rowshan Persian",
+      "Zoomit"
+    ],
+    "target_candidate_hours": 30.0,
+    "max_candidate_hours": 36.0,
+    "max_supplement_channel_share": 0.65,
+    "min_final_pair_hours": 100.0,
+    "max_final_channel_share": 0.55,
+    "expected_yield_safety_factor": 1.25,
+    "min_local_chunk_coverage": 0.95
+  },
+  "current": {
+    "pair_hours": 154.219,
+    "dominant_channel": "Tabaghe16",
+    "dominant_pair_hours": 114.058,
+    "non_dominant_pair_hours": 40.161,
+    "pair_hours_by_channel": {
+      "Digiato": 9.273,
+      "Mehran Rowshan Persian": 24.8,
+      "Tabaghe16": 114.058,
+      "Zoomit": 6.088
+    }
+  },
+  "calibration": {
+    "Digiato": {
+      "used_candidate_hours": 18.1195,
+      "observed_pair_hours": 9.273,
+      "observed_pair_yield_rate": 0.511769
+    },
+    "Mehran Rowshan Persian": {
+      "used_candidate_hours": 50.9994,
+      "observed_pair_hours": 24.8,
+      "observed_pair_yield_rate": 0.48628
+    },
+    "Zoomit": {
+      "used_candidate_hours": 18.4557,
+      "observed_pair_hours": 6.088,
+      "observed_pair_yield_rate": 0.329871
+    }
+  },
+  "selection": {
+    "manifest": "data/processed/manifests/youtube_conversation_balance_v2_supplement.jsonl",
+    "manifest_sha256": "e6ffd94699334b078fc8aee7ef23b8fe80271adf0e9c880497d8c9720fa2159d",
+    "episodes": 105,
+    "candidate_hours": 30.0175,
+    "by_channel": {
+      "Digiato": {
+        "episodes": 37,
+        "candidate_hours": 15.326,
+        "expected_pair_hours": 7.843373
+      },
+      "Zoomit": {
+        "episodes": 68,
+        "candidate_hours": 14.6915,
+        "expected_pair_hours": 4.8463
+      }
+    },
+    "disjoint_from_used_episodes": true,
+    "all_episodes_have_local_chunks": true
+  },
+  "projection": {
+    "minimum_new_non_dominant_pair_hours": 4.839,
+    "safety_target_pair_hours": 6.04875,
+    "expected_new_pair_hours": 12.689673,
+    "expected_yield_safety_gate_passes": true,
+    "dominant_pair_hours_to_retain_at_minimum": 55.0,
+    "dominant_pair_hours_to_drop_at_minimum": 59.058,
+    "estimated_non_dominant_pair_hours_available": 52.850673,
+    "estimated_balanced_minimum_feasible": true
+  },
+  "planning_gate_passes": true,
+  "training_ready": false,
+  "next_stage": "prepare and diarize this disjoint selection into versioned paths; then apply the existing alignment, authorization, pair-building, and balance audits"
+}

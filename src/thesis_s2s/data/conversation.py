@@ -6,6 +6,7 @@ import hashlib
 import json
 import re
 import tempfile
+from bisect import bisect_right
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -32,6 +33,32 @@ class SpeakerSegment:
     @property
     def duration(self) -> float:
         return self.end - self.start
+
+
+@dataclass(frozen=True)
+class PairCandidate:
+    user: SpeakerSegment
+    assistant: SpeakerSegment
+    automatic_candidate: dict | None
+    review: dict | None
+    user_start: float
+    user_end: float
+    response_start: float
+    response_end: float
+    label: str
+    overlap: list[list[float]]
+
+    @property
+    def span_start(self) -> float:
+        return min(self.user_start, self.response_start)
+
+    @property
+    def span_end(self) -> float:
+        return max(self.user_end, self.response_end)
+
+    @property
+    def span_duration(self) -> float:
+        return self.span_end - self.span_start
 
 
 def _safe_part(value: str) -> str:
@@ -277,11 +304,124 @@ def _verified_interaction_review(row: dict, candidate: dict | None) -> dict | No
     return None
 
 
+def _pair_candidate(
+    row: dict,
+    user: SpeakerSegment,
+    assistant: SpeakerSegment,
+    *,
+    max_response_gap_s: float,
+    include_verified_reviews: bool,
+) -> PairCandidate | None:
+    if user.speaker == assistant.speaker or assistant.start - user.end > max_response_gap_s:
+        return None
+    if user.duration < 0.25 or assistant.duration < 0.25:
+        return None
+    candidate = _automatic_interaction_candidate(row, user, assistant)
+    review = _verified_interaction_review(row, candidate) if include_verified_reviews else None
+    user_start, user_end = user.start, user.end
+    response_start, response_end = assistant.start, assistant.end
+    label, overlap = _interaction_label(
+        user,
+        assistant,
+        list(row.get("overlap_intervals") or []),
+    )
+    if review is not None and candidate is not None:
+        user_start, user_end = map(float, candidate["raw_user_interval"])
+        response_start, response_end = map(float, candidate["raw_response_interval"])
+        label = str(review["label"])
+        overlap = [list(candidate["overlap_interval"])]
+    return PairCandidate(
+        user=user,
+        assistant=assistant,
+        automatic_candidate=candidate,
+        review=review,
+        user_start=user_start,
+        user_end=user_end,
+        response_start=response_start,
+        response_end=response_end,
+        label=label,
+        overlap=overlap,
+    )
+
+
+def _select_pair_candidates(
+    row: dict,
+    segments: list[SpeakerSegment],
+    *,
+    max_response_gap_s: float,
+    pair_selection_method: str,
+    include_verified_reviews: bool = True,
+) -> tuple[list[PairCandidate], Counter[str]]:
+    """Select adjacent turns without segment or source-interval reuse."""
+
+    if pair_selection_method not in {"fixed_stride_v1", "max_duration_interval_v2"}:
+        raise ValueError(f"unsupported pair_selection_method: {pair_selection_method}")
+    step = 2 if pair_selection_method == "fixed_stride_v1" else 1
+    candidates: list[PairCandidate] = []
+    skipped: Counter[str] = Counter()
+    for index in range(0, len(segments) - 1, step):
+        candidate = _pair_candidate(
+            row,
+            segments[index],
+            segments[index + 1],
+            max_response_gap_s=max_response_gap_s,
+            include_verified_reviews=include_verified_reviews,
+        )
+        if candidate is None:
+            skipped["not_adjacent_response"] += 1
+        else:
+            candidates.append(candidate)
+
+    if pair_selection_method == "fixed_stride_v1":
+        selected: list[PairCandidate] = []
+        consumed_until = -1.0
+        for candidate in candidates:
+            if candidate.span_start < consumed_until:
+                skipped["source_interval_reuse"] += 1
+                continue
+            selected.append(candidate)
+            consumed_until = candidate.span_end
+        return selected, skipped
+
+    ordered = sorted(
+        candidates,
+        key=lambda item: (item.span_end, item.span_start, item.user.start, item.assistant.end),
+    )
+    ends = [item.span_end for item in ordered]
+    scores: list[tuple[float, int]] = [(0.0, 0)]
+    take_flags: list[bool] = [False]
+    predecessors: list[int] = [0]
+    for index, candidate in enumerate(ordered, start=1):
+        predecessor = bisect_right(ends, candidate.span_start, 0, index - 1)
+        take_score = (
+            scores[predecessor][0] + candidate.span_duration,
+            scores[predecessor][1] + 1,
+        )
+        skip_score = scores[index - 1]
+        take = take_score > skip_score
+        scores.append(take_score if take else skip_score)
+        take_flags.append(take)
+        predecessors.append(predecessor)
+
+    chosen: list[PairCandidate] = []
+    index = len(ordered)
+    while index > 0:
+        if take_flags[index]:
+            chosen.append(ordered[index - 1])
+            index = predecessors[index]
+        else:
+            index -= 1
+    chosen.reverse()
+    skipped["valid_adjacent_candidate_not_selected"] += len(candidates) - len(chosen)
+    return chosen, skipped
+
+
 def estimate_conversation_pair_yield(
     diarized_jsonl: Path,
     out_json: Path | None = None,
     *,
     max_response_gap_s: float = 3.0,
+    pair_selection_method: str = "fixed_stride_v1",
 ) -> dict:
     """Estimate builder yield without exporting clips or bypassing later gates."""
 
@@ -317,50 +457,27 @@ def estimate_conversation_pair_yield(
         if len({segment.speaker for segment in segments}) < 2:
             skipped["not_multi_speaker"] += 1
             continue
-        consumed_until = -1.0
-        index = 0
-        while index + 1 < len(segments):
-            user, assistant = segments[index], segments[index + 1]
-            index += 2
-            if user.speaker == assistant.speaker or assistant.start - user.end > max_response_gap_s:
-                skipped["not_adjacent_response"] += 1
-                continue
-            if user.duration < 0.25 or assistant.duration < 0.25:
-                skipped["empty_clip"] += 1
-                continue
-
-            candidate = _automatic_interaction_candidate(row, user, assistant)
-            review = _verified_interaction_review(row, candidate)
-            user_start, user_end = user.start, user.end
-            response_start, response_end = assistant.start, assistant.end
-            label, _overlap = _interaction_label(
-                user,
-                assistant,
-                list(row.get("overlap_intervals") or []),
-            )
-            if review is not None and candidate is not None:
-                user_start, user_end = map(float, candidate["raw_user_interval"])
-                response_start, response_end = map(float, candidate["raw_response_interval"])
-                label = str(review["label"])
-
-            span_start = min(user_start, response_start)
-            span_end = max(user_end, response_end)
-            if span_start < consumed_until:
-                skipped["source_interval_reuse"] += 1
-                continue
-            span_seconds = span_end - span_start
+        selected, row_skipped = _select_pair_candidates(
+            row,
+            segments,
+            max_response_gap_s=max_response_gap_s,
+            pair_selection_method=pair_selection_method,
+        )
+        skipped.update(row_skipped)
+        for selected_pair in selected:
+            candidate = selected_pair.automatic_candidate
             if candidate is not None:
                 automatic_candidates[str(candidate["automatic_label"])] += 1
-            if review is not None:
-                verified_interactions[label] += 1
-            labels[label] += 1
-            seconds += span_seconds
-            by_channel_seconds[str(row.get("channel") or "unknown")] += span_seconds
+            if selected_pair.review is not None:
+                verified_interactions[selected_pair.label] += 1
+            labels[selected_pair.label] += 1
+            seconds += selected_pair.span_duration
+            by_channel_seconds[str(row.get("channel") or "unknown")] += selected_pair.span_duration
             pairs += 1
-            consumed_until = span_end
     hours = seconds / 3600.0
     report = {
         "source_manifest": str(diarized_jsonl),
+        "source_manifest_sha256": _sha256_path(Path(diarized_jsonl)),
         "source_windows": len(rows),
         "estimated_pairs": pairs,
         "estimated_pair_hours": round(hours, 3),
@@ -381,6 +498,7 @@ def estimate_conversation_pair_yield(
         "skipped": dict(skipped),
         "candidate_rule": {
             "method": "caption_speaker_plus_raw_boundary_v1",
+            "pair_selection_method": pair_selection_method,
             "minimum_raw_turn_match_ratio": RAW_TURN_MATCH_RATIO,
             "caption_boundary_tolerance_s": RAW_BOUNDARY_TOLERANCE_S,
             "minimum_raw_overlap_s": MIN_RAW_OVERLAP_S,
@@ -587,6 +705,7 @@ def build_conversation_manifest(
     *,
     max_hours: float = 200.0,
     max_response_gap_s: float = 3.0,
+    pair_selection_method: str = "fixed_stride_v1",
     qa_waiver_path: Path | None = None,
 ) -> dict:
     """Extract non-overlapping user/response pairs from full diarized recordings.
@@ -642,36 +761,27 @@ def build_conversation_manifest(
             continue
         audio, _ = read_wav(source)
         safe_session = _safe_part(session_id)
-        i = 0
-        consumed_until = -1.0
-        while i + 1 < len(segments):
-            user, assistant = segments[i], segments[i + 1]
-            i += 2
-            if user.speaker == assistant.speaker or assistant.start - user.end > max_response_gap_s:
-                skipped["not_adjacent_response"] += 1
-                continue
-
-            candidate = _automatic_interaction_candidate(row, user, assistant)
-            review = None if qa_waiver is not None else _verified_interaction_review(row, candidate)
-            user_start, user_end = user.start, user.end
-            response_start, response_end = assistant.start, assistant.end
-            label, overlap = _interaction_label(
-                user,
-                assistant,
-                list(row.get("overlap_intervals") or []),
-            )
-            if review is not None and candidate is not None:
-                user_start, user_end = map(float, candidate["raw_user_interval"])
-                response_start, response_end = map(float, candidate["raw_response_interval"])
-                label = str(review["label"])
-                overlap = [list(candidate["overlap_interval"])]
-
-            source_span_start = min(user_start, response_start)
-            source_span_end = max(user_end, response_end)
-            if source_span_start < consumed_until:
-                skipped["source_interval_reuse"] += 1
-                continue
-            source_span_duration = source_span_end - source_span_start
+        selected, row_skipped = _select_pair_candidates(
+            row,
+            segments,
+            max_response_gap_s=max_response_gap_s,
+            pair_selection_method=pair_selection_method,
+            include_verified_reviews=qa_waiver is None,
+        )
+        skipped.update(row_skipped)
+        for selected_pair in selected:
+            user = selected_pair.user
+            assistant = selected_pair.assistant
+            candidate = selected_pair.automatic_candidate
+            review = selected_pair.review
+            user_start, user_end = selected_pair.user_start, selected_pair.user_end
+            response_start = selected_pair.response_start
+            response_end = selected_pair.response_end
+            label = selected_pair.label
+            overlap = selected_pair.overlap
+            source_span_start = selected_pair.span_start
+            source_span_end = selected_pair.span_end
+            source_span_duration = selected_pair.span_duration
             pair_hours = source_span_duration / 3600.0
             if hours + pair_hours > max_hours:
                 break
@@ -697,7 +807,6 @@ def build_conversation_manifest(
             label_counts[label] += 1
             if review is not None:
                 verified_interaction_counts[label] += 1
-            consumed_until = source_span_end
             license_name = str(row.get("license") or "unknown")
             license_verified = rights_record_verified(row)
             training_authorized = training_use_authorized(row)
@@ -777,6 +886,7 @@ def build_conversation_manifest(
         "automatic_interaction_candidate_counts": dict(automatic_candidate_counts),
         "human_verified_interaction_counts": dict(verified_interaction_counts),
         "skipped": dict(skipped),
+        "pair_selection_method": pair_selection_method,
         "qa_policy": qa_waiver or {"policy": "strict", "valid": True},
         "evidence_scope": (
             "automatic-only natural response pairs under a documented QA waiver; no "

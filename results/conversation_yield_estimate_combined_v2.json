@@ -1,0 +1,44 @@
+{
+  "source_manifest": "data/processed/manifests/conversation_episode_windows_noise_labeled_combined_authorized.jsonl",
+  "source_manifest_sha256": "b7afb3df52fcfadb91d639808db18382cfbfd006750891b2248a125393177440",
+  "source_windows": 1129,
+  "estimated_pairs": 7676,
+  "estimated_pair_hours": 154.22,
+  "hours_100_to_200": true,
+  "label_counts": {
+    "none": 1599,
+    "overlap_unattributed": 6077
+  },
+  "automatic_interaction_candidate_counts": {
+    "interrupt": 764,
+    "backchannel": 47
+  },
+  "automatic_interaction_candidates": 811,
+  "automatic_direct_interruption_candidates": 764,
+  "automatic_backchannel_candidates": 47,
+  "human_verified_interaction_counts": {},
+  "human_verified_direct_interruption_pairs": 0,
+  "direct_interruption_pairs": 0,
+  "unattributed_overlap_pairs": 6077,
+  "channel_hours": {
+    "Digiato": 9.273,
+    "Mehran Rowshan Persian": 24.8,
+    "Tabaghe16": 114.058,
+    "Zoomit": 6.088
+  },
+  "skipped": {
+    "not_verified_multi_speaker": 234,
+    "not_adjacent_response": 6374,
+    "valid_adjacent_candidate_not_selected": 5581
+  },
+  "candidate_rule": {
+    "method": "caption_speaker_plus_raw_boundary_v1",
+    "pair_selection_method": "max_duration_interval_v2",
+    "minimum_raw_turn_match_ratio": 0.5,
+    "caption_boundary_tolerance_s": 0.5,
+    "minimum_raw_overlap_s": 0.2
+  },
+  "non_mutating_estimate": true,
+  "training_ready": false,
+  "warning": "This estimate writes no training clips and does not replace manual QA, rights application, file checks, or the final conversation audit. Automatic interaction candidates and overlap_unattributed are not human-verified interruption claims."
+}

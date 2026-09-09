@@ -17,6 +17,8 @@ def test_cli_help_registers_critical_workflows(capsys: pytest.CaptureFixture[str
         "audit-conversations",
         "export-moshi-data",
         "audit-moshi-data",
+        "plan-balance-supplement",
+        "select-balanced-conversations",
         "evidence-status",
         "gpu-preflight",
         "verify-upstreams",

@@ -14,6 +14,11 @@ from thesis_s2s.data.conversation import (
     _interaction_label,
     audit_conversation_manifest,
     build_conversation_manifest,
+    estimate_conversation_pair_yield,
+)
+from thesis_s2s.data.conversation_balance import (
+    plan_balanced_supplement,
+    select_balanced_conversation_pairs,
 )
 from thesis_s2s.data.conversation_selection import (
     audit_episode_selection,
@@ -29,6 +34,7 @@ from thesis_s2s.data.diarize import (
 from thesis_s2s.data.episode_prepare import (
     audit_prepared_episode_windows,
     preparation_stats_path,
+    prepare_selected_episodes,
     rclone_filter_literal,
     reconstruct_episode_windows,
 )
@@ -162,6 +168,230 @@ def test_weighted_selection_is_balanced_whole_episode_and_not_final_evidence(tmp
     )
     assert sum(float(row["csv_hours"]) for row in reserve) == 100
     assert selected_ids.isdisjoint(str(row["episode_id"]) for row in reserve)
+
+
+def test_balanced_supplement_plan_is_disjoint_hash_bound_and_conservative(
+    tmp_path: Path,
+) -> None:
+    inventory_path = tmp_path / "inventory.jsonl"
+    pairs_path = tmp_path / "pairs.jsonl"
+    windows_path = tmp_path / "windows.jsonl"
+    selection_path = tmp_path / "supplement.jsonl"
+    report_path = tmp_path / "plan.json"
+
+    inventory: list[dict] = []
+    used_windows: list[dict] = []
+    channel_policies = {
+        "Tabaghe16": (0.50, 100.0),
+        "Digiato": (0.11, 20.0),
+        "Mehran Rowshan Persian": (0.28, 20.0),
+        "Zoomit": (0.11, 20.0),
+    }
+    for channel, (weight, used_candidate_hours) in channel_policies.items():
+        used_id = f"{channel}/used"
+        inventory.append(
+            {
+                "episode_id": used_id,
+                "channel": channel,
+                "csv_hours": used_candidate_hours,
+                "selection_weight": weight,
+                "selection_eligible": True,
+                "conversation_priority": 1,
+            }
+        )
+        used_windows.append({"episode_id": used_id, "session_id": used_id})
+        if channel != "Tabaghe16":
+            for index in range(5):
+                inventory.append(
+                    {
+                        "episode_id": f"{channel}/new-{index}",
+                        "channel": channel,
+                        "csv_hours": 10.0,
+                        "selection_weight": weight,
+                        "selection_eligible": True,
+                        "conversation_priority": 1,
+                    }
+                )
+
+    pairs = [
+        {"session_id": "Tabaghe16/used", "duration": 75.0 * 3600.0},
+        {"session_id": "Digiato/used", "duration": 9.0 * 3600.0},
+        {"session_id": "Mehran Rowshan Persian/used", "duration": 8.0 * 3600.0},
+        {"session_id": "Zoomit/used", "duration": 8.0 * 3600.0},
+    ]
+
+    def write_rows(path: Path, rows: list[dict]) -> None:
+        path.write_text(
+            "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows),
+            encoding="utf-8",
+        )
+
+    write_rows(inventory_path, inventory)
+    write_rows(pairs_path, pairs)
+    write_rows(windows_path, used_windows)
+    report = plan_balanced_supplement(
+        inventory_path,
+        pairs_path,
+        windows_path,
+        selection_path,
+        report_path,
+        target_candidate_hours=50.0,
+        max_candidate_hours=60.0,
+        expected_yield_safety_factor=1.0,
+        root=tmp_path,
+    )
+
+    selected = [json.loads(line) for line in selection_path.read_text().splitlines()]
+    assert report["frozen_v1_mutated"] is False
+    assert report["selection"]["candidate_hours"] == 50.0
+    assert report["selection"]["disjoint_from_used_episodes"] is True
+    assert report["projection"]["minimum_new_non_dominant_pair_hours"] == 20.0
+    assert report["projection"]["expected_new_pair_hours"] == 21.0
+    assert report["planning_gate_passes"] is True
+    assert report["training_ready"] is False
+    assert all(row["episode_id"].endswith(tuple(f"new-{i}" for i in range(5))) for row in selected)
+    assert all(row["channel"] != "Tabaghe16" for row in selected)
+    assert report_path.is_file()
+
+
+def test_balanced_supplement_plan_can_require_bound_local_audio(tmp_path: Path) -> None:
+    inventory = tmp_path / "inventory.jsonl"
+    pairs = tmp_path / "pairs.jsonl"
+    windows = tmp_path / "windows.jsonl"
+    local_manifest = tmp_path / "youtube.jsonl"
+    yield_report = tmp_path / "yield.json"
+    selection = tmp_path / "selection.jsonl"
+    report_path = tmp_path / "report.json"
+    audio = tmp_path / "chunk.wav"
+    write_wav(audio, np.zeros(16000, dtype=np.float32))
+    inventory_rows = []
+    local_rows = []
+    for channel in ("Digiato", "Mehran Rowshan Persian", "Zoomit"):
+        inventory_rows.append(
+            {
+                "episode_id": f"{channel}/used",
+                "channel": channel,
+                "csv_hours": 10.0,
+                "selection_weight": 0.2,
+                "selection_eligible": True,
+            }
+        )
+        for index in range(2):
+            source_csv = str(tmp_path / f"{channel}-{index}.csv")
+            Path(source_csv).write_text(
+                "start_time,end_time,text\n00:00:00,00:00:01,سلام دوست من\n",
+                encoding="utf-8",
+            )
+            inventory_rows.append(
+                {
+                    "episode_id": f"{channel}/new-{index}",
+                    "channel": channel,
+                    "csv_path": source_csv,
+                    "csv_hours": 10.0,
+                    "selection_weight": 0.2,
+                    "selection_eligible": True,
+                }
+            )
+            if channel != "Mehran Rowshan Persian":
+                local_rows.append({"source_csv": source_csv, "audio_filepath": str(audio)})
+    inventory.write_text(
+        "".join(json.dumps(row) + "\n" for row in inventory_rows), encoding="utf-8"
+    )
+    pairs.write_text(
+        "".join(
+            json.dumps({"session_id": f"{channel}/used", "duration": hours * 3600}) + "\n"
+            for channel, hours in (
+                ("Tabaghe16", 60.0),
+                ("Digiato", 12.0),
+                ("Mehran Rowshan Persian", 12.0),
+                ("Zoomit", 6.0),
+            )
+        ),
+        encoding="utf-8",
+    )
+    windows.write_text(
+        "".join(
+            json.dumps({"episode_id": f"{channel}/used"}) + "\n"
+            for channel in ("Digiato", "Mehran Rowshan Persian", "Zoomit")
+        ),
+        encoding="utf-8",
+    )
+    local_manifest.write_text(
+        "".join(json.dumps(row) + "\n" for row in local_rows), encoding="utf-8"
+    )
+    yield_report.write_text(
+        json.dumps(
+            {
+                "source_manifest_sha256": hashlib.sha256(windows.read_bytes()).hexdigest(),
+                "channel_hours": {
+                    "Tabaghe16": 60.0,
+                    "Digiato": 12.0,
+                    "Mehran Rowshan Persian": 12.0,
+                    "Zoomit": 6.0,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    report = plan_balanced_supplement(
+        inventory,
+        pairs,
+        windows,
+        selection,
+        report_path,
+        target_candidate_hours=20.0,
+        max_candidate_hours=30.0,
+        max_supplement_channel_share=0.6,
+        expected_yield_safety_factor=1.0,
+        current_yield_report_path=yield_report,
+        local_chunk_manifest_path=local_manifest,
+        root=tmp_path,
+    )
+
+    selected = [json.loads(line) for line in selection.read_text().splitlines()]
+    assert {row["channel"] for row in selected} == {"Digiato", "Zoomit"}
+    assert report["selection"]["all_episodes_have_local_chunks"] is True
+    assert report["inputs"]["current_pair_hours_source"] == ("bound_non_mutating_yield_report")
+
+
+def test_final_balance_selection_retains_minority_and_is_deterministic(tmp_path: Path):
+    source = tmp_path / "pairs.jsonl"
+    rows = []
+    channel_counts = {
+        "Tabaghe16": 70,
+        "Digiato": 20,
+        "Mehran Rowshan Persian": 20,
+        "Zoomit": 10,
+    }
+    for channel, count in channel_counts.items():
+        for index in range(count):
+            rows.append(
+                {
+                    "utt_id": f"{channel}-{index}",
+                    "session_id": f"{channel}/session-{index % 2}",
+                    "channel": channel,
+                    "duration": 3600.0,
+                }
+            )
+    source.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+    first = tmp_path / "balanced-1.jsonl"
+    second = tmp_path / "balanced-2.jsonl"
+    report = select_balanced_conversation_pairs(
+        source, first, tmp_path / "report-1.json", root=tmp_path
+    )
+    repeated = select_balanced_conversation_pairs(
+        source, second, tmp_path / "report-2.json", root=tmp_path
+    )
+
+    selected = [json.loads(line) for line in first.read_text().splitlines()]
+    assert report["selection_gate_passes"] is True
+    assert report["retained_all_minority_pairs"] is True
+    assert report["selected_hours"] == 108.0
+    assert report["largest_channel_share"] < 0.54
+    assert sum(row["channel"] != "Tabaghe16" for row in selected) == 50
+    assert first.read_bytes() == second.read_bytes()
+    assert report["out_manifest_sha256"] == repeated["out_manifest_sha256"]
 
 
 def test_primary_and_reserve_window_merge_is_atomic_and_rejects_duplicates(tmp_path: Path):
@@ -368,6 +598,96 @@ def test_episode_window_reconstruction_tracks_chunk_limitations(tmp_path: Path):
     )
     assert stale["requirements"]["preparation_report_current_and_finished"] is False
     assert stale["reconstruction_gate_passes"] is False
+
+
+def test_episode_preparation_prefers_bound_local_chunk_manifest(tmp_path: Path, monkeypatch):
+    stem = "local episode"
+    csv_path = tmp_path / f"{stem}.csv"
+    csv_path.write_text(
+        "start_time,end_time,text\n00:00:00,00:00:01,سلام دوست من\n",
+        encoding="utf-8",
+    )
+    chunk = tmp_path / f"{stem}_chunk_0001.wav"
+    write_wav(chunk, np.zeros(16000, dtype=np.float32))
+    local_manifest = tmp_path / "youtube.jsonl"
+    local_manifest.write_text(
+        json.dumps(
+            {"source_csv": str(csv_path), "audio_filepath": str(chunk)},
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    selection = tmp_path / "selection.jsonl"
+    selection.write_text(
+        json.dumps(
+            {
+                "episode_id": f"Digiato/{stem}",
+                "stem": stem,
+                "channel": "Digiato",
+                "csv_path": str(csv_path),
+                "csv_hours": 1 / 3600,
+                "split": "train",
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    def unexpected_remote_copy(*args, **kwargs):
+        raise AssertionError("remote copy must not run when local chunks are complete")
+
+    monkeypatch.setattr("thesis_s2s.data.episode_prepare.rclone_copy", unexpected_remote_copy)
+    output = tmp_path / "windows.jsonl"
+    report = prepare_selected_episodes(
+        selection,
+        tmp_path / "windows",
+        output,
+        local_chunk_manifest=local_manifest,
+        resume=False,
+    )
+
+    assert report["episodes_prepared"] == 1
+    assert report["episodes_prepared_from_local"] == 1
+    assert report["episodes_prepared_from_remote"] == 0
+    assert (
+        report["local_chunk_manifest_sha256"]
+        == hashlib.sha256(local_manifest.read_bytes()).hexdigest()
+    )
+    row = json.loads(output.read_text(encoding="utf-8"))
+    assert row["chunk_source"] == "local_manifest"
+
+
+def test_v2_pair_selection_recovers_shifted_adjacent_turn_without_reuse(tmp_path: Path):
+    source = tmp_path / "diarized.jsonl"
+    source.write_text(
+        json.dumps(
+            {
+                "window_id": "window-1",
+                "channel": "Digiato",
+                "automatic_multi_speaker_verified": True,
+                "reference_alignment_status": "complete",
+                "segments": [
+                    {"start": 0.0, "end": 1.0, "speaker": "A", "text": "یک"},
+                    {"start": 1.6, "end": 2.6, "speaker": "A", "text": "دو"},
+                    {"start": 2.6, "end": 3.6, "speaker": "B", "text": "سه"},
+                    {"start": 4.2, "end": 5.2, "speaker": "B", "text": "چهار"},
+                ],
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    v1 = estimate_conversation_pair_yield(source)
+    v2 = estimate_conversation_pair_yield(source, pair_selection_method="max_duration_interval_v2")
+
+    assert v1["estimated_pairs"] == 0
+    assert v2["estimated_pairs"] == 1
+    assert v2["estimated_pair_hours"] > 0
+    assert v2["candidate_rule"]["pair_selection_method"] == "max_duration_interval_v2"
 
 
 def test_alternate_diarization_reports_do_not_overwrite_primary(tmp_path: Path):

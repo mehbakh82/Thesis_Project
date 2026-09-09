@@ -88,6 +88,8 @@ def reconstruct_episode_windows(
     chunk_root: Path,
     out_root: Path,
     *,
+    chunk_files: dict[str, Path] | None = None,
+    chunk_source: str = "downloaded_remote",
     window_seconds: float = 900.0,
     max_preserved_gap_s: float = 2.0,
     min_chunk_coverage: float = 0.95,
@@ -116,7 +118,7 @@ def reconstruct_episode_windows(
         for index, row in enumerate(source_rows, start=1)
     ]
     eligible = [(index, row, text) for index, row, text in eligible if text is not None]
-    files = _chunk_candidates(Path(chunk_root))
+    files = chunk_files if chunk_files is not None else _chunk_candidates(Path(chunk_root))
     out_root = Path(out_root)
     out_root.mkdir(parents=True, exist_ok=True)
     staging = Path(tempfile.mkdtemp(prefix=".episode-partial-", dir=out_root))
@@ -182,6 +184,7 @@ def reconstruct_episode_windows(
                 "redistribution_allowed": False,
                 "annotation_source": "provided_csv_plus_pending_diarization",
                 "audio_source_kind": "reconstructed_ordered_caption_chunks",
+                "chunk_source": chunk_source,
                 "is_original_episode_audio": False,
                 "cross_chunk_overlap_recoverable": False,
                 "overlap_limitation": (
@@ -257,6 +260,7 @@ def reconstruct_episode_windows(
         "chunk_coverage": round(coverage, 5),
         "windows": len(windows),
         "hours": round(sum(float(row["duration"]) for row in windows) / 3600.0, 4),
+        "chunk_source": chunk_source,
         "status": "complete" if windows and coverage >= min_chunk_coverage else "failed_coverage",
     }
     if not windows or coverage < min_chunk_coverage:
@@ -481,6 +485,7 @@ def prepare_selected_episodes(
     out_root: Path,
     out_manifest: Path,
     *,
+    local_chunk_manifest: Path | None = None,
     max_episodes: int | None = None,
     max_source_hours: float | None = None,
     window_seconds: float = 900.0,
@@ -488,6 +493,29 @@ def prepare_selected_episodes(
     resume: bool = True,
 ) -> dict:
     selected = load_jsonl(Path(selection_jsonl))
+    selected_source_csvs = {
+        str(episode.get("csv_path") or "") for episode in selected if episode.get("csv_path")
+    }
+    local_by_source_csv: dict[str, dict[str, Path]] = {}
+    local_manifest_sha256: str | None = None
+    if local_chunk_manifest is not None:
+        local_chunk_manifest = Path(local_chunk_manifest)
+        if not local_chunk_manifest.is_file():
+            raise FileNotFoundError(f"local chunk manifest not found: {local_chunk_manifest}")
+        local_manifest_sha256 = _sha256_file(local_chunk_manifest)
+        with local_chunk_manifest.open("r", encoding="utf-8") as handle:
+            for line in handle:
+                if not line.strip():
+                    continue
+                row = json.loads(line)
+                source_csv = str(row.get("source_csv") or "")
+                if source_csv not in selected_source_csvs:
+                    continue
+                audio_path = Path(str(row.get("audio_filepath") or row.get("audio_path") or ""))
+                if audio_path.is_file():
+                    local_by_source_csv.setdefault(source_csv, {}).setdefault(
+                        audio_path.name, audio_path
+                    )
     done, window_count, prepared_hours = (
         _manifest_progress(Path(out_manifest)) if resume else (set(), 0, 0.0)
     )
@@ -507,11 +535,15 @@ def prepare_selected_episodes(
         "episodes_prepared": 0,
         "episodes_failed": 0,
         "episodes_resumed": len(resumed_ids),
+        "episodes_prepared_from_local": 0,
+        "episodes_prepared_from_remote": 0,
         "windows": window_count,
         "prepared_audio_hours": prepared_hours,
         "source_candidate_hours": resumed_source_hours,
         "failures": Counter(),
         "episode_reports": [],
+        "local_chunk_manifest": str(local_chunk_manifest) if local_chunk_manifest else None,
+        "local_chunk_manifest_sha256": local_manifest_sha256,
     }
     stats_path = preparation_stats_path(out_manifest)
 
@@ -545,22 +577,28 @@ def prepare_selected_episodes(
                 continue
             tmp = Path(tempfile.mkdtemp(prefix="conversation-episode-"))
             try:
-                escaped_stem = rclone_filter_literal(str(episode.get("stem") or ""))
-                rclone_copy(
-                    str(episode["chunks_remote"]),
-                    tmp,
-                    include=f"{escaped_stem}_chunk_*.wav",
-                )
-                if not any(tmp.rglob("*.wav")):
+                source_csv = str(episode.get("csv_path") or "")
+                local_files = local_by_source_csv.get(source_csv)
+                chunk_source = "local_manifest" if local_files else "downloaded_remote"
+                if not local_files:
+                    escaped_stem = rclone_filter_literal(str(episode.get("stem") or ""))
                     rclone_copy(
                         str(episode["chunks_remote"]),
                         tmp,
-                        include=f"{escaped_stem}_chunk_*.mp3",
+                        include=f"{escaped_stem}_chunk_*.wav",
                     )
+                    if not any(tmp.rglob("*.wav")):
+                        rclone_copy(
+                            str(episode["chunks_remote"]),
+                            tmp,
+                            include=f"{escaped_stem}_chunk_*.mp3",
+                        )
                 windows, report = reconstruct_episode_windows(
                     episode,
                     tmp,
                     Path(out_root),
+                    chunk_files=local_files,
+                    chunk_source=chunk_source,
                     window_seconds=window_seconds,
                     min_chunk_coverage=min_chunk_coverage,
                 )
@@ -573,6 +611,7 @@ def prepare_selected_episodes(
                     dst.write(json.dumps(row, ensure_ascii=False) + "\n")
                 dst.flush()
                 stats["episodes_prepared"] += 1
+                stats[f"episodes_prepared_from_{'local' if local_files else 'remote'}"] += 1
                 stats["windows"] += len(windows)
                 stats["source_candidate_hours"] += source_hours
                 stats["prepared_audio_hours"] += (

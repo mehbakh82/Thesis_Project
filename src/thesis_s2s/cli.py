@@ -75,6 +75,11 @@ def main(argv: list[str] | None = None) -> None:
     p_conv_estimate.add_argument(
         "--out", type=Path, default=Path("results/conversation_yield_estimate.json")
     )
+    p_conv_estimate.add_argument(
+        "--pair-selection-method",
+        choices=("fixed_stride_v1", "max_duration_interval_v2"),
+        default="fixed_stride_v1",
+    )
     p_conv_reserve = sub.add_parser("select-conversation-reserve")
     p_conv_reserve.add_argument(
         "--primary-manifest",
@@ -119,6 +124,11 @@ def main(argv: list[str] | None = None) -> None:
     )
     p_conv.add_argument("--clips-dir", type=Path, default=Path("data/processed/conversations"))
     p_conv.add_argument("--max-hours", type=float, default=200.0)
+    p_conv.add_argument(
+        "--pair-selection-method",
+        choices=("fixed_stride_v1", "max_duration_interval_v2"),
+        default="fixed_stride_v1",
+    )
     p_conv.add_argument("--qa-waiver", type=Path, default=None)
     p_conv_audit = sub.add_parser("audit-conversations")
     p_conv_audit.add_argument(
@@ -140,6 +150,56 @@ def main(argv: list[str] | None = None) -> None:
     )
     p_balance.add_argument("--max-channel-share", type=float, default=0.55)
     p_balance.add_argument("--min-channels", type=int, default=4)
+    p_balance_select = sub.add_parser("select-balanced-conversations")
+    p_balance_select.add_argument("--manifest", type=Path, required=True)
+    p_balance_select.add_argument("--out-jsonl", type=Path, required=True)
+    p_balance_select.add_argument("--report", type=Path, required=True)
+    p_balance_select.add_argument("--target-max-channel-share", type=float, default=0.54)
+    p_balance_select.add_argument("--min-hours", type=float, default=100.0)
+    p_balance_select.add_argument("--max-hours", type=float, default=200.0)
+    p_balance_plan = sub.add_parser("plan-balance-supplement")
+    p_balance_plan.add_argument(
+        "--inventory",
+        type=Path,
+        default=Path("data/processed/manifests/youtube_episode_inventory.jsonl"),
+    )
+    p_balance_plan.add_argument(
+        "--current-pairs",
+        type=Path,
+        default=Path("data/processed/manifests/conversations.jsonl"),
+    )
+    p_balance_plan.add_argument(
+        "--used-windows",
+        type=Path,
+        default=Path(
+            "data/processed/manifests/"
+            "conversation_episode_windows_noise_labeled_combined_authorized.jsonl"
+        ),
+    )
+    p_balance_plan.add_argument(
+        "--out-selection",
+        type=Path,
+        default=Path("data/processed/manifests/youtube_conversation_balance_v2_supplement.jsonl"),
+    )
+    p_balance_plan.add_argument(
+        "--out",
+        type=Path,
+        default=Path("results/conversation_balance_v2_plan.json"),
+    )
+    p_balance_plan.add_argument("--current-yield-report", type=Path, default=None)
+    p_balance_plan.add_argument("--local-chunk-manifest", type=Path, default=None)
+    p_balance_plan.add_argument("--min-local-chunk-coverage", type=float, default=0.95)
+    p_balance_plan.add_argument(
+        "--allowed-channels",
+        nargs="+",
+        default=["Digiato", "Mehran Rowshan Persian", "Zoomit"],
+    )
+    p_balance_plan.add_argument("--target-candidate-hours", type=float, default=55.0)
+    p_balance_plan.add_argument("--max-candidate-hours", type=float, default=65.0)
+    p_balance_plan.add_argument("--max-supplement-channel-share", type=float, default=0.40)
+    p_balance_plan.add_argument("--min-final-pair-hours", type=float, default=100.0)
+    p_balance_plan.add_argument("--max-final-channel-share", type=float, default=0.55)
+    p_balance_plan.add_argument("--expected-yield-safety-factor", type=float, default=1.25)
     p_omni_export = sub.add_parser("export-omni2-data")
     p_omni_export.add_argument(
         "--manifest", type=Path, default=Path("data/processed/manifests/conversations.jsonl")
@@ -219,6 +279,7 @@ def main(argv: list[str] | None = None) -> None:
         type=Path,
         default=Path("data/processed/manifests/conversation_episode_windows.jsonl"),
     )
+    p_ep.add_argument("--local-chunk-manifest", type=Path, default=None)
     p_ep.add_argument("--max-episodes", type=int, default=None)
     p_ep.add_argument("--max-source-hours", type=float, default=None)
     p_ep.add_argument("--window-seconds", type=float, default=900.0)
@@ -443,12 +504,8 @@ def main(argv: list[str] | None = None) -> None:
     p_study_summary = sub.add_parser("study-summary")
     p_study_summary.add_argument("--out", type=Path, default=Path("results/eval/human_study.json"))
     p_evidence = sub.add_parser("evidence-status")
-    p_evidence.add_argument(
-        "--out", type=Path, default=Path("results/eval/EVIDENCE_STATUS.json")
-    )
-    p_evidence.add_argument(
-        "--summary", type=Path, default=Path("results/eval/SUMMARY.md")
-    )
+    p_evidence.add_argument("--out", type=Path, default=Path("results/eval/EVIDENCE_STATUS.json"))
+    p_evidence.add_argument("--summary", type=Path, default=Path("results/eval/SUMMARY.md"))
     p_gpu = sub.add_parser("gpu-preflight")
     p_gpu.add_argument("--out", type=Path, default=Path("results/hardware/gpu_preflight.json"))
     p_upstream = sub.add_parser("verify-upstreams")
@@ -553,7 +610,11 @@ def main(argv: list[str] | None = None) -> None:
     elif args.cmd == "estimate-conversation-yield":
         from thesis_s2s.data.conversation import estimate_conversation_pair_yield
 
-        report = estimate_conversation_pair_yield(args.manifest, args.out)
+        report = estimate_conversation_pair_yield(
+            args.manifest,
+            args.out,
+            pair_selection_method=args.pair_selection_method,
+        )
         print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "select-conversation-reserve":
         from thesis_s2s.data.conversation import select_conversation_reserve_by_yield
@@ -577,6 +638,7 @@ def main(argv: list[str] | None = None) -> None:
             args.out_jsonl,
             args.clips_dir,
             max_hours=args.max_hours,
+            pair_selection_method=args.pair_selection_method,
             qa_waiver_path=args.qa_waiver,
         )
         print(json.dumps(report, indent=2, ensure_ascii=False))
@@ -598,6 +660,39 @@ def main(argv: list[str] | None = None) -> None:
             args.out,
             max_channel_hour_share=args.max_channel_share,
             min_channels=args.min_channels,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "select-balanced-conversations":
+        from thesis_s2s.data.conversation_balance import select_balanced_conversation_pairs
+
+        report = select_balanced_conversation_pairs(
+            args.manifest,
+            args.out_jsonl,
+            args.report,
+            target_max_channel_share=args.target_max_channel_share,
+            min_hours=args.min_hours,
+            max_hours=args.max_hours,
+        )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    elif args.cmd == "plan-balance-supplement":
+        from thesis_s2s.data.conversation_balance import plan_balanced_supplement
+
+        report = plan_balanced_supplement(
+            args.inventory,
+            args.current_pairs,
+            args.used_windows,
+            args.out_selection,
+            args.out,
+            allowed_channels=tuple(args.allowed_channels),
+            target_candidate_hours=args.target_candidate_hours,
+            max_candidate_hours=args.max_candidate_hours,
+            max_supplement_channel_share=args.max_supplement_channel_share,
+            min_final_pair_hours=args.min_final_pair_hours,
+            max_final_channel_share=args.max_final_channel_share,
+            expected_yield_safety_factor=args.expected_yield_safety_factor,
+            current_yield_report_path=args.current_yield_report,
+            local_chunk_manifest_path=args.local_chunk_manifest,
+            min_local_chunk_coverage=args.min_local_chunk_coverage,
         )
         print(json.dumps(report, indent=2, ensure_ascii=False))
     elif args.cmd == "export-omni2-data":
@@ -651,6 +746,7 @@ def main(argv: list[str] | None = None) -> None:
             args.selection,
             args.out_root,
             args.out_jsonl,
+            local_chunk_manifest=args.local_chunk_manifest,
             max_episodes=args.max_episodes,
             max_source_hours=args.max_source_hours,
             window_seconds=args.window_seconds,
