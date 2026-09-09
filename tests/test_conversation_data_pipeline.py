@@ -433,6 +433,17 @@ def test_pair_manifest_merge_is_hash_bound_and_rejects_duplicates(tmp_path: Path
         )
 
 
+def test_jsonl_writer_is_atomic_on_serialization_failure(tmp_path: Path) -> None:
+    target = tmp_path / "rows.jsonl"
+    target.write_text('{"preserved": true}\n', encoding="utf-8")
+
+    with pytest.raises(TypeError):
+        write_jsonl(target, [{"valid": True}, {"invalid": object()}])
+
+    assert target.read_text(encoding="utf-8") == '{"preserved": true}\n'
+    assert not (tmp_path / ".rows.jsonl.partial").exists()
+
+
 def test_primary_and_reserve_window_merge_is_atomic_and_rejects_duplicates(tmp_path: Path):
     primary = tmp_path / "primary.jsonl"
     reserve = tmp_path / "reserve.jsonl"

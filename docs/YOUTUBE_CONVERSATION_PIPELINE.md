@@ -257,8 +257,9 @@ deterministic session-round-robin cap is applied to Tabaghe16:
   --qa-waiver configs/conversation_qa_waiver.yaml
 ```
 
-The complete pool has 8,787 pairs / 164.830 h and no duplicate IDs or
-cross-split session leaks. The final selection has 6,551 pairs / 110.374 h / 186
+Manifest outputs use temporary files plus atomic replacement. The complete pool
+has 8,787 pairs / 164.830 h and no duplicate IDs or cross-split session leaks.
+The final selection has 6,551 pairs / 110.374 h / 186
 sessions: Digiato 17.921 h, Mehran Rowshan Persian 24.800 h, Tabaghe16 59.602 h,
 and Zoomit 8.050 h. Every minority-source pair is retained, the dominant share
 is 54.0%, and the structural audit reports 0 missing files, 0 reused spans, 0
