@@ -69,6 +69,7 @@ ARTIFACTS: dict[str, str] = {
     "metrics_definition": "docs/METRICS.md",
     "storage_cleanup": "results/hardware/storage_cleanup_20260831.json",
     "final_audit": "results/release/final_audit.json",
+    "submission_tag_attestation": "results/release/submission_tag_attestation.json",
 }
 
 
@@ -80,6 +81,63 @@ def _read_json(root: Path, relative: str) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise ValueError(f"expected a JSON object: {relative}")
     return payload
+
+
+def _release_attestation_result(payload: dict[str, Any]) -> dict[str, Any]:
+    """Validate the externally observed Git tag and its two successful CI runs."""
+
+    commit = payload.get("commit")
+    tag_object = payload.get("tag_object")
+    tag = payload.get("tag")
+    branch_ci_payload = payload.get("branch_ci")
+    tag_ci_payload = payload.get("tag_ci")
+    branch_ci = branch_ci_payload if isinstance(branch_ci_payload, dict) else {}
+    tag_ci = tag_ci_payload if isinstance(tag_ci_payload, dict) else {}
+
+    def is_sha1(value: object) -> bool:
+        return (
+            isinstance(value, str)
+            and len(value) == 40
+            and all(character in "0123456789abcdef" for character in value)
+        )
+
+    def ci_receipt_valid(receipt: dict[str, Any], expected_branch: object) -> bool:
+        run_id = receipt.get("run_id")
+        return bool(
+            type(run_id) is int
+            and run_id > 0
+            and receipt.get("head_sha") == commit
+            and receipt.get("head_branch") == expected_branch
+            and receipt.get("status") == "completed"
+            and receipt.get("conclusion") == "success"
+            and receipt.get("url")
+            == f"https://github.com/mehbakh82/Thesis_Project/actions/runs/{run_id}"
+            and isinstance(receipt.get("updated_at"), str)
+            and bool(receipt.get("updated_at"))
+        )
+
+    verified = bool(
+        payload.get("schema_version") == 1
+        and isinstance(tag, str)
+        and tag.startswith("submission-")
+        and payload.get("tag_object_type") == "annotated_tag"
+        and payload.get("remote") == "https://github.com/mehbakh82/Thesis_Project.git"
+        and is_sha1(tag_object)
+        and is_sha1(commit)
+        and ci_receipt_valid(branch_ci, "main")
+        and ci_receipt_valid(tag_ci, tag)
+        and isinstance(payload.get("verified_at"), str)
+        and bool(payload.get("verified_at"))
+    )
+    return {
+        "verified": verified,
+        "tag": tag if isinstance(tag, str) else None,
+        "tag_object": tag_object if is_sha1(tag_object) else None,
+        "commit": commit if is_sha1(commit) else None,
+        "branch_ci": branch_ci,
+        "tag_ci": tag_ci,
+        "verified_at": payload.get("verified_at") if verified else None,
+    }
 
 
 def _artifact_provenance(root: Path) -> dict[str, dict[str, Any]]:
@@ -634,6 +692,9 @@ def build_evidence_status(
     study = _read_json(project, ARTIFACTS["human_study"])
     cleanup = _read_json(project, ARTIFACTS["storage_cleanup"])
     final_audit = _read_json(project, ARTIFACTS["final_audit"])
+    release_attestation = _release_attestation_result(
+        _read_json(project, ARTIFACTS["submission_tag_attestation"])
+    )
     final_hardware_path = project / "results/hardware/final_preflight.json"
     hardware = (
         _read_json(project, "results/hardware/final_preflight.json")
@@ -856,7 +917,7 @@ def build_evidence_status(
     }
 
     payload: dict[str, Any] = {
-        "schema_version": 11,
+        "schema_version": 12,
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "authoritative": True,
         "thesis_ready": thesis_ready,
@@ -1111,7 +1172,8 @@ def build_evidence_status(
         "release": {
             "source_code_license_selected": source_license_selected,
             "license_files": license_files,
-            "immutable_submission_tag_created": False,
+            "immutable_submission_tag_created": release_attestation["verified"],
+            "submission_tag_attestation": release_attestation,
         },
         "required_to_complete": [text for gate, text in required.items() if not gates[gate]],
         "remaining_work_classification": {
@@ -1386,6 +1448,9 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             f"{'pass' if study.get('official_ready') else 'pending'} |",
             f"| Project license | {', '.join(release.get('license_files') or []) or 'not selected'} | "
             f"{'pass' if release.get('source_code_license_selected') else 'pending'} |",
+            f"| Immutable release | "
+            f"{(release.get('submission_tag_attestation') or {}).get('tag') or 'not attested'} | "
+            f"{'pass' if release.get('immutable_submission_tag_created') else 'pending'} |",
             "",
             "## Reporting contract",
             "",

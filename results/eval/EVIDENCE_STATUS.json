@@ -1,6 +1,6 @@
 {
-  "schema_version": 11,
-  "generated_at": "2026-09-10T07:38:26.214194+00:00",
+  "schema_version": 12,
+  "generated_at": "2026-09-10T08:54:11.676473+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -852,7 +852,32 @@
     "license_files": [
       "LICENSE"
     ],
-    "immutable_submission_tag_created": false
+    "immutable_submission_tag_created": true,
+    "submission_tag_attestation": {
+      "verified": true,
+      "tag": "submission-final-hardened-v2-2026-09-10",
+      "tag_object": "46e31d20ca8f1e41cbe7f09094f74be8afe61017",
+      "commit": "863298090ed3c4c29ca06bc1ae320b3f7a9d4df0",
+      "branch_ci": {
+        "run_id": 34451312956,
+        "head_sha": "863298090ed3c4c29ca06bc1ae320b3f7a9d4df0",
+        "head_branch": "main",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/mehbakh82/Thesis_Project/actions/runs/34451312956",
+        "updated_at": "2026-09-10T07:46:44Z"
+      },
+      "tag_ci": {
+        "run_id": 34451713512,
+        "head_sha": "863298090ed3c4c29ca06bc1ae320b3f7a9d4df0",
+        "head_branch": "submission-final-hardened-v2-2026-09-10",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/mehbakh82/Thesis_Project/actions/runs/34451713512",
+        "updated_at": "2026-09-10T07:51:55Z"
+      },
+      "verified_at": "2026-09-10T08:01:49Z"
+    }
   },
   "required_to_complete": [
     "Produce a validation-eligible Persian direct-model checkpoint before opening that experiment's frozen final test.",
@@ -1182,6 +1207,12 @@
       "present": true,
       "bytes": 10399,
       "sha256": "c43383730686508087f1c2d2d41bc938d58d17d900845802f071096c78658af5"
+    },
+    "submission_tag_attestation": {
+      "path": "results/release/submission_tag_attestation.json",
+      "present": true,
+      "bytes": 1000,
+      "sha256": "083bf123a1095256920db4f717bb265abedfa709c269c1d7946831e3a9d0059d"
     }
   }
 }

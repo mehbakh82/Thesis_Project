@@ -476,6 +476,38 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
             },
         },
     )
+    release_commit = "a" * 40
+    _write(
+        tmp_path,
+        "results/release/submission_tag_attestation.json",
+        {
+            "schema_version": 1,
+            "tag": "submission-test",
+            "tag_object_type": "annotated_tag",
+            "tag_object": "b" * 40,
+            "commit": release_commit,
+            "remote": "https://github.com/mehbakh82/Thesis_Project.git",
+            "branch_ci": {
+                "run_id": 1,
+                "head_sha": release_commit,
+                "head_branch": "main",
+                "status": "completed",
+                "conclusion": "success",
+                "url": "https://github.com/mehbakh82/Thesis_Project/actions/runs/1",
+                "updated_at": "2026-09-10T08:00:00Z",
+            },
+            "tag_ci": {
+                "run_id": 2,
+                "head_sha": release_commit,
+                "head_branch": "submission-test",
+                "status": "completed",
+                "conclusion": "success",
+                "url": "https://github.com/mehbakh82/Thesis_Project/actions/runs/2",
+                "updated_at": "2026-09-10T08:00:01Z",
+            },
+            "verified_at": "2026-09-10T08:01:49Z",
+        },
+    )
 
     out = tmp_path / "results/eval/EVIDENCE_STATUS.json"
     report = build_evidence_status(
@@ -485,7 +517,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
 
     assert report["authoritative"] is True
-    assert report["schema_version"] == 11
+    assert report["schema_version"] == 12
     assert report["thesis_ready"] is False
     assert report["generation_policy"]["reads_frozen_final_test_rows"] is False
     assert report["gates"]["audited_export_100_to_200_hours"] is True
@@ -559,6 +591,8 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert report["submission_strategy"]["production_candidate"] == "cascade"
     assert report["submission_strategy"]["new_direct_training_before_deadline_recommended"] is False
     assert report["release"]["source_code_license_selected"] is False
+    assert report["release"]["immutable_submission_tag_created"] is True
+    assert report["release"]["submission_tag_attestation"]["commit"] == release_commit
     assert report["remaining_work_classification"]["waived_not_completed"]
     summary = render_evidence_summary(report)
     assert "## Local artifact retention" in summary
@@ -567,6 +601,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert "32.20%" in summary
     assert "recorded proxy n=132 / 22 sessions" in summary
     assert "turns=0, valid ratings=0, complete ratings=0, invalid rows=1" in summary
+    assert "| Immutable release | submission-test | pass |" in summary
     assert "## Duplex transport" in summary
     assert "## Privacy-safe descriptive error analysis" in summary
     assert "descriptive Pearson r=0.885282" in summary
@@ -597,6 +632,62 @@ def test_evidence_status_rejects_unsubstantiated_human_study_ready(
     assert report["human_study"]["official_ready"] is False
     assert report["gates"]["human_study_complete"] is False
     assert not any(report["human_study"]["requirements"].values())
+
+
+def test_evidence_status_rejects_mismatched_release_attestation(tmp_path: Path) -> None:
+    _write(
+        tmp_path,
+        "results/release/submission_tag_attestation.json",
+        {
+            "schema_version": 1,
+            "tag": "submission-test",
+            "tag_object_type": "annotated_tag",
+            "tag_object": "b" * 40,
+            "commit": "a" * 40,
+            "branch_ci": {
+                "head_sha": "a" * 40,
+                "head_branch": "main",
+                "status": "completed",
+                "conclusion": "success",
+            },
+            "tag_ci": {
+                "head_sha": "c" * 40,
+                "head_branch": "submission-test",
+                "status": "completed",
+                "conclusion": "success",
+            },
+            "verified_at": "2026-09-10T08:01:49Z",
+        },
+    )
+
+    report = build_evidence_status(root=tmp_path)
+
+    assert report["release"]["immutable_submission_tag_created"] is False
+    assert report["release"]["submission_tag_attestation"]["verified"] is False
+
+
+def test_evidence_status_rejects_malformed_release_ci_receipt(tmp_path: Path) -> None:
+    _write(
+        tmp_path,
+        "results/release/submission_tag_attestation.json",
+        {
+            "schema_version": 1,
+            "tag": "submission-test",
+            "tag_object_type": "annotated_tag",
+            "tag_object": "b" * 40,
+            "commit": "a" * 40,
+            "remote": "https://github.com/mehbakh82/Thesis_Project.git",
+            "branch_ci": ["not", "an", "object"],
+            "tag_ci": "not an object",
+            "verified_at": "2026-09-10T08:01:49Z",
+        },
+    )
+
+    report = build_evidence_status(root=tmp_path)
+
+    assert report["release"]["immutable_submission_tag_created"] is False
+    assert report["release"]["submission_tag_attestation"]["branch_ci"] == {}
+    assert report["release"]["submission_tag_attestation"]["tag_ci"] == {}
 
 
 def test_committed_qwen4b_final_test_is_verified_fail_closed() -> None:

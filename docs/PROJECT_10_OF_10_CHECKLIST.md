@@ -1131,9 +1131,16 @@ Final engineering audit:
   eight canonical study requirements instead of trusting a standalone
   `official_ready` flag. The current privacy-safe receipt has one participant,
   zero turns, zero valid/complete ratings, and one invalid row, so it remains
-  explicitly ineligible. The full local suite passes 243 tests with 69%
+  explicitly ineligible. The full local suite passes 245 tests with 69%
   branch-aware coverage; configuration coverage rises from 26% to 97% and the
   privacy-sensitive session logger from 50% to 90%.
+- [x] Replace the aggregate evidence report's historical hard-coded
+  `immutable_submission_tag_created: false` with a fail-closed release
+  attestation. `results/release/submission_tag_attestation.json` binds annotated
+  tag `submission-final-hardened-v2-2026-09-10`, its tag object, target commit
+  `8632980`, and successful branch/tag CI runs `34451312956` and `34451713512`.
+  The tracked-artifact CI audit independently resolves the tag object and peeled
+  commit from Git and requires the attested commit to be an ancestor of `HEAD`.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

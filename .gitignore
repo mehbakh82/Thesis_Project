@@ -71,6 +71,7 @@ hf_cache/
 results/release/*.json
 !results/release/final_snapshot.json
 !results/release/final_audit.json
+!results/release/submission_tag_attestation.json
 !tests/fixtures/**
 
 # experiment dumps

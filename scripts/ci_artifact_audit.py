@@ -77,6 +77,7 @@ HISTORY_SECRET_ERE = (
     r"|(AKIA|ASIA)[A-Z0-9]{16}|hf_[A-Za-z0-9]{30,}"
     r"|xox[baprs]-[A-Za-z0-9-]{20,})"
 )
+RELEASE_ATTESTATION = ROOT / "results" / "release" / "submission_tag_attestation.json"
 
 
 def tracked_files() -> list[Path]:
@@ -172,6 +173,47 @@ def history_audit() -> list[str]:
     return errors
 
 
+def release_attestation_audit() -> list[str]:
+    """Verify the recorded immutable release tag against the local Git objects."""
+
+    if not RELEASE_ATTESTATION.is_file():
+        return ["missing release tag attestation"]
+    try:
+        payload = json.loads(RELEASE_ATTESTATION.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return [f"invalid release tag attestation: {exc}"]
+    tag = payload.get("tag")
+    commit = payload.get("commit")
+    tag_object = payload.get("tag_object")
+    if not all(isinstance(value, str) and value for value in (tag, commit, tag_object)):
+        return ["release tag attestation is missing tag, tag_object, or commit"]
+
+    errors: list[str] = []
+    checks = (
+        (["cat-file", "-t", tag], "tag", "release ref is not an annotated tag"),
+        (["rev-parse", tag], tag_object, "release tag-object hash mismatch"),
+        (["rev-parse", f"{tag}^{{}}"], commit, "release tag target mismatch"),
+    )
+    for arguments, expected, message in checks:
+        result = subprocess.run(
+            ["git", "-C", str(ROOT), *arguments],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0 or result.stdout.strip() != expected:
+            errors.append(message)
+    ancestry = subprocess.run(
+        ["git", "-C", str(ROOT), "merge-base", "--is-ancestor", commit, "HEAD"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if ancestry.returncode != 0:
+        errors.append("attested release commit is not an ancestor of HEAD")
+    return errors
+
+
 def audit() -> list[str]:
     errors: list[str] = []
     for path in tracked_files():
@@ -209,6 +251,7 @@ def audit() -> list[str]:
 def main() -> int:
     errors = audit()
     errors.extend(history_audit())
+    errors.extend(release_attestation_audit())
     if errors:
         print("Tracked-artifact audit failed:", file=sys.stderr)
         for error in sorted(set(errors)):
