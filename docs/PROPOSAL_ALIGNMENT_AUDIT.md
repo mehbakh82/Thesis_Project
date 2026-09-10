@@ -3,7 +3,7 @@
 **Audited source:** local ignored `Thesis Proposal Template.docx`, SHA-256
 `658a75f01f0d25cb18e601f8f5d36438c0c3780666a0f95c8fe529a6d68f90b4`
 
-**Audit date:** 2026-09-08
+**Audit date:** 2026-09-10
 
 ## Bottom line
 
@@ -29,6 +29,10 @@ Regenerate the bound receipt with:
 ```bash
 .venv/bin/python scripts/audit_proposal_alignment.py
 ```
+
+The schema-v2 receipt binds both the reviewed private proposal hash and the
+exact bytes/schema of `results/eval/EVIDENCE_STATUS.json`. CI fails closed if
+the aggregate evidence changes without regenerating this alignment audit.
 
 ## Primary success criteria
 

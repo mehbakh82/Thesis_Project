@@ -52,8 +52,20 @@ def test_proposal_alignment_separates_implementation_from_acceptance(tmp_path: P
         },
     }
 
-    report = build_report(proposal, evidence, expected_proposal_sha256=expected)
+    report = build_report(
+        proposal,
+        evidence,
+        expected_proposal_sha256=expected,
+        expected_proposal_name=proposal.name,
+        evidence_sha256="a" * 64,
+    )
 
+    assert report["schema_version"] == 2
+    assert report["aggregate_evidence"] == {
+        "path": "results/eval/EVIDENCE_STATUS.json",
+        "sha256": "a" * 64,
+        "schema_version": None,
+    }
     assert report["scoring_contract"]["traceability_percent"] == 100.0
     assert report["scoring_contract"]["substantial_implementation_percent"] == 80.0
     assert report["scoring_contract"]["strict_acceptance_percent"] == 0.0

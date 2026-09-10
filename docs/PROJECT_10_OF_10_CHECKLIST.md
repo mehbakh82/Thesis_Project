@@ -1,6 +1,6 @@
 # Checklist for a defensible 10/10 thesis project
 
-Status date: 2026-09-09
+Status date: 2026-09-10
 
 This is the authoritative closure checklist. Mark an item complete only when its
 named artifact exists and its acceptance test passes. Implemented code,
@@ -1144,6 +1144,13 @@ Final engineering audit:
   Direct temporary-repository regressions cover a valid annotated tag, a
   mismatched object hash, and malformed receipt JSON. The enforced branch-aware
   coverage floor is raised from 60% to 68% against the measured 69%.
+- [x] Upgrade the detailed-proposal alignment receipt to schema v2 and bind it
+  to both the reviewed private proposal SHA-256 and the exact aggregate-evidence
+  bytes/schema. The CI artifact audit now deterministically recomputes the full
+  receipt and rejects evidence drift, malformed structures, wrong proposal
+  identity, or altered scores. The complete local suite passes 253 tests with
+  69% branch-aware coverage, and all compile, lint, type, frozen-evaluator,
+  application-risk, and Moshi-risk checks pass.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

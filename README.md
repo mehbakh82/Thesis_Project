@@ -92,6 +92,8 @@ The newly supplied detailed proposal is mapped requirement by requirement in
 SHA-bound receipt reports 100% traceability, 80% substantial implementation
 coverage, and 0/5 strict proposal-level criteria fully proven. These are three
 different measures: implementation coverage must not be reported as acceptance.
+The schema-v2 receipt is also SHA-bound to the exact aggregate evidence and is
+verified fail-closed by CI.
 Regenerate the receipt with
 `.venv/bin/python scripts/audit_proposal_alignment.py`.
 

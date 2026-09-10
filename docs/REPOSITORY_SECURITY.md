@@ -1,6 +1,6 @@
 # Repository security and reproducibility review
 
-Status date: 2026-09-09
+Status date: 2026-09-10
 
 ## Controls that are enforced
 
@@ -22,6 +22,9 @@ Status date: 2026-09-09
   and protocol blobs. `scripts/verify_frozen_evaluator_sources.py` retrieves
   those blobs from their full commit ID, verifies their SHA-256 values and every
   declared receipt binding, and separately pins the current path-portable files.
+- The proposal-alignment receipt binds the ignored private proposal's reviewed
+  SHA-256 and the exact aggregate-evidence bytes/schema. CI fails if the public
+  alignment summary drifts from `results/eval/EVIDENCE_STATUS.json`.
 - GitHub Actions has read-only repository permissions, fetches complete history,
   and pins the first-party checkout and Python setup actions to immutable commit
   SHAs.

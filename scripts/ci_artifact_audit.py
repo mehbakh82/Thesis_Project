@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import subprocess
@@ -15,6 +16,23 @@ else:  # pragma: no cover - exercised by the minimum-version CI runner
     import tomli as tomllib
 
 import yaml
+
+try:
+    from scripts.audit_proposal_alignment import (
+        EXPECTED_PROPOSAL_NAME,
+        EXPECTED_PROPOSAL_SHA256,
+    )
+    from scripts.audit_proposal_alignment import (
+        build_report as build_proposal_alignment_report,
+    )
+except ModuleNotFoundError:  # pragma: no cover - direct script execution
+    from audit_proposal_alignment import (  # type: ignore[no-redef]
+        EXPECTED_PROPOSAL_NAME,
+        EXPECTED_PROPOSAL_SHA256,
+    )
+    from audit_proposal_alignment import (
+        build_report as build_proposal_alignment_report,
+    )
 
 ROOT = Path(__file__).resolve().parents[1]
 MAX_TRACKED_BYTES = 5 * 1024 * 1024
@@ -78,6 +96,8 @@ HISTORY_SECRET_ERE = (
     r"|xox[baprs]-[A-Za-z0-9-]{20,})"
 )
 RELEASE_ATTESTATION = ROOT / "results" / "release" / "submission_tag_attestation.json"
+PROPOSAL_ALIGNMENT_RECEIPT = ROOT / "results" / "proposal_alignment_audit.json"
+AGGREGATE_EVIDENCE = ROOT / "results" / "eval" / "EVIDENCE_STATUS.json"
 
 
 def tracked_files() -> list[Path]:
@@ -214,6 +234,52 @@ def release_attestation_audit() -> list[str]:
     return errors
 
 
+def proposal_alignment_receipt_audit() -> list[str]:
+    """Bind the public proposal summary to the exact aggregate evidence bytes."""
+
+    if not PROPOSAL_ALIGNMENT_RECEIPT.is_file():
+        return ["missing proposal alignment receipt"]
+    if not AGGREGATE_EVIDENCE.is_file():
+        return ["missing aggregate evidence for proposal alignment receipt"]
+    try:
+        receipt = json.loads(PROPOSAL_ALIGNMENT_RECEIPT.read_text(encoding="utf-8"))
+        evidence = json.loads(AGGREGATE_EVIDENCE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return [f"invalid proposal alignment receipt input: {exc}"]
+    if not isinstance(receipt, dict) or not isinstance(evidence, dict):
+        return ["invalid proposal alignment receipt input: root values must be objects"]
+
+    binding = receipt.get("aggregate_evidence")
+    proposal = receipt.get("proposal")
+    if not isinstance(binding, dict) or not isinstance(proposal, dict):
+        return ["invalid proposal alignment receipt structure"]
+    errors: list[str] = []
+    if receipt.get("schema_version") != 2:
+        errors.append("proposal alignment receipt schema is not 2")
+    if binding.get("path") != "results/eval/EVIDENCE_STATUS.json":
+        errors.append("proposal alignment receipt evidence path mismatch")
+    observed_hash = hashlib.sha256(AGGREGATE_EVIDENCE.read_bytes()).hexdigest()
+    if binding.get("sha256") != observed_hash:
+        errors.append("proposal alignment receipt evidence hash mismatch")
+    if binding.get("schema_version") != evidence.get("schema_version"):
+        errors.append("proposal alignment receipt evidence schema mismatch")
+    if proposal.get("path") != EXPECTED_PROPOSAL_NAME:
+        errors.append("proposal alignment receipt proposal path mismatch")
+    if proposal.get("sha256") != EXPECTED_PROPOSAL_SHA256:
+        errors.append("proposal alignment receipt proposal hash mismatch")
+    if not errors:
+        expected = build_proposal_alignment_report(
+            Path(EXPECTED_PROPOSAL_NAME),
+            evidence,
+            evidence_sha256=observed_hash,
+            evidence_path="results/eval/EVIDENCE_STATUS.json",
+            verified_proposal_sha256=EXPECTED_PROPOSAL_SHA256,
+        )
+        if receipt != expected:
+            errors.append("proposal alignment receipt content mismatch")
+    return errors
+
+
 def audit() -> list[str]:
     errors: list[str] = []
     for path in tracked_files():
@@ -252,6 +318,7 @@ def main() -> int:
     errors = audit()
     errors.extend(history_audit())
     errors.extend(release_attestation_audit())
+    errors.extend(proposal_alignment_receipt_audit())
     if errors:
         print("Tracked-artifact audit failed:", file=sys.stderr)
         for error in sorted(set(errors)):

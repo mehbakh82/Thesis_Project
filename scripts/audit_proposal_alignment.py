@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_PROPOSAL_SHA256 = (
     "658a75f01f0d25cb18e601f8f5d36438c0c3780666a0f95c8fe529a6d68f90b4"
 )
+EXPECTED_PROPOSAL_NAME = "Thesis Proposal Template.docx"
 
 
 def sha256_file(path: Path) -> str:
@@ -37,10 +38,20 @@ def build_report(
     evidence: dict[str, Any],
     *,
     expected_proposal_sha256: str = EXPECTED_PROPOSAL_SHA256,
+    expected_proposal_name: str = EXPECTED_PROPOSAL_NAME,
+    evidence_sha256: str,
+    evidence_path: str = "results/eval/EVIDENCE_STATUS.json",
+    verified_proposal_sha256: str | None = None,
 ) -> dict[str, Any]:
-    observed_hash = sha256_file(proposal_path)
+    observed_hash = verified_proposal_sha256 or sha256_file(proposal_path)
     if observed_hash != expected_proposal_sha256:
         raise ValueError("proposal SHA-256 drift; review and remap requirements before rerunning")
+    if proposal_path.name != expected_proposal_name:
+        raise ValueError("proposal filename drift; review and remap requirements before rerunning")
+    if len(evidence_sha256) != 64 or any(
+        character not in "0123456789abcdef" for character in evidence_sha256
+    ):
+        raise ValueError("evidence_sha256 must be a lowercase SHA-256 digest")
 
     gates = evidence.get("gates") or {}
     data = evidence.get("data") or {}
@@ -159,13 +170,18 @@ def build_report(
     substantial = sum(bool(row["substantially_implemented"]) for row in criteria)
     passed = sum(bool(row["strictly_passed"]) for row in criteria)
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "evidence_class": "proposal_requirements_alignment_audit",
         "proposal": {
             "path": proposal_path.name,
             "sha256": observed_hash,
             "hash_verified": True,
             "document_status": "unsigned_template_with_unfilled_identity_and_signature_fields",
+        },
+        "aggregate_evidence": {
+            "path": evidence_path,
+            "sha256": evidence_sha256,
+            "schema_version": evidence.get("schema_version"),
         },
         "scoring_contract": {
             "criteria": traced,
@@ -200,8 +216,18 @@ def main() -> int:
         "--out", type=Path, default=ROOT / "results/proposal_alignment_audit.json"
     )
     args = parser.parse_args()
-    evidence = json.loads(args.evidence.read_text(encoding="utf-8"))
-    report = build_report(args.proposal, evidence)
+    evidence_bytes = args.evidence.read_bytes()
+    evidence = json.loads(evidence_bytes.decode("utf-8"))
+    try:
+        evidence_path = args.evidence.resolve().relative_to(ROOT.resolve()).as_posix()
+    except ValueError:
+        evidence_path = args.evidence.name
+    report = build_report(
+        args.proposal,
+        evidence,
+        evidence_sha256=hashlib.sha256(evidence_bytes).hexdigest(),
+        evidence_path=evidence_path,
+    )
     _write_json(args.out, report)
     print(json.dumps(report["scoring_contract"], indent=2))
     return 0

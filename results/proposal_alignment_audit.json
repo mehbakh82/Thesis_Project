@@ -1,11 +1,16 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "evidence_class": "proposal_requirements_alignment_audit",
   "proposal": {
     "path": "Thesis Proposal Template.docx",
     "sha256": "658a75f01f0d25cb18e601f8f5d36438c0c3780666a0f95c8fe529a6d68f90b4",
     "hash_verified": true,
     "document_status": "unsigned_template_with_unfilled_identity_and_signature_fields"
+  },
+  "aggregate_evidence": {
+    "path": "results/eval/EVIDENCE_STATUS.json",
+    "sha256": "dfe25e7d204d9b48b4771faf24a1a37f661d73969c6434bc76c7c3e7e7139748",
+    "schema_version": 12
   },
   "scoring_contract": {
     "criteria": 5,
