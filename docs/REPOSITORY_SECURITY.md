@@ -107,9 +107,10 @@ policy.
 
 The general application audit has the single reviewed exception above. The
 isolated scientific Moshi lock is separate: after upgrading its independently
-patchable packaging tool from pip
-24.0 to 26.2, the audit reports 58 rows (56 unique advisory identifiers) in
-three upstream-constrained packages.
+patchable packaging tool from pip 24.0 to 26.2, its policy records 56 reviewed
+advisory identities in three upstream-constrained packages. Raw scanner-row
+counts are not stable because vulnerability databases can publish duplicate
+records or change which CVE/PYSEC/GHSA alias is primary.
 
 | Package | Pinned reason | Required mitigation |
 |---|---|---|
@@ -121,7 +122,10 @@ three upstream-constrained packages.
 constraint, and mitigation. `scripts/audit_moshi_dependencies.py` compares the
 live advisory database with that exact baseline and fails CI on any package,
 version, added advisory, removed advisory, or malformed-policy drift. Its report
-is `results/security/moshi_dependency_audit.json`. A passing drift audit means
+is `results/security/moshi_dependency_audit.json`. Matching is by the scanner's
+complete advisory identity group, so a database-only primary-ID migration does
+not create a false drift failure; an unmatched ID or alias group still fails
+closed. A passing drift audit means
 “no unreviewed change”; it deliberately does not claim “no vulnerabilities.”
 The exception must be removed or reviewed again before public deployment or an
 upstream Moshi/trainer migration.

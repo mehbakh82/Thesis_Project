@@ -1182,6 +1182,13 @@ Final engineering audit:
   report write. Benchmark coverage rises from 16% to 100%; the complete suite
   passes 278 tests at 76.49%, allowing the enforced floor to rise from 74% to
   75%.
+- [x] Harden scientific dependency drift detection against vulnerability-feed
+  primary-ID migrations. The 2026-09-10 feed changed five reviewed Torch CVE
+  identifiers to PYSEC identifiers while retaining the CVEs as aliases; compare
+  full CVE/PYSEC/GHSA identity groups, merge duplicate records, fail on duplicate
+  package-version ambiguity, and retain strict failure for every genuinely
+  unmatched advisory. Focused policy tests and the live 56-identity pinned
+  Moshi exception audit pass without broadening the accepted-risk policy.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

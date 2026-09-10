@@ -117,13 +117,39 @@ def _observed_findings(payload: dict) -> tuple[dict[str, dict], int]:
             continue
         package = str(dependency.get("name") or "").strip().lower()
         version = str(dependency.get("version") or "").strip()
-        advisory_ids = {
-            str(item.get("id") or "").strip()
-            for item in vulnerabilities
-            if str(item.get("id") or "").strip()
-        }
         raw_count += len(vulnerabilities)
-        observed[package] = {"version": version, "advisories": advisory_ids}
+        finding = observed.setdefault(
+            package,
+            {"version": version, "advisories": set(), "advisory_identities": []},
+        )
+        if finding["version"] != version:
+            # Preserve the ambiguity so the exact-version comparison fails
+            # instead of silently accepting the last duplicate package row.
+            finding["version"] = f"{finding['version']}|{version}"
+        for vulnerability in vulnerabilities:
+            primary = str(vulnerability.get("id") or "").strip()
+            if not primary:
+                continue
+            identity = {primary}
+            aliases = vulnerability.get("aliases") or []
+            if isinstance(aliases, list):
+                identity.update(str(item).strip() for item in aliases if str(item).strip())
+            finding["advisories"].add(primary)
+
+            # A scanner can emit duplicate database records for the same
+            # vulnerability. Merge overlapping ID/alias groups so identity
+            # comparison is stable if its preferred primary ID changes.
+            overlapping = [
+                group for group in finding["advisory_identities"] if group & identity
+            ]
+            if overlapping:
+                merged = set(identity)
+                for group in overlapping:
+                    merged.update(group)
+                    finding["advisory_identities"].remove(group)
+                finding["advisory_identities"].append(merged)
+            else:
+                finding["advisory_identities"].append(identity)
     return observed, raw_count
 
 
@@ -169,8 +195,21 @@ def _compare_findings(
                 f"{package}: version drift: expected {expected[package]['version']}, "
                 f"observed {observed[package]['version']}"
             )
-        added = observed[package]["advisories"] - expected[package]["advisories"]
-        removed = expected[package]["advisories"] - observed[package]["advisories"]
+        expected_ids = expected[package]["advisories"]
+        identities = observed[package].get("advisory_identities")
+        if not isinstance(identities, list):
+            identities = [{item} for item in observed[package]["advisories"]]
+        matched_expected: set[str] = set()
+        added: set[str] = set()
+        for identity in identities:
+            identity_set = {str(item) for item in identity}
+            matches = identity_set & expected_ids
+            if matches:
+                matched_expected.update(matches)
+            else:
+                primary_matches = identity_set & observed[package]["advisories"]
+                added.add(sorted(primary_matches or identity_set)[0])
+        removed = expected_ids - matched_expected
         if added:
             errors.append(f"{package}: unreviewed advisories: {sorted(added)}")
         if removed:
@@ -214,6 +253,9 @@ def main(
             package: {
                 "version": finding["version"],
                 "advisories": sorted(finding["advisories"]),
+                "advisory_identities": [
+                    sorted(identity) for identity in finding["advisory_identities"]
+                ],
             }
             for package, finding in sorted(observed.items())
         },
