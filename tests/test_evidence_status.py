@@ -379,7 +379,20 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
             "status": "not_collected_or_incomplete",
             "participants": 1,
             "elderly_participants": 1,
+            "turns": 0,
+            "ratings": 0,
             "complete_ratings": 0,
+            "invalid_rating_rows": 1,
+            "requirements": {
+                "participants_5_to_10": False,
+                "elderly_participants_at_least_2": False,
+                "complete_ratings_cover_participants": False,
+                "rating_rows_valid": False,
+                "eligible_client_first_audio_present": False,
+                "eligible_client_barge_in_present": False,
+                "physical_gpu_12_to_24_gb": False,
+                "real_heldout_detector_report": False,
+            },
             "official_ready": False,
         },
     )
@@ -534,6 +547,11 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert report["detector"]["recorded_proxy"]["accuracy_above_80_percent"] is True
     assert report["detector"]["recorded_proxy"]["official_detector_eligible"] is False
     assert report["gates"]["real_group_heldout_detector_above_80_percent"] is False
+    assert report["human_study"]["turns"] == 0
+    assert report["human_study"]["ratings"] == 0
+    assert report["human_study"]["invalid_rating_rows"] == 1
+    assert report["human_study"]["requirements"]["rating_rows_valid"] is False
+    assert report["human_study"]["official_ready"] is False
     assert report["reporting_contract"]["failure_denominators_included"] is True
     assert report["duplex_transport"]["automated_websocket_regression_passed"] is True
     assert report["duplex_transport"]["next_turn_input_samples"] == 4800
@@ -548,6 +566,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert "passed 9/9" in summary
     assert "32.20%" in summary
     assert "recorded proxy n=132 / 22 sessions" in summary
+    assert "turns=0, valid ratings=0, complete ratings=0, invalid rows=1" in summary
     assert "## Duplex transport" in summary
     assert "## Privacy-safe descriptive error analysis" in summary
     assert "descriptive Pearson r=0.885282" in summary
@@ -556,6 +575,28 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert "micro CER=0.071429" in summary
     assert "3,200 pre-roll samples" in summary
     assert json.loads(out.read_text(encoding="utf-8")) == report
+
+
+def test_evidence_status_rejects_unsubstantiated_human_study_ready(
+    tmp_path: Path,
+) -> None:
+    _write(
+        tmp_path,
+        "results/eval/human_study.json",
+        {
+            "status": "complete",
+            "participants": 5,
+            "elderly_participants": 2,
+            "complete_ratings": 5,
+            "official_ready": True,
+        },
+    )
+
+    report = build_evidence_status(root=tmp_path)
+
+    assert report["human_study"]["official_ready"] is False
+    assert report["gates"]["human_study_complete"] is False
+    assert not any(report["human_study"]["requirements"].values())
 
 
 def test_committed_qwen4b_final_test_is_verified_fail_closed() -> None:

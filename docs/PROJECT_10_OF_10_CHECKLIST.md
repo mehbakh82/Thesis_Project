@@ -1127,7 +1127,11 @@ Final engineering audit:
   retention enums, the complete study-readiness conjunction, and the strict
   detector threshold. Study aggregation independently revalidates rating
   consent, session/speaker/age linkage, and all four integer 1–5 bounds; any
-  invalid row blocks readiness. The full local suite passes 242 tests with 69%
+  invalid row blocks readiness. The aggregate evidence gate also requires all
+  eight canonical study requirements instead of trusting a standalone
+  `official_ready` flag. The current privacy-safe receipt has one participant,
+  zero turns, zero valid/complete ratings, and one invalid row, so it remains
+  explicitly ineligible. The full local suite passes 243 tests with 69%
   branch-aware coverage; configuration coverage rises from 26% to 97% and the
   privacy-sensitive session logger from 50% to 90%.
 

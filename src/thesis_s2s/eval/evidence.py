@@ -761,7 +761,21 @@ def build_evidence_status(
         and hardware.get("evaluation_hardware_ready")
         and (hardware.get("gpu") or {}).get("official_size")
     )
-    human_study_complete = bool(study.get("official_ready"))
+    study_requirements = study.get("requirements") or {}
+    required_study_gates = (
+        "participants_5_to_10",
+        "elderly_participants_at_least_2",
+        "complete_ratings_cover_participants",
+        "rating_rows_valid",
+        "eligible_client_first_audio_present",
+        "eligible_client_barge_in_present",
+        "physical_gpu_12_to_24_gb",
+        "real_heldout_detector_report",
+    )
+    human_study_complete = bool(
+        study.get("official_ready")
+        and all(study_requirements.get(gate) is True for gate in required_study_gates)
+    )
     license_files = [
         relative
         for relative in ("LICENSE", "LICENSE.md", "LICENSE.txt", "COPYING")
@@ -1041,8 +1055,14 @@ def build_evidence_status(
             "status": study.get("status") or "missing",
             "participants": int(study.get("participants") or 0),
             "elderly_participants": int(study.get("elderly_participants") or 0),
+            "turns": int(study.get("turns") or 0),
+            "ratings": int(study.get("ratings") or 0),
             "complete_ratings": int(study.get("complete_ratings") or 0),
+            "invalid_rating_rows": int(study.get("invalid_rating_rows") or 0),
             "rating_denominator": int(study.get("complete_ratings") or 0),
+            "requirements": {
+                gate: study_requirements.get(gate) is True for gate in required_study_gates
+            },
             "uncertainty": {
                 "interval": None,
                 "reason": "zero complete ratings",
@@ -1359,8 +1379,10 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             f"official E2E rows={latency.get('official_e2e_rows', 0)} | "
             f"{'pass' if gates.get('physical_12_to_24_gb_fit_and_live_latency') else 'pending'} |",
             f"| Human study | participants={study.get('participants', 0)}, aged 60+="
-            f"{study.get('elderly_participants', 0)}, complete ratings="
-            f"{study.get('complete_ratings', 0)} | "
+            f"{study.get('elderly_participants', 0)}, turns={study.get('turns', 0)}, "
+            f"valid ratings={study.get('ratings', 0)}, complete ratings="
+            f"{study.get('complete_ratings', 0)}, invalid rows="
+            f"{study.get('invalid_rating_rows', 0)} | "
             f"{'pass' if study.get('official_ready') else 'pending'} |",
             f"| Project license | {', '.join(release.get('license_files') or []) or 'not selected'} | "
             f"{'pass' if release.get('source_code_license_selected') else 'pending'} |",

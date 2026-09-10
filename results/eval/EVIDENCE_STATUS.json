@@ -1,6 +1,6 @@
 {
   "schema_version": 11,
-  "generated_at": "2026-09-09T14:20:54.859995+00:00",
+  "generated_at": "2026-09-10T07:38:26.214194+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -783,8 +783,21 @@
     "status": "not_collected_or_incomplete",
     "participants": 1,
     "elderly_participants": 1,
+    "turns": 0,
+    "ratings": 0,
     "complete_ratings": 0,
+    "invalid_rating_rows": 1,
     "rating_denominator": 0,
+    "requirements": {
+      "participants_5_to_10": false,
+      "elderly_participants_at_least_2": false,
+      "complete_ratings_cover_participants": false,
+      "rating_rows_valid": false,
+      "eligible_client_first_audio_present": false,
+      "eligible_client_barge_in_present": false,
+      "physical_gpu_12_to_24_gb": false,
+      "real_heldout_detector_report": false
+    },
     "uncertainty": {
       "interval": null,
       "reason": "zero complete ratings"
@@ -1125,8 +1138,8 @@
     "human_study": {
       "path": "results/eval/human_study.json",
       "present": true,
-      "bytes": 723,
-      "sha256": "10f922dc8b91d78aad488fc12e8e5a2fd101caae5bd3e1b9fbdcced1aaa41973"
+      "bytes": 1481,
+      "sha256": "cc683e060d8159d32f7ab52b3326ffc5abbae22849aaee49ec1cd5f765effe50"
     },
     "hardware_preflight": {
       "path": "results/hardware/current_preflight.json",

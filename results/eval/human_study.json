@@ -3,25 +3,51 @@
   "participants": 1,
   "elderly_participants": 1,
   "turns": 0,
-  "ratings": 1,
+  "ratings": 0,
   "complete_ratings": 0,
+  "invalid_rating_rows": 1,
   "rating_means": {
-    "naturalness": 4.0,
+    "naturalness": null,
     "latency": null,
-    "interrupt_success": 5.0,
+    "interrupt_success": null,
+    "satisfaction": null
+  },
+  "rating_mean_ci95": {
+    "naturalness": null,
+    "latency": null,
+    "interrupt_success": null,
     "satisfaction": null
   },
   "t_first_audio_p50_ms": null,
   "t_first_audio_p95_ms": null,
+  "t_first_audio_max_ms": null,
   "t_barge_in_p95_ms": null,
+  "t_barge_in_max_ms": null,
+  "official_t_first_audio_p50_ms": null,
+  "official_t_first_audio_p95_ms": null,
+  "official_t_first_audio_max_ms": null,
+  "official_t_barge_in_p95_ms": null,
+  "official_t_barge_in_max_ms": null,
+  "live_interrupt": null,
+  "live_interrupt_ci95": null,
+  "official_live_interrupt": null,
+  "official_live_interrupt_ci95": null,
+  "retention_counts": {
+    "audio": 0,
+    "features": 0,
+    "metrics": 0
+  },
   "requirements": {
     "participants_5_to_10": false,
     "elderly_participants_at_least_2": false,
     "complete_ratings_cover_participants": false,
-    "client_first_audio_present": false,
-    "client_barge_in_present": false,
-    "physical_gpu_12_to_24_gb": false
+    "rating_rows_valid": false,
+    "eligible_client_first_audio_present": false,
+    "eligible_client_barge_in_present": false,
+    "physical_gpu_12_to_24_gb": false,
+    "real_heldout_detector_report": false
   },
   "official_ready": false,
-  "generated_at": "2026-08-22T14:56:05.613602+00:00"
+  "raw_audio_required": false,
+  "generated_at": "2026-09-10T07:26:51.087773+00:00"
 }
