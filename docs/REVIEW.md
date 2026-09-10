@@ -191,7 +191,9 @@ and disjoint session groups. Its once-evaluated balanced held-out test contains
 9.09% FAR, and 28.79% FRR; the energy/ZCR baseline reaches 78.03%. The
 session-block accuracy interval is 74.44–87.18%. Because labels come from
 automatic diarization/alignment, human-verified labels are zero and the official
->80% gate remains false.
+>80% gate remains false. The executable acceptance predicate is now tested at
+the boundary: exactly 80.00% fails, and only accuracy strictly above 80% can
+set detector readiness.
 
 ### 5. Runtime
 

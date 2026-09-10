@@ -73,6 +73,18 @@ def percentile(values: Sequence[float], q: float) -> float:
     return float(np.percentile(np.asarray(values, dtype=np.float64), q))
 
 
+def meets_bargein_accuracy_target(accuracy: object) -> bool:
+    """Fail closed unless a finite probability is strictly above the target."""
+
+    if isinstance(accuracy, bool):
+        return False
+    try:
+        value = float(accuracy)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return False
+    return bool(np.isfinite(value) and 0.0 <= value <= 1.0 and value > BARGEIN_ACCURACY_TARGET)
+
+
 def summarize_latency(
     samples: Iterable[LatencySample],
     *,
@@ -140,7 +152,7 @@ def binary_scores(y_true: Sequence[int], y_pred: Sequence[int]) -> BargeinConfus
         interrupt_f1=float(f1),
         far=float(far),
         frr=float(frr),
-        target_ok=acc >= BARGEIN_ACCURACY_TARGET,
+        target_ok=meets_bargein_accuracy_target(acc),
         n=int(len(yt)),
         labels=["other", "interrupt"],
         matrix=[[tn, fp], [fn, tp]],

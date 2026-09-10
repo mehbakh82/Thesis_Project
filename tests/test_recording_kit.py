@@ -1,6 +1,9 @@
 import json
 from pathlib import Path
 
+import numpy as np
+import pytest
+
 from thesis_s2s.audio import read_wav
 from thesis_s2s.bargein.synthetic import _harmonic
 from thesis_s2s.data.filter_corpus import filter_hours
@@ -31,6 +34,114 @@ def test_session_kit_writes_wav_and_jsonl(tmp_path: Path):
     assert report["elderly_turns"] == 1
     assert "interrupt" in rec.interrupt_label
     assert any(p["id"] == "backchannel" for p in PROMPTS)
+
+
+def test_session_identity_and_turn_enums_fail_closed(tmp_path: Path):
+    store = SessionStore(root=tmp_path)
+    with pytest.raises(ValueError, match="speaker_id"):
+        store.start(SessionMeta("S1", "../speaker", "under_60", True))
+    with pytest.raises(ValueError, match="age_bin"):
+        store.start(SessionMeta("S1", "P1", "unknown", True))
+    with pytest.raises(ValueError, match="retention"):
+        store.start(SessionMeta("S1", "P1", "under_60", True, retention="raw"))
+
+    meta = SessionMeta("S1", "P1", "under_60", True, retention="metrics")
+    store.start(meta)
+    with pytest.raises(ValueError, match="different speaker"):
+        store.start(SessionMeta("S1", "P2", "under_60", True, retention="metrics"))
+    with pytest.raises(ValueError, match="unknown prompt_id"):
+        store.add_turn(
+            meta,
+            prompt_id="unregistered",
+            interrupt_label="none",
+            user_audio=np.zeros(160, dtype=np.float32),
+            t_first_audio_ms=None,
+            t_barge_in_ms=None,
+            stopped=False,
+        )
+    with pytest.raises(ValueError, match="unknown interrupt_label"):
+        store.add_turn(
+            meta,
+            prompt_id="warmup_time",
+            interrupt_label="maybe",
+            user_audio=np.zeros(160, dtype=np.float32),
+            t_first_audio_ms=None,
+            t_barge_in_ms=None,
+            stopped=False,
+        )
+
+
+def test_study_summary_requires_and_recognizes_all_strict_gates(
+    tmp_path: Path, monkeypatch
+) -> None:
+    from thesis_s2s.runtime import session_log
+
+    monkeypatch.setattr(session_log, "project_root", lambda: tmp_path)
+    store = SessionStore(root=tmp_path / "recordings")
+    audio = np.zeros(1600, dtype=np.float32)
+    for index in range(5):
+        speaker_id = f"P{index}"
+        meta = SessionMeta(
+            session_id=f"S{index}",
+            speaker_id=speaker_id,
+            age_bin="60plus" if index < 2 else "under_60",
+            consent=True,
+            gpu_name="NVIDIA GeForce RTX 4090",
+            vram_gb=24.0,
+            retention="metrics",
+        )
+        is_interrupt = index % 2 == 0
+        store.add_turn(
+            meta,
+            prompt_id="interrupt_story" if is_interrupt else "warmup_time",
+            interrupt_label="interrupt" if is_interrupt else "none",
+            user_audio=audio,
+            t_first_audio_ms=200.0 + index,
+            t_barge_in_ms=80.0 + index,
+            stopped=is_interrupt,
+        )
+        session_dir = store.session_dir(meta.session_id)
+        (session_dir / "mos.jsonl").write_text(
+            json.dumps(
+                {
+                    "speaker_id": speaker_id,
+                    "naturalness": 4,
+                    "latency": 4,
+                    "interrupt_success": 5,
+                    "satisfaction": 4,
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+    detector_dir = tmp_path / "results" / "bargein"
+    detector_dir.mkdir(parents=True)
+    (detector_dir / "recorded_heldout_report.json").write_text(
+        json.dumps(
+            {
+                "evidence_class": "recorded_audio_heldout",
+                "n": 25,
+                "group_overlap": False,
+                "proposed": {"target_ok": True, "accuracy": 0.84},
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    out = tmp_path / "study_summary.json"
+    report = store.study_summary(out)
+
+    assert report["status"] == "complete"
+    assert report["official_ready"] is True
+    assert report["participants"] == 5
+    assert report["elderly_participants"] == 2
+    assert report["complete_ratings"] == 5
+    assert report["official_live_interrupt"]["accuracy"] == 1.0
+    assert report["retention_counts"] == {"audio": 0, "features": 0, "metrics": 5}
+    assert all(report["requirements"].values())
+    assert json.loads(out.read_text(encoding="utf-8"))["official_ready"] is True
 
 
 def test_filter_require_teacher(tmp_path: Path):

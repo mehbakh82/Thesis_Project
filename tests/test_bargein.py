@@ -5,7 +5,7 @@ from thesis_s2s.bargein.features import FeatureConfig, frame_feature_matrix
 from thesis_s2s.bargein.realtime import PlaybackController
 from thesis_s2s.bargein.synthetic import make_clip
 from thesis_s2s.bargein.train import train_and_eval
-from thesis_s2s.metrics import binary_scores
+from thesis_s2s.metrics import binary_scores, meets_bargein_accuracy_target
 
 
 def test_feature_shapes():
@@ -45,3 +45,24 @@ def test_baseline_binary_scores_shape():
     s = binary_scores(y, p)
     assert s.n == 4
     assert 0 <= s.far <= 1
+
+
+def test_detector_accuracy_gate_is_strictly_greater_than_eighty_percent():
+    truth = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
+    exactly_eighty = [0, 0, 0, 0, 1, 1, 1, 1, 0, 1]
+    ninety = [0, 0, 0, 0, 1, 1, 1, 1, 1, 1]
+
+    boundary = binary_scores(truth, exactly_eighty)
+    passing = binary_scores(truth, ninety)
+
+    assert boundary.accuracy == 0.8
+    assert boundary.target_ok is False
+    assert passing.accuracy == 0.9
+    assert passing.target_ok is True
+
+
+def test_detector_accuracy_gate_fails_closed_on_invalid_values():
+    for value in (None, True, False, "invalid", float("nan"), float("inf"), -0.1, 1.1):
+        assert meets_bargein_accuracy_target(value) is False
+    assert meets_bargein_accuracy_target("0.8000") is False
+    assert meets_bargein_accuracy_target("0.8001") is True

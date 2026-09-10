@@ -804,6 +804,11 @@ not official ground truth):
   interrupt F1 71.84%. Preserve the trained proxy-model hash locally.
 - [x] Keep `official_detector_eligible=false`,
   `official_target_satisfied=false`, and `human_verified_labels=0`.
+- [x] Enforce the literal strict boundary in code: exactly 80.00% accuracy
+  fails `target_ok`, aggregate evidence eligibility, and study readiness; only
+  a finite probability greater than 80% passes. The shared predicate also
+  rejects missing, malformed, Boolean, non-finite, and out-of-range values;
+  dedicated regressions cover both sides of the boundary and invalid inputs.
 
 Official gate still required:
 
@@ -1117,6 +1122,12 @@ Final engineering audit:
   cache-only follow-up `6edb522` disables that archival. Warning-free run
   `34368546413` then passed every substantive gate without changing any model,
   corpus, evaluation, or manuscript artifact.
+- [x] Remove the unused restricted legacy YAML parser and test the sole safe
+  PyYAML loader, portable-path serialization, consent/session identity checks,
+  retention enums, the complete study-readiness conjunction, and the strict
+  detector threshold. The full local suite passes 242 tests with 69%
+  branch-aware coverage; configuration coverage rises from 26% to 97% and the
+  privacy-sensitive session logger from 50% to 91%.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

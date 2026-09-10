@@ -18,6 +18,7 @@ from thesis_s2s.metrics import (
     binary_score_confidence_intervals,
     binary_scores,
     mean_confidence_interval,
+    meets_bargein_accuracy_target,
 )
 
 PROMPTS = [
@@ -327,6 +328,7 @@ class SessionStore:
             and int(report.get("n") or (report.get("proposed") or {}).get("n") or 0) > 0
             and report.get("group_overlap") is False
             and (report.get("proposed") or {}).get("target_ok") is True
+            and meets_bargein_accuracy_target((report.get("proposed") or {}).get("accuracy"))
             for report in detector_reports
         )
         live_scores = binary_scores(live_truth, live_pred) if live_truth else None

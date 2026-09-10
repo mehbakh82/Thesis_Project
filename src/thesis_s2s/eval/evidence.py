@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from thesis_s2s.config import load_yaml, project_root
-from thesis_s2s.metrics import write_json
+from thesis_s2s.metrics import meets_bargein_accuracy_target, write_json
 from thesis_s2s.repro import sha256_file
 
 ARTIFACTS: dict[str, str] = {
@@ -748,12 +748,12 @@ def build_evidence_status(
         (
             interrupt.get("recorded_eval")
             and interrupt.get("official_detector_eligible")
-            and float(proposed.get("accuracy") or 0.0) >= 0.80
+            and meets_bargein_accuracy_target(proposed.get("accuracy"))
         )
         or (
             recorded_proxy.get("official_detector_eligible")
             and int(recorded_proxy.get("human_verified_labels") or 0) > 0
-            and float(recorded_proxy_proposed.get("accuracy") or 0.0) >= 0.80
+            and meets_bargein_accuracy_target(recorded_proxy_proposed.get("accuracy"))
         )
     )
     physical_target_hardware = bool(
