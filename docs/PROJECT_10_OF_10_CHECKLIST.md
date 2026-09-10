@@ -305,7 +305,7 @@ Owner: student for authentication; Codex can push afterward.
   expected HEAD, one author/committer identity, and passing full-history
   artifact/privacy/secret audit.
 - [x] GitHub Actions uses read-only permissions and immutable first-party Action
-  SHAs; it compiles, lints, type-checks, audits, tests, and enforces 74%
+  SHAs; it compiles, lints, type-checks, audits, tests, and enforces 75%
   branch-aware coverage.
 - [x] CI lints `src`/`tests`/`scripts`, parses tracked JSON/YAML/TOML,
   rejects forbidden/oversized artifacts and private paths, scans all reachable
@@ -1172,6 +1172,16 @@ Final engineering audit:
   timestamps. Ingest coverage rises from 18% to 94%, preparation from 32% to
   96%, and the complete suite passes 271 tests at 75.38%, allowing the enforced
   floor to rise conservatively from 71% to 74%.
+- [x] Harden the automatic evaluation benchmark runner across capped-H100 and
+  eligible-hardware paths while preserving the rule that server/synthetic
+  timings can never become official browser E2E evidence. Test synthetic versus
+  recorded detector scopes, successful and failed ASR-on-TTS diagnostics, and
+  summary claim boundaries. Close every temporary WAV descriptor, remove files
+  even when inference fails, serialize unavailable WER as standards-compliant
+  JSON `null` rather than `NaN`, create summary parents, and remove a redundant
+  report write. Benchmark coverage rises from 16% to 100%; the complete suite
+  passes 278 tests at 76.49%, allowing the enforced floor to rise from 74% to
+  75%.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+import tempfile
 import time
 from pathlib import Path
 from typing import Any
@@ -102,8 +104,6 @@ def run_latency_bench(out_dir: Path | None = None, path: str = "A") -> dict:
         )
     name = "latency_bench_path_b.json" if path.upper() == "B" else "latency_bench.json"
     write_json(out_dir / name, payload)
-    if path.upper() != "B":
-        write_json(out_dir / "latency_bench.json", payload)
     return payload
 
 
@@ -130,8 +130,6 @@ def run_reply_wer(out_dir: Path | None = None) -> dict:
     prompts = ["سلام", "خداحافظ", "حالت چطوره"]
     rows = []
     try:
-        import tempfile
-
         import torch
         from transformers import pipeline
 
@@ -144,27 +142,34 @@ def run_reply_wer(out_dir: Path | None = None) -> dict:
         )
         for text in prompts:
             audio, backend = synthesize(text)
-            tmp = Path(tempfile.mkstemp(suffix=".wav")[1])
-            write_wav(tmp, audio)
-            asr_result = asr(
-                str(tmp), generate_kwargs={"language": "persian", "task": "transcribe"}
-            )
-            asr_payload: dict[str, Any] = asr_result if isinstance(asr_result, dict) else {}
-            hyp = str(asr_payload.get("text") or "")
-            tmp.unlink(missing_ok=True)
+            descriptor, tmp_name = tempfile.mkstemp(suffix=".wav")
+            os.close(descriptor)
+            tmp = Path(tmp_name)
+            try:
+                write_wav(tmp, audio)
+                asr_result = asr(
+                    str(tmp), generate_kwargs={"language": "persian", "task": "transcribe"}
+                )
+                asr_payload: dict[str, Any] = (
+                    asr_result if isinstance(asr_result, dict) else {}
+                )
+                hyp = str(asr_payload.get("text") or "")
+            finally:
+                tmp.unlink(missing_ok=True)
             rows.append({"ref": text, "hyp": hyp, "wer": wer(text, hyp), "tts_backend": backend})
     except Exception as exc:
         rows = [{"error": str(exc)[:300]}]
+    wer_values = []
+    for row in rows:
+        value = row.get("wer")
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            wer_values.append(float(value))
     payload = {
         "measurement_scope": "diagnostic_asr_on_tts_proxy",
         "official_quality_eligible": False,
         "n": len(rows),
         "rows": rows,
-        "mean_wer": float(
-            np.mean([r["wer"] for r in rows if "wer" in r])
-            if any("wer" in r for r in rows)
-            else float("nan")
-        ),
+        "mean_wer": float(np.mean(wer_values)) if wer_values else None,
         "note": "MOS is not measured on formant. Piper/CosyVoice is the talker for the study sheet.",
     }
     write_json(out_dir / "reply_wer.json", payload)
@@ -180,6 +185,7 @@ def json_load(path: Path) -> dict:
 def write_eval_summary(latency: dict, interrupt: dict, wer_report: dict | None = None) -> Path:
     root = project_root()
     path = root / "results" / "eval" / "SUMMARY.md"
+    path.parent.mkdir(parents=True, exist_ok=True)
     barge = interrupt.get("proposed") or {}
     base = interrupt.get("energy_vad_baseline") or {}
     hop = interrupt.get("hop_cpu_ms")
