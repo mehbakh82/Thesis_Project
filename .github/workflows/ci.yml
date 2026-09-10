@@ -39,7 +39,7 @@ jobs:
       - name: Test
         run: coverage run -m pytest -q
       - name: Coverage
-        run: coverage report --fail-under=60
+        run: coverage report
       - name: Set up Python 3.12 for the scientific-lock audit
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:

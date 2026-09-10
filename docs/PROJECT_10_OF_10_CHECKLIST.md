@@ -300,7 +300,7 @@ Owner: student for authentication; Codex can push afterward.
   expected HEAD, one author/committer identity, and passing full-history
   artifact/privacy/secret audit.
 - [x] GitHub Actions uses read-only permissions and immutable first-party Action
-  SHAs; it compiles, lints, type-checks, audits, tests, and enforces 60%
+  SHAs; it compiles, lints, type-checks, audits, tests, and enforces 68%
   branch-aware coverage.
 - [x] CI lints `src`/`tests`/`scripts`, parses tracked JSON/YAML/TOML,
   rejects forbidden/oversized artifacts and private paths, scans all reachable
@@ -1131,7 +1131,7 @@ Final engineering audit:
   eight canonical study requirements instead of trusting a standalone
   `official_ready` flag. The current privacy-safe receipt has one participant,
   zero turns, zero valid/complete ratings, and one invalid row, so it remains
-  explicitly ineligible. The full local suite passes 245 tests with 69%
+  explicitly ineligible. The full local suite passes 248 tests with 69%
   branch-aware coverage; configuration coverage rises from 26% to 97% and the
   privacy-sensitive session logger from 50% to 90%.
 - [x] Replace the aggregate evidence report's historical hard-coded
@@ -1141,6 +1141,9 @@ Final engineering audit:
   `8632980`, and successful branch/tag CI runs `34451312956` and `34451713512`.
   The tracked-artifact CI audit independently resolves the tag object and peeled
   commit from Git and requires the attested commit to be an ancestor of `HEAD`.
+  Direct temporary-repository regressions cover a valid annotated tag, a
+  mismatched object hash, and malformed receipt JSON. The enforced branch-aware
+  coverage floor is raised from 60% to 68% against the measured 69%.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

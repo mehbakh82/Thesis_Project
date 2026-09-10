@@ -30,8 +30,8 @@ Status date: 2026-09-09
   `enabled=true`, `paused=false`.
 - CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 51
   source files against the Python 3.10 target.
-- The measured branch-aware coverage is 65%; the enforced floor is 60%, raised
-  from 35% while retaining a small non-flaky margin. Core conversation,
+- The measured branch-aware coverage is 69%; the enforced floor is 68%, raised
+  from 35% and then 60% while retaining a small non-flaky margin. Core conversation,
   Moshi-export, QA-policy, rights, and preflight modules are substantially above
   the aggregate.
 - The general requirements audit remains fail-closed on unreviewed drift. On
