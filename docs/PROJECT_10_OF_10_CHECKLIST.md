@@ -305,7 +305,7 @@ Owner: student for authentication; Codex can push afterward.
   expected HEAD, one author/committer identity, and passing full-history
   artifact/privacy/secret audit.
 - [x] GitHub Actions uses read-only permissions and immutable first-party Action
-  SHAs; it compiles, lints, type-checks, audits, tests, and enforces 68%
+  SHAs; it compiles, lints, type-checks, audits, tests, and enforces 71%
   branch-aware coverage.
 - [x] CI lints `src`/`tests`/`scripts`, parses tracked JSON/YAML/TOML,
   rejects forbidden/oversized artifacts and private paths, scans all reachable
@@ -1156,6 +1156,13 @@ Final engineering audit:
   identity, or altered scores. The complete local suite passes 253 tests with
   69% branch-aware coverage, and all compile, lint, type, frozen-evaluator,
   application-risk, and Moshi-risk checks pass.
+- [x] Harden the CLI-exposed batch re-ASR pipeline with deterministic tests for
+  explicit service discovery, NeMo preparation rejection/success, verbatim
+  Persian normalization, HTTP/Whisper fallback selection, failed probes,
+  per-row failures, dry-run behavior, limits, resume semantics, parallel local
+  teachers, and serialized initialized SpeechService use. The module rises from
+  0% to 78% branch-aware coverage; the complete suite passes 261 tests at
+  72.06%, and the enforced CI floor rises conservatively from 68% to 71%.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

@@ -33,10 +33,11 @@ Status date: 2026-09-10
   `enabled=true`, `paused=false`.
 - CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 51
   source files against the Python 3.10 target.
-- The measured branch-aware coverage is 69%; the enforced floor is 68%, raised
-  from 35% and then 60% while retaining a small non-flaky margin. Core conversation,
-  Moshi-export, QA-policy, rights, and preflight modules are substantially above
-  the aggregate.
+- The measured branch-aware coverage is 72.06%; the enforced floor is 71%,
+  raised from 35%, 60%, and 68% while retaining a small non-flaky margin. The
+  CLI-exposed batch re-ASR pipeline is now covered at 78%, and core
+  conversation, Moshi-export, QA-policy, rights, and preflight modules are
+  substantially above the aggregate.
 - The general requirements audit remains fail-closed on unreviewed drift. On
   2026-09-09, pip-audit began reporting CVE-2026-69112 in Accelerate 1.14.0.
   The scanner feed later stopped mapping it and the resolver advanced to 1.15.0.

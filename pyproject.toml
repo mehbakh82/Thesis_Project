@@ -65,7 +65,7 @@ source = ["thesis_s2s"]
 [tool.coverage.report]
 show_missing = true
 skip_empty = true
-fail_under = 68
+fail_under = 71
 exclude_also = [
   "if TYPE_CHECKING:",
 ]
