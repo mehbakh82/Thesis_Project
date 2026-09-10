@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-10T12:41:41.758676+00:00",
+  "generated_at": "2026-09-10T13:17:02.715692+00:00",
   "python": "3.12.3",
   "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.39",
   "git": {
     "available": true,
-    "commit": "98d716bb9d3f84a56b6277d3ab92ebf60016b3ad",
+    "commit": "f7b8271a2947580c1dd890d34b9458108c6c5678",
     "dirty": false
   },
   "gpu": {
@@ -25,16 +25,16 @@
       "utilization_gpu_percent"
     ],
     "rows": [
-      "NVIDIA H100 NVL, 595.71.05, 95830, 94239, 1084, 1"
+      "NVIDIA H100 NVL, 595.71.05, 95830, 83035, 12287, 0"
     ],
     "devices": [
       {
         "name": "NVIDIA H100 NVL",
         "driver_version": "595.71.05",
         "memory_total_mib": 95830,
-        "memory_used_mib": 94239,
-        "memory_free_mib": 1084,
-        "utilization_gpu_percent": 1
+        "memory_used_mib": 83035,
+        "memory_free_mib": 12287,
+        "utilization_gpu_percent": 0
       }
     ]
   },
@@ -359,8 +359,8 @@
       "bytes": 6414
     },
     "docs/PROJECT_10_OF_10_CHECKLIST.md": {
-      "sha256": "a0357305c15c3d48c393928bf8aefeb9c22080113049a5fccc5a9366b0ed3e43",
-      "bytes": 72806
+      "sha256": "0b20a08844a7f3d874fc65a5285dcadda999ce40c52bde66d2825baa39a7241a",
+      "bytes": 73341
     },
     "docs/PROMPT_SHEET.md": {
       "sha256": "834713479073112fc0d2fc6f573d1fa742142863f4df67b98f680a856826ef78",
@@ -391,8 +391,8 @@
       "bytes": 2050
     },
     "docs/REPOSITORY_SECURITY.md": {
-      "sha256": "fdc10c70874136122623f0131d448f5dcc2fb93fd46e2510910c320f9fe29168",
-      "bytes": 9533
+      "sha256": "0ab6908e1393603f1d3569d416a2fe813afa524376f13bd057dbf013add9dea1",
+      "bytes": 9604
     },
     "docs/RESPONDER_CANDIDATE_COMPARISON_V1.md": {
       "sha256": "87d2c6f1e33c2632698fd1d0acfb5adba61e34897151df16e658ebda2f80fb74",
@@ -447,7 +447,7 @@
       "bytes": 7088
     },
     "pyproject.toml": {
-      "sha256": "6978b79871dee84acf3b896b8e9554d74f9a19bd1013347ab6e7cdb29b79e4ac",
+      "sha256": "69886de354d0192f84cbc78e5edd8af5a16d9cd31e37b6293165a827299f457f",
       "bytes": 1823
     },
     "requirements-moshi.lock": {
@@ -1406,6 +1406,10 @@
       "sha256": "b80f8fca25ac2664d157b61ca146bcd1b37f6416d32fb45459949fea4a2ffc83",
       "bytes": 4762
     },
+    "tests/test_batch_reasr.py": {
+      "sha256": "5b0700c19c5ef3c6a79dd053fdf8fb83fbb4553e6a0a7689c66b61b1ea682f95",
+      "bytes": 11861
+    },
     "tests/test_cascade_error_analysis.py": {
       "sha256": "28840002d9dd01c80610303470cab261285e93a5a44b3df79c15801411ee3752",
       "bytes": 3637
@@ -1887,5 +1891,5 @@
       "bytes": 1220
     }
   },
-  "file_count": 458
+  "file_count": 459
 }
