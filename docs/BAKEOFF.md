@@ -36,7 +36,7 @@ The earlier local LLaMA-Omni2 encoder/reconstruction ablation remains runtime-in
 
 Therefore Moshi is the implementation path, while the cascade remains the deployable baseline until a Persian adapter passes the stated evidence gates. See `results/bakeoff/DECISION.md`, `docs/MOSHI_H100_RUNBOOK.md`, and `docs/REVIEW.md`.
 
-## Post-release candidate refresh (2026-09-08)
+## Post-release candidate refresh (2026-09-10)
 
 Controlled comparison remains missing for the direct track, but
 the documentary shortlist now also
@@ -61,3 +61,11 @@ The TTS comparison also retained Mana-Piper on 40 identical Persian response
 texts: CER/WER was 0.174401/0.342520, versus 0.250892/0.494094 for Meta
 MMS-TTS Persian, with no failures in either arm. Its final panel likewise
 remains sealed. This is an automatic ASR round-trip result, not human listening.
+
+The 2026-09-10 official-source recheck makes two conservative corrections:
+Qwen3-Omni is now an explicit Persian speech-output failure because its ten
+published output languages exclude Persian; MiniCPM-o 4.5 now passes only the
+documentary public-adaptation field because the official repository lists
+LLaMA-Factory/SWIFT support. MiniCPM-o still has no verified Persian speech
+output or documented Persian/full-duplex audio-token adaptation, so no direct
+candidate becomes eligible and no new model run is justified by this refresh.

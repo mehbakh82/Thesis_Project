@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
   "evidence_class": "requirements_constrained_static_model_audit",
-  "as_of": "2026-09-08",
+  "as_of": "2026-09-10",
   "catalog": "configs/model_selection_audit.yaml",
-  "catalog_sha256": "c5ba232757c9e3ebfb9e6ffc559c59b8b8d75275444a3a46cd78c3551ffdc3b8",
+  "catalog_sha256": "64bf7ab59c202cd9e27ad5d9825bf82cb16de9c505534c31b2abaab2dc72f50c",
   "claim_boundary": "This audit validates declared evidence and fail-closed eligibility. It does not run models, establish unreported Persian quality, or prove global optimality.",
   "tracks": {
     "direct_s2s": {
@@ -203,14 +203,14 @@
             "persian_speech_output": {
               "criterion": "persian_speech_output",
               "minimum": "verified",
-              "status": "unknown",
+              "status": "failed",
               "meets": false,
               "source": {
                 "kind": "remote",
                 "url": "https://github.com/QwenLM/Qwen3-Omni",
                 "declared": true
               },
-              "notes": ""
+              "notes": "Official speech-output languages are English, Chinese, French, German, Russian, Italian, Spanish, Portuguese, Japanese, and Korean; Persian is excluded."
             },
             "target_24gb_path": {
               "criterion": "target_24gb_path",
@@ -230,7 +230,6 @@
         "minicpm-o-4.5": {
           "eligible": false,
           "missing_or_failed_criteria": [
-            "public_adaptation",
             "persian_speech_output"
           ],
           "criteria": {
@@ -261,14 +260,14 @@
             "public_adaptation": {
               "criterion": "public_adaptation",
               "minimum": "documented",
-              "status": "unknown",
-              "meets": false,
+              "status": "documented",
+              "meets": true,
               "source": {
                 "kind": "remote",
                 "url": "https://github.com/OpenBMB/MiniCPM-V",
                 "declared": true
               },
-              "notes": ""
+              "notes": "Official documentation lists LLaMA-Factory and SWIFT training support, but does not establish Persian or full-duplex audio-token adaptation."
             },
             "persian_speech_output": {
               "criterion": "persian_speech_output",

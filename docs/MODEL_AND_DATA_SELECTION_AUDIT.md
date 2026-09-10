@@ -1,6 +1,6 @@
 # Model and data selection audit
 
-**Audit date:** 2026-09-08
+**Audit date:** 2026-09-10
 **Evidence class:** requirements-constrained engineering audit; not a claim of
 global model optimality
 
@@ -56,10 +56,19 @@ repositories/model cards and retains `unknown` wherever those sources do not
 establish a requirement.
 
 The candidate refresh inspected official repositories/model cards available on
-2026-09-08. In addition to the evaluated Qwen3-ASR and MMS releases, it covers
+2026-09-10. In addition to the evaluated Qwen3-ASR and MMS releases, it covers
 Shenava-Koochik, Rade-ASR-CTC-3B-fa, and MOSS-TTS-Nano-Persian. This is a
 dated, requirements-constrained catalog—not a permanent or exhaustive claim
 over every unpublished, gated, or future checkpoint.
+
+The refresh also resolves two documentary fields without promoting a model.
+Qwen3-Omni's official list of ten speech-output languages excludes Persian, so
+its Persian-output field is an explicit failure rather than unknown.
+MiniCPM-o 4.5's official repository now documents LLaMA-Factory and SWIFT
+training-framework support, so public adaptation passes at documentary level;
+the same source does not establish Persian output or Persian/full-duplex
+audio-token adaptation. The direct track therefore still has zero fully
+eligible candidates.
 
 The highest-value component challengers are:
 

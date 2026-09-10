@@ -1,5 +1,5 @@
 schema_version: 1
-as_of: "2026-09-08"
+as_of: "2026-09-10"
 
 # Evidence states:
 #   verified   measured inside this repository under a recorded protocol
@@ -69,8 +69,9 @@ tracks:
             status: unknown
             source: https://github.com/QwenLM/Qwen3-Omni
           persian_speech_output:
-            status: unknown
+            status: failed
             source: https://github.com/QwenLM/Qwen3-Omni
+            notes: Official speech-output languages are English, Chinese, French, German, Russian, Italian, Spanish, Portuguese, Japanese, and Korean; Persian is excluded.
           target_24gb_path:
             status: unknown
             source: https://github.com/QwenLM/Qwen3-Omni
@@ -84,8 +85,9 @@ tracks:
             status: documented
             source: https://github.com/OpenBMB/MiniCPM-V
           public_adaptation:
-            status: unknown
+            status: documented
             source: https://github.com/OpenBMB/MiniCPM-V
+            notes: Official documentation lists LLaMA-Factory and SWIFT training support, but does not establish Persian or full-duplex audio-token adaptation.
           persian_speech_output:
             status: unknown
             source: https://github.com/OpenBMB/MiniCPM-V

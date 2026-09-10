@@ -31,6 +31,11 @@ an item explicitly says they are.
   official documentation, failures, and unknowns.
 - [x] Add current direct candidates: PersonaPlex, Qwen3-Omni, MiniCPM-o 4.5,
   Covo-Audio-Chat-FD, BayLing-Duplex, and DuplexOmni.
+- [x] Recheck official direct-model sources on 2026-09-10: record Qwen3-Omni as
+  failing Persian speech output because Persian is absent from its published
+  output-language list; record MiniCPM-o 4.5 public adaptation as documented
+  through LLaMA-Factory/SWIFT while retaining unknown Persian/full-duplex
+  adaptation and output. Zero direct candidates satisfy all five gates.
 - [x] Add current component challengers: Qwen3-ASR 1.7B/0.6B, Shenava
   Koochik, Rade-ASR-CTC-3B-fa, Omnilingual-ASR, local Qwen3.5-4B/0.8B,
   Qwen3-TTS, and MOSS-TTS-Nano-Persian.
