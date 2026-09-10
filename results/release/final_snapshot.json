@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-10T10:07:58.211798+00:00",
+  "generated_at": "2026-09-10T12:41:41.758676+00:00",
   "python": "3.12.3",
   "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.39",
   "git": {
     "available": true,
-    "commit": "0bbb7986a59ef3b7e99acdc8fe0a48de7bc16902",
+    "commit": "98d716bb9d3f84a56b6277d3ab92ebf60016b3ad",
     "dirty": false
   },
   "gpu": {
@@ -25,21 +25,21 @@
       "utilization_gpu_percent"
     ],
     "rows": [
-      "NVIDIA H100 NVL, 595.71.05, 95830, 81454, 13869, 0"
+      "NVIDIA H100 NVL, 595.71.05, 95830, 94239, 1084, 1"
     ],
     "devices": [
       {
         "name": "NVIDIA H100 NVL",
         "driver_version": "595.71.05",
         "memory_total_mib": 95830,
-        "memory_used_mib": 81454,
-        "memory_free_mib": 13869,
-        "utilization_gpu_percent": 0
+        "memory_used_mib": 94239,
+        "memory_free_mib": 1084,
+        "utilization_gpu_percent": 1
       }
     ]
   },
   "packages": {
-    "accelerate": "1.13.0",
+    "accelerate": "1.15.0",
     "fastapi": "0.136.1",
     "numpy": "2.4.4",
     "peft": "0.20.0",
