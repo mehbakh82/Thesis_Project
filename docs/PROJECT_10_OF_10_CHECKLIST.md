@@ -1125,9 +1125,11 @@ Final engineering audit:
 - [x] Remove the unused restricted legacy YAML parser and test the sole safe
   PyYAML loader, portable-path serialization, consent/session identity checks,
   retention enums, the complete study-readiness conjunction, and the strict
-  detector threshold. The full local suite passes 242 tests with 69%
+  detector threshold. Study aggregation independently revalidates rating
+  consent, session/speaker/age linkage, and all four integer 1–5 bounds; any
+  invalid row blocks readiness. The full local suite passes 242 tests with 69%
   branch-aware coverage; configuration coverage rises from 26% to 97% and the
-  privacy-sensitive session logger from 50% to 91%.
+  privacy-sensitive session logger from 50% to 90%.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

@@ -243,6 +243,8 @@ class SessionStore:
         first_audio: list[float] = []
         barge_in: list[float] = []
         ratings: list[dict] = []
+        invalid_rating_rows = 0
+        required_rating_keys = ("naturalness", "latency", "interrupt_success", "satisfaction")
         hardware_flags: list[bool] = []
         eligible_first_audio: list[float] = []
         eligible_barge_in: list[float] = []
@@ -294,20 +296,33 @@ class SessionStore:
                             eligible_barge_in.append(float(turn["t_barge_in_ms"]))
             ratings_path = folder / "mos.jsonl"
             if ratings_path.is_file():
-                ratings.extend(
-                    json.loads(line)
-                    for line in ratings_path.read_text(encoding="utf-8").splitlines()
-                    if line.strip()
-                )
+                for line in ratings_path.read_text(encoding="utf-8").splitlines():
+                    if not line.strip():
+                        continue
+                    try:
+                        row = json.loads(line)
+                    except json.JSONDecodeError:
+                        invalid_rating_rows += 1
+                        continue
+                    linked = (
+                        isinstance(row, dict)
+                        and row.get("consent") is True
+                        and row.get("session_id") == folder.name
+                        and row.get("speaker_id") == speaker
+                        and row.get("age_bin") == meta.get("age_bin")
+                    )
+                    bounded = isinstance(row, dict) and all(
+                        type(row.get(key)) is int and 1 <= row[key] <= 5
+                        for key in required_rating_keys
+                    )
+                    if linked and bounded:
+                        ratings.append(row)
+                    else:
+                        invalid_rating_rows += 1
 
         rating_means = {}
         rating_ci95 = {}
-        required_rating_keys = ("naturalness", "latency", "interrupt_success", "satisfaction")
-        complete_ratings = [
-            row
-            for row in ratings
-            if all(isinstance(row.get(key), (int, float)) for key in required_rating_keys)
-        ]
+        complete_ratings = list(ratings)
         complete_rating_speakers = {
             str(row.get("speaker_id")) for row in complete_ratings if row.get("speaker_id")
         }
@@ -340,6 +355,7 @@ class SessionStore:
             "elderly_participants_at_least_2": len(elderly) >= 2,
             "complete_ratings_cover_participants": bool(participants)
             and participants <= complete_rating_speakers,
+            "rating_rows_valid": invalid_rating_rows == 0,
             "eligible_client_first_audio_present": bool(eligible_first_audio),
             "eligible_client_barge_in_present": bool(eligible_barge_in),
             "physical_gpu_12_to_24_gb": any(hardware_flags),
@@ -352,6 +368,7 @@ class SessionStore:
             "turns": turns_n,
             "ratings": len(ratings),
             "complete_ratings": len(complete_ratings),
+            "invalid_rating_rows": invalid_rating_rows,
             "rating_means": rating_means,
             "rating_mean_ci95": rating_ci95,
             "t_first_audio_p50_ms": float(np.percentile(first_audio, 50)) if first_audio else None,

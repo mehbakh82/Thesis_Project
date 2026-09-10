@@ -104,11 +104,14 @@ def test_study_summary_requires_and_recognizes_all_strict_gates(
         (session_dir / "mos.jsonl").write_text(
             json.dumps(
                 {
+                    "session_id": meta.session_id,
                     "speaker_id": speaker_id,
+                    "age_bin": meta.age_bin,
                     "naturalness": 4,
                     "latency": 4,
                     "interrupt_success": 5,
                     "satisfaction": 4,
+                    "consent": True,
                 }
             )
             + "\n",
@@ -142,6 +145,28 @@ def test_study_summary_requires_and_recognizes_all_strict_gates(
     assert report["retention_counts"] == {"audio": 0, "features": 0, "metrics": 5}
     assert all(report["requirements"].values())
     assert json.loads(out.read_text(encoding="utf-8"))["official_ready"] is True
+
+    invalid_path = store.session_dir("S0") / "mos.jsonl"
+    with invalid_path.open("a", encoding="utf-8") as handle:
+        handle.write(
+            json.dumps(
+                {
+                    "session_id": "S0",
+                    "speaker_id": "P0",
+                    "age_bin": "60plus",
+                    "naturalness": 6,
+                    "latency": 4,
+                    "interrupt_success": 5,
+                    "satisfaction": 4,
+                    "consent": True,
+                }
+            )
+            + "\n"
+        )
+    rejected = store.study_summary()
+    assert rejected["invalid_rating_rows"] == 1
+    assert rejected["requirements"]["rating_rows_valid"] is False
+    assert rejected["official_ready"] is False
 
 
 def test_filter_require_teacher(tmp_path: Path):
