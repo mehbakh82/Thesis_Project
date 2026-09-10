@@ -305,7 +305,7 @@ Owner: student for authentication; Codex can push afterward.
   expected HEAD, one author/committer identity, and passing full-history
   artifact/privacy/secret audit.
 - [x] GitHub Actions uses read-only permissions and immutable first-party Action
-  SHAs; it compiles, lints, type-checks, audits, tests, and enforces 71%
+  SHAs; it compiles, lints, type-checks, audits, tests, and enforces 74%
   branch-aware coverage.
 - [x] CI lints `src`/`tests`/`scripts`, parses tracked JSON/YAML/TOML,
   rejects forbidden/oversized artifacts and private paths, scans all reachable
@@ -1163,6 +1163,15 @@ Final engineering audit:
   teachers, and serialized initialized SpeechService use. The module rises from
   0% to 78% branch-aware coverage; the complete suite passes 261 tests at
   72.06%, and the enforced CI floor rises conservatively from 68% to 71%.
+- [x] Harden legacy multi-channel ingest and YouTube preparation with
+  deterministic local/remote, filtering, error, MP3 fallback, inventory, and
+  cleanup tests. Correct unsafe episode-level resume so an interrupted episode
+  resumes by utterance instead of silently losing remaining rows; preserve the
+  inventory's channel-qualified split rather than re-hashing a bare filename;
+  always remove temporary remote downloads; and emit timezone-aware completion
+  timestamps. Ingest coverage rises from 18% to 94%, preparation from 32% to
+  96%, and the complete suite passes 271 tests at 75.38%, allowing the enforced
+  floor to rise conservatively from 71% to 74%.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

@@ -7,6 +7,7 @@ import csv
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -110,65 +111,65 @@ def prepare(
             split = episode_split(stem)
             local_wav_root = wav_dir
             tmp = None
-            if wav_dir is None:
-                if not remote_chunks:
-                    raise ValueError("need --wav-dir or --remote-chunks")
-                tmp = Path(tempfile.mkdtemp(prefix="yt-ep-"))
-                rclone_copy_episode(remote_chunks, stem, tmp)
-                local_wav_root = tmp
-            assert local_wav_root is not None
-            for i, row in enumerate(rows, start=1):
-                caption = caption_ok(str(row.get("text") or row.get("transcript") or ""))
-                if caption is None:
-                    stats["skipped_caption"] += 1
-                    continue
-                wav_path = local_wav_root / chunk_name(stem, i)
-                if not wav_path.is_file():
-                    # some trees nest by channel
-                    matches = list(local_wav_root.rglob(chunk_name(stem, i)))
-                    if not matches:
+            try:
+                if wav_dir is None:
+                    if not remote_chunks:
+                        raise ValueError("need --wav-dir or --remote-chunks")
+                    tmp = Path(tempfile.mkdtemp(prefix="yt-ep-"))
+                    rclone_copy_episode(remote_chunks, stem, tmp)
+                    local_wav_root = tmp
+                assert local_wav_root is not None
+                for i, row in enumerate(rows, start=1):
+                    caption = caption_ok(str(row.get("text") or row.get("transcript") or ""))
+                    if caption is None:
+                        stats["skipped_caption"] += 1
+                        continue
+                    wav_path = local_wav_root / chunk_name(stem, i)
+                    if not wav_path.is_file():
+                        # some trees nest by channel
+                        matches = list(local_wav_root.rglob(chunk_name(stem, i)))
+                        if not matches:
+                            stats["missing_wav"] += 1
+                            continue
+                        wav_path = matches[0]
+                    try:
+                        audio, sr = load_wav_mono16k(wav_path)
+                    except Exception:
                         stats["missing_wav"] += 1
                         continue
-                    wav_path = matches[0]
-                try:
-                    audio, sr = load_wav_mono16k(wav_path)
-                except Exception:
-                    stats["missing_wav"] += 1
-                    continue
-                duration = len(audio) / sr
-                if duration < MIN_DURATION or duration > MAX_DURATION:
-                    stats["skipped_caption"] += 1
-                    continue
-                dest = out_dir / split / stem / f"{stem}_chunk_{i:04d}.wav"
-                write_wav(dest, audio, sr)
-                record = {
-                    "utt_id": f"{stem}_{i:04d}",
-                    "audio_filepath": str(dest),
-                    "audio_path": str(dest),
-                    "duration": round(duration, 3),
-                    "transcript_caption": caption,
-                    "transcript_nemo": None,
-                    "text": verbatim_normalize(caption),
-                    "speaker_id": None,
-                    "overlap_intervals": [],
-                    "interrupt_label": "none",
-                    "snr": None,
-                    "license": "pending-youtube-rights-review",
-                    "license_verified": False,
-                    "internal_research_authorized": False,
-                    "authorization_basis": "pending",
-                    "redistribution_allowed": False,
-                    "age_bin": None,
-                    "split": split,
-                    "source_csv": str(csv_path),
-                }
-                handles[split].write(json.dumps(record, ensure_ascii=False) + "\n")
-                stats["written"] += 1
-                stats["hours"] += duration / 3600.0
-            if tmp is not None:
-                import shutil
-
-                shutil.rmtree(tmp, ignore_errors=True)
+                    duration = len(audio) / sr
+                    if duration < MIN_DURATION or duration > MAX_DURATION:
+                        stats["skipped_caption"] += 1
+                        continue
+                    dest = out_dir / split / stem / f"{stem}_chunk_{i:04d}.wav"
+                    write_wav(dest, audio, sr)
+                    record = {
+                        "utt_id": f"{stem}_{i:04d}",
+                        "audio_filepath": str(dest),
+                        "audio_path": str(dest),
+                        "duration": round(duration, 3),
+                        "transcript_caption": caption,
+                        "transcript_nemo": None,
+                        "text": verbatim_normalize(caption),
+                        "speaker_id": None,
+                        "overlap_intervals": [],
+                        "interrupt_label": "none",
+                        "snr": None,
+                        "license": "pending-youtube-rights-review",
+                        "license_verified": False,
+                        "internal_research_authorized": False,
+                        "authorization_basis": "pending",
+                        "redistribution_allowed": False,
+                        "age_bin": None,
+                        "split": split,
+                        "source_csv": str(csv_path),
+                    }
+                    handles[split].write(json.dumps(record, ensure_ascii=False) + "\n")
+                    stats["written"] += 1
+                    stats["hours"] += duration / 3600.0
+            finally:
+                if tmp is not None:
+                    shutil.rmtree(tmp, ignore_errors=True)
     finally:
         for handle in handles.values():
             handle.close()

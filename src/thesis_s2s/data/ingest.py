@@ -7,7 +7,7 @@ import re
 import shutil
 import subprocess
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from thesis_s2s.audio import write_wav
@@ -216,7 +216,7 @@ def ingest_episodes(
 
     out_dir.mkdir(parents=True, exist_ok=True)
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    seen_ids, done_stems, hours0, written0 = (
+    seen_ids, _seen_stems, hours0, written0 = (
         _manifest_progress(manifest_path) if resume else (set(), set(), 0.0, 0)
     )
     stats = {
@@ -237,10 +237,10 @@ def ingest_episodes(
                 break
             if stats["hours"] >= max_hours:
                 break
-            key = (ep["channel"], ep["stem"])
-            if resume and key in done_stems:
-                stats["skipped_done_episodes"] += 1
-                continue
+            # A manifest row proves only that one utterance was written, not
+            # that its entire episode completed.  A previous run may have hit
+            # max_hours or been interrupted mid-episode, so resume at the
+            # utterance level below instead of dropping the remaining rows.
             tmp = Path(tempfile.mkdtemp(prefix="yt-ep-"))
             try:
                 rclone_copy(ep["chunks_remote"], tmp, include=f"{ep['stem']}_chunk_*.wav")
@@ -251,7 +251,13 @@ def ingest_episodes(
                 rows = iter_csv_rows(csv_path)
                 if len(rows) < min_episode_rows:
                     continue
-                split = episode_split(ep["stem"])
+                # Inventory assigns splits with a channel-qualified episode
+                # identity.  Preserve that decision so equal stems in two
+                # channels cannot be grouped inconsistently downstream.
+                split = str(
+                    ep.get("split")
+                    or episode_split(f"{ep['channel']}/{ep['stem']}")
+                )
                 stats["episodes"] += 1
                 for i, row in enumerate(rows, start=1):
                     if stats["hours"] >= max_hours:
@@ -327,7 +333,7 @@ def ingest_episodes(
             finally:
                 shutil.rmtree(tmp, ignore_errors=True)
     stats["hours"] = round(stats["hours"], 3)
-    stats["finished_at"] = datetime.utcnow().isoformat() + "Z"
+    stats["finished_at"] = datetime.now(timezone.utc).isoformat()
     write_json(manifest_path.with_name("ingest_stats.json"), stats)
     return stats
 
