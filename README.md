@@ -187,7 +187,7 @@ The provenance tests require full Git history (CI uses `fetch-depth: 0`). A
 `--depth 1` checkout intentionally cannot validate historical launcher hashes;
 use a normal clone for the final reproducibility audit.
 
-Use either a protected preconfigured rclone remote via `THESIS_RCLONE_REMOTE` or ephemeral `S3_*` environment variables (see `.env.example`). Credentials are never copied from rclone configuration, placed in the repository, or passed as command arguments.
+Use either a protected preconfigured rclone remote via `THESIS_RCLONE_REMOTE` or ephemeral `S3_*` environment variables (see `.env.example`). Credentials are never copied from rclone configuration, placed in the repository, or passed as command arguments. Rclone operations have a validated one-hour default timeout; set `RCLONE_TIMEOUT_SECONDS` explicitly for slower storage.
 If a key has ever been stored in a plaintext cheatsheet or exposed in output,
 rotate it and replace the document with environment-variable placeholders.
 

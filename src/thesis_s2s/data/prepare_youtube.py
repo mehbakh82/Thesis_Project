@@ -55,7 +55,11 @@ def caption_ok(text: str) -> str | None:
 
 
 def rclone_copy_episode(remote_chunks: str, stem: str, dest: Path) -> None:
-    from thesis_s2s.data.s3_inventory import rclone_prefix, rclone_process_env
+    from thesis_s2s.data.s3_inventory import (
+        rclone_prefix,
+        rclone_process_env,
+        rclone_timeout_seconds,
+    )
 
     dest.mkdir(parents=True, exist_ok=True)
     cmd = rclone_prefix() + [
@@ -67,7 +71,12 @@ def rclone_copy_episode(remote_chunks: str, stem: str, dest: Path) -> None:
         "--transfers",
         "8",
     ]
-    subprocess.run(cmd, check=True, env=rclone_process_env())
+    subprocess.run(
+        cmd,
+        check=True,
+        env=rclone_process_env(),
+        timeout=rclone_timeout_seconds(),
+    )
 
 
 def iter_csv_rows(csv_path: Path) -> list[dict]:

@@ -37,13 +37,20 @@ def test_rclone_wrappers_resolve_paths_and_build_safe_commands(tmp_path: Path, m
     monkeypatch.setattr(ingest, "rclone_prefix", lambda: ["rclone", "--config", "safe.conf"])
     monkeypatch.setattr(ingest, "rclone_path", lambda value: value.replace(":s3:", "named:"))
     monkeypatch.setattr(ingest, "rclone_process_env", lambda: {"SAFE": "1"})
+    monkeypatch.setattr(ingest, "rclone_timeout_seconds", lambda: 123.0)
     monkeypatch.setattr(ingest.subprocess, "run", fake_run)
 
     result = ingest.rclone_run(["lsf", ":s3:bucket/path"], check=False)
     assert result.stdout.startswith(" one.csv")
     assert calls[0] == (
         ["rclone", "--config", "safe.conf", "lsf", "named:bucket/path"],
-        {"check": False, "capture_output": True, "text": True, "env": {"SAFE": "1"}},
+        {
+            "check": False,
+            "capture_output": True,
+            "text": True,
+            "env": {"SAFE": "1"},
+            "timeout": 123.0,
+        },
     )
 
     run_args: list[list[str]] = []
@@ -499,6 +506,7 @@ def test_prepare_rclone_loader_and_cli(tmp_path: Path, monkeypatch, capsys):
     monkeypatch.setattr(prepare_youtube, "rclone_prefix", None, raising=False)
     monkeypatch.setattr("thesis_s2s.data.s3_inventory.rclone_prefix", lambda: ["rclone"])
     monkeypatch.setattr("thesis_s2s.data.s3_inventory.rclone_process_env", lambda: {"SAFE": "1"})
+    monkeypatch.setattr("thesis_s2s.data.s3_inventory.rclone_timeout_seconds", lambda: 123.0)
     monkeypatch.setattr(
         prepare_youtube.subprocess,
         "run",
@@ -507,7 +515,7 @@ def test_prepare_rclone_loader_and_cli(tmp_path: Path, monkeypatch, capsys):
     )
     prepare_youtube.rclone_copy_episode(":s3:chunks", "episode", tmp_path / "download")
     assert calls[0][0][-4:] == ["--include", "episode_chunk_*.wav", "--transfers", "8"]
-    assert calls[0][1] == {"check": True, "env": {"SAFE": "1"}}
+    assert calls[0][1] == {"check": True, "env": {"SAFE": "1"}, "timeout": 123.0}
 
     monkeypatch.setattr(
         "thesis_s2s.audio.read_wav",

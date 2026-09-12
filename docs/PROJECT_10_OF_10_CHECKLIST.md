@@ -1255,6 +1255,20 @@ Final engineering audit:
   existing legacy detector files (90/90 features). The complete local suite
   passes 314 tests at 78.895% branch-aware coverage and the core detector rises
   to 92.92%; the floor remains 78% because the exact result is below 79%.
+- [x] Confirm detector-model hardening in complete GitHub Actions run
+  `34683046737`, including every compile, lint, type, history/privacy,
+  evaluator-binding, dependency, 314-test/coverage, and scientific-risk gate.
+- [x] Harden all S3/rclone entry points without accessing or regenerating remote
+  data. Apply a positive finite, configurable one-hour timeout to inventory and
+  episode copies; reject malformed named remotes, endpoints containing URL
+  credentials/query/fragment, ambiguous bucket names, and provider strings;
+  label inventory status explicitly; write finite JSON with fsync and atomic
+  replacement; and make any partial listing exit nonzero while recording only
+  redacted error type/return code rather than raw stderr. Existing tracked S3
+  evidence remains untouched. The complete local suite passes 320 tests at
+  79.224% branch-aware coverage and S3 inventory rises from 57% to 87.43%. The
+  floor remains 78% because raising it to 79% would leave only 0.224 points of
+  non-flaky margin.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

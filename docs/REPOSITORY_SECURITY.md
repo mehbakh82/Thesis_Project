@@ -33,7 +33,7 @@ Status date: 2026-09-12
   `enabled=true`, `paused=false`.
 - CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 51
   source files against the Python 3.10 target.
-- The measured branch-aware coverage is 78.89%; the enforced floor is 78%,
+- The measured branch-aware coverage is 79.22%; the enforced floor is 78%,
   raised from 35%, 60%, 68%, 71%, 74%, 75%, 76%, and 77% while retaining a small
   non-flaky margin.
   The CLI-exposed batch re-ASR pipeline is covered at 78%, multi-channel
@@ -64,6 +64,13 @@ Status date: 2026-09-12
   sklearn pipeline and feature width while retaining read-only compatibility
   with both existing trusted local legacy models. Pickle loading remains
   explicitly restricted to project-created trusted files.
+- Every inventory/ingestion rclone subprocess has a positive finite configurable
+  timeout (one hour by default). Environment-backed endpoint, bucket, provider,
+  and named-remote values are validated before use; endpoints containing URL
+  credentials, queries, or fragments are rejected. Inventory reports are
+  status-labelled, finite JSON written with fsync and atomic replacement, and
+  incomplete listings exit nonzero while retaining only error type/return code,
+  never raw remote stderr. S3 inventory coverage is 87% after these regressions.
 - The general requirements audit remains fail-closed on unreviewed drift. On
   2026-09-09, pip-audit began reporting CVE-2026-69112 in Accelerate 1.14.0.
   The scanner feed later stopped mapping it and the resolver advanced to 1.15.0.

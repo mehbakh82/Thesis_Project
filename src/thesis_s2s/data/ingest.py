@@ -24,7 +24,12 @@ from thesis_s2s.data.prepare_youtube import (
     load_wav_mono16k,
 )
 from thesis_s2s.data.quality import estimate_snr_db
-from thesis_s2s.data.s3_inventory import rclone_path, rclone_prefix, rclone_process_env
+from thesis_s2s.data.s3_inventory import (
+    rclone_path,
+    rclone_prefix,
+    rclone_process_env,
+    rclone_timeout_seconds,
+)
 from thesis_s2s.data.verbatim import verbatim_normalize
 from thesis_s2s.metrics import write_json
 
@@ -38,7 +43,12 @@ def rclone_run(args: list[str], check: bool = True) -> subprocess.CompletedProce
     resolved = [rclone_path(value) if value.startswith(":s3:") else value for value in args]
     cmd = rclone_prefix() + resolved
     return subprocess.run(
-        cmd, check=check, capture_output=True, text=True, env=rclone_process_env()
+        cmd,
+        check=check,
+        capture_output=True,
+        text=True,
+        env=rclone_process_env(),
+        timeout=rclone_timeout_seconds(),
     )
 
 

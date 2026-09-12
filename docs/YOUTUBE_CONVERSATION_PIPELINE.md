@@ -107,7 +107,9 @@ The code validates the remote name and maps internal `:s3:` paths without
 reading, copying, or printing credentials from rclone configuration. The
 alternative is ephemeral `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`,
 `S3_ENDPOINT`, and `S3_BUCKET=asr` environment variables. Never place secrets
-in the repository or command arguments.
+in the repository or command arguments. Operations time out after one hour by
+default; set a positive finite `RCLONE_TIMEOUT_SECONDS` only when slower remote
+storage requires it.
 
 ```bash
 # Fast: CSV-only inventory and deterministic selection.
