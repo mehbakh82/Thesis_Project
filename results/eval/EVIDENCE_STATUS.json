@@ -1,6 +1,6 @@
 {
   "schema_version": 12,
-  "generated_at": "2026-09-10T08:54:11.676473+00:00",
+  "generated_at": "2026-09-12T10:27:23.650218+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -792,6 +792,7 @@
       "participants_5_to_10": false,
       "elderly_participants_at_least_2": false,
       "complete_ratings_cover_participants": false,
+      "turn_rows_valid": false,
       "rating_rows_valid": false,
       "eligible_client_first_audio_present": false,
       "eligible_client_barge_in_present": false,

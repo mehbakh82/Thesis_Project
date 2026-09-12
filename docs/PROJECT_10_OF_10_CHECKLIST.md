@@ -1346,6 +1346,8 @@ Final engineering audit:
   stored turn rows fail the canonical study gate. The complete local suite
   passes 358 tests at 80.323% branch-aware coverage, with the recorder at
   90.35%; the CI floor remains 79%.
+- [x] Confirm that recorder hardening in complete GitHub Actions run
+  `34688277409` at `a02363a`; all remote gates passed.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

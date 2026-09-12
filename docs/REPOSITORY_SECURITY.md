@@ -182,6 +182,10 @@ Status date: 2026-09-12
   `34687281188` on 2026-09-12, including 351 tests, full-history/privacy,
   deterministic evidence-summary binding, dependency audits, and the pinned
   scientific-risk drift gate.
+- The consented-session persistence hardening at `a02363a` passed complete
+  GitHub Actions run `34688277409` on 2026-09-12, including 358 tests and every
+  compile, lint, type, privacy/history, frozen-source, dependency, coverage, and
+  scientific-risk gate.
 
 ## Accepted pinned-training compatibility risks
 
