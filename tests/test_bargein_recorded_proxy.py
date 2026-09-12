@@ -4,6 +4,7 @@ from thesis_s2s.audio import write_wav
 from thesis_s2s.bargein.features import FeatureConfig
 from thesis_s2s.bargein.recorded_proxy import (
     RecordedEvent,
+    _strictly_above_accuracy_target,
     discover_events,
     extract_feature_rows,
     select_balanced_events,
@@ -62,6 +63,31 @@ def test_event_discovery_keeps_proxy_interrupt_and_clean_turn_separate() -> None
     assert {event.kind for event in events} == {"interrupt", "clean_turn"}
     assert {event.label for event in events} == {0, 1}
     assert all(event.session_id for event in events)
+
+
+def test_clean_event_discovery_checks_every_adjacent_speaker_boundary() -> None:
+    row = _row("three-turns", overlap=False)
+    row["segments"] = [
+        {"start": 0.0, "end": 1.0, "speaker": "A", "text": "یک"},
+        {"start": 1.3, "end": 2.0, "speaker": "B", "text": "دو"},
+        {"start": 2.3, "end": 3.0, "speaker": "C", "text": "سه"},
+    ]
+    row["speaker_turns"] = [
+        {"start": 0.0, "end": 1.0, "speaker": "A"},
+        {"start": 1.3, "end": 2.0, "speaker": "B"},
+        {"start": 2.3, "end": 3.0, "speaker": "C"},
+    ]
+
+    events = discover_events([row], _config())
+
+    assert len(events) == 2
+    assert {event.kind for event in events} == {"clean_turn"}
+
+
+def test_accuracy_target_is_strictly_greater_and_finite() -> None:
+    assert _strictly_above_accuracy_target(0.80001, 0.8) is True
+    assert _strictly_above_accuracy_target(0.8, 0.8) is False
+    assert _strictly_above_accuracy_target(float("nan"), 0.8) is False
 
 
 def test_seeded_session_split_is_deterministic() -> None:

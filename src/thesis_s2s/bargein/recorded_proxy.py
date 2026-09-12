@@ -170,10 +170,7 @@ def discover_events(rows: list[dict[str, Any]], config: dict[str, Any]) -> list[
             )
 
         segments = _merge_same_speaker(_segments(row))
-        index = 0
-        while index + 1 < len(segments):
-            user, response = segments[index], segments[index + 1]
-            index += 2
+        for user, response in zip(segments, segments[1:], strict=False):
             if (
                 user.speaker == response.speaker
                 or response.start - user.end > float(event_cfg["maximum_clean_gap_s"])
@@ -338,6 +335,12 @@ def select_validation_threshold(
     probabilities: np.ndarray,
     candidates: list[float],
 ) -> tuple[float, list[dict[str, Any]]]:
+    if y_true.ndim != 1 or probabilities.ndim != 1 or len(y_true) != len(probabilities):
+        raise ValueError("validation labels and probabilities must be aligned one-dimensional arrays")
+    if len(y_true) == 0 or not np.isfinite(probabilities).all():
+        raise ValueError("validation labels/probabilities must be non-empty and finite")
+    if not candidates or any(not np.isfinite(value) or value < 0 or value > 1 for value in candidates):
+        raise ValueError("threshold candidates must be finite probabilities")
     rows: list[dict[str, Any]] = []
     for threshold in candidates:
         predicted = (probabilities >= threshold).astype(np.int32)
@@ -367,6 +370,12 @@ def group_bootstrap_intervals(
     seed: int,
     samples: int = 2000,
 ) -> dict[str, list[float]]:
+    if y_true.ndim != 1 or y_pred.ndim != 1 or len(y_true) != len(y_pred):
+        raise ValueError("bootstrap labels and predictions must be aligned one-dimensional arrays")
+    if len(groups) != len(y_true) or not groups:
+        raise ValueError("bootstrap groups must be non-empty and aligned with predictions")
+    if samples <= 0:
+        raise ValueError("bootstrap samples must be positive")
     group_names = sorted(set(groups))
     indices = {
         group: np.asarray(
@@ -389,6 +398,21 @@ def group_bootstrap_intervals(
         bounds: np.ndarray = np.asarray(np.percentile(rows, [2.5, 97.5]))
         intervals[name] = [round(float(bound), 4) for bound in bounds]
     return intervals
+
+
+def _strictly_above_accuracy_target(accuracy: Any, target: Any) -> bool:
+    try:
+        accuracy_value = float(accuracy)
+        target_value = float(target)
+    except (TypeError, ValueError):
+        return False
+    return bool(
+        np.isfinite(accuracy_value)
+        and np.isfinite(target_value)
+        and 0.0 <= accuracy_value <= 1.0
+        and 0.0 <= target_value <= 1.0
+        and accuracy_value > target_value
+    )
 
 
 def _event_counts(events: list[RecordedEvent]) -> dict[str, Any]:
@@ -570,7 +594,9 @@ def evaluate_recorded_proxy(
                 zero_division=0,
             ),
             "recorded_proxy_accuracy_above_80_percent": (
-                float(test_scores["accuracy"]) >= float(config["threshold"]["test_target_accuracy"])
+                _strictly_above_accuracy_target(
+                    test_scores["accuracy"], config["threshold"]["test_target_accuracy"]
+                )
             ),
             "official_target_satisfied": False,
         },

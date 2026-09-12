@@ -35,7 +35,7 @@ def clip_from_labeled_wav(
 ) -> DuplexClip:
     feat_cfg = feat_cfg or FeatureConfig()
     if kind not in LABELS:
-        kind = "none"
+        raise ValueError(f"unknown interruption label: {kind!r}")
     n = max(1, 1 + (len(audio) - feat_cfg.win) // feat_cfg.hop)
     labels: np.ndarray = np.zeros(n, dtype=np.int32)
     if kind == "interrupt":
@@ -57,27 +57,44 @@ def clip_from_labeled_wav(
 
 def clips_from_jsonl(jsonl: Path, *, max_clips: int | None = None) -> list[DuplexClip]:
     clips: list[DuplexClip] = []
+    if max_clips is not None and max_clips < 0:
+        raise ValueError("max_clips must be non-negative")
+    if max_clips == 0:
+        return clips
     if not jsonl.is_file():
         return clips
-    for line in jsonl.read_text(encoding="utf-8").splitlines():
+    for line_number, line in enumerate(jsonl.read_text(encoding="utf-8").splitlines(), start=1):
         if not line.strip():
             continue
-        row = json.loads(line)
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"invalid JSONL at {jsonl}:{line_number}: {exc.msg}") from exc
+        if not isinstance(row, dict):
+            raise ValueError(f"expected JSON object at {jsonl}:{line_number}")
         path = (
             row.get("interaction_audio_filepath")
             or row.get("audio_filepath")
             or row.get("audio_path")
         )
-        if not path or not Path(path).is_file():
+        if not path:
             continue
+        if not Path(path).is_file():
+            raise FileNotFoundError(f"recorded detector audio missing at {jsonl}:{line_number}: {path}")
         kind = str(row.get("interrupt_label") or "none")
+        if kind not in LABELS:
+            raise ValueError(f"unknown interruption label at {jsonl}:{line_number}: {kind!r}")
         try:
             audio, _ = read_wav(path)
-        except Exception:
-            continue
-        group_id = str(
-            row.get("speaker_id") or row.get("session_id") or row.get("utt_id") or "unknown"
-        )
+        except Exception as exc:
+            raise RuntimeError(
+                f"failed to read recorded detector audio at {jsonl}:{line_number}: {path}"
+            ) from exc
+        group_id = str(row.get("speaker_id") or row.get("session_id") or "").strip()
+        if not group_id:
+            raise ValueError(
+                f"recorded detector row lacks speaker/session group at {jsonl}:{line_number}"
+            )
         clips.append(clip_from_labeled_wav(audio, kind, group_id=group_id))
         if max_clips is not None and len(clips) >= max_clips:
             break
@@ -90,25 +107,32 @@ def feature_rows_from_jsonl(jsonl: Path) -> list[dict]:
     rows: list[dict] = []
     if not jsonl.is_file():
         return rows
-    for line in jsonl.read_text(encoding="utf-8").splitlines():
+    for line_number, line in enumerate(jsonl.read_text(encoding="utf-8").splitlines(), start=1):
         if not line.strip():
             continue
-        row = json.loads(line)
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"invalid JSONL at {jsonl}:{line_number}: {exc.msg}") from exc
+        if not isinstance(row, dict):
+            raise ValueError(f"expected JSON object at {jsonl}:{line_number}")
         vector = np.asarray(row.get("privacy_feature_vector") or [], dtype=np.float32)
-        kind = str(row.get("interrupt_label") or "none")
-        if (
-            vector.ndim != 1
-            or vector.size == 0
-            or not np.isfinite(vector).all()
-            or kind not in LABELS
-        ):
+        if vector.size == 0:
             continue
+        kind = str(row.get("interrupt_label") or "none")
+        if vector.ndim != 1 or not np.isfinite(vector).all():
+            raise ValueError(f"invalid privacy feature vector at {jsonl}:{line_number}")
+        if kind not in LABELS:
+            raise ValueError(f"unknown interruption label at {jsonl}:{line_number}: {kind!r}")
+        group = str(row.get("speaker_id") or row.get("session_id") or "").strip()
+        if not group:
+            raise ValueError(f"feature row lacks speaker/session group at {jsonl}:{line_number}")
         rows.append(
             {
                 "vector": vector,
                 "label": LABELS.index(kind),
                 "binary": int(kind == "interrupt"),
-                "group": str(row.get("speaker_id") or row.get("session_id") or "unknown"),
+                "group": group,
                 "kind": kind,
             }
         )
@@ -160,6 +184,10 @@ def train_feature_detector(
     train_groups = {str(row["group"]) for row in train_rows}
     report = {
         "evidence_class": "recorded_features_heldout",
+        "label_source": "session_event_metadata_not_independent_human_review",
+        "human_verified_labels": 0,
+        "official_detector_eligible": False,
+        "official_target_satisfied": False,
         "privacy_scope": "lossy aggregate features; no waveform retained",
         "feature_schema": "energy-zcr-f0-voicing-mfcc13-delta13.context400.mean-std-max.v1",
         "n": len(test_rows),
@@ -240,6 +268,9 @@ def train_and_eval(
     )
     hops = [_hop_cpu_ms(detector, c.audio) for c in test_s[:8]]
     report["evidence_class"] = "synthetic_proxy"
+    report["human_verified_labels"] = 0
+    report["official_detector_eligible"] = False
+    report["official_target_satisfied"] = False
     report["model_path"] = portable_path(model_path, root=project_root())
     report["n_train"] = len(train)
     report["n_test_synthetic"] = len(test_s)
@@ -262,6 +293,10 @@ def train_and_eval(
             out_json=out_dir / "recorded_heldout_report.json",
         )
         rec_report["evidence_class"] = "recorded_audio_heldout"
+        rec_report["label_source"] = "manifest_event_metadata_not_independent_human_review"
+        rec_report["human_verified_labels"] = 0
+        rec_report["official_detector_eligible"] = False
+        rec_report["official_target_satisfied"] = False
         rec_report["n"] = len(test_r)
         rec_report["group_overlap"] = report["recorded_group_overlap"]
         rec_report["split_unit"] = "speaker_or_session"

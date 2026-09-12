@@ -1225,6 +1225,22 @@ Final engineering audit:
   filtered JSONL with standards-compliant finite JSON. The complete suite
   passes 301 tests at 78.625% branch-aware coverage, allowing the enforced
   floor to rise from 77% to 78%.
+- [x] Confirm the filtering hardening in complete GitHub Actions run
+  `34682161682`, including all history/privacy, evaluator-binding, dependency,
+  test, coverage, and scientific-risk gates.
+- [x] Harden future interruption-detector evidence without changing the frozen
+  proxy. Recorded audio/features now fail closed on malformed rows, missing
+  referenced audio, corrupt or non-finite feature vectors, unknown labels, and
+  absent speaker/session groups rather than silently dropping or leakage-prone
+  grouping. Clean negatives cover every adjacent speaker boundary; threshold
+  and grouped-bootstrap inputs are validated; and the proposal criterion is
+  implemented as accuracy strictly greater than 80%. Every training report now
+  states that metadata labels are not independent human review, that
+  `human_verified_labels=0`, and that official detector eligibility/acceptance
+  is false. The frozen 132-event result remains byte-for-byte untouched and is
+  still only an automatic-label proxy. The complete local suite passes 306
+  tests at 78.620% branch-aware coverage; the enforced floor remains 78% to
+  retain a non-flaky margin.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.
