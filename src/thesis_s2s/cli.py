@@ -968,7 +968,8 @@ def main(argv: list[str] | None = None) -> None:
         latency = None
         for p in paths:
             latency = run_latency_bench(path=p)
-        assert latency is not None
+        if latency is None:  # defensive: argparse guarantees at least one path
+            raise RuntimeError("latency benchmark produced no report")
         interrupt = run_interrupt_bench()
         wer_report = run_reply_wer()
         write_eval_summary(latency, interrupt, wer_report)

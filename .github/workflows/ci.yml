@@ -27,7 +27,11 @@ jobs:
       - name: Compile
         run: python -m compileall -q src tests scripts
       - name: Lint
-        run: ruff check src tests scripts
+        run: |
+          ruff check src tests scripts
+          # Production assertions must retain behavior under python -O, and
+          # deterministic legacy hashes must declare non-security use.
+          ruff check --select S101,S324 src
       - name: Types
         run: mypy --no-incremental src/thesis_s2s
       - name: Tracked artifact, history, privacy, and secret audit

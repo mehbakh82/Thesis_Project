@@ -71,7 +71,8 @@ class DummyTalker(FormantTalker):
         from thesis_s2s.runtime.tts import first_packet, formant_synthesize
 
         if text is None:
-            assert self._cached_first is not None
+            if self._cached_first is None:
+                raise RuntimeError("dummy talker first packet is unavailable")
             return self._cached_first
         self.backend = "formant"
         return first_packet(formant_synthesize(text))

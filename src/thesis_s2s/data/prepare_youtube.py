@@ -26,7 +26,9 @@ BRACKET = re.compile(r"\[.*?\]|&nbsp;", re.DOTALL)
 
 
 def episode_split(stem: str, val_pct: int = 3, test_pct: int = 5) -> str:
-    bucket = int(hashlib.md5(stem.encode("utf-8")).hexdigest(), 16) % 100
+    bucket = int(
+        hashlib.md5(stem.encode("utf-8"), usedforsecurity=False).hexdigest(), 16
+    ) % 100
     if bucket < test_pct:
         return "test"
     if bucket < test_pct + val_pct:
@@ -127,7 +129,8 @@ def prepare(
                     tmp = Path(tempfile.mkdtemp(prefix="yt-ep-"))
                     rclone_copy_episode(remote_chunks, stem, tmp)
                     local_wav_root = tmp
-                assert local_wav_root is not None
+                if local_wav_root is None:  # defensive: validated or created above
+                    raise RuntimeError("local WAV root was not resolved")
                 for i, row in enumerate(rows, start=1):
                     caption = caption_ok(str(row.get("text") or row.get("transcript") or ""))
                     if caption is None:

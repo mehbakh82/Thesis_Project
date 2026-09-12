@@ -1349,6 +1349,11 @@ Final engineering audit:
   90.35%; the CI floor remains 79%.
 - [x] Confirm that recorder hardening in complete GitHub Actions run
   `34688277409` at `a02363a`; all remote gates passed.
+- [x] Run a security-specific Ruff audit beyond the default rules. Remove all
+  optimization-sensitive assertions and implicit security-MD5 warnings from
+  production source; use explicit fail-closed invariant errors and declare the
+  deterministic episode split hash as non-security. Enforce `S101,S324` for
+  `src` in CI. All 358 local tests pass at 80.222% branch-aware coverage.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

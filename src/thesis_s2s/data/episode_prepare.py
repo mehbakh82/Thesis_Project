@@ -222,7 +222,8 @@ def reconstruct_episode_windows(
                 close_window()
                 open_window()
                 gap_samples = 0
-            assert handle is not None
+            if handle is None:  # defensive: open_window initializes the writer
+                raise RuntimeError("episode window writer is not open")
             if gap_samples:
                 handle.writeframesraw(b"\x00\x00" * gap_samples)
                 cursor_samples += gap_samples

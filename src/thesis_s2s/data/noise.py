@@ -168,7 +168,8 @@ def annotate_noise_conditions(
                     )
                 counts[str(row["noise_condition"])] += 1
                 handle.write(json.dumps(row, ensure_ascii=False) + "\n")
-        assert temporary is not None
+        if temporary is None:  # defensive: NamedTemporaryFile sets it before replacement
+            raise RuntimeError("noise annotation temporary file was not created")
         temporary.replace(out_jsonl)
     except BaseException:
         if temporary is not None:

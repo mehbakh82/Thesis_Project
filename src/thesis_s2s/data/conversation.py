@@ -640,7 +640,8 @@ def select_conversation_reserve_by_yield(
             temporary = Path(handle.name)
             for row in selected_rows:
                 handle.write(json.dumps(row, ensure_ascii=False) + "\n")
-        assert temporary is not None
+        if temporary is None:  # defensive: NamedTemporaryFile sets it before replacement
+            raise RuntimeError("conversation selection temporary file was not created")
         temporary.replace(out_jsonl)
     except BaseException:
         if temporary is not None:

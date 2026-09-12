@@ -33,7 +33,7 @@ Status date: 2026-09-12
   `enabled=true`, `paused=false`.
 - CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 51
   source files against the Python 3.10 target.
-- The measured branch-aware coverage is 80.32%; the enforced floor is 79%,
+- The measured branch-aware coverage is 80.22%; the enforced floor is 79%,
   raised from 35%, 60%, 68%, 71%, 74%, 75%, 76%, 77%, and 78% while retaining a small
   non-flaky margin. The floor is not raised to 80% because the remaining
   cross-interpreter margin is deliberately kept non-brittle.
@@ -192,6 +192,16 @@ Status date: 2026-09-12
   `submission-final-audited-2026-09-12` targets that exact commit and passed tag
   run `34689102831`; the machine-readable attestation records the resolved tag
   object and both successful CI runs.
+- A final security-rule audit removed every optimization-sensitive `assert`
+  and implicit security-hash warning from production source. Defensive
+  invariants now raise explicit errors under both normal Python and
+  `python -O`; the stable episode split declares MD5 as non-security use. CI
+  permanently enforces Ruff `S101,S324` across `src`. The complete local suite
+  remains 358/358 at 80.222% branch-aware coverage. Remaining Ruff security
+  diagnostics were reviewed as fixed argument-vector subprocesses, validated
+  local HTTP clients, the explicitly trusted project-created detector pickle,
+  or frozen historical evaluator scripts; they are not silently enabled as a
+  blanket security ruleset.
 
 ## Accepted pinned-training compatibility risks
 
