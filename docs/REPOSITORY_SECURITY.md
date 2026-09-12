@@ -33,7 +33,7 @@ Status date: 2026-09-12
   `enabled=true`, `paused=false`.
 - CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 51
   source files against the Python 3.10 target.
-- The measured branch-aware coverage is 78.62%; the enforced floor is 78%,
+- The measured branch-aware coverage is 78.89%; the enforced floor is 78%,
   raised from 35%, 60%, 68%, 71%, 74%, 75%, 76%, and 77% while retaining a small
   non-flaky margin.
   The CLI-exposed batch re-ASR pipeline is covered at 78%, multi-channel
@@ -43,8 +43,8 @@ Status date: 2026-09-12
   after atomic-copy and stale-output regressions. Core conversation,
   Moshi-export, QA-policy, rights, and preflight modules are substantially
   above the aggregate; filtering and quality validation are at 74% and 76%.
-  Recorded-proxy discovery and detector training are at 64% and 70% after
-  focused integrity regressions.
+  Recorded-proxy discovery, detector training, and the core detector are at
+  64%, 70%, and 93% after focused integrity regressions.
 - Future detector ingestion and evaluation fail closed on malformed JSONL,
   missing referenced audio, corrupt/non-finite features, unknown labels,
   absent speaker/session grouping, invalid threshold candidates, and invalid
@@ -55,6 +55,15 @@ Status date: 2026-09-12
   metadata labels, zero human-verified labels, and official ineligibility.
   These controls apply to future runs; they do not regenerate or reclassify the
   frozen 81.06% automatic-label proxy.
+- Detector fitting no longer truncates mismatched frame labels or accepts an
+  empty, non-finite, wrong-width, non-integral, out-of-schema, or single-class
+  training set. Empty audio deterministically produces no interruption, model
+  replacement happens only after a successful fit, and prediction/evaluation
+  inputs are schema-checked. Fitted detector files are written with fsync plus
+  atomic replacement and a versioned payload; loading validates the fitted
+  sklearn pipeline and feature width while retaining read-only compatibility
+  with both existing trusted local legacy models. Pickle loading remains
+  explicitly restricted to project-created trusted files.
 - The general requirements audit remains fail-closed on unreviewed drift. On
   2026-09-09, pip-audit began reporting CVE-2026-69112 in Accelerate 1.14.0.
   The scanner feed later stopped mapping it and the resolver advanced to 1.15.0.

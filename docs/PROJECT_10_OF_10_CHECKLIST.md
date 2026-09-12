@@ -1241,6 +1241,20 @@ Final engineering audit:
   still only an automatic-label proxy. The complete local suite passes 306
   tests at 78.620% branch-aware coverage; the enforced floor remains 78% to
   retain a non-flaky margin.
+- [x] Confirm that detector-evidence hardening in complete GitHub Actions run
+  `34682630400`, including all compile, lint, type, history/privacy,
+  evaluator-binding, dependency, 306-test/coverage, and scientific-risk gates.
+- [x] Make the classical detector's fit/runtime artifact fail closed. Reject
+  empty or mismatched frame supervision, wrong-width/non-finite features,
+  non-integral/out-of-schema labels, and single-class training; never classify
+  empty input as an interruption; validate evaluation/mask alignment; train a
+  replacement pipeline before mutating the live detector; refuse to save an
+  unfitted model; and fsync/atomically replace a versioned model payload.
+  Loading is explicitly trusted-local only and validates fitted component
+  types plus the exact feature width while remaining compatible with both
+  existing legacy detector files (90/90 features). The complete local suite
+  passes 314 tests at 78.895% branch-aware coverage and the core detector rises
+  to 92.92%; the floor remains 78% because the exact result is below 79%.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

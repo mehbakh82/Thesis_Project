@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import os
+import pickle
+import tempfile
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -11,6 +14,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import classification_report
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.utils.validation import check_is_fitted
 
 from thesis_s2s.bargein.features import (
     FeatureConfig,
@@ -21,6 +25,7 @@ from thesis_s2s.metrics import binary_score_confidence_intervals, binary_scores,
 
 LABELS = ("none", "interrupt", "backchannel", "noise")
 POSITIVE = "interrupt"
+MODEL_SCHEMA_VERSION = 1
 
 
 @dataclass
@@ -43,17 +48,27 @@ class EnergyVadBaseline:
     def predict_frames(
         self, audio: np.ndarray, assistant_mask: np.ndarray | None = None
     ) -> np.ndarray:
-        feats = frame_feature_matrix(audio, self.feat_cfg)
+        samples = _validated_audio(audio)
+        if samples.size == 0:
+            return np.zeros(0, dtype=np.int32)
+        feats = frame_feature_matrix(samples, self.feat_cfg)
         energy = feats[:, 0]
         zcr = feats[:, 1]
         pred = ((energy > self.det.energy_vad_db) & (zcr < self.det.energy_vad_zcr_max)).astype(
             np.int32
         )
         if assistant_mask is not None:
+            mask_samples = np.asarray(assistant_mask, dtype=np.float32)
+            if (
+                mask_samples.ndim != 1
+                or mask_samples.size == 0
+                or not np.isfinite(mask_samples).all()
+            ):
+                raise ValueError("assistant_mask must be a non-empty finite one-dimensional array")
             hop = self.feat_cfg.hop
             mask = np.array(
                 [
-                    assistant_mask[min(len(assistant_mask) - 1, i * hop)] > 0.5
+                    mask_samples[min(len(mask_samples) - 1, i * hop)] > 0.5
                     for i in range(len(pred))
                 ]
             )
@@ -61,7 +76,15 @@ class EnergyVadBaseline:
         return pred
 
     def predict_binary(self, audio: np.ndarray, assistant_mask: np.ndarray | None = None) -> int:
-        return int(self.predict_frames(audio, assistant_mask).max() if len(audio) else 0)
+        frames = self.predict_frames(audio, assistant_mask)
+        return int(frames.max()) if len(frames) else 0
+
+
+def _validated_audio(audio: np.ndarray) -> np.ndarray:
+    samples = np.asarray(audio, dtype=np.float32)
+    if samples.ndim != 1 or not np.isfinite(samples).all():
+        raise ValueError("audio must be a finite one-dimensional array")
+    return samples
 
 
 class BargeinDetector:
@@ -70,7 +93,11 @@ class BargeinDetector:
     def __init__(self, feat_cfg: FeatureConfig | None = None, det: DetectorConfig | None = None):
         self.feat_cfg = feat_cfg or FeatureConfig()
         self.det = det or DetectorConfig()
-        self.pipeline = Pipeline(
+        self.pipeline = self._new_pipeline()
+        self.fitted = False
+
+    def _new_pipeline(self) -> Pipeline:
+        return Pipeline(
             [
                 ("scale", StandardScaler()),
                 (
@@ -85,42 +112,78 @@ class BargeinDetector:
                 ),
             ]
         )
-        self.fitted = False
+
+    @property
+    def vector_width(self) -> int:
+        return 3 * (4 + 2 * self.feat_cfg.n_mfcc)
 
     def _vectors(self, audio: np.ndarray) -> np.ndarray:
-        feats = frame_feature_matrix(audio, self.feat_cfg)
+        samples = _validated_audio(audio)
+        if samples.size == 0:
+            return np.zeros((0, self.vector_width), dtype=np.float32)
+        feats = frame_feature_matrix(samples, self.feat_cfg)
         return streaming_context_vectors(feats, self.feat_cfg.context_frames)
 
     def fit_vectors(self, vectors: np.ndarray, labels: np.ndarray) -> BargeinDetector:
         """Fit already-extracted privacy-reduced context vectors."""
 
         x = np.asarray(vectors, dtype=np.float32)
-        y = np.asarray(labels, dtype=int)
-        if x.ndim != 2 or len(x) != len(y) or len(x) == 0:
-            raise ValueError("vectors must be a non-empty 2-D array aligned with labels")
-        if not np.isfinite(x).all() or not np.isin(y, range(len(LABELS))).all():
+        raw_y = np.asarray(labels)
+        if (
+            x.ndim != 2
+            or x.shape[1] != self.vector_width
+            or raw_y.ndim != 1
+            or len(x) != len(raw_y)
+            or len(x) == 0
+        ):
+            raise ValueError(
+                f"vectors must be a non-empty 2-D array with {self.vector_width} columns "
+                "aligned with one-dimensional labels"
+            )
+        try:
+            numeric_y = raw_y.astype(np.float64)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("labels must use the integer detector schema") from exc
+        if (
+            not np.isfinite(x).all()
+            or not np.isfinite(numeric_y).all()
+            or not np.equal(numeric_y, np.floor(numeric_y)).all()
+        ):
             raise ValueError(
                 "feature vectors must be finite and labels must use the detector schema"
             )
-        self.pipeline.fit(x, y)
+        y = numeric_y.astype(np.int32)
+        if not np.isin(y, range(len(LABELS))).all():
+            raise ValueError(
+                "feature vectors must be finite and labels must use the detector schema"
+            )
+        if np.unique(y).size < 2:
+            raise ValueError("detector training requires at least two label classes")
+        candidate = self._new_pipeline()
+        candidate.fit(x, y)
+        self.pipeline = candidate
         self.fitted = True
         return self
 
     def fit(
         self, audios: Sequence[np.ndarray], frame_labels: Sequence[np.ndarray]
     ) -> BargeinDetector:
+        if len(audios) != len(frame_labels) or len(audios) == 0:
+            raise ValueError("audios and frame_labels must be non-empty aligned sequences")
         xs = []
         ys = []
-        for audio, labels in zip(audios, frame_labels, strict=True):
+        for index, (audio, labels) in enumerate(zip(audios, frame_labels, strict=True)):
             vec = self._vectors(audio)
-            n = min(len(vec), len(labels))
-            xs.append(vec[:n])
-            ys.append(np.asarray(labels[:n], dtype=int))
+            label_array = np.asarray(labels)
+            if vec.shape[0] == 0 or label_array.ndim != 1 or len(vec) != len(label_array):
+                raise ValueError(
+                    f"audio {index} must be non-empty and have one label per feature frame"
+                )
+            xs.append(vec)
+            ys.append(label_array)
         x = np.concatenate(xs, axis=0)
         y = np.concatenate(ys, axis=0)
-        self.pipeline.fit(x, y)
-        self.fitted = True
-        return self
+        return self.fit_vectors(x, y)
 
     def predict_frames(self, audio: np.ndarray) -> np.ndarray:
         if not self.fitted:
@@ -134,8 +197,10 @@ class BargeinDetector:
         if not self.fitted:
             raise RuntimeError("detector is not fitted")
         x = np.asarray(vectors, dtype=np.float32)
-        if x.ndim != 2 or not np.isfinite(x).all():
-            raise ValueError("vectors must be a finite 2-D array")
+        if x.ndim != 2 or x.shape[1] != self.vector_width or not np.isfinite(x).all():
+            raise ValueError(f"vectors must be a finite 2-D array with {self.vector_width} columns")
+        if len(x) == 0:
+            return np.zeros(0, dtype=np.int32)
         return self.pipeline.predict(x).astype(np.int32)
 
     def predict_binary(self, audio: np.ndarray) -> int:
@@ -148,24 +213,69 @@ class BargeinDetector:
         return bool(self.predict_binary(audio_tail))
 
     def save(self, path: str | Path) -> None:
-        import pickle
+        """Atomically save a fitted detector for later trusted-local loading."""
 
+        if not self.fitted:
+            raise RuntimeError("cannot save an unfitted detector")
+        check_is_fitted(self.pipeline)
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
-        with path.open("wb") as handle:
-            pickle.dump(
-                {"feat_cfg": self.feat_cfg, "det": self.det, "pipeline": self.pipeline}, handle
-            )
-        self.fitted = True
+        temporary_path: Path | None = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="wb",
+                dir=path.parent,
+                prefix=f".{path.name}.",
+                suffix=".tmp",
+                delete=False,
+            ) as handle:
+                temporary_path = Path(handle.name)
+                pickle.dump(
+                    {
+                        "schema_version": MODEL_SCHEMA_VERSION,
+                        "feat_cfg": self.feat_cfg,
+                        "det": self.det,
+                        "pipeline": self.pipeline,
+                    },
+                    handle,
+                    protocol=pickle.HIGHEST_PROTOCOL,
+                )
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary_path, path)
+        finally:
+            if temporary_path is not None:
+                temporary_path.unlink(missing_ok=True)
 
     @classmethod
     def load(cls, path: str | Path) -> BargeinDetector:
-        import pickle
+        """Load a project-created detector. Pickle files from untrusted sources are unsafe."""
 
         with Path(path).open("rb") as handle:
             payload = pickle.load(handle)
-        obj = cls(payload["feat_cfg"], payload["det"])
-        obj.pipeline = payload["pipeline"]
+        if not isinstance(payload, dict):
+            raise ValueError("detector payload must be a mapping")
+        schema_version = payload.get("schema_version", 0)
+        if schema_version not in {0, MODEL_SCHEMA_VERSION}:
+            raise ValueError(f"unsupported detector schema version: {schema_version!r}")
+        if not {"feat_cfg", "det", "pipeline"}.issubset(payload):
+            raise ValueError("detector payload is missing required fields")
+        feat_cfg = payload["feat_cfg"]
+        det = payload["det"]
+        pipeline = payload["pipeline"]
+        if (
+            not isinstance(feat_cfg, FeatureConfig)
+            or not isinstance(det, DetectorConfig)
+            or not isinstance(pipeline, Pipeline)
+            or not isinstance(pipeline.named_steps.get("scale"), StandardScaler)
+            or not isinstance(pipeline.named_steps.get("gbdt"), GradientBoostingClassifier)
+        ):
+            raise ValueError("detector payload has incompatible component types")
+        check_is_fitted(pipeline)
+        obj = cls(feat_cfg, det)
+        if int(pipeline.n_features_in_) != obj.vector_width:
+            raise ValueError("detector payload feature width does not match its feature config")
+        obj.pipeline = pipeline
         obj.fitted = True
         return obj
 
@@ -179,6 +289,12 @@ def evaluate_detectors(
     assistant_masks: Sequence[np.ndarray] | None = None,
     out_json: str | Path | None = None,
 ) -> dict:
+    if len(audios) == 0 or len(audios) != len(binary_labels):
+        raise ValueError("evaluation audio and labels must be non-empty and aligned")
+    if not set(binary_labels).issubset({0, 1}):
+        raise ValueError("evaluation labels must be binary")
+    if assistant_masks is not None and len(assistant_masks) != len(audios):
+        raise ValueError("assistant masks must align with evaluation audio")
     y = list(binary_labels)
     pred_p = [proposed.predict_binary(a) for a in audios]
     masks: Sequence[np.ndarray | None] = (
