@@ -1322,6 +1322,19 @@ Final engineering audit:
   to `train-s2s-smoke`; validate schedule/dataset controls; and reject the
   unimplemented Encodec option instead of mislabeling log-mel reconstruction.
   The complete local suite passes 346 tests at 80.088% branch-aware coverage.
+- [x] Confirm direct-path fail-closed hardening in complete GitHub Actions run
+  `34685848406`, including compile, lint, type, history/privacy,
+  evaluator-binding, dependency, 346-test/coverage, and scientific-risk gates.
+- [x] Bound every active CI/release-build subprocess without altering frozen
+  evaluator implementations or multi-hour systemd-managed training launchers.
+  Full-history and historical-source Git reads use a validated configurable
+  120-second timeout; the pinned browser build uses a separate validated
+  30-minute timeout. Make generated evidence Markdown fsync/atomic and require
+  CI to reproduce it exactly from authoritative JSON. The proposal and frozen
+  evaluator receipts remain byte-identical. The complete local suite passes 351
+  tests at 80.159% branch-aware coverage; evidence aggregation reaches 97.35%,
+  and the CI floor remains 79% because the cross-interpreter margin over 80%
+  remains too narrow.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

@@ -9,6 +9,8 @@ and automatic gates all verify exactly.
 from __future__ import annotations
 
 import json
+import os
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -1497,4 +1499,16 @@ def write_evidence_summary(path: str | Path, payload: dict[str, Any]) -> None:
 
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(render_evidence_summary(payload), encoding="utf-8")
+    rendered = render_evidence_summary(payload)
+    descriptor, temporary_name = tempfile.mkstemp(
+        dir=destination.parent, prefix=f".{destination.name}.", suffix=".tmp"
+    )
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            handle.write(rendered)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, destination)
+    finally:
+        temporary.unlink(missing_ok=True)

@@ -3,7 +3,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from thesis_s2s.eval.evidence import build_evidence_status, render_evidence_summary
+import pytest
+
+from thesis_s2s.eval.evidence import (
+    build_evidence_status,
+    render_evidence_summary,
+    write_evidence_summary,
+)
 from thesis_s2s.repro import sha256_file
 
 
@@ -17,6 +23,25 @@ def _write_text(root: Path, relative: str, payload: str) -> None:
     path = root / relative
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(payload, encoding="utf-8")
+
+
+def test_evidence_summary_write_is_atomic(tmp_path: Path, monkeypatch) -> None:
+    path = tmp_path / "SUMMARY.md"
+    payload = {"generated_at": "now", "gates": {}, "required_to_complete": []}
+    write_evidence_summary(path, payload)
+    expected = render_evidence_summary(payload)
+    assert path.read_text(encoding="utf-8") == expected
+    assert list(tmp_path.glob(".SUMMARY.md.*.tmp")) == []
+
+    old_bytes = path.read_bytes()
+    monkeypatch.setattr(
+        "thesis_s2s.eval.evidence.os.replace",
+        lambda *_args: (_ for _ in ()).throw(OSError("replace failed")),
+    )
+    with pytest.raises(OSError, match="replace failed"):
+        write_evidence_summary(path, payload)
+    assert path.read_bytes() == old_bytes
+    assert list(tmp_path.glob(".SUMMARY.md.*.tmp")) == []
 
 
 def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path) -> None:

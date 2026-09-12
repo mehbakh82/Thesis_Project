@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import shutil
 import subprocess
@@ -38,8 +39,25 @@ def require_hash(path: Path, expected: str) -> None:
         raise RuntimeError(f"hash mismatch for {path}: expected {expected}, found {actual}")
 
 
+def command_timeout_seconds() -> float:
+    raw = os.environ.get("MOSHI_CLIENT_TIMEOUT_SECONDS", "1800")
+    try:
+        timeout = float(raw)
+    except ValueError as exc:
+        raise ValueError("MOSHI_CLIENT_TIMEOUT_SECONDS must be positive and finite") from exc
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError("MOSHI_CLIENT_TIMEOUT_SECONDS must be positive and finite")
+    return timeout
+
+
 def run(command: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
-    result = subprocess.run(command, check=False, capture_output=True, text=True)
+    result = subprocess.run(
+        command,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=command_timeout_seconds(),
+    )
     if check and result.returncode != 0:
         detail = "\n".join(part.strip() for part in (result.stdout, result.stderr) if part.strip())
         raise RuntimeError(f"command failed ({result.returncode}): {command}\n{detail}")

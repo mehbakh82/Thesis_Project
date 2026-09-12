@@ -4,6 +4,9 @@ import hashlib
 import json
 import subprocess
 from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
 
 from scripts import ci_artifact_audit
 from scripts.audit_proposal_alignment import (
@@ -13,6 +16,37 @@ from scripts.audit_proposal_alignment import (
 from scripts.audit_proposal_alignment import (
     build_report as build_proposal_alignment_report,
 )
+
+
+def test_tracked_file_git_query_has_validated_timeout(tmp_path: Path, monkeypatch) -> None:
+    calls = []
+    monkeypatch.setattr(ci_artifact_audit, "ROOT", tmp_path)
+    monkeypatch.setenv("THESIS_GIT_TIMEOUT_SECONDS", "4.5")
+    monkeypatch.setattr(
+        ci_artifact_audit.subprocess,
+        "run",
+        lambda command, **kwargs: calls.append((command, kwargs)) or SimpleNamespace(stdout=b""),
+    )
+    assert ci_artifact_audit.tracked_files() == []
+    assert calls[0][1]["timeout"] == 4.5
+    monkeypatch.setenv("THESIS_GIT_TIMEOUT_SECONDS", "nan")
+    with pytest.raises(ValueError, match="positive and finite"):
+        ci_artifact_audit.tracked_files()
+
+
+def test_generated_evidence_summary_is_bound_to_json(tmp_path: Path, monkeypatch) -> None:
+    evidence = tmp_path / "EVIDENCE_STATUS.json"
+    summary = tmp_path / "SUMMARY.md"
+    payload = {"generated_at": "now", "gates": {}, "required_to_complete": []}
+    evidence.write_text(json.dumps(payload), encoding="utf-8")
+    from thesis_s2s.eval.evidence import render_evidence_summary
+
+    summary.write_text(render_evidence_summary(payload), encoding="utf-8")
+    monkeypatch.setattr(ci_artifact_audit, "AGGREGATE_EVIDENCE", evidence)
+    monkeypatch.setattr(ci_artifact_audit, "EVIDENCE_SUMMARY", summary)
+    assert ci_artifact_audit.evidence_summary_audit() == []
+    summary.write_text("stale", encoding="utf-8")
+    assert ci_artifact_audit.evidence_summary_audit() == ["generated evidence summary drift"]
 
 
 def _git(root: Path, *arguments: str) -> str:

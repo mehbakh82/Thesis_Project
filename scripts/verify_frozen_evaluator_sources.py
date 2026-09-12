@@ -6,6 +6,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
+import os
 import re
 import subprocess
 from collections.abc import Callable
@@ -14,6 +16,17 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 COMMIT_RE = re.compile(r"[0-9a-f]{40}")
+
+
+def git_timeout_seconds() -> float:
+    raw = os.environ.get("THESIS_GIT_TIMEOUT_SECONDS", "120")
+    try:
+        timeout = float(raw)
+    except ValueError as exc:
+        raise ValueError("THESIS_GIT_TIMEOUT_SECONDS must be positive and finite") from exc
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError("THESIS_GIT_TIMEOUT_SECONDS must be positive and finite")
+    return timeout
 
 
 def _sha256(data: bytes) -> str:
@@ -111,6 +124,7 @@ def _git_loader(root: Path) -> Callable[[str, str], bytes]:
             cwd=root,
             check=True,
             capture_output=True,
+            timeout=git_timeout_seconds(),
         ).stdout
 
     return load

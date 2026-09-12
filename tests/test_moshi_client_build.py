@@ -2,8 +2,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 
+import pytest
+
+from scripts import build_moshi_client
 from thesis_s2s.repro import _verify_tree_manifest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -72,3 +76,21 @@ def test_tree_attestation_rejects_an_undeclared_file(tmp_path: Path) -> None:
     (assets / "injected.js").write_text("unexpected", encoding="utf-8")
     valid, _ = _verify_tree_manifest(dist, rows, tree_digest.hexdigest())
     assert valid is False
+
+
+def test_client_build_commands_have_a_validated_timeout(monkeypatch) -> None:
+    calls = []
+    monkeypatch.setenv("MOSHI_CLIENT_TIMEOUT_SECONDS", "9.5")
+    monkeypatch.setattr(
+        build_moshi_client.subprocess,
+        "run",
+        lambda command, **kwargs: calls.append((command, kwargs))
+        or subprocess.CompletedProcess(command, 0, stdout="ok", stderr=""),
+    )
+    result = build_moshi_client.run(["tool", "arg"])
+    assert result.stdout == "ok"
+    assert calls[0][1]["timeout"] == 9.5
+
+    monkeypatch.setenv("MOSHI_CLIENT_TIMEOUT_SECONDS", "nan")
+    with pytest.raises(ValueError, match="positive and finite"):
+        build_moshi_client.run(["tool"])

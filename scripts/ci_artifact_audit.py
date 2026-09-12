@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
+import os
 import re
 import subprocess
 import sys
@@ -16,6 +18,8 @@ else:  # pragma: no cover - exercised by the minimum-version CI runner
     import tomli as tomllib
 
 import yaml
+
+from thesis_s2s.eval.evidence import render_evidence_summary
 
 try:
     from scripts.audit_proposal_alignment import (
@@ -98,6 +102,18 @@ HISTORY_SECRET_ERE = (
 RELEASE_ATTESTATION = ROOT / "results" / "release" / "submission_tag_attestation.json"
 PROPOSAL_ALIGNMENT_RECEIPT = ROOT / "results" / "proposal_alignment_audit.json"
 AGGREGATE_EVIDENCE = ROOT / "results" / "eval" / "EVIDENCE_STATUS.json"
+EVIDENCE_SUMMARY = ROOT / "results" / "eval" / "SUMMARY.md"
+
+
+def git_timeout_seconds() -> float:
+    raw = os.environ.get("THESIS_GIT_TIMEOUT_SECONDS", "120")
+    try:
+        timeout = float(raw)
+    except ValueError as exc:
+        raise ValueError("THESIS_GIT_TIMEOUT_SECONDS must be positive and finite") from exc
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError("THESIS_GIT_TIMEOUT_SECONDS must be positive and finite")
+    return timeout
 
 
 def tracked_files() -> list[Path]:
@@ -105,6 +121,7 @@ def tracked_files() -> list[Path]:
         ["git", "-C", str(ROOT), "ls-files", "-z"],
         check=True,
         capture_output=True,
+        timeout=git_timeout_seconds(),
     ).stdout
     return [ROOT / item.decode("utf-8") for item in output.split(b"\0") if item]
 
@@ -149,6 +166,7 @@ def history_audit() -> list[str]:
         check=True,
         capture_output=True,
         text=True,
+        timeout=git_timeout_seconds(),
     ).stdout.splitlines()
     for row in objects:
         parts = row.split(" ", 1)
@@ -174,6 +192,7 @@ def history_audit() -> list[str]:
         check=True,
         capture_output=True,
         text=True,
+        timeout=git_timeout_seconds(),
     ).stdout.splitlines()
     if not commits:
         return errors
@@ -182,6 +201,7 @@ def history_audit() -> list[str]:
         check=False,
         capture_output=True,
         text=True,
+        timeout=git_timeout_seconds(),
     )
     if scan.returncode not in {0, 1}:
         detail = scan.stderr.strip()[:200]
@@ -220,6 +240,7 @@ def release_attestation_audit() -> list[str]:
             check=False,
             capture_output=True,
             text=True,
+            timeout=git_timeout_seconds(),
         )
         if result.returncode != 0 or result.stdout.strip() != expected:
             errors.append(message)
@@ -228,6 +249,7 @@ def release_attestation_audit() -> list[str]:
         check=False,
         capture_output=True,
         text=True,
+        timeout=git_timeout_seconds(),
     )
     if ancestry.returncode != 0:
         errors.append("attested release commit is not an ancestor of HEAD")
@@ -280,6 +302,21 @@ def proposal_alignment_receipt_audit() -> list[str]:
     return errors
 
 
+def evidence_summary_audit() -> list[str]:
+    """Require the human-readable evidence view to match authoritative JSON exactly."""
+
+    if not AGGREGATE_EVIDENCE.is_file() or not EVIDENCE_SUMMARY.is_file():
+        return ["missing aggregate evidence or generated evidence summary"]
+    try:
+        payload = json.loads(AGGREGATE_EVIDENCE.read_text(encoding="utf-8"))
+        observed = EVIDENCE_SUMMARY.read_text(encoding="utf-8")
+    except (OSError, json.JSONDecodeError) as exc:
+        return [f"invalid generated evidence summary input: {exc}"]
+    if not isinstance(payload, dict):
+        return ["invalid generated evidence summary input: JSON root must be an object"]
+    return [] if observed == render_evidence_summary(payload) else ["generated evidence summary drift"]
+
+
 def audit() -> list[str]:
     errors: list[str] = []
     for path in tracked_files():
@@ -319,6 +356,7 @@ def main() -> int:
     errors.extend(history_audit())
     errors.extend(release_attestation_audit())
     errors.extend(proposal_alignment_receipt_audit())
+    errors.extend(evidence_summary_audit())
     if errors:
         print("Tracked-artifact audit failed:", file=sys.stderr)
         for error in sorted(set(errors)):

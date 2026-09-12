@@ -3,7 +3,9 @@
 **Audited source:** local ignored `Thesis Proposal Template.docx`, SHA-256
 `658a75f01f0d25cb18e601f8f5d36438c0c3780666a0f95c8fe529a6d68f90b4`
 
-**Audit date:** 2026-09-10
+**Audit date:** 2026-09-12 (revalidated after final runtime, measurement,
+evidence-integrity, and experimental-path hardening; proposal-level statuses are
+unchanged)
 
 ## Bottom line
 
