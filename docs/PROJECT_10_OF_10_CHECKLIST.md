@@ -1311,6 +1311,17 @@ Final engineering audit:
   an existing file on failure. The complete local suite passes 343 tests at
   80.167% branch-aware coverage, and metrics reaches 83.85%. The enforced floor
   remains 79% because 0.167 points is not a stable cross-interpreter margin.
+- [x] Confirm measurement-evidence hardening in complete GitHub Actions run
+  `34685451104`, including compile, lint, type, history/privacy,
+  evaluator-binding, dependency, 343-test/coverage, and scientific-risk gates.
+- [x] Make the legacy experimental Whisper/projector path unambiguously fail
+  closed. Use restricted `weights_only` checkpoint loading and redact load
+  errors; prevent even a fabricated `deployable_s2s_v1` metadata bundle from
+  claiming a supported direct runtime; never replace missing manifest audio or
+  a missing explicit manifest with synthetic speech; confine generated fixtures
+  to `train-s2s-smoke`; validate schedule/dataset controls; and reject the
+  unimplemented Encodec option instead of mislabeling log-mel reconstruction.
+  The complete local suite passes 346 tests at 80.088% branch-aware coverage.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

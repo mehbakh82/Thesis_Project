@@ -33,10 +33,10 @@ Status date: 2026-09-12
   `enabled=true`, `paused=false`.
 - CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 51
   source files against the Python 3.10 target.
-- The measured branch-aware coverage is 80.17%; the enforced floor is 79%,
+- The measured branch-aware coverage is 80.09%; the enforced floor is 79%,
   raised from 35%, 60%, 68%, 71%, 74%, 75%, 76%, 77%, and 78% while retaining a small
   non-flaky margin. The floor is not rounded up to the measured integer because
-  the exact 0.167-point margin would be brittle across supported interpreters.
+  the exact 0.088-point margin would be brittle across supported interpreters.
   The CLI-exposed batch re-ASR pipeline is covered at 78%, multi-channel
   ingestion at 94%, YouTube preparation at 96%, the evaluation benchmark
   runner at 100%, and the historical codec/component survey at 57% after
@@ -97,6 +97,13 @@ Status date: 2026-09-12
   JSON rejects non-finite values and is fsync/atomically replaced without
   corrupting an existing report on failure. The complete suite passes 343
   tests, and metrics coverage is 83.85%.
+- The legacy Whisper/projector reconstruction branch remains an explicitly
+  gated ablation, not a deployable S2S system. It now uses restricted
+  `weights_only` checkpoint loading, treats every direct-runtime declaration as
+  ineligible until a real direct runtime exists, redacts load errors, rejects
+  missing explicit manifests/audio instead of synthesizing replacements, and
+  rejects its unimplemented Encodec option. Synthetic fixtures remain confined
+  to the named smoke-test command. The complete suite passes 346 tests.
 - The general requirements audit remains fail-closed on unreviewed drift. On
   2026-09-09, pip-audit began reporting CVE-2026-69112 in Accelerate 1.14.0.
   The scanner feed later stopped mapping it and the resolver advanced to 1.15.0.

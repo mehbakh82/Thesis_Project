@@ -1,4 +1,4 @@
-"""LLaMA-Omni2-style Persian adapters: Whisper encoder + projector + optional Qwen LoRA.
+"""Experimental Whisper/projector reconstruction adapters; not a deployable S2S model.
 
 Stages
 1. ASR adapter: speech -> text
@@ -6,13 +6,14 @@ Stages
 3. Spoken QA: speech in, text+mel out
 
 DummySpeechLM remains for unit tests that must not download weights.
-The published train-s2s path is PersianOmni2.
+``train_s2s`` is retained only as an explicitly gated ablation path.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -165,11 +166,17 @@ class JsonlSpeechDataset(Dataset):
     def __init__(
         self, jsonl: Path, max_seconds: float = 8.0, n_mels: int = 80, split: str | None = None
     ):
+        if not math.isfinite(max_seconds) or max_seconds <= 0:
+            raise ValueError("max_seconds must be positive and finite")
+        if not isinstance(n_mels, int) or isinstance(n_mels, bool) or n_mels <= 0:
+            raise ValueError("n_mels must be a positive integer")
         rows = [
             json.loads(line)
             for line in jsonl.read_text(encoding="utf-8").splitlines()
             if line.strip()
         ]
+        if not all(isinstance(row, dict) for row in rows):
+            raise ValueError("every manifest row must be a JSON object")
         if split is not None and any(row.get("split") for row in rows):
             rows = [row for row in rows if row.get("split") == split]
         if not rows:
@@ -180,17 +187,16 @@ class JsonlSpeechDataset(Dataset):
         self.max_mel = int(max_seconds * 100)
 
     def __len__(self) -> int:
-        return max(1, len(self.rows))
+        return len(self.rows)
 
     def __getitem__(self, idx: int) -> dict:
         row = self.rows[idx % len(self.rows)]
         path = row.get("audio_filepath") or row.get("audio_path")
-        if path and Path(path).is_file():
-            audio, _ = read_wav(path)
-        else:
-            from thesis_s2s.runtime.tts import formant_synthesize
-
-            audio = formant_synthesize(str(row.get("text") or "سلام"))
+        if not isinstance(path, str) or not path.strip():
+            raise ValueError("manifest row requires a non-empty audio path")
+        if not Path(path).is_file():
+            raise FileNotFoundError(f"manifest audio does not exist: {path}")
+        audio, _ = read_wav(path)
         audio = audio[: self.max_samples]
         if len(audio) < self.max_samples:
             audio = np.pad(audio, (0, self.max_samples - len(audio)))
@@ -303,8 +309,11 @@ def train_smoke(
 
 def _pick_jsonl(explicit: Path | None) -> Path:
     root = project_root()
-    if explicit and Path(explicit).is_file():
-        return Path(explicit)
+    if explicit is not None:
+        selected = Path(explicit)
+        if not selected.is_file() or selected.stat().st_size <= 0:
+            raise FileNotFoundError(f"explicit training manifest is missing or empty: {selected}")
+        return selected
     for cand in (
         root / "data" / "processed" / "manifests" / "filtered.jsonl",
         root / "data" / "processed" / "manifests" / "filtered_caption.jsonl",
@@ -313,8 +322,9 @@ def _pick_jsonl(explicit: Path | None) -> Path:
     ):
         if cand.is_file() and cand.stat().st_size > 0:
             return cand
-    out = root / "checkpoints" / "llama_omni2_fa" / "tiny_train.jsonl"
-    return write_tiny_manifest(out)
+    raise FileNotFoundError(
+        "no non-empty training manifest found; use train-s2s-smoke for synthetic smoke data"
+    )
 
 
 def train_s2s(
@@ -339,6 +349,18 @@ def train_s2s(
             "train_s2s is an experimental encoder/reconstruction objective, not a deployable "
             "speech-to-speech LLM. Pass allow_experimental=True only for ablation research."
         )
+    if use_encodec_tokens:
+        raise ValueError(
+            "Encodec targets are not implemented in this experimental path; log-mel reconstruction only"
+        )
+    if steps is not None and (not isinstance(steps, int) or isinstance(steps, bool) or steps <= 0):
+        raise ValueError("steps must be a positive integer or None")
+    if max_steps is not None and (
+        not isinstance(max_steps, int) or isinstance(max_steps, bool) or max_steps <= 0
+    ):
+        raise ValueError("max_steps must be a positive integer or None")
+    if epochs is not None and (not math.isfinite(epochs) or epochs <= 0):
+        raise ValueError("epochs must be positive and finite")
 
     out_dir = Path(out_dir or project_root() / "checkpoints" / "llama_omni2_fa")
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -366,7 +388,7 @@ def train_s2s(
     stages = ["asr_adapter", "tts_tokens", "spoken_qa"]
     per = max(1, int(steps) // len(stages))
     step = 0
-    tokenizer_note = "encodec_24khz_24kbps" if not use_encodec_tokens else "encodec_tokens"
+    tokenizer_note = "log_mel_reconstruction"
     for stage in stages:
         for _ in range(per):
             try:
@@ -440,17 +462,28 @@ def checkpoint_runtime_status(path: str | Path) -> dict:
     if not checkpoint.is_file():
         return {"exists": False, "runtime_ready": False, "reason": "checkpoint_missing"}
     try:
-        bundle = torch.load(checkpoint, map_location="cpu", weights_only=False)
+        bundle = torch.load(checkpoint, map_location="cpu", weights_only=True)
     except Exception as exc:
-        return {"exists": True, "runtime_ready": False, "reason": f"unreadable:{exc}"}
+        return {
+            "exists": True,
+            "runtime_ready": False,
+            "reason": f"checkpoint_unreadable:{type(exc).__name__}",
+        }
+    if not isinstance(bundle, dict):
+        return {"exists": True, "runtime_ready": False, "reason": "checkpoint_not_a_mapping"}
     kind = bundle.get("artifact_kind", "legacy_untyped")
-    ready = bool(bundle.get("runtime_ready")) and kind == "deployable_s2s_v1"
+    declared_ready = bundle.get("runtime_ready") is True and kind == "deployable_s2s_v1"
     return {
         "exists": True,
-        "runtime_ready": ready,
+        "runtime_ready": False,
+        "declared_runtime_ready": declared_ready,
         "artifact_kind": kind,
         "format_version": bundle.get("format_version"),
-        "reason": "validated" if ready else "not_a_deployable_s2s_checkpoint",
+        "reason": (
+            "direct_runtime_not_implemented"
+            if declared_ready
+            else "not_a_deployable_s2s_checkpoint"
+        ),
     }
 
 
@@ -470,7 +503,7 @@ class OmniTalker:
         if not self.checkpoint_status["runtime_ready"]:
             return
         try:
-            bundle = torch.load(path, map_location="cpu", weights_only=False)
+            bundle = torch.load(path, map_location="cpu", weights_only=True)
             device = "cuda" if torch.cuda.is_available() else "cpu"
             model = PersianOmni2(
                 whisper_name=bundle.get("whisper_name", "openai/whisper-small"), load_llm=False

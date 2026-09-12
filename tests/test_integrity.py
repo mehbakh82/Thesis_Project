@@ -8,7 +8,7 @@ import torch
 from thesis_s2s.audio import to_float32_mono
 from thesis_s2s.config import load_yaml
 from thesis_s2s.data.audit import audit_caption_alignment, audit_manifest
-from thesis_s2s.model.llama_omni2 import checkpoint_runtime_status
+from thesis_s2s.model.llama_omni2 import JsonlSpeechDataset, _pick_jsonl, checkpoint_runtime_status
 from thesis_s2s.runtime.session_log import SessionMeta, SessionStore
 
 
@@ -35,6 +35,40 @@ def test_legacy_checkpoint_is_fail_closed(tmp_path: Path):
     assert status["exists"] is True
     assert status["runtime_ready"] is False
     assert status["artifact_kind"] == "legacy_untyped"
+
+
+def test_declared_direct_checkpoint_cannot_claim_an_unimplemented_runtime(tmp_path: Path):
+    path = tmp_path / "claimed.pt"
+    torch.save(
+        {"artifact_kind": "deployable_s2s_v1", "format_version": 1, "runtime_ready": True},
+        path,
+    )
+    status = checkpoint_runtime_status(path)
+    assert status["declared_runtime_ready"] is True
+    assert status["runtime_ready"] is False
+    assert status["reason"] == "direct_runtime_not_implemented"
+
+    non_mapping = tmp_path / "tensor.pt"
+    torch.save(torch.ones(1), non_mapping)
+    assert checkpoint_runtime_status(non_mapping)["reason"] == "checkpoint_not_a_mapping"
+
+
+def test_experimental_dataset_never_substitutes_missing_audio(tmp_path: Path):
+    manifest = tmp_path / "data.jsonl"
+    manifest.write_text(
+        json.dumps({"audio_filepath": str(tmp_path / "missing.wav"), "text": "سلام"}) + "\n",
+        encoding="utf-8",
+    )
+    dataset = JsonlSpeechDataset(manifest)
+    with pytest.raises(FileNotFoundError, match="manifest audio"):
+        dataset[0]
+    with pytest.raises(ValueError, match="max_seconds"):
+        JsonlSpeechDataset(manifest, max_seconds=0)
+
+
+def test_explicit_experimental_manifest_never_falls_back(tmp_path: Path):
+    with pytest.raises(FileNotFoundError, match="explicit training manifest"):
+        _pick_jsonl(tmp_path / "missing.jsonl")
 
 
 def test_session_requires_safe_ids_consent_and_preserves_turns(tmp_path: Path):

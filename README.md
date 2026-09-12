@@ -309,7 +309,12 @@ waiver-limited data/export readiness, current full-profile memory headroom, and
 physical 4090 evaluation as separate gates. A 4090 is never required to train
 the adapter.
 
-`train-s2s` is retained only for ablation work and refuses to run unless `--allow-experimental` is supplied. It must not be cited as a trained end-to-end S2S model.
+`train-s2s` is retained only for ablation work and refuses to run unless
+`--allow-experimental` is supplied. It requires real referenced audio and a
+non-empty real manifest; only `train-s2s-smoke` may generate tiny synthetic
+fixtures. The advertised Encodec target option is rejected because that
+objective is not implemented. This path must not be cited as a trained or
+deployable end-to-end S2S model.
 
 ## Metric contract
 
