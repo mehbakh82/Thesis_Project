@@ -1,6 +1,6 @@
 # Repository security and reproducibility review
 
-Status date: 2026-09-10
+Status date: 2026-09-12
 
 ## Controls that are enforced
 
@@ -33,12 +33,14 @@ Status date: 2026-09-10
   `enabled=true`, `paused=false`.
 - CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 51
   source files against the Python 3.10 target.
-- The measured branch-aware coverage is 76.49%; the enforced floor is 75%,
-  raised from 35%, 60%, 68%, and 71% while retaining a small non-flaky margin.
+- The measured branch-aware coverage is 77.55%; the enforced floor is 76%,
+  raised from 35%, 60%, 68%, 71%, 74%, and 75% while retaining a small
+  non-flaky margin.
   The CLI-exposed batch re-ASR pipeline is covered at 78%, multi-channel
-  ingestion at 94%, YouTube preparation at 96%, and the evaluation benchmark
-  runner at 100%. Core conversation, Moshi-export, QA-policy, rights, and
-  preflight modules are substantially above the aggregate.
+  ingestion at 94%, YouTube preparation at 96%, the evaluation benchmark
+  runner at 100%, and the historical codec/component survey at 57% after
+  focused correctness tests. Core conversation, Moshi-export, QA-policy,
+  rights, and preflight modules are substantially above the aggregate.
 - The general requirements audit remains fail-closed on unreviewed drift. On
   2026-09-09, pip-audit began reporting CVE-2026-69112 in Accelerate 1.14.0.
   The scanner feed later stopped mapping it and the resolver advanced to 1.15.0.

@@ -11,52 +11,59 @@
     "n_samples": 48000,
     "mulaw8": {
       "available": true,
-      "notes": "waveform mu-law; not a speech tokenizer",
-      "snr_db": 99.33085115442489
+      "bits_per_sample": 8,
+      "notes": "8-bit waveform mu-law quantization; not a speech tokenizer",
+      "snr_db": 37.81262513179633
     },
     "mel_griffin": {
       "available": true,
-      "notes": "80-mel Griffin-Lim; CosyVoice2-like spectral bottleneck",
+      "notes": "generic 80-mel Griffin-Lim baseline; not a CosyVoice2 proxy",
       "snr_db": -21.59214805012565
     },
     "encodec_24k": {
       "available": true,
-      "notes": "facebook/encodec_24khz neural speech tokenizer via model.forward; CosyVoice2 substitute when CosyVoice is not installed",
+      "notes": "facebook/encodec_24khz neural speech tokenizer via model.forward; independently evaluated component, not a CosyVoice2 substitute",
       "codebook_frames": 225,
       "snr_db": 14.433865100717087,
-      "persian_phones_preserved": true
+      "automatic_transcript_content_preserved": true,
+      "persian_phones_preserved": null
     },
     "cosyvoice2": {
       "pulled_7b": false,
       "modules": {
         "cosyvoice": {
           "available": false,
+          "probe_type": "import_only",
           "persian_phones_preserved": null,
           "notes": "not installed"
         },
         "cosyvoice2": {
           "available": false,
+          "probe_type": "import_only",
           "persian_phones_preserved": null,
           "notes": "not installed"
         },
         "matcha_tts": {
           "available": false,
+          "probe_type": "import_only",
           "persian_phones_preserved": null,
           "notes": "not installed"
         }
       },
-      "tokenizer_for_omni2": "encodec_24khz_24kbps",
+      "tokenizer_for_omni2": null,
       "persian_tokens": null,
       "available": false,
-      "note": "CosyVoice 2 not installed. Keep Encodec 24 kHz @ 24 kbps as the speech tokenizer (bake-off CER 0.087). Do not pull 7B on the busy H100."
+      "note": "CosyVoice 2 not installed. This probe makes no CosyVoice2 quality or selection claim; Encodec is evaluated separately when available."
     },
     "snac": {
       "available": false,
+      "probe_type": "import_only",
       "persian_phones_preserved": null,
       "notes": "not installed"
     },
     "moshi_mimi": {
       "available": false,
+      "probe_type": "import_only",
       "persian_phones_preserved": null,
       "notes": "not installed"
     },
@@ -65,7 +72,9 @@
       "orig_text": " امو قابل از این که بزان گزندی",
       "recon_text": " امو قابل از این که بزنگ زندگی",
       "cer": 0.08695652173913043,
-      "persian_phones_preserved": true
+      "automatic_transcript_content_preserved": true,
+      "persian_phones_preserved": null,
+      "claim_boundary": "Whisper transcript CER is not phonetic or perceptual evidence"
     }
   },
   "whisper_probe": {
@@ -82,60 +91,60 @@
   },
   "latency": {
     "n": 6,
-    "t_first_audio_p50_ms": 0.0020298175513744354,
-    "t_first_audio_p95_ms": 0.003562774509191513,
-    "t_first_audio_max_ms": 0.003754161298274994,
-    "t_barge_in_p50_ms": 47.14633245021105,
-    "t_barge_in_p95_ms": 50.08571851067245,
-    "t_barge_in_max_ms": 50.10751914232969,
+    "t_first_audio_p50_ms": 0.00204332172870636,
+    "t_first_audio_p95_ms": 0.0037117861211299896,
+    "t_first_audio_max_ms": 0.004036352038383484,
+    "t_barge_in_p50_ms": 50.2394987270236,
+    "t_barge_in_p95_ms": 54.88688824698329,
+    "t_barge_in_max_ms": 55.54056540131569,
     "t_first_audio_gate_ok": false,
     "t_first_audio_literal_max_gate_ok": true,
     "t_barge_in_gate_ok": false,
     "official_gpu": false,
     "samples": [
       {
-        "t_first_audio_ms": 0.003754161298274994,
-        "t_barge_in_ms": 42.013758793473244,
+        "t_first_audio_ms": 0.004036352038383484,
+        "t_barge_in_ms": 49.43712428212166,
+        "gpu_name": "NVIDIA H100 NVL",
+        "vram_gb": 24.0,
+        "memory_capped": true,
+        "notes": "FormantTalker first_chunk n=2973 backend=piper"
+      },
+      {
+        "t_first_audio_ms": 0.002738088369369507,
+        "t_barge_in_ms": 52.92585678398609,
+        "gpu_name": "NVIDIA H100 NVL",
+        "vram_gb": 24.0,
+        "memory_capped": true,
+        "notes": "FormantTalker first_chunk n=4000 backend=piper"
+      },
+      {
+        "t_first_audio_ms": 0.002037733793258667,
+        "t_barge_in_ms": 55.54056540131569,
+        "gpu_name": "NVIDIA H100 NVL",
+        "vram_gb": 24.0,
+        "memory_capped": true,
+        "notes": "FormantTalker first_chunk n=4000 backend=piper"
+      },
+      {
+        "t_first_audio_ms": 0.0019669532775878906,
+        "t_barge_in_ms": 48.76318387687206,
         "gpu_name": "NVIDIA H100 NVL",
         "vram_gb": 24.0,
         "memory_capped": true,
         "notes": "FormantTalker first_chunk n=3716 backend=piper"
       },
       {
-        "t_first_audio_ms": 0.0029886141419410706,
-        "t_barge_in_ms": 46.71796411275864,
+        "t_first_audio_ms": 0.0020489096641540527,
+        "t_barge_in_ms": 49.09786768257618,
         "gpu_name": "NVIDIA H100 NVL",
         "vram_gb": 24.0,
         "memory_capped": true,
         "notes": "FormantTalker first_chunk n=4000 backend=piper"
       },
       {
-        "t_first_audio_ms": 0.0017313286662101746,
-        "t_barge_in_ms": 45.91958038508892,
-        "gpu_name": "NVIDIA H100 NVL",
-        "vram_gb": 24.0,
-        "memory_capped": true,
-        "notes": "FormantTalker first_chunk n=4000 backend=piper"
-      },
-      {
-        "t_first_audio_ms": 0.0020954757928848267,
-        "t_barge_in_ms": 50.02031661570072,
-        "gpu_name": "NVIDIA H100 NVL",
-        "vram_gb": 24.0,
-        "memory_capped": true,
-        "notes": "FormantTalker first_chunk n=4000 backend=piper"
-      },
-      {
-        "t_first_audio_ms": 0.001964159309864044,
-        "t_barge_in_ms": 47.57470078766346,
-        "gpu_name": "NVIDIA H100 NVL",
-        "vram_gb": 24.0,
-        "memory_capped": true,
-        "notes": "FormantTalker first_chunk n=4000 backend=piper"
-      },
-      {
-        "t_first_audio_ms": 0.0015050172805786133,
-        "t_barge_in_ms": 50.10751914232969,
+        "t_first_audio_ms": 0.0020246952772140503,
+        "t_barge_in_ms": 51.041873171925545,
         "gpu_name": "NVIDIA H100 NVL",
         "vram_gb": 24.0,
         "memory_capped": true,
@@ -203,8 +212,8 @@
     "implementation_path": "moshika-7b-with-official-moshi-finetune",
     "deployable_baseline": "nemo_qwen_piper_cascade",
     "reason": "This command measures codec reconstruction, dependency availability, and formant component timing; it does not fine-tune or compare complete Persian speech-language models.",
-    "encodec_persian_ok": true,
-    "mimi_persian_ok": false,
+    "encodec_automatic_transcript_proxy_ok": true,
+    "mimi_automatic_transcript_proxy_ok": false,
     "cosyvoice2_installed": false,
     "official_latency": false
   }

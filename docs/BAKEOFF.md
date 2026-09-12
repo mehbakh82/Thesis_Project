@@ -13,7 +13,7 @@ See `docs/MODEL_AND_DATA_SELECTION_AUDIT.md` and
 
 ## What actually ran
 
-- Encodec, mel/Griffin-Lim, and mu-law reconstruction probes.
+- Encodec, mel/Griffin-Lim, and correctly quantized 8-bit mu-law reconstruction probes.
 - Import/availability checks for CosyVoice2, SNAC, and Mimi.
 - A Whisper-small transcription proxy on reconstructed Persian audio where dependencies were available.
 - No controlled fine-tuning or end-to-end comparison of LLaMA-Omni2, PersonaPlex, Mini-Omni2, and Qwen3-Omni.
@@ -69,3 +69,13 @@ documentary public-adaptation field because the official repository lists
 LLaMA-Factory/SWIFT support. MiniCPM-o still has no verified Persian speech
 output or documented Persian/full-duplex audio-token adaptation, so no direct
 candidate becomes eligible and no new model run is justified by this refresh.
+
+The component-survey implementation was subsequently hardened so the historical
+`mulaw8` label now denotes an actual 256-level quantization bottleneck (rather
+than a floating-point compand/expand identity), undefined silent-input SNR is
+serialized as `null`, temporary ASR files are removed even on write failure,
+and report paths are made repository-relative before persistence. This
+correction affects only the diagnostic mu-law SNR; it does not change the
+Encodec intelligibility observation or any model-selection conclusion.
+The Whisper CER field is also explicitly an automatic transcript-content proxy;
+phonetic and perceptual preservation remain unknown without human listening.

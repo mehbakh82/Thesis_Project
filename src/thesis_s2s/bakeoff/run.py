@@ -97,8 +97,12 @@ def run_bakeoff(out_dir: Path | None = None, allow_hf: bool = True) -> dict:
     intel = codecs.get("whisper_intelligibility") or {}
     enc = codecs.get("encodec_24k") or {}
     mimi = codecs.get("moshi_mimi") or {}
-    mimi_ok = bool(mimi.get("available")) and bool(mimi.get("persian_phones_preserved"))
-    enc_ok = bool(enc.get("available")) and bool(intel.get("persian_phones_preserved"))
+    mimi_ok = bool(mimi.get("available")) and bool(
+        mimi.get("automatic_transcript_content_preserved")
+    )
+    enc_ok = bool(enc.get("available")) and bool(
+        intel.get("automatic_transcript_content_preserved")
+    )
     models = {
         "llama-omni2-0.5b": {
             "weights_present": (
@@ -160,8 +164,8 @@ def run_bakeoff(out_dir: Path | None = None, allow_hf: bool = True) -> dict:
             "This command measures codec reconstruction, dependency availability, and formant component timing; "
             "it does not fine-tune or compare complete Persian speech-language models."
         ),
-        "encodec_persian_ok": enc_ok,
-        "mimi_persian_ok": mimi_ok,
+        "encodec_automatic_transcript_proxy_ok": enc_ok,
+        "mimi_automatic_transcript_proxy_ok": mimi_ok,
         "cosyvoice2_installed": bool(codecs.get("cosyvoice2", {}).get("available")),
         "official_latency": False,
     }
@@ -186,13 +190,13 @@ def run_bakeoff(out_dir: Path | None = None, allow_hf: bool = True) -> dict:
     }
     payload["latency"]["t_first_audio_gate_ok"] = False
     payload["latency"]["t_barge_in_gate_ok"] = False
-    write_json(out_dir / "bakeoff_report.json", payload)
     payload = portable_project_values(payload, root=root)
+    write_json(out_dir / "bakeoff_report.json", payload)
     (out_dir / "DECISION.md").write_text(
         "# Bake-off result\n\n"
         "**Evidence status: component survey; no end-to-end model winner.**\n\n"
         "This command did not fine-tune or compare the candidate speech-language models.\n\n"
-        f"Encodec proxy: {enc_ok}. Mimi proxy: {mimi_ok}. "
+        f"Encodec automatic transcript proxy: {enc_ok}. Mimi automatic transcript proxy: {mimi_ok}. "
         f"CosyVoice2 available: {decision['cosyvoice2_installed']}.\n\n"
         "Selected implementation path: Moshika 7B with the official Moshi-Finetune LoRA trainer. "
         "This is an engineering selection, not an empirical winner.\n\n"

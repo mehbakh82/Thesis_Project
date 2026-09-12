@@ -254,7 +254,10 @@ def main(
                 "version": finding["version"],
                 "advisories": sorted(finding["advisories"]),
                 "advisory_identities": [
-                    sorted(identity) for identity in finding["advisory_identities"]
+                    list(identity)
+                    for identity in sorted(
+                        tuple(sorted(group)) for group in finding["advisory_identities"]
+                    )
                 ],
             }
             for package, finding in sorted(observed.items())

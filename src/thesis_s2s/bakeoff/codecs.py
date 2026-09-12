@@ -1,45 +1,59 @@
-"""Speech-codec round-trips for the week-1 bake-off.
+"""Speech-codec and dependency probes for the historical component survey.
 
-Tries CosyVoice 2 and Mimi when installed. Always runs Encodec (neural speech
-tokenizer) plus a mel/Griffin-Lim proxy so Persian coverage is measured even
-on a busy GPU without 7B weights.
+Encodec is round-tripped when its dependencies and weights are available.
+CosyVoice 2, SNAC, and Mimi are import probes only; the mel/Griffin-Lim path is
+an explicitly synthetic fallback and not evidence about any of those codecs.
 """
 
 from __future__ import annotations
 
+import os
+import tempfile
 from pathlib import Path
 
 import numpy as np
 from scipy.fft import irfft, rfft
 
 from thesis_s2s import SAMPLE_RATE
-from thesis_s2s.audio import read_wav
+from thesis_s2s.audio import read_wav, write_wav
+from thesis_s2s.eval.wer import cer as character_error_rate
 
 
-def _snr_db(ref: np.ndarray, rec: np.ndarray) -> float:
+def _snr_db(ref: np.ndarray, rec: np.ndarray) -> float | None:
     n = min(len(ref), len(rec))
     if n == 0:
-        return float("nan")
+        return None
     ref = ref[:n]
     rec = rec[:n]
     num = float(np.mean(ref**2))
+    if not np.isfinite(num) or num <= 0.0:
+        return None
     den = float(np.mean((ref - rec) ** 2) + 1e-12)
+    if not np.isfinite(den) or den <= 0.0:
+        return None
     return float(10 * np.log10(num / den))
 
 
 def mulaw_roundtrip(audio: np.ndarray) -> tuple[np.ndarray, dict]:
-    mu = np.sign(audio) * np.log1p(255 * np.abs(audio)) / np.log1p(255)
-    rec = np.sign(mu) * (1 / 255.0) * ((1 + 255) ** np.abs(mu) - 1)
+    """Round-trip through an 8-bit mu-law companding bottleneck."""
+
+    clipped = np.clip(np.asarray(audio, dtype=np.float32), -1.0, 1.0)
+    compressed = np.sign(clipped) * np.log1p(255 * np.abs(clipped)) / np.log1p(255)
+    codes = np.rint((compressed + 1.0) * 127.5).clip(0, 255).astype(np.uint8)
+    quantized = codes.astype(np.float32) / 127.5 - 1.0
+    rec = np.sign(quantized) * np.expm1(np.abs(quantized) * np.log1p(255)) / 255.0
     return rec.astype(np.float32), {
         "available": True,
-        "notes": "waveform mu-law; not a speech tokenizer",
+        "bits_per_sample": 8,
+        "notes": "8-bit waveform mu-law quantization; not a speech tokenizer",
     }
 
 
 def mel_griffin_roundtrip(audio: np.ndarray, sr: int = SAMPLE_RATE) -> tuple[np.ndarray, dict]:
-    """Speech-aware proxy: 80-mel → Griffin-Lim. Stand-in when CosyVoice 2 is absent."""
+    """Generic spectral baseline: 80-mel → Griffin-Lim."""
 
     n_fft, hop, n_mels = 512, 160, 80
+    original_length = len(audio)
     if len(audio) < n_fft:
         audio = np.pad(audio, (0, n_fft - len(audio)))
     window = np.hanning(n_fft)
@@ -84,10 +98,10 @@ def mel_griffin_roundtrip(audio: np.ndarray, sr: int = SAMPLE_RATE) -> tuple[np.
         )
         new_stft = rfft(new_frames, n=n_fft, axis=1)
         phase = np.angle(new_stft)
-    rec = rebuilt[: len(audio)].astype(np.float32)
+    rec = rebuilt[:original_length].astype(np.float32)
     return rec, {
         "available": True,
-        "notes": "80-mel Griffin-Lim; CosyVoice2-like spectral bottleneck",
+        "notes": "generic 80-mel Griffin-Lim baseline; not a CosyVoice2 proxy",
     }
 
 
@@ -126,7 +140,7 @@ def encodec_roundtrip(audio: np.ndarray, sr: int = SAMPLE_RATE) -> tuple[np.ndar
             rec = np.pad(rec, (0, len(audio) - len(rec)))
         info = {
             "available": True,
-            "notes": "facebook/encodec_24khz neural speech tokenizer via model.forward; CosyVoice2 substitute when CosyVoice is not installed",
+            "notes": "facebook/encodec_24khz neural speech tokenizer via model.forward; independently evaluated component, not a CosyVoice2 substitute",
             "codebook_frames": n_codes,
         }
         return rec, info
@@ -140,7 +154,7 @@ def probe_cosyvoice2() -> dict:
     payload = {
         "pulled_7b": False,
         "modules": {},
-        "tokenizer_for_omni2": "encodec_24khz_24kbps",
+        "tokenizer_for_omni2": None,
         "persian_tokens": None,
     }
     for name, module in (
@@ -152,14 +166,14 @@ def probe_cosyvoice2() -> dict:
     any_cv = any(v.get("available") for v in payload["modules"].values())
     payload["available"] = any_cv
     if any_cv:
-        payload["tokenizer_for_omni2"] = "cosyvoice2_if_persian_tokenizes"
         payload["note"] = (
-            "CosyVoice import succeeded; train Omni2 TTS head on those tokens only if encode() accepts Persian."
+            "CosyVoice import succeeded, but this import-only probe does not establish Persian "
+            "tokenization or round-trip quality."
         )
     else:
         payload["note"] = (
-            "CosyVoice 2 not installed. Keep Encodec 24 kHz @ 24 kbps as the speech tokenizer "
-            "(bake-off CER 0.087). Do not pull 7B on the busy H100."
+            "CosyVoice 2 not installed. This probe makes no CosyVoice2 quality or selection claim; "
+            "Encodec is evaluated separately when available."
         )
     return payload
 
@@ -169,11 +183,17 @@ def try_module_codec(name: str, module: str) -> dict:
         __import__(module)
         return {
             "available": True,
+            "probe_type": "import_only",
             "persian_phones_preserved": None,
             "notes": "installed; encode/decode not wired",
         }
     except Exception:
-        return {"available": False, "persian_phones_preserved": None, "notes": "not installed"}
+        return {
+            "available": False,
+            "probe_type": "import_only",
+            "persian_phones_preserved": None,
+            "notes": "not installed",
+        }
 
 
 def whisper_intelligibility(
@@ -191,16 +211,11 @@ def whisper_intelligibility(
         asr = pipeline("automatic-speech-recognition", model="openai/whisper-small", device=device)
 
         def transcribe(x: np.ndarray) -> str:
-            import os
-            import tempfile
-
-            from thesis_s2s.audio import write_wav
-
             fd, name = tempfile.mkstemp(suffix=".wav")
             os.close(fd)
             tmp = Path(name)
-            write_wav(tmp, x, sr)
             try:
+                write_wav(tmp, x, sr)
                 out = asr(str(tmp), generate_kwargs={"language": "persian", "task": "transcribe"})
                 return str(out.get("text") or "")
             finally:
@@ -215,26 +230,16 @@ def whisper_intelligibility(
             "orig_text": a[:180],
             "recon_text": b[:180],
             "cer": cer,
-            "persian_phones_preserved": bool(has_fa and cer <= 0.45),
+            "automatic_transcript_content_preserved": bool(has_fa and cer <= 0.45),
+            "persian_phones_preserved": None,
+            "claim_boundary": "Whisper transcript CER is not phonetic or perceptual evidence",
         }
     except Exception as exc:
         return {"available": False, "error": str(exc)[:300]}
 
 
 def _cer(ref: str, hyp: str) -> float:
-    ref_c = list(ref.replace(" ", ""))
-    hyp_c = list(hyp.replace(" ", ""))
-    if not ref_c:
-        return 0.0 if not hyp_c else 1.0
-    n, m = len(ref_c), len(hyp_c)
-    dp = np.zeros((n + 1, m + 1), dtype=np.int32)
-    dp[:, 0] = np.arange(n + 1)
-    dp[0, :] = np.arange(m + 1)
-    for i in range(1, n + 1):
-        for j in range(1, m + 1):
-            cost = 0 if ref_c[i - 1] == hyp_c[j - 1] else 1
-            dp[i, j] = min(dp[i - 1, j] + 1, dp[i, j - 1] + 1, dp[i - 1, j - 1] + cost)
-    return float(dp[n, m] / n)
+    return character_error_rate(ref, hyp)
 
 
 def roundtrip_all(path: Path) -> dict:
@@ -257,7 +262,8 @@ def roundtrip_all(path: Path) -> dict:
     recon = rec_en if rec_en is not None else rec_mel
     payload["whisper_intelligibility"] = whisper_intelligibility(audio, recon, sr)
     if rec_en is not None:
-        payload["encodec_24k"]["persian_phones_preserved"] = payload["whisper_intelligibility"].get(
-            "persian_phones_preserved"
-        )
+        payload["encodec_24k"]["automatic_transcript_content_preserved"] = payload[
+            "whisper_intelligibility"
+        ].get("automatic_transcript_content_preserved")
+        payload["encodec_24k"]["persian_phones_preserved"] = None
     return payload

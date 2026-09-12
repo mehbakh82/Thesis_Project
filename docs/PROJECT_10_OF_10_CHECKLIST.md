@@ -1189,6 +1189,20 @@ Final engineering audit:
   package-version ambiguity, and retain strict failure for every genuinely
   unmatched advisory. Focused policy tests and the live 56-identity pinned
   Moshi exception audit pass without broadening the accepted-risk policy.
+- [x] Confirm the advisory-identity correction in complete GitHub Actions run
+  `34488968607`: all compile, lint, type, history/privacy, frozen-source,
+  application-risk, 280-test/coverage, and pinned Moshi risk-drift stages pass.
+- [x] Correct the historical codec/component survey's mislabeled `mulaw8`
+  calculation: it now applies a real 256-level mu-law quantization bottleneck,
+  changing only that diagnostic SNR from an invalid identity-like 99.33 dB to
+  37.81 dB. Relabel mel/Griffin-Lim and Encodec so neither implies evidence
+  about CosyVoice2; make import-only probes explicit; return JSON-safe `null`
+  for undefined SNR; clean temporary ASR files even on write failure; and make
+  persisted paths repository-relative. The independent Encodec CER remains
+  0.087; its automatic transcript-content proxy is no longer mislabeled as
+  phonetic preservation, and no model-selection conclusion changes. The
+  complete local suite passes 285 tests at 77.55% branch-aware coverage,
+  allowing the enforced floor to rise from 75% to 76%.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.
