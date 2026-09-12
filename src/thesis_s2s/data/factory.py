@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import json
+import math
+import os
 import shutil
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -23,15 +26,23 @@ def _hours_from_jsonl(path: Path) -> tuple[int, float, int]:
     if not path.is_file():
         return 0, 0.0, 0
     with path.open("r", encoding="utf-8") as handle:
-        for line in handle:
+        for line_number, line in enumerate(handle, start=1):
             if not line.strip():
                 continue
             try:
                 row = json.loads(line)
-            except json.JSONDecodeError:
-                continue
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"invalid JSONL at {path}:{line_number}: {exc.msg}") from exc
+            if not isinstance(row, dict):
+                raise ValueError(f"expected JSON object at {path}:{line_number}")
+            try:
+                duration = float(row.get("duration") or 0)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"invalid duration at {path}:{line_number}") from exc
+            if not math.isfinite(duration) or duration < 0:
+                raise ValueError(f"duration must be finite and non-negative at {path}:{line_number}")
             n += 1
-            hours += float(row.get("duration") or 0) / 3600.0
+            hours += duration / 3600.0
             if str(row.get("transcript_caption") or row.get("text") or "").strip():
                 captioned += 1
     return n, hours, captioned
@@ -42,9 +53,27 @@ def _load_report(path: Path) -> dict:
         return {}
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return {}
-    return value if isinstance(value, dict) else {}
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"invalid JSON report {path}: {exc.msg}") from exc
+    if not isinstance(value, dict):
+        raise ValueError(f"expected JSON object report: {path}")
+    return value
+
+
+def _copy_atomic(source: Path, destination: Path) -> None:
+    """Copy metadata and replace only after a complete same-filesystem copy."""
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{destination.name}.", suffix=".tmp", dir=destination.parent
+    )
+    os.close(descriptor)
+    temporary = Path(temporary_name)
+    try:
+        shutil.copy2(source, temporary)
+        temporary.replace(destination)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def promote_caption_training_mix() -> dict:
@@ -55,13 +84,14 @@ def promote_caption_training_mix() -> dict:
     filtered = manifests / "filtered.jsonl"
     archive = manifests / "filtered_nemo_teacher.jsonl"
     report: dict[str, object] = {"copied": False, "archived_nemo_mix": False, "source": None}
+    if not caption.is_file() or caption.stat().st_size <= 0:
+        return report
     if filtered.is_file() and not archive.is_file():
-        shutil.move(str(filtered), str(archive))
+        _copy_atomic(filtered, archive)
         report["archived_nemo_mix"] = True
-    if caption.is_file() and caption.stat().st_size > 0:
-        shutil.copy2(caption, filtered)
-        report["copied"] = True
-        report["source"] = portable_path(caption, root=project_root())
+    _copy_atomic(caption, filtered)
+    report["copied"] = True
+    report["source"] = portable_path(caption, root=project_root())
     return report
 
 
@@ -73,6 +103,9 @@ def refresh_dataset_card(report: dict | None = None) -> Path:
     n_filt, h_filt, n_filt_text = _hours_from_jsonl(manifests / "filtered.jsonl")
     _, h_cap, _ = _hours_from_jsonl(manifests / "filtered_caption.jsonl")
     rec = SessionStore().export_manifest()
+    filtered_current_run = report is None or report.get("filtered_current_run") is not False
+    if not filtered_current_run:
+        n_filt, h_filt, n_filt_text = 0, 0.0, 0
     rec_hours = rec.get("hours") or 0.0
     csv_inv = {}
     csv_path = manifests / "csv_inventory.json"
@@ -133,7 +166,7 @@ def refresh_dataset_card(report: dict | None = None) -> Path:
     caption_hours_ok = h_filt >= 100 and n_filt_text == n_filt and n_filt > 0
     audit = (
         audit_manifest(manifests / "filtered.jsonl", check_files=False)
-        if (manifests / "filtered.jsonl").is_file()
+        if filtered_current_run and (manifests / "filtered.jsonl").is_file()
         else {"thesis_coverage_ok": False, "reason": "filtered_manifest_missing"}
     )
     alignment: dict = {}
@@ -438,6 +471,7 @@ def scale_corpus(
     filtered = manifests / "filtered.jsonl"
     diar_out = manifests / "filtered_diarized.jsonl"
     caption = {"n": 0, "hours": 0.0}
+    filtered_current_run = False
     if src.is_file() and src.stat().st_size > 0:
         caption = filter_hours(
             src,
@@ -446,17 +480,19 @@ def scale_corpus(
             max_hours=max_hours,
             require_teacher=False,
         )
-        if caption_out.is_file():
-            shutil.copy2(caption_out, filtered)
+        if caption_out.is_file() and caption_out.stat().st_size > 0:
+            _copy_atomic(caption_out, filtered)
+            filtered_current_run = True
         filt = dict(caption)
     else:
         filt = {"n": 0, "hours": 0.0, "min_hours_ok": False}
     diar = {"attempted": 0, "ok": 0, "note": "skipped_or_unset"}
-    if filtered.is_file() and filtered.stat().st_size > 0:
+    if filtered_current_run:
         diar = annotate_manifest(filtered, diar_out, limit=diarize_limit)
     report = {
         "caption_filter": caption,
         "filtered": filt,
+        "filtered_current_run": filtered_current_run,
         "s2s_text": "transcript_caption",
         "reasr": {
             "skipped": True,
@@ -485,12 +521,14 @@ def run_factory(
     src = manifests / "youtube_all.jsonl"
     filtered = manifests / "filtered.jsonl"
     caption_out = manifests / "filtered_caption.jsonl"
+    filtered_current_run = False
     if src.is_file() and src.stat().st_size > 0:
         filt = filter_hours(
             src, caption_out, min_hours=100, max_hours=filter_max_hours, require_teacher=False
         )
-        if caption_out.is_file():
-            shutil.copy2(caption_out, filtered)
+        if caption_out.is_file() and caption_out.stat().st_size > 0:
+            _copy_atomic(caption_out, filtered)
+            filtered_current_run = True
     else:
         filt = {"n": 0, "hours": 0.0, "min_hours_ok": False}
     synth = write_synthetic_duplex(
@@ -503,6 +541,7 @@ def run_factory(
     report = {
         "ingest": ingest,
         "filtered": filt,
+        "filtered_current_run": filtered_current_run,
         "synthetic": synth,
         "recording_split": rec,
         "target_internal_hours": [100, 200],

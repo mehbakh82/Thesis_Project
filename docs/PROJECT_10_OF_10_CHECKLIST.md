@@ -1203,6 +1203,16 @@ Final engineering audit:
   phonetic preservation, and no model-selection conclusion changes. The
   complete local suite passes 285 tests at 77.55% branch-aware coverage,
   allowing the enforced floor to rise from 75% to 76%.
+- [x] Harden the CLI-exposed data factory against stale and partial state.
+  Caption promotion now verifies a non-empty replacement before archiving the
+  active mix, preserves the old mix if any copy fails, and uses same-filesystem
+  atomic replacement. Missing current input can no longer diarize a stale
+  filtered manifest or report stale filtered hours as current. JSONL duration
+  counting and evidence-report loading fail closed on malformed/non-object,
+  negative, or non-finite data instead of silently undercounting. Isolated
+  success/failure regressions touch no real corpus. The complete suite passes
+  293 tests at 78.43% branch-aware coverage; factory coverage rises from 51%
+  to 89%, allowing the enforced floor to rise from 76% to 77%.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.
