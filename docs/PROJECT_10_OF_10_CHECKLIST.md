@@ -1300,6 +1300,17 @@ Final engineering audit:
   coverage; audio and TTS reach 86.79% and 81.54%. The CI floor remains 79%
   because the 0.057-point margin above 80% is intentionally not treated as a
   stable cross-interpreter enforcement margin.
+- [x] Confirm audio/TTS hardening in complete GitHub Actions run `34684905399`,
+  including compile, lint, type, history/privacy, evaluator-binding,
+  dependency, 339-test/coverage, and scientific-risk gates.
+- [x] Make future measurement output fail closed without changing frozen
+  evidence. Reject binary labels that would be truncated/coerced, invalid
+  percentile/bootstrap controls, non-numeric/negative latency or VRAM, and a
+  forced official flag when the actual samples are hardware-ineligible. Reject
+  non-finite metric JSON and fsync/atomically replace reports while preserving
+  an existing file on failure. The complete local suite passes 343 tests at
+  80.167% branch-aware coverage, and metrics reaches 83.85%. The enforced floor
+  remains 79% because 0.167 points is not a stable cross-interpreter margin.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.
