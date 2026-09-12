@@ -1285,6 +1285,21 @@ Final engineering audit:
   overwriting it with true. The complete local suite passes 327 tests at
   79.640% branch-aware coverage; cascade rises from 72% to 88.10%, benchmark
   coverage remains 100%, and the enforced floor rises from 78% to 79%.
+- [x] Confirm cascade hardening in complete GitHub Actions run `34684242098`,
+  including compile, lint, type, history/privacy, evaluator-binding,
+  dependency, 327-test/coverage, and scientific-risk gates.
+- [x] Harden audio and TTS I/O without regenerating frozen evidence. Reject
+  unsupported, complex, boolean, non-finite, empty, and ambiguous channels-first
+  audio; validate every sample rate; remove float-as-integer-PCM guessing; round
+  PCM quantization; and fsync/atomically replace WAV output. Bound ffmpeg and
+  Piper subprocesses with configurable positive finite timeouts. Make the
+  formant diagnostic deterministic across processes, honor only an explicit
+  Piper voice or the exact Mana filename, validate rendered WAV/audio, and make
+  health readiness depend on a successful finite-audio render rather than model
+  presence. The complete local suite passes 339 tests at 80.057% branch-aware
+  coverage; audio and TTS reach 86.79% and 81.54%. The CI floor remains 79%
+  because the 0.057-point margin above 80% is intentionally not treated as a
+  stable cross-interpreter enforcement margin.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

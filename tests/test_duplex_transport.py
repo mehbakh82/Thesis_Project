@@ -156,7 +156,7 @@ def test_health_requires_the_exact_validated_cascade(tmp_path: Path, monkeypatch
     )
     monkeypatch.setattr(duplex_mod, "default_talker", lambda: talker)
     monkeypatch.setattr(duplex_mod, "project_root", lambda: tmp_path)
-    monkeypatch.setattr(duplex_mod, "piper_available", lambda: True)
+    monkeypatch.setattr(duplex_mod, "piper_runtime_ready", lambda: True)
     monkeypatch.setattr(
         duplex_mod,
         "gpu_inventory",

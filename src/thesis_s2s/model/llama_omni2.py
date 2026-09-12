@@ -458,13 +458,13 @@ class OmniTalker:
     """Decode first-packet audio. Piper/ManaTTS is the audible first packet when installed."""
 
     def __init__(self, ckpt: Path | None = None):
-        from thesis_s2s.runtime.tts import FormantTalker, piper_available
+        from thesis_s2s.runtime.tts import FormantTalker
 
         self.fallback = FormantTalker()
         self.model = None
         self.processor = None
         self.device = "cpu"
-        self.backend = "piper" if piper_available() else "formant"
+        self.backend = self.fallback.backend
         path = Path(ckpt or project_root() / "checkpoints" / "llama_omni2_fa" / "persian_omni2.pt")
         self.checkpoint_status = checkpoint_runtime_status(path)
         if not self.checkpoint_status["runtime_ready"]:

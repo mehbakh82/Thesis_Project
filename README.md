@@ -187,13 +187,14 @@ The provenance tests require full Git history (CI uses `fetch-depth: 0`). A
 `--depth 1` checkout intentionally cannot validate historical launcher hashes;
 use a normal clone for the final reproducibility audit.
 
-Use either a protected preconfigured rclone remote via `THESIS_RCLONE_REMOTE` or ephemeral `S3_*` environment variables (see `.env.example`). Credentials are never copied from rclone configuration, placed in the repository, or passed as command arguments. Rclone operations have a validated one-hour default timeout; set `RCLONE_TIMEOUT_SECONDS` explicitly for slower storage.
+Use either a protected preconfigured rclone remote via `THESIS_RCLONE_REMOTE` or ephemeral `S3_*` environment variables (see `.env.example`). Credentials are never copied from rclone configuration, placed in the repository, or passed as command arguments. Rclone operations have a validated one-hour default timeout; set `RCLONE_TIMEOUT_SECONDS` explicitly for slower storage. Audio decoding and Piper rendering likewise have positive finite defaults controlled by `AUDIO_DECODE_TIMEOUT_SECONDS` and `PIPER_TIMEOUT_SECONDS`.
 If a key has ever been stored in a plaintext cheatsheet or exposed in output,
 rotate it and replace the document with environment-variable placeholders.
 
 For the server, `GET /health` distinguishes transport liveness (`ok`) from the
 exact validated deployment (`validated_cascade_ready`): the latter is true only
-when the pinned Qwen3-4B revision, prompt-v2, and Piper runtime are all active.
+when the pinned Qwen3-4B revision and prompt-v2 are active and the configured
+Mana-Piper voice passes an actual finite-audio render probe.
 
 ## Core commands
 

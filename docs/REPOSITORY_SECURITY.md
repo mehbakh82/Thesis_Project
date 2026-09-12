@@ -33,9 +33,10 @@ Status date: 2026-09-12
   `enabled=true`, `paused=false`.
 - CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 51
   source files against the Python 3.10 target.
-- The measured branch-aware coverage is 79.64%; the enforced floor is 79%,
+- The measured branch-aware coverage is 80.06%; the enforced floor is 79%,
   raised from 35%, 60%, 68%, 71%, 74%, 75%, 76%, 77%, and 78% while retaining a small
-  non-flaky margin.
+  non-flaky margin. The floor is not rounded up to the measured integer because
+  the exact 0.057-point margin would be brittle across supported interpreters.
   The CLI-exposed batch re-ASR pipeline is covered at 78%, multi-channel
   ingestion at 94%, YouTube preparation at 96%, the evaluation benchmark
   runner at 100%, and the historical codec/component survey at 57% after
@@ -81,6 +82,15 @@ Status date: 2026-09-12
   liveness and exact Qwen-v2/Piper readiness. The generic interrupt benchmark
   preserves upstream official ineligibility for automatic recorded labels
   instead of promoting any recorded fold. Cascade coverage is 88%.
+- Audio/TTS boundaries reject invalid sample rates, unsupported/non-finite audio,
+  ambiguous channels-first tensors, empty decodes, and empty WAV writes. WAV
+  replacement is atomic and fsync-backed; ffmpeg and Piper subprocesses have
+  positive finite configurable timeouts. Float input is clipped rather than
+  heuristically reinterpreted as integer PCM, and the diagnostic formant fallback
+  is stable across processes. Explicit missing Piper paths and arbitrary ONNX
+  voices fail closed, output is schema/finite-checked, and deployment readiness
+  requires a successful render probe rather than file presence. The complete
+  suite passes 339 tests; audio and TTS coverage are 86.79% and 81.54%.
 - The general requirements audit remains fail-closed on unreviewed drift. On
   2026-09-09, pip-audit began reporting CVE-2026-69112 in Accelerate 1.14.0.
   The scanner feed later stopped mapping it and the resolver advanced to 1.15.0.

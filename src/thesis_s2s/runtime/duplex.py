@@ -24,7 +24,7 @@ from thesis_s2s.metrics import gpu_inventory
 from thesis_s2s.model.llama_omni2 import checkpoint_runtime_status
 from thesis_s2s.runtime.cascade import QWEN4B_MODEL, QWEN4B_REVISION, CascadeTalker
 from thesis_s2s.runtime.session_log import PROMPTS, SessionMeta, SessionStore
-from thesis_s2s.runtime.tts import FormantTalker, piper_available
+from thesis_s2s.runtime.tts import FormantTalker, piper_runtime_ready
 
 
 @dataclass
@@ -402,7 +402,7 @@ def build_app(
             and getattr(responder, "model_name", None) == QWEN4B_MODEL
             and getattr(responder, "model_revision", None) == QWEN4B_REVISION
             and getattr(responder, "prompt_profile", None) == "qwen4b_v2"
-            and piper_available()
+            and piper_runtime_ready()
         )
         return {
             "ok": True,
