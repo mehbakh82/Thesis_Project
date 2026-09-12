@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import re
 
 import numpy as np
@@ -25,7 +26,7 @@ def estimate_snr_db(audio: np.ndarray, cfg: FeatureConfig | None = None) -> floa
     index = np.arange(win)[None, :] + hop * np.arange(n)[:, None]
     energy = log_energy(audio[index])
     if len(energy) < 4:
-        return float("nan")
+        return 0.0
     return float(np.percentile(energy, 90) - np.percentile(energy, 10))
 
 
@@ -63,6 +64,8 @@ def conversational_ok(
     min_snr_db: float = 3.0,
     min_words: int = 3,
 ) -> tuple[bool, str]:
+    if not math.isfinite(duration):
+        return False, "invalid_duration"
     if duration < min_duration or duration > max_duration:
         return False, "duration"
     if language_status in {"no_persian_speech", "no_speech", "language_uncertain"}:
@@ -73,6 +76,9 @@ def conversational_ok(
         return False, "not_persian"
     if len(text.split()) < min_words:
         return False, "short_text"
-    if snr_db is not None and snr_db == snr_db and snr_db < min_snr_db:
-        return False, "low_snr"
+    if snr_db is not None:
+        if not math.isfinite(snr_db):
+            return False, "invalid_snr"
+        if snr_db < min_snr_db:
+            return False, "low_snr"
     return True, "ok"

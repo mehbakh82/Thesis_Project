@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
+import os
+import tempfile
 from pathlib import Path
 
 from thesis_s2s.audio import read_wav, write_wav
@@ -11,6 +14,24 @@ from thesis_s2s.bargein.synthetic import make_clip
 from thesis_s2s.data.quality import conversational_ok, estimate_snr_db
 from thesis_s2s.data.verbatim import s2s_text, verbatim_normalize
 from thesis_s2s.metrics import write_json
+
+
+def _write_jsonl_atomic(path: Path, rows: list[dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
+    )
+    os.close(descriptor)
+    temporary = Path(temporary_name)
+    try:
+        with temporary.open("w", encoding="utf-8") as handle:
+            for row in rows:
+                handle.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        temporary.replace(path)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def filter_hours(
@@ -22,11 +43,31 @@ def filter_hours(
     compute_snr: bool = True,
     require_teacher: bool = False,
 ) -> dict:
-    rows = [
-        json.loads(line)
-        for line in in_jsonl.read_text(encoding="utf-8").splitlines()
-        if line.strip()
-    ]
+    if not all(math.isfinite(value) for value in (min_hours, max_hours, min_snr_db)):
+        raise ValueError("hour and SNR thresholds must be finite")
+    if min_hours < 0 or max_hours < 0 or min_hours > max_hours:
+        raise ValueError("require 0 <= min_hours <= max_hours")
+    rows = []
+    for line_number, line in enumerate(
+        in_jsonl.read_text(encoding="utf-8").splitlines(), start=1
+    ):
+        if not line.strip():
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"invalid JSONL at {in_jsonl}:{line_number}: {exc.msg}") from exc
+        if not isinstance(row, dict):
+            raise ValueError(f"expected JSON object at {in_jsonl}:{line_number}")
+        try:
+            duration = float(row.get("duration") or 0)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"invalid duration at {in_jsonl}:{line_number}") from exc
+        if not math.isfinite(duration) or duration < 0:
+            raise ValueError(
+                f"duration must be finite and non-negative at {in_jsonl}:{line_number}"
+            )
+        rows.append(row)
     rows.sort(key=lambda r: float(r.get("duration") or 0), reverse=True)
     kept = []
     hours = 0.0
@@ -39,6 +80,7 @@ def filter_hours(
         "not_persian": 0,
         "short_text": 0,
         "low_snr": 0,
+        "invalid_snr": 0,
     }
     for row in rows:
         if require_teacher and not str(row.get("transcript_nemo") or "").strip():
@@ -70,21 +112,20 @@ def filter_hours(
             key = reason.split(":")[0]
             skipped[key] = skipped.get(key, 0) + 1
             continue
-        if hours >= max_hours:
-            break
-        hours += duration / 3600.0
+        row_hours = duration / 3600.0
+        if hours + row_hours > max_hours:
+            continue
+        hours += row_hours
         kept_row = dict(row)
         kept_row["text"] = text
         kept.append(kept_row)
-    out_jsonl.parent.mkdir(parents=True, exist_ok=True)
-    with out_jsonl.open("w", encoding="utf-8") as handle:
-        for row in kept:
-            handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+    _write_jsonl_atomic(out_jsonl, kept)
     report = {
         "n": len(kept),
         "hours": round(hours, 3),
         "min_hours_ok": hours >= min_hours,
         "max_hours": max_hours,
+        "max_hours_ok": hours <= max_hours,
         "min_hours_target": min_hours,
         "require_teacher": require_teacher,
         "skipped": skipped,

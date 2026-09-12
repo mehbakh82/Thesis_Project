@@ -1213,6 +1213,18 @@ Final engineering audit:
   success/failure regressions touch no real corpus. The complete suite passes
   293 tests at 78.43% branch-aware coverage; factory coverage rises from 51%
   to 89%, allowing the enforced floor to rise from 76% to 77%.
+- [x] Confirm that factory hardening in complete GitHub Actions run
+  `34681925809`, including all history/privacy, evaluator-binding, dependency,
+  test, coverage, and scientific-risk gates.
+- [x] Make caption filtering and acoustic-quality decisions fail closed.
+  Reject malformed/non-object manifest rows, invalid threshold relationships,
+  and non-finite/negative durations before replacing any output; reject
+  non-finite supplied SNR; emit a finite 0 dB proxy for clips too short to
+  estimate an energy distribution; pack rows only when they fit the configured
+  maximum instead of overshooting it; and atomically flush/fsync/replace the
+  filtered JSONL with standards-compliant finite JSON. The complete suite
+  passes 301 tests at 78.625% branch-aware coverage, allowing the enforced
+  floor to rise from 77% to 78%.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.
