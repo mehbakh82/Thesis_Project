@@ -1354,6 +1354,8 @@ Final engineering audit:
   production source; use explicit fail-closed invariant errors and declare the
   deterministic episode split hash as non-security. Enforce `S101,S324` for
   `src` in CI. All 358 local tests pass at 80.222% branch-aware coverage.
+- [x] Confirm the expanded production security gate in complete GitHub Actions
+  run `34699895879` at `d840471`; all remote gates passed.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

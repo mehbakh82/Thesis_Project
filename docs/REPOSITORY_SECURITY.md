@@ -202,6 +202,10 @@ Status date: 2026-09-12
   local HTTP clients, the explicitly trusted project-created detector pickle,
   or frozen historical evaluator scripts; they are not silently enabled as a
   blanket security ruleset.
+- The expanded production security gate passed complete GitHub Actions run
+  `34699895879` at commit `d840471`, including the new `S101,S324` enforcement
+  and every existing compile, lint, type, privacy/history, frozen-source,
+  dependency, test/coverage, and scientific-risk check.
 
 ## Accepted pinned-training compatibility risks
 
