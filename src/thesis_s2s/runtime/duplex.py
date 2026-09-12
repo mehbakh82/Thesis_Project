@@ -23,7 +23,12 @@ from thesis_s2s.config import project_root
 from thesis_s2s.metrics import gpu_inventory
 from thesis_s2s.model.llama_omni2 import checkpoint_runtime_status
 from thesis_s2s.runtime.cascade import QWEN4B_MODEL, QWEN4B_REVISION, CascadeTalker
-from thesis_s2s.runtime.session_log import PROMPTS, SessionMeta, SessionStore
+from thesis_s2s.runtime.session_log import (
+    PROMPTS,
+    SessionMeta,
+    SessionStore,
+    _append_jsonl_atomic,
+)
 from thesis_s2s.runtime.tts import FormantTalker, piper_runtime_ready
 
 
@@ -467,6 +472,7 @@ def build_app(
             speaker_id=str(payload.speaker_id or speaker_id),
             gpu_name=str(host_gpu.get("device") or "cpu"),
             vram_gb=float(host_gpu["total_gb"]) if host_gpu.get("total_gb") is not None else None,
+            memory_capped=bool(host_gpu.get("memory_capped", False)),
             age_bin=str(payload.age_bin or age_bin),
             consent=True,
             retention=effective_retention,
@@ -485,9 +491,8 @@ def build_app(
                 "detector": payload.detector or detector_name,
             }
         )
-        with path.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(row, ensure_ascii=False) + "\n")
-        return {"ok": True, "path": str(path)}
+        _append_jsonl_atomic(path, row)
+        return {"ok": True, "session_id": sid}
 
     @app.websocket("/ws")
     async def ws_duplex(ws: WebSocket) -> None:
@@ -509,6 +514,7 @@ def build_app(
             speaker_id=speaker_id,
             gpu_name=str(host_gpu.get("device") or "cpu"),
             vram_gb=float(host_gpu["total_gb"]) if host_gpu.get("total_gb") is not None else None,
+            memory_capped=bool(host_gpu.get("memory_capped", False)),
             age_bin=age_bin,
             consent=False,
             retention=effective_retention,
@@ -615,6 +621,7 @@ def build_app(
                         vram_gb=float(host_gpu["total_gb"])
                         if host_gpu.get("total_gb") is not None
                         else None,
+                        memory_capped=bool(host_gpu.get("memory_capped", False)),
                         age_bin=str(turn_meta["age_bin"]),
                         consent=bool(turn_meta["consent"]),
                         retention=effective_retention,

@@ -33,10 +33,10 @@ Status date: 2026-09-12
   `enabled=true`, `paused=false`.
 - CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 51
   source files against the Python 3.10 target.
-- The measured branch-aware coverage is 80.16%; the enforced floor is 79%,
+- The measured branch-aware coverage is 80.32%; the enforced floor is 79%,
   raised from 35%, 60%, 68%, 71%, 74%, 75%, 76%, 77%, and 78% while retaining a small
-  non-flaky margin. The floor is not rounded up to the measured integer because
-  the exact 0.159-point margin would be brittle across supported interpreters.
+  non-flaky margin. The floor is not raised to 80% because the remaining
+  cross-interpreter margin is deliberately kept non-brittle.
   The CLI-exposed batch re-ASR pipeline is covered at 78%, multi-channel
   ingestion at 94%, YouTube preparation at 96%, the evaluation benchmark
   runner at 100%, and the historical codec/component survey at 57% after
@@ -111,6 +111,15 @@ Status date: 2026-09-12
   `EVIDENCE_STATUS.json` and its generated Markdown view. The proposal and
   frozen-source receipts reproduce byte-for-byte. The complete suite passes 351
   tests, and evidence aggregation coverage is 97.35%.
+- Consented study sessions now bind participant, retention, GPU identity,
+  physical VRAM, and memory-cap provenance for the life of a session. Turn and
+  rating JSONL appends are inter-process locked, finite-JSON checked, fsynced,
+  and atomically replaced; a failed turn commit removes newly written audio.
+  Manifest and study-summary replacement preserves the prior artifact on
+  failure, API responses no longer disclose absolute recording paths, and
+  malformed/non-finite stored turns fail the official study gate. The complete
+  local suite passes 358 tests at 80.323% branch-aware coverage; the session
+  recorder is covered at 90.35%.
 - The general requirements audit remains fail-closed on unreviewed drift. On
   2026-09-09, pip-audit began reporting CVE-2026-69112 in Accelerate 1.14.0.
   The scanner feed later stopped mapping it and the resolver advanced to 1.15.0.
@@ -169,6 +178,10 @@ Status date: 2026-09-12
   496-file full-history/privacy audit, frozen evaluator/source binding, the
   narrow reviewed application-dependency policy, all 227 tests, coverage, and
   the exact Moshi advisory-drift audit.
+- The bounded-evidence hardening at `72d531a` passed complete GitHub Actions run
+  `34687281188` on 2026-09-12, including 351 tests, full-history/privacy,
+  deterministic evidence-summary binding, dependency audits, and the pinned
+  scientific-risk drift gate.
 
 ## Accepted pinned-training compatibility risks
 

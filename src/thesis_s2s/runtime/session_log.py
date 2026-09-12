@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 import json
+import math
+import os
 import re
+import tempfile
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -11,7 +15,7 @@ from pathlib import Path
 import numpy as np
 
 from thesis_s2s import SAMPLE_RATE
-from thesis_s2s.audio import write_wav
+from thesis_s2s.audio import to_float32_mono, write_wav
 from thesis_s2s.bargein.features import FeatureConfig, context_vector, frame_feature_matrix
 from thesis_s2s.config import project_root
 from thesis_s2s.metrics import (
@@ -19,6 +23,7 @@ from thesis_s2s.metrics import (
     binary_scores,
     mean_confidence_interval,
     meets_bargein_accuracy_target,
+    write_json,
 )
 
 PROMPTS = [
@@ -45,6 +50,61 @@ VALID_LABELS = frozenset({"none", "interrupt", "backchannel", "noise"})
 SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 
 
+def _append_jsonl_atomic(path: Path, row_or_builder: dict | Callable[[int], dict]) -> dict:
+    """Append one finite object under an inter-process lock via atomic replacement."""
+
+    import fcntl
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = path.with_suffix(path.suffix + ".lock")
+    with lock_path.open("a+b") as lock:
+        fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+        existing = path.read_bytes() if path.is_file() else b""
+        if existing and not existing.endswith(b"\n"):
+            raise ValueError(f"refusing to append to truncated JSONL: {path}")
+        rows = []
+        for line_number, line in enumerate(existing.splitlines(), start=1):
+            if not line.strip():
+                continue
+            try:
+                parsed = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"invalid JSONL line {line_number} in {path}") from exc
+            if not isinstance(parsed, dict):
+                raise ValueError(f"JSONL line {line_number} is not an object: {path}")
+            rows.append(parsed)
+        row = row_or_builder(len(rows)) if callable(row_or_builder) else row_or_builder
+        if not isinstance(row, dict):
+            raise TypeError("JSONL row must be an object")
+        encoded = json.dumps(row, ensure_ascii=False, allow_nan=False).encode("utf-8") + b"\n"
+        descriptor, temporary_name = tempfile.mkstemp(
+            dir=path.parent, prefix=f".{path.name}.", suffix=".tmp"
+        )
+        temporary = Path(temporary_name)
+        try:
+            with os.fdopen(descriptor, "wb") as handle:
+                handle.write(existing)
+                handle.write(encoded)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, path)
+        finally:
+            temporary.unlink(missing_ok=True)
+            fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+    return row
+
+
+def _optional_nonnegative_finite(value: float | None, *, name: str) -> float | None:
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{name} must be finite, non-negative milliseconds or None")
+    converted = float(value)
+    if not math.isfinite(converted) or converted < 0:
+        raise ValueError(f"{name} must be finite, non-negative milliseconds or None")
+    return converted
+
+
 @dataclass
 class SessionMeta:
     session_id: str
@@ -56,6 +116,7 @@ class SessionMeta:
     notes: str = ""
     gpu_name: str = ""
     vram_gb: float | None = None
+    memory_capped: bool = False
     retention: str = "audio"  # "audio" | "features" | "metrics"
 
 
@@ -98,23 +159,47 @@ class SessionStore:
             raise ValueError("age_bin must be 'under_60' or '60plus'")
         if meta.retention not in {"audio", "features", "metrics"}:
             raise ValueError("retention must be 'audio', 'features', or 'metrics'")
+        if meta.vram_gb is not None and (
+            isinstance(meta.vram_gb, bool)
+            or not isinstance(meta.vram_gb, (int, float))
+            or not math.isfinite(float(meta.vram_gb))
+            or float(meta.vram_gb) <= 0
+        ):
+            raise ValueError("vram_gb must be finite, positive, or None")
+        if not isinstance(meta.memory_capped, bool):
+            raise ValueError("memory_capped must be a boolean")
         folder = self.session_dir(meta.session_id)
         meta_path = folder / "meta.json"
-        if meta_path.is_file():
-            previous = json.loads(meta_path.read_text(encoding="utf-8"))
-            identity = (
-                previous.get("speaker_id"),
-                previous.get("age_bin"),
-                previous.get("retention", "audio"),
-            )
-            if identity != (meta.speaker_id, meta.age_bin, meta.retention):
-                raise ValueError("existing session has different speaker, age group, or retention")
-        else:
-            meta_path.write_text(
-                json.dumps(asdict(meta), ensure_ascii=False, indent=2) + "\n",
-                encoding="utf-8",
-            )
-        (folder / "turns.jsonl").touch(exist_ok=True)
+        import fcntl
+
+        with (folder / ".session.lock").open("a+b") as lock:
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+            if meta_path.is_file():
+                previous = json.loads(meta_path.read_text(encoding="utf-8"))
+                identity = (
+                    previous.get("speaker_id"),
+                    previous.get("age_bin"),
+                    previous.get("retention", "audio"),
+                    previous.get("gpu_name", ""),
+                    previous.get("vram_gb"),
+                    previous.get("memory_capped", False),
+                )
+                requested_identity = (
+                    meta.speaker_id,
+                    meta.age_bin,
+                    meta.retention,
+                    meta.gpu_name,
+                    meta.vram_gb,
+                    meta.memory_capped,
+                )
+                if identity != requested_identity:
+                    raise ValueError(
+                        "existing session has different participant, retention, or hardware provenance"
+                    )
+            else:
+                write_json(meta_path, asdict(meta))
+            (folder / "turns.jsonl").touch(exist_ok=True)
+            fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
         return folder
 
     def add_turn(
@@ -136,65 +221,79 @@ class SessionStore:
             raise ValueError(f"unknown prompt_id: {prompt_id}")
         if interrupt_label not in VALID_LABELS:
             raise ValueError(f"unknown interrupt_label: {interrupt_label}")
-        folder = self.start(meta)
-        n = (
-            sum(1 for _ in (folder / "turns.jsonl").open("r", encoding="utf-8") if _.strip())
-            if (folder / "turns.jsonl").is_file()
-            else 0
+        if not isinstance(stopped, bool):
+            raise ValueError("stopped must be a boolean")
+        t_first_audio_ms = _optional_nonnegative_finite(t_first_audio_ms, name="t_first_audio_ms")
+        t_barge_in_ms = _optional_nonnegative_finite(t_barge_in_ms, name="t_barge_in_ms")
+        server_generation_ms = _optional_nonnegative_finite(
+            server_generation_ms, name="server_generation_ms"
         )
-        utt_id = f"{meta.session_id}_{n:04d}"
+        user = to_float32_mono(user_audio)
+        if user.size == 0:
+            raise ValueError("user_audio must be non-empty")
+        folder = self.start(meta)
         wav: Path | None = None
         interaction_wav: Path | None = None
         feature_vector: list[float] = []
         feature_schema: str | None = None
-        interaction = np.asarray(
-            interaction_audio if interaction_audio is not None else [], dtype=np.float32
+        interaction = (
+            to_float32_mono(interaction_audio)
+            if interaction_audio is not None
+            else np.zeros(0, dtype=np.float32)
         )
-        if meta.retention == "audio":
-            wav = folder / f"{utt_id}.wav"
-            write_wav(wav, user_audio, SAMPLE_RATE)
-            if interaction.size:
-                interaction_wav = folder / f"{utt_id}_interaction.wav"
-                write_wav(interaction_wav, interaction, SAMPLE_RATE)
-        elif meta.retention == "features" and interaction.size:
+        if meta.retention == "features" and interaction.size:
             cfg = FeatureConfig()
             frames = frame_feature_matrix(interaction, cfg)
             aggregate = context_vector(frames, len(frames) - 1, cfg.context_frames)
             feature_vector = [round(float(value), 6) for value in aggregate]
             feature_schema = "energy-zcr-f0-voicing-mfcc13-delta13.context400.mean-std-max.v1"
-        rec = TurnRecord(
-            utt_id=utt_id,
-            prompt_id=prompt_id,
-            interrupt_label=interrupt_label,
-            t_first_audio_ms=t_first_audio_ms,
-            server_generation_ms=server_generation_ms,
-            t_barge_in_ms=t_barge_in_ms,
-            stopped=stopped,
-            duration=round(len(user_audio) / SAMPLE_RATE, 3),
-            audio_filepath=str(wav) if wav is not None else "",
-            interaction_audio_filepath=str(interaction_wav) if interaction_wav is not None else "",
-            privacy_feature_vector=feature_vector,
-            feature_schema=feature_schema,
-            retention=meta.retention,
-        )
-        with (folder / "turns.jsonl").open("a", encoding="utf-8") as handle:
-            handle.write(
-                json.dumps(
-                    {
-                        **asdict(rec),
-                        "speaker_id": meta.speaker_id,
-                        "age_bin": meta.age_bin,
-                        "license": "consent",
-                        "transcript_caption": None,
-                        "transcript_nemo": None,
-                        "feature_privacy_note": "lossy aggregate; no waveform retained"
-                        if feature_vector
-                        else None,
-                    },
-                    ensure_ascii=False,
-                )
-                + "\n"
+        rec: TurnRecord | None = None
+
+        def build_row(n: int) -> dict:
+            nonlocal interaction_wav, rec, wav
+            utt_id = f"{meta.session_id}_{n:04d}"
+            if meta.retention == "audio":
+                wav = folder / f"{utt_id}.wav"
+                write_wav(wav, user, SAMPLE_RATE)
+                if interaction.size:
+                    interaction_wav = folder / f"{utt_id}_interaction.wav"
+                    write_wav(interaction_wav, interaction, SAMPLE_RATE)
+            rec = TurnRecord(
+                utt_id=utt_id,
+                prompt_id=prompt_id,
+                interrupt_label=interrupt_label,
+                t_first_audio_ms=t_first_audio_ms,
+                server_generation_ms=server_generation_ms,
+                t_barge_in_ms=t_barge_in_ms,
+                stopped=stopped,
+                duration=round(len(user) / SAMPLE_RATE, 3),
+                audio_filepath=str(wav) if wav is not None else "",
+                interaction_audio_filepath=str(interaction_wav) if interaction_wav else "",
+                privacy_feature_vector=feature_vector,
+                feature_schema=feature_schema,
+                retention=meta.retention,
             )
+            return {
+                **asdict(rec),
+                "speaker_id": meta.speaker_id,
+                "age_bin": meta.age_bin,
+                "license": "consent",
+                "transcript_caption": None,
+                "transcript_nemo": None,
+                "feature_privacy_note": "lossy aggregate; no waveform retained"
+                if feature_vector
+                else None,
+            }
+
+        try:
+            _append_jsonl_atomic(folder / "turns.jsonl", build_row)
+        except Exception:
+            for created in (interaction_wav, wav):
+                if created is not None:
+                    created.unlink(missing_ok=True)
+            raise
+        if rec is None:  # pragma: no cover - builder contract
+            raise RuntimeError("turn row was not constructed")
         return rec
 
     def export_manifest(self, out_jsonl: Path | None = None) -> dict:
@@ -205,24 +304,37 @@ class SessionStore:
         hours = 0.0
         elderly = 0
         out_jsonl.parent.mkdir(parents=True, exist_ok=True)
-        with out_jsonl.open("w", encoding="utf-8") as dst:
-            for turns in sorted(self.root.glob("*/turns.jsonl")):
-                meta_path = turns.parent / "meta.json"
-                meta = (
-                    json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.is_file() else {}
-                )
-                for line in turns.read_text(encoding="utf-8").splitlines():
-                    if not line.strip():
-                        continue
-                    row = json.loads(line)
-                    row.setdefault("age_bin", meta.get("age_bin"))
-                    row.setdefault("gpu_name", meta.get("gpu_name"))
-                    row.setdefault("vram_gb", meta.get("vram_gb"))
-                    dst.write(json.dumps(row, ensure_ascii=False) + "\n")
-                    n += 1
-                    hours += float(row.get("duration") or 0) / 3600.0
-                    if row.get("age_bin") == "60plus":
-                        elderly += 1
+        descriptor, temporary_name = tempfile.mkstemp(
+            dir=out_jsonl.parent, prefix=f".{out_jsonl.name}.", suffix=".tmp"
+        )
+        temporary = Path(temporary_name)
+        try:
+            dst = os.fdopen(descriptor, "w", encoding="utf-8")
+            with dst:
+                for turns in sorted(self.root.glob("*/turns.jsonl")):
+                    meta_path = turns.parent / "meta.json"
+                    meta = (
+                        json.loads(meta_path.read_text(encoding="utf-8"))
+                        if meta_path.is_file()
+                        else {}
+                    )
+                    for line in turns.read_text(encoding="utf-8").splitlines():
+                        if not line.strip():
+                            continue
+                        row = json.loads(line)
+                        row.setdefault("age_bin", meta.get("age_bin"))
+                        row.setdefault("gpu_name", meta.get("gpu_name"))
+                        row.setdefault("vram_gb", meta.get("vram_gb"))
+                        dst.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n")
+                        n += 1
+                        hours += float(row.get("duration") or 0) / 3600.0
+                        if row.get("age_bin") == "60plus":
+                            elderly += 1
+                dst.flush()
+                os.fsync(dst.fileno())
+            os.replace(temporary, out_jsonl)
+        finally:
+            temporary.unlink(missing_ok=True)
         report = {
             "n": n,
             "hours": round(hours, 3),
@@ -243,6 +355,7 @@ class SessionStore:
         first_audio: list[float] = []
         barge_in: list[float] = []
         ratings: list[dict] = []
+        invalid_turn_rows = 0
         invalid_rating_rows = 0
         required_rating_keys = ("naturalness", "latency", "interrupt_success", "satisfaction")
         hardware_flags: list[bool] = []
@@ -266,31 +379,66 @@ class SessionStore:
             if meta.get("age_bin") == "60plus":
                 elderly.add(speaker)
             vram = meta.get("vram_gb")
-            eligible_hardware = isinstance(vram, (int, float)) and 12 <= float(vram) <= 24
+            gpu_name = meta.get("gpu_name")
+            eligible_hardware = bool(
+                isinstance(vram, (int, float))
+                and not isinstance(vram, bool)
+                and math.isfinite(float(vram))
+                and 12 <= float(vram) <= 24
+                and isinstance(gpu_name, str)
+                and gpu_name.strip()
+                and meta.get("memory_capped") is False
+            )
             hardware_flags.append(eligible_hardware)
             turns_path = folder / "turns.jsonl"
             if turns_path.is_file():
                 for line in turns_path.read_text(encoding="utf-8").splitlines():
                     if not line.strip():
                         continue
-                    turn = json.loads(line)
+                    try:
+                        turn = json.loads(line)
+                    except json.JSONDecodeError:
+                        invalid_turn_rows += 1
+                        continue
                     turns_n += 1
+                    if not isinstance(turn, dict):
+                        invalid_turn_rows += 1
+                        continue
                     retention = str(turn.get("retention") or meta.get("retention") or "audio")
-                    if retention in retention_counts:
-                        retention_counts[retention] += 1
-                    label = str(turn.get("interrupt_label") or "")
-                    if label in VALID_LABELS:
-                        live_truth.append(int(label == "interrupt"))
-                        live_pred.append(int(turn.get("stopped") is True))
-                        if eligible_hardware:
-                            eligible_live_truth.append(int(label == "interrupt"))
-                            eligible_live_pred.append(int(turn.get("stopped") is True))
+                    label = turn.get("interrupt_label")
+                    stopped = turn.get("stopped")
+                    timing_values = (turn.get("t_first_audio_ms"), turn.get("t_barge_in_ms"))
+                    valid_timings = all(
+                        value is None
+                        or (
+                            isinstance(value, (int, float))
+                            and not isinstance(value, bool)
+                            and math.isfinite(float(value))
+                            and float(value) >= 0
+                        )
+                        for value in timing_values
+                    )
+                    valid_turn = (
+                        retention in retention_counts
+                        and label in VALID_LABELS
+                        and isinstance(stopped, bool)
+                        and valid_timings
+                    )
+                    if not valid_turn:
+                        invalid_turn_rows += 1
+                        continue
+                    retention_counts[retention] += 1
+                    live_truth.append(int(label == "interrupt"))
+                    live_pred.append(int(stopped is True))
+                    if eligible_hardware:
+                        eligible_live_truth.append(int(label == "interrupt"))
+                        eligible_live_pred.append(int(stopped is True))
 
-                    if isinstance(turn.get("t_first_audio_ms"), (int, float)):
+                    if turn.get("t_first_audio_ms") is not None:
                         first_audio.append(float(turn["t_first_audio_ms"]))
                         if eligible_hardware:
                             eligible_first_audio.append(float(turn["t_first_audio_ms"]))
-                    if isinstance(turn.get("t_barge_in_ms"), (int, float)):
+                    if turn.get("t_barge_in_ms") is not None:
                         barge_in.append(float(turn["t_barge_in_ms"]))
                         if eligible_hardware:
                             eligible_barge_in.append(float(turn["t_barge_in_ms"]))
@@ -355,6 +503,7 @@ class SessionStore:
             "elderly_participants_at_least_2": len(elderly) >= 2,
             "complete_ratings_cover_participants": bool(participants)
             and participants <= complete_rating_speakers,
+            "turn_rows_valid": invalid_turn_rows == 0,
             "rating_rows_valid": invalid_rating_rows == 0,
             "eligible_client_first_audio_present": bool(eligible_first_audio),
             "eligible_client_barge_in_present": bool(eligible_barge_in),
@@ -368,6 +517,7 @@ class SessionStore:
             "turns": turns_n,
             "ratings": len(ratings),
             "complete_ratings": len(complete_ratings),
+            "invalid_turn_rows": invalid_turn_rows,
             "invalid_rating_rows": invalid_rating_rows,
             "rating_means": rating_means,
             "rating_mean_ci95": rating_ci95,
@@ -408,10 +558,5 @@ class SessionStore:
             "generated_at": datetime.now(timezone.utc).isoformat(),
         }
         if out_json is not None:
-            out_json = Path(out_json)
-            out_json.parent.mkdir(parents=True, exist_ok=True)
-            out_json.write_text(
-                json.dumps(report, ensure_ascii=False, indent=2) + "\n",
-                encoding="utf-8",
-            )
+            write_json(Path(out_json), report)
         return report

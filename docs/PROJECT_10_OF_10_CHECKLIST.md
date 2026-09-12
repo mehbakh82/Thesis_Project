@@ -1,6 +1,6 @@
 # Checklist for a defensible 10/10 thesis project
 
-Status date: 2026-09-10
+Status date: 2026-09-12
 
 This is the authoritative closure checklist. Mark an item complete only when its
 named artifact exists and its acceptance test passes. Implemented code,
@@ -1335,6 +1335,17 @@ Final engineering audit:
   tests at 80.159% branch-aware coverage; evidence aggregation reaches 97.35%,
   and the CI floor remains 79% because the cross-interpreter margin over 80%
   remains too narrow.
+- [x] Confirm the bounded evidence and source-receipt changes in complete GitHub
+  Actions run `34687281188` at `72d531a`.
+- [x] Harden consented-session persistence and official study evidence. Bind
+  participant/retention/hardware provenance across reconnects; reject invalid
+  numeric/audio/boolean inputs; serialize turn and rating JSONL updates under
+  inter-process locks with finite JSON, fsync, and atomic replacement; clean up
+  orphan audio after failed persistence; make manifest and study-summary output
+  atomic; remove absolute server paths from rating responses; and make invalid
+  stored turn rows fail the canonical study gate. The complete local suite
+  passes 358 tests at 80.323% branch-aware coverage, with the recorder at
+  90.35%; the CI floor remains 79%.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

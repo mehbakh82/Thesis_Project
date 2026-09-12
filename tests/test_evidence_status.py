@@ -412,6 +412,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
                 "participants_5_to_10": False,
                 "elderly_participants_at_least_2": False,
                 "complete_ratings_cover_participants": False,
+                "turn_rows_valid": False,
                 "rating_rows_valid": False,
                 "eligible_client_first_audio_present": False,
                 "eligible_client_barge_in_present": False,

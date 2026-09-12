@@ -47,7 +47,7 @@ def test_session_identity_and_turn_enums_fail_closed(tmp_path: Path):
 
     meta = SessionMeta("S1", "P1", "under_60", True, retention="metrics")
     store.start(meta)
-    with pytest.raises(ValueError, match="different speaker"):
+    with pytest.raises(ValueError, match="different participant"):
         store.start(SessionMeta("S1", "P2", "under_60", True, retention="metrics"))
     with pytest.raises(ValueError, match="unknown prompt_id"):
         store.add_turn(
@@ -168,6 +168,14 @@ def test_study_summary_requires_and_recognizes_all_strict_gates(
     assert rejected["requirements"]["rating_rows_valid"] is False
     assert rejected["official_ready"] is False
 
+    turns_path = store.session_dir("S1") / "turns.jsonl"
+    with turns_path.open("a", encoding="utf-8") as handle:
+        handle.write('{"interrupt_label":"none","stopped":false,"t_first_audio_ms":NaN}\n')
+    rejected = store.study_summary()
+    assert rejected["invalid_turn_rows"] == 1
+    assert rejected["requirements"]["turn_rows_valid"] is False
+    assert rejected["official_ready"] is False
+
 
 def test_filter_require_teacher(tmp_path: Path):
     import json
@@ -236,6 +244,7 @@ def test_study_rating_endpoint(tmp_path: Path, monkeypatch):
     )
     assert r.status_code == 200
     assert r.json()["ok"] is True
+    assert r.json() == {"ok": True, "session_id": "Srate"}
     h = client.get("/health")
     denied = client.post("/study/rating", json={"naturalness": 4, "consent": False})
     assert denied.status_code == 403

@@ -829,6 +829,7 @@ def build_evidence_status(
         "participants_5_to_10",
         "elderly_participants_at_least_2",
         "complete_ratings_cover_participants",
+        "turn_rows_valid",
         "rating_rows_valid",
         "eligible_client_first_audio_present",
         "eligible_client_barge_in_present",

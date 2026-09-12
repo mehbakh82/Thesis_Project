@@ -36,7 +36,13 @@ After every collection block, run:
 .venv/bin/python -m thesis_s2s.cli study-summary
 ```
 
-Do not report a complete study unless `results/eval/human_study.json` confirms 5–10 participants, at least two aged 60+, complete ratings, client timing, a real speaker/session-held-out detector result above the target, and eligible physical-GPU evidence.
+Do not report a complete study unless `results/eval/human_study.json` confirms
+5–10 participants, at least two aged 60+, complete ratings, valid turn and
+rating rows, client timing, a real speaker/session-held-out detector result
+above the target, and eligible physical-GPU evidence. Participant, retention,
+GPU/VRAM, and memory-cap provenance are immutable once a session begins; start
+a new session ID if any of them changes. Legacy sessions without explicit
+uncapped-memory provenance are not eligible physical-hardware evidence.
 
 ## Success for the thesis chapter
 
