@@ -1,17 +1,17 @@
 {
   "schema_version": 4,
-  "generated_at": "2026-09-12T14:25:55Z",
-  "audited_commit": "1458bf12c8a34cdf8a928020a59875049909f46f",
+  "generated_at": "2026-09-12T15:01:11Z",
+  "audited_commit": "a04dc279c900f2567c3014f66f42ef8b277112f1",
   "scope": "Current engineering/release closeout with preserved hash-bound historical scientific evidence.",
   "release_verification": {
-    "tag": "submission-final-audited-2026-09-12",
-    "tag_object": "66716d2096dc85a77949a5511e0e9f386a65e1f1",
-    "branch_ci_run": 34688857168,
-    "tag_ci_run": 34689102831,
+    "tag": "submission-final-audited-v2-2026-09-12",
+    "tag_object": "34f67e17cff523c1afe33bac642f1a78507ed4ed",
+    "branch_ci_run": 34700470926,
+    "tag_ci_run": 34700701937,
     "branch_ci_passed": true,
     "tag_ci_passed": true,
     "snapshot_file_count": 469,
-    "snapshot_source_commit": "807598f3669b3ec561264129257aabf4295956bd"
+    "snapshot_source_commit": "0139d7778a6178b93f20792e30ad79a495857c5a"
   },
   "git_identity": {
     "author": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>",
@@ -48,7 +48,7 @@
     },
     "branch_coverage": {
       "status": "passed",
-      "percent": 80.323,
+      "percent": 80.222,
       "required_percent": 79
     },
     "scientific_dependency_risk_drift": {

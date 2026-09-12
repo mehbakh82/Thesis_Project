@@ -186,12 +186,13 @@ Status date: 2026-09-12
   GitHub Actions run `34688277409` on 2026-09-12, including 358 tests and every
   compile, lint, type, privacy/history, frozen-source, dependency, coverage, and
   scientific-risk gate.
-- The refreshed evidence commit `807598f` passed complete run `34688580474`.
-  The clean 469-file snapshot was generated from it, committed at `1458bf1`,
-  and passed branch run `34688857168`. Annotated tag
-  `submission-final-audited-2026-09-12` targets that exact commit and passed tag
-  run `34689102831`; the machine-readable attestation records the resolved tag
-  object and both successful CI runs.
+- The final security-documented commit `0139d77` passed complete run
+  `34700162371`. The clean 469-file snapshot was generated from it, committed
+  at `a04dc27`, and passed branch run `34700470926`. Definitive annotated tag
+  `submission-final-audited-v2-2026-09-12` targets that exact commit and passed
+  tag run `34700701937`; the machine-readable attestation records the resolved
+  tag object and both successful CI runs. The earlier non-v2 tag remains valid
+  historical provenance but is superseded for submission.
 - A final security-rule audit removed every optimization-sensitive `assert`
   and implicit security-hash warning from production source. Defensive
   invariants now raise explicit errors under both normal Python and
