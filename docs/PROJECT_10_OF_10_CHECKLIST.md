@@ -1141,9 +1141,10 @@ Final engineering audit:
   privacy-sensitive session logger from 50% to 90%.
 - [x] Replace the aggregate evidence report's historical hard-coded
   `immutable_submission_tag_created: false` with a fail-closed release
-  attestation. `results/release/submission_tag_attestation.json` binds annotated
-  tag `submission-final-hardened-v2-2026-09-10`, its tag object, target commit
-  `8632980`, and successful branch/tag CI runs `34451312956` and `34451713512`.
+  attestation. `results/release/submission_tag_attestation.json` now binds the
+  annotated tag `submission-final-audited-2026-09-12`, tag object `66716d2`,
+  target commit `1458bf1`, and successful branch/tag CI runs `34688857168` and
+  `34689102831`.
   The tracked-artifact CI audit independently resolves the tag object and peeled
   commit from Git and requires the attested commit to be an ancestor of `HEAD`.
   Direct temporary-repository regressions cover a valid annotated tag, a

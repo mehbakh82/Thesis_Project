@@ -1,7 +1,18 @@
 {
-  "schema_version": 3,
-  "generated_at": "2026-09-07T17:59:02Z",
-  "audited_commit": "bcb8f3a29879a62d43473c3e7a02f9545ef5a23a",
+  "schema_version": 4,
+  "generated_at": "2026-09-12T14:25:55Z",
+  "audited_commit": "1458bf12c8a34cdf8a928020a59875049909f46f",
+  "scope": "Current engineering/release closeout with preserved hash-bound historical scientific evidence.",
+  "release_verification": {
+    "tag": "submission-final-audited-2026-09-12",
+    "tag_object": "66716d2096dc85a77949a5511e0e9f386a65e1f1",
+    "branch_ci_run": 34688857168,
+    "tag_ci_run": 34689102831,
+    "branch_ci_passed": true,
+    "tag_ci_passed": true,
+    "snapshot_file_count": 469,
+    "snapshot_source_commit": "807598f3669b3ec561264129257aabf4295956bd"
+  },
   "git_identity": {
     "author": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>",
     "committer": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>"
@@ -18,25 +29,27 @@
     "ruff": "passed",
     "mypy": {
       "status": "passed",
-      "source_files": 49
+      "source_files": 51
     },
     "tracked_artifact_history_privacy_secret_audit": {
       "status": "passed",
-      "tracked_files": 454
+      "tracked_files": 524
     },
     "general_dependency_audit": {
       "status": "passed",
-      "known_vulnerabilities": 0
+      "raw_scanner_findings": 0,
+      "known_scanner_unmapped_risks": 1,
+      "note": "Accelerate 1.15.0 retains the reviewed CVE-2026-69112 risk even when the scanner feed omits it."
     },
     "pytest": {
       "status": "passed",
-      "tests": 206,
-      "seconds": 17.05
+      "tests": 358,
+      "seconds": 22.46
     },
     "branch_coverage": {
       "status": "passed",
-      "percent": 65,
-      "required_percent": 60
+      "percent": 80.323,
+      "required_percent": 79
     },
     "scientific_dependency_risk_drift": {
       "status": "passed",

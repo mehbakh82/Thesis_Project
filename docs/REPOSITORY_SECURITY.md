@@ -186,6 +186,12 @@ Status date: 2026-09-12
   GitHub Actions run `34688277409` on 2026-09-12, including 358 tests and every
   compile, lint, type, privacy/history, frozen-source, dependency, coverage, and
   scientific-risk gate.
+- The refreshed evidence commit `807598f` passed complete run `34688580474`.
+  The clean 469-file snapshot was generated from it, committed at `1458bf1`,
+  and passed branch run `34688857168`. Annotated tag
+  `submission-final-audited-2026-09-12` targets that exact commit and passed tag
+  run `34689102831`; the machine-readable attestation records the resolved tag
+  object and both successful CI runs.
 
 ## Accepted pinned-training compatibility risks
 
