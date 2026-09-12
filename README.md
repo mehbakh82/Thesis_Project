@@ -191,6 +191,10 @@ Use either a protected preconfigured rclone remote via `THESIS_RCLONE_REMOTE` or
 If a key has ever been stored in a plaintext cheatsheet or exposed in output,
 rotate it and replace the document with environment-variable placeholders.
 
+For the server, `GET /health` distinguishes transport liveness (`ok`) from the
+exact validated deployment (`validated_cascade_ready`): the latter is true only
+when the pinned Qwen3-4B revision, prompt-v2, and Piper runtime are all active.
+
 ## Core commands
 
 The general commands below are current. Versioned Moshi post-training commands

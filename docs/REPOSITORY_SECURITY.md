@@ -33,8 +33,8 @@ Status date: 2026-09-12
   `enabled=true`, `paused=false`.
 - CI compiles and lints `src`, `tests`, and `scripts`; mypy checks all 51
   source files against the Python 3.10 target.
-- The measured branch-aware coverage is 79.22%; the enforced floor is 78%,
-  raised from 35%, 60%, 68%, 71%, 74%, 75%, 76%, and 77% while retaining a small
+- The measured branch-aware coverage is 79.64%; the enforced floor is 79%,
+  raised from 35%, 60%, 68%, 71%, 74%, 75%, 76%, 77%, and 78% while retaining a small
   non-flaky margin.
   The CLI-exposed batch re-ASR pipeline is covered at 78%, multi-channel
   ingestion at 94%, YouTube preparation at 96%, the evaluation benchmark
@@ -71,6 +71,16 @@ Status date: 2026-09-12
   status-labelled, finite JSON written with fsync and atomic replacement, and
   incomplete listings exit nonzero while retaining only error type/return code,
   never raw remote stderr. S3 inventory coverage is 87% after these regressions.
+- Runtime ASR now rejects secret-bearing/malformed base URLs, invalid timeouts,
+  empty request bodies, non-object/malformed/oversized responses, and invalid
+  audio/sample rates. ASR failure no longer invents a greeting transcript in
+  the component-latency helper; that rule-responder path is explicitly
+  unofficial. Cached default Qwen loading is bound to the exact validated
+  revision, prompt-v2 replies reject Latin text and over-25-word output, live
+  client errors are redacted, and `/health` separately reports transport
+  liveness and exact Qwen-v2/Piper readiness. The generic interrupt benchmark
+  preserves upstream official ineligibility for automatic recorded labels
+  instead of promoting any recorded fold. Cascade coverage is 88%.
 - The general requirements audit remains fail-closed on unreviewed drift. On
   2026-09-09, pip-audit began reporting CVE-2026-69112 in Accelerate 1.14.0.
   The scanner feed later stopped mapping it and the resolver advanced to 1.15.0.

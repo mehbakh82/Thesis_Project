@@ -113,9 +113,13 @@ def run_interrupt_bench(out_dir: Path | None = None, n_per_class: int = 40) -> d
         n_per_class=n_per_class, seed=3, out_dir=project_root() / "results" / "bargein"
     )
     report["measurement_scope"] = (
-        "recorded_group_heldout" if report.get("recorded_eval") else "synthetic_proxy"
+        "recorded_group_heldout"
+        if report.get("recorded_eval") and report.get("official_detector_eligible") is True
+        else "recorded_group_heldout_automatic_labels"
+        if report.get("recorded_eval")
+        else "synthetic_proxy"
     )
-    report["official_detector_eligible"] = bool(report.get("recorded_eval"))
+    report["official_detector_eligible"] = report.get("official_detector_eligible") is True
     report["note"] = (
         report.get("note") or "Synthetic evidence cannot satisfy the thesis detector gate."
     )

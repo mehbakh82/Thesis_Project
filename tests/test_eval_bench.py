@@ -142,6 +142,7 @@ def test_interrupt_bench_distinguishes_synthetic_and_recorded_evidence(
             {
                 "proposed": {"accuracy": 0.91},
                 "recorded_eval": {"n": 20},
+                "official_detector_eligible": False,
                 "note": "independent labels still required",
             },
         ]
@@ -165,8 +166,8 @@ def test_interrupt_bench_distinguishes_synthetic_and_recorded_evidence(
     assert synthetic["measurement_scope"] == "synthetic_proxy"
     assert synthetic["official_detector_eligible"] is False
     assert "cannot satisfy" in synthetic["note"]
-    assert recorded["measurement_scope"] == "recorded_group_heldout"
-    assert recorded["official_detector_eligible"] is True
+    assert recorded["measurement_scope"] == "recorded_group_heldout_automatic_labels"
+    assert recorded["official_detector_eligible"] is False
     assert recorded["note"] == "independent labels still required"
     assert json.loads((tmp_path / "other" / "interrupt_bench.json").read_text()) == recorded
 

@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 from fastapi.testclient import TestClient
@@ -91,7 +92,6 @@ def test_automatic_bargein_becomes_next_turn_and_records_client_ack(
         assert first_ready["tts_backend"] == "test-tts"
         assert first_ready["responder_backend"] == "test-responder"
         assert first_ready["responder_fallback_used"] is False
-
         ws.send_json({"event": "playback_started", "t_first_audio_ms": 41.0, **_meta()})
         ws.send_bytes(chunk)
         ws.send_bytes(chunk)
@@ -119,6 +119,56 @@ def test_automatic_bargein_becomes_next_turn_and_records_client_ack(
     assert rows[0]["retention"] == "metrics"
     assert rows[1]["duration"] == 0.3
     assert not list(folder.glob("*.wav"))
+
+
+def test_reply_ready_redacts_internal_model_errors(tmp_path: Path, monkeypatch) -> None:
+    talker = SpyTalker()
+    talker.responder_initialization_error = "OSError: /secret/model/path"
+    talker.last_responder_error = "RuntimeError: private diagnostic"
+    talker.last_asr_error = "connection failed at https://private.invalid"
+    _patch_runtime(monkeypatch, tmp_path, talker)
+    app = build_app(EnergyVadBaseline())
+
+    with TestClient(app).websocket_connect("/ws") as ws:
+        ready = _complete_turn(ws, _pcm())
+
+    assert ready["responder_initialization_error"] == "model_initialization_failed"
+    assert ready["responder_error"] == "model_generation_failed"
+    assert ready["asr_error"] == "asr_request_failed"
+    assert "/secret/model/path" not in json.dumps(ready)
+    assert "private.invalid" not in json.dumps(ready)
+
+    health = TestClient(app).get("/health").json()
+    assert health["ok"] is True
+    assert health["validated_cascade_ready"] is False
+
+
+def test_health_requires_the_exact_validated_cascade(tmp_path: Path, monkeypatch) -> None:
+    talker = object.__new__(duplex_mod.CascadeTalker)
+    talker.backend = "piper"
+    talker.responder = SimpleNamespace(
+        model=object(),
+        tokenizer=object(),
+        model_name=duplex_mod.QWEN4B_MODEL,
+        model_revision=duplex_mod.QWEN4B_REVISION,
+        prompt_profile="qwen4b_v2",
+        backend=duplex_mod.QWEN4B_MODEL,
+    )
+    monkeypatch.setattr(duplex_mod, "default_talker", lambda: talker)
+    monkeypatch.setattr(duplex_mod, "project_root", lambda: tmp_path)
+    monkeypatch.setattr(duplex_mod, "piper_available", lambda: True)
+    monkeypatch.setattr(
+        duplex_mod,
+        "gpu_inventory",
+        lambda: {"device": "test-cpu", "total_gb": None},
+    )
+
+    health = TestClient(build_app(EnergyVadBaseline())).get("/health").json()
+
+    assert health["validated_cascade_ready"] is True
+    assert health["responder_backend"] == duplex_mod.QWEN4B_MODEL
+    assert health["responder_revision"] == duplex_mod.QWEN4B_REVISION
+    assert health["responder_prompt_profile"] == "qwen4b_v2"
 
 
 def test_cancel_discards_pending_turn_and_clears_stale_audio(

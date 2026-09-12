@@ -22,9 +22,9 @@ from thesis_s2s.bargein.synthetic import _harmonic
 from thesis_s2s.config import project_root
 from thesis_s2s.metrics import gpu_inventory
 from thesis_s2s.model.llama_omni2 import checkpoint_runtime_status
-from thesis_s2s.runtime.cascade import CascadeTalker
+from thesis_s2s.runtime.cascade import QWEN4B_MODEL, QWEN4B_REVISION, CascadeTalker
 from thesis_s2s.runtime.session_log import PROMPTS, SessionMeta, SessionStore
-from thesis_s2s.runtime.tts import FormantTalker
+from thesis_s2s.runtime.tts import FormantTalker, piper_available
 
 
 @dataclass
@@ -393,12 +393,27 @@ def build_app(
 
     @app.get("/health")
     def health() -> dict:
+        responder = getattr(talker, "responder", None)
+        validated_cascade_ready = bool(
+            isinstance(talker, CascadeTalker)
+            and responder is not None
+            and getattr(responder, "model", None) is not None
+            and getattr(responder, "tokenizer", None) is not None
+            and getattr(responder, "model_name", None) == QWEN4B_MODEL
+            and getattr(responder, "model_revision", None) == QWEN4B_REVISION
+            and getattr(responder, "prompt_profile", None) == "qwen4b_v2"
+            and piper_available()
+        )
         return {
             "ok": True,
+            "validated_cascade_ready": validated_cascade_ready,
             "sample_rate": SAMPLE_RATE,
             "t_first_audio_budget_ms": T_FIRST_AUDIO_P50_MS,
             "talker": type(talker).__name__,
             "tts_backend": getattr(talker, "backend", ""),
+            "responder_backend": getattr(responder, "backend", None),
+            "responder_revision": getattr(responder, "model_revision", None),
+            "responder_prompt_profile": getattr(responder, "prompt_profile", None),
             "omni_checkpoint": checkpoint_runtime_status(
                 project_root() / "checkpoints" / "llama_omni2_fa" / "persian_omni2.pt"
             ),
@@ -676,16 +691,24 @@ def build_app(
                                 "reply_samples": int(len(reply)),
                                 "transcript": getattr(talker, "last_transcript", None),
                                 "reply_text": getattr(talker, "last_reply_text", None),
-                                "asr_error": getattr(talker, "last_asr_error", None),
+                                "asr_error": (
+                                    "asr_request_failed"
+                                    if getattr(talker, "last_asr_error", None)
+                                    else None
+                                ),
                                 "responder_backend": getattr(talker, "responder_backend", None),
-                                "responder_initialization_error": getattr(
-                                    talker, "responder_initialization_error", None
+                                "responder_initialization_error": (
+                                    "model_initialization_failed"
+                                    if getattr(talker, "responder_initialization_error", None)
+                                    else None
                                 ),
                                 "responder_fallback_used": getattr(
                                     talker, "last_responder_fallback_used", None
                                 ),
-                                "responder_error": getattr(
-                                    talker, "last_responder_error", None
+                                "responder_error": (
+                                    "model_generation_failed"
+                                    if getattr(talker, "last_responder_error", None)
+                                    else None
                                 ),
                                 "responder_generation_attempts": getattr(
                                     talker, "last_responder_generation_attempts", None

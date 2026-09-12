@@ -1,6 +1,8 @@
+import sys
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 import torch
 
 from thesis_s2s.bargein.detector import EnergyVadBaseline
@@ -164,11 +166,125 @@ def test_default_responder_uses_validated_qwen4b_prompt_v2(monkeypatch):
     responder = TextResponder()
 
     assert responder.model_name == "Qwen/Qwen3-4B-Instruct-2507"
+    assert responder.model_revision == "cdbee75f17c01a7cc42f958dc650907174af0554"
     assert responder.prompt_profile == "qwen4b_v2"
     assert responder.model_source in {
         "Qwen/Qwen3-4B-Instruct-2507",
         str(cascade.QWEN4B_PROJECT_DIR),
     }
+
+
+def test_default_cached_hub_load_is_bound_to_exact_qwen_revision(tmp_path, monkeypatch):
+    calls: list[tuple[str, dict]] = []
+
+    class Loader:
+        @staticmethod
+        def from_pretrained(source, **kwargs):
+            calls.append((source, kwargs))
+            return Loader()
+
+        def to(self, _device):
+            return self
+
+        def eval(self):
+            return self
+
+    fake_torch = SimpleNamespace(
+        cuda=SimpleNamespace(is_available=lambda: False),
+        bfloat16="bfloat16",
+        float32="float32",
+    )
+    fake_transformers = SimpleNamespace(
+        AutoModelForCausalLM=Loader,
+        AutoTokenizer=Loader,
+    )
+    monkeypatch.setitem(sys.modules, "torch", fake_torch)
+    monkeypatch.setitem(sys.modules, "transformers", fake_transformers)
+    monkeypatch.setattr(cascade, "QWEN4B_PROJECT_DIR", tmp_path / "missing")
+    monkeypatch.setenv("TEXT_LLM_ENABLED", "1")
+    monkeypatch.delenv("TEXT_LLM_MODEL", raising=False)
+    monkeypatch.setenv("TEXT_LLM_REVISION", "unvalidated-override")
+
+    responder = TextResponder()
+
+    assert responder.initialization_error is None
+    assert responder.model_revision == cascade.QWEN4B_REVISION
+    assert len(calls) == 2
+    assert all(source == cascade.QWEN4B_MODEL for source, _ in calls)
+    assert all(kwargs["revision"] == cascade.QWEN4B_REVISION for _, kwargs in calls)
+
+
+def test_asr_http_rejects_unbounded_or_malformed_responses(monkeypatch):
+    class Response:
+        def __init__(self, payload: bytes):
+            self.payload = payload
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return None
+
+        def read(self, limit: int) -> bytes:
+            return self.payload[:limit]
+
+    monkeypatch.setattr(cascade, "urlopen", lambda *_args, **_kwargs: Response(b"[]"))
+    assert cascade.asr_http(b"wav")["error"].startswith("ValueError")
+
+    oversized = b"x" * (cascade.MAX_ASR_RESPONSE_BYTES + 1)
+    monkeypatch.setattr(cascade, "urlopen", lambda *_args, **_kwargs: Response(oversized))
+    assert cascade.asr_http(b"wav")["error"].startswith("ValueError")
+
+    assert cascade.asr_http(b"")["error"].startswith("ValueError")
+    assert cascade.asr_http(b"wav", "https://user:secret@example.invalid")[
+        "error"
+    ].startswith("ValueError")
+
+    monkeypatch.setattr(
+        cascade,
+        "urlopen",
+        lambda *_args, **_kwargs: Response('{"persian":" سلام "}'.encode()),
+    )
+    assert cascade._asr_transcript(cascade.asr_http(b"wav")) == "سلام"
+
+
+def test_asr_timeout_and_wav_serialization_fail_closed(monkeypatch):
+    for value in ("0", "-1", "nan", "inf", "invalid"):
+        monkeypatch.setenv("ASR_TIMEOUT_SECONDS", value)
+        assert cascade.asr_http(b"wav")["error"].startswith("ValueError")
+
+    for audio in (
+        np.zeros(0, dtype=np.float32),
+        np.zeros((2, 2), dtype=np.float32),
+        np.asarray([float("nan")], dtype=np.float32),
+    ):
+        with pytest.raises(ValueError, match="user audio"):
+            cascade._wav_bytes(audio)
+    with pytest.raises(ValueError, match="sample rate"):
+        cascade._wav_bytes(np.zeros(10, dtype=np.float32), 0)
+
+
+def test_component_diagnostic_never_invents_transcript_or_official_timing(monkeypatch):
+    monkeypatch.setattr(cascade, "asr_http", lambda _wav: {"error": "offline"})
+    monkeypatch.setattr(
+        cascade,
+        "synthesize",
+        lambda text: (np.ones(800, dtype=np.float32), "test-tts"),
+    )
+
+    result = cascade.cascade_first_audio(np.zeros(1600, dtype=np.float32))
+
+    assert result["transcript"] == ""
+    assert result["asr_usable"] is False
+    assert result["official_e2e_eligible"] is False
+    assert result["evidence_class"] == "component_diagnostic"
+    assert "دوباره" in result["reply_text"]
+
+
+def test_qwen_v2_reply_validator_rejects_latin_or_overlong_output() -> None:
+    assert cascade._valid_model_reply("این پاسخ فارسی است", strict_v2=True)
+    assert not cascade._valid_model_reply("این پاسخ fa است", strict_v2=True)
+    assert not cascade._valid_model_reply(" ".join(["واژه"] * 26), strict_v2=True)
 
 
 def test_piper_runtime_output_is_clipped_to_pcm_range(monkeypatch):

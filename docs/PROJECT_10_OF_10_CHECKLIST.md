@@ -1269,6 +1269,22 @@ Final engineering audit:
   79.224% branch-aware coverage and S3 inventory rises from 57% to 87.43%. The
   floor remains 78% because raising it to 79% would leave only 0.224 points of
   non-flaky margin.
+- [x] Confirm S3/rclone hardening in complete GitHub Actions run `34683424361`,
+  including every compile, lint, type, history/privacy, evaluator-binding,
+  dependency, 320-test/coverage, and scientific-risk gate.
+- [x] Make cascade operation and generic benchmark claims fail closed without
+  touching frozen results. Reject malformed or credential-bearing ASR URLs,
+  invalid timeout/audio/sample-rate inputs, and malformed/non-object/oversized
+  ASR responses; never invent “سلام” when ASR fails; label the rule-based
+  latency helper as an unofficial component diagnostic; bind cached default
+  Qwen loading to exact revision `cdbee75f17c01a7cc42f958dc650907174af0554`;
+  reject Latin or over-25-word prompt-v2 generations; redact internal ASR/model
+  errors from WebSocket clients; and expose `validated_cascade_ready` separately
+  from transport liveness. The generic detector benchmark now preserves
+  `official_detector_eligible=false` for recorded automatic labels instead of
+  overwriting it with true. The complete local suite passes 327 tests at
+  79.640% branch-aware coverage; cascade rises from 72% to 88.10%, benchmark
+  coverage remains 100%, and the enforced floor rises from 78% to 79%.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.
