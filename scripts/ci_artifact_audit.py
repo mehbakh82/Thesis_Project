@@ -19,7 +19,7 @@ else:  # pragma: no cover - exercised by the minimum-version CI runner
 
 import yaml
 
-from thesis_s2s.eval.evidence import render_evidence_summary
+from thesis_s2s.eval.evidence import ARTIFACTS, render_evidence_summary
 
 try:
     from scripts.audit_proposal_alignment import (
@@ -420,6 +420,42 @@ def evidence_summary_audit() -> list[str]:
     )
 
 
+def aggregate_artifact_provenance_audit() -> list[str]:
+    """Recompute every aggregate-evidence artifact size and SHA-256 binding."""
+
+    if not AGGREGATE_EVIDENCE.is_file():
+        return ["missing aggregate evidence for artifact provenance audit"]
+    try:
+        payload = json.loads(AGGREGATE_EVIDENCE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return [f"invalid aggregate artifact provenance input: {exc}"]
+    if not isinstance(payload, dict):
+        return ["invalid aggregate artifact provenance input: JSON root must be an object"]
+    provenance = payload.get("artifact_provenance")
+    if not isinstance(provenance, dict):
+        return ["missing aggregate artifact provenance map"]
+
+    errors: list[str] = []
+    if set(provenance) != set(ARTIFACTS):
+        errors.append("aggregate artifact provenance key-set mismatch")
+    for name, relative in ARTIFACTS.items():
+        entry = provenance.get(name)
+        if not isinstance(entry, dict):
+            errors.append(f"aggregate artifact provenance entry missing: {name}")
+            continue
+        path = ROOT / relative
+        present = path.is_file()
+        expected = {
+            "path": relative,
+            "present": present,
+            "bytes": path.stat().st_size if present else None,
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest() if present else None,
+        }
+        if entry != expected:
+            errors.append(f"aggregate artifact provenance mismatch: {name} -> {relative}")
+    return errors
+
+
 def audit() -> list[str]:
     errors: list[str] = []
     for path in tracked_files():
@@ -460,6 +496,7 @@ def main() -> int:
     errors.extend(release_attestation_audit())
     errors.extend(final_audit_receipt_audit())
     errors.extend(proposal_alignment_receipt_audit())
+    errors.extend(aggregate_artifact_provenance_audit())
     errors.extend(evidence_summary_audit())
     if errors:
         print("Tracked-artifact audit failed:", file=sys.stderr)

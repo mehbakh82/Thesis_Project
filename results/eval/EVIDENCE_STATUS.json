@@ -1,6 +1,6 @@
 {
   "schema_version": 12,
-  "generated_at": "2026-09-13T07:03:42.718195+00:00",
+  "generated_at": "2026-09-13T07:34:16.404263+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -878,6 +878,27 @@
         "updated_at": "2026-09-13T07:00:33Z"
       },
       "verified_at": "2026-09-13T07:02:00Z"
+    },
+    "main_branch_protection": {
+      "verified": true,
+      "repository": "mehbakh82/Thesis_Project",
+      "branch": "main",
+      "observed_at": "2026-09-13T07:22:52Z",
+      "required_status_checks": {
+        "strict": true,
+        "contexts": [
+          "test"
+        ]
+      },
+      "required_pull_request_reviews": {
+        "dismiss_stale_reviews": true,
+        "required_approving_review_count": 1
+      },
+      "enforce_admins": true,
+      "required_linear_history": true,
+      "required_conversation_resolution": true,
+      "allow_force_pushes": false,
+      "allow_deletions": false
     }
   },
   "required_to_complete": [
@@ -910,9 +931,7 @@
       "24-row interaction listening QA",
       "24-pair assistant-audio listening QA"
     ],
-    "platform_limited_not_a_scientific_gate": [
-      "Private-repository main-branch protection requires an eligible GitHub plan."
-    ]
+    "platform_limited_not_a_scientific_gate": []
   },
   "artifact_provenance": {
     "conversation_audit": {
@@ -1214,6 +1233,12 @@
       "present": true,
       "bytes": 998,
       "sha256": "d272c9cc8e38e9228b39b56c51217faa83bb5ce733eba279feaf0c1107a50afc"
+    },
+    "branch_protection": {
+      "path": "results/release/branch_protection.json",
+      "present": true,
+      "bytes": 590,
+      "sha256": "09e05770d14a9ee03892bbb9afc8789df0601df64ff6724311eb9c2c951e57b7"
     }
   }
 }

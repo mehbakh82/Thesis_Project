@@ -49,6 +49,38 @@ def test_generated_evidence_summary_is_bound_to_json(tmp_path: Path, monkeypatch
     assert ci_artifact_audit.evidence_summary_audit() == ["generated evidence summary drift"]
 
 
+def test_aggregate_artifact_provenance_audit_recomputes_bindings(
+    tmp_path: Path, monkeypatch
+) -> None:
+    artifact = tmp_path / "receipt.json"
+    artifact.write_text('{"ok": true}\n', encoding="utf-8")
+    evidence = tmp_path / "EVIDENCE_STATUS.json"
+    evidence.write_text(
+        json.dumps(
+            {
+                "artifact_provenance": {
+                    "receipt": {
+                        "path": "receipt.json",
+                        "present": True,
+                        "bytes": artifact.stat().st_size,
+                        "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(ci_artifact_audit, "ROOT", tmp_path)
+    monkeypatch.setattr(ci_artifact_audit, "AGGREGATE_EVIDENCE", evidence)
+    monkeypatch.setattr(ci_artifact_audit, "ARTIFACTS", {"receipt": "receipt.json"})
+
+    assert ci_artifact_audit.aggregate_artifact_provenance_audit() == []
+    artifact.write_text("changed\n", encoding="utf-8")
+    assert ci_artifact_audit.aggregate_artifact_provenance_audit() == [
+        "aggregate artifact provenance mismatch: receipt -> receipt.json"
+    ]
+
+
 def _git(root: Path, *arguments: str) -> str:
     result = subprocess.run(
         ["git", "-C", str(root), *arguments],

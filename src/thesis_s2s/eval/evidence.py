@@ -72,6 +72,7 @@ ARTIFACTS: dict[str, str] = {
     "storage_cleanup": "results/hardware/storage_cleanup_20260831.json",
     "final_audit": "results/release/final_audit.json",
     "submission_tag_attestation": "results/release/submission_tag_attestation.json",
+    "branch_protection": "results/release/branch_protection.json",
 }
 
 
@@ -139,6 +140,53 @@ def _release_attestation_result(payload: dict[str, Any]) -> dict[str, Any]:
         "branch_ci": branch_ci,
         "tag_ci": tag_ci,
         "verified_at": payload.get("verified_at") if verified else None,
+    }
+
+
+def _branch_protection_result(payload: dict[str, Any]) -> dict[str, Any]:
+    """Validate a timestamped observation of the live GitHub main-branch policy."""
+
+    status_checks_payload = payload.get("required_status_checks")
+    reviews_payload = payload.get("required_pull_request_reviews")
+    status_checks = status_checks_payload if isinstance(status_checks_payload, dict) else {}
+    reviews = reviews_payload if isinstance(reviews_payload, dict) else {}
+    contexts = status_checks.get("contexts")
+    verified = bool(
+        payload.get("schema_version") == 1
+        and payload.get("repository") == "mehbakh82/Thesis_Project"
+        and payload.get("branch") == "main"
+        and payload.get("source") == "authenticated_github_rest_api"
+        and isinstance(payload.get("observed_at"), str)
+        and bool(payload.get("observed_at"))
+        and type(payload.get("api_status")) is int
+        and payload.get("api_status") == 200
+        and payload.get("enabled") is True
+        and status_checks.get("strict") is True
+        and isinstance(contexts, list)
+        and contexts == ["test"]
+        and reviews.get("dismiss_stale_reviews") is True
+        and type(reviews.get("required_approving_review_count")) is int
+        and reviews.get("required_approving_review_count") == 1
+        and payload.get("enforce_admins") is True
+        and payload.get("required_linear_history") is True
+        and payload.get("required_conversation_resolution") is True
+        and payload.get("allow_force_pushes") is False
+        and payload.get("allow_deletions") is False
+    )
+    return {
+        "verified": verified,
+        "repository": payload.get("repository"),
+        "branch": payload.get("branch"),
+        "observed_at": payload.get("observed_at") if verified else None,
+        "required_status_checks": status_checks,
+        "required_pull_request_reviews": reviews,
+        "enforce_admins": payload.get("enforce_admins") is True,
+        "required_linear_history": payload.get("required_linear_history") is True,
+        "required_conversation_resolution": (
+            payload.get("required_conversation_resolution") is True
+        ),
+        "allow_force_pushes": payload.get("allow_force_pushes"),
+        "allow_deletions": payload.get("allow_deletions"),
     }
 
 
@@ -697,6 +745,9 @@ def build_evidence_status(
     release_attestation = _release_attestation_result(
         _read_json(project, ARTIFACTS["submission_tag_attestation"])
     )
+    branch_protection = _branch_protection_result(
+        _read_json(project, ARTIFACTS["branch_protection"])
+    )
     final_hardware_path = project / "results/hardware/final_preflight.json"
     hardware = (
         _read_json(project, "results/hardware/final_preflight.json")
@@ -1177,6 +1228,7 @@ def build_evidence_status(
             "license_files": license_files,
             "immutable_submission_tag_created": release_attestation["verified"],
             "submission_tag_attestation": release_attestation,
+            "main_branch_protection": branch_protection,
         },
         "required_to_complete": [text for gate, text in required.items() if not gates[gate]],
         "remaining_work_classification": {
@@ -1199,9 +1251,11 @@ def build_evidence_status(
                 "24-row interaction listening QA",
                 "24-pair assistant-audio listening QA",
             ],
-            "platform_limited_not_a_scientific_gate": [
-                "Private-repository main-branch protection requires an eligible GitHub plan."
-            ],
+            "platform_limited_not_a_scientific_gate": (
+                []
+                if branch_protection["verified"]
+                else ["Main-branch protection has not been verified from the GitHub API."]
+            ),
         },
         "artifact_provenance": _artifact_provenance(project),
     }
@@ -1230,6 +1284,7 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
     cascade_analysis = payload.get("cascade_descriptive_analysis") or {}
     cascade_intelligibility = payload.get("cascade_intelligibility_proxy") or {}
     qwen4b_final = payload.get("qwen4b_v2_automatic_final_test") or {}
+    branch_protection = release.get("main_branch_protection") or {}
     v1_loss_evidence = direct.get("v1_automatic_heldout_loss_evidence") or {}
     v1_total_loss = v1_loss_evidence.get("selected_total_loss") or {}
     split_counts = data.get("split_counts") or {}
@@ -1454,6 +1509,9 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             f"| Immutable release | "
             f"{(release.get('submission_tag_attestation') or {}).get('tag') or 'not attested'} | "
             f"{'pass' if release.get('immutable_submission_tag_created') else 'pending'} |",
+            f"| Protected main | CI-gated pull-request workflow, one approval, "
+            f"administrators enforced | "
+            f"{'pass' if branch_protection.get('verified') else 'pending'} |",
             "",
             "## Reporting contract",
             "",

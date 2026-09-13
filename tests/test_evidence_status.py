@@ -660,6 +660,57 @@ def test_evidence_status_rejects_unsubstantiated_human_study_ready(
     assert not any(report["human_study"]["requirements"].values())
 
 
+def _valid_branch_protection_receipt() -> dict:
+    return {
+        "schema_version": 1,
+        "repository": "mehbakh82/Thesis_Project",
+        "branch": "main",
+        "source": "authenticated_github_rest_api",
+        "observed_at": "2026-09-13T07:22:52Z",
+        "api_status": 200,
+        "enabled": True,
+        "required_status_checks": {"strict": True, "contexts": ["test"]},
+        "required_pull_request_reviews": {
+            "dismiss_stale_reviews": True,
+            "required_approving_review_count": 1,
+        },
+        "enforce_admins": True,
+        "required_linear_history": True,
+        "required_conversation_resolution": True,
+        "allow_force_pushes": False,
+        "allow_deletions": False,
+    }
+
+
+def test_evidence_status_accepts_verified_main_branch_protection(tmp_path: Path) -> None:
+    _write(
+        tmp_path,
+        "results/release/branch_protection.json",
+        _valid_branch_protection_receipt(),
+    )
+
+    report = build_evidence_status(root=tmp_path)
+
+    assert report["release"]["main_branch_protection"]["verified"] is True
+    assert report["remaining_work_classification"][
+        "platform_limited_not_a_scientific_gate"
+    ] == []
+    assert "| Protected main | CI-gated pull-request workflow" in render_evidence_summary(report)
+
+
+def test_evidence_status_rejects_weakened_main_branch_protection(tmp_path: Path) -> None:
+    receipt = _valid_branch_protection_receipt()
+    receipt["required_status_checks"]["strict"] = False
+    _write(tmp_path, "results/release/branch_protection.json", receipt)
+
+    report = build_evidence_status(root=tmp_path)
+
+    assert report["release"]["main_branch_protection"]["verified"] is False
+    assert report["remaining_work_classification"][
+        "platform_limited_not_a_scientific_gate"
+    ] == ["Main-branch protection has not been verified from the GitHub API."]
+
+
 def test_evidence_status_rejects_mismatched_release_attestation(tmp_path: Path) -> None:
     _write(
         tmp_path,
