@@ -43,8 +43,8 @@
     },
     "pytest": {
       "status": "passed",
-      "tests": 359,
-      "seconds": 22.26
+      "tests": 361,
+      "seconds": 22.24
     },
     "branch_coverage": {
       "status": "passed",
@@ -267,6 +267,15 @@
     "project_development_or_final_rows_accessed": false,
     "models_promoted": 0,
     "claim_boundary": "Compatibility smoke only; no semantic, latency, throughput, deployment, or model-selection claim."
+  },
+  "release_receipt_integrity": {
+    "status": "passed",
+    "file_hash_bindings_verified": 23,
+    "snapshot_source_commit_and_file_count_bound": true,
+    "snapshot_clean_worktree_bound": true,
+    "annotated_tag_object_and_target_bound": true,
+    "branch_and_tag_ci_run_ids_bound": true,
+    "tamper_regressions": 2
   },
   "status": "passed"
 }

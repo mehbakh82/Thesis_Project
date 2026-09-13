@@ -106,7 +106,8 @@ def _write_attestation(path: Path, *, commit: str, tag_object: str) -> None:
 
 
 def test_release_attestation_audit_resolves_annotated_tag(
-    tmp_path: Path, monkeypatch,
+    tmp_path: Path,
+    monkeypatch,
 ) -> None:
     repository = tmp_path / "repository"
     commit, tag_object = _tagged_repository(repository)
@@ -119,7 +120,8 @@ def test_release_attestation_audit_resolves_annotated_tag(
 
 
 def test_release_attestation_audit_rejects_object_hash_mismatch(
-    tmp_path: Path, monkeypatch,
+    tmp_path: Path,
+    monkeypatch,
 ) -> None:
     repository = tmp_path / "repository"
     commit, _ = _tagged_repository(repository)
@@ -128,13 +130,12 @@ def test_release_attestation_audit_rejects_object_hash_mismatch(
     monkeypatch.setattr(ci_artifact_audit, "ROOT", repository)
     monkeypatch.setattr(ci_artifact_audit, "RELEASE_ATTESTATION", receipt)
 
-    assert "release tag-object hash mismatch" in (
-        ci_artifact_audit.release_attestation_audit()
-    )
+    assert "release tag-object hash mismatch" in (ci_artifact_audit.release_attestation_audit())
 
 
 def test_release_attestation_audit_rejects_malformed_json(
-    tmp_path: Path, monkeypatch,
+    tmp_path: Path,
+    monkeypatch,
 ) -> None:
     receipt = tmp_path / "submission_tag_attestation.json"
     receipt.write_text("{not-json", encoding="utf-8")
@@ -144,6 +145,97 @@ def test_release_attestation_audit_rejects_malformed_json(
 
     assert len(errors) == 1
     assert errors[0].startswith("invalid release tag attestation:")
+
+
+def _write_final_audit_fixture(root: Path) -> tuple[Path, Path, Path, Path]:
+    bound = root / "bound.txt"
+    bound.write_text("bound release bytes\n", encoding="utf-8")
+    digest = hashlib.sha256(bound.read_bytes()).hexdigest()
+    attestation = root / "attestation.json"
+    attestation.write_text(
+        json.dumps(
+            {
+                "tag": "submission-test",
+                "tag_object": "a" * 40,
+                "commit": "b" * 40,
+                "branch_ci": {"run_id": 10},
+                "tag_ci": {"run_id": 11},
+            }
+        ),
+        encoding="utf-8",
+    )
+    snapshot = root / "snapshot.json"
+    snapshot.write_text(
+        json.dumps(
+            {
+                "git": {"commit": "c" * 40, "dirty": False},
+                "file_count": 1,
+            }
+        ),
+        encoding="utf-8",
+    )
+    audit = root / "final_audit.json"
+    audit.write_text(
+        json.dumps(
+            {
+                "audited_commit": "b" * 40,
+                "fixture": {"sha256": digest},
+                "release_verification": {
+                    "tag": "submission-test",
+                    "tag_object": "a" * 40,
+                    "branch_ci_run": 10,
+                    "tag_ci_run": 11,
+                    "snapshot_file_count": 1,
+                    "snapshot_source_commit": "c" * 40,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    return audit, snapshot, attestation, bound
+
+
+def test_final_audit_receipt_binds_files_snapshot_and_tag(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    audit, snapshot, attestation, _ = _write_final_audit_fixture(tmp_path)
+    monkeypatch.setattr(ci_artifact_audit, "ROOT", tmp_path)
+    monkeypatch.setattr(ci_artifact_audit, "FINAL_AUDIT", audit)
+    monkeypatch.setattr(ci_artifact_audit, "FINAL_SNAPSHOT", snapshot)
+    monkeypatch.setattr(ci_artifact_audit, "RELEASE_ATTESTATION", attestation)
+    monkeypatch.setattr(
+        ci_artifact_audit,
+        "FINAL_AUDIT_HASH_BINDINGS",
+        {("fixture", "sha256"): "bound.txt"},
+    )
+
+    assert ci_artifact_audit.final_audit_receipt_audit() == []
+
+
+def test_final_audit_receipt_rejects_hash_and_release_drift(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    audit, snapshot, attestation, bound = _write_final_audit_fixture(tmp_path)
+    bound.write_text("changed\n", encoding="utf-8")
+    payload = json.loads(audit.read_text(encoding="utf-8"))
+    payload["release_verification"]["tag_ci_run"] = 99
+    audit.write_text(json.dumps(payload), encoding="utf-8")
+    monkeypatch.setattr(ci_artifact_audit, "ROOT", tmp_path)
+    monkeypatch.setattr(ci_artifact_audit, "FINAL_AUDIT", audit)
+    monkeypatch.setattr(ci_artifact_audit, "FINAL_SNAPSHOT", snapshot)
+    monkeypatch.setattr(ci_artifact_audit, "RELEASE_ATTESTATION", attestation)
+    monkeypatch.setattr(
+        ci_artifact_audit,
+        "FINAL_AUDIT_HASH_BINDINGS",
+        {("fixture", "sha256"): "bound.txt"},
+    )
+
+    errors = ci_artifact_audit.final_audit_receipt_audit()
+
+    assert "final audit hash mismatch: fixture.sha256 -> bound.txt" in errors
+    assert "final audit release binding mismatch: tag_ci_run" in errors
 
 
 def _write_proposal_alignment_fixture(root: Path) -> tuple[Path, Path]:
@@ -168,7 +260,8 @@ def _write_proposal_alignment_fixture(root: Path) -> tuple[Path, Path]:
 
 
 def test_proposal_alignment_receipt_audit_accepts_exact_evidence_binding(
-    tmp_path: Path, monkeypatch,
+    tmp_path: Path,
+    monkeypatch,
 ) -> None:
     receipt, evidence = _write_proposal_alignment_fixture(tmp_path)
     monkeypatch.setattr(ci_artifact_audit, "PROPOSAL_ALIGNMENT_RECEIPT", receipt)
@@ -178,7 +271,8 @@ def test_proposal_alignment_receipt_audit_accepts_exact_evidence_binding(
 
 
 def test_proposal_alignment_receipt_audit_rejects_evidence_drift(
-    tmp_path: Path, monkeypatch,
+    tmp_path: Path,
+    monkeypatch,
 ) -> None:
     receipt, evidence = _write_proposal_alignment_fixture(tmp_path)
     evidence.write_text(json.dumps({"schema_version": 13}), encoding="utf-8")
@@ -192,7 +286,8 @@ def test_proposal_alignment_receipt_audit_rejects_evidence_drift(
 
 
 def test_proposal_alignment_receipt_audit_rejects_malformed_receipt(
-    tmp_path: Path, monkeypatch,
+    tmp_path: Path,
+    monkeypatch,
 ) -> None:
     receipt, evidence = _write_proposal_alignment_fixture(tmp_path)
     receipt.write_text("{not-json", encoding="utf-8")
@@ -206,7 +301,8 @@ def test_proposal_alignment_receipt_audit_rejects_malformed_receipt(
 
 
 def test_proposal_alignment_receipt_audit_rejects_tampered_score(
-    tmp_path: Path, monkeypatch,
+    tmp_path: Path,
+    monkeypatch,
 ) -> None:
     receipt, evidence = _write_proposal_alignment_fixture(tmp_path)
     payload = json.loads(receipt.read_text(encoding="utf-8"))
@@ -221,7 +317,8 @@ def test_proposal_alignment_receipt_audit_rejects_tampered_score(
 
 
 def test_proposal_alignment_receipt_audit_rejects_nonobject_input(
-    tmp_path: Path, monkeypatch,
+    tmp_path: Path,
+    monkeypatch,
 ) -> None:
     receipt, evidence = _write_proposal_alignment_fixture(tmp_path)
     receipt.write_text("[]", encoding="utf-8")

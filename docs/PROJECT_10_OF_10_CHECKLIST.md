@@ -1361,8 +1361,14 @@ Final engineering audit:
   unsafe session/speaker IDs, invalid age/detector/prompt/interrupt enums, and
   unknown rating fields before persistence. Validate WebSocket metadata as a
   complete typed state and preserve its last valid value after rejected input.
-  The complete local suite passes 359 tests at 80.256% branch-aware coverage;
+  The complete local suite passes 361 tests at 80.256% branch-aware coverage;
   targeted recording, transport, and persistence tests pass 21/21.
+- [x] Bind `results/release/final_audit.json` to authoritative bytes instead of
+  trusting copied receipt values. CI now recomputes 23 project/report/scientific
+  artifact hashes and cross-checks the clean snapshot source commit/file count,
+  annotated tag object and target, and branch/tag CI run IDs. Malformed,
+  missing, stale, or cross-receipt data fail closed; acceptance and tamper
+  regressions pass.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

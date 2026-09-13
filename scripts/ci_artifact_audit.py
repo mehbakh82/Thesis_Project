@@ -85,9 +85,7 @@ TEXT_SUFFIXES = {
 }
 SECRET_PATTERNS = {
     "private key": re.compile(r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----"),
-    "GitHub token": re.compile(
-        r"\b(?:gh[opusr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})\b"
-    ),
+    "GitHub token": re.compile(r"\b(?:gh[opusr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})\b"),
     "AWS access key": re.compile(r"\b(?:AKIA|ASIA)[A-Z0-9]{16}\b"),
     "Hugging Face token": re.compile(r"\bhf_[A-Za-z0-9]{30,}\b"),
     "Slack token": re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{20,}\b"),
@@ -100,9 +98,54 @@ HISTORY_SECRET_ERE = (
     r"|xox[baprs]-[A-Za-z0-9-]{20,})"
 )
 RELEASE_ATTESTATION = ROOT / "results" / "release" / "submission_tag_attestation.json"
+FINAL_AUDIT = ROOT / "results" / "release" / "final_audit.json"
+FINAL_SNAPSHOT = ROOT / "results" / "release" / "final_snapshot.json"
 PROPOSAL_ALIGNMENT_RECEIPT = ROOT / "results" / "proposal_alignment_audit.json"
 AGGREGATE_EVIDENCE = ROOT / "results" / "eval" / "EVIDENCE_STATUS.json"
 EVIDENCE_SUMMARY = ROOT / "results" / "eval" / "SUMMARY.md"
+FINAL_AUDIT_HASH_BINDINGS = {
+    ("runtime_attribution", "license_sha256"): "LICENSE",
+    ("runtime_attribution", "citation_sha256"): "CITATION.cff",
+    ("runtime_attribution", "third_party_notices_sha256"): "THIRD_PARTY_NOTICES.md",
+    ("runtime_attribution", "upstreams_lock_sha256"): "third_party/UPSTREAMS.lock.json",
+    ("runtime_attribution", "test_sha256"): "tests/test_attribution.py",
+    ("cascade_descriptive_analysis", "source_report_sha256"): (
+        "results/eval/cascade_real_service_validation_panel.json"
+    ),
+    ("cascade_descriptive_analysis", "artifact_sha256"): (
+        "results/eval/cascade_validation_descriptive_analysis.json"
+    ),
+    ("cascade_descriptive_analysis", "analyzer_sha256"): ("scripts/analyze_cascade_validation.py"),
+    ("cascade_descriptive_analysis", "test_sha256"): ("tests/test_cascade_error_analysis.py"),
+    ("cascade_intelligibility_proxy", "parent_panel_sha256"): (
+        "results/eval/cascade_real_service_validation_panel.json"
+    ),
+    ("cascade_intelligibility_proxy", "artifact_sha256"): (
+        "results/eval/cascade_intelligibility_proxy.json"
+    ),
+    ("cascade_intelligibility_proxy", "protocol_sha256"): (
+        "docs/CASCADE_INTELLIGIBILITY_PROTOCOL.md"
+    ),
+    ("cascade_intelligibility_proxy", "evaluator_sha256"): (
+        "scripts/evaluate_cascade_intelligibility.py"
+    ),
+    ("cascade_intelligibility_proxy", "error_metric_sha256"): "src/thesis_s2s/eval/wer.py",
+    ("cascade_intelligibility_proxy", "test_sha256"): "tests/test_cascade_intelligibility.py",
+    ("qwen4b_prompt_v2_final_test", "artifact_sha256"): (
+        "results/eval/qwen4b_responder_v2_final_test_proxy.json"
+    ),
+    ("qwen4b_prompt_v2_final_test", "protocol_sha256"): "docs/QWEN4B_CASCADE_V2_PROTOCOL.md",
+    ("qwen4b_prompt_v2_final_test", "evaluator_sha256"): (
+        "scripts/evaluate_qwen4b_responder_v2.py"
+    ),
+    ("qwen4b_prompt_v2_final_test", "development_report_sha256"): (
+        "results/eval/qwen4b_responder_v2_development_proxy.json"
+    ),
+    ("apache_closeout", "license_sha256"): "LICENSE",
+    ("thesis_reports", "full", "sha256"): "thesis-report/thesis.pdf",
+    ("thesis_reports", "concise", "sha256"): "thesis-report/thesis-short.pdf",
+    ("qwen35_local_compatibility", "artifact_sha256"): ("results/hardware/qwen35_local_smoke.json"),
+}
 
 
 def git_timeout_seconds() -> float:
@@ -256,6 +299,64 @@ def release_attestation_audit() -> list[str]:
     return errors
 
 
+def _nested_value(payload: dict, keys: tuple[str, ...]):
+    value: object = payload
+    for key in keys:
+        if not isinstance(value, dict) or key not in value:
+            return None
+        value = value[key]
+    return value
+
+
+def final_audit_receipt_audit() -> list[str]:
+    """Bind the final audit to its files, snapshot, and immutable-tag receipt."""
+
+    inputs = (FINAL_AUDIT, FINAL_SNAPSHOT, RELEASE_ATTESTATION)
+    if any(not path.is_file() for path in inputs):
+        return ["missing final audit, release snapshot, or release tag attestation"]
+    try:
+        audit, snapshot, attestation = (
+            json.loads(path.read_text(encoding="utf-8")) for path in inputs
+        )
+    except (OSError, json.JSONDecodeError) as exc:
+        return [f"invalid final audit receipt input: {exc}"]
+    if not all(isinstance(value, dict) for value in (audit, snapshot, attestation)):
+        return ["invalid final audit receipt input: root values must be objects"]
+
+    errors: list[str] = []
+    for keys, relative in FINAL_AUDIT_HASH_BINDINGS.items():
+        path = ROOT / relative
+        label = ".".join(keys)
+        if not path.is_file():
+            errors.append(f"final audit binding target is missing: {relative}")
+            continue
+        observed = hashlib.sha256(path.read_bytes()).hexdigest()
+        if _nested_value(audit, keys) != observed:
+            errors.append(f"final audit hash mismatch: {label} -> {relative}")
+
+    release = audit.get("release_verification")
+    snapshot_git = snapshot.get("git")
+    if not isinstance(release, dict) or not isinstance(snapshot_git, dict):
+        errors.append("invalid final audit release/snapshot structure")
+        return errors
+    expected_release_values = {
+        "tag": attestation.get("tag"),
+        "tag_object": attestation.get("tag_object"),
+        "branch_ci_run": _nested_value(attestation, ("branch_ci", "run_id")),
+        "tag_ci_run": _nested_value(attestation, ("tag_ci", "run_id")),
+        "snapshot_file_count": snapshot.get("file_count"),
+        "snapshot_source_commit": snapshot_git.get("commit"),
+    }
+    for key, expected in expected_release_values.items():
+        if release.get(key) != expected:
+            errors.append(f"final audit release binding mismatch: {key}")
+    if audit.get("audited_commit") != attestation.get("commit"):
+        errors.append("final audit audited_commit does not match release attestation")
+    if snapshot_git.get("dirty") is not False:
+        errors.append("final release snapshot was not generated from a clean worktree")
+    return errors
+
+
 def proposal_alignment_receipt_audit() -> list[str]:
     """Bind the public proposal summary to the exact aggregate evidence bytes."""
 
@@ -314,7 +415,9 @@ def evidence_summary_audit() -> list[str]:
         return [f"invalid generated evidence summary input: {exc}"]
     if not isinstance(payload, dict):
         return ["invalid generated evidence summary input: JSON root must be an object"]
-    return [] if observed == render_evidence_summary(payload) else ["generated evidence summary drift"]
+    return (
+        [] if observed == render_evidence_summary(payload) else ["generated evidence summary drift"]
+    )
 
 
 def audit() -> list[str]:
@@ -355,6 +458,7 @@ def main() -> int:
     errors = audit()
     errors.extend(history_audit())
     errors.extend(release_attestation_audit())
+    errors.extend(final_audit_receipt_audit())
     errors.extend(proposal_alignment_receipt_audit())
     errors.extend(evidence_summary_audit())
     if errors:

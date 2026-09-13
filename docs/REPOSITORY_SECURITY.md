@@ -213,9 +213,15 @@ Status date: 2026-09-13
   age/detector/prompt/interrupt values must be registered enums. WebSocket
   metadata is validated as a complete typed state before it can create or
   persist a session; invalid input returns a generic error without mutating the
-  last valid state. The complete local suite passes 359 tests at 80.256%
+  last valid state. The complete local suite passes 361 tests at 80.256%
   branch-aware coverage, including explicit coercion and path-traversal
   regressions.
+- The tracked-artifact audit now independently recomputes all 23 file hashes
+  copied into `final_audit.json` and binds that receipt to the release
+  snapshot's clean source commit/file count plus the annotated tag object,
+  target commit, and branch/tag CI run IDs. Missing files, malformed receipt
+  structures, stale hashes, or any cross-receipt mismatch fail CI. Two focused
+  regressions prove both exact acceptance and hash/release-drift rejection.
 
 ## Accepted pinned-training compatibility risks
 
