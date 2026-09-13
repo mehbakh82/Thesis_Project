@@ -1,17 +1,17 @@
 {
   "schema_version": 4,
-  "generated_at": "2026-09-12T15:01:11Z",
-  "audited_commit": "a04dc279c900f2567c3014f66f42ef8b277112f1",
+  "generated_at": "2026-09-13T06:35:49Z",
+  "audited_commit": "a3f36ebccd5c8ad2ac90d7edc605eb57282f43ed",
   "scope": "Current engineering/release closeout with preserved hash-bound historical scientific evidence.",
   "release_verification": {
-    "tag": "submission-final-audited-v2-2026-09-12",
-    "tag_object": "34f67e17cff523c1afe33bac642f1a78507ed4ed",
-    "branch_ci_run": 34700470926,
-    "tag_ci_run": 34700701937,
+    "tag": "submission-final-audited-v3-2026-09-13",
+    "tag_object": "ab5a175ff5db05440cada6b93a469f56eafeacef",
+    "branch_ci_run": 34742816867,
+    "tag_ci_run": 34742972132,
     "branch_ci_passed": true,
     "tag_ci_passed": true,
     "snapshot_file_count": 469,
-    "snapshot_source_commit": "0139d7778a6178b93f20792e30ad79a495857c5a"
+    "snapshot_source_commit": "96ef367f699aa8eb4beb96047eb641c79d856cf4"
   },
   "git_identity": {
     "author": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>",
@@ -43,12 +43,12 @@
     },
     "pytest": {
       "status": "passed",
-      "tests": 358,
-      "seconds": 22.46
+      "tests": 359,
+      "seconds": 22.26
     },
     "branch_coverage": {
       "status": "passed",
-      "percent": 80.222,
+      "percent": 80.256,
       "required_percent": 79
     },
     "scientific_dependency_risk_drift": {
@@ -89,7 +89,7 @@
     "source_code_license": "Apache-2.0",
     "license_sha256": "183c5508dbf8d5f8571728dcf16cf3da23fd308011d7053dc7949c8479dd16e9",
     "citation_sha256": "524812220340c3740e35e9f3a4f3106a01c00fdcb769b2ea2140a7bcbe3de215",
-    "third_party_notices_sha256": "bc9a1ce3355528d1e9f46a06f466b73fd97746f6c65833ebf492de67ec69e358",
+    "third_party_notices_sha256": "987a4d46b7155fd462c90767b97d83784248ef11cdc0ecaddacc1fe826432ee9",
     "upstreams_lock_sha256": "a66f2d2b6412c92edfb66f114915a52c1145b59b576b0e24156f262de290fba8",
     "test_sha256": "88559cb039daff58831dd6ba1f1075766c9615aa5f473fd7e61d423c3b983a28"
   },
@@ -175,6 +175,18 @@
     "simulated_generation_oom_recovery": "passed",
     "metrics_retention_writes_no_wav": "passed",
     "evidence_class": "automated_websocket_transport_regression"
+  },
+  "human_study_ingestion_integrity": {
+    "status": "passed",
+    "strict_noncoercive_models": true,
+    "json_boolean_consent_required": true,
+    "bounded_integer_ratings_required": true,
+    "path_safe_identifiers_required": true,
+    "registered_metadata_enums_required": true,
+    "unknown_rating_fields_rejected": true,
+    "browser_shaped_rating_payload_tested": true,
+    "focused_recording_transport_persistence_tests": 21,
+    "claim_boundary": "Software integrity only; this does not substitute for participant consent, ethics approval, recruitment, human ratings, or physical-browser evidence."
   },
   "claim_boundary": {
     "proves": [
