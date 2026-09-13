@@ -322,10 +322,11 @@ Owner: student for authentication; Codex can push afterward.
   CI pins that exact wheel-era version under trusted hash-inventoried local-model
   controls and fails closed if scanner-feed omission is accompanied by missing
   or changed resolved-package evidence.
-- [ ] Enable protected/CI-gated main-branch updates. Revalidated on 2026-09-09:
-  GitHub returns HTTP 403 for both classic branch protection and repository
-  rulesets on this private repository under the active plan; changing plan or
-  visibility requires the student.
+- [x] Enable protected/CI-gated main-branch updates. Revalidated and enabled
+  through the authenticated GitHub API on 2026-09-13: strict `test` status
+  checks, current branches, one approving review, stale-review dismissal,
+  administrator enforcement, linear history, resolved conversations, and no
+  force-pushes or deletions are required.
 - [x] Confirm Apache-2.0 as the source-code/documentation license;
   third-party/model/data/adapter terms remain separate in
   `THIRD_PARTY_NOTICES.md`.
@@ -1399,13 +1400,11 @@ privacy-safe repository at approved visibility, restricted handoff, immutable ta
 
 ## Inputs required from the student
 
-1. If protected `main` is required, authorize an eligible GitHub plan or a
-   visibility change.
-2. Provide the physical 4090 if it becomes available before the submission
+1. Provide the physical 4090 if it becomes available before the submission
    freeze; otherwise report the official hardware/latency gate as unavailable.
-3. Arrange the consented 5–10-person study with at least two participants aged
+2. Arrange the consented 5–10-person study with at least two participants aged
    60+, or obtain a written scope amendment.
-4. Optional strict-path recovery only: complete the preserved 40-row and 24-row
+3. Optional strict-path recovery only: complete the preserved 40-row and 24-row
    listening sheets. They are deliberately waived—not fabricated—for the active
    limited run and do not block its export/probe/training path.
 

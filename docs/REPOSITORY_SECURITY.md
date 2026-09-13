@@ -265,10 +265,12 @@ upstream Moshi/trainer migration.
   Apache-2.0. This does not alter the separate model, voice, source-corpus,
   generated-derivative, participant-material, and adapter rights documented in
   `THIRD_PARTY_NOTICES.md`.
-- Protected main-branch rules cannot be enabled for this private repository
-  under the current GitHub plan: the branch-protection API returns HTTP 403.
-  The remaining options are GitHub Pro (or another eligible plan) or making the
-  repository public; neither change is authorized implicitly.
+- Main-branch protection was enabled and re-read through the authenticated
+  GitHub API on 2026-09-13. It requires the strict `test` status check, a
+  current pull-request branch, one approving review with stale-review
+  dismissal, administrator enforcement, linear history, and resolved
+  conversations; force-pushes and branch deletion are disabled. The timestamped
+  response is normalized in `results/release/branch_protection.json`.
 - A logged-out public-clone inspection is impossible while the repository is
   private. CI plus a fresh authenticated/local clone can verify the same tracked
   content, but public visibility remains a separate student decision.
