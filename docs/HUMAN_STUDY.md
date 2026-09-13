@@ -9,6 +9,12 @@ export PYTHONPATH=src
 
 Open the displayed local URL, read the mode-specific consent form with the participant, and require the participant to check the on-screen consent box. An unchecked turn is processed transiently but is not persisted.
 
+The server validates consent as a real JSON boolean and validates session IDs,
+speaker IDs, age bins, prompt IDs, interruption labels, detector names, and
+integer 1–5 ratings without type coercion. A string such as `"true"`, a boolean
+used as a rating, an unsafe identifier, or an unknown field is rejected and is
+not study evidence.
+
 `features` is the default study mode and writes no WAV. Use `metrics` if acoustic aggregates are prohibited, or `audio`/`--record` only with explicit permission for raw voice. See `docs/NO_RECORDING_ALTERNATIVES.md`.
 
 ## Session (about 25 minutes)

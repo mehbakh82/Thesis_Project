@@ -236,8 +236,16 @@ def test_study_rating_endpoint(tmp_path: Path, monkeypatch):
     r = client.post(
         "/study/rating",
         json={
+            "session_id": "Srate",
+            "speaker_id": "P01",
+            "age_bin": "60plus",
+            "prompt_id": "warmup_time",
+            "interrupt_label": "none",
             "naturalness": 4,
+            "latency": 4,
             "interrupt_success": 5,
+            "satisfaction": 4,
+            "would_talk_again": True,
             "elderly_notes": "pause ok",
             "consent": True,
         },
@@ -250,6 +258,30 @@ def test_study_rating_endpoint(tmp_path: Path, monkeypatch):
     assert denied.status_code == 403
     invalid = client.post("/study/rating", json={"naturalness": 6, "consent": True})
     assert invalid.status_code == 422
+    coercive_consent = client.post("/study/rating", json={"naturalness": 4, "consent": "true"})
+    boolean_rating = client.post("/study/rating", json={"naturalness": True, "consent": True})
+    invalid_identity = client.post(
+        "/study/rating", json={"session_id": "../escape", "consent": True}
+    )
+    invalid_age = client.post("/study/rating", json={"age_bin": "unknown", "consent": True})
+    invalid_detector = client.post(
+        "/study/rating", json={"detector": "unregistered", "consent": True}
+    )
+    invalid_prompt = client.post(
+        "/study/rating", json={"prompt_id": "unregistered", "consent": True}
+    )
+    invalid_label = client.post("/study/rating", json={"interrupt_label": "maybe", "consent": True})
+    unknown_field = client.post(
+        "/study/rating", json={"surprise": "ignored before", "consent": True}
+    )
+    assert coercive_consent.status_code == 422
+    assert boolean_rating.status_code == 422
+    assert invalid_identity.status_code == 422
+    assert invalid_age.status_code == 422
+    assert invalid_detector.status_code == 422
+    assert invalid_prompt.status_code == 422
+    assert invalid_label.status_code == 422
+    assert unknown_field.status_code == 422
     assert h.json()["record"] is True
     p = client.get("/prompts")
     assert len(p.json()["prompts"]) >= 4
@@ -290,6 +322,44 @@ def test_websocket_records_client_observed_timing(tmp_path: Path, monkeypatch):
         ws.send_json({"event": "playback_ended", **meta})
     turns = (tmp_path / "data" / "recordings" / "Sws" / "turns.jsonl").read_text(encoding="utf-8")
     assert json.loads(turns)["t_first_audio_ms"] == 123.0
+
+
+def test_websocket_rejects_coercive_or_invalid_study_metadata(tmp_path: Path, monkeypatch) -> None:
+    from fastapi.testclient import TestClient
+
+    from thesis_s2s.bargein.detector import EnergyVadBaseline
+    from thesis_s2s.runtime import duplex as duplex_mod
+    from thesis_s2s.runtime import session_log
+
+    monkeypatch.setattr(session_log, "project_root", lambda: tmp_path)
+    monkeypatch.setattr(duplex_mod, "default_talker", lambda: DummyTalker())
+    app = build_app(EnergyVadBaseline(), record=True, session_id="Sbad", speaker_id="Pbad")
+    client = TestClient(app)
+    valid = {
+        "session_id": "Sbad",
+        "speaker_id": "Pbad",
+        "age_bin": "under_60",
+        "prompt_id": "warmup_time",
+        "interrupt_label": "none",
+        "consent": True,
+    }
+    invalid_cases = [
+        {**valid, "consent": "true"},
+        {**valid, "session_id": "../escape"},
+        {**valid, "age_bin": "unknown"},
+        {**valid, "prompt_id": "unregistered"},
+        {**valid, "interrupt_label": "maybe"},
+    ]
+
+    with client.websocket_connect("/ws") as ws:
+        for metadata in invalid_cases:
+            ws.send_json({"event": "hello", **metadata})
+            assert ws.receive_json() == {
+                "event": "error",
+                "message": "invalid study metadata",
+            }
+
+    assert not (tmp_path / "data" / "recordings" / "Sbad").exists()
 
 
 def test_piper_flag_does_not_crash():

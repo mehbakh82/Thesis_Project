@@ -1,6 +1,6 @@
 # Repository security and reproducibility review
 
-Status date: 2026-09-12
+Status date: 2026-09-13
 
 ## Controls that are enforced
 
@@ -207,6 +207,15 @@ Status date: 2026-09-12
   `34699895879` at commit `d840471`, including the new `S101,S324` enforcement
   and every existing compile, lint, type, privacy/history, frozen-source,
   dependency, test/coverage, and scientific-risk check.
+- The human-study API now uses strict, non-coercive request models. Rating
+  consent must be a JSON boolean, Likert values must be actual bounded integers
+  rather than booleans or numeric strings, identifiers must be path-safe, and
+  age/detector/prompt/interrupt values must be registered enums. WebSocket
+  metadata is validated as a complete typed state before it can create or
+  persist a session; invalid input returns a generic error without mutating the
+  last valid state. The complete local suite passes 359 tests at 80.256%
+  branch-aware coverage, including explicit coercion and path-traversal
+  regressions.
 
 ## Accepted pinned-training compatibility risks
 

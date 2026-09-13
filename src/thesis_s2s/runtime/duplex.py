@@ -9,11 +9,12 @@ from __future__ import annotations
 import json
 import time
 from dataclasses import dataclass
+from typing import Literal
 
 import numpy as np
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, JSONResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from thesis_s2s import SAMPLE_RATE, T_FIRST_AUDIO_P50_MS
 from thesis_s2s.bargein.detector import BargeinDetector, EnergyVadBaseline
@@ -42,18 +43,41 @@ class TurnLog:
     tts_backend: str = ""
 
 
+StudyPromptId = Literal["warmup_time", "interrupt_story", "backchannel", "noise", "free"]
+StudyInterruptLabel = Literal["none", "interrupt", "backchannel", "noise"]
+StudyAgeBin = Literal["under_60", "60plus"]
+StudyDetectorName = Literal["gbdt", "energy"]
+
+
 class StudyRating(BaseModel):
-    session_id: str | None = None
-    speaker_id: str | None = None
-    age_bin: str | None = None
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    session_id: str | None = Field(default=None, pattern=r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
+    speaker_id: str | None = Field(default=None, pattern=r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
+    age_bin: StudyAgeBin | None = None
+    prompt_id: StudyPromptId | None = None
+    interrupt_label: StudyInterruptLabel | None = None
     naturalness: int | None = Field(default=None, ge=1, le=5)
     latency: int | None = Field(default=None, ge=1, le=5)
     interrupt_success: int | None = Field(default=None, ge=1, le=5)
     satisfaction: int | None = Field(default=None, ge=1, le=5)
     would_talk_again: bool | None = None
     elderly_notes: str = Field(default="", max_length=2000)
-    detector: str | None = None
+    detector: StudyDetectorName | None = None
     consent: bool = False
+
+
+class StudyTurnMetadata(BaseModel):
+    """Strict client metadata used to decide whether a turn may be persisted."""
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    prompt_id: StudyPromptId
+    interrupt_label: StudyInterruptLabel
+    session_id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
+    speaker_id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
+    age_bin: StudyAgeBin
+    consent: bool
 
 
 class DummyTalker(FormantTalker):
@@ -502,14 +526,16 @@ def build_app(
         buf: list[np.ndarray] = []
         collecting = False
         pending_turn: dict | None = None
-        turn_meta = {
-            "prompt_id": "warmup_time",
-            "interrupt_label": "none",
-            "session_id": session_id,
-            "speaker_id": speaker_id,
-            "age_bin": age_bin,
-            "consent": False,
-        }
+        turn_meta = StudyTurnMetadata.model_validate(
+            {
+                "prompt_id": "warmup_time",
+                "interrupt_label": "none",
+                "session_id": session_id,
+                "speaker_id": speaker_id,
+                "age_bin": age_bin,
+                "consent": False,
+            }
+        )
         local_meta = SessionMeta(
             session_id=session_id,
             speaker_id=speaker_id,
@@ -604,27 +630,32 @@ def build_app(
                             {"event": "error", "message": "JSON event must be an object"}
                         )
                         continue
+                    metadata_values = turn_meta.model_dump()
                     for key in (
                         "prompt_id",
                         "interrupt_label",
                         "session_id",
                         "speaker_id",
                         "age_bin",
+                        "consent",
                     ):
-                        if payload.get(key):
-                            turn_meta[key] = payload[key]
-                    if "consent" in payload:
-                        turn_meta["consent"] = payload["consent"] is True
+                        if key in payload:
+                            metadata_values[key] = payload[key]
+                    try:
+                        turn_meta = StudyTurnMetadata.model_validate(metadata_values)
+                    except ValidationError:
+                        await ws.send_json({"event": "error", "message": "invalid study metadata"})
+                        continue
                     local_meta = SessionMeta(
-                        session_id=str(turn_meta["session_id"]),
-                        speaker_id=str(turn_meta["speaker_id"]),
+                        session_id=turn_meta.session_id,
+                        speaker_id=turn_meta.speaker_id,
                         gpu_name=str(host_gpu.get("device") or "cpu"),
                         vram_gb=float(host_gpu["total_gb"])
                         if host_gpu.get("total_gb") is not None
                         else None,
                         memory_capped=bool(host_gpu.get("memory_capped", False)),
-                        age_bin=str(turn_meta["age_bin"]),
-                        consent=bool(turn_meta["consent"]),
+                        age_bin=turn_meta.age_bin,
+                        consent=turn_meta.consent,
                         retention=effective_retention,
                     )
                     event = payload.get("event")
@@ -636,7 +667,7 @@ def build_app(
                         try:
                             store.start(local_meta)
                         except (ValueError, PermissionError) as exc:
-                            turn_meta["consent"] = False
+                            turn_meta = turn_meta.model_copy(update={"consent": False})
                             local_meta.consent = False
                             await ws.send_json({"event": "error", "message": str(exc)})
                     if event == "begin_utterance":
@@ -684,8 +715,8 @@ def build_app(
                             continue
                         pending_turn = {
                             "meta": local_meta,
-                            "prompt_id": str(turn_meta.get("prompt_id") or "free"),
-                            "interrupt_label": str(turn_meta.get("interrupt_label") or "none"),
+                            "prompt_id": turn_meta.prompt_id,
+                            "interrupt_label": turn_meta.interrupt_label,
                             "user_audio": user,
                         }
                         pcm16 = np.clip(reply * 32767, -32768, 32767).astype(np.int16)

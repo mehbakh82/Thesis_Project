@@ -1356,6 +1356,13 @@ Final engineering audit:
   `src` in CI. All 358 local tests pass at 80.222% branch-aware coverage.
 - [x] Confirm the expanded production security gate in complete GitHub Actions
   run `34699895879` at `d840471`; all remote gates passed.
+- [x] Make the human-study ingestion boundary strictly typed and fail closed.
+  Reject string/number coercion into consent, boolean or string Likert values,
+  unsafe session/speaker IDs, invalid age/detector/prompt/interrupt enums, and
+  unknown rating fields before persistence. Validate WebSocket metadata as a
+  complete typed state and preserve its last valid value after rejected input.
+  The complete local suite passes 359 tests at 80.256% branch-aware coverage;
+  targeted recording, transport, and persistence tests pass 21/21.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.
