@@ -1,17 +1,17 @@
 {
   "schema_version": 4,
-  "generated_at": "2026-09-13T06:35:49Z",
-  "audited_commit": "a3f36ebccd5c8ad2ac90d7edc605eb57282f43ed",
+  "generated_at": "2026-09-13T07:02:00Z",
+  "audited_commit": "db348411b01f6db09f72b9d1bc399d5af6b4ce5b",
   "scope": "Current engineering/release closeout with preserved hash-bound historical scientific evidence.",
   "release_verification": {
-    "tag": "submission-final-audited-v3-2026-09-13",
-    "tag_object": "ab5a175ff5db05440cada6b93a469f56eafeacef",
-    "branch_ci_run": 34742816867,
-    "tag_ci_run": 34742972132,
+    "tag": "submission-final-audited-v4-2026-09-13",
+    "tag_object": "5092b20204bed1ad64c887d638e696f75429973c",
+    "branch_ci_run": 34743826660,
+    "tag_ci_run": 34743994886,
     "branch_ci_passed": true,
     "tag_ci_passed": true,
     "snapshot_file_count": 469,
-    "snapshot_source_commit": "96ef367f699aa8eb4beb96047eb641c79d856cf4"
+    "snapshot_source_commit": "db348411b01f6db09f72b9d1bc399d5af6b4ce5b"
   },
   "git_identity": {
     "author": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>",

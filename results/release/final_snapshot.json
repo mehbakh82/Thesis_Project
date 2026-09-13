@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-13T06:27:52.415828+00:00",
+  "generated_at": "2026-09-13T07:01:48.435434+00:00",
   "python": "3.12.3",
   "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.39",
   "git": {
     "available": true,
-    "commit": "96ef367f699aa8eb4beb96047eb641c79d856cf4",
+    "commit": "db348411b01f6db09f72b9d1bc399d5af6b4ce5b",
     "dirty": false
   },
   "gpu": {
@@ -359,8 +359,8 @@
       "bytes": 6414
     },
     "docs/PROJECT_10_OF_10_CHECKLIST.md": {
-      "sha256": "d3936008785e08f70208e52de0035d860a32160cd0d72092d86ddd9c6d4fcdd9",
-      "bytes": 88029
+      "sha256": "3e4bfc18cb5e8ecedc77787dbf42ca87d8366b215ce84a342c5f7c9570042689",
+      "bytes": 88438
     },
     "docs/PROMPT_SHEET.md": {
       "sha256": "834713479073112fc0d2fc6f573d1fa742142863f4df67b98f680a856826ef78",
@@ -391,8 +391,8 @@
       "bytes": 2286
     },
     "docs/REPOSITORY_SECURITY.md": {
-      "sha256": "807709d198f50b02e230be910832c6176ab367b260c9670076666c39743b5144",
-      "bytes": 18718
+      "sha256": "80dbeefc5361c2e070e594f50fb697b482b59286371a53ef5272b6162688976c",
+      "bytes": 19166
     },
     "docs/RESPONDER_CANDIDATE_COMPARISON_V1.md": {
       "sha256": "87d2c6f1e33c2632698fd1d0acfb5adba61e34897151df16e658ebda2f80fb74",
@@ -575,11 +575,11 @@
       "bytes": 1408
     },
     "results/eval/EVIDENCE_STATUS.json": {
-      "sha256": "6f5835f8e275a7676db8b6c5d3d3aee6d1499cfa119c3c41f8f8fe3913f2dd8b",
+      "sha256": "3eaea8c517590c9323322fb29a137c1376398a4a5a7776d763105996f4741b52",
       "bytes": 41307
     },
     "results/eval/SUMMARY.md": {
-      "sha256": "323eebf7ec14ccf909a2636a21a2ce6521f6926ade646d03cf09cb17b20f7992",
+      "sha256": "25b3c6c8b3a9ae09e7fc55696364d50a692b67a3835ba7c255d64b1c3e179166",
       "bytes": 9128
     },
     "results/eval/asr_candidates_v1_development.json": {
@@ -859,12 +859,12 @@
       "bytes": 2173
     },
     "results/proposal_alignment_audit.json": {
-      "sha256": "36741f2cf022aff421117d154db3499303730047a82e87bb66624496fc0b25eb",
+      "sha256": "06b2f2a1b2830f52e255d1d554afa3f360d19feceafb10ec7d9257d5fc57506d",
       "bytes": 4125
     },
     "results/release/final_audit.json": {
-      "sha256": "62b42db1d27427488e8ce9ff07785cdc188bed5c44cfddac73e16629654127bb",
-      "bytes": 11040
+      "sha256": "f38d1fb20327c15ca0bed4569885764b96564bc5fcaea8f04dcfd8ae9e7b4791",
+      "bytes": 11978
     },
     "results/security/application_dependency_audit.json": {
       "sha256": "653693965e6a446b9e8ea784665d5650b5054f8a042da2e201f15ed94ff7a2e5",
@@ -903,8 +903,8 @@
       "bytes": 9606
     },
     "scripts/ci_artifact_audit.py": {
-      "sha256": "54b9da2bdb9cac48ca15b63218cc23adabc521f1fa2d43bc2554384bc790bb11",
-      "bytes": 13150
+      "sha256": "ce7bbc11a6d61b1777c28b2acb73bb91c1c1dc550992bad0aef6436db49cc6e1",
+      "bytes": 18271
     },
     "scripts/evaluate_asr_candidates_v1.py": {
       "sha256": "0e3b45b96b36b86906eb6107fe12dc7216ef7060374c2a30fc6232da957714a9",
@@ -1447,8 +1447,8 @@
       "bytes": 756
     },
     "tests/test_ci_artifact_audit.py": {
-      "sha256": "c4605b505b7d7e9da36672119ac1d1def1823cb664be706b6c52a696d9e4db2e",
-      "bytes": 8425
+      "sha256": "6327a8e6ad8eab2110b3107f37998ee170c7b102a400e516a91c313c54affe03",
+      "bytes": 11624
     },
     "tests/test_cli.py": {
       "sha256": "cd47156eab66c33639f820769117c48d98adf3fd14fcf7a64df156580213530b",

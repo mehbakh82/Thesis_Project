@@ -1142,9 +1142,11 @@ Final engineering audit:
 - [x] Replace the aggregate evidence report's historical hard-coded
   `immutable_submission_tag_created: false` with a fail-closed release
   attestation. `results/release/submission_tag_attestation.json` now binds the
-  definitive annotated tag `submission-final-audited-v3-2026-09-13`, tag object
-  `ab5a175`, target commit `a3f36eb`, and successful branch/tag CI runs
-  `34742816867` and `34742972132`.
+  definitive annotated tag `submission-final-audited-v4-2026-09-13`, tag object
+  `5092b202`, target verifier commit `db34841`, and successful branch/tag CI runs
+  `34743826660` and `34743994886`. The v4 verifier additionally recomputes 23
+  source-artifact hashes and binds the snapshot, annotated tag, and both CI
+  receipts; its complete suite passes 361 tests at 80.256% branch coverage.
   The tracked-artifact CI audit independently resolves the tag object and peeled
   commit from Git and requires the attested commit to be an ancestor of `HEAD`.
   Direct temporary-repository regressions cover a valid annotated tag, a
