@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-12T14:49:56.893779+00:00",
+  "generated_at": "2026-09-13T06:27:52.415828+00:00",
   "python": "3.12.3",
   "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.39",
   "git": {
     "available": true,
-    "commit": "0139d7778a6178b93f20792e30ad79a495857c5a",
+    "commit": "96ef367f699aa8eb4beb96047eb641c79d856cf4",
     "dirty": false
   },
   "gpu": {
@@ -25,15 +25,15 @@
       "utilization_gpu_percent"
     ],
     "rows": [
-      "NVIDIA H100 NVL, 595.71.05, 95830, 83582, 11740, 0"
+      "NVIDIA H100 NVL, 595.71.05, 95830, 83584, 11738, 0"
     ],
     "devices": [
       {
         "name": "NVIDIA H100 NVL",
         "driver_version": "595.71.05",
         "memory_total_mib": 95830,
-        "memory_used_mib": 83582,
-        "memory_free_mib": 11740,
+        "memory_used_mib": 83584,
+        "memory_free_mib": 11738,
         "utilization_gpu_percent": 0
       }
     ]
@@ -283,8 +283,8 @@
       "bytes": 5862
     },
     "docs/HUMAN_STUDY.md": {
-      "sha256": "a30785459d8fc6fb9946aa65b462f2ef67c634324bf3b29cbd2a7a1f7dbc8689",
-      "bytes": 2859
+      "sha256": "2cf6ef47aa4d39d97c0afbc25febd4c8f944ab8927227b75602eccd938fa03cc",
+      "bytes": 3196
     },
     "docs/INTERRUPTION_QA_FA.md": {
       "sha256": "342226c84f3dd32e15af14892f8142c622dec38561b92f7ca37daced720117bd",
@@ -359,8 +359,8 @@
       "bytes": 6414
     },
     "docs/PROJECT_10_OF_10_CHECKLIST.md": {
-      "sha256": "1546abcd6f8201b106983b180e5df50c42b27d77c6f7d171bc3ba46706141333",
-      "bytes": 87478
+      "sha256": "d3936008785e08f70208e52de0035d860a32160cd0d72092d86ddd9c6d4fcdd9",
+      "bytes": 88029
     },
     "docs/PROMPT_SHEET.md": {
       "sha256": "834713479073112fc0d2fc6f573d1fa742142863f4df67b98f680a856826ef78",
@@ -387,12 +387,12 @@
       "bytes": 3063
     },
     "docs/RECORDING.md": {
-      "sha256": "9feb314d3f1021454b0e6cc10b68c2d8222f10937b5c0c18d1bf1a97c3d9a804",
-      "bytes": 2050
+      "sha256": "1a624b93fb3b371a0096e8909b1aecc12eba953590f2e17e5f4197ba17664287",
+      "bytes": 2286
     },
     "docs/REPOSITORY_SECURITY.md": {
-      "sha256": "bb5db878fa2e608e2c528fac30bc6b78d5c6c736f354bd8ae9c4b876b362e16b",
-      "bytes": 17980
+      "sha256": "807709d198f50b02e230be910832c6176ab367b260c9670076666c39743b5144",
+      "bytes": 18718
     },
     "docs/RESPONDER_CANDIDATE_COMPARISON_V1.md": {
       "sha256": "87d2c6f1e33c2632698fd1d0acfb5adba61e34897151df16e658ebda2f80fb74",
@@ -575,12 +575,12 @@
       "bytes": 1408
     },
     "results/eval/EVIDENCE_STATUS.json": {
-      "sha256": "e4f5f54a1e414f05d765935b493f8e142aefc7a3da80e748759369ff830cdc14",
-      "bytes": 41301
+      "sha256": "6f5835f8e275a7676db8b6c5d3d3aee6d1499cfa119c3c41f8f8fe3913f2dd8b",
+      "bytes": 41307
     },
     "results/eval/SUMMARY.md": {
-      "sha256": "01aec99f3f8be43b31cb5bbeb1ae6b5b8fc54907fb43205da26773a07b8c1147",
-      "bytes": 9125
+      "sha256": "323eebf7ec14ccf909a2636a21a2ce6521f6926ade646d03cf09cb17b20f7992",
+      "bytes": 9128
     },
     "results/eval/asr_candidates_v1_development.json": {
       "sha256": "4759d850fe7fcb3f7a6cf3dd4b5a346047e465a90d2b0312b40b0805bd14d649",
@@ -859,12 +859,12 @@
       "bytes": 2173
     },
     "results/proposal_alignment_audit.json": {
-      "sha256": "48476b5eeb3e95d134f59a3732c4d1897e49aefd2e3427f628a183f97282bd14",
+      "sha256": "36741f2cf022aff421117d154db3499303730047a82e87bb66624496fc0b25eb",
       "bytes": 4125
     },
     "results/release/final_audit.json": {
-      "sha256": "3aafba7261e302221ea434de1dc9917f76272e43503277faa5daa5e43663facc",
-      "bytes": 11037
+      "sha256": "62b42db1d27427488e8ce9ff07785cdc188bed5c44cfddac73e16629654127bb",
+      "bytes": 11040
     },
     "results/security/application_dependency_audit.json": {
       "sha256": "653693965e6a446b9e8ea784665d5650b5054f8a042da2e201f15ed94ff7a2e5",
@@ -1371,8 +1371,8 @@
       "bytes": 15207
     },
     "src/thesis_s2s/runtime/duplex.py": {
-      "sha256": "dcf86af77afa1934dfee77193d146777420227cf2b252f5b42a08a51a120f9dc",
-      "bytes": 33744
+      "sha256": "5fcff25a0b969edd980cbfa5765a46f673c42b67e11bf54518b5b39d5b354346",
+      "bytes": 35103
     },
     "src/thesis_s2s/runtime/session_log.py": {
       "sha256": "b78ab2413e24e480985e9799eb6bfbd2d317c18ee1531325d584dc717e25ee1f",
@@ -1619,8 +1619,8 @@
       "bytes": 2303
     },
     "tests/test_recording_kit.py": {
-      "sha256": "14455ccc95dfcb6ddcf27ac5b4e245581441bbb3c6a2ad773fc86f0d3fb77c1e",
-      "bytes": 10803
+      "sha256": "f782742b76e329c5f47ccf3e8bfe426a0fa5e9bd4165ade06ca463cfff5bc1ab",
+      "bytes": 13689
     },
     "tests/test_responder_candidate_comparison.py": {
       "sha256": "e0bdcec3f379027facbd378b9a852e2faf90df7cbe820525f3264ec4664f6481",
