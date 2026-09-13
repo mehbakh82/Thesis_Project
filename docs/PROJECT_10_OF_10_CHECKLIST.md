@@ -1,6 +1,6 @@
 # Checklist for a defensible 10/10 thesis project
 
-Status date: 2026-09-12
+Status date: 2026-09-13
 
 This is the authoritative closure checklist. Mark an item complete only when its
 named artifact exists and its acceptance test passes. Implemented code,
@@ -305,7 +305,7 @@ Owner: student for authentication; Codex can push afterward.
   expected HEAD, one author/committer identity, and passing full-history
   artifact/privacy/secret audit.
 - [x] GitHub Actions uses read-only permissions and immutable first-party Action
-  SHAs; it compiles, lints, type-checks, audits, tests, and enforces 75%
+  SHAs; it compiles, lints, type-checks, audits, tests, and enforces 79%
   branch-aware coverage.
 - [x] CI lints `src`/`tests`/`scripts`, parses tracked JSON/YAML/TOML,
   rejects forbidden/oversized artifacts and private paths, scans all reachable
@@ -1371,6 +1371,12 @@ Final engineering audit:
   annotated tag object and target, and branch/tag CI run IDs. Malformed,
   missing, stale, or cross-receipt data fail closed; acceptance and tamper
   regressions pass.
+- [x] Finalize the v4 machine receipts at main commit `c5f48b5`. Complete
+  closeout CI run `34744415825` passed every gate. A new authenticated clone
+  matched `origin/main`, resolved tag object `5092b202` to verifier commit
+  `db34841`, retained the attested report-tree object, passed strict Git object
+  validation and the 524-file artifact/history/privacy/release audit, and was
+  removed after verification.
 
 Exit: green audit, reproducible runtime/adapter, traceable thesis tables,
 privacy-safe repository at approved visibility, restricted handoff, immutable tag.

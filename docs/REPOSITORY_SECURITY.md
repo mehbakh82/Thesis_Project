@@ -194,7 +194,9 @@ Status date: 2026-09-13
   tag run `34743994886`; the machine-readable attestation records tag object
   `5092b202`, both successful CI runs, and 23 independently recomputed
   source-artifact bindings. The complete suite passes 361 tests at 80.256%
-  branch-aware coverage.
+  branch-aware coverage. The finalized receipts were committed at `c5f48b5`;
+  closeout run `34744415825` passed, and a fresh authenticated clone matched
+  remote main and independently passed strict Git-object and 524-file audits.
 - A final security-rule audit removed every optimization-sensitive `assert`
   and implicit security-hash warning from production source. Defensive
   invariants now raise explicit errors under both normal Python and
