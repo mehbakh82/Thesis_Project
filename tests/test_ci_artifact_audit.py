@@ -91,6 +91,38 @@ def _git(root: Path, *arguments: str) -> str:
     return result.stdout.strip()
 
 
+def test_proposal_template_is_forbidden_in_current_tree_and_history(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    repository = tmp_path / "repository"
+    repository.mkdir()
+    _git(repository, "init", "-q")
+    proposal = repository / EXPECTED_PROPOSAL_NAME
+    proposal.write_bytes(b"private proposal fixture")
+    _git(repository, "add", EXPECTED_PROPOSAL_NAME)
+    _git(
+        repository,
+        "-c",
+        "user.name=Privacy Test",
+        "-c",
+        "user.email=privacy@example.invalid",
+        "commit",
+        "-q",
+        "-m",
+        "private fixture",
+    )
+    monkeypatch.setattr(ci_artifact_audit, "ROOT", repository)
+    monkeypatch.setattr(ci_artifact_audit, "tracked_files", lambda: [proposal])
+
+    assert ci_artifact_audit.audit() == [
+        f"forbidden tracked path: {EXPECTED_PROPOSAL_NAME}"
+    ]
+    assert ci_artifact_audit.history_audit() == [
+        f"forbidden path exists in Git history: {EXPECTED_PROPOSAL_NAME}"
+    ]
+
+
 def _tagged_repository(root: Path) -> tuple[str, str]:
     root.mkdir()
     _git(root, "init", "-q")
