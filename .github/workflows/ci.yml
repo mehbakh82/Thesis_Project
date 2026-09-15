@@ -2,7 +2,13 @@ name: ci
 
 on:
   push:
+    branches:
+      - main
+    tags:
+      - "submission-*"
   pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read
