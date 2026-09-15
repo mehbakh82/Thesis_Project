@@ -1,6 +1,6 @@
 # Authoritative project evidence status
 
-Generated: `2026-09-15T06:33:19.969581+00:00`
+Generated: `2026-09-15T07:24:50.032574+00:00`
 
 **Verdict:** `not_thesis_ready_evidence_gates_pending`. Thesis-ready: **false**.
 
@@ -13,6 +13,7 @@ This table is generated from `EVIDENCE_STATUS.json`. Component and synthetic pro
 | `working_persian_s2s_prototype` | yes |
 | `automatic_semantic_final_test_passed` | yes |
 | `audited_export_100_to_200_hours` | yes |
+| `strict_human_qa_complete` | no |
 | `data_policy_resolved_under_documented_qa_waiver` | yes |
 | `deployment_eligible_persian_direct_model` | no |
 | `real_group_heldout_detector_above_80_percent` | no |
@@ -106,6 +107,7 @@ Complete.
 
 ## Remaining requirements
 
+- Complete the preserved window and interaction listening reviews, rebuild and audit the corpus without the QA waiver, and re-export with strict final training readiness.
 - Produce a validation-eligible Persian direct-model checkpoint before opening that experiment's frozen final test.
 - Obtain independently human-reviewed recorded labels and establish >80% on a speaker/session-group-held-out test; the automatic YouTube proxy is not ground truth.
 - Run the final system and client-acknowledged latency protocol on a physical 12–24 GB GPU such as the planned RTX 4090.

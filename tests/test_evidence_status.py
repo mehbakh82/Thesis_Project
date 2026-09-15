@@ -6,6 +6,8 @@ from pathlib import Path
 import pytest
 
 from thesis_s2s.eval.evidence import (
+    STRICT_THESIS_GATE_NAMES,
+    _strict_thesis_ready,
     build_evidence_status,
     render_evidence_summary,
     write_evidence_summary,
@@ -23,6 +25,20 @@ def _write_text(root: Path, relative: str, payload: str) -> None:
     path = root / relative
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(payload, encoding="utf-8")
+
+
+def test_strict_readiness_cannot_be_satisfied_by_the_qa_waiver() -> None:
+    gates = {name: True for name in STRICT_THESIS_GATE_NAMES}
+    gates["strict_human_qa_complete"] = False
+    gates["data_policy_resolved_under_documented_qa_waiver"] = True
+
+    assert "data_policy_resolved_under_documented_qa_waiver" not in (
+        STRICT_THESIS_GATE_NAMES
+    )
+    assert _strict_thesis_ready(gates) is False
+
+    gates["strict_human_qa_complete"] = True
+    assert _strict_thesis_ready(gates) is True
 
 
 def test_evidence_summary_write_is_atomic(tmp_path: Path, monkeypatch) -> None:
@@ -543,7 +559,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
 
     assert report["authoritative"] is True
-    assert report["schema_version"] == 13
+    assert report["schema_version"] == 14
     assert report["thesis_ready"] is False
     assert report["generation_policy"]["reads_frozen_final_test_rows"] is False
     assert report["gates"]["audited_export_100_to_200_hours"] is True
@@ -566,6 +582,8 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
     assert report["gates"]["data_policy_resolved_under_documented_qa_waiver"] is True
     assert report["data"]["strict_human_qa_complete"] is False
+    assert report["gates"]["strict_human_qa_complete"] is False
+    assert any("without the QA waiver" in item for item in report["required_to_complete"])
     assert report["data"]["exported_hours"] == 108.584
     assert report["data"]["balanced_v2"] == {
         "evidence_scope": "post_training_recommended_corpus",

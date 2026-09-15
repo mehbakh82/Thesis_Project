@@ -76,6 +76,25 @@ ARTIFACTS: dict[str, str] = {
 }
 
 
+STRICT_THESIS_GATE_NAMES = (
+    "working_persian_s2s_prototype",
+    "automatic_semantic_final_test_passed",
+    "audited_export_100_to_200_hours",
+    "strict_human_qa_complete",
+    "deployment_eligible_persian_direct_model",
+    "real_group_heldout_detector_above_80_percent",
+    "physical_12_to_24_gb_fit_and_live_latency",
+    "human_study_complete",
+    "source_code_license_selected",
+)
+
+
+def _strict_thesis_ready(gates: dict[str, bool]) -> bool:
+    """Require every strict gate; limited-scope waiver gates cannot substitute."""
+
+    return all(gates.get(name) is True for name in STRICT_THESIS_GATE_NAMES)
+
+
 def _read_json(root: Path, relative: str) -> dict[str, Any]:
     path = root / relative
     if not path.is_file():
@@ -939,6 +958,7 @@ def build_evidence_status(
         "working_persian_s2s_prototype": bool(cascade["working_prototype"]),
         "automatic_semantic_final_test_passed": bool(qwen4b_final["verified"]),
         "audited_export_100_to_200_hours": audited_export_ready,
+        "strict_human_qa_complete": strict_human_qa,
         "data_policy_resolved_under_documented_qa_waiver": bool(
             audited_export_ready and not strict_human_qa
         ),
@@ -948,7 +968,7 @@ def build_evidence_status(
         "human_study_complete": human_study_complete,
         "source_code_license_selected": source_license_selected,
     }
-    thesis_ready = all(gates.values())
+    thesis_ready = _strict_thesis_ready(gates)
     thesis_reports = final_audit.get("thesis_reports") or {}
     working_submission_selected = bool(qwen4b_final["verified"])
     report_integration_complete = bool(
@@ -987,6 +1007,14 @@ def build_evidence_status(
             "Pass the frozen automatic semantic final test after predeclared development "
             "eligibility without changing its thresholds."
         ),
+        "audited_export_100_to_200_hours": (
+            "Produce an independently audited 100–200-hour conversational export."
+        ),
+        "strict_human_qa_complete": (
+            "Complete the preserved window and interaction listening reviews, rebuild and "
+            "audit the corpus without the QA waiver, and re-export with strict final "
+            "training readiness."
+        ),
         "deployment_eligible_persian_direct_model": (
             "Produce a validation-eligible Persian direct-model checkpoint before opening "
             "that experiment's frozen final test."
@@ -1008,7 +1036,7 @@ def build_evidence_status(
     }
 
     payload: dict[str, Any] = {
-        "schema_version": 13,
+        "schema_version": 14,
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "authoritative": True,
         "thesis_ready": thesis_ready,
