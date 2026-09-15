@@ -543,7 +543,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
 
     assert report["authoritative"] is True
-    assert report["schema_version"] == 12
+    assert report["schema_version"] == 13
     assert report["thesis_ready"] is False
     assert report["generation_policy"]["reads_frozen_final_test_rows"] is False
     assert report["gates"]["audited_export_100_to_200_hours"] is True
@@ -620,6 +620,9 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     assert report["release"]["immutable_submission_tag_created"] is True
     assert report["release"]["submission_tag_attestation"]["commit"] == release_commit
     assert report["remaining_work_classification"]["waived_not_completed"]
+    assert report["remaining_work_classification"]["submission_closeout_complete"] is False
+    assert len(report["remaining_work_classification"]["submission_critical_now"]) == 3
+    assert report["remaining_work_classification"]["completed_submission_closeout"] == []
     summary = render_evidence_summary(report)
     assert "## Local artifact retention" in summary
     assert "13 representative" in summary
@@ -791,6 +794,12 @@ def test_committed_qwen4b_final_test_is_verified_fail_closed() -> None:
 
     assert report["gates"]["automatic_semantic_final_test_passed"] is True
     assert report["submission_strategy"]["production_candidate"] == "qwen4b_v2_cascade"
+    closeout = report["remaining_work_classification"]
+    assert closeout["submission_closeout_complete"] is True
+    assert all(closeout["submission_closeout_checks"].values())
+    assert closeout["submission_critical_now"] == []
+    assert len(closeout["completed_submission_closeout"]) == 3
+    assert "## Submission closeout\n\nComplete." in render_evidence_summary(report)
     assert final["verified"] is True
     assert final["rows"] == 40
     assert final["judge_calls_valid"] == 240

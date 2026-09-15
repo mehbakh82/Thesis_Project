@@ -1,6 +1,6 @@
 {
-  "schema_version": 12,
-  "generated_at": "2026-09-15T06:15:37.960730+00:00",
+  "schema_version": 13,
+  "generated_at": "2026-09-15T06:33:19.969581+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -924,10 +924,17 @@
       "Reconcile the thesis manuscript and generated tables with final evidence.",
       "Freeze the final evidence bundle, commit/tag it, push it, and verify a fresh clone."
     ],
-    "submission_critical_now": [
+    "submission_closeout_checks": {
+      "working_submission_architecture_selected": true,
+      "thesis_reports_integrated_and_validated": true,
+      "repository_release_attested_and_protected": true
+    },
+    "submission_closeout_complete": true,
+    "submission_critical_now": [],
+    "completed_submission_closeout": [
       "Use the cascade as the submitted working system.",
-      "Copy the exact positive and negative result tables into the thesis manuscript.",
-      "Run the final repository audit, freeze the evidence snapshot, tag, and push."
+      "Copy the exact positive and negative result tables into the thesis manuscript and validate both report outputs.",
+      "Run the final repository audit, freeze the evidence snapshot, tag, push, protect main, and verify a fresh public clone."
     ],
     "research_extension_not_deadline_critical": [
       "Redesign and validate a direct Persian Moshi training objective on a larger representative split."
