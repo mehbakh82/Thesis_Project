@@ -20,63 +20,58 @@ Confirm in the JSON:
 - no `memory_capped: true` proxy is used;
 - upstream commits match `third_party/UPSTREAMS.lock.json`;
 - the H100 environment and one-step wiring reports pass their current hashes;
-- `human_review` shows both the 40-row window sheet and 24-row interaction
-  sheet as complete and applied fail-closed;
-- the conversation audit and Moshi export pass before adaptation is attempted.
+- `evaluation_hardware_ready=true` based only on eligible physical hardware
+  and CUDA availability;
+- the current waiver-bound conversation/export artifacts remain valid, use the
+  pinned waiver, and keep every human-verification claim false;
+- `human_review` is expected to remain incomplete unless a real reviewer has
+  actually completed both preserved sheets. It is not a hardware-readiness
+  field and must never be backfilled for the 4090 run.
 
-`evaluation_hardware_ready` is the 4090 gate. The separate
+`evaluation_hardware_ready` is the 4090 hardware gate. The separate
 `adaptation_run_ready` and `adaptation_launch_safe_now` fields describe the
-H100 training handoff and do not require the 4090.
+historical H100 training handoff and do not require the 4090. Neither field
+proves that a deployment-eligible direct adapter exists.
 
-## 2. Verify the H100 preparation handoff
+## 2. Verify the completed H100 preparation handoff
 
-Corpus preparation, diarization, QA application, Moshi export, and adaptation
-belong on the H100. They are prerequisites for this later 4090 run, not work
-that must be repeated on the target card. The H100 sequence is:
+Do not re-diarize, rebuild the corpus, re-synthesize the export, or retrain merely
+because the evaluation GPU changed. The current submission uses the documented
+QA waiver and already has hash-bound conversation/export audits. Verify those
+published artifacts and their upstream pins:
 
 ```bash
-.venv/bin/python -m thesis_s2s.cli audit-diarized-episodes
-.venv/bin/python -m thesis_s2s.cli annotate-conversation-noise
-.venv/bin/python -m thesis_s2s.cli estimate-conversation-yield
-.venv/bin/python -m thesis_s2s.cli sample-conversation-qa
-# A reviewer fills conversation_manual_qa.csv and the already generated
-# conversation_interruption_qa.csv; no new recording is required.
-.venv/bin/python -m thesis_s2s.cli apply-conversation-qa
-.venv/bin/python -m thesis_s2s.cli apply-interruption-qa
-.venv/bin/python -m thesis_s2s.cli audit-diarized-episodes \
-  --manifest data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl
-.venv/bin/python -m thesis_s2s.cli build-conversations \
-  --in-jsonl data/processed/manifests/conversation_episode_windows_interactions_reviewed.jsonl
-.venv/bin/python -m thesis_s2s.cli audit-conversations
-.venv/bin/python -m thesis_s2s.cli export-moshi-data --assistant-audio-mode piper
-MOSHI_DISTRIBUTED_BACKEND=gloo \
-  .venv-moshi/bin/torchrun --standalone --nproc-per-node 1 \
-  scripts/moshi_train_entry.py configs/moshi_h100_profile_probe.yaml
-.venv/bin/python scripts/record_moshi_profile_probe.py
+.venv/bin/python scripts/ci_artifact_audit.py
+.venv/bin/python -m thesis_s2s.cli verify-upstreams
 .venv/bin/python -m thesis_s2s.cli gpu-preflight \
-  --out results/hardware/current_preflight.json
+  --out results/hardware/4090_preflight.json
 ```
 
-When the 4090 becomes available, copy or mount the immutable base files,
-adapter, checkpoint config, and evidence reports. Confirm their SHA-256 values;
-do not re-diarize the corpus or retrain merely because the evaluation GPU
-changed. Manual review validates labels, not data rights. Supervisor-approved
-internal training is machine-audited separately, while raw-data redistribution
-remains prohibited.
+The strict manual-QA reconstruction commands remain preserved in
+`PROJECT_10_OF_10_CHECKLIST.md`, but they apply only if a real reviewer later
+completes both sheets. Never invent reviewer IDs or decisions. A later reviewed
+corpus must be versioned and audited separately; it must not overwrite the
+frozen waiver lineage.
+
+When the 4090 becomes available, copy or mount only the runtime files and
+hash-bound evidence needed for the selected system. Confirm their SHA-256
+values. Supervisor-approved internal training is machine-audited separately
+from raw-data redistribution, which remains prohibited.
 
 ## 3. Direct-model boundary
 
-Train the direct model on the H100 before this run. The selected engineering
-path is Kyutai's pinned Moshi LoRA trainer with
-`configs/moshi_h100.yaml`; see `MOSHI_H100_RUNBOOK.md`. It learns from stereo
-user/assistant conversations and supervises assistant text plus Mimi speech
-tokens. This is response learning, not another ASR fine-tune.
+The current production candidate is the validated NeMo -> Qwen3-4B prompt-v2
+-> Piper cascade. It can be run on the 4090 to obtain qualifying physical-card
+fit and live-browser latency evidence.
 
-The 4090 is used here to prove that the resulting base model plus Persian LoRA
-adapter fits a physical 24 GB device and meets live browser latency. It does not
-need to perform the expensive adaptation itself. Archive the exact Moshi base
-revision, adapter hash, configuration, and H100 training logs before copying
-the artifact to the 4090.
+The selected direct-model research path remains the pinned Moshika 7B plus
+Moshi-Finetune LoRA. V1-v5 failed their runtime eligibility rules, and v6.2 had
+a positive train-only loss signal but passed 0/9 runtime rows for every
+candidate. Therefore no direct adapter may be copied, rated, or described as
+promoted. If a future experiment produces a validation-eligible adapter, first
+archive its exact base revision, adapter hash, configuration, H100 logs, and
+selection receipt; only then use the 4090 to establish direct-model fit and
+browser latency.
 
 `configs/llama_omni2_4090.yaml` remains a superseded preparation record because
 the pinned LLaMA-Omni2 release lacks the required trainer. Never use
@@ -85,7 +80,9 @@ the input and its checkpoints are deliberately runtime-ineligible.
 
 ## 4. Live official evaluation without raw-audio retention
 
-For each participant use a unique session ID and stable pseudonymous speaker ID:
+For each consented participant, use a unique session ID and stable
+pseudonymous speaker ID. The current service launches the selected cascade; do
+not label the session as direct-Moshi evidence:
 
 ```bash
 .venv/bin/python -m thesis_s2s.cli serve --study --retention features \
