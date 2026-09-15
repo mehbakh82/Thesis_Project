@@ -4,7 +4,10 @@
 
 Wall-clock milliseconds from **user end-of-speech** (or the moment a barge-in is accepted as a new turn) to the **first audible PCM sample** of the assistant reply.
 
-The historical engineering contract used **p50 ≤ 500 ms**. The Persian project definition can be read literally as **maximum ≤500 ms**. These are not equivalent. Until the supervisor resolves this, report p50, p95, and maximum, label the p50 gate provisional, and separately report whether every measured turn is ≤500 ms.
+The historical engineering contract used **p50 ≤500 ms**. The detailed Persian
+proposal is enforced conservatively as **maximum ≤500 ms**. These are not
+equivalent: report p50, p95, and maximum, but only the maximum decides strict
+proposal acceptance.
 
 Do not discard timeouts or failed turns to make the maximum pass. State the timeout policy and denominator.
 
@@ -16,7 +19,9 @@ The official value is client-observed: the browser sends `playback_started` only
 
 Wall-clock milliseconds from the **acoustic onset** of a user interrupt to the moment assistant **playback actually stops**.
 
-Gate: **p95 ≤ 300 ms**.
+Engineering gate: **p95 ≤300 ms**. The detailed proposal's stricter acceptance
+criterion is reported separately as **maximum ≤150 ms**. Passing the engineering
+gate does not imply that the proposal criterion passed.
 
 The classical detector in `src/thesis_s2s/bargein` **owns** this control path (`PlaybackController.stop_playback`).
 
@@ -30,6 +35,14 @@ The official stop time comes from the browser's `playback_stopped_ack` after eve
 - `synthetic_proxy`: generated audio or simulated events; valid for regression tests only.
 
 Only `official_e2e` rows may be used to claim that a thesis latency gate was met.
+An official study requires every included participant session to be a consented
+live-browser session on eligible physical hardware. Every valid turn must carry
+a valid client `playback_started` acknowledgement, every labelled interruption
+must carry a valid client `playback_stopped_ack`, and missing acknowledgements or
+timeouts remain failures rather than disappearing from the denominator.
+Every session must also carry one consistent ASR/responder/TTS identity, including
+the responder revision/profile and SHA-256 of the TTS model. Any ASR/responder
+error, rules fallback, or formant fallback is an official failure.
 
 ## Hardware
 
@@ -75,6 +88,19 @@ safety evaluation, naturalness evidence, population evidence, physical-4090
 evidence, or official browser latency. See
 `docs/QWEN4B_CASCADE_V2_PROTOCOL.md`.
 
-## Barge-in accuracy
+## Human naturalness MOS
 
-Provisional primary metric: event-level interrupt vs other **accuracy ≥ 0.80** on speaker/session-held-out real interactions. Also report interrupt F1, FAR, FRR, denominators, and 95% confidence intervals. Energy-only VAD is the baseline. Confirm event-level versus frame-level interpretation with the supervisor.
+The proposal acceptance threshold is a mean naturalness rating of **at least
+3.5/5** from 5–10 consented Persian speakers, including at least two people aged
+60 or older. Report the denominator and confidence interval. Demographic counts
+or complete-looking rating rows cannot substitute for the threshold.
+
+## Barge-in accuracy and F1
+
+For strict acceptance, event-level interrupt-vs-other **accuracy and interrupt
+F1 must both be strictly greater than 0.80** on independently human-labelled,
+speaker/session-group-held-out real interactions. Exactly 0.80 fails. Also
+report precision/recall, FAR, FRR, confusion matrix, denominators, and 95%
+confidence intervals. Energy-only VAD is the baseline. This conservative
+conjunction resolves the proposal's inconsistent use of “accuracy” and “F1”
+without silently choosing the easier interpretation.

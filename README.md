@@ -320,10 +320,15 @@ deployable end-to-end S2S model.
 
 - `T_first_audio`: end-of-speech to browser-scheduled first audio, reported by the client.
 - `T_barge_in`: acoustic onset estimate to confirmed browser source stop, reported by the client.
-- Report p50, p95, and maximum. Whether the definition's 500 ms wording binds max, p95, or p50 is an explicit supervisor decision; the historical p50 gate is provisional.
-- Official latency requires live client telemetry and a physical 12–24 GB GPU.
+- Report p50, p95, and maximum. Because the proposal conflicts between average
+  and p90, this implementation uses the stricter maximum `T_first_audio` ≤500 ms
+  for acceptance unless a signed scope decision replaces it.
+- Official latency requires live client telemetry, one consistent hashed
+  ASR/responder/Piper identity with no runtime fallback/error, zero missing
+  acknowledgements/timeouts, and a physical 12–24 GB GPU.
 - Primary barge-in evidence requires speaker/session-held-out real interactions; lossy aggregate features may be used without retaining WAV, subject to ethics approval.
-- Human evaluation requires 5–10 Persian speakers, at least two aged 60+, with complete ratings.
+- Human evaluation requires 5–10 Persian speakers, at least two aged 60+, with
+  complete ratings and naturalness MOS ≥3.5.
 
 See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/MOSHI_H100_RUNBOOK.md`,
 `docs/MOSHI_SELECTION_PROTOCOL.md`, `docs/MOSHI_V2_SELECTION_PROTOCOL.md`, `docs/MOSHI_V2_PROTOCOL_CORRECTION.md`, `docs/MOSHI_V3_SELECTION_PROTOCOL.md`, `docs/QA_WAIVER.md`,

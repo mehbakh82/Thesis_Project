@@ -252,7 +252,11 @@ or population result and no post-hoc pass threshold is claimed.
 
 Sessions now require an explicit consent checkbox. Audio, lossy-feature, and metrics-only retention modes are explicit; the default study mode stores no WAV. IDs are path-safe, existing sessions are not truncated, identity conflicts fail, labels/prompts are validated, and ratings use bounded 1–5 fields. The study aggregator independently revalidates consent, session/speaker/age linkage, and every rating bound, and fails readiness on any malformed row. S3 credentials are no longer parsed from shell aliases or placed in process arguments.
 
-`study-summary` reports rating and detector confidence intervals and refuses readiness until all participant, elderly, complete-rating, client-timing, physical-GPU, and real held-out >80% detector gates pass.
+`study-summary` reports rating and detector confidence intervals and refuses
+readiness until all participant, elderly, complete-rating, naturalness MOS
+≥3.5, client-timing, maximum first-audio ≤500 ms, maximum interruption ≤150 ms,
+physical-GPU, consistent hashed system-provenance, zero runtime-fallback/error,
+and independently labelled accuracy and F1 >80% gates pass.
 
 ### 7. Evaluation and reproducibility
 

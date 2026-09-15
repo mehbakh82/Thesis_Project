@@ -1,6 +1,6 @@
 # Authoritative project evidence status
 
-Generated: `2026-09-15T07:24:50.032574+00:00`
+Generated: `2026-09-15T15:42:17.493217+00:00`
 
 **Verdict:** `not_thesis_ready_evidence_gates_pending`. Thesis-ready: **false**.
 
@@ -87,15 +87,15 @@ All retained adapter hashes match committed evidence, and all scientific results
 | Area | Current evidence | Official gate |
 |---|---|---:|
 | Detector | synthetic accuracy=1.0; recorded proxy n=132 / 22 sessions, accuracy=0.8106060606060606, F1=0.7899159663865547, session CI=[0.7444, 0.8718]; automatic labels, not official ground truth | pending |
-| Hardware/latency | NVIDIA H100 NVL; official E2E rows=0 | pending |
-| Human study | participants=1, aged 60+=1, turns=0, valid ratings=0, complete ratings=0, invalid rows=1 | pending |
+| Hardware/latency | NVIDIA H100 NVL; official E2E rows=0, interruption rows=0, failures/timeouts=None, first-audio max=None ms, interruption max=None ms | pending |
+| Human study | participants=1, aged 60+=1, turns=0, valid ratings=0, complete ratings=0, invalid rows=1, naturalness MOS=None | pending |
 | Project license | LICENSE | pass |
 | Immutable release | submission-final-audited-v5-2026-09-15 | pass |
 | Protected main | mandatory PR + strict CI, zero approvals (sole-owner policy), administrators enforced | pass |
 
 ## Reporting contract
 
-Denominators and observed failures are shown above. Model seeds are reported per trial; the Moshi data split is frozen by `source_session_id`. Confidence intervals are reported where estimable, including event and session-block intervals for the recorded automatic-label proxy. Official latency, independently labeled detector, and human-study intervals remain null because their qualifying denominators are zero. Exact timing and acceptance definitions are in `docs/METRICS.md`.
+Denominators and observed failures are shown above. Model seeds are reported per trial; the Moshi data split is frozen by `source_session_id`. Confidence intervals are reported where estimable, including event and session-block intervals for the recorded automatic-label proxy. Official latency, independently labeled detector, and human-study intervals remain null wherever their qualifying denominators are zero. Exact timing and acceptance definitions are in `docs/METRICS.md`.
 
 ## Submission architecture decision
 
@@ -110,7 +110,7 @@ Complete.
 - Complete the preserved window and interaction listening reviews, rebuild and audit the corpus without the QA waiver, and re-export with strict final training readiness.
 - Produce a validation-eligible Persian direct-model checkpoint before opening that experiment's frozen final test.
 - Obtain independently human-reviewed recorded labels and establish >80% on a speaker/session-group-held-out test; the automatic YouTube proxy is not ground truth.
-- Run the final system and client-acknowledged latency protocol on a physical 12–24 GB GPU such as the planned RTX 4090.
-- Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+.
+- Run the final system and client-acknowledged latency protocol on a physical 12–24 GB GPU such as the planned RTX 4090, with zero missing acknowledgements or timeouts and maximum first-audio latency at most 500 ms.
+- Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+, naturalness MOS at least 3.5, and maximum client-observed interruption latency at most 150 ms.
 
 No claim should exceed these evidence classes. In particular, the H100 measurements are engineering/training evidence, not physical-4090 official latency evidence; synthetic accuracy and the recorded automatic-label proxy are not independently labeled official detector evidence.

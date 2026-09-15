@@ -37,6 +37,7 @@ claims, preserved QA assets, and thesis disclosure are in
 ## Still awaiting explicit supervisor decisions
 
 - Final direct speech-to-speech base model/trainer choice.
-- Whether the 500 ms requirement binds maximum, p95, or median latency.
+- Whether to replace the project's conservative maximum-≤500 ms rule with p95,
+  p90, mean, or median latency; absent that decision, maximum remains binding.
 - Final manual-QA sample size and acceptance threshold.
 - Human-study execution or a written alternative if recruitment is impossible.

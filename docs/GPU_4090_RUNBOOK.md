@@ -90,7 +90,15 @@ not label the session as direct-Moshi evidence:
   --session-id MOS01 --speaker-id P01 --age-bin under_60
 ```
 
-For an elderly participant use `--age-bin 60plus`. The browser must generate `playback_started` and `playback_stopped_ack`; server-only timings are diagnostic. Use Piper or a validated neural talker, never the formant fallback, for rated sessions.
+For an elderly participant use `--age-bin 60plus`. The browser must generate
+`playback_started` for every persisted turn and `playback_stopped_ack` for every
+labelled interruption; server-only timings are diagnostic. A missing or invalid
+acknowledgement remains an explicit failure. Use Piper or a validated neural
+talker, never the formant fallback, for rated sessions.
+Before recruitment, confirm `/health` reports `validated_cascade_ready=true`.
+The server binds every session to the ASR backend, responder model/revision and
+prompt profile, plus the Piper model SHA-256. Any missing identity, model/rules
+fallback, ASR/responder error, or mixed system identity fails the official gate.
 
 After all sessions:
 
@@ -104,9 +112,22 @@ After all sessions:
 
 Feature mode writes no WAV. Metrics-only mode is available if acoustic aggregates are also prohibited, but it cannot supply feature-based detector training evidence.
 
+Do not accept the summary merely because `official_ready` is present. Require
+all of these machine-checked fields to pass: `official_e2e_eligible=true`, zero
+`official_failures_or_timeouts`, maximum `official_t_first_audio_max_ms` ≤500,
+zero `official_runtime_failure_rows`, complete and consistent `system_provenance`,
+engineering `official_t_barge_in_p95_ms` ≤300, proposal
+`official_t_barge_in_max_ms` ≤150, naturalness `mos_mean` ≥3.5, 5–10
+participants with at least two aged 60+, and independently labelled detector
+accuracy **and** interrupt F1 strictly above 0.80.
+
 ## 5. Report and freeze
 
-Report p50, p95, and maximum first-audio and barge-in values until the supervisor resolves the 500 ms wording. Keep component and live-client results in separate tables.
+Report p50, p95, and maximum first-audio and barge-in values. Apply the
+conservative maximum-first-audio ≤500 ms rule, report the separate engineering
+barge-in p95≤300 ms rule, and apply the proposal-level maximum-barge-in ≤150 ms
+rule. Keep component and live-client results in separate tables and retain all
+failures/timeouts in the denominator.
 
 ```bash
 .venv/bin/ruff check src tests

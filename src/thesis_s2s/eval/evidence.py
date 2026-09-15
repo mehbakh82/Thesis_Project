@@ -9,12 +9,19 @@ and automatic gates all verify exactly.
 from __future__ import annotations
 
 import json
+import math
 import os
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from thesis_s2s import (
+    HUMAN_MOS_TARGET,
+    T_BARGE_IN_P95_MS,
+    T_BARGE_IN_PROPOSAL_MAX_MS,
+    T_FIRST_AUDIO_PROPOSAL_MAX_MS,
+)
 from thesis_s2s.config import load_yaml, project_root
 from thesis_s2s.metrics import meets_bargein_accuracy_target, write_json
 from thesis_s2s.repro import sha256_file
@@ -317,39 +324,179 @@ def _selection_trial(
     }
 
 
-def _official_e2e_reports(root: Path) -> tuple[int, list[dict[str, Any]]]:
-    """Count only explicitly consented live-browser reports on physical target hardware."""
+def _finite_nonnegative(value: object) -> float | None:
+    if isinstance(value, bool):
+        return None
+    try:
+        converted = float(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return None
+    return converted if math.isfinite(converted) and converted >= 0 else None
+
+
+def _nonnegative_int(value: object) -> int | None:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        return None
+    return value
+
+
+def _official_e2e_reports(root: Path) -> dict[str, Any]:
+    """Recompute official live-browser hardware and latency gates from committed reports."""
 
     rows = 0
+    interrupt_rows = 0
+    failures_or_timeouts = 0
+    failure_denominators_complete = True
     reports: list[dict[str, Any]] = []
+    latency_results: list[bool] = []
+    engineering_barge_results: list[bool] = []
+    proposal_barge_results: list[bool] = []
+    first_audio_maxima: list[float] = []
+    barge_in_maxima: list[float] = []
     for relative in (
         "results/eval/latency_bench.json",
         "results/eval/latency_bench_path_b.json",
         "results/eval/path_ab_and_study.json",
+        ARTIFACTS["human_study"],
     ):
         payload = _read_json(root, relative)
         evidence_class = payload.get("evidence_class") or payload.get("measurement_scope")
-        eligible = bool(
+        system_provenance = payload.get("system_provenance")
+        system_provenance_valid = bool(
+            isinstance(system_provenance, dict)
+            and all(
+                isinstance(system_provenance.get(key), str)
+                and system_provenance[key] not in {"", "unspecified"}
+                for key in (
+                    "system_name",
+                    "asr_backend",
+                    "responder_model",
+                    "responder_revision",
+                    "responder_prompt_profile",
+                )
+            )
+            and isinstance(system_provenance.get("tts_model_sha256"), str)
+            and len(system_provenance["tts_model_sha256"]) == 64
+            and all(
+                character in "0123456789abcdef"
+                for character in system_provenance["tts_model_sha256"]
+            )
+        )
+        provenance_eligible = bool(
             payload.get("official_e2e_eligible")
             and evidence_class == "official_e2e"
             and payload.get("consented") is True
             and payload.get("live_browser") is True
             and payload.get("physical_gpu_12_to_24_gb") is True
             and payload.get("client_playback_acknowledgements") is True
+            and system_provenance_valid
         )
-        report_rows = int(payload.get("n") or payload.get("official_e2e_rows") or 0)
-        if eligible:
+        report_rows = _nonnegative_int(
+            payload.get("official_e2e_rows")
+            if payload.get("official_e2e_rows") is not None
+            else payload.get("n")
+        )
+        report_interrupt_rows = _nonnegative_int(payload.get("official_interrupt_rows"))
+        report_failures = _nonnegative_int(payload.get("official_failures_or_timeouts"))
+        runtime_failures = _nonnegative_int(payload.get("official_runtime_failure_rows"))
+        first_audio_max = _finite_nonnegative(
+            payload.get("official_t_first_audio_max_ms")
+            if payload.get("official_t_first_audio_max_ms") is not None
+            else payload.get("t_first_audio_max_ms")
+        )
+        barge_in_p95 = _finite_nonnegative(
+            payload.get("official_t_barge_in_p95_ms")
+            if payload.get("official_t_barge_in_p95_ms") is not None
+            else payload.get("t_barge_in_p95_ms")
+        )
+        barge_in_max = _finite_nonnegative(
+            payload.get("official_t_barge_in_max_ms")
+            if payload.get("official_t_barge_in_max_ms") is not None
+            else payload.get("t_barge_in_max_ms")
+        )
+        qualifies = bool(provenance_eligible and report_rows is not None and report_rows > 0)
+        latency_passed = bool(
+            qualifies
+            and report_failures == 0
+            and runtime_failures == 0
+            and first_audio_max is not None
+            and first_audio_max <= T_FIRST_AUDIO_PROPOSAL_MAX_MS
+            and payload.get("official_latency_gate_passed") is True
+        )
+        interruption_qualifies = bool(
+            qualifies and report_interrupt_rows is not None and report_interrupt_rows > 0
+        )
+        engineering_barge_passed = bool(
+            interruption_qualifies
+            and report_failures == 0
+            and runtime_failures == 0
+            and barge_in_p95 is not None
+            and barge_in_p95 <= T_BARGE_IN_P95_MS
+            and payload.get("official_barge_in_engineering_gate_passed") is True
+        )
+        proposal_barge_passed = bool(
+            interruption_qualifies
+            and report_failures == 0
+            and runtime_failures == 0
+            and barge_in_max is not None
+            and barge_in_max <= T_BARGE_IN_PROPOSAL_MAX_MS
+            and payload.get("official_interrupt_latency_le_150_ms") is True
+        )
+        if qualifies and report_rows is not None:
             rows += report_rows
+            if report_failures is None or runtime_failures is None:
+                failure_denominators_complete = False
+            else:
+                failures_or_timeouts += report_failures
+            latency_results.append(latency_passed)
+            if first_audio_max is not None:
+                first_audio_maxima.append(first_audio_max)
+        if interruption_qualifies and report_interrupt_rows is not None:
+            interrupt_rows += report_interrupt_rows
+            engineering_barge_results.append(engineering_barge_passed)
+            proposal_barge_results.append(proposal_barge_passed)
+            if barge_in_max is not None:
+                barge_in_maxima.append(barge_in_max)
         reports.append(
             {
                 "path": relative,
                 "present": bool(payload),
                 "declared_evidence_class": evidence_class,
-                "qualifies": eligible,
-                "qualifying_rows": report_rows if eligible else 0,
+                "provenance_eligible": provenance_eligible,
+                "system_provenance_valid": system_provenance_valid,
+                "qualifies": qualifies,
+                "qualifying_rows": report_rows if qualifies else 0,
+                "qualifying_interrupt_rows": (
+                    report_interrupt_rows if interruption_qualifies else 0
+                ),
+                "failures_or_timeouts": report_failures,
+                "runtime_failure_rows": runtime_failures,
+                "first_audio_max_ms": first_audio_max,
+                "barge_in_p95_ms": barge_in_p95,
+                "barge_in_max_ms": barge_in_max,
+                "latency_gate_passed": latency_passed,
+                "barge_in_engineering_gate_passed": engineering_barge_passed,
+                "interrupt_latency_le_150_ms": proposal_barge_passed,
             }
         )
-    return rows, reports
+    return {
+        "official_e2e_rows": rows,
+        "official_interrupt_rows": interrupt_rows,
+        "official_failures_or_timeouts": (
+            failures_or_timeouts if rows > 0 and failure_denominators_complete else None
+        ),
+        "failure_denominators_complete": failure_denominators_complete,
+        "official_t_first_audio_max_ms": max(first_audio_maxima)
+        if first_audio_maxima
+        else None,
+        "official_t_barge_in_max_ms": max(barge_in_maxima) if barge_in_maxima else None,
+        "official_latency_gate_passed": bool(latency_results) and all(latency_results),
+        "official_barge_in_engineering_gate_passed": bool(engineering_barge_results)
+        and all(engineering_barge_results),
+        "official_interrupt_latency_le_150_ms": bool(proposal_barge_results)
+        and all(proposal_barge_results),
+        "reports": reports,
+    }
 
 
 def _v6_2_capacity_trial(
@@ -884,38 +1031,78 @@ def build_evidence_status(
         synthetic_correct = round(float(proposed["accuracy"]) * synthetic_n)
     recorded_proxy_test = recorded_proxy.get("heldout_test") or {}
     recorded_proxy_proposed = recorded_proxy_test.get("proposed") or {}
-    detector_eligible = bool(
-        (
-            interrupt.get("recorded_eval")
-            and interrupt.get("official_detector_eligible")
-            and meets_bargein_accuracy_target(proposed.get("accuracy"))
-        )
-        or (
-            recorded_proxy.get("official_detector_eligible")
-            and int(recorded_proxy.get("human_verified_labels") or 0) > 0
-            and meets_bargein_accuracy_target(recorded_proxy_proposed.get("accuracy"))
-        )
+    interrupt_detector_eligible = bool(
+        interrupt.get("recorded_eval")
+        and interrupt.get("official_detector_eligible")
+        and meets_bargein_accuracy_target(proposed.get("accuracy"))
+        and meets_bargein_accuracy_target(proposed.get("interrupt_f1"))
     )
+    recorded_detector_eligible = bool(
+        recorded_proxy.get("official_detector_eligible")
+        and int(recorded_proxy.get("human_verified_labels") or 0) > 0
+        and meets_bargein_accuracy_target(recorded_proxy_proposed.get("accuracy"))
+        and meets_bargein_accuracy_target(recorded_proxy_proposed.get("interrupt_f1"))
+    )
+    detector_eligible = interrupt_detector_eligible or recorded_detector_eligible
     physical_target_hardware = bool(
         hardware.get("is_rtx_4090")
         and hardware.get("evaluation_hardware_ready")
         and (hardware.get("gpu") or {}).get("official_size")
     )
+    official_e2e = _official_e2e_reports(project)
+    official_rows = int(official_e2e["official_e2e_rows"])
+    official_interrupt_rows = int(official_e2e["official_interrupt_rows"])
+    official_latency_gate_passed = bool(official_e2e["official_latency_gate_passed"])
+    official_interrupt_latency_le_150_ms = bool(
+        official_e2e["official_interrupt_latency_le_150_ms"]
+    )
+    study_e2e_validation: dict[str, Any] = next(
+        (
+            report
+            for report in official_e2e["reports"]
+            if report.get("path") == ARTIFACTS["human_study"]
+        ),
+        {},
+    )
     study_requirements = study.get("requirements") or {}
     required_study_gates = (
         "participants_5_to_10",
         "elderly_participants_at_least_2",
+        "valid_turns_cover_participants",
         "complete_ratings_cover_participants",
         "turn_rows_valid",
         "rating_rows_valid",
+        "naturalness_mos_at_least_3_5",
+        "live_browser_measurement",
+        "system_provenance_complete_and_consistent",
+        "runtime_completed_without_fallback_or_error",
+        "official_rows_cover_all_valid_turns",
+        "client_playback_acknowledgements_complete",
         "eligible_client_first_audio_present",
         "eligible_client_barge_in_present",
+        "first_audio_max_le_500_ms",
+        "barge_in_p95_le_300_ms_engineering",
+        "interrupt_latency_max_le_150_ms_proposal",
         "physical_gpu_12_to_24_gb",
         "real_heldout_detector_report",
     )
+    study_mos = _finite_nonnegative(study.get("mos_mean"))
     human_study_complete = bool(
         study.get("official_ready")
         and all(study_requirements.get(gate) is True for gate in required_study_gates)
+        and study_e2e_validation.get("qualifies") is True
+        and study_e2e_validation.get("latency_gate_passed") is True
+        and study_e2e_validation.get("interrupt_latency_le_150_ms") is True
+        and study_e2e_validation.get("failures_or_timeouts") == 0
+        and study_e2e_validation.get("runtime_failure_rows") == 0
+        and 5 <= int(study.get("participants") or 0) <= 10
+        and int(study.get("elderly_participants") or 0) >= 2
+        and int(study.get("complete_ratings") or 0)
+        >= int(study.get("participants") or 0)
+        and int(study.get("invalid_turn_rows") or 0) == 0
+        and int(study.get("invalid_rating_rows") or 0) == 0
+        and study_mos is not None
+        and study_mos >= HUMAN_MOS_TARGET
     )
     license_files = [
         relative
@@ -923,7 +1110,6 @@ def build_evidence_status(
         if (project / relative).is_file()
     ]
     source_license_selected = bool(license_files)
-    official_rows, official_reports = _official_e2e_reports(project)
     retained_adapters = cleanup.get("retained_representative_adapters") or {}
     removed_categories = {
         str(item.get("category")) for item in cleanup.get("removed") or [] if isinstance(item, dict)
@@ -964,7 +1150,7 @@ def build_evidence_status(
         ),
         "deployment_eligible_persian_direct_model": direct_model_eligible,
         "real_group_heldout_detector_above_80_percent": detector_eligible,
-        "physical_12_to_24_gb_fit_and_live_latency": physical_target_hardware and official_rows > 0,
+        "physical_12_to_24_gb_fit_and_live_latency": official_latency_gate_passed,
         "human_study_complete": human_study_complete,
         "source_code_license_selected": source_license_selected,
     }
@@ -1026,17 +1212,19 @@ def build_evidence_status(
         ),
         "physical_12_to_24_gb_fit_and_live_latency": (
             "Run the final system and client-acknowledged latency protocol on a physical "
-            "12–24 GB GPU such as the planned RTX 4090."
+            "12–24 GB GPU such as the planned RTX 4090, with zero missing acknowledgements "
+            "or timeouts and maximum first-audio latency at most 500 ms."
         ),
         "human_study_complete": (
             "Collect consented complete results from 5–10 Persian speakers, including at "
-            "least two aged 60+."
+            "least two aged 60+, naturalness MOS at least 3.5, and maximum client-observed "
+            "interruption latency at most 150 ms."
         ),
         "source_code_license_selected": "Select and add the project source-code license.",
     }
 
     payload: dict[str, Any] = {
-        "schema_version": 14,
+        "schema_version": 15,
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "authoritative": True,
         "thesis_ready": thesis_ready,
@@ -1049,6 +1237,11 @@ def build_evidence_status(
                 "live_browser",
                 "client_playback_acknowledgements",
                 "physical_12_to_24_gb_gpu",
+                "zero_missing_acknowledgements_or_timeouts",
+                "complete_consistent_asr_responder_tts_identity",
+                "zero_runtime_errors_or_fallbacks",
+                "first_audio_max_le_500_ms",
+                "interrupt_latency_max_le_150_ms",
             ],
         },
         "gates": gates,
@@ -1212,7 +1405,7 @@ def build_evidence_status(
                 "official_detector_eligible": bool(
                     recorded_proxy.get("official_detector_eligible")
                 ),
-                "official_target_satisfied": False,
+                "official_target_satisfied": recorded_detector_eligible,
             },
             "evaluation_unit": "event",
             "split_policy": "speaker/session-group-held-out required for official evidence",
@@ -1221,14 +1414,30 @@ def build_evidence_status(
         "latency_and_hardware": {
             "current_gpu": (hardware.get("gpu") or {}).get("device"),
             "current_gpu_total_gb": (hardware.get("gpu") or {}).get("total_gb"),
-            "physical_target_hardware_ready": physical_target_hardware,
+            "physical_target_hardware_ready": bool(physical_target_hardware or official_rows),
             "official_e2e_rows": official_rows,
-            "official_failures_or_timeouts": None,
+            "official_interrupt_rows": official_interrupt_rows,
+            "official_failures_or_timeouts": official_e2e["official_failures_or_timeouts"],
+            "official_t_first_audio_max_ms": official_e2e[
+                "official_t_first_audio_max_ms"
+            ],
+            "official_t_barge_in_max_ms": official_e2e["official_t_barge_in_max_ms"],
+            "official_latency_gate_passed": official_latency_gate_passed,
+            "official_barge_in_engineering_gate_passed": official_e2e[
+                "official_barge_in_engineering_gate_passed"
+            ],
+            "official_interrupt_latency_le_150_ms": (
+                official_interrupt_latency_le_150_ms
+            ),
             "official_uncertainty": {
                 "interval": None,
-                "reason": "no qualifying official end-to-end rows",
+                "reason": (
+                    "no qualifying official end-to-end rows"
+                    if official_rows == 0
+                    else "aggregate report provides exact maxima; retain per-study intervals"
+                ),
             },
-            "reports": official_reports,
+            "reports": official_e2e["reports"],
             "component_proxy_claim_allowed": False,
         },
         "human_study": {
@@ -1238,8 +1447,25 @@ def build_evidence_status(
             "turns": int(study.get("turns") or 0),
             "ratings": int(study.get("ratings") or 0),
             "complete_ratings": int(study.get("complete_ratings") or 0),
+            "invalid_turn_rows": int(study.get("invalid_turn_rows") or 0),
             "invalid_rating_rows": int(study.get("invalid_rating_rows") or 0),
             "rating_denominator": int(study.get("complete_ratings") or 0),
+            "rating_means": study.get("rating_means") or {},
+            "rating_mean_ci95": study.get("rating_mean_ci95") or {},
+            "mos_mean": study_mos,
+            "mos_mean_ci95": study.get("mos_mean_ci95"),
+            "official_e2e_eligible": study.get("official_e2e_eligible") is True,
+            "official_e2e_rows": int(study.get("official_e2e_rows") or 0),
+            "official_interrupt_rows": int(study.get("official_interrupt_rows") or 0),
+            "official_failures_or_timeouts": study.get("official_failures_or_timeouts"),
+            "official_runtime_failure_rows": study.get("official_runtime_failure_rows"),
+            "system_provenance": study.get("system_provenance"),
+            "official_t_first_audio_max_ms": study.get("official_t_first_audio_max_ms"),
+            "official_t_barge_in_max_ms": study.get("official_t_barge_in_max_ms"),
+            "official_latency_gate_passed": study.get("official_latency_gate_passed") is True,
+            "official_interrupt_latency_le_150_ms": (
+                study.get("official_interrupt_latency_le_150_ms") is True
+            ),
             "requirements": {
                 gate: study_requirements.get(gate) is True for gate in required_study_gates
             },
@@ -1266,8 +1492,16 @@ def build_evidence_status(
             ),
             "continued_capture_samples": int(transport.get("continued_capture_samples") or 0),
             "next_turn_input_samples": int(transport.get("next_turn_input_samples") or 0),
-            "physical_browser_verified": False,
-            "official_full_duplex_evidence": False,
+            "physical_browser_verified": official_rows > 0,
+            "official_full_duplex_evidence": bool(
+                official_interrupt_rows > 0 and official_interrupt_latency_le_150_ms
+            ),
+            "official_interrupt_latency_le_150_ms": (
+                official_interrupt_latency_le_150_ms
+            ),
+            "official_barge_in_engineering_gate_passed": official_e2e[
+                "official_barge_in_engineering_gate_passed"
+            ],
             "claim_boundary": final_audit.get("claim_boundary") or {},
         },
         "submission_strategy": {
@@ -1475,7 +1709,8 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             f"{transport.get('next_turn_input_samples', 0):,}-sample next-turn input, together "
             "with acknowledgement ingestion, identity telemetry, cancellation, reconnect, "
             "state isolation, error recovery, and metrics-only no-WAV retention. Actual "
-            "browser source-stop, microphone, and physical-target evidence remain pending.",
+            "browser source-stop, microphone, and physical-target evidence "
+            f"{'are verified' if transport.get('official_full_duplex_evidence') else 'remain pending'}.",
             "",
             "## Direct Moshi trials and ablations",
             "",
@@ -1568,13 +1803,18 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             "automatic labels, not official ground truth | "
             f"{'pass' if detector.get('recorded_group_heldout_gate_passed') else 'pending'} |",
             f"| Hardware/latency | {latency.get('current_gpu') or 'unknown'}; "
-            f"official E2E rows={latency.get('official_e2e_rows', 0)} | "
+            f"official E2E rows={latency.get('official_e2e_rows', 0)}, interruption rows="
+            f"{latency.get('official_interrupt_rows', 0)}, failures/timeouts="
+            f"{latency.get('official_failures_or_timeouts')}, first-audio max="
+            f"{latency.get('official_t_first_audio_max_ms')} ms, interruption max="
+            f"{latency.get('official_t_barge_in_max_ms')} ms | "
             f"{'pass' if gates.get('physical_12_to_24_gb_fit_and_live_latency') else 'pending'} |",
             f"| Human study | participants={study.get('participants', 0)}, aged 60+="
             f"{study.get('elderly_participants', 0)}, turns={study.get('turns', 0)}, "
             f"valid ratings={study.get('ratings', 0)}, complete ratings="
             f"{study.get('complete_ratings', 0)}, invalid rows="
-            f"{study.get('invalid_rating_rows', 0)} | "
+            f"{study.get('invalid_rating_rows', 0)}, naturalness MOS="
+            f"{study.get('mos_mean')} | "
             f"{'pass' if study.get('official_ready') else 'pending'} |",
             f"| Project license | {', '.join(release.get('license_files') or []) or 'not selected'} | "
             f"{'pass' if release.get('source_code_license_selected') else 'pending'} |",
@@ -1591,8 +1831,8 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             "per trial; the Moshi data split is frozen by `source_session_id`. Confidence "
             "intervals are reported where estimable, including event and session-block "
             "intervals for the recorded automatic-label proxy. Official latency, "
-            "independently labeled detector, and human-study intervals remain null "
-            "because their qualifying denominators are zero. Exact timing and acceptance "
+            "independently labeled detector, and human-study intervals remain null wherever "
+            "their qualifying denominators are zero. Exact timing and acceptance "
             "definitions are in "
             "`docs/METRICS.md`.",
             "",

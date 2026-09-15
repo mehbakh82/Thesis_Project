@@ -45,13 +45,20 @@ After every collection block, run:
 Do not report a complete study unless `results/eval/human_study.json` confirms
 5–10 participants, at least two aged 60+, complete ratings, valid turn and
 rating rows, client timing, a real speaker/session-held-out detector result
-above the target, and eligible physical-GPU evidence. Participant, retention,
-GPU/VRAM, and memory-cap provenance are immutable once a session begins; start
-a new session ID if any of them changes. Legacy sessions without explicit
-uncapped-memory provenance are not eligible physical-hardware evidence.
+above the target, naturalness MOS ≥3.5, maximum first-audio latency ≤500 ms,
+maximum interruption latency ≤150 ms, and eligible physical-GPU evidence.
+Participant, retention, GPU/VRAM, memory-cap, and ASR/responder/TTS provenance
+are immutable once a session begins; start a new session ID if any changes.
+Legacy sessions without uncapped-memory provenance, a pinned responder
+revision/profile, or the Piper-model SHA-256 are ineligible.
 
 ## Success for the thesis chapter
 
-Report MOS, live interrupt success, Likert satisfaction, confidence intervals, and elderly-specific failure modes. Formant fallback audio is a development aid and must never enter MOS; record the exact Piper/neural TTS model and checksum used for every rated session.
+Report MOS, live interrupt success, Likert satisfaction, confidence intervals,
+and elderly-specific failure modes. Formant or rules fallback is a development
+aid and must never enter MOS; the recording service persists the exact
+ASR/responder identity and Piper-model checksum for every rated session.
 
-The software reports p50, p95, and maximum latency. Do not choose the binding 500 ms statistic until the supervisor clarifies the definition.
+The software reports p50, p95, and maximum latency. Strict proposal acceptance
+uses maximum first-audio ≤500 ms and maximum interruption latency ≤150 ms; the
+separate engineering interruption gate remains p95 ≤300 ms.

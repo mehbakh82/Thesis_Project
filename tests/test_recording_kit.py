@@ -44,6 +44,18 @@ def test_session_identity_and_turn_enums_fail_closed(tmp_path: Path):
         store.start(SessionMeta("S1", "P1", "unknown", True))
     with pytest.raises(ValueError, match="retention"):
         store.start(SessionMeta("S1", "P1", "under_60", True, retention="raw"))
+    with pytest.raises(ValueError, match="measurement_source"):
+        store.start(
+            SessionMeta(
+                "S1", "P1", "under_60", True, measurement_source="server_component"
+            )
+        )
+    with pytest.raises(ValueError, match="tts_model_sha256"):
+        store.start(
+            SessionMeta(
+                "S1", "P1", "under_60", True, tts_model_sha256="not-a-digest"
+            )
+        )
 
     meta = SessionMeta("S1", "P1", "under_60", True, retention="metrics")
     store.start(meta)
@@ -89,6 +101,13 @@ def test_study_summary_requires_and_recognizes_all_strict_gates(
             gpu_name="NVIDIA GeForce RTX 4090",
             vram_gb=24.0,
             retention="metrics",
+            measurement_source="live_browser",
+            system_name="CascadeTalker",
+            asr_backend="nemo-soroush-http",
+            responder_model="Qwen/Qwen3-4B-Instruct-2507",
+            responder_revision="cdbee75f17c01a7cc42f958dc650907174af0554",
+            responder_prompt_profile="qwen4b_v2",
+            tts_model_sha256="a" * 64,
         )
         is_interrupt = index % 2 == 0
         store.add_turn(
@@ -97,8 +116,14 @@ def test_study_summary_requires_and_recognizes_all_strict_gates(
             interrupt_label="interrupt" if is_interrupt else "none",
             user_audio=audio,
             t_first_audio_ms=200.0 + index,
-            t_barge_in_ms=80.0 + index,
+            t_barge_in_ms=80.0 + index if is_interrupt else None,
             stopped=is_interrupt,
+            client_playback_started_ack=True,
+            client_playback_stopped_ack=is_interrupt,
+            talker="CascadeTalker",
+            tts_backend="piper",
+            responder_backend="Qwen/Qwen3-4B-Instruct-2507",
+            responder_fallback_used=False,
         )
         session_dir = store.session_dir(meta.session_id)
         (session_dir / "mos.jsonl").write_text(
@@ -126,7 +151,11 @@ def test_study_summary_requires_and_recognizes_all_strict_gates(
                 "evidence_class": "recorded_audio_heldout",
                 "n": 25,
                 "group_overlap": False,
-                "proposed": {"target_ok": True, "accuracy": 0.84},
+                "proposed": {
+                    "target_ok": True,
+                    "accuracy": 0.84,
+                    "interrupt_f1": 0.84,
+                },
             }
         )
         + "\n",
@@ -141,10 +170,84 @@ def test_study_summary_requires_and_recognizes_all_strict_gates(
     assert report["participants"] == 5
     assert report["elderly_participants"] == 2
     assert report["complete_ratings"] == 5
+    assert report["mos_mean"] == 4.0
+    assert report["official_e2e_rows"] == 5
+    assert report["official_interrupt_rows"] == 3
+    assert report["official_failures_or_timeouts"] == 0
+    assert report["official_runtime_failure_rows"] == 0
+    assert report["system_provenance"]["tts_model_sha256"] == "a" * 64
+    assert report["official_latency_gate_passed"] is True
+    assert report["official_interrupt_latency_le_150_ms"] is True
     assert report["official_live_interrupt"]["accuracy"] == 1.0
     assert report["retention_counts"] == {"audio": 0, "features": 0, "metrics": 5}
     assert all(report["requirements"].values())
     assert json.loads(out.read_text(encoding="utf-8"))["official_ready"] is True
+
+    def replace_json(path: Path, **changes) -> None:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload.update(changes)
+        path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+
+    boundary_turn = store.session_dir("S4") / "turns.jsonl"
+    replace_json(boundary_turn, t_first_audio_ms=500.0, t_barge_in_ms=150.0)
+    assert store.study_summary()["official_ready"] is True
+    replace_json(boundary_turn, t_first_audio_ms=500.001)
+    rejected = store.study_summary()
+    assert rejected["requirements"]["first_audio_max_le_500_ms"] is False
+    assert rejected["official_ready"] is False
+    replace_json(boundary_turn, t_first_audio_ms=500.0, t_barge_in_ms=150.001)
+    rejected = store.study_summary()
+    assert rejected["requirements"]["barge_in_p95_le_300_ms_engineering"] is True
+    assert rejected["requirements"]["interrupt_latency_max_le_150_ms_proposal"] is False
+    assert rejected["official_ready"] is False
+    replace_json(boundary_turn, t_barge_in_ms=150.0, client_playback_stopped_ack=False)
+    rejected = store.study_summary()
+    assert rejected["requirements"]["client_playback_acknowledgements_complete"] is False
+    assert rejected["official_failures_or_timeouts"] == 1
+    assert rejected["official_ready"] is False
+    replace_json(boundary_turn, client_playback_stopped_ack=True)
+
+    meta_path = store.session_dir("S0") / "meta.json"
+    replace_json(meta_path, measurement_source="unspecified")
+    rejected = store.study_summary()
+    assert rejected["requirements"]["live_browser_measurement"] is False
+    assert rejected["official_ready"] is False
+    replace_json(meta_path, measurement_source="live_browser")
+
+    replace_json(meta_path, tts_model_sha256="")
+    rejected = store.study_summary()
+    assert rejected["requirements"]["system_provenance_complete_and_consistent"] is False
+    assert rejected["official_ready"] is False
+    replace_json(meta_path, tts_model_sha256="a" * 64)
+
+    runtime_turn = store.session_dir("S2") / "turns.jsonl"
+    replace_json(runtime_turn, responder_fallback_used=True)
+    rejected = store.study_summary()
+    assert rejected["requirements"]["runtime_completed_without_fallback_or_error"] is False
+    assert rejected["official_runtime_failure_rows"] == 1
+    assert rejected["official_failures_or_timeouts"] == 1
+    assert rejected["official_ready"] is False
+    replace_json(runtime_turn, responder_fallback_used=False)
+
+    detector_path = detector_dir / "recorded_heldout_report.json"
+    detector_payload = json.loads(detector_path.read_text(encoding="utf-8"))
+    detector_payload["proposed"]["interrupt_f1"] = 0.8
+    detector_path.write_text(json.dumps(detector_payload) + "\n", encoding="utf-8")
+    rejected = store.study_summary()
+    assert rejected["requirements"]["real_heldout_detector_report"] is False
+    assert rejected["official_ready"] is False
+    detector_payload["proposed"]["interrupt_f1"] = 0.84
+    detector_path.write_text(json.dumps(detector_payload) + "\n", encoding="utf-8")
+
+    rating_paths = [store.session_dir(f"S{index}") / "mos.jsonl" for index in range(5)]
+    for rating_path in rating_paths:
+        replace_json(rating_path, naturalness=3)
+    rejected = store.study_summary()
+    assert rejected["mos_mean"] == 3.0
+    assert rejected["requirements"]["naturalness_mos_at_least_3_5"] is False
+    assert rejected["official_ready"] is False
+    for rating_path in rating_paths:
+        replace_json(rating_path, naturalness=4)
 
     invalid_path = store.session_dir("S0") / "mos.jsonl"
     with invalid_path.open("a", encoding="utf-8") as handle:
@@ -253,6 +356,12 @@ def test_study_rating_endpoint(tmp_path: Path, monkeypatch):
     assert r.status_code == 200
     assert r.json()["ok"] is True
     assert r.json() == {"ok": True, "session_id": "Srate"}
+    meta_payload = json.loads(
+        (tmp_path / "data" / "recordings" / "Srate" / "meta.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert meta_payload["measurement_source"] == "live_browser"
     h = client.get("/health")
     denied = client.post("/study/rating", json={"naturalness": 4, "consent": False})
     assert denied.status_code == 403
