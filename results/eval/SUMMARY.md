@@ -1,6 +1,6 @@
 # Authoritative project evidence status
 
-Generated: `2026-09-13T07:34:16.404263+00:00`
+Generated: `2026-09-15T05:35:09.194414+00:00`
 
 **Verdict:** `not_thesis_ready_evidence_gates_pending`. Thesis-ready: **false**.
 
@@ -90,7 +90,7 @@ All retained adapter hashes match committed evidence, and all scientific results
 | Human study | participants=1, aged 60+=1, turns=0, valid ratings=0, complete ratings=0, invalid rows=1 | pending |
 | Project license | LICENSE | pass |
 | Immutable release | submission-final-audited-v4-2026-09-13 | pass |
-| Protected main | CI-gated pull-request workflow, one approval, administrators enforced | pass |
+| Protected main | mandatory PR + strict CI, zero approvals (sole-owner policy), administrators enforced | pass |
 
 ## Reporting contract
 
