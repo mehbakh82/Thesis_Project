@@ -23,6 +23,7 @@ from thesis_s2s.bargein.synthetic import _harmonic
 from thesis_s2s.config import project_root
 from thesis_s2s.metrics import gpu_inventory
 from thesis_s2s.model.llama_omni2 import checkpoint_runtime_status
+from thesis_s2s.repro import sha256_file
 from thesis_s2s.runtime.cascade import QWEN4B_MODEL, QWEN4B_REVISION, CascadeTalker
 from thesis_s2s.runtime.session_log import (
     PROMPTS,
@@ -30,7 +31,7 @@ from thesis_s2s.runtime.session_log import (
     SessionStore,
     _append_jsonl_atomic,
 )
-from thesis_s2s.runtime.tts import FormantTalker, piper_runtime_ready
+from thesis_s2s.runtime.tts import FormantTalker, os_piper_model, piper_runtime_ready
 
 
 @dataclass
@@ -38,9 +39,15 @@ class TurnLog:
     t_first_audio_ms: float | None = None
     server_generation_ms: float | None = None
     t_barge_in_ms: float | None = None
+    client_playback_started_ack: bool = False
+    client_playback_stopped_ack: bool = False
     stopped: bool = False
     talker: str = ""
     tts_backend: str = ""
+    responder_backend: str = ""
+    responder_fallback_used: bool | None = None
+    asr_error: bool = False
+    responder_error: bool = False
 
 
 StudyPromptId = Literal["warmup_time", "interrupt_story", "backchannel", "noise", "free"]
@@ -131,6 +138,12 @@ class DuplexSession:
         self.log.t_first_audio_ms = None
         self.log.talker = type(self.talker).__name__
         self.log.tts_backend = getattr(self.talker, "backend", "")
+        self.log.responder_backend = getattr(self.talker, "responder_backend", "") or ""
+        self.log.responder_fallback_used = getattr(
+            self.talker, "last_responder_fallback_used", None
+        )
+        self.log.asr_error = bool(getattr(self.talker, "last_asr_error", None))
+        self.log.responder_error = bool(getattr(self.talker, "last_responder_error", None))
         self.controller.start_playback()
         return chunk
 
@@ -420,10 +433,31 @@ def build_app(
         det = EnergyVadBaseline()
     host_gpu = gpu_inventory()
     store = SessionStore() if record or study or retention is not None else None
+    responder = getattr(talker, "responder", None)
+    piper_model = os_piper_model()
+    try:
+        tts_model_sha256 = sha256_file(piper_model) if piper_model is not None else ""
+    except OSError:
+        tts_model_sha256 = ""
+    runtime_identity = {
+        "system_name": type(talker).__name__,
+        "asr_backend": str(getattr(talker, "asr_backend", "unspecified")),
+        "responder_model": str(
+            getattr(responder, "model_name", None)
+            or getattr(talker, "responder_backend", None)
+            or "unspecified"
+        ),
+        "responder_revision": str(
+            getattr(responder, "model_revision", None) or "unspecified"
+        ),
+        "responder_prompt_profile": str(
+            getattr(responder, "prompt_profile", None) or "unspecified"
+        ),
+        "tts_model_sha256": tts_model_sha256,
+    }
 
     @app.get("/health")
     def health() -> dict:
-        responder = getattr(talker, "responder", None)
         validated_cascade_ready = bool(
             isinstance(talker, CascadeTalker)
             and responder is not None
@@ -501,6 +535,8 @@ def build_app(
             age_bin=str(payload.age_bin or age_bin),
             consent=True,
             retention=effective_retention,
+            measurement_source="live_browser",
+            **runtime_identity,
         )
         try:
             folder = rating_store.start(rating_meta)
@@ -545,6 +581,8 @@ def build_app(
             age_bin=age_bin,
             consent=False,
             retention=effective_retention,
+            measurement_source="live_browser",
+            **runtime_identity,
         )
 
         def valid_ms(value) -> float | None:
@@ -568,6 +606,14 @@ def build_app(
                     server_generation_ms=session.log.server_generation_ms,
                     t_barge_in_ms=session.log.t_barge_in_ms,
                     stopped=session.log.stopped,
+                    client_playback_started_ack=session.log.client_playback_started_ack,
+                    client_playback_stopped_ack=session.log.client_playback_stopped_ack,
+                    talker=session.log.talker,
+                    tts_backend=session.log.tts_backend,
+                    responder_backend=session.log.responder_backend,
+                    responder_fallback_used=session.log.responder_fallback_used,
+                    asr_error=session.log.asr_error,
+                    responder_error=session.log.responder_error,
                 )
             pending_turn = None
 
@@ -657,6 +703,8 @@ def build_app(
                         age_bin=turn_meta.age_bin,
                         consent=turn_meta.consent,
                         retention=effective_retention,
+                        measurement_source="live_browser",
+                        **runtime_identity,
                     )
                     event = payload.get("event")
                     if (
@@ -759,11 +807,14 @@ def build_app(
                         )
                         buf = []
                     elif event == "playback_started":
-                        session.log.t_first_audio_ms = valid_ms(payload.get("t_first_audio_ms"))
+                        client_ms = valid_ms(payload.get("t_first_audio_ms"))
+                        session.log.t_first_audio_ms = client_ms
+                        session.log.client_playback_started_ack = client_ms is not None
                     elif event == "playback_stopped_ack":
                         client_ms = valid_ms(payload.get("t_barge_in_ms"))
                         if client_ms is not None:
                             session.log.t_barge_in_ms = client_ms
+                            session.log.client_playback_stopped_ack = True
                         session.log.stopped = True
                         persist_pending()
                         if collecting:

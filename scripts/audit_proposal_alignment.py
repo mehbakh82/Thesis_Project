@@ -136,8 +136,18 @@ def build_report(
                 "transport_regression_passed": streaming_substantial,
                 "physical_target_ready": bool(hardware.get("physical_target_hardware_ready")),
                 "official_e2e_rows": int(hardware.get("official_e2e_rows") or 0),
+                "official_t_first_audio_max_ms": hardware.get(
+                    "official_t_first_audio_max_ms"
+                ),
+                "official_failures_or_timeouts": hardware.get(
+                    "official_failures_or_timeouts"
+                ),
             },
-            "gap": "Streaming transport exists, but no physical target/browser rows establish mean, p90, or maximum latency.",
+            "gap": (
+                "None under the machine-checked proposal latency contract."
+                if streaming_strict
+                else "No qualifying zero-failure physical target/browser rows establish maximum latency <=500 ms."
+            ),
         },
         {
             "id": "full_duplex_interrupt_80_f1_150_ms",
@@ -149,8 +159,15 @@ def build_report(
                 "automatic_proxy_interrupt_f1": recorded_proxy.get("interrupt_f1"),
                 "human_verified_labels": int(recorded_proxy.get("human_verified_labels") or 0),
                 "official_full_duplex_evidence": bool(duplex.get("official_full_duplex_evidence")),
+                "official_interrupt_latency_le_150_ms": bool(
+                    duplex.get("official_interrupt_latency_le_150_ms")
+                ),
             },
-            "gap": "The automatic-label proxy has 0.8106 accuracy but only 0.7899 F1; independent labels and physical <=150 ms traces are absent.",
+            "gap": (
+                "None under the machine-checked duplex acceptance contract."
+                if duplex_strict
+                else "Independent labels with accuracy and F1 >0.80 plus physical <=150 ms interruption traces are absent."
+            ),
         },
         {
             "id": "human_mos_3_5_elderly",
@@ -163,7 +180,11 @@ def build_report(
                 "complete_ratings": int(study.get("complete_ratings") or 0),
                 "mos_mean": study.get("mos_mean"),
             },
-            "gap": "Study tooling exists, but there are zero complete ratings and no qualifying MOS or elderly finding.",
+            "gap": (
+                "None under the machine-checked human-study acceptance contract."
+                if human_strict
+                else "No qualifying 5-10-person study establishes MOS >=3.5 with at least two participants aged 60+."
+            ),
         },
     ]
     traced = len(criteria)

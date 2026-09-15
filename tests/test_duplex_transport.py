@@ -115,9 +115,13 @@ def test_automatic_bargein_becomes_next_turn_and_records_client_ack(
     assert len(rows) == 2
     assert rows[0]["t_first_audio_ms"] == 41.0
     assert rows[0]["t_barge_in_ms"] == 17.0
+    assert rows[0]["client_playback_started_ack"] is True
+    assert rows[0]["client_playback_stopped_ack"] is True
     assert rows[0]["stopped"] is True
     assert rows[0]["retention"] == "metrics"
     assert rows[1]["duration"] == 0.3
+    meta = json.loads((folder / "meta.json").read_text(encoding="utf-8"))
+    assert meta["measurement_source"] == "live_browser"
     assert not list(folder.glob("*.wav"))
 
 

@@ -9,8 +9,8 @@
   },
   "aggregate_evidence": {
     "path": "results/eval/EVIDENCE_STATUS.json",
-    "sha256": "89007c1f835a5bda733e8d8383cffa33c0a9410f58faeef8a13a7d4470540857",
-    "schema_version": 14
+    "sha256": "ed5369039521e2b6420f36a7a9ccacf50290dbe293c6fe92a01bf4a11068d240",
+    "schema_version": 15
   },
   "scoring_contract": {
     "criteria": 5,
@@ -53,9 +53,11 @@
       "observed": {
         "transport_regression_passed": true,
         "physical_target_ready": false,
-        "official_e2e_rows": 0
+        "official_e2e_rows": 0,
+        "official_t_first_audio_max_ms": null,
+        "official_failures_or_timeouts": null
       },
-      "gap": "Streaming transport exists, but no physical target/browser rows establish mean, p90, or maximum latency."
+      "gap": "No qualifying zero-failure physical target/browser rows establish maximum latency <=500 ms."
     },
     {
       "id": "full_duplex_interrupt_80_f1_150_ms",
@@ -66,9 +68,10 @@
         "automatic_proxy_accuracy": 0.8106060606060606,
         "automatic_proxy_interrupt_f1": 0.7899159663865547,
         "human_verified_labels": 0,
-        "official_full_duplex_evidence": false
+        "official_full_duplex_evidence": false,
+        "official_interrupt_latency_le_150_ms": false
       },
-      "gap": "The automatic-label proxy has 0.8106 accuracy but only 0.7899 F1; independent labels and physical <=150 ms traces are absent."
+      "gap": "Independent labels with accuracy and F1 >0.80 plus physical <=150 ms interruption traces are absent."
     },
     {
       "id": "human_mos_3_5_elderly",
@@ -81,7 +84,7 @@
         "complete_ratings": 0,
         "mos_mean": null
       },
-      "gap": "Study tooling exists, but there are zero complete ratings and no qualifying MOS or elderly finding."
+      "gap": "No qualifying 5-10-person study establishes MOS >=3.5 with at least two participants aged 60+."
     }
   ],
   "proposal_internal_ambiguities": [

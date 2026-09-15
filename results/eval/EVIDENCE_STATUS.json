@@ -1,6 +1,6 @@
 {
-  "schema_version": 14,
-  "generated_at": "2026-09-15T07:24:50.032574+00:00",
+  "schema_version": 15,
+  "generated_at": "2026-09-15T15:42:17.493217+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -11,7 +11,12 @@
       "consented",
       "live_browser",
       "client_playback_acknowledgements",
-      "physical_12_to_24_gb_gpu"
+      "physical_12_to_24_gb_gpu",
+      "zero_missing_acknowledgements_or_timeouts",
+      "complete_consistent_asr_responder_tts_identity",
+      "zero_runtime_errors_or_fallbacks",
+      "first_audio_max_le_500_ms",
+      "interrupt_latency_max_le_150_ms"
     ]
   },
   "gates": {
@@ -750,7 +755,13 @@
     "current_gpu_total_gb": 93.09,
     "physical_target_hardware_ready": false,
     "official_e2e_rows": 0,
+    "official_interrupt_rows": 0,
     "official_failures_or_timeouts": null,
+    "official_t_first_audio_max_ms": null,
+    "official_t_barge_in_max_ms": null,
+    "official_latency_gate_passed": false,
+    "official_barge_in_engineering_gate_passed": false,
+    "official_interrupt_latency_le_150_ms": false,
     "official_uncertainty": {
       "interval": null,
       "reason": "no qualifying official end-to-end rows"
@@ -760,22 +771,73 @@
         "path": "results/eval/latency_bench.json",
         "present": true,
         "declared_evidence_class": "server_component",
+        "provenance_eligible": false,
+        "system_provenance_valid": false,
         "qualifies": false,
-        "qualifying_rows": 0
+        "qualifying_rows": 0,
+        "qualifying_interrupt_rows": 0,
+        "failures_or_timeouts": null,
+        "runtime_failure_rows": null,
+        "first_audio_max_ms": null,
+        "barge_in_p95_ms": 18.207045597955585,
+        "barge_in_max_ms": null,
+        "latency_gate_passed": false,
+        "barge_in_engineering_gate_passed": false,
+        "interrupt_latency_le_150_ms": false
       },
       {
         "path": "results/eval/latency_bench_path_b.json",
         "present": true,
         "declared_evidence_class": "server_component",
+        "provenance_eligible": false,
+        "system_provenance_valid": false,
         "qualifies": false,
-        "qualifying_rows": 0
+        "qualifying_rows": 0,
+        "qualifying_interrupt_rows": 0,
+        "failures_or_timeouts": null,
+        "runtime_failure_rows": null,
+        "first_audio_max_ms": null,
+        "barge_in_p95_ms": 16.01965115405619,
+        "barge_in_max_ms": null,
+        "latency_gate_passed": false,
+        "barge_in_engineering_gate_passed": false,
+        "interrupt_latency_le_150_ms": false
       },
       {
         "path": "results/eval/path_ab_and_study.json",
         "present": true,
         "declared_evidence_class": "historical_proxy_summary",
+        "provenance_eligible": false,
+        "system_provenance_valid": false,
         "qualifies": false,
-        "qualifying_rows": 0
+        "qualifying_rows": 0,
+        "qualifying_interrupt_rows": 0,
+        "failures_or_timeouts": null,
+        "runtime_failure_rows": null,
+        "first_audio_max_ms": null,
+        "barge_in_p95_ms": null,
+        "barge_in_max_ms": null,
+        "latency_gate_passed": false,
+        "barge_in_engineering_gate_passed": false,
+        "interrupt_latency_le_150_ms": false
+      },
+      {
+        "path": "results/eval/human_study.json",
+        "present": true,
+        "declared_evidence_class": "official_e2e",
+        "provenance_eligible": false,
+        "system_provenance_valid": false,
+        "qualifies": false,
+        "qualifying_rows": 0,
+        "qualifying_interrupt_rows": 0,
+        "failures_or_timeouts": 0,
+        "runtime_failure_rows": 0,
+        "first_audio_max_ms": null,
+        "barge_in_p95_ms": null,
+        "barge_in_max_ms": null,
+        "latency_gate_passed": false,
+        "barge_in_engineering_gate_passed": false,
+        "interrupt_latency_le_150_ms": false
       }
     ],
     "component_proxy_claim_allowed": false
@@ -787,16 +849,51 @@
     "turns": 0,
     "ratings": 0,
     "complete_ratings": 0,
+    "invalid_turn_rows": 0,
     "invalid_rating_rows": 1,
     "rating_denominator": 0,
+    "rating_means": {
+      "naturalness": null,
+      "latency": null,
+      "interrupt_success": null,
+      "satisfaction": null
+    },
+    "rating_mean_ci95": {
+      "naturalness": null,
+      "latency": null,
+      "interrupt_success": null,
+      "satisfaction": null
+    },
+    "mos_mean": null,
+    "mos_mean_ci95": null,
+    "official_e2e_eligible": false,
+    "official_e2e_rows": 0,
+    "official_interrupt_rows": 0,
+    "official_failures_or_timeouts": 0,
+    "official_runtime_failure_rows": 0,
+    "system_provenance": null,
+    "official_t_first_audio_max_ms": null,
+    "official_t_barge_in_max_ms": null,
+    "official_latency_gate_passed": false,
+    "official_interrupt_latency_le_150_ms": false,
     "requirements": {
       "participants_5_to_10": false,
       "elderly_participants_at_least_2": false,
+      "valid_turns_cover_participants": false,
       "complete_ratings_cover_participants": false,
-      "turn_rows_valid": false,
+      "turn_rows_valid": true,
       "rating_rows_valid": false,
+      "naturalness_mos_at_least_3_5": false,
+      "live_browser_measurement": false,
+      "system_provenance_complete_and_consistent": false,
+      "runtime_completed_without_fallback_or_error": false,
+      "official_rows_cover_all_valid_turns": false,
+      "client_playback_acknowledgements_complete": false,
       "eligible_client_first_audio_present": false,
       "eligible_client_barge_in_present": false,
+      "first_audio_max_le_500_ms": false,
+      "barge_in_p95_le_300_ms_engineering": false,
+      "interrupt_latency_max_le_150_ms_proposal": false,
       "physical_gpu_12_to_24_gb": false,
       "real_heldout_detector_report": false
     },
@@ -823,6 +920,8 @@
     "next_turn_input_samples": 4800,
     "physical_browser_verified": false,
     "official_full_duplex_evidence": false,
+    "official_interrupt_latency_le_150_ms": false,
+    "official_barge_in_engineering_gate_passed": false,
     "claim_boundary": {
       "proves": [
         "The server carries captured barge-in speech into the next turn.",
@@ -912,16 +1011,16 @@
     "Complete the preserved window and interaction listening reviews, rebuild and audit the corpus without the QA waiver, and re-export with strict final training readiness.",
     "Produce a validation-eligible Persian direct-model checkpoint before opening that experiment's frozen final test.",
     "Obtain independently human-reviewed recorded labels and establish >80% on a speaker/session-group-held-out test; the automatic YouTube proxy is not ground truth.",
-    "Run the final system and client-acknowledged latency protocol on a physical 12–24 GB GPU such as the planned RTX 4090.",
-    "Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+."
+    "Run the final system and client-acknowledged latency protocol on a physical 12–24 GB GPU such as the planned RTX 4090, with zero missing acknowledgements or timeouts and maximum first-audio latency at most 500 ms.",
+    "Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+, naturalness MOS at least 3.5, and maximum client-observed interruption latency at most 150 ms."
   ],
   "remaining_work_classification": {
     "active_evidence_gates": [
       "Complete the preserved window and interaction listening reviews, rebuild and audit the corpus without the QA waiver, and re-export with strict final training readiness.",
       "Produce a validation-eligible Persian direct-model checkpoint before opening that experiment's frozen final test.",
       "Obtain independently human-reviewed recorded labels and establish >80% on a speaker/session-group-held-out test; the automatic YouTube proxy is not ground truth.",
-      "Run the final system and client-acknowledged latency protocol on a physical 12–24 GB GPU such as the planned RTX 4090.",
-      "Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+."
+      "Run the final system and client-acknowledged latency protocol on a physical 12–24 GB GPU such as the planned RTX 4090, with zero missing acknowledgements or timeouts and maximum first-audio latency at most 500 ms.",
+      "Collect consented complete results from 5–10 Persian speakers, including at least two aged 60+, naturalness MOS at least 3.5, and maximum client-observed interruption latency at most 150 ms."
     ],
     "conditional_closeout_after_evidence": [
       "Reconcile the thesis manuscript and generated tables with final evidence.",
@@ -1199,8 +1298,8 @@
     "human_study": {
       "path": "results/eval/human_study.json",
       "present": true,
-      "bytes": 1481,
-      "sha256": "cc683e060d8159d32f7ab52b3326ffc5abbae22849aaee49ec1cd5f765effe50"
+      "bytes": 2688,
+      "sha256": "92a57d5f6ca341caa31024dcae4b4ae97ffee6f17ecf32494f0e2c2aaf5ea5f2"
     },
     "hardware_preflight": {
       "path": "results/hardware/current_preflight.json",
@@ -1229,8 +1328,8 @@
     "metrics_definition": {
       "path": "docs/METRICS.md",
       "present": true,
-      "bytes": 4646,
-      "sha256": "cbb013600e1ba349b190c2fbe4d24e61d4facf9fd524db2f961aa5afc4dae836"
+      "bytes": 5934,
+      "sha256": "fc1da08cabdfd8317a6614f3a588a0a5bc70283345923cf34e4c4e009baded7d"
     },
     "storage_cleanup": {
       "path": "results/hardware/storage_cleanup_20260831.json",

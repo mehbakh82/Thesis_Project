@@ -136,9 +136,17 @@ Verified now:
 - [x] Student QA waiver is machine-readable, hash-bound, fail-closed, and tested;
   it explicitly disables human-verification, verified-interruption, strict
   coverage, and supervisor-waiver-approval claims.
-- [x] Harden aggregate readiness in schema 14: strict human QA is an explicit
+- [x] Harden aggregate readiness in schema 15: strict human QA is an explicit
   thesis gate and remaining requirement, while the limited-training waiver is
   reported separately and can never substitute for strict completion.
+- [x] Make official live evidence fail closed end to end: bind persisted turns
+  to live-browser measurement provenance and explicit client start/stop
+  acknowledgements; include `human_study.json` in the official aggregator;
+  reject missing acknowledgements/timeouts, first-audio max >500 ms,
+  interruption max >150 ms, naturalness MOS <3.5, and detector accuracy or F1
+  ≤80%; preserve the separate engineering barge-in p95≤300 ms metric; bind all
+  included turns to one hashed ASR/responder/Piper system identity and reject
+  runtime errors or rules/formant fallbacks.
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
@@ -275,9 +283,9 @@ Owner: student and supervisor. Record dated answers in
   not claimed.
 - [ ] Confirm pinned Moshika 7B + official Moshi-Finetune LoRA as the accepted
   open-base adaptation path.
-- [ ] Decide whether 500 ms binds maximum, p95, or median. Until then, use the
-  literal conservative test: every included official turn ≤500 ms, while also
-  reporting p50, p95, maximum, failures, and timeouts.
+- [ ] Obtain a signed decision if maximum, p95, or median should replace the
+  current conservative rule. Until then, the machine gate binds maximum
+  first-audio ≤500 ms and also reports p50, p95, failures, and timeouts.
 - [ ] Decide event-level versus frame-level detector accuracy. Recommended
   primary result: event-level, speaker/session-held-out accuracy, plus
   interrupt precision/recall/F1, FAR, and FRR.
@@ -843,8 +851,8 @@ Official gate still required:
   held-out groups.
 - [ ] Report event accuracy, interrupt precision/recall/F1, FAR, FRR, confusion
   matrix, denominators, and 95% confidence intervals.
-- [ ] Require accuracy strictly >80% under the agreed unit; synthetic harmonic
-  accuracy cannot satisfy this gate.
+- [ ] Require both accuracy and interruption F1 strictly >80% under the agreed
+  unit; synthetic harmonic results cannot satisfy this gate.
 - [ ] Compare energy VAD and GBDT on identical held-out events.
 - [ ] Report acoustic-onset-to-browser-stop p50/p95/max; retain p95 ≤300 ms as
   the project engineering barge-in target.
@@ -868,9 +876,15 @@ Owner: student provides card; Codex can execute/audit.
 - [ ] Measure acoustic interrupt onset → client `playback_stopped_ack` as
   `T_barge_in`; server-only timestamps remain diagnostic.
 - [ ] Predeclare timeout policy; include failures/timeouts in denominators.
+- [ ] Require every persisted valid turn to have a client
+  `playback_started` acknowledgement and every labelled interruption to have a
+  client `playback_stopped_ack`; zero missing acknowledgements/timeouts.
 - [ ] Report p50, p95, max, N, failures, and confidence intervals.
-- [ ] Until clarified, require maximum first-audio ≤500 ms; if another statistic
-  is approved, still report the literal maximum.
+- [ ] Require maximum first-audio ≤500 ms under the current conservative
+  contract; if another statistic is formally approved, still report the
+  literal maximum.
+- [ ] Separately require maximum client-observed interruption latency ≤150 ms
+  for the detailed proposal; keep p95≤300 ms as the engineering metric.
 - [ ] Separate cold start, warm turn, components, cascade, direct, and official
   end-to-end rows.
 - [ ] Use enough turns/sessions to avoid cherry-picked demo evidence.
@@ -901,7 +915,9 @@ Owner: student, ethics/supervisor, and participants. Code cannot replace it.
 - [ ] Counterbalance baseline/final order if claiming preference differences.
 - [ ] Run `export-recordings` and `study-summary` after each block.
 - [ ] Require `human_study.json`: N=5–10, ≥2 aged 60+, complete ratings/client
-  timing, eligible hardware, and real detector evidence.
+  timing, eligible hardware, naturalness MOS ≥3.5, zero missing acknowledgements
+  or timeouts, and independently labelled detector accuracy and interruption F1
+  both strictly >80%.
 - [ ] Report distributions, appropriate means/medians, uncertainty, paired
   comparisons where justified, qualitative themes, and small-N limitations.
 
