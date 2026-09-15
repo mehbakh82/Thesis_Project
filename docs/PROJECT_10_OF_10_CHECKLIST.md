@@ -237,15 +237,20 @@ The original strict path remains:
         -> final analysis, evidence freeze, thesis, and release
 ```
 
-The active limited-scope path is:
+The limited-scope submission path is complete:
 
 ```text
 documented student QA waiver + preserved QA assets
         -> automatic-only pair build/audit with false strict claims
         -> waiver-bound Moshi export and exact-shape probe
-        -> limited internal training/evaluation with explicit limitation
-        -> 4090 evidence, remaining thesis evidence, and release
+        -> bounded training/evaluation with explicit limitations
+        -> positive Qwen3-4B cascade selection and validated reports
+        -> protected, audited v5 release and clean-clone verification
 ```
+
+Physical-target, independently labeled detector, perceptual, direct-model, and
+human-study evidence remain strict-rubric research gaps; they are not unfinished
+submission-closeout engineering tasks.
 
 ## 1. Freeze supervisor decisions before viewing final outcomes
 

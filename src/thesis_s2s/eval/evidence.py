@@ -949,6 +949,36 @@ def build_evidence_status(
         "source_code_license_selected": source_license_selected,
     }
     thesis_ready = all(gates.values())
+    thesis_reports = final_audit.get("thesis_reports") or {}
+    working_submission_selected = bool(qwen4b_final["verified"])
+    report_integration_complete = bool(
+        final_audit.get("status") == "passed"
+        and thesis_reports.get("status") == "passed"
+    )
+    repository_release_complete = bool(
+        final_audit.get("status") == "passed"
+        and source_license_selected
+        and release_attestation["verified"]
+        and branch_protection["verified"]
+    )
+    submission_closeout_checks = {
+        "working_submission_architecture_selected": working_submission_selected,
+        "thesis_reports_integrated_and_validated": report_integration_complete,
+        "repository_release_attested_and_protected": repository_release_complete,
+    }
+    submission_closeout_actions = {
+        "working_submission_architecture_selected": (
+            "Use the cascade as the submitted working system."
+        ),
+        "thesis_reports_integrated_and_validated": (
+            "Copy the exact positive and negative result tables into the thesis manuscript "
+            "and validate both report outputs."
+        ),
+        "repository_release_attested_and_protected": (
+            "Run the final repository audit, freeze the evidence snapshot, tag, push, "
+            "protect main, and verify a fresh public clone."
+        ),
+    }
     required = {
         "working_persian_s2s_prototype": (
             "Produce a repeatable real-service Persian speech-to-speech result."
@@ -978,7 +1008,7 @@ def build_evidence_status(
     }
 
     payload: dict[str, Any] = {
-        "schema_version": 12,
+        "schema_version": 13,
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "authoritative": True,
         "thesis_ready": thesis_ready,
@@ -1244,10 +1274,17 @@ def build_evidence_status(
                 "Reconcile the thesis manuscript and generated tables with final evidence.",
                 "Freeze the final evidence bundle, commit/tag it, push it, and verify a fresh clone.",
             ],
+            "submission_closeout_checks": submission_closeout_checks,
+            "submission_closeout_complete": all(submission_closeout_checks.values()),
             "submission_critical_now": [
-                "Use the cascade as the submitted working system.",
-                "Copy the exact positive and negative result tables into the thesis manuscript.",
-                "Run the final repository audit, freeze the evidence snapshot, tag, and push.",
+                action
+                for key, action in submission_closeout_actions.items()
+                if not submission_closeout_checks[key]
+            ],
+            "completed_submission_closeout": [
+                action
+                for key, action in submission_closeout_actions.items()
+                if submission_closeout_checks[key]
             ],
             "research_extension_not_deadline_critical": [
                 "Redesign and validate a direct Persian Moshi training objective on a "
@@ -1538,6 +1575,16 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             "training run before the deadline is not recommended because no validated "
             "corrective hypothesis remains, while the prompt-v2 cascade has passed both its "
             "eligibility stage and frozen automatic semantic final test.",
+            "",
+            "## Submission closeout",
+            "",
+            (
+                "Complete."
+                if (payload.get("remaining_work_classification") or {}).get(
+                    "submission_closeout_complete"
+                )
+                else "Pending."
+            ),
             "",
             "## Remaining requirements",
             "",

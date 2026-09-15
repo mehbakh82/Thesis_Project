@@ -9,8 +9,8 @@
   },
   "aggregate_evidence": {
     "path": "results/eval/EVIDENCE_STATUS.json",
-    "sha256": "cfd4350c1d0cfcc378ae40b5828bdc1dc6c548978973564b5a1ea84989a32f63",
-    "schema_version": 12
+    "sha256": "b78dd7f51f061f08b3586b5e03ea1138ed0e3da71122ff4146863e3ebceea447",
+    "schema_version": 13
   },
   "scoring_contract": {
     "criteria": 5,
