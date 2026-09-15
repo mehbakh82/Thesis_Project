@@ -293,8 +293,10 @@ selection.
 Owner: student for authentication; Codex can push afterward.
 
 - [x] Remote is `https://github.com/mehbakh82/Thesis_Project.git`.
-- [x] Existing commits use
-  `Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>`.
+- [x] Every reachable commit has Mehran Bakhtiari as author and committer
+  name. Local commits use the configured GitHub noreply address; GitHub
+  server-side rebase commits use the same account verified committer identity.
+  The former server user identity `m.kohansefidi` is absent.
 - [x] Private planning, definition, detailed-proposal, and chat documents
   are root-ignored, absent from published history, and enforced by both
   current-tree and full-history CI denylist checks.
@@ -305,9 +307,9 @@ Owner: student for authentication; Codex can push afterward.
 - [x] Push `main`; require local `main` and `origin/main` to resolve to the
   same commit at every handoff.
 - [x] Verify a fresh credential-free clone of the public remote: clean
-  worktree, exact `main` HEAD `aa3527d`, clean Git objects, no private
-  planning/chat/definition paths in published history, and a passing 525-file
-  artifact/privacy/secret audit.
+  worktree, audited v5 source commit `d53704b`, clean Git objects, no private
+  planning/chat/definition/proposal paths in published history, and a passing
+  525-file artifact/privacy/secret audit.
 - [x] GitHub Actions uses read-only permissions and immutable first-party Action
   SHAs; it compiles, lints, type-checks, audits, tests, and enforces 79%
   branch-aware coverage.
@@ -1157,6 +1159,13 @@ Final engineering audit:
   Direct temporary-repository regressions cover a valid annotated tag, a
   mismatched object hash, and malformed receipt JSON. The enforced branch-aware
   coverage floor is raised from 60% to 68% against the measured 69%.
+- [x] Refresh the definitive release after protected-main governance and the
+  private-proposal history guard. Annotated v5 tag
+  `submission-final-audited-v5-2026-09-15` (object `f34ff75d`) targets source
+  commit `d53704b`; main/tag CI runs `34935002834` and `34935408321` passed.
+  The v5 receipts bind the clean 469-file snapshot, 366 tests, 80.275% branch
+  coverage, and the 525-file history/privacy audit. This release changes no
+  scientific result or thesis-report source.
 - [x] Upgrade the detailed-proposal alignment receipt to schema v2 and bind it
   to both the reviewed private proposal SHA-256 and the exact aggregate-evidence
   bytes/schema. The CI artifact audit now deterministically recomputes the full

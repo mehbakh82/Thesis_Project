@@ -9,8 +9,10 @@ Status date: 2026-09-15
   internal manifests, private planning/chat/definition documents, credentials,
   environments, checkpoints, and large weights remain excluded from every
   published revision.
-- Every reachable commit is authored and committed by
-  `Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>`.
+- Every reachable commit is authored by Mehran Bakhtiari. Local commits use
+  the configured GitHub noreply address; GitHub server-side rebase commits use
+  the same account verified committer identity. No reachable commit uses the
+  former server user identity `m.kohansefidi`.
 - The planning document, Persian project-definition document, raw/processed
   media, credentials, environments, model weights, and checkpoints are blocked
   by `.gitignore` and by the fail-closed history audit.
@@ -200,6 +202,14 @@ Status date: 2026-09-15
   branch-aware coverage. The finalized receipts were committed at `c5f48b5`;
   closeout run `34744415825` passed, and a fresh authenticated clone matched
   remote main and independently passed strict Git-object and 524-file audits.
+- The current audited v5 source commit `d53704b` adds the fail-closed private
+  proposal path guard and follows the sole-owner protected-main policy. It
+  passed main run `34935002834`; annotated tag
+  `submission-final-audited-v5-2026-09-15` (tag object `f34ff75d`) targets that
+  exact commit and passed tag run `34935408321`. The clean 469-file snapshot,
+  366-test suite, 80.275% branch coverage, and 525-file history/privacy audit
+  are bound by the v5 machine-readable receipts. No scientific result or
+  report source changed in this governance/privacy release.
 - A final security-rule audit removed every optimization-sensitive `assert`
   and implicit security-hash warning from production source. Defensive
   invariants now raise explicit errors under both normal Python and
@@ -275,10 +285,10 @@ upstream Moshi/trainer migration.
   selected sole-owner policy requires zero approving reviews. The normalized
   response, repository visibility, and sole write-capable collaborator are
   recorded in `results/release/branch_protection.json`.
-- A credential-free public clone on 2026-09-15 matched `main` at `aa3527d`,
-  had clean Git objects, contained no private planning/chat/definition path in
-  published history, and passed the complete 525-file
-  tracked-artifact/history/privacy/secret audit.
+- A credential-free public clone on 2026-09-15 matched the audited v5
+  source commit `d53704b`, had clean Git objects, contained no private
+  planning/chat/definition/proposal path in published history, and passed the
+  complete 525-file tracked-artifact/history/privacy/secret audit.
 - General application requirements intentionally use compatible lower bounds
   and are re-resolved/audited in CI. The scientific Moshi trainer is the
   stricter reproducibility boundary and remains exactly locked. A platform-wide
