@@ -250,6 +250,12 @@ verification. The ignored private validation manifest remains absent. This
 establishes repository reproducibility; it does not change any scientific
 acceptance result above.
 
+The recommended repository handoff is the audited v5 source tag
+`submission-final-audited-v5-2026-09-15` at commit `d53704b`. Its protected-main
+and tag CI runs passed all gates, including 366 tests, 80.275% branch coverage,
+and the 525-file current-tree/full-history privacy audit. This governance and
+proposal-privacy refresh changes no scientific result or thesis-report source.
+
 The final full and concise Persian reports are included with their LaTeX
 sources under `thesis-report/`. The initial report release remains preserved
 as `submission-final-reports-2026-09-07`; the current readability, RTL-link,

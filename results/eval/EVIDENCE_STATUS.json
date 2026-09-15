@@ -1,6 +1,6 @@
 {
   "schema_version": 12,
-  "generated_at": "2026-09-15T05:35:09.194414+00:00",
+  "generated_at": "2026-09-15T06:15:37.960730+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -856,28 +856,28 @@
     "immutable_submission_tag_created": true,
     "submission_tag_attestation": {
       "verified": true,
-      "tag": "submission-final-audited-v4-2026-09-13",
-      "tag_object": "5092b20204bed1ad64c887d638e696f75429973c",
-      "commit": "db348411b01f6db09f72b9d1bc399d5af6b4ce5b",
+      "tag": "submission-final-audited-v5-2026-09-15",
+      "tag_object": "f34ff75db3c662ef801279224e38ab00eaeaf877",
+      "commit": "d53704b6b47e360fbbbc40f46821078d244b4e3e",
       "branch_ci": {
-        "run_id": 34743826660,
-        "head_sha": "db348411b01f6db09f72b9d1bc399d5af6b4ce5b",
+        "run_id": 34935002834,
+        "head_sha": "d53704b6b47e360fbbbc40f46821078d244b4e3e",
         "head_branch": "main",
         "status": "completed",
         "conclusion": "success",
-        "url": "https://github.com/mehbakh82/Thesis_Project/actions/runs/34743826660",
-        "updated_at": "2026-09-13T06:56:06Z"
+        "url": "https://github.com/mehbakh82/Thesis_Project/actions/runs/34935002834",
+        "updated_at": "2026-09-15T06:03:24Z"
       },
       "tag_ci": {
-        "run_id": 34743994886,
-        "head_sha": "db348411b01f6db09f72b9d1bc399d5af6b4ce5b",
-        "head_branch": "submission-final-audited-v4-2026-09-13",
+        "run_id": 34935408321,
+        "head_sha": "d53704b6b47e360fbbbc40f46821078d244b4e3e",
+        "head_branch": "submission-final-audited-v5-2026-09-15",
         "status": "completed",
         "conclusion": "success",
-        "url": "https://github.com/mehbakh82/Thesis_Project/actions/runs/34743994886",
-        "updated_at": "2026-09-13T07:00:33Z"
+        "url": "https://github.com/mehbakh82/Thesis_Project/actions/runs/34935408321",
+        "updated_at": "2026-09-15T06:08:58Z"
       },
-      "verified_at": "2026-09-13T07:02:00Z"
+      "verified_at": "2026-09-15T06:10:32Z"
     },
     "main_branch_protection": {
       "verified": true,
@@ -1231,14 +1231,14 @@
     "final_audit": {
       "path": "results/release/final_audit.json",
       "present": true,
-      "bytes": 11978,
-      "sha256": "2f82ab48869a97d63a2c4b5d769c10b129d431bcc91d1f3df2d768cb660b3893"
+      "bytes": 13080,
+      "sha256": "c228e6639ed343ebe666a47a85b852275e946937eb9d7f175d85e123a9ae7182"
     },
     "submission_tag_attestation": {
       "path": "results/release/submission_tag_attestation.json",
       "present": true,
       "bytes": 998,
-      "sha256": "d272c9cc8e38e9228b39b56c51217faa83bb5ce733eba279feaf0c1107a50afc"
+      "sha256": "9880e56f411157155edfdab89cee7d7fd99d9f55f1a95b67fdf2437ad32d2462"
     },
     "branch_protection": {
       "path": "results/release/branch_protection.json",
