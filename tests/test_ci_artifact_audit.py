@@ -7,6 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+import yaml
 
 from scripts import ci_artifact_audit
 from scripts.audit_proposal_alignment import (
@@ -16,6 +17,19 @@ from scripts.audit_proposal_alignment import (
 from scripts.audit_proposal_alignment import (
     build_report as build_proposal_alignment_report,
 )
+
+
+def test_ci_runs_once_per_pull_request_and_on_release_refs() -> None:
+    workflow_path = Path(__file__).parents[1] / ".github/workflows/ci.yml"
+    workflow = yaml.load(workflow_path.read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
+
+    assert workflow["on"] == {
+        "push": {
+            "branches": ["main"],
+            "tags": ["submission-*"],
+        },
+        "pull_request": {"branches": ["main"]},
+    }
 
 
 def test_tracked_file_git_query_has_validated_timeout(tmp_path: Path, monkeypatch) -> None:
