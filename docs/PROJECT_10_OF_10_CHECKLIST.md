@@ -295,8 +295,9 @@ Owner: student for authentication; Codex can push afterward.
 - [x] Remote is `https://github.com/mehbakh82/Thesis_Project.git`.
 - [x] Existing commits use
   `Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>`.
-- [x] `cursor_bsc_thesis_project_planning.md` and `تعریف پروژه.docx` are
-  root-ignored and absent from tracked history.
+- [x] Private planning, definition, detailed-proposal, and chat documents
+  are root-ignored, absent from published history, and enforced by both
+  current-tree and full-history CI denylist checks.
 - [x] Raw media, internal manifests, environments, caches, credentials,
   checkpoints, and large weights are ignored.
 - [x] GitHub CLI authentication is persistent for `mehbakh82` without
