@@ -136,6 +136,9 @@ Verified now:
 - [x] Student QA waiver is machine-readable, hash-bound, fail-closed, and tested;
   it explicitly disables human-verification, verified-interruption, strict
   coverage, and supervisor-waiver-approval claims.
+- [x] Harden aggregate readiness in schema 14: strict human QA is an explicit
+  thesis gate and remaining requirement, while the limited-training waiver is
+  reported separately and can never substitute for strict completion.
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.
