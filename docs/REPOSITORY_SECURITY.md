@@ -1,11 +1,14 @@
 # Repository security and reproducibility review
 
-Status date: 2026-09-13
+Status date: 2026-09-15
 
 ## Controls that are enforced
 
-- The GitHub repository is private and the configured remote is
-  `https://github.com/mehbakh82/Thesis_Project.git`.
+- The GitHub repository is public and the configured remote is
+  `https://github.com/mehbakh82/Thesis_Project.git`. Restricted raw media,
+  internal manifests, private planning/chat/definition documents, credentials,
+  environments, checkpoints, and large weights remain excluded from every
+  published revision.
 - Every reachable commit is authored and committed by
   `Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>`.
 - The planning document, Persian project-definition document, raw/processed
@@ -259,21 +262,23 @@ closed. A passing drift audit means
 The exception must be removed or reviewed again before public deployment or an
 upstream Moshi/trainer migration.
 
-## Deliberately unresolved decisions
+## Residual deployment and governance boundaries
 
 - The project-owned source and documentation are now licensed under
   Apache-2.0. This does not alter the separate model, voice, source-corpus,
   generated-derivative, participant-material, and adapter rights documented in
   `THIRD_PARTY_NOTICES.md`.
-- Main-branch protection was enabled and re-read through the authenticated
-  GitHub API on 2026-09-13. It requires the strict `test` status check, a
-  current pull-request branch, one approving review with stale-review
-  dismissal, administrator enforcement, linear history, and resolved
-  conversations; force-pushes and branch deletion are disabled. The timestamped
-  response is normalized in `results/release/branch_protection.json`.
-- A logged-out public-clone inspection is impossible while the repository is
-  private. CI plus a fresh authenticated/local clone can verify the same tracked
-  content, but public visibility remains a separate student decision.
+- Main-branch protection was re-read through the authenticated GitHub API on
+  2026-09-15. It requires the strict `test` status check, a current pull
+  request, administrator enforcement, linear history, and resolved
+  conversations; force-pushes and branch deletion are disabled. The explicitly
+  selected sole-owner policy requires zero approving reviews. The normalized
+  response, repository visibility, and sole write-capable collaborator are
+  recorded in `results/release/branch_protection.json`.
+- A credential-free public clone on 2026-09-15 matched `main` at `aa3527d`,
+  had clean Git objects, contained no private planning/chat/definition path in
+  published history, and passed the complete 525-file
+  tracked-artifact/history/privacy/secret audit.
 - General application requirements intentionally use compatible lower bounds
   and are re-resolved/audited in CI. The scientific Moshi trainer is the
   stricter reproducibility boundary and remains exactly locked. A platform-wide

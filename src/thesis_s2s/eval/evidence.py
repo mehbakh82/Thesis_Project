@@ -152,8 +152,10 @@ def _branch_protection_result(payload: dict[str, Any]) -> dict[str, Any]:
     reviews = reviews_payload if isinstance(reviews_payload, dict) else {}
     contexts = status_checks.get("contexts")
     verified = bool(
-        payload.get("schema_version") == 1
+        payload.get("schema_version") == 2
         and payload.get("repository") == "mehbakh82/Thesis_Project"
+        and payload.get("repository_visibility") == "public"
+        and payload.get("write_capable_collaborators") == ["mehbakh82"]
         and payload.get("branch") == "main"
         and payload.get("source") == "authenticated_github_rest_api"
         and isinstance(payload.get("observed_at"), str)
@@ -161,12 +163,15 @@ def _branch_protection_result(payload: dict[str, Any]) -> dict[str, Any]:
         and type(payload.get("api_status")) is int
         and payload.get("api_status") == 200
         and payload.get("enabled") is True
+        and payload.get("pull_request_required") is True
         and status_checks.get("strict") is True
         and isinstance(contexts, list)
         and contexts == ["test"]
         and reviews.get("dismiss_stale_reviews") is True
+        and reviews.get("require_code_owner_reviews") is False
+        and reviews.get("require_last_push_approval") is False
         and type(reviews.get("required_approving_review_count")) is int
-        and reviews.get("required_approving_review_count") == 1
+        and reviews.get("required_approving_review_count") == 0
         and payload.get("enforce_admins") is True
         and payload.get("required_linear_history") is True
         and payload.get("required_conversation_resolution") is True
@@ -176,6 +181,8 @@ def _branch_protection_result(payload: dict[str, Any]) -> dict[str, Any]:
     return {
         "verified": verified,
         "repository": payload.get("repository"),
+        "repository_visibility": payload.get("repository_visibility"),
+        "write_capable_collaborators": payload.get("write_capable_collaborators"),
         "branch": payload.get("branch"),
         "observed_at": payload.get("observed_at") if verified else None,
         "required_status_checks": status_checks,
@@ -1509,7 +1516,7 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             f"| Immutable release | "
             f"{(release.get('submission_tag_attestation') or {}).get('tag') or 'not attested'} | "
             f"{'pass' if release.get('immutable_submission_tag_created') else 'pending'} |",
-            f"| Protected main | CI-gated pull-request workflow, one approval, "
+            f"| Protected main | mandatory PR + strict CI, zero approvals (sole-owner policy), "
             f"administrators enforced | "
             f"{'pass' if branch_protection.get('verified') else 'pending'} |",
             "",

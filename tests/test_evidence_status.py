@@ -662,17 +662,22 @@ def test_evidence_status_rejects_unsubstantiated_human_study_ready(
 
 def _valid_branch_protection_receipt() -> dict:
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "repository": "mehbakh82/Thesis_Project",
+        "repository_visibility": "public",
+        "write_capable_collaborators": ["mehbakh82"],
         "branch": "main",
         "source": "authenticated_github_rest_api",
-        "observed_at": "2026-09-13T07:22:52Z",
+        "observed_at": "2026-09-15T05:28:42Z",
         "api_status": 200,
         "enabled": True,
+        "pull_request_required": True,
         "required_status_checks": {"strict": True, "contexts": ["test"]},
         "required_pull_request_reviews": {
             "dismiss_stale_reviews": True,
-            "required_approving_review_count": 1,
+            "require_code_owner_reviews": False,
+            "require_last_push_approval": False,
+            "required_approving_review_count": 0,
         },
         "enforce_admins": True,
         "required_linear_history": True,
@@ -695,7 +700,7 @@ def test_evidence_status_accepts_verified_main_branch_protection(tmp_path: Path)
     assert report["remaining_work_classification"][
         "platform_limited_not_a_scientific_gate"
     ] == []
-    assert "| Protected main | CI-gated pull-request workflow" in render_evidence_summary(report)
+    assert "| Protected main | mandatory PR + strict CI" in render_evidence_summary(report)
 
 
 def test_evidence_status_rejects_weakened_main_branch_protection(tmp_path: Path) -> None:
@@ -709,6 +714,18 @@ def test_evidence_status_rejects_weakened_main_branch_protection(tmp_path: Path)
     assert report["remaining_work_classification"][
         "platform_limited_not_a_scientific_gate"
     ] == ["Main-branch protection has not been verified from the GitHub API."]
+
+
+def test_evidence_status_rejects_solo_governance_policy_drift(
+    tmp_path: Path,
+) -> None:
+    receipt = _valid_branch_protection_receipt()
+    receipt["required_pull_request_reviews"]["required_approving_review_count"] = 1
+    _write(tmp_path, "results/release/branch_protection.json", receipt)
+
+    report = build_evidence_status(root=tmp_path)
+
+    assert report["release"]["main_branch_protection"]["verified"] is False
 
 
 def test_evidence_status_rejects_mismatched_release_attestation(tmp_path: Path) -> None:

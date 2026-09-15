@@ -1,6 +1,6 @@
 # Checklist for a defensible 10/10 thesis project
 
-Status date: 2026-09-13
+Status date: 2026-09-15
 
 This is the authoritative closure checklist. Mark an item complete only when its
 named artifact exists and its acceptance test passes. Implemented code,
@@ -215,10 +215,12 @@ assistant listening review are explicitly **waived, not completed** for the
 active limited-scope run. Their tools, sheets, and best-practice instructions
 remain preserved. This is not an active coding task, but it permanently blocks
 claims that the corpus or interruptions were human-verified and means the
-original unwaived rubric is not fully satisfied. Branch protection is also
-unresolved because GitHub returns HTTP 403 for this private repository under
-the current plan; it is a platform/owner decision, not a scientific evidence
-gate.
+original unwaived rubric is not fully satisfied. Main-branch protection is
+enabled and verified for the public repository: a current pull request, strict
+green `test` status, administrator enforcement, linear history, resolved
+conversations, and no force-pushes or deletions are mandatory. As explicitly
+selected for this sole-owner repository, the approval count is zero. This
+governance choice is separate from the scientific evidence gates.
 
 ## Critical path
 
@@ -301,8 +303,9 @@ Owner: student for authentication; Codex can push afterward.
   placing credentials in the repository.
 - [x] Push `main`; require local `main` and `origin/main` to resolve to the
   same commit at every handoff.
-- [x] Verify a fresh authenticated clone of the private remote: clean worktree,
-  expected HEAD, one author/committer identity, and passing full-history
+- [x] Verify a fresh credential-free clone of the public remote: clean
+  worktree, exact `main` HEAD `aa3527d`, clean Git objects, no private
+  planning/chat/definition paths in published history, and a passing 525-file
   artifact/privacy/secret audit.
 - [x] GitHub Actions uses read-only permissions and immutable first-party Action
   SHAs; it compiles, lints, type-checks, audits, tests, and enforces 79%
@@ -322,11 +325,11 @@ Owner: student for authentication; Codex can push afterward.
   CI pins that exact wheel-era version under trusted hash-inventoried local-model
   controls and fails closed if scanner-feed omission is accompanied by missing
   or changed resolved-package evidence.
-- [x] Enable protected/CI-gated main-branch updates. Revalidated and enabled
-  through the authenticated GitHub API on 2026-09-13: strict `test` status
-  checks, current branches, one approving review, stale-review dismissal,
-  administrator enforcement, linear history, resolved conversations, and no
-  force-pushes or deletions are required.
+- [x] Enable protected/CI-gated main-branch updates. Revalidated through the
+  authenticated GitHub API on 2026-09-15: strict `test` status checks, a
+  current pull request, zero required approvals under the explicit sole-owner
+  policy, administrator enforcement, linear history, resolved conversations,
+  and no force-pushes or deletions are required.
 - [x] Confirm Apache-2.0 as the source-code/documentation license;
   third-party/model/data/adapter terms remain separate in
   `THIRD_PARTY_NOTICES.md`.

@@ -1,6 +1,6 @@
 {
   "schema_version": 12,
-  "generated_at": "2026-09-13T07:34:16.404263+00:00",
+  "generated_at": "2026-09-15T05:35:09.194414+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -882,8 +882,12 @@
     "main_branch_protection": {
       "verified": true,
       "repository": "mehbakh82/Thesis_Project",
+      "repository_visibility": "public",
+      "write_capable_collaborators": [
+        "mehbakh82"
+      ],
       "branch": "main",
-      "observed_at": "2026-09-13T07:22:52Z",
+      "observed_at": "2026-09-15T05:28:42Z",
       "required_status_checks": {
         "strict": true,
         "contexts": [
@@ -892,7 +896,9 @@
       },
       "required_pull_request_reviews": {
         "dismiss_stale_reviews": true,
-        "required_approving_review_count": 1
+        "require_code_owner_reviews": false,
+        "require_last_push_approval": false,
+        "required_approving_review_count": 0
       },
       "enforce_admins": true,
       "required_linear_history": true,
@@ -1237,8 +1243,8 @@
     "branch_protection": {
       "path": "results/release/branch_protection.json",
       "present": true,
-      "bytes": 590,
-      "sha256": "09e05770d14a9ee03892bbb9afc8789df0601df64ff6724311eb9c2c951e57b7"
+      "bytes": 798,
+      "sha256": "e6e123968640675905af35065fa14766a95ffba00cf85508e03172ec37ef629e"
     }
   }
 }
