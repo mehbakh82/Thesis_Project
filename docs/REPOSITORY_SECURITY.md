@@ -32,6 +32,9 @@ Status date: 2026-09-16
 - The proposal-alignment receipt binds the ignored private proposal's reviewed
   SHA-256 and the exact aggregate-evidence bytes/schema. CI fails if the public
   alignment summary drifts from `results/eval/EVIDENCE_STATUS.json`.
+- The model-selection receipt is regenerated into an isolated temporary path
+  during CI and compared byte-for-structure with the committed receipt. Any
+  catalog, local-evidence hash, criterion, verdict, or receipt drift fails.
 - GitHub Actions has read-only repository permissions, fetches complete history,
   and pins the first-party checkout and Python setup actions to immutable commit
   SHAs.

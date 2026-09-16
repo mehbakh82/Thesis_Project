@@ -55,6 +55,9 @@ an item explicitly says they are.
   panel for Qwen3.5 selection.
 - [x] Add `audit-model-selection` with fail-closed source validation and unit
   tests; generate `results/model_selection_audit.json`.
+- [x] Bind the committed model-selection receipt to an exact isolated CI
+  regeneration so catalog, local-evidence hashes, gates, and verdicts cannot
+  drift independently.
 - [x] Add `audit-conversation-balance` with exact source/session/hour shares,
   remediation arithmetic, and unit tests; generate
   `results/conversation_balance_audit.json`.

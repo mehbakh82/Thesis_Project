@@ -10,6 +10,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 if sys.version_info >= (3, 11):
@@ -20,6 +21,7 @@ else:  # pragma: no cover - exercised by the minimum-version CI runner
 import yaml
 
 from thesis_s2s.eval.evidence import ARTIFACTS, render_evidence_summary
+from thesis_s2s.eval.model_selection import audit_model_selection
 
 try:
     from scripts.audit_proposal_alignment import (
@@ -104,6 +106,8 @@ FINAL_SNAPSHOT = ROOT / "results" / "release" / "final_snapshot.json"
 PROPOSAL_ALIGNMENT_RECEIPT = ROOT / "results" / "proposal_alignment_audit.json"
 AGGREGATE_EVIDENCE = ROOT / "results" / "eval" / "EVIDENCE_STATUS.json"
 EVIDENCE_SUMMARY = ROOT / "results" / "eval" / "SUMMARY.md"
+MODEL_SELECTION_CATALOG = ROOT / "configs" / "model_selection_audit.yaml"
+MODEL_SELECTION_RECEIPT = ROOT / "results" / "model_selection_audit.json"
 FINAL_AUDIT_HASH_BINDINGS = {
     ("runtime_attribution", "license_sha256"): "LICENSE",
     ("runtime_attribution", "citation_sha256"): "CITATION.cff",
@@ -404,6 +408,26 @@ def proposal_alignment_receipt_audit() -> list[str]:
     return errors
 
 
+def model_selection_receipt_audit() -> list[str]:
+    """Require the committed model-selection receipt to be an exact regeneration."""
+
+    if not MODEL_SELECTION_CATALOG.is_file() or not MODEL_SELECTION_RECEIPT.is_file():
+        return ["missing model-selection catalog or receipt"]
+    try:
+        receipt = json.loads(MODEL_SELECTION_RECEIPT.read_text(encoding="utf-8"))
+        if not isinstance(receipt, dict):
+            return ["invalid model-selection receipt input: JSON root must be an object"]
+        with tempfile.TemporaryDirectory(prefix="thesis-model-selection-audit-") as temp_dir:
+            expected = audit_model_selection(
+                MODEL_SELECTION_CATALOG,
+                Path(temp_dir) / "model_selection_audit.json",
+                root=ROOT,
+            )
+    except (OSError, json.JSONDecodeError, ValueError, yaml.YAMLError) as exc:
+        return [f"invalid model-selection receipt input: {exc}"]
+    return [] if receipt == expected else ["model-selection receipt content mismatch"]
+
+
 def evidence_summary_audit() -> list[str]:
     """Require the human-readable evidence view to match authoritative JSON exactly."""
 
@@ -497,6 +521,7 @@ def main() -> int:
     errors.extend(release_attestation_audit())
     errors.extend(final_audit_receipt_audit())
     errors.extend(proposal_alignment_receipt_audit())
+    errors.extend(model_selection_receipt_audit())
     errors.extend(aggregate_artifact_provenance_audit())
     errors.extend(evidence_summary_audit())
     if errors:
