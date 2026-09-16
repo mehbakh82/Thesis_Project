@@ -17,6 +17,7 @@ from scripts.audit_proposal_alignment import (
 from scripts.audit_proposal_alignment import (
     build_report as build_proposal_alignment_report,
 )
+from thesis_s2s.eval.model_selection import audit_model_selection
 
 
 def test_ci_runs_once_per_pull_request_and_on_release_refs() -> None:
@@ -61,6 +62,67 @@ def test_generated_evidence_summary_is_bound_to_json(tmp_path: Path, monkeypatch
     assert ci_artifact_audit.evidence_summary_audit() == []
     summary.write_text("stale", encoding="utf-8")
     assert ci_artifact_audit.evidence_summary_audit() == ["generated evidence summary drift"]
+
+
+def test_model_selection_receipt_audit_requires_exact_regeneration(
+    tmp_path: Path, monkeypatch
+) -> None:
+    catalog = tmp_path / "catalog.yaml"
+    receipt = tmp_path / "receipt.json"
+    catalog.write_text(
+        yaml.safe_dump(
+            {
+                "schema_version": 1,
+                "as_of": "2026-09-16",
+                "tracks": {
+                    "direct_s2s": {
+                        "current_selection": "candidate",
+                        "controlled_same_panel_comparison": False,
+                        "requirements": {"public_inference": {"minimum": "documented"}},
+                        "candidates": {
+                            "candidate": {
+                                "evidence": {
+                                    "public_inference": {
+                                        "status": "documented",
+                                        "source": "https://example.test/model",
+                                    }
+                                }
+                            }
+                        },
+                    }
+                },
+            },
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+    audit_model_selection(catalog, receipt, root=tmp_path)
+    monkeypatch.setattr(ci_artifact_audit, "ROOT", tmp_path)
+    monkeypatch.setattr(ci_artifact_audit, "MODEL_SELECTION_CATALOG", catalog)
+    monkeypatch.setattr(ci_artifact_audit, "MODEL_SELECTION_RECEIPT", receipt)
+
+    assert ci_artifact_audit.model_selection_receipt_audit() == []
+    payload = json.loads(receipt.read_text(encoding="utf-8"))
+    payload["as_of"] = "stale"
+    receipt.write_text(json.dumps(payload), encoding="utf-8")
+    assert ci_artifact_audit.model_selection_receipt_audit() == [
+        "model-selection receipt content mismatch"
+    ]
+
+
+def test_model_selection_receipt_audit_rejects_nonobject(
+    tmp_path: Path, monkeypatch
+) -> None:
+    catalog = tmp_path / "catalog.yaml"
+    receipt = tmp_path / "receipt.json"
+    catalog.write_text("tracks: {}\n", encoding="utf-8")
+    receipt.write_text("[]\n", encoding="utf-8")
+    monkeypatch.setattr(ci_artifact_audit, "MODEL_SELECTION_CATALOG", catalog)
+    monkeypatch.setattr(ci_artifact_audit, "MODEL_SELECTION_RECEIPT", receipt)
+
+    assert ci_artifact_audit.model_selection_receipt_audit() == [
+        "invalid model-selection receipt input: JSON root must be an object"
+    ]
 
 
 def test_aggregate_artifact_provenance_audit_recomputes_bindings(
