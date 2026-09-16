@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
   "evidence_class": "requirements_constrained_static_model_audit",
-  "as_of": "2026-09-10",
+  "as_of": "2026-09-16",
   "catalog": "configs/model_selection_audit.yaml",
-  "catalog_sha256": "64bf7ab59c202cd9e27ad5d9825bf82cb16de9c505534c31b2abaab2dc72f50c",
+  "catalog_sha256": "f7e2d3ccf26eebb98f3833fe53c0440392768f500c0433ea862225b7a414f599",
   "claim_boundary": "This audit validates declared evidence and fail-closed eligibility. It does not run models, establish unreported Persian quality, or prove global optimality.",
   "tracks": {
     "direct_s2s": {
@@ -508,6 +508,76 @@
             }
           },
           "notes": "Public research pipeline with very large external assets; no verified Persian/24 GB result."
+        },
+        "lychee-fd": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "persian_speech_output",
+            "target_24gb_path"
+          ],
+          "criteria": {
+            "native_full_duplex": {
+              "criterion": "native_full_duplex",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/HITsz-TMG/Lychee-FD",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_inference": {
+              "criterion": "public_inference",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/HITsz-TMG/Lychee-FD",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_adaptation": {
+              "criterion": "public_adaptation",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/HITsz-TMG/Lychee-FD/tree/main/Training_package",
+                "declared": true
+              },
+              "notes": "Official training package supports supervised text, speech-token, control-token, and backchannel training."
+            },
+            "persian_speech_output": {
+              "criterion": "persian_speech_output",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/HIT-TMG/Lychee-FD",
+                "declared": true
+              },
+              "notes": "The official model card tags Chinese and English and provides no Persian output evidence."
+            },
+            "target_24gb_path": {
+              "criterion": "target_24gb_path",
+              "minimum": "documented",
+              "status": "failed",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/HIT-TMG/Lychee-FD",
+                "declared": true
+              },
+              "notes": "The official checkpoint is 13B BF16, already more than 24 GB in raw weight bytes; inference additionally requires Token2Wav, KV cache, and runtime allocations."
+            }
+          },
+          "notes": "Native full-duplex 13B BF16 release with public domain-adaptation code; official evidence covers Chinese/English, not Persian, and the base weights alone exceed the 24 GB target before the separate Token2Wav runtime."
         }
       }
     },

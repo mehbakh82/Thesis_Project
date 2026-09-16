@@ -89,3 +89,24 @@ def test_unknown_or_missing_local_evidence_fails_closed(tmp_path):
     assert candidate["eligible"] is False
     assert candidate["criteria"]["quality"]["source"]["present"] is False
     assert report["model_selection_audit"]["passes"] is False
+
+
+def test_project_catalog_eliminates_lychee_before_download(tmp_path):
+    root = Path(__file__).resolve().parents[1]
+    report = audit_model_selection(
+        root / "configs/model_selection_audit.yaml",
+        tmp_path / "report.json",
+        root=root,
+    )
+
+    direct = report["tracks"]["direct_s2s"]
+    lychee = direct["candidates"]["lychee-fd"]
+    assert lychee["eligible"] is False
+    assert lychee["criteria"]["native_full_duplex"]["meets"] is True
+    assert lychee["criteria"]["public_inference"]["meets"] is True
+    assert lychee["criteria"]["public_adaptation"]["meets"] is True
+    assert lychee["criteria"]["persian_speech_output"]["status"] == "unknown"
+    assert lychee["criteria"]["persian_speech_output"]["meets"] is False
+    assert lychee["criteria"]["target_24gb_path"]["status"] == "failed"
+    assert lychee["criteria"]["target_24gb_path"]["meets"] is False
+    assert "lychee-fd" not in direct["eligible_candidates"]
