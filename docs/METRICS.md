@@ -42,7 +42,10 @@ must carry a valid client `playback_stopped_ack`, and missing acknowledgements o
 timeouts remain failures rather than disappearing from the denominator.
 Every session must also carry one consistent ASR/responder/TTS identity, including
 the responder revision/profile and SHA-256 of the TTS model. Any ASR/responder
-error, rules fallback, or formant fallback is an official failure.
+error, rules fallback, or formant fallback is an official failure. The runtime
+also records the exact clean Git commit. `study-summary` hashes the complete
+consented meta/turn/rating source bundle, and the aggregate rejects a missing
+source digest or duplicate reports of the same bundle.
 
 ## Hardware
 

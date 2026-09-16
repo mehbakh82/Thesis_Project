@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import os
@@ -56,6 +57,7 @@ VALID_LABELS = frozenset({"none", "interrupt", "backchannel", "noise"})
 VALID_MEASUREMENT_SOURCES = frozenset({"unspecified", "live_browser"})
 SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
+GIT_COMMIT = re.compile(r"^[0-9a-f]{40}$")
 
 
 def _append_jsonl_atomic(path: Path, row_or_builder: dict | Callable[[int], dict]) -> dict:
@@ -133,6 +135,8 @@ class SessionMeta:
     responder_revision: str = "unspecified"
     responder_prompt_profile: str = "unspecified"
     tts_model_sha256: str = ""
+    code_commit: str = "unknown"
+    code_dirty: bool = True
 
 
 @dataclass
@@ -196,6 +200,10 @@ class SessionStore:
                 raise ValueError(f"{name} must be a non-empty single-line string")
         if meta.tts_model_sha256 and not SHA256.fullmatch(meta.tts_model_sha256):
             raise ValueError("tts_model_sha256 must be empty or a lowercase SHA-256 digest")
+        if meta.code_commit != "unknown" and not GIT_COMMIT.fullmatch(meta.code_commit):
+            raise ValueError("code_commit must be 'unknown' or a lowercase 40-character Git hash")
+        if not isinstance(meta.code_dirty, bool):
+            raise ValueError("code_dirty must be a boolean")
         if meta.vram_gb is not None and (
             isinstance(meta.vram_gb, bool)
             or not isinstance(meta.vram_gb, (int, float))
@@ -227,6 +235,8 @@ class SessionStore:
                     previous.get("responder_revision", "unspecified"),
                     previous.get("responder_prompt_profile", "unspecified"),
                     previous.get("tts_model_sha256", ""),
+                    previous.get("code_commit", "unknown"),
+                    previous.get("code_dirty", True),
                 )
                 requested_identity = (
                     meta.speaker_id,
@@ -242,6 +252,8 @@ class SessionStore:
                     meta.responder_revision,
                     meta.responder_prompt_profile,
                     meta.tts_model_sha256,
+                    meta.code_commit,
+                    meta.code_dirty,
                 )
                 if identity != requested_identity:
                     raise ValueError(
@@ -445,7 +457,9 @@ class SessionStore:
         hardware_flags: list[bool] = []
         live_browser_flags: list[bool] = []
         system_provenance_flags: list[bool] = []
-        system_identities: set[tuple[str, str, str, str, str, str]] = set()
+        system_identities: set[tuple[str, str, str, str, str, str, str, bool]] = set()
+        source_evidence_digest = hashlib.sha256()
+        source_evidence_files = 0
         eligible_first_audio: list[float] = []
         eligible_barge_in: list[float] = []
         retention_counts: dict[str, int] = {"audio": 0, "features": 0, "metrics": 0}
@@ -465,9 +479,24 @@ class SessionStore:
             meta_path = folder / "meta.json"
             if not meta_path.is_file():
                 continue
-            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+            meta_bytes = meta_path.read_bytes()
+            meta = json.loads(meta_bytes.decode("utf-8"))
             if not meta.get("consent"):
                 continue
+            source_snapshot: dict[str, bytes] = {"meta.json": meta_bytes}
+            for source_path in (meta_path, folder / "turns.jsonl", folder / "mos.jsonl"):
+                if not source_path.is_file():
+                    continue
+                relative = source_path.relative_to(self.root).as_posix().encode("utf-8")
+                content = (
+                    meta_bytes if source_path == meta_path else source_path.read_bytes()
+                )
+                source_snapshot[source_path.name] = content
+                source_evidence_digest.update(len(relative).to_bytes(8, "big"))
+                source_evidence_digest.update(relative)
+                source_evidence_digest.update(len(content).to_bytes(8, "big"))
+                source_evidence_digest.update(content)
+                source_evidence_files += 1
             speaker = str(meta.get("speaker_id") or folder.name)
             participants.add(speaker)
             if meta.get("age_bin") == "60plus":
@@ -493,6 +522,8 @@ class SessionStore:
                 meta.get("responder_revision"),
                 meta.get("responder_prompt_profile"),
                 meta.get("tts_model_sha256"),
+                meta.get("code_commit"),
+                meta.get("code_dirty"),
             )
             system_provenance = bool(
                 all(
@@ -501,14 +532,18 @@ class SessionStore:
                 )
                 and isinstance(identity[5], str)
                 and SHA256.fullmatch(identity[5])
+                and isinstance(identity[6], str)
+                and GIT_COMMIT.fullmatch(identity[6])
+                and identity[7] is False
             )
             system_provenance_flags.append(system_provenance)
             if system_provenance:
                 system_identities.add(identity)  # type: ignore[arg-type]
             eligible_session = eligible_hardware and live_browser and system_provenance
             turns_path = folder / "turns.jsonl"
-            if turns_path.is_file():
-                for line in turns_path.read_text(encoding="utf-8").splitlines():
+            turns_bytes = source_snapshot.get(turns_path.name)
+            if turns_bytes is not None:
+                for line in turns_bytes.decode("utf-8").splitlines():
                     if not line.strip():
                         continue
                     try:
@@ -607,8 +642,9 @@ class SessionStore:
                         else:
                             missing_client_stop_ack += 1
             ratings_path = folder / "mos.jsonl"
-            if ratings_path.is_file():
-                for line in ratings_path.read_text(encoding="utf-8").splitlines():
+            ratings_bytes = source_snapshot.get(ratings_path.name)
+            if ratings_bytes is not None:
+                for line in ratings_bytes.decode("utf-8").splitlines():
                     if not line.strip():
                         continue
                     try:
@@ -735,6 +771,7 @@ class SessionStore:
             "system_provenance_complete_and_consistent": bool(
                 system_provenance_complete and system_provenance_consistent
             ),
+            "source_evidence_bundle_hashed": source_evidence_files > 0,
             "runtime_completed_without_fallback_or_error": bool(
                 official_e2e_rows and runtime_failure_rows == 0
             ),
@@ -752,7 +789,7 @@ class SessionStore:
             "real_heldout_detector_report": detector_ready,
         }
         report = {
-            "schema_version": 2,
+            "schema_version": 3,
             "evidence_class": "official_e2e",
             "status": "complete" if all(requirements.values()) else "not_collected_or_incomplete",
             "consented": bool(participants),
@@ -778,6 +815,8 @@ class SessionStore:
                             "responder_revision",
                             "responder_prompt_profile",
                             "tts_model_sha256",
+                            "code_commit",
+                            "code_dirty",
                         ),
                         next(iter(system_identities)),
                         strict=True,
@@ -787,6 +826,10 @@ class SessionStore:
                 else None
             ),
             "participants": len(participants),
+            "source_evidence_sha256": (
+                source_evidence_digest.hexdigest() if source_evidence_files else None
+            ),
+            "source_evidence_files": source_evidence_files,
             "elderly_participants": len(elderly),
             "turns": turns_n,
             "ratings": len(ratings),

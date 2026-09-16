@@ -7,9 +7,12 @@ T_barge_in / stop events. Study ratings POST to `/study/rating`.
 from __future__ import annotations
 
 import json
+import re
+import subprocess
 import time
 from dataclasses import dataclass
-from typing import Literal
+from pathlib import Path
+from typing import Literal, TypedDict
 
 import numpy as np
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
@@ -54,6 +57,17 @@ StudyPromptId = Literal["warmup_time", "interrupt_story", "backchannel", "noise"
 StudyInterruptLabel = Literal["none", "interrupt", "backchannel", "noise"]
 StudyAgeBin = Literal["under_60", "60plus"]
 StudyDetectorName = Literal["gbdt", "energy"]
+
+
+class RuntimeIdentity(TypedDict):
+    system_name: str
+    asr_backend: str
+    responder_model: str
+    responder_revision: str
+    responder_prompt_profile: str
+    tts_model_sha256: str
+    code_commit: str
+    code_dirty: bool
 
 
 class StudyRating(BaseModel):
@@ -113,6 +127,31 @@ def default_talker():
     """Return the only implemented conversational runtime: the modular cascade."""
 
     return CascadeTalker()
+
+
+def _git_code_identity(root: Path) -> tuple[str, bool]:
+    """Return an exact clean-checkout identity, failing closed outside Git."""
+
+    try:
+        commit = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        ).stdout.strip()
+        dirty_output = subprocess.run(
+            ["git", "-C", str(root), "status", "--porcelain", "--untracked-files=no"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        ).stdout
+    except (OSError, subprocess.SubprocessError):
+        return "unknown", True
+    if re.fullmatch(r"[0-9a-f]{40}", commit) is None:
+        return "unknown", True
+    return commit, bool(dirty_output.strip())
 
 
 class DuplexSession:
@@ -439,7 +478,8 @@ def build_app(
         tts_model_sha256 = sha256_file(piper_model) if piper_model is not None else ""
     except OSError:
         tts_model_sha256 = ""
-    runtime_identity = {
+    code_commit, code_dirty = _git_code_identity(project_root())
+    runtime_identity: RuntimeIdentity = {
         "system_name": type(talker).__name__,
         "asr_backend": str(getattr(talker, "asr_backend", "unspecified")),
         "responder_model": str(
@@ -454,6 +494,8 @@ def build_app(
             getattr(responder, "prompt_profile", None) or "unspecified"
         ),
         "tts_model_sha256": tts_model_sha256,
+        "code_commit": code_commit,
+        "code_dirty": code_dirty,
     }
 
     @app.get("/health")
@@ -478,6 +520,9 @@ def build_app(
             "responder_backend": getattr(responder, "backend", None),
             "responder_revision": getattr(responder, "model_revision", None),
             "responder_prompt_profile": getattr(responder, "prompt_profile", None),
+            "tts_model_sha256": tts_model_sha256 or None,
+            "code_commit": code_commit if code_commit != "unknown" else None,
+            "code_dirty": code_dirty,
             "omni_checkpoint": checkpoint_runtime_status(
                 project_root() / "checkpoints" / "llama_omni2_fa" / "persian_omni2.pt"
             ),

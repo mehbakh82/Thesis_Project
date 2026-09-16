@@ -51,6 +51,10 @@ Participant, retention, GPU/VRAM, memory-cap, and ASR/responder/TTS provenance
 are immutable once a session begins; start a new session ID if any changes.
 Legacy sessions without uncapped-memory provenance, a pinned responder
 revision/profile, or the Piper-model SHA-256 are ineligible.
+Run collection only from a clean committed checkout. The summary records that
+Git commit and a deterministic SHA-256 over every consented meta/turn/rating
+source file; duplicated source bundles are counted once and fail as a separate
+official study report.
 
 ## Success for the thesis chapter
 

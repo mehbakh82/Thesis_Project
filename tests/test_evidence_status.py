@@ -72,6 +72,7 @@ def _official_study_payload() -> dict:
         "naturalness_mos_at_least_3_5": True,
         "live_browser_measurement": True,
         "system_provenance_complete_and_consistent": True,
+        "source_evidence_bundle_hashed": True,
         "runtime_completed_without_fallback_or_error": True,
         "official_rows_cover_all_valid_turns": True,
         "client_playback_acknowledgements_complete": True,
@@ -84,7 +85,7 @@ def _official_study_payload() -> dict:
         "real_heldout_detector_report": True,
     }
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "evidence_class": "official_e2e",
         "status": "complete",
         "consented": True,
@@ -103,7 +104,11 @@ def _official_study_payload() -> dict:
             "responder_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
             "responder_prompt_profile": "qwen4b_v2",
             "tts_model_sha256": "a" * 64,
+            "code_commit": "b" * 40,
+            "code_dirty": False,
         },
+        "source_evidence_sha256": "c" * 64,
+        "source_evidence_files": 15,
         "official_t_first_audio_max_ms": 500.0,
         "official_t_barge_in_p95_ms": 145.0,
         "official_t_barge_in_max_ms": 150.0,
@@ -154,6 +159,12 @@ def test_official_e2e_aggregation_recomputes_thresholds_and_reads_study(
     assert report["official_latency_gate_passed"] is False
     payload["system_provenance"]["tts_model_sha256"] = "a" * 64
 
+    payload["system_provenance"]["code_dirty"] = True
+    _write(tmp_path, "results/eval/human_study.json", payload)
+    report = _official_e2e_reports(tmp_path)
+    assert report["official_e2e_rows"] == 0
+    payload["system_provenance"]["code_dirty"] = False
+
     payload["official_t_first_audio_max_ms"] = 500.001
     _write(tmp_path, "results/eval/human_study.json", payload)
     report = _official_e2e_reports(tmp_path)
@@ -182,6 +193,19 @@ def test_official_e2e_aggregation_recomputes_thresholds_and_reads_study(
     assert report["official_e2e_rows"] == 0
     assert report["official_latency_gate_passed"] is False
 
+
+def test_official_e2e_aggregation_deduplicates_source_bundle(tmp_path: Path) -> None:
+    payload = _official_study_payload()
+    _write(tmp_path, "results/eval/latency_bench.json", payload)
+    _write(tmp_path, "results/eval/human_study.json", payload)
+
+    report = _official_e2e_reports(tmp_path)
+
+    assert report["official_e2e_rows"] == 10
+    assert report["unique_source_evidence_bundles"] == 1
+    assert report["duplicate_source_reports"] == 1
+    assert report["reports"][-1]["duplicate_source_evidence"] is True
+    assert report["reports"][-1]["qualifies"] is False
 
 def test_human_study_gate_is_closable_but_rejects_low_mos(tmp_path: Path) -> None:
     payload = _official_study_payload()
@@ -699,7 +723,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
 
     assert report["authoritative"] is True
-    assert report["schema_version"] == 15
+    assert report["schema_version"] == 16
     assert report["thesis_ready"] is False
     assert report["generation_policy"]["reads_frozen_final_test_rows"] is False
     assert report["gates"]["audited_export_100_to_200_hours"] is True
@@ -757,6 +781,8 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
     assert report["latency_and_hardware"]["official_e2e_rows"] == 0
     assert report["latency_and_hardware"]["official_failures_or_timeouts"] is None
+    assert report["latency_and_hardware"]["unique_source_evidence_bundles"] == 0
+    assert report["latency_and_hardware"]["duplicate_source_reports"] == 0
     assert report["detector"]["synthetic_accuracy_ci95_wilson"] == [0.8928, 1.0]
     assert report["detector"]["synthetic_failures"] == 0
     assert report["detector"]["recorded_proxy"]["n"] == 132

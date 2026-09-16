@@ -108,6 +108,8 @@ def test_study_summary_requires_and_recognizes_all_strict_gates(
             responder_revision="cdbee75f17c01a7cc42f958dc650907174af0554",
             responder_prompt_profile="qwen4b_v2",
             tts_model_sha256="a" * 64,
+            code_commit="b" * 40,
+            code_dirty=False,
         )
         is_interrupt = index % 2 == 0
         store.add_turn(
@@ -176,6 +178,11 @@ def test_study_summary_requires_and_recognizes_all_strict_gates(
     assert report["official_failures_or_timeouts"] == 0
     assert report["official_runtime_failure_rows"] == 0
     assert report["system_provenance"]["tts_model_sha256"] == "a" * 64
+    assert report["system_provenance"]["code_commit"] == "b" * 40
+    assert report["system_provenance"]["code_dirty"] is False
+    assert len(report["source_evidence_sha256"]) == 64
+    assert report["source_evidence_files"] == 15
+    assert store.study_summary()["source_evidence_sha256"] == report["source_evidence_sha256"]
     assert report["official_latency_gate_passed"] is True
     assert report["official_interrupt_latency_le_150_ms"] is True
     assert report["official_live_interrupt"]["accuracy"] == 1.0
@@ -190,7 +197,9 @@ def test_study_summary_requires_and_recognizes_all_strict_gates(
 
     boundary_turn = store.session_dir("S4") / "turns.jsonl"
     replace_json(boundary_turn, t_first_audio_ms=500.0, t_barge_in_ms=150.0)
-    assert store.study_summary()["official_ready"] is True
+    boundary_report = store.study_summary()
+    assert boundary_report["official_ready"] is True
+    assert boundary_report["source_evidence_sha256"] != report["source_evidence_sha256"]
     replace_json(boundary_turn, t_first_audio_ms=500.001)
     rejected = store.study_summary()
     assert rejected["requirements"]["first_audio_max_le_500_ms"] is False
@@ -219,6 +228,12 @@ def test_study_summary_requires_and_recognizes_all_strict_gates(
     assert rejected["requirements"]["system_provenance_complete_and_consistent"] is False
     assert rejected["official_ready"] is False
     replace_json(meta_path, tts_model_sha256="a" * 64)
+
+    replace_json(meta_path, code_dirty=True)
+    rejected = store.study_summary()
+    assert rejected["requirements"]["system_provenance_complete_and_consistent"] is False
+    assert rejected["official_ready"] is False
+    replace_json(meta_path, code_dirty=False)
 
     runtime_turn = store.session_dir("S2") / "turns.jsonl"
     replace_json(runtime_turn, responder_fallback_used=True)

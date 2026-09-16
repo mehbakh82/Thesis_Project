@@ -45,6 +45,7 @@ def _patch_runtime(monkeypatch, tmp_path: Path, talker: SpyTalker) -> None:
     monkeypatch.setattr(session_log, "project_root", lambda: tmp_path)
     monkeypatch.setattr(duplex_mod, "project_root", lambda: tmp_path)
     monkeypatch.setattr(duplex_mod, "default_talker", lambda: talker)
+    monkeypatch.setattr(duplex_mod, "_git_code_identity", lambda _root: ("b" * 40, False))
     monkeypatch.setattr(
         duplex_mod,
         "gpu_inventory",
@@ -66,6 +67,22 @@ def _meta() -> dict:
         "interrupt_label": "interrupt",
         "consent": True,
     }
+
+
+def test_git_code_identity_reports_dirty_and_fails_closed(
+    tmp_path: Path, monkeypatch
+) -> None:
+    responses = iter(
+        [SimpleNamespace(stdout="b" * 40 + "\n"), SimpleNamespace(stdout=" M tracked.py\n")]
+    )
+    monkeypatch.setattr(duplex_mod.subprocess, "run", lambda *_args, **_kwargs: next(responses))
+    assert duplex_mod._git_code_identity(tmp_path) == ("b" * 40, True)
+
+    def unavailable(*_args, **_kwargs):
+        raise duplex_mod.subprocess.CalledProcessError(1, ["git"])
+
+    monkeypatch.setattr(duplex_mod.subprocess, "run", unavailable)
+    assert duplex_mod._git_code_identity(tmp_path) == ("unknown", True)
 
 
 def _complete_turn(ws, audio: bytes) -> dict:
@@ -122,6 +139,8 @@ def test_automatic_bargein_becomes_next_turn_and_records_client_ack(
     assert rows[1]["duration"] == 0.3
     meta = json.loads((folder / "meta.json").read_text(encoding="utf-8"))
     assert meta["measurement_source"] == "live_browser"
+    assert meta["code_commit"] == "b" * 40
+    assert meta["code_dirty"] is False
     assert not list(folder.glob("*.wav"))
 
 
