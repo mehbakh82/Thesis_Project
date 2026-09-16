@@ -1,5 +1,5 @@
 schema_version: 1
-as_of: "2026-09-10"
+as_of: "2026-09-16"
 
 # Evidence states:
 #   verified   measured inside this repository under a recorded protocol
@@ -150,6 +150,27 @@ tracks:
           target_24gb_path:
             status: unknown
             source: https://github.com/MuyeHuang/DuplexOmni
+      lychee-fd:
+        notes: Native full-duplex 13B BF16 release with public domain-adaptation code; official evidence covers Chinese/English, not Persian, and the base weights alone exceed the 24 GB target before the separate Token2Wav runtime.
+        evidence:
+          native_full_duplex:
+            status: documented
+            source: https://github.com/HITsz-TMG/Lychee-FD
+          public_inference:
+            status: documented
+            source: https://github.com/HITsz-TMG/Lychee-FD
+          public_adaptation:
+            status: documented
+            source: https://github.com/HITsz-TMG/Lychee-FD/tree/main/Training_package
+            notes: Official training package supports supervised text, speech-token, control-token, and backchannel training.
+          persian_speech_output:
+            status: unknown
+            source: https://huggingface.co/HIT-TMG/Lychee-FD
+            notes: The official model card tags Chinese and English and provides no Persian output evidence.
+          target_24gb_path:
+            status: failed
+            source: https://huggingface.co/HIT-TMG/Lychee-FD
+            notes: The official checkpoint is 13B BF16, already more than 24 GB in raw weight bytes; inference additionally requires Token2Wav, KV cache, and runtime allocations.
 
   asr:
     purpose: Select the Persian streaming ASR component on project data.

@@ -36,11 +36,12 @@ The earlier local LLaMA-Omni2 encoder/reconstruction ablation remains runtime-in
 
 Therefore Moshi is the implementation path, while the cascade remains the deployable baseline until a Persian adapter passes the stated evidence gates. See `results/bakeoff/DECISION.md`, `docs/MOSHI_H100_RUNBOOK.md`, and `docs/REVIEW.md`.
 
-## Post-release candidate refresh (2026-09-10)
+## Post-release candidate refresh (2026-09-16)
 
 Controlled comparison remains missing for the direct track, but
 the documentary shortlist now also
 includes MiniCPM-o 4.5, Covo-Audio-Chat-FD, BayLing-Duplex, DuplexOmni,
+Lychee-FD,
 Qwen3-ASR, Shenava-Koochik, Rade-ASR-CTC-3B-fa, Omnilingual-ASR,
 Qwen3.5-4B/0.8B, Qwen3-TTS, and MOSS-TTS-Nano-Persian. The machine-readable
 audit fails closed on Persian quality, adaptation, or 24 GB fields that have not
@@ -68,7 +69,12 @@ published output languages exclude Persian; MiniCPM-o 4.5 now passes only the
 documentary public-adaptation field because the official repository lists
 LLaMA-Factory/SWIFT support. MiniCPM-o still has no verified Persian speech
 output or documented Persian/full-duplex audio-token adaptation, so no direct
-candidate becomes eligible and no new model run is justified by this refresh.
+candidate becomes eligible. The September 16 recheck also adds Lychee-FD: its
+official release provides native-duplex inference and domain-adaptation code,
+but documents only Chinese/English and ships a 13B BF16 checkpoint whose raw
+weights already exceed the 24 GB target before Token2Wav and runtime memory.
+It therefore fails documentary stage zero, and no new model run is justified by
+this refresh.
 
 The component-survey implementation was subsequently hardened so the historical
 `mulaw8` label now denotes an actual 256-level quantization bottleneck (rather

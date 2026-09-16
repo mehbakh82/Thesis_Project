@@ -1,6 +1,6 @@
 # Model and data selection audit
 
-**Audit date:** 2026-09-10
+**Audit date:** 2026-09-16
 **Evidence class:** requirements-constrained engineering audit; not a claim of
 global model optimality
 
@@ -49,14 +49,14 @@ checkpoints passed 0/9 frozen direct-runtime rows.
 | TTS | Mana Persian Piper | Yes | Controlled automatic comparison retained Piper; human listening remains absent |
 
 The current direct shortlist is Moshika, PersonaPlex, Qwen3-Omni,
-MiniCPM-o 4.5, Covo-Audio-Chat-FD, BayLing-Duplex, and DuplexOmni. None has
+MiniCPM-o 4.5, Covo-Audio-Chat-FD, BayLing-Duplex, DuplexOmni, and Lychee-FD. None has
 project-verified Persian speech output plus a public adaptation path and a
 documented 24 GB deployment path. The current catalog links only official
 repositories/model cards and retains `unknown` wherever those sources do not
 establish a requirement.
 
 The candidate refresh inspected official repositories/model cards available on
-2026-09-10. In addition to the evaluated Qwen3-ASR and MMS releases, it covers
+2026-09-16. In addition to the evaluated Qwen3-ASR and MMS releases, it covers
 Shenava-Koochik, Rade-ASR-CTC-3B-fa, and MOSS-TTS-Nano-Persian. This is a
 dated, requirements-constrained catalog—not a permanent or exhaustive claim
 over every unpublished, gated, or future checkpoint.
@@ -67,8 +67,13 @@ its Persian-output field is an explicit failure rather than unknown.
 MiniCPM-o 4.5's official repository now documents LLaMA-Factory and SWIFT
 training-framework support, so public adaptation passes at documentary level;
 the same source does not establish Persian output or Persian/full-duplex
-audio-token adaptation. The direct track therefore still has zero fully
-eligible candidates.
+audio-token adaptation. Lychee-FD now documents native full-duplex inference
+and supervised text, speech-token, control-token, and backchannel adaptation,
+but its official model card identifies Chinese and English rather than Persian.
+Its 13B BF16 weights alone exceed the 24 GB target before the required separate
+Token2Wav checkpoint, KV cache, and runtime allocations. Downloading or training
+it therefore cannot pass the project's Persian or physical-target stage-zero
+gates. The direct track still has zero fully eligible candidates.
 
 The highest-value component challengers are:
 

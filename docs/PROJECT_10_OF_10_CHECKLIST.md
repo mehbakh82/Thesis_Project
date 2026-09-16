@@ -30,12 +30,16 @@ an item explicitly says they are.
   requirements-constrained audit that separates project-verified evidence,
   official documentation, failures, and unknowns.
 - [x] Add current direct candidates: PersonaPlex, Qwen3-Omni, MiniCPM-o 4.5,
-  Covo-Audio-Chat-FD, BayLing-Duplex, and DuplexOmni.
+  Covo-Audio-Chat-FD, BayLing-Duplex, DuplexOmni, and Lychee-FD.
 - [x] Recheck official direct-model sources on 2026-09-10: record Qwen3-Omni as
   failing Persian speech output because Persian is absent from its published
   output-language list; record MiniCPM-o 4.5 public adaptation as documented
   through LLaMA-Factory/SWIFT while retaining unknown Persian/full-duplex
   adaptation and output. Zero direct candidates satisfy all five gates.
+- [x] Recheck Lychee-FD on 2026-09-16: public native-duplex inference and
+  domain-adaptation code pass documentary gates, but Persian output is
+  unverified and its 13B BF16 weights exceed 24 GB before Token2Wav/KV/runtime
+  allocations, so it is eliminated before download or project-data use.
 - [x] Add current component challengers: Qwen3-ASR 1.7B/0.6B, Shenava
   Koochik, Rade-ASR-CTC-3B-fa, Omnilingual-ASR, local Qwen3.5-4B/0.8B,
   Qwen3-TTS, and MOSS-TTS-Nano-Persian.
