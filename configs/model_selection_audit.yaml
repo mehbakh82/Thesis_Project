@@ -15,6 +15,7 @@ tracks:
       native_full_duplex: {minimum: documented}
       public_inference: {minimum: documented}
       public_adaptation: {minimum: documented}
+      public_license_or_terms: {minimum: documented}
       persian_speech_output: {minimum: verified}
       target_24gb_path: {minimum: documented}
     candidates:
@@ -30,6 +31,10 @@ tracks:
           public_adaptation:
             status: documented
             source: https://github.com/kyutai-labs/moshi-finetune
+          public_license_or_terms:
+            status: documented
+            source: https://huggingface.co/kyutai/moshika-pytorch-bf16
+            notes: Official weights publish CC-BY-4.0 terms; repository code and third-party components retain their own notices.
           persian_speech_output:
             status: failed
             source: local:results/moshi_v6_text_dropout_runtime.json
@@ -49,6 +54,9 @@ tracks:
           public_adaptation:
             status: unknown
             source: https://github.com/NVIDIA/personaplex
+          public_license_or_terms:
+            status: documented
+            source: https://huggingface.co/nvidia/personaplex-7b-v1
           persian_speech_output:
             status: failed
             source: https://huggingface.co/nvidia/personaplex-7b-v1
@@ -67,6 +75,9 @@ tracks:
             source: https://github.com/QwenLM/Qwen3-Omni
           public_adaptation:
             status: unknown
+            source: https://github.com/QwenLM/Qwen3-Omni
+          public_license_or_terms:
+            status: documented
             source: https://github.com/QwenLM/Qwen3-Omni
           persian_speech_output:
             status: failed
@@ -88,6 +99,9 @@ tracks:
             status: documented
             source: https://github.com/OpenBMB/MiniCPM-V
             notes: Official documentation lists LLaMA-Factory and SWIFT training support, but does not establish Persian or full-duplex audio-token adaptation.
+          public_license_or_terms:
+            status: documented
+            source: https://github.com/OpenBMB/MiniCPM-V
           persian_speech_output:
             status: unknown
             source: https://github.com/OpenBMB/MiniCPM-V
@@ -108,6 +122,9 @@ tracks:
           public_adaptation:
             status: unknown
             source: https://github.com/Tencent/Covo-Audio
+          public_license_or_terms:
+            status: documented
+            source: https://github.com/Tencent/Covo-Audio
           persian_speech_output:
             status: unknown
             source: https://huggingface.co/tencent/Covo-Audio-Chat
@@ -126,6 +143,9 @@ tracks:
           public_adaptation:
             status: unknown
             source: https://github.com/BayLing-Models/BayLing-Duplex
+          public_license_or_terms:
+            status: documented
+            source: https://github.com/BayLing-Models/BayLing-Duplex
           persian_speech_output:
             status: unknown
             source: https://github.com/BayLing-Models/BayLing-Duplex
@@ -142,6 +162,9 @@ tracks:
             status: documented
             source: https://github.com/MuyeHuang/DuplexOmni
           public_adaptation:
+            status: documented
+            source: https://github.com/MuyeHuang/DuplexOmni
+          public_license_or_terms:
             status: documented
             source: https://github.com/MuyeHuang/DuplexOmni
           persian_speech_output:
@@ -163,6 +186,10 @@ tracks:
             status: documented
             source: https://github.com/HITsz-TMG/Lychee-FD/tree/main/Training_package
             notes: Official training package supports supervised text, speech-token, control-token, and backchannel training.
+          public_license_or_terms:
+            status: documented
+            source: https://github.com/HITsz-TMG/Lychee-FD
+            notes: Official code and model card identify Apache-2.0; Token2Wav remains subject to its upstream terms.
           persian_speech_output:
             status: unknown
             source: https://huggingface.co/HIT-TMG/Lychee-FD
@@ -171,6 +198,74 @@ tracks:
             status: failed
             source: https://huggingface.co/HIT-TMG/Lychee-FD
             notes: The official checkpoint is 13B BF16, already more than 24 GB in raw weight bytes; inference additionally requires Token2Wav, KV cache, and runtime allocations.
+      nvidia-nemotronlabs-voicechat-11b:
+        notes: Native full-duplex English model with public inference, but no official adaptation recipe or Persian output and a 44.4 GB checkpoint outside the 24 GB target.
+        evidence:
+          native_full_duplex:
+            status: documented
+            source: https://huggingface.co/nvidia/NVIDIA-NemotronLabs-VoiceChat-11B
+          public_inference:
+            status: documented
+            source: https://huggingface.co/nvidia/NVIDIA-NemotronLabs-VoiceChat-11B
+          public_adaptation:
+            status: unknown
+            source: https://huggingface.co/nvidia/NVIDIA-NemotronLabs-VoiceChat-11B
+          public_license_or_terms:
+            status: documented
+            source: https://huggingface.co/nvidia/NVIDIA-NemotronLabs-VoiceChat-11B
+            notes: Official weights are governed by OpenMDW-1.1, not this repository's Apache-2.0 license.
+          persian_speech_output:
+            status: failed
+            source: https://huggingface.co/nvidia/NVIDIA-NemotronLabs-VoiceChat-11B
+            notes: The official model card declares English and its speech encoder is Nemotron-Speech-Streaming-En-0.6b; no Persian capability is documented.
+          target_24gb_path:
+            status: failed
+            source: https://huggingface.co/nvidia/NVIDIA-NemotronLabs-VoiceChat-11B/tree/main
+            notes: The official repository is 44.4 GB and supported hardware lists data-center GPUs and RTX 6000, not a 24 GB path.
+      realtime-venus-audio-9b:
+        notes: Four-day-old native full-duplex research result; no public checkpoint, inference implementation, adaptation code, Persian evidence, or 24 GB path was found in official sources.
+        evidence:
+          native_full_duplex:
+            status: documented
+            source: https://arxiv.org/abs/2609.13814
+          public_inference:
+            status: unknown
+            source: https://arxiv.org/abs/2609.13814
+          public_adaptation:
+            status: unknown
+            source: https://arxiv.org/abs/2609.13814
+          public_license_or_terms:
+            status: unknown
+            source: https://arxiv.org/abs/2609.13814
+          persian_speech_output:
+            status: unknown
+            source: https://arxiv.org/abs/2609.13814
+          target_24gb_path:
+            status: unknown
+            source: https://arxiv.org/abs/2609.13814
+      duplexsla:
+        notes: Native full-duplex research proposal whose official repository explicitly says inference code, deployment recipes, and checkpoints are not yet released.
+        evidence:
+          native_full_duplex:
+            status: documented
+            source: https://github.com/hyzhang24/DuplexSLA
+          public_inference:
+            status: failed
+            source: https://github.com/hyzhang24/DuplexSLA
+            notes: Official repository states that inference code and checkpoints are not yet released.
+          public_adaptation:
+            status: unknown
+            source: https://github.com/hyzhang24/DuplexSLA
+          public_license_or_terms:
+            status: documented
+            source: https://github.com/hyzhang24/DuplexSLA
+            notes: Repository declares the MIT license, but unreleased weights may have separate future terms.
+          persian_speech_output:
+            status: unknown
+            source: https://github.com/hyzhang24/DuplexSLA
+          target_24gb_path:
+            status: unknown
+            source: https://github.com/hyzhang24/DuplexSLA
 
   asr:
     purpose: Select the Persian streaming ASR component on project data.

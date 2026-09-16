@@ -35,11 +35,19 @@ an item explicitly says they are.
   failing Persian speech output because Persian is absent from its published
   output-language list; record MiniCPM-o 4.5 public adaptation as documented
   through LLaMA-Factory/SWIFT while retaining unknown Persian/full-duplex
-  adaptation and output. Zero direct candidates satisfy all five gates.
+  adaptation and output. Zero direct candidates satisfy all six gates.
 - [x] Recheck Lychee-FD on 2026-09-16: public native-duplex inference and
   domain-adaptation code pass documentary gates, but Persian output is
   unverified and its 13B BF16 weights exceed 24 GB before Token2Wav/KV/runtime
   allocations, so it is eliminated before download or project-data use.
+- [x] Extend the 2026-09-16 direct sweep to NemotronLabs VoiceChat 11B,
+  Realtime-Venus-Audio 9B, and DuplexSLA. The first is English-only, lacks an
+  official adaptation recipe, and ships a 44.4 GB checkpoint; the second is
+  paper-only; the third explicitly has no released checkpoint or inference
+  code. None reaches project execution.
+- [x] Encode public license/terms as the sixth fail-closed direct-model gate so
+  the executable catalog matches the written Stage 0 protocol. Documented
+  third-party terms remain separate from the repository's Apache-2.0 license.
 - [x] Add current component challengers: Qwen3-ASR 1.7B/0.6B, Shenava
   Koochik, Rade-ASR-CTC-3B-fa, Omnilingual-ASR, local Qwen3.5-4B/0.8B,
   Qwen3-TTS, and MOSS-TTS-Nano-Persian.

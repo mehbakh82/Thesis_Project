@@ -91,7 +91,7 @@ def test_unknown_or_missing_local_evidence_fails_closed(tmp_path):
     assert report["model_selection_audit"]["passes"] is False
 
 
-def test_project_catalog_eliminates_lychee_before_download(tmp_path):
+def test_project_catalog_eliminates_post_release_candidates_before_download(tmp_path):
     root = Path(__file__).resolve().parents[1]
     report = audit_model_selection(
         root / "configs/model_selection_audit.yaml",
@@ -110,3 +110,20 @@ def test_project_catalog_eliminates_lychee_before_download(tmp_path):
     assert lychee["criteria"]["target_24gb_path"]["status"] == "failed"
     assert lychee["criteria"]["target_24gb_path"]["meets"] is False
     assert "lychee-fd" not in direct["eligible_candidates"]
+
+    for candidate in direct["candidates"].values():
+        assert "public_license_or_terms" in candidate["criteria"]
+
+    nemotron = direct["candidates"]["nvidia-nemotronlabs-voicechat-11b"]
+    assert nemotron["criteria"]["persian_speech_output"]["status"] == "failed"
+    assert nemotron["criteria"]["target_24gb_path"]["status"] == "failed"
+    assert nemotron["eligible"] is False
+
+    venus = direct["candidates"]["realtime-venus-audio-9b"]
+    assert venus["criteria"]["native_full_duplex"]["meets"] is True
+    assert venus["criteria"]["public_inference"]["status"] == "unknown"
+    assert venus["eligible"] is False
+
+    duplexsla = direct["candidates"]["duplexsla"]
+    assert duplexsla["criteria"]["public_inference"]["status"] == "failed"
+    assert duplexsla["eligible"] is False
