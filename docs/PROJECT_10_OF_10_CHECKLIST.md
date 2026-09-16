@@ -1201,6 +1201,10 @@ Final engineering audit:
   code/source-session provenance gates, and the 525-file history/privacy
   audit. A fresh credential-free clone passed Git-object and full artifact
   audits. No thesis-report source changed after v5.
+- [x] Make release-snapshot regeneration self-consistent: exclude only the
+  declared output file from its clean-tree probe while continuing to reject
+  every unrelated tracked or untracked change; cover both cases with a real
+  temporary Git repository regression.
 - [x] Upgrade the detailed-proposal alignment receipt to schema v2 and bind it
   to both the reviewed private proposal SHA-256 and the exact aggregate-evidence
   bytes/schema. The CI artifact audit now deterministically recomputes the full

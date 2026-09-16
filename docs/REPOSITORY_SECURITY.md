@@ -22,7 +22,9 @@ Status date: 2026-09-16
   paths, scans current text for high-confidence credentials, and scans every
   reachable Git revision for the same credential classes and forbidden paths.
   It performs the history scan locally and does not pass a repository token to
-  a third-party action.
+  a third-party action. The release-snapshot command excludes only its declared
+  output path from the clean-tree probe, so it can reproducibly refresh a
+  tracked receipt without hiding any other tracked or untracked change.
 - Frozen candidate results remain bound to their exact pre-portability evaluator
   and protocol blobs. `scripts/verify_frozen_evaluator_sources.py` retrieves
   those blobs from their full commit ID, verifies their SHA-256 values and every

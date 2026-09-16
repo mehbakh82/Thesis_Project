@@ -1140,7 +1140,9 @@ def gpu_preflight(out_json: Path | None = None) -> dict:
     return report
 
 
-def _git_state(root: Path) -> dict:
+def _git_state(root: Path, *, ignore_paths: tuple[Path, ...] = ()) -> dict:
+    """Return the checkout identity while ignoring only declared output paths."""
+
     try:
         commit = subprocess.run(
             ["git", "-C", str(root), "rev-parse", "HEAD"],
@@ -1149,9 +1151,26 @@ def _git_state(root: Path) -> dict:
             text=True,
             timeout=10,
         ).stdout.strip()
+        status_command = [
+            "git",
+            "-C",
+            str(root),
+            "status",
+            "--porcelain",
+            "--untracked-files=all",
+            "--",
+            ".",
+        ]
+        resolved_root = root.resolve()
+        for path in ignore_paths:
+            try:
+                relative = path.resolve().relative_to(resolved_root).as_posix()
+            except ValueError:
+                continue
+            status_command.append(f":(top,exclude){relative}")
         dirty = bool(
             subprocess.run(
-                ["git", "-C", str(root), "status", "--porcelain"],
+                status_command,
                 check=True,
                 capture_output=True,
                 text=True,
@@ -1167,6 +1186,7 @@ def release_snapshot(out_json: Path | None = None) -> dict:
     """Hash reproducibility-critical code, docs, configs, and evidence reports."""
 
     root = project_root()
+    target = Path(out_json or root / "results" / "release" / "snapshot.json")
     paths: set[Path] = set()
     for directory in SNAPSHOT_DIRS:
         base = root / directory
@@ -1198,13 +1218,12 @@ def release_snapshot(out_json: Path | None = None) -> dict:
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "python": platform.python_version(),
         "platform": platform.platform(),
-        "git": _git_state(root),
+        "git": _git_state(root, ignore_paths=(target,)),
         "gpu": gpu_inventory(),
         "nvidia_smi": _nvidia_smi(),
         "packages": packages,
         "files": files,
         "file_count": len(files),
     }
-    target = Path(out_json or root / "results" / "release" / "snapshot.json")
     write_json(target, report)
     return report
