@@ -1,6 +1,6 @@
 {
-  "schema_version": 16,
-  "generated_at": "2026-09-16T06:37:27.113216+00:00",
+  "schema_version": 17,
+  "generated_at": "2026-09-16T07:02:46.214079+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -15,6 +15,7 @@
       "zero_missing_acknowledgements_or_timeouts",
       "complete_consistent_asr_responder_tts_identity",
       "exact_clean_git_commit",
+      "recorded_commit_exists_in_audited_history",
       "source_session_bundle_sha256",
       "no_duplicate_source_evidence",
       "zero_runtime_errors_or_fallbacks",
@@ -778,6 +779,7 @@
         "declared_evidence_class": "server_component",
         "provenance_eligible": false,
         "system_provenance_valid": false,
+        "code_commit_in_audited_history": false,
         "source_evidence_valid": false,
         "source_evidence_sha256": null,
         "source_evidence_files": null,
@@ -800,6 +802,7 @@
         "declared_evidence_class": "server_component",
         "provenance_eligible": false,
         "system_provenance_valid": false,
+        "code_commit_in_audited_history": false,
         "source_evidence_valid": false,
         "source_evidence_sha256": null,
         "source_evidence_files": null,
@@ -822,6 +825,7 @@
         "declared_evidence_class": "historical_proxy_summary",
         "provenance_eligible": false,
         "system_provenance_valid": false,
+        "code_commit_in_audited_history": false,
         "source_evidence_valid": false,
         "source_evidence_sha256": null,
         "source_evidence_files": null,
@@ -844,6 +848,7 @@
         "declared_evidence_class": "official_e2e",
         "provenance_eligible": false,
         "system_provenance_valid": false,
+        "code_commit_in_audited_history": false,
         "source_evidence_valid": true,
         "source_evidence_sha256": "bd1b81b4f433028588d6ff4abe4439638637a29281913c9e877d78d8f7150ee7",
         "source_evidence_files": 3,
@@ -1352,8 +1357,8 @@
     "metrics_definition": {
       "path": "docs/METRICS.md",
       "present": true,
-      "bytes": 6156,
-      "sha256": "c6baabe92781d7e260401789f7357bd582ad0e5c2ffe089bee4ef41fa17b6246"
+      "bytes": 6249,
+      "sha256": "f20f9782869767ae58e408db8d6e5b93c2fb85a35d56517a3c2f2076a994ce17"
     },
     "storage_cleanup": {
       "path": "results/hardware/storage_cleanup_20260831.json",
