@@ -1,6 +1,6 @@
 # Authoritative project evidence status
 
-Generated: `2026-09-16T07:02:46.214079+00:00`
+Generated: `2026-09-16T08:15:57.329001+00:00`
 
 **Verdict:** `not_thesis_ready_evidence_gates_pending`. Thesis-ready: **false**.
 
@@ -90,7 +90,7 @@ All retained adapter hashes match committed evidence, and all scientific results
 | Hardware/latency | NVIDIA H100 NVL; official E2E rows=0, interruption rows=0, failures/timeouts=None, first-audio max=None ms, interruption max=None ms, source bundles=0, duplicate reports=0 | pending |
 | Human study | participants=1, aged 60+=1, turns=0, valid ratings=0, complete ratings=0, invalid rows=1, naturalness MOS=None | pending |
 | Project license | LICENSE | pass |
-| Immutable release | submission-final-audited-v5-2026-09-15 | pass |
+| Immutable release | submission-final-audited-v6-2026-09-16 | pass |
 | Protected main | mandatory PR + strict CI, zero approvals (sole-owner policy), administrators enforced | pass |
 
 ## Reporting contract

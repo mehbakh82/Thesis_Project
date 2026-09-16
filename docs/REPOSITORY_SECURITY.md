@@ -1,6 +1,6 @@
 # Repository security and reproducibility review
 
-Status date: 2026-09-15
+Status date: 2026-09-16
 
 ## Controls that are enforced
 
@@ -10,9 +10,9 @@ Status date: 2026-09-15
   environments, checkpoints, and large weights remain excluded from every
   published revision.
 - Every reachable commit is authored by Mehran Bakhtiari. Local commits use
-  the configured GitHub noreply address; GitHub server-side rebase commits use
-  the same account verified committer identity. No reachable commit uses the
-  former server user identity `m.kohansefidi`.
+  the configured GitHub noreply address; protected squash merges use the
+  GitHub-generated `GitHub <noreply@github.com>` committer. No reachable commit
+  uses the former server user identity `m.kohansefidi`.
 - The planning document, Persian project-definition document, raw/processed
   media, credentials, environments, model weights, and checkpoints are blocked
   by `.gitignore` and by the fail-closed history audit.
@@ -202,7 +202,7 @@ Status date: 2026-09-15
   branch-aware coverage. The finalized receipts were committed at `c5f48b5`;
   closeout run `34744415825` passed, and a fresh authenticated clone matched
   remote main and independently passed strict Git-object and 524-file audits.
-- The current audited v5 source commit `d53704b` adds the fail-closed private
+- The audited v5 source commit `d53704b` adds the fail-closed private
   proposal path guard and follows the sole-owner protected-main policy. It
   passed main run `34935002834`; annotated tag
   `submission-final-audited-v5-2026-09-15` (tag object `f34ff75d`) targets that
@@ -210,6 +210,17 @@ Status date: 2026-09-15
   366-test suite, 80.275% branch coverage, and 525-file history/privacy audit
   are bound by the v5 machine-readable receipts. No scientific result or
   report source changed in this governance/privacy release.
+- The definitive audited v6 source commit `ec01882` adds strict official-live
+  thresholds, exact clean-code and source-session evidence bindings, duplicate
+  bundle rejection, and verification that every recorded evidence commit is
+  an ancestor of the audited repository. Main run `35067221695` and annotated
+  v6 tag run `35071165300` passed; tag
+  `submission-final-audited-v6-2026-09-16` has object `e57e60fd`. The clean
+  469-file snapshot, 374-test suite, 80.642% branch-aware coverage, and
+  525-file history/privacy audit are bound by the v6 receipts. A fresh
+  credential-free clone resolved the exact tag object/commit, passed `git
+  fsck --full`, and passed the complete artifact/history/privacy audit. No
+  thesis-report source changed after v5.
 - A final security-rule audit removed every optimization-sensitive `assert`
   and implicit security-hash warning from production source. Defensive
   invariants now raise explicit errors under both normal Python and
@@ -279,14 +290,14 @@ upstream Moshi/trainer migration.
   generated-derivative, participant-material, and adapter rights documented in
   `THIRD_PARTY_NOTICES.md`.
 - Main-branch protection was re-read through the authenticated GitHub API on
-  2026-09-15. It requires the strict `test` status check, a current pull
+  2026-09-16. It requires the strict `test` status check, a current pull
   request, administrator enforcement, linear history, and resolved
   conversations; force-pushes and branch deletion are disabled. The explicitly
   selected sole-owner policy requires zero approving reviews. The normalized
   response, repository visibility, and sole write-capable collaborator are
   recorded in `results/release/branch_protection.json`.
-- A credential-free public clone on 2026-09-15 matched the audited v5
-  source commit `d53704b`, had clean Git objects, contained no private
+- A credential-free public clone on 2026-09-16 matched the audited v6
+  source commit `ec01882`, had clean Git objects, contained no private
   planning/chat/definition/proposal path in published history, and passed the
   complete 525-file tracked-artifact/history/privacy/secret audit.
 - General application requirements intentionally use compatible lower bounds
