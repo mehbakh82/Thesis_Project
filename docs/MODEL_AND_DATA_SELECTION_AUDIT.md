@@ -49,11 +49,12 @@ checkpoints passed 0/9 frozen direct-runtime rows.
 | TTS | Mana Persian Piper | Yes | Controlled automatic comparison retained Piper; human listening remains absent |
 
 The current direct shortlist is Moshika, PersonaPlex, Qwen3-Omni,
-MiniCPM-o 4.5, Covo-Audio-Chat-FD, BayLing-Duplex, DuplexOmni, and Lychee-FD. None has
-project-verified Persian speech output plus a public adaptation path and a
-documented 24 GB deployment path. The current catalog links only official
-repositories/model cards and retains `unknown` wherever those sources do not
-establish a requirement.
+MiniCPM-o 4.5, Covo-Audio-Chat-FD, BayLing-Duplex, DuplexOmni, Lychee-FD,
+NVIDIA NemotronLabs VoiceChat 11B, Realtime-Venus-Audio 9B, and DuplexSLA.
+None has project-verified Persian speech output plus public inference,
+adaptation, license/terms, and a documented 24 GB deployment path. The current
+catalog links only official repositories, model cards, and papers and retains
+`unknown` wherever those sources do not establish a requirement.
 
 The candidate refresh inspected official repositories/model cards available on
 2026-09-16. In addition to the evaluated Qwen3-ASR and MMS releases, it covers
@@ -74,6 +75,17 @@ Its 13B BF16 weights alone exceed the 24 GB target before the required separate
 Token2Wav checkpoint, KV cache, and runtime allocations. Downloading or training
 it therefore cannot pass the project's Persian or physical-target stage-zero
 gates. The direct track still has zero fully eligible candidates.
+
+The same-day broader sweep adds three conservative stage-zero eliminations.
+NemotronLabs VoiceChat 11B is a released native-duplex model, but its official
+card is English-only, provides no public adaptation recipe, and ships a 44.4 GB
+checkpoint with no official 24 GB path. Realtime-Venus-Audio 9B is currently a
+paper-only result: no public weights, runtime, adaptation code, terms, Persian
+evidence, or 24 GB path were found. DuplexSLA explicitly says its inference
+code, deployment recipes, and checkpoint are not yet released. The executable
+catalog now also enforces public license/terms as its sixth direct-model gate,
+matching the written Stage 0 protocol; public terms do not imply that third-party
+artifacts inherit this repository's Apache-2.0 license.
 
 The highest-value component challengers are:
 

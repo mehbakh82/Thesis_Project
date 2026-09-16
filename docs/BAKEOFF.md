@@ -41,11 +41,13 @@ Therefore Moshi is the implementation path, while the cascade remains the deploy
 Controlled comparison remains missing for the direct track, but
 the documentary shortlist now also
 includes MiniCPM-o 4.5, Covo-Audio-Chat-FD, BayLing-Duplex, DuplexOmni,
-Lychee-FD,
+Lychee-FD, NVIDIA NemotronLabs VoiceChat 11B, Realtime-Venus-Audio 9B,
+DuplexSLA,
 Qwen3-ASR, Shenava-Koochik, Rade-ASR-CTC-3B-fa, Omnilingual-ASR,
 Qwen3.5-4B/0.8B, Qwen3-TTS, and MOSS-TTS-Nano-Persian. The machine-readable
-audit fails closed on Persian quality, adaptation, or 24 GB fields that have not
-been verified. A newly frozen, equal-channel, session-disjoint 40-row responder
+audit fails closed on Persian quality, inference, adaptation, public
+license/terms, or 24 GB fields that have not been verified. A newly frozen,
+equal-channel, session-disjoint 40-row responder
 development comparison retained Qwen3-4B: Qwen3.5-4B had zero relevance gain
 and a 15% row win rate, while Qwen3.5-0.8B regressed. The separately locked final
 panel remains sealed. This is a catalog-bounded automatic-proxy result, not a
@@ -75,6 +77,14 @@ but documents only Chinese/English and ships a 13B BF16 checkpoint whose raw
 weights already exceed the 24 GB target before Token2Wav and runtime memory.
 It therefore fails documentary stage zero, and no new model run is justified by
 this refresh.
+
+The same-day broader official-source sweep eliminates three newer entries
+without downloading them. NemotronLabs VoiceChat 11B is English-only, lacks an
+official adaptation recipe, and has a 44.4 GB checkpoint with no official 24 GB
+path. Realtime-Venus-Audio 9B has only a paper, with no public checkpoint or
+runtime found. DuplexSLA explicitly marks its checkpoint and inference code as
+not yet released. The executable direct-model audit now includes public
+license/terms as a sixth gate, matching its written Stage 0 protocol.
 
 The component-survey implementation was subsequently hardened so the historical
 `mulaw8` label now denotes an actual 256-level quantization bottleneck (rather

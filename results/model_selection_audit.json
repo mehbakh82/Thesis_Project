@@ -3,7 +3,7 @@
   "evidence_class": "requirements_constrained_static_model_audit",
   "as_of": "2026-09-16",
   "catalog": "configs/model_selection_audit.yaml",
-  "catalog_sha256": "f7e2d3ccf26eebb98f3833fe53c0440392768f500c0433ea862225b7a414f599",
+  "catalog_sha256": "3bbb87af9f998031aa4f6b23e6f6c356c6865ef3bb49d6fbc0f9c8856b596d47",
   "claim_boundary": "This audit validates declared evidence and fail-closed eligibility. It does not run models, establish unreported Persian quality, or prove global optimality.",
   "tracks": {
     "direct_s2s": {
@@ -55,6 +55,18 @@
                 "declared": true
               },
               "notes": ""
+            },
+            "public_license_or_terms": {
+              "criterion": "public_license_or_terms",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/kyutai/moshika-pytorch-bf16",
+                "declared": true
+              },
+              "notes": "Official weights publish CC-BY-4.0 terms; repository code and third-party components retain their own notices."
             },
             "persian_speech_output": {
               "criterion": "persian_speech_output",
@@ -124,6 +136,18 @@
               "source": {
                 "kind": "remote",
                 "url": "https://github.com/NVIDIA/personaplex",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_license_or_terms": {
+              "criterion": "public_license_or_terms",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/nvidia/personaplex-7b-v1",
                 "declared": true
               },
               "notes": ""
@@ -200,6 +224,18 @@
               },
               "notes": ""
             },
+            "public_license_or_terms": {
+              "criterion": "public_license_or_terms",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/QwenLM/Qwen3-Omni",
+                "declared": true
+              },
+              "notes": ""
+            },
             "persian_speech_output": {
               "criterion": "persian_speech_output",
               "minimum": "verified",
@@ -269,6 +305,18 @@
               },
               "notes": "Official documentation lists LLaMA-Factory and SWIFT training support, but does not establish Persian or full-duplex audio-token adaptation."
             },
+            "public_license_or_terms": {
+              "criterion": "public_license_or_terms",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/OpenBMB/MiniCPM-V",
+                "declared": true
+              },
+              "notes": ""
+            },
             "persian_speech_output": {
               "criterion": "persian_speech_output",
               "minimum": "verified",
@@ -334,6 +382,18 @@
               "minimum": "documented",
               "status": "unknown",
               "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/Tencent/Covo-Audio",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_license_or_terms": {
+              "criterion": "public_license_or_terms",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
               "source": {
                 "kind": "remote",
                 "url": "https://github.com/Tencent/Covo-Audio",
@@ -412,6 +472,18 @@
               },
               "notes": ""
             },
+            "public_license_or_terms": {
+              "criterion": "public_license_or_terms",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/BayLing-Models/BayLing-Duplex",
+                "declared": true
+              },
+              "notes": ""
+            },
             "persian_speech_output": {
               "criterion": "persian_speech_output",
               "minimum": "verified",
@@ -472,6 +544,18 @@
             },
             "public_adaptation": {
               "criterion": "public_adaptation",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/MuyeHuang/DuplexOmni",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_license_or_terms": {
+              "criterion": "public_license_or_terms",
               "minimum": "documented",
               "status": "documented",
               "meets": true,
@@ -552,6 +636,18 @@
               },
               "notes": "Official training package supports supervised text, speech-token, control-token, and backchannel training."
             },
+            "public_license_or_terms": {
+              "criterion": "public_license_or_terms",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/HITsz-TMG/Lychee-FD",
+                "declared": true
+              },
+              "notes": "Official code and model card identify Apache-2.0; Token2Wav remains subject to its upstream terms."
+            },
             "persian_speech_output": {
               "criterion": "persian_speech_output",
               "minimum": "verified",
@@ -578,6 +674,258 @@
             }
           },
           "notes": "Native full-duplex 13B BF16 release with public domain-adaptation code; official evidence covers Chinese/English, not Persian, and the base weights alone exceed the 24 GB target before the separate Token2Wav runtime."
+        },
+        "nvidia-nemotronlabs-voicechat-11b": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "public_adaptation",
+            "persian_speech_output",
+            "target_24gb_path"
+          ],
+          "criteria": {
+            "native_full_duplex": {
+              "criterion": "native_full_duplex",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/nvidia/NVIDIA-NemotronLabs-VoiceChat-11B",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_inference": {
+              "criterion": "public_inference",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/nvidia/NVIDIA-NemotronLabs-VoiceChat-11B",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_adaptation": {
+              "criterion": "public_adaptation",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/nvidia/NVIDIA-NemotronLabs-VoiceChat-11B",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_license_or_terms": {
+              "criterion": "public_license_or_terms",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/nvidia/NVIDIA-NemotronLabs-VoiceChat-11B",
+                "declared": true
+              },
+              "notes": "Official weights are governed by OpenMDW-1.1, not this repository's Apache-2.0 license."
+            },
+            "persian_speech_output": {
+              "criterion": "persian_speech_output",
+              "minimum": "verified",
+              "status": "failed",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/nvidia/NVIDIA-NemotronLabs-VoiceChat-11B",
+                "declared": true
+              },
+              "notes": "The official model card declares English and its speech encoder is Nemotron-Speech-Streaming-En-0.6b; no Persian capability is documented."
+            },
+            "target_24gb_path": {
+              "criterion": "target_24gb_path",
+              "minimum": "documented",
+              "status": "failed",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/nvidia/NVIDIA-NemotronLabs-VoiceChat-11B/tree/main",
+                "declared": true
+              },
+              "notes": "The official repository is 44.4 GB and supported hardware lists data-center GPUs and RTX 6000, not a 24 GB path."
+            }
+          },
+          "notes": "Native full-duplex English model with public inference, but no official adaptation recipe or Persian output and a 44.4 GB checkpoint outside the 24 GB target."
+        },
+        "realtime-venus-audio-9b": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "public_inference",
+            "public_adaptation",
+            "public_license_or_terms",
+            "persian_speech_output",
+            "target_24gb_path"
+          ],
+          "criteria": {
+            "native_full_duplex": {
+              "criterion": "native_full_duplex",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://arxiv.org/abs/2609.13814",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_inference": {
+              "criterion": "public_inference",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://arxiv.org/abs/2609.13814",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_adaptation": {
+              "criterion": "public_adaptation",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://arxiv.org/abs/2609.13814",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_license_or_terms": {
+              "criterion": "public_license_or_terms",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://arxiv.org/abs/2609.13814",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "persian_speech_output": {
+              "criterion": "persian_speech_output",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://arxiv.org/abs/2609.13814",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "target_24gb_path": {
+              "criterion": "target_24gb_path",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://arxiv.org/abs/2609.13814",
+                "declared": true
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Four-day-old native full-duplex research result; no public checkpoint, inference implementation, adaptation code, Persian evidence, or 24 GB path was found in official sources."
+        },
+        "duplexsla": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "public_inference",
+            "public_adaptation",
+            "persian_speech_output",
+            "target_24gb_path"
+          ],
+          "criteria": {
+            "native_full_duplex": {
+              "criterion": "native_full_duplex",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/hyzhang24/DuplexSLA",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_inference": {
+              "criterion": "public_inference",
+              "minimum": "documented",
+              "status": "failed",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/hyzhang24/DuplexSLA",
+                "declared": true
+              },
+              "notes": "Official repository states that inference code and checkpoints are not yet released."
+            },
+            "public_adaptation": {
+              "criterion": "public_adaptation",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/hyzhang24/DuplexSLA",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "public_license_or_terms": {
+              "criterion": "public_license_or_terms",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/hyzhang24/DuplexSLA",
+                "declared": true
+              },
+              "notes": "Repository declares the MIT license, but unreleased weights may have separate future terms."
+            },
+            "persian_speech_output": {
+              "criterion": "persian_speech_output",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/hyzhang24/DuplexSLA",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "target_24gb_path": {
+              "criterion": "target_24gb_path",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://github.com/hyzhang24/DuplexSLA",
+                "declared": true
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Native full-duplex research proposal whose official repository explicitly says inference code, deployment recipes, and checkpoints are not yet released."
         }
       }
     },
