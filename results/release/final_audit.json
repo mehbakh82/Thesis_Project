@@ -1,27 +1,28 @@
 {
-  "schema_version": 5,
-  "generated_at": "2026-09-15T06:10:32Z",
-  "audited_commit": "d53704b6b47e360fbbbc40f46821078d244b4e3e",
-  "scope": "Audited v5 engineering/release closeout with protected public-main governance, private-proposal history prevention, and preserved hash-bound historical scientific evidence.",
+  "schema_version": 6,
+  "generated_at": "2026-09-16T08:15:40Z",
+  "audited_commit": "ec0188245c7dbccd2b74aaf27cd976e430463783",
+  "scope": "Audited v6 engineering/release closeout with protected public-main governance, private-artifact history prevention, exact code/source evidence binding, and preserved hash-bound historical scientific evidence.",
   "release_verification": {
-    "tag": "submission-final-audited-v5-2026-09-15",
-    "tag_object": "f34ff75db3c662ef801279224e38ab00eaeaf877",
-    "branch_ci_run": 34935002834,
-    "tag_ci_run": 34935408321,
+    "tag": "submission-final-audited-v6-2026-09-16",
+    "tag_object": "e57e60fd8c6fe779d35c3540c04090523ceace1e",
+    "branch_ci_run": 35067221695,
+    "tag_ci_run": 35071165300,
     "branch_ci_passed": true,
     "tag_ci_passed": true,
     "snapshot_file_count": 469,
-    "snapshot_source_commit": "d53704b6b47e360fbbbc40f46821078d244b4e3e"
+    "snapshot_source_commit": "ec0188245c7dbccd2b74aaf27cd976e430463783"
   },
   "git_identity": {
     "reachable_author_names": [
       "Mehran Bakhtiari"
     ],
     "reachable_committer_names": [
+      "GitHub",
       "Mehran Bakhtiari"
     ],
     "local_commit_identity": "Mehran Bakhtiari <94431009+mehbakh82@users.noreply.github.com>",
-    "github_server_rebase_committer": "Mehran Bakhtiari (same GitHub account; account-verified email)",
+    "github_protected_squash_committer": "GitHub <noreply@github.com>",
     "forbidden_legacy_identity": "m.kohansefidi",
     "forbidden_legacy_identity_present": false
   },
@@ -51,12 +52,12 @@
     },
     "pytest": {
       "status": "passed",
-      "tests": 366,
-      "seconds": 19.87
+      "tests": 374,
+      "seconds": 28.45
     },
     "branch_coverage": {
       "status": "passed",
-      "percent": 80.27545025522488,
+      "percent": 80.64184131736526,
       "required_percent": 79,
       "ci_display_percent": 80
     },
@@ -306,5 +307,14 @@
     "proposal_exact_path_blocked": true,
     "planning_definition_and_chat_paths_blocked": true,
     "regression_tested": true
+  },
+  "official_evidence_integrity": {
+    "status": "passed",
+    "aggregate_schema_version": 17,
+    "live_rows_require_clean_exact_git_commit": true,
+    "recorded_commit_must_exist_in_audited_history": true,
+    "source_session_bundle_sha256_required": true,
+    "duplicate_source_bundles_rejected": true,
+    "strict_human_and_physical_evidence_gaps_remain_explicit": true
   }
 }

@@ -259,7 +259,7 @@ documented student QA waiver + preserved QA assets
         -> waiver-bound Moshi export and exact-shape probe
         -> bounded training/evaluation with explicit limitations
         -> positive Qwen3-4B cascade selection and validated reports
-        -> protected, audited v5 release and clean-clone verification
+        -> protected, audited v6 release and clean-clone verification
 ```
 
 Physical-target, independently labeled detector, perceptual, direct-model, and
@@ -312,10 +312,10 @@ selection.
 Owner: student for authentication; Codex can push afterward.
 
 - [x] Remote is `https://github.com/mehbakh82/Thesis_Project.git`.
-- [x] Every reachable commit has Mehran Bakhtiari as author and committer
-  name. Local commits use the configured GitHub noreply address; GitHub
-  server-side rebase commits use the same account verified committer identity.
-  The former server user identity `m.kohansefidi` is absent.
+- [x] Every reachable commit is authored by Mehran Bakhtiari. Local commits
+  use the configured GitHub noreply address; protected squash merges use the
+  GitHub-generated `GitHub <noreply@github.com>` committer. The former server
+  user identity `m.kohansefidi` is absent.
 - [x] Private planning, definition, detailed-proposal, and chat documents
   are root-ignored, absent from published history, and enforced by both
   current-tree and full-history CI denylist checks.
@@ -326,7 +326,7 @@ Owner: student for authentication; Codex can push afterward.
 - [x] Push `main`; require local `main` and `origin/main` to resolve to the
   same commit at every handoff.
 - [x] Verify a fresh credential-free clone of the public remote: clean
-  worktree, audited v5 source commit `d53704b`, clean Git objects, no private
+  worktree, audited v6 source commit `ec01882`, clean Git objects, no private
   planning/chat/definition/proposal paths in published history, and a passing
   525-file artifact/privacy/secret audit.
 - [x] GitHub Actions uses read-only permissions and immutable first-party Action
@@ -1193,6 +1193,14 @@ Final engineering audit:
   The v5 receipts bind the clean 469-file snapshot, 366 tests, 80.275% branch
   coverage, and the 525-file history/privacy audit. This release changes no
   scientific result or thesis-report source.
+- [x] Refresh the definitive release after the official-evidence integrity
+  hardening. Annotated v6 tag `submission-final-audited-v6-2026-09-16`
+  (object `e57e60fd`) targets source commit `ec01882`; main/tag CI runs
+  `35067221695` and `35071165300` passed. The v6 receipts bind the clean
+  469-file snapshot, 374 tests, 80.642% branch-aware coverage, exact
+  code/source-session provenance gates, and the 525-file history/privacy
+  audit. A fresh credential-free clone passed Git-object and full artifact
+  audits. No thesis-report source changed after v5.
 - [x] Upgrade the detailed-proposal alignment receipt to schema v2 and bind it
   to both the reviewed private proposal SHA-256 and the exact aggregate-evidence
   bytes/schema. The CI artifact audit now deterministically recomputes the full

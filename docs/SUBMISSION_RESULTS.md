@@ -1,6 +1,6 @@
 # Submission results and claim boundary
 
-Status date: 2026-09-09
+Status date: 2026-09-16
 
 ## Final architecture decision
 
@@ -250,11 +250,13 @@ verification. The ignored private validation manifest remains absent. This
 establishes repository reproducibility; it does not change any scientific
 acceptance result above.
 
-The recommended repository handoff is the audited v5 source tag
-`submission-final-audited-v5-2026-09-15` at commit `d53704b`. Its protected-main
-and tag CI runs passed all gates, including 366 tests, 80.275% branch coverage,
-and the 525-file current-tree/full-history privacy audit. This governance and
-proposal-privacy refresh changes no scientific result or thesis-report source.
+The recommended repository handoff is the audited v6 source tag
+`submission-final-audited-v6-2026-09-16` at commit `ec01882`. Its protected-main
+and tag CI runs passed all gates, including 374 tests, 80.642% branch-aware
+coverage, exact official-evidence provenance checks, and the 525-file
+current-tree/full-history privacy audit. A fresh credential-free clone resolved
+the exact annotated tag and passed Git-object and artifact audits. This
+evidence-integrity refresh changes no scientific result or thesis-report source.
 
 The final full and concise Persian reports are included with their LaTeX
 sources under `thesis-report/`. The initial report release remains preserved

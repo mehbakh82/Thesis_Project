@@ -7,7 +7,7 @@
   ],
   "branch": "main",
   "source": "authenticated_github_rest_api",
-  "observed_at": "2026-09-15T05:28:42Z",
+  "observed_at": "2026-09-16T08:08:38Z",
   "api_status": 200,
   "enabled": true,
   "pull_request_required": true,
