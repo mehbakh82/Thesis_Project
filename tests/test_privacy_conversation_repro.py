@@ -1,5 +1,6 @@
 import hashlib
 import json
+import subprocess
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -351,6 +352,43 @@ def test_upstream_lock_and_release_snapshot(tmp_path: Path, monkeypatch):
     assert "thesis-report/thesis.aux" not in report["files"]
     assert "src/generated.egg-info/PKG-INFO" not in report["files"]
     assert (tmp_path / "snapshot.json").is_file()
+
+
+def test_release_snapshot_ignores_only_its_own_tracked_output(
+    tmp_path: Path, monkeypatch
+) -> None:
+    (tmp_path / "src").mkdir()
+    (tmp_path / "README.md").write_text("clean\n", encoding="utf-8")
+    snapshot = tmp_path / "snapshot.json"
+    snapshot.write_text("{}\n", encoding="utf-8")
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "config", "user.name", "Snapshot Test"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "config", "user.email", "snapshot@example.invalid"],
+        check=True,
+    )
+    subprocess.run(["git", "-C", str(tmp_path), "add", "."], check=True)
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "commit", "-q", "-m", "fixture"], check=True
+    )
+    monkeypatch.setattr("thesis_s2s.repro.project_root", lambda: tmp_path)
+    monkeypatch.setattr("thesis_s2s.repro.gpu_inventory", lambda: {"device": "test"})
+
+    snapshot.write_text('{"stale": true}\n', encoding="utf-8")
+    report = release_snapshot(snapshot)
+    assert report["git"]["dirty"] is False
+
+    (tmp_path / "README.md").write_text("changed\n", encoding="utf-8")
+    report = release_snapshot(snapshot)
+    assert report["git"]["dirty"] is True
+
+    (tmp_path / "README.md").write_text("clean\n", encoding="utf-8")
+    (tmp_path / "untracked.txt").write_text("untracked\n", encoding="utf-8")
+    report = release_snapshot(snapshot)
+    assert report["git"]["dirty"] is True
 
 
 def test_conversation_status_reports_staging_without_claiming_final_readiness(tmp_path: Path):
