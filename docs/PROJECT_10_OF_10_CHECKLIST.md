@@ -1,6 +1,6 @@
 # Checklist for a defensible 10/10 thesis project
 
-Status date: 2026-09-15
+Status date: 2026-09-16
 
 This is the authoritative closure checklist. Mark an item complete only when its
 named artifact exists and its acceptance test passes. Implemented code,
@@ -136,7 +136,7 @@ Verified now:
 - [x] Student QA waiver is machine-readable, hash-bound, fail-closed, and tested;
   it explicitly disables human-verification, verified-interruption, strict
   coverage, and supervisor-waiver-approval claims.
-- [x] Harden aggregate readiness through schema 16: strict human QA is an explicit
+- [x] Harden aggregate readiness through schema 17: strict human QA is an explicit
   thesis gate and remaining requirement, while the limited-training waiver is
   reported separately and can never substitute for strict completion.
 - [x] Make official live evidence fail closed end to end: bind persisted turns
@@ -147,7 +147,8 @@ Verified now:
   ≤80%; preserve the separate engineering barge-in p95≤300 ms metric; bind all
   included turns to one hashed ASR/responder/Piper system identity and reject
   runtime errors or rules/formant fallbacks; bind collection to an exact clean
-  Git commit and hash the full consented source-session bundle so duplicated
+  Git commit, verify that commit exists in and is an ancestor of the audited
+  repository, and hash the full consented source-session bundle so duplicated
   evidence cannot inflate denominators.
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are

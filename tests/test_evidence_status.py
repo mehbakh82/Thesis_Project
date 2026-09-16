@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
 
 from thesis_s2s.eval.evidence import (
     STRICT_THESIS_GATE_NAMES,
+    _git_commit_is_ancestor,
     _official_e2e_reports,
     _strict_thesis_ready,
     build_evidence_status,
@@ -40,6 +42,31 @@ def test_strict_readiness_cannot_be_satisfied_by_the_qa_waiver() -> None:
 
     gates["strict_human_qa_complete"] = True
     assert _strict_thesis_ready(gates) is True
+
+
+def test_git_commit_ancestry_verification_is_fail_closed(
+    tmp_path: Path, monkeypatch
+) -> None:
+    calls: list[list[str]] = []
+
+    def succeeds(args, **_kwargs):
+        calls.append(args)
+        return subprocess.CompletedProcess(args, 0)
+
+    monkeypatch.setattr("thesis_s2s.eval.evidence.subprocess.run", succeeds)
+    commit = "b" * 40
+    assert _git_commit_is_ancestor(tmp_path, commit) is True
+    assert calls == [
+        ["git", "-C", str(tmp_path), "cat-file", "-e", f"{commit}^{{commit}}"],
+        ["git", "-C", str(tmp_path), "merge-base", "--is-ancestor", commit, "HEAD"],
+    ]
+    assert _git_commit_is_ancestor(tmp_path, "not-a-commit") is False
+
+    def fails(*_args, **_kwargs):
+        raise subprocess.CalledProcessError(1, ["git"])
+
+    monkeypatch.setattr("thesis_s2s.eval.evidence.subprocess.run", fails)
+    assert _git_commit_is_ancestor(tmp_path, commit) is False
 
 
 def test_evidence_summary_write_is_atomic(tmp_path: Path, monkeypatch) -> None:
@@ -130,8 +157,11 @@ def _official_study_payload() -> dict:
 
 
 def test_official_e2e_aggregation_recomputes_thresholds_and_reads_study(
-    tmp_path: Path,
+    tmp_path: Path, monkeypatch
 ) -> None:
+    monkeypatch.setattr(
+        "thesis_s2s.eval.evidence._git_commit_is_ancestor", lambda *_args: True
+    )
     payload = _official_study_payload()
     _write(tmp_path, "results/eval/human_study.json", payload)
 
@@ -143,6 +173,16 @@ def test_official_e2e_aggregation_recomputes_thresholds_and_reads_study(
     assert report["official_interrupt_latency_le_150_ms"] is True
     assert report["reports"][-1]["path"] == "results/eval/human_study.json"
     assert report["reports"][-1]["qualifies"] is True
+
+    monkeypatch.setattr(
+        "thesis_s2s.eval.evidence._git_commit_is_ancestor", lambda *_args: False
+    )
+    report = _official_e2e_reports(tmp_path)
+    assert report["official_e2e_rows"] == 0
+    assert report["reports"][-1]["code_commit_in_audited_history"] is False
+    monkeypatch.setattr(
+        "thesis_s2s.eval.evidence._git_commit_is_ancestor", lambda *_args: True
+    )
 
     del payload["official_runtime_failure_rows"]
     _write(tmp_path, "results/eval/human_study.json", payload)
@@ -194,7 +234,12 @@ def test_official_e2e_aggregation_recomputes_thresholds_and_reads_study(
     assert report["official_latency_gate_passed"] is False
 
 
-def test_official_e2e_aggregation_deduplicates_source_bundle(tmp_path: Path) -> None:
+def test_official_e2e_aggregation_deduplicates_source_bundle(
+    tmp_path: Path, monkeypatch
+) -> None:
+    monkeypatch.setattr(
+        "thesis_s2s.eval.evidence._git_commit_is_ancestor", lambda *_args: True
+    )
     payload = _official_study_payload()
     _write(tmp_path, "results/eval/latency_bench.json", payload)
     _write(tmp_path, "results/eval/human_study.json", payload)
@@ -207,7 +252,12 @@ def test_official_e2e_aggregation_deduplicates_source_bundle(tmp_path: Path) -> 
     assert report["reports"][-1]["duplicate_source_evidence"] is True
     assert report["reports"][-1]["qualifies"] is False
 
-def test_human_study_gate_is_closable_but_rejects_low_mos(tmp_path: Path) -> None:
+def test_human_study_gate_is_closable_but_rejects_low_mos(
+    tmp_path: Path, monkeypatch
+) -> None:
+    monkeypatch.setattr(
+        "thesis_s2s.eval.evidence._git_commit_is_ancestor", lambda *_args: True
+    )
     payload = _official_study_payload()
     _write(tmp_path, "results/eval/human_study.json", payload)
 
@@ -723,7 +773,7 @@ def test_evidence_status_aggregates_current_artifacts_fail_closed(tmp_path: Path
     )
 
     assert report["authoritative"] is True
-    assert report["schema_version"] == 16
+    assert report["schema_version"] == 17
     assert report["thesis_ready"] is False
     assert report["generation_policy"]["reads_frozen_final_test_rows"] is False
     assert report["gates"]["audited_export_100_to_200_hours"] is True

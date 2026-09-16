@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import subprocess
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -340,6 +341,29 @@ def _nonnegative_int(value: object) -> int | None:
     return value
 
 
+def _git_commit_is_ancestor(root: Path, commit: str) -> bool:
+    """Require a recorded evidence commit to exist in the audited history."""
+
+    if len(commit) != 40 or any(character not in "0123456789abcdef" for character in commit):
+        return False
+    try:
+        subprocess.run(
+            ["git", "-C", str(root), "cat-file", "-e", f"{commit}^{{commit}}"],
+            check=True,
+            capture_output=True,
+            timeout=5,
+        )
+        subprocess.run(
+            ["git", "-C", str(root), "merge-base", "--is-ancestor", commit, "HEAD"],
+            check=True,
+            capture_output=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return True
+
+
 def _official_e2e_reports(root: Path) -> dict[str, Any]:
     """Recompute official live-browser hardware and latency gates from committed reports."""
 
@@ -354,6 +378,7 @@ def _official_e2e_reports(root: Path) -> dict[str, Any]:
     first_audio_maxima: list[float] = []
     barge_in_maxima: list[float] = []
     seen_source_evidence: set[str] = set()
+    git_commit_verdicts: dict[str, bool] = {}
     duplicate_source_reports = 0
     for relative in (
         "results/eval/latency_bench.json",
@@ -364,6 +389,22 @@ def _official_e2e_reports(root: Path) -> dict[str, Any]:
         payload = _read_json(root, relative)
         evidence_class = payload.get("evidence_class") or payload.get("measurement_scope")
         system_provenance = payload.get("system_provenance")
+        code_commit = (
+            system_provenance.get("code_commit")
+            if isinstance(system_provenance, dict)
+            else None
+        )
+        code_commit_syntax_valid = bool(
+            isinstance(code_commit, str)
+            and len(code_commit) == 40
+            and all(character in "0123456789abcdef" for character in code_commit)
+        )
+        if isinstance(code_commit, str) and code_commit_syntax_valid:
+            if code_commit not in git_commit_verdicts:
+                git_commit_verdicts[code_commit] = _git_commit_is_ancestor(root, code_commit)
+            code_commit_in_audited_history = git_commit_verdicts[code_commit]
+        else:
+            code_commit_in_audited_history = False
         system_provenance_valid = bool(
             isinstance(system_provenance, dict)
             and all(
@@ -383,12 +424,8 @@ def _official_e2e_reports(root: Path) -> dict[str, Any]:
                 character in "0123456789abcdef"
                 for character in system_provenance["tts_model_sha256"]
             )
-            and isinstance(system_provenance.get("code_commit"), str)
-            and len(system_provenance["code_commit"]) == 40
-            and all(
-                character in "0123456789abcdef"
-                for character in system_provenance["code_commit"]
-            )
+            and code_commit_syntax_valid
+            and code_commit_in_audited_history
             and system_provenance.get("code_dirty") is False
         )
         source_evidence_sha256 = payload.get("source_evidence_sha256")
@@ -496,6 +533,7 @@ def _official_e2e_reports(root: Path) -> dict[str, Any]:
                 "declared_evidence_class": evidence_class,
                 "provenance_eligible": provenance_eligible,
                 "system_provenance_valid": system_provenance_valid,
+                "code_commit_in_audited_history": code_commit_in_audited_history,
                 "source_evidence_valid": source_evidence_valid,
                 "source_evidence_sha256": source_evidence_sha256
                 if source_evidence_valid
@@ -1265,7 +1303,7 @@ def build_evidence_status(
     }
 
     payload: dict[str, Any] = {
-        "schema_version": 16,
+        "schema_version": 17,
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "authoritative": True,
         "thesis_ready": thesis_ready,
@@ -1281,6 +1319,7 @@ def build_evidence_status(
                 "zero_missing_acknowledgements_or_timeouts",
                 "complete_consistent_asr_responder_tts_identity",
                 "exact_clean_git_commit",
+                "recorded_commit_exists_in_audited_history",
                 "source_session_bundle_sha256",
                 "no_duplicate_source_evidence",
                 "zero_runtime_errors_or_fallbacks",
