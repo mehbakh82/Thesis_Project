@@ -136,7 +136,7 @@ Verified now:
 - [x] Student QA waiver is machine-readable, hash-bound, fail-closed, and tested;
   it explicitly disables human-verification, verified-interruption, strict
   coverage, and supervisor-waiver-approval claims.
-- [x] Harden aggregate readiness in schema 15: strict human QA is an explicit
+- [x] Harden aggregate readiness through schema 16: strict human QA is an explicit
   thesis gate and remaining requirement, while the limited-training waiver is
   reported separately and can never substitute for strict completion.
 - [x] Make official live evidence fail closed end to end: bind persisted turns
@@ -146,7 +146,9 @@ Verified now:
   interruption max >150 ms, naturalness MOS <3.5, and detector accuracy or F1
   ≤80%; preserve the separate engineering barge-in p95≤300 ms metric; bind all
   included turns to one hashed ASR/responder/Piper system identity and reject
-  runtime errors or rules/formant fallbacks.
+  runtime errors or rules/formant fallbacks; bind collection to an exact clean
+  Git commit and hash the full consented source-session bundle so duplicated
+  evidence cannot inflate denominators.
 - [x] Git identity is Mehran Bakhtiari; private planning/definition documents,
   raw data, environments, model blobs, checkpoints, and credentials are
   excluded from tracking.

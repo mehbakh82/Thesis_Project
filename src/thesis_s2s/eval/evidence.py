@@ -353,6 +353,8 @@ def _official_e2e_reports(root: Path) -> dict[str, Any]:
     proposal_barge_results: list[bool] = []
     first_audio_maxima: list[float] = []
     barge_in_maxima: list[float] = []
+    seen_source_evidence: set[str] = set()
+    duplicate_source_reports = 0
     for relative in (
         "results/eval/latency_bench.json",
         "results/eval/latency_bench_path_b.json",
@@ -381,6 +383,22 @@ def _official_e2e_reports(root: Path) -> dict[str, Any]:
                 character in "0123456789abcdef"
                 for character in system_provenance["tts_model_sha256"]
             )
+            and isinstance(system_provenance.get("code_commit"), str)
+            and len(system_provenance["code_commit"]) == 40
+            and all(
+                character in "0123456789abcdef"
+                for character in system_provenance["code_commit"]
+            )
+            and system_provenance.get("code_dirty") is False
+        )
+        source_evidence_sha256 = payload.get("source_evidence_sha256")
+        source_evidence_files = _nonnegative_int(payload.get("source_evidence_files"))
+        source_evidence_valid = bool(
+            isinstance(source_evidence_sha256, str)
+            and len(source_evidence_sha256) == 64
+            and all(character in "0123456789abcdef" for character in source_evidence_sha256)
+            and source_evidence_files is not None
+            and source_evidence_files > 0
         )
         provenance_eligible = bool(
             payload.get("official_e2e_eligible")
@@ -390,6 +408,7 @@ def _official_e2e_reports(root: Path) -> dict[str, Any]:
             and payload.get("physical_gpu_12_to_24_gb") is True
             and payload.get("client_playback_acknowledgements") is True
             and system_provenance_valid
+            and source_evidence_valid
         )
         report_rows = _nonnegative_int(
             payload.get("official_e2e_rows")
@@ -414,7 +433,20 @@ def _official_e2e_reports(root: Path) -> dict[str, Any]:
             if payload.get("official_t_barge_in_max_ms") is not None
             else payload.get("t_barge_in_max_ms")
         )
-        qualifies = bool(provenance_eligible and report_rows is not None and report_rows > 0)
+        duplicate_source_evidence = bool(
+            provenance_eligible
+            and source_evidence_sha256 in seen_source_evidence
+        )
+        qualifies = bool(
+            provenance_eligible
+            and not duplicate_source_evidence
+            and report_rows is not None
+            and report_rows > 0
+        )
+        if qualifies and isinstance(source_evidence_sha256, str):
+            seen_source_evidence.add(source_evidence_sha256)
+        elif duplicate_source_evidence:
+            duplicate_source_reports += 1
         latency_passed = bool(
             qualifies
             and report_failures == 0
@@ -464,6 +496,12 @@ def _official_e2e_reports(root: Path) -> dict[str, Any]:
                 "declared_evidence_class": evidence_class,
                 "provenance_eligible": provenance_eligible,
                 "system_provenance_valid": system_provenance_valid,
+                "source_evidence_valid": source_evidence_valid,
+                "source_evidence_sha256": source_evidence_sha256
+                if source_evidence_valid
+                else None,
+                "source_evidence_files": source_evidence_files,
+                "duplicate_source_evidence": duplicate_source_evidence,
                 "qualifies": qualifies,
                 "qualifying_rows": report_rows if qualifies else 0,
                 "qualifying_interrupt_rows": (
@@ -486,6 +524,8 @@ def _official_e2e_reports(root: Path) -> dict[str, Any]:
             failures_or_timeouts if rows > 0 and failure_denominators_complete else None
         ),
         "failure_denominators_complete": failure_denominators_complete,
+        "unique_source_evidence_bundles": len(seen_source_evidence),
+        "duplicate_source_reports": duplicate_source_reports,
         "official_t_first_audio_max_ms": max(first_audio_maxima)
         if first_audio_maxima
         else None,
@@ -1075,6 +1115,7 @@ def build_evidence_status(
         "naturalness_mos_at_least_3_5",
         "live_browser_measurement",
         "system_provenance_complete_and_consistent",
+        "source_evidence_bundle_hashed",
         "runtime_completed_without_fallback_or_error",
         "official_rows_cover_all_valid_turns",
         "client_playback_acknowledgements_complete",
@@ -1224,7 +1265,7 @@ def build_evidence_status(
     }
 
     payload: dict[str, Any] = {
-        "schema_version": 15,
+        "schema_version": 16,
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "authoritative": True,
         "thesis_ready": thesis_ready,
@@ -1239,6 +1280,9 @@ def build_evidence_status(
                 "physical_12_to_24_gb_gpu",
                 "zero_missing_acknowledgements_or_timeouts",
                 "complete_consistent_asr_responder_tts_identity",
+                "exact_clean_git_commit",
+                "source_session_bundle_sha256",
+                "no_duplicate_source_evidence",
                 "zero_runtime_errors_or_fallbacks",
                 "first_audio_max_le_500_ms",
                 "interrupt_latency_max_le_150_ms",
@@ -1418,6 +1462,10 @@ def build_evidence_status(
             "official_e2e_rows": official_rows,
             "official_interrupt_rows": official_interrupt_rows,
             "official_failures_or_timeouts": official_e2e["official_failures_or_timeouts"],
+            "unique_source_evidence_bundles": official_e2e[
+                "unique_source_evidence_bundles"
+            ],
+            "duplicate_source_reports": official_e2e["duplicate_source_reports"],
             "official_t_first_audio_max_ms": official_e2e[
                 "official_t_first_audio_max_ms"
             ],
@@ -1460,6 +1508,8 @@ def build_evidence_status(
             "official_failures_or_timeouts": study.get("official_failures_or_timeouts"),
             "official_runtime_failure_rows": study.get("official_runtime_failure_rows"),
             "system_provenance": study.get("system_provenance"),
+            "source_evidence_sha256": study.get("source_evidence_sha256"),
+            "source_evidence_files": study.get("source_evidence_files"),
             "official_t_first_audio_max_ms": study.get("official_t_first_audio_max_ms"),
             "official_t_barge_in_max_ms": study.get("official_t_barge_in_max_ms"),
             "official_latency_gate_passed": study.get("official_latency_gate_passed") is True,
@@ -1807,7 +1857,9 @@ def render_evidence_summary(payload: dict[str, Any]) -> str:
             f"{latency.get('official_interrupt_rows', 0)}, failures/timeouts="
             f"{latency.get('official_failures_or_timeouts')}, first-audio max="
             f"{latency.get('official_t_first_audio_max_ms')} ms, interruption max="
-            f"{latency.get('official_t_barge_in_max_ms')} ms | "
+            f"{latency.get('official_t_barge_in_max_ms')} ms, source bundles="
+            f"{latency.get('unique_source_evidence_bundles', 0)}, duplicate reports="
+            f"{latency.get('duplicate_source_reports', 0)} | "
             f"{'pass' if gates.get('physical_12_to_24_gb_fit_and_live_latency') else 'pending'} |",
             f"| Human study | participants={study.get('participants', 0)}, aged 60+="
             f"{study.get('elderly_participants', 0)}, turns={study.get('turns', 0)}, "

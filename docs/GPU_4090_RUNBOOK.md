@@ -99,6 +99,9 @@ Before recruitment, confirm `/health` reports `validated_cascade_ready=true`.
 The server binds every session to the ASR backend, responder model/revision and
 prompt profile, plus the Piper model SHA-256. Any missing identity, model/rules
 fallback, ASR/responder error, or mixed system identity fails the official gate.
+The checkout must be clean and committed before the server starts. Preserve the
+reported commit and `source_evidence_sha256`; the aggregate rejects missing
+source bindings and prevents the same session bundle from being counted twice.
 
 After all sessions:
 
