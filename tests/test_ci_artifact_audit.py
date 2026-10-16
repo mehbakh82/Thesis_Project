@@ -49,6 +49,27 @@ def test_tracked_file_git_query_has_validated_timeout(tmp_path: Path, monkeypatc
         ci_artifact_audit.tracked_files()
 
 
+@pytest.mark.parametrize(
+    "filename",
+    [
+        "chat_cursor_project_planning.md",
+        "chat_codex_project_review_early_export.md",
+        "chat_cursor_report_preparation.md",
+        "chat_codex_project_review_extended_export.md",
+        "# Review and improve thesis project.md",
+    ],
+)
+def test_private_chat_export_names_are_rejected(
+    filename: str, tmp_path: Path, monkeypatch
+) -> None:
+    export = tmp_path / filename
+    export.write_text("Private chat export fixture\n", encoding="utf-8")
+    monkeypatch.setattr(ci_artifact_audit, "ROOT", tmp_path)
+    monkeypatch.setattr(ci_artifact_audit, "tracked_files", lambda: [export])
+
+    assert ci_artifact_audit.audit() == [f"forbidden tracked path: {filename}"]
+
+
 def test_generated_evidence_summary_is_bound_to_json(tmp_path: Path, monkeypatch) -> None:
     evidence = tmp_path / "EVIDENCE_STATUS.json"
     summary = tmp_path / "SUMMARY.md"

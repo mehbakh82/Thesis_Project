@@ -2,6 +2,15 @@
 
 Status date: 2026-09-16
 
+Local storage update (2026-10-06): user-authorized, checksum-verified S3 offload
+removed 254,305 bulk processed WAVs (99.76 GiB of logical audio). All original
+manifests, transcripts, samples, recordings, small smoke-test audio, model
+weights, checkpoints, and reports were retained. Restore the bulk audio before
+dataset-based training, evaluation, listening QA, or file-presence audits;
+see [dataset availability](DATASET_CARD.md#local-storage-availability).
+This changes local availability, not the historical scientific results or
+completion status of the research gates.
+
 This is the authoritative closure checklist. Mark an item complete only when its
 named artifact exists and its acceptance test passes. Implemented code,
 synthetic fixtures, estimates, and plans are not experimental evidence unless

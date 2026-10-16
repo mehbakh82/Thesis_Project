@@ -29,11 +29,18 @@ build/
 rclone.conf
 
 # local thesis planning and source-definition documents
-/cursor_bsc_thesis_project_planning.md
 /تعریف پروژه.docx
 /Thesis Proposal Template.docx
+
+# Private chat exports (retain exclusions for their historical filenames)
+/chat_cursor_project_planning.md
+/chat_codex_project_review_early_export.md
+/chat_cursor_report_preparation.md
+/chat_codex_project_review_extended_export.md
+/cursor_bsc_thesis_project_planning.md
 /codex_review_and_improve_thesis_project.md
 /cursor_bsc_thesis_project_report.md
+/# Review and improve thesis project.md
 
 # LaTeX build products (the two final report PDFs remain tracked)
 /thesis-report/**/*.aux
@@ -69,6 +76,8 @@ hf_cache/
 *.bin
 *.pt
 results/release/*.json
+# Local S3 backup inventories, archive parts, and verification logs
+/results/release/data_backup_*/
 !results/release/final_snapshot.json
 !results/release/final_audit.json
 !results/release/submission_tag_attestation.json

@@ -198,6 +198,13 @@ Mana-Piper voice passes an actual finite-audio render probe.
 
 ## Core commands
 
+Local storage update (2026-10-06): bulk processed dataset audio was offloaded to
+a checksum-verified S3 backup. Manifests, transcripts, samples, recordings,
+models, and checkpoints remain local. Restore the audio before dataset-based
+training, evaluation, or listening QA; see [dataset availability](docs/DATASET_CARD.md#local-storage-availability).
+Historical audit receipts describe their original snapshots, not current local
+audio availability.
+
 The general commands below are current. Versioned Moshi post-training commands
 are also preserved as protocol/reconstruction commands: evaluating every v2–v5
 candidate now requires first recreating the removed negative intermediate
