@@ -176,7 +176,7 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
             if not speculative:
                 session.responding = True
                 session.bargein.reset()
-            record = {
+            record: dict[str, Any] = {
                 "turn": turn,
                 "end_sample": end_sample,
                 "endpoint_decided_sample": decided_sample,
@@ -221,26 +221,32 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
                 )
                 if record.get("speculation_cancelled"):
                     return
-                if result.transcript and result.reply_text:
-                    session.history.append((result.transcript, result.reply_text))
-                    session.history = session.history[-config.history_turns :]
-                await send_json(
-                    {
-                        "event": "reply_done",
-                        "turn": turn,
-                        "transcript": result.transcript,
-                        "reply_text": result.reply_text,
-                        "server_timings_ms": result.timings.as_ms(),
-                        "cancelled": result.cancelled,
-                        "clauses": len(result.clauses),
-                    }
-                )
+                done = {
+                    "event": "reply_done",
+                    "turn": turn,
+                    "transcript": result.transcript,
+                    "reply_text": result.reply_text,
+                    "server_timings_ms": result.timings.as_ms(),
+                    "cancelled": result.cancelled,
+                    "clauses": len(result.clauses),
+                }
+                if session.speculative_turn == turn:
+                    # Not yet confirmed: deliver after the endpoint is confirmed.
+                    record["pending_reply_done"] = done
+                    return
+                await deliver_reply(done)
 
             generation = asyncio.ensure_future(finish())
             if not speculative:
                 asyncio.ensure_future(
                     send_json({"event": "endpoint", "turn": turn, "end_sample": end_sample})
                 )
+
+        async def deliver_reply(done: dict[str, Any]) -> None:
+            if done["transcript"] and done["reply_text"]:
+                session.history.append((done["transcript"], done["reply_text"]))
+                session.history = session.history[-config.history_turns :]
+            await send_json(done)
 
         async def confirm_speculative(end_sample: int) -> None:
             """Open the gate of the speculative turn and release held audio."""
@@ -252,11 +258,19 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
             record = session.records.get(turn or -1, {})
             record["speculation_confirmed"] = True
             await send_json({"event": "endpoint", "turn": turn, "end_sample": end_sample})
-            with session.gate_lock:
-                held, session.held = session.held, []
-                session.gate.set()
-            for payload in held:
-                await ws.send_bytes(payload)
+            # Drain held clauses in order; open the gate only once nothing is held,
+            # so a clause emitted during the drain cannot overtake earlier ones.
+            while True:
+                with session.gate_lock:
+                    held, session.held = session.held, []
+                    if not held:
+                        session.gate.set()
+                        break
+                for payload in held:
+                    await ws.send_bytes(payload)
+            pending = record.pop("pending_reply_done", None)
+            if pending is not None:
+                await deliver_reply(pending)
 
         def cancel_speculative() -> None:
             turn = session.speculative_turn
