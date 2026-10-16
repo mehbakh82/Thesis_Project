@@ -20,7 +20,7 @@
   },
   "requirements_lock": {
     "path": "requirements-moshi.lock",
-    "sha256": "a9f442aaa20bad0498f36210cd66cce53f9626faa06cf8d4caf69e51695e6c2e",
+    "sha256": "66912ad4cd271b9228125820e6b4cf0696a5191c42517dea67295b52d257d13e",
     "package_count": 81,
     "packages": {
       "absl-py": {
@@ -199,8 +199,8 @@
       },
       "multidict": {
         "requirement_name": "multidict",
-        "expected": "6.7.1",
-        "actual": "6.7.1",
+        "expected": "6.9.1",
+        "actual": "6.9.1",
         "matches": true
       },
       "networkx": {
@@ -487,14 +487,14 @@
       },
       "urllib3": {
         "requirement_name": "urllib3",
-        "expected": "2.7.0",
-        "actual": "2.7.0",
+        "expected": "2.8.0",
+        "actual": "2.8.0",
         "matches": true
       },
       "werkzeug": {
         "requirement_name": "Werkzeug",
-        "expected": "3.1.8",
-        "actual": "3.1.8",
+        "expected": "3.1.9",
+        "actual": "3.1.9",
         "matches": true
       },
       "whisper-timestamped": {
