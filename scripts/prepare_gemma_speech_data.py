@@ -6,11 +6,12 @@ excluded), user turns of 1-30 s are cut from the stereo exports' user channel.
 Each yields two examples:
 
 * ``asr``: audio -> the caption transcript (fa-verbatim-2 text);
-* ``respond``: audio -> the production responder's reply (Qwen3-4B, elderly
-  prompt, greedy, Persian-only) to that caption transcript, i.e. DiVA-style
-  distillation of the text assistant into the speech-input model.
+* ``respond``: audio -> Gemma's own text-mode reply (elderly prompt, greedy,
+  Persian-only) to that caption transcript, i.e. DiVA-style self-distillation:
+  the model should answer the speech as it would answer the transcript.
 
-Teacher replies come from an OpenAI-compatible endpoint (``--endpoint``).
+Teacher replies come from an OpenAI-compatible endpoint (``--endpoint``),
+by default the Gemma 4 E4B vLLM server that is also the student's base.
 """
 
 from __future__ import annotations
@@ -50,8 +51,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--split-manifest", type=Path, default=ROOT / "data/processed/moshi_finetune_v2/train.jsonl")
     parser.add_argument("--conversations", type=Path, default=ROOT / "data/processed/manifests/conversations.jsonl")
-    parser.add_argument("--endpoint", default="http://127.0.0.1:8020")
-    parser.add_argument("--served-name", default="qwen3-4b-instruct-2507")
+    parser.add_argument("--endpoint", default="http://127.0.0.1:8021")
+    parser.add_argument("--served-name", default="gemma-4-e4b-it")
     parser.add_argument("--out-dir", type=Path, required=True)
     parser.add_argument("--workers", type=int, default=8)
     args = parser.parse_args()
@@ -118,6 +119,7 @@ def main() -> int:
         "hours": round(sum(i["duration"] for i in items) / 3600, 3),
         "sessions": len({i["session_id"] for i in items}),
         "teacher_failures": sum(1 for i in items if not i.get("teacher_reply")),
+        "teacher": {"endpoint_model": args.served_name, "prompt": "elderly_v1", "decoding": "greedy, Persian-only regex"},
         "manifest_sha256": hashlib.sha256(manifest.read_bytes()).hexdigest(),
     }
     (args.out_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")

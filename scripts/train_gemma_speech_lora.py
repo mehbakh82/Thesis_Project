@@ -106,6 +106,7 @@ def main() -> int:
     import torch
     from peft import LoraConfig, get_peft_model
     from transformers import AutoModelForImageTextToText, AutoProcessor
+    from transformers.utils.quantization_config import CompressedTensorsConfig
 
     torch.manual_seed(args.seed)
     random.seed(args.seed)
@@ -117,7 +118,14 @@ def main() -> int:
     train = [e for e in examples if not held_out(e["session_id"])]
     val = [e for e in examples if held_out(e["session_id"])][:200]
     processor = AutoProcessor.from_pretrained(str(args.model))
-    model = AutoModelForImageTextToText.from_pretrained(str(args.model), dtype=torch.bfloat16, device_map="cuda")
+    # The QAT w4a16 checkpoint is dequantized to bf16 in memory, so the LoRA
+    # learns against exactly the weights the w4a16 serving kernels compute with.
+    model = AutoModelForImageTextToText.from_pretrained(
+        str(args.model),
+        dtype=torch.bfloat16,
+        device_map="cuda",
+        quantization_config=CompressedTensorsConfig(run_compressed=False),
+    )
     model.config.use_cache = False
     targets = r".*language_model.*\.(q_proj|k_proj|v_proj|o_proj|gate_proj|up_proj|down_proj)$"
     model = get_peft_model(model, LoraConfig(r=args.rank, lora_alpha=2 * args.rank, lora_dropout=0.05, target_modules=targets, task_type="CAUSAL_LM"))
