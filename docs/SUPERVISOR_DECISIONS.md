@@ -34,6 +34,27 @@ data-use scope above remains unchanged. The machine-readable policy, prohibited
 claims, preserved QA assets, and thesis disclosure are in
 `configs/conversation_qa_waiver.yaml` and `docs/QA_WAIVER.md`.
 
+## Student decisions for the final closeout — not supervisor decisions
+
+On 2026-10-16 the student made the following methodology choices for the final
+closeout. They are recorded here for separation of authority; no supervisor
+approval is claimed.
+
+- **Independent automatic labels:** Gemini 3.8 Flash, reached through the
+  organisation's OpenAI-compatible AI gateway that the student already uses for
+  ASR reference labeling, may transcribe and label project audio (internal
+  corpus audio and newly crawled podcast audio). Its outputs are reported as
+  *independent automatic labels*, never as human-verified evidence. The gateway
+  key is read from the environment or the shared labeling configuration and is
+  never committed. Raw-data redistribution remains prohibited.
+- **Target hardware:** no 12–24 GB GPU is available. Latency and fit are
+  measured on the shared H100 with per-process memory caps and reported as a
+  disclosed deviation from the proposal's target-hardware condition; no H100
+  result is relabeled as consumer-GPU evidence.
+- **Human evaluation:** a minimal remote listening study (5–6 native Persian
+  listeners, at least two aged 60+, about 15 minutes, no voice recording) is
+  the planned human evidence for naturalness and perceived responsiveness.
+
 ## Still awaiting explicit supervisor decisions
 
 - Final direct speech-to-speech base model/trainer choice.

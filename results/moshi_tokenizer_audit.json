@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-16T08:47:50.017086+00:00",
+  "evidence_class": "tokenizer_capacity_diagnostic",
+  "inputs": {
+    "tokenizer": "hf_cache/pinned/moshika-pytorch-bf16-a49141e/tokenizer_spm_32k_3.model",
+    "tokenizer_sha256": "78d4336533ddc26f9acf7250d7fb83492152196c6ea4212c841df76933f18d2d",
+    "piper_model_sha256": "e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126",
+    "sidecar_count": 6754,
+    "romanization_version": "piper-espeak-fa-ascii-v1",
+    "romanize_source_sha256": "455c0a77c738d39f771d2879ea687d014fa71af0040714e0181d542337e17172",
+    "script_sha256": "ebbdc999c920e465bac5f293e9dd6d0e991c7e8b7292d628f2f767c4620d8362"
+  },
+  "assistant_turns": 6754,
+  "frame_rate_hz": 12.5,
+  "persian_script": {
+    "tokens_per_word": 6.585479517382804,
+    "byte_fallback_token_share": 0.5509048676046188,
+    "persian_letters_with_own_piece": 8,
+    "persian_letters_total": 33,
+    "tokens_per_frame": {
+      "mean": 1.637075265031332,
+      "median": 1.6808571553411618,
+      "p90": 1.8176269117297987,
+      "max": 3.757828810020882
+    },
+    "turns_over_frame_budget_fraction": 0.984749777909387,
+    "aggregate_tokens_per_frame": 1.637075265031332
+  },
+  "romanized_phonemes": {
+    "tokens_per_word": 2.6699304882207158,
+    "tokens_per_frame": {
+      "mean": 0.6729789375907512,
+      "median": 0.6827737212551281,
+      "p90": 0.7368079812277127,
+      "max": 1.5311004784688935
+    },
+    "turns_over_frame_budget_fraction": 0.003405389398874741,
+    "aggregate_tokens_per_frame": 0.6729789375907512
+  },
+  "interpretation": "Moshi emits at most one text token per frame. A tokens-per-frame ratio above 1 means the inner-monologue text cannot keep pace with the assistant speech it should precede. This is a capacity diagnostic, not evidence that romanized training will succeed."
+}
