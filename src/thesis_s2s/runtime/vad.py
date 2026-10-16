@@ -114,6 +114,7 @@ class Endpointer:
     onset_frames: int = 2
     hangover_ms: float = 256.0
     min_speech_ms: float = 160.0
+    tentative_ms: float | None = None
     _pending: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=np.float32))
     _consumed: int = 0
     _in_speech: bool = False
@@ -121,6 +122,7 @@ class Endpointer:
     _silence_samples: int = 0
     _speech_start: int = 0
     _last_voiced_end: int = 0
+    _paused: bool = False
 
     @property
     def in_speech(self) -> bool:
@@ -133,6 +135,7 @@ class Endpointer:
         self._in_speech = False
         self._voiced_run = 0
         self._silence_samples = 0
+        self._paused = False
 
     def push(self, pcm: np.ndarray) -> list[EndpointEvent]:
         """Feed PCM and return any endpoint decisions it completes."""
@@ -141,6 +144,9 @@ class Endpointer:
         self._pending = np.concatenate([self._pending, np.asarray(pcm, dtype=np.float32)])
         hangover = int(self.hangover_ms * SAMPLE_RATE / 1000)
         min_speech = int(self.min_speech_ms * SAMPLE_RATE / 1000)
+        tentative = (
+            int(self.tentative_ms * SAMPLE_RATE / 1000) if self.tentative_ms is not None else None
+        )
         while self._pending.size >= FRAME_SAMPLES:
             frame, self._pending = self._pending[:FRAME_SAMPLES], self._pending[FRAME_SAMPLES:]
             start = self._consumed
@@ -157,12 +163,27 @@ class Endpointer:
             elif prob >= self.offset_threshold:
                 self._last_voiced_end = self._consumed
                 self._silence_samples = 0
+                if self._paused:
+                    self._paused = False
+                    events.append(EndpointEvent("speech_resume", self._consumed, self._consumed))
             else:
                 self._silence_samples += FRAME_SAMPLES
+                long_enough = self._last_voiced_end - self._speech_start >= min_speech
+                if (
+                    tentative is not None
+                    and not self._paused
+                    and long_enough
+                    and tentative <= self._silence_samples < hangover
+                ):
+                    self._paused = True
+                    events.append(
+                        EndpointEvent("speech_pause", self._last_voiced_end, self._consumed)
+                    )
                 if self._silence_samples >= hangover:
                     self._in_speech = False
                     self._voiced_run = 0
-                    if self._last_voiced_end - self._speech_start >= min_speech:
+                    self._paused = False
+                    if long_enough:
                         events.append(
                             EndpointEvent("speech_end", self._last_voiced_end, self._consumed)
                         )

@@ -489,6 +489,12 @@ def main(argv: list[str] | None = None) -> None:
     p_tr.add_argument("--allow-experimental", action="store_true")
     p_eval = sub.add_parser("eval")
     p_eval.add_argument("--path", choices=["A", "B", "both"], default="both")
+    p_live = sub.add_parser("serve-live")
+    p_live.add_argument("--host", default="127.0.0.1")
+    p_live.add_argument("--port", type=int, default=8766)
+    p_live.add_argument("--hangover-ms", type=float, default=256.0)
+    p_live.add_argument("--telemetry", type=Path)
+    p_live.add_argument("--history-turns", type=int, default=2)
     p_serve = sub.add_parser("serve")
     p_serve.add_argument("--host", default="127.0.0.1")
     p_serve.add_argument("--port", type=int, default=8765)
@@ -980,6 +986,23 @@ def main(argv: list[str] | None = None) -> None:
                 default=str,
             )[:6000]
         )
+    elif args.cmd == "serve-live":
+        import uvicorn
+
+        from thesis_s2s.runtime.live import LiveConfig, build_live_app, default_live_components
+
+        if args.host not in {"127.0.0.1", "localhost"}:
+            raise SystemExit("serve-live binds to loopback only; use an SSH tunnel for remote use")
+        components = default_live_components(history_turns=args.history_turns)
+        app = build_live_app(
+            components,
+            LiveConfig(
+                hangover_ms=args.hangover_ms,
+                history_turns=args.history_turns,
+                telemetry_path=args.telemetry,
+            ),
+        )
+        uvicorn.run(app, host=args.host, port=args.port, log_level="warning")
     elif args.cmd == "serve":
         import uvicorn
 

@@ -243,11 +243,88 @@ class StreamingResponder:
             raise RuntimeError(f"generation failed: {errors[0]!r}")
 
 
+PERSIAN_ONLY_REGEX = r"[\u0600-\u06FF\u200c\u200f ،؛؟!.:0-9۰-۹]{1,400}"
+
+
+class OpenAIStreamingResponder:
+    """Stream from an OpenAI-compatible server (e.g. vLLM) with a Persian-only constraint.
+
+    The constraint is a regular-expression structured output, so Latin-script
+    text cannot be produced at all; it plays the role of the local logits mask.
+    """
+
+    def __init__(
+        self,
+        *,
+        endpoint: str,
+        model: str,
+        system_prompt: str,
+        max_new_tokens: int = 64,
+        history_turns: int = 2,
+        persian_only: bool = True,
+        timeout: float = 30.0,
+    ) -> None:
+        self.endpoint = endpoint.rstrip("/")
+        self.model = model
+        self.system_prompt = system_prompt
+        self.max_new_tokens = max_new_tokens
+        self.history_turns = history_turns
+        self.persian_only = persian_only
+        self.timeout = timeout
+
+    def messages(self, user_text: str, history: Sequence[tuple[str, str]]) -> list[dict[str, str]]:
+        msgs = [{"role": "system", "content": self.system_prompt}]
+        for user, assistant in list(history)[-self.history_turns :] if self.history_turns else []:
+            msgs.append({"role": "user", "content": user})
+            msgs.append({"role": "assistant", "content": assistant})
+        msgs.append({"role": "user", "content": user_text})
+        return msgs
+
+    def stream(
+        self,
+        user_text: str,
+        history: Sequence[tuple[str, str]] = (),
+        cancel: threading.Event | None = None,
+    ) -> Iterator[str]:
+        import json
+        import urllib.request
+
+        body: dict[str, Any] = {
+            "model": self.model,
+            "messages": self.messages(user_text, history),
+            "max_tokens": self.max_new_tokens,
+            "temperature": 0,
+            "stream": True,
+        }
+        if self.persian_only:
+            body["structured_outputs"] = {"regex": PERSIAN_ONLY_REGEX}
+        request = urllib.request.Request(
+            f"{self.endpoint}/v1/chat/completions",
+            data=json.dumps(body).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout) as response:  # noqa: S310
+                for raw in response:
+                    if cancel is not None and cancel.is_set():
+                        return
+                    line = raw.decode("utf-8").strip()
+                    if not line.startswith("data:") or line.endswith("[DONE]"):
+                        continue
+                    choices = json.loads(line[5:]).get("choices") or []
+                    delta = (choices[0].get("delta") or {}).get("content") if choices else None
+                    if delta:
+                        yield delta
+        except OSError as exc:
+            raise RuntimeError(f"generation failed: {exc!r}") from exc
+
+
 def run_streamed_turn(
     user_audio: np.ndarray,
     *,
     asr: Callable[[np.ndarray], tuple[str, str | None]],
-    responder: StreamingResponder,
+    responder: StreamingResponder | OpenAIStreamingResponder,
     tts: Callable[[str], np.ndarray],
     emit_audio: Callable[[np.ndarray, int], None],
     history: Sequence[tuple[str, str]] = (),
