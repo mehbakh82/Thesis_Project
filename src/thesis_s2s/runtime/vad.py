@@ -137,9 +137,16 @@ class Endpointer:
         self._silence_samples = 0
         self._paused = False
 
-    def push(self, pcm: np.ndarray) -> list[EndpointEvent]:
-        """Feed PCM and return any endpoint decisions it completes."""
+    def push(self, pcm: np.ndarray, sample_offset: int | None = None) -> list[EndpointEvent]:
+        """Feed PCM and return any endpoint decisions it completes.
 
+        ``sample_offset`` is the absolute index of ``pcm[0]`` in the caller's
+        stream; when given (and no partial frame is pending) event samples are
+        reported on that absolute timeline, also after :meth:`reset`.
+        """
+
+        if sample_offset is not None and not self._pending.size:
+            self._consumed = int(sample_offset)
         events: list[EndpointEvent] = []
         self._pending = np.concatenate([self._pending, np.asarray(pcm, dtype=np.float32)])
         hangover = int(self.hangover_ms * SAMPLE_RATE / 1000)

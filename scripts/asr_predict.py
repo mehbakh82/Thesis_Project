@@ -83,9 +83,57 @@ class GemmaAudioBackend:
         return outputs
 
 
+class SeamlessDirectBackend:
+    """SeamlessM4T v2 speech-to-text with a direct greedy ``generate`` call.
+
+    Same checkpoint and decoding as the pipeline-wrapped arm (beam 1,
+    ``tgt_lang='pes'``); it only removes pipeline overhead so per-utterance
+    latency reflects the model itself.
+    """
+
+    def __init__(self, checkpoint: Path, max_new_tokens: int = 256) -> None:
+        import torch
+        from transformers import AutoProcessor, SeamlessM4Tv2ForSpeechToText
+
+        self.torch = torch
+        self.processor = AutoProcessor.from_pretrained(str(checkpoint))
+        self.model = (
+            SeamlessM4Tv2ForSpeechToText.from_pretrained(str(checkpoint), dtype=torch.bfloat16)
+            .cuda()
+            .eval()
+        )
+        self.max_new_tokens = max_new_tokens
+
+    def predict(self, paths: list[Path]) -> list[str]:
+        import wave
+
+        import numpy as np
+
+        outputs = []
+        for path in paths:
+            with wave.open(str(path), "rb") as handle:
+                frames = handle.readframes(handle.getnframes())
+                rate = handle.getframerate()
+            audio = np.frombuffer(frames, dtype="<i2").astype(np.float32) / 32768.0
+            inputs = self.processor(audio=audio, sampling_rate=rate, return_tensors="pt")
+            inputs = {
+                k: (v.to("cuda", dtype=self.torch.bfloat16) if v.dtype.is_floating_point else v.cuda())
+                for k, v in inputs.items()
+            }
+            with self.torch.inference_mode():
+                tokens = self.model.generate(
+                    **inputs, tgt_lang="pes", num_beams=1, do_sample=False,
+                    max_new_tokens=self.max_new_tokens,
+                )
+            outputs.append(self.processor.decode(tokens[0], skip_special_tokens=True).strip())
+        return outputs
+
+
 def load_backend(args: argparse.Namespace) -> Any:
     if args.backend == "gemma4":
         return GemmaAudioBackend(args.checkpoint)
+    if args.backend == "seamless_direct":
+        return SeamlessDirectBackend(args.checkpoint)
     if not args.external_backends:
         raise SystemExit("--external-backends is required for this backend")
     sys.path.insert(0, str(args.external_backends))

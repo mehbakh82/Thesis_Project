@@ -165,3 +165,24 @@ def test_endpointer_emits_pause_and_resume_before_hangover() -> None:
         "speech_pause",
         "speech_end",
     ]
+
+
+def test_second_turn_after_playback_keeps_absolute_sample_timeline(tmp_path) -> None:
+    app, _ = _app(tmp_path, telemetry=False)
+    client = TestClient(app)
+    first = np.concatenate([_quiet(0.6), _tone(0.8), _quiet(0.6, 1)])
+    second = np.concatenate([_quiet(0.6, 7), _tone(0.8), _quiet(0.6, 8)])
+    with client.websocket_connect("/ws") as ws:
+        frames = _frames(first, 0)
+        for frame in frames:
+            ws.send_bytes(frame)
+        _receive_until(ws, lambda p: p.get("event") == "reply_done")
+        ws.send_text(json.dumps({"event": "playback_ended", "turn": 1}))
+        time.sleep(0.1)
+        for frame in _frames(second, len(frames)):
+            ws.send_bytes(frame)
+        seen = _receive_until(ws, lambda p: p.get("event") == "endpoint")
+        endpoint = seen[-1][1]
+        expected = (len(frames) * FRAME) + int(1.4 * SAMPLE_RATE)
+        assert endpoint["turn"] == 2
+        assert abs(endpoint["end_sample"] - expected) <= 1024

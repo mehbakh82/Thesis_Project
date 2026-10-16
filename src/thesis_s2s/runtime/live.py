@@ -38,6 +38,7 @@ from fastapi.responses import HTMLResponse
 
 from thesis_s2s.runtime.bargein_live import BargeInController, InterruptClassifier
 from thesis_s2s.runtime.streaming import (
+    ClauseChunker,
     OpenAIStreamingResponder,
     StreamingResponder,
     run_streamed_turn,
@@ -67,6 +68,9 @@ class LiveConfig:
     confirm_speech_ms: float = 480.0
     classifier_threshold: float = 0.7
     speculative_ms: float | None = 160.0
+    first_min_words: int = 2
+    first_max_words: int = 4
+    max_words: int = 14
 
 
 class _Session:
@@ -203,6 +207,11 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
                     emit_audio=emit,
                     history=list(session.history),
                     cancel=cancel,
+                    chunker=ClauseChunker(
+                        first_min_words=config.first_min_words,
+                        first_max_words=config.first_max_words,
+                        max_words=config.max_words,
+                    ),
                 )
 
             async def finish() -> None:
@@ -308,7 +317,7 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
                     pcm = np.frombuffer(raw[4:], dtype="<i2").astype(np.float32) / 32768.0
                     session.remember(pcm, start)
                     if not session.responding:
-                        for event in session.endpointer.push(pcm):
+                        for event in session.endpointer.push(pcm, sample_offset=start):
                             if event.kind == "speech_start":
                                 session.utterance_start = max(0, event.sample - PRE_ROLL_SAMPLES)
                             elif event.kind == "speech_pause" and session.utterance_start is not None:
@@ -359,13 +368,10 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
                                 session.cancel.set()
                                 session.responding = False
                                 session.endpointer.reset()
-                                pre_roll = session.audio_between(
-                                    max(0, barge.onset_sample - PRE_ROLL_SAMPLES), start + FRAME
-                                )
-                                session.utterance_start = max(
-                                    0, barge.onset_sample - PRE_ROLL_SAMPLES
-                                )
-                                session.endpointer.push(pre_roll)
+                                pre_roll_start = max(0, barge.onset_sample - PRE_ROLL_SAMPLES)
+                                pre_roll = session.audio_between(pre_roll_start, start + FRAME)
+                                session.utterance_start = pre_roll_start
+                                session.endpointer.push(pre_roll, sample_offset=pre_roll_start)
                 elif message.get("text"):
                     try:
                         payload = json.loads(message["text"])
