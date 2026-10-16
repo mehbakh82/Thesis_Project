@@ -1,0 +1,867 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-16T14:02:40.343159+00:00",
+  "protocol": "docs/ASR_CANDIDATE_COMPARISON_V2_PROTOCOL.md",
+  "protocol_sha256": "2d77a61f32988f571b29014d7524f6097fc4d676c1d242c48faf785f37f943e3",
+  "panel_name": "psrb_human",
+  "panel_sha256": "bc80e48ead162f48323617389852b6a01a90c54eada6b11226696c78283d2e13",
+  "panel_clips": 344,
+  "normalizer": "fa-asr-score-v1",
+  "scorer_sha256": "2cf93e2031c03a18dca96c3037a34cf54b297ac285120100b4c0b3776359940f",
+  "incumbent": "nemo_v4_ctc",
+  "latency_budget_ms": 150.0,
+  "arms": {
+    "nemo_v4_ctc": {
+      "clips": 344,
+      "missing_predictions": 0,
+      "runtime_errors": 0,
+      "micro_cer": 0.09443675222778429,
+      "micro_wer": 0.239526791927627,
+      "cer_ci95": [
+        0.07977396154410686,
+        0.1104039750876357
+      ],
+      "wer_ci95": [
+        0.21401515151515152,
+        0.26593832111741117
+      ],
+      "strata": {
+        "senior": {
+          "clips": 47,
+          "micro_cer": 0.1562881562881563,
+          "micro_wer": 0.35789473684210527
+        },
+        "non_senior": {
+          "clips": 297,
+          "micro_cer": 0.0862962516572255,
+          "micro_wer": 0.2235387045813586
+        },
+        "noisy_or_phone_or_reverberant": {
+          "clips": 183,
+          "micro_cer": 0.10693122045409148,
+          "micro_wer": 0.2578961106760637
+        },
+        "clean": {
+          "clips": 161,
+          "micro_cer": 0.080164283541223,
+          "micro_wer": 0.21854502087060226
+        },
+        "spontaneous": {
+          "clips": 175,
+          "micro_cer": 0.09636091045386398,
+          "micro_wer": 0.24017003188097769
+        },
+        "read_or_scripted": {
+          "clips": 169,
+          "micro_cer": 0.0923441784629067,
+          "micro_wer": 0.23881905875475007
+        }
+      },
+      "latency_ms": {
+        "median": 57.525000000000006,
+        "p90": 65.47,
+        "short_clip_median": 55.23,
+        "short_clip_p90": 62.09,
+        "short_clips": 175
+      },
+      "load_seconds": 14.24,
+      "peak_torch_gib": 0.641,
+      "checkpoint": "Conformer-Hybrid-Transducer-CTC-BPE-Soroosh-v4-epoch31-ctc-best.nemo",
+      "predictions_sha256": "642951cf53848e867faa8fb7f5d7c065c584ab1db78dab6b3384742d0613c3fa",
+      "paired_vs_incumbent": {
+        "cer": {
+          "point": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0
+        },
+        "wer": {
+          "point": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0
+        }
+      }
+    },
+    "nemo_v4_rnnt": {
+      "clips": 344,
+      "missing_predictions": 0,
+      "runtime_errors": 0,
+      "micro_cer": 0.13402208257890438,
+      "micro_wer": 0.26805845511482257,
+      "cer_ci95": [
+        0.11711441792336628,
+        0.15247600235644732
+      ],
+      "wer_ci95": [
+        0.24190852454034342,
+        0.2953403070235022
+      ],
+      "strata": {
+        "senior": {
+          "clips": 47,
+          "micro_cer": 0.221001221001221,
+          "micro_wer": 0.4058479532163743
+        },
+        "non_senior": {
+          "clips": 297,
+          "micro_cer": 0.1225744244907798,
+          "micro_wer": 0.24944707740916272
+        },
+        "noisy_or_phone_or_reverberant": {
+          "clips": 183,
+          "micro_cer": 0.15134163393035488,
+          "micro_wer": 0.28869746802401464
+        },
+        "clean": {
+          "clips": 161,
+          "micro_cer": 0.11423790690599331,
+          "micro_wer": 0.24448419797257007
+        },
+        "spontaneous": {
+          "clips": 175,
+          "micro_cer": 0.1385443641815456,
+          "micro_wer": 0.2701912858660999
+        },
+        "read_or_scripted": {
+          "clips": 169,
+          "micro_cer": 0.12910397984139924,
+          "micro_wer": 0.26571178018123354
+        }
+      },
+      "latency_ms": {
+        "median": 60.72,
+        "p90": 72.54,
+        "short_clip_median": 58.0,
+        "short_clip_p90": 63.75,
+        "short_clips": 175
+      },
+      "load_seconds": 12.32,
+      "peak_torch_gib": 0.913,
+      "checkpoint": "Conformer-Hybrid-Transducer-CTC-BPE-Soroosh-v4-epoch31-ctc-best.nemo",
+      "predictions_sha256": "cda44892a63c0ad09b9fe257ee7196ed9630cdd774838990dc322c11dbc9c101",
+      "paired_vs_incumbent": {
+        "cer": {
+          "point": 0.03958533035112009,
+          "ci95_low": 0.03257660950238965,
+          "ci95_high": 0.04706959706959707
+        },
+        "wer": {
+          "point": 0.028531663187195577,
+          "ci95_low": 0.020467032967032978,
+          "ci95_high": 0.03703159441587067
+        }
+      }
+    },
+    "nemo_v6_ctc": {
+      "clips": 344,
+      "missing_predictions": 0,
+      "runtime_errors": 0,
+      "micro_cer": 0.10150175737565235,
+      "micro_wer": 0.24342379958246346,
+      "cer_ci95": [
+        0.0863859649122807,
+        0.11753999089922644
+      ],
+      "wer_ci95": [
+        0.21759710427398024,
+        0.27018505825908157
+      ],
+      "strata": {
+        "senior": {
+          "clips": 47,
+          "micro_cer": 0.16361416361416362,
+          "micro_wer": 0.3684210526315789
+        },
+        "non_senior": {
+          "clips": 297,
+          "micro_cer": 0.09332690530713912,
+          "micro_wer": 0.22654028436018958
+        },
+        "noisy_or_phone_or_reverberant": {
+          "clips": 183,
+          "micro_cer": 0.11432185897862707,
+          "micro_wer": 0.2652049073348995
+        },
+        "clean": {
+          "clips": 161,
+          "micro_cer": 0.08685731670216003,
+          "micro_wer": 0.21854502087060226
+        },
+        "spontaneous": {
+          "clips": 175,
+          "micro_cer": 0.10324383262913997,
+          "micro_wer": 0.24229543039319873
+        },
+        "read_or_scripted": {
+          "clips": 169,
+          "micro_cer": 0.09960720373527014,
+          "micro_wer": 0.24466530254311605
+        }
+      },
+      "latency_ms": {
+        "median": 60.02,
+        "p90": 68.06,
+        "short_clip_median": 57.54,
+        "short_clip_p90": 65.97,
+        "short_clips": 175
+      },
+      "load_seconds": 13.05,
+      "peak_torch_gib": 0.641,
+      "checkpoint": "v6_epoch02_ctc_init.nemo",
+      "predictions_sha256": "fa9d2f89ba90e59a90b38991b6d84a5b210d2eaa11913857c765598c6f26f6b7",
+      "paired_vs_incumbent": {
+        "cer": {
+          "point": 0.007065005147868064,
+          "ci95_low": 0.003988919667590032,
+          "ci95_high": 0.01021414482952944
+        },
+        "wer": {
+          "point": 0.0038970076548364707,
+          "ci95_low": -0.0011162271522254796,
+          "ci95_high": 0.009030619444052507
+        }
+      }
+    },
+    "nemo_v6_rnnt": {
+      "clips": 344,
+      "missing_predictions": 0,
+      "runtime_errors": 0,
+      "micro_cer": 0.16135903717115774,
+      "micro_wer": 0.29130132219902577,
+      "cer_ci95": [
+        0.14100949593274564,
+        0.1832768517878138
+      ],
+      "wer_ci95": [
+        0.26293446537543114,
+        0.3209644816632977
+      ],
+      "strata": {
+        "senior": {
+          "clips": 47,
+          "micro_cer": 0.23809523809523808,
+          "micro_wer": 0.408187134502924
+        },
+        "non_senior": {
+          "clips": 297,
+          "micro_cer": 0.1512594913824274,
+          "micro_wer": 0.2755134281200632
+        },
+        "noisy_or_phone_or_reverberant": {
+          "clips": 183,
+          "micro_cer": 0.17078367401291697,
+          "micro_wer": 0.3087966588358131
+        },
+        "clean": {
+          "clips": 161,
+          "micro_cer": 0.15059324612108305,
+          "micro_wer": 0.2713178294573643
+        },
+        "spontaneous": {
+          "clips": 175,
+          "micro_cer": 0.16621234837126891,
+          "micro_wer": 0.29782146652497343
+        },
+        "read_or_scripted": {
+          "clips": 169,
+          "micro_cer": 0.1560809308530349,
+          "micro_wer": 0.2841274481145864
+        }
+      },
+      "latency_ms": {
+        "median": 62.155,
+        "p90": 73.31,
+        "short_clip_median": 59.3,
+        "short_clip_p90": 65.1,
+        "short_clips": 175
+      },
+      "load_seconds": 12.29,
+      "peak_torch_gib": 0.913,
+      "checkpoint": "v6_epoch02_ctc_init.nemo",
+      "predictions_sha256": "22da078acebab079009a00e3a73b3a4306499910cfbf21da17010cf507369875",
+      "paired_vs_incumbent": {
+        "cer": {
+          "point": 0.06692228494337345,
+          "ci95_low": 0.05358364108877034,
+          "ci95_high": 0.08333635276640457
+        },
+        "wer": {
+          "point": 0.05177453027139878,
+          "ci95_low": 0.03753462603878113,
+          "ci95_high": 0.06904588492352515
+        }
+      }
+    },
+    "seamless_v5ft": {
+      "clips": 344,
+      "missing_predictions": 0,
+      "runtime_errors": 0,
+      "micro_cer": 0.06919444740298931,
+      "micro_wer": 0.21029923451635352,
+      "cer_ci95": [
+        0.0584095455844527,
+        0.08071921769303564
+      ],
+      "wer_ci95": [
+        0.18897970687711388,
+        0.23259052924791088
+      ],
+      "strata": {
+        "senior": {
+          "clips": 47,
+          "micro_cer": 0.10378510378510379,
+          "micro_wer": 0.2982456140350877
+        },
+        "non_senior": {
+          "clips": 297,
+          "micro_cer": 0.06464183841549154,
+          "micro_wer": 0.19842022116903635
+        },
+        "noisy_or_phone_or_reverberant": {
+          "clips": 183,
+          "micro_cer": 0.07803448964644784,
+          "micro_wer": 0.22161315583398591
+        },
+        "clean": {
+          "clips": 161,
+          "micro_cer": 0.0590964405232735,
+          "micro_wer": 0.197376267143709
+        },
+        "spontaneous": {
+          "clips": 175,
+          "micro_cer": 0.07748398528008722,
+          "micro_wer": 0.21891604675876727
+        },
+        "read_or_scripted": {
+          "clips": 169,
+          "micro_cer": 0.06017935225672571,
+          "micro_wer": 0.20081847413037124
+        }
+      },
+      "latency_ms": {
+        "median": 884.47,
+        "p90": 1360.89,
+        "short_clip_median": 748.75,
+        "short_clip_p90": 947.95,
+        "short_clips": 175
+      },
+      "load_seconds": 15.33,
+      "peak_torch_gib": 3.841,
+      "checkpoint": "final",
+      "predictions_sha256": "d0e1934626ab7b2434ba8a070344b092d41f58885b7ca7eeb5649141c7e84dc3",
+      "paired_vs_incumbent": {
+        "cer": {
+          "point": -0.025242304824794976,
+          "ci95_low": -0.03232758620689655,
+          "ci95_high": -0.018596280743851223
+        },
+        "wer": {
+          "point": -0.029227557411273475,
+          "ci95_low": -0.041882041086812455,
+          "ci95_high": -0.01667805878332193
+        }
+      }
+    },
+    "seamless_v5ft_direct": {
+      "clips": 344,
+      "missing_predictions": 0,
+      "runtime_errors": 0,
+      "micro_cer": 0.06919444740298931,
+      "micro_wer": 0.21029923451635352,
+      "cer_ci95": [
+        0.058516272783723566,
+        0.08095656761033937
+      ],
+      "wer_ci95": [
+        0.18853893263342084,
+        0.23339393091875263
+      ],
+      "strata": {
+        "senior": {
+          "clips": 47,
+          "micro_cer": 0.10378510378510379,
+          "micro_wer": 0.2982456140350877
+        },
+        "non_senior": {
+          "clips": 297,
+          "micro_cer": 0.06464183841549154,
+          "micro_wer": 0.19842022116903635
+        },
+        "noisy_or_phone_or_reverberant": {
+          "clips": 183,
+          "micro_cer": 0.07803448964644784,
+          "micro_wer": 0.22161315583398591
+        },
+        "clean": {
+          "clips": 161,
+          "micro_cer": 0.0590964405232735,
+          "micro_wer": 0.197376267143709
+        },
+        "spontaneous": {
+          "clips": 175,
+          "micro_cer": 0.07748398528008722,
+          "micro_wer": 0.21891604675876727
+        },
+        "read_or_scripted": {
+          "clips": 169,
+          "micro_cer": 0.06017935225672571,
+          "micro_wer": 0.20081847413037124
+        }
+      },
+      "latency_ms": {
+        "median": 671.02,
+        "p90": 1057.97,
+        "short_clip_median": 550.53,
+        "short_clip_p90": 701.02,
+        "short_clips": 175
+      },
+      "load_seconds": 12.5,
+      "peak_torch_gib": 3.841,
+      "checkpoint": "final",
+      "predictions_sha256": "58162561b5fff0cc46b7c1721579f85009ba1595b9b32995ca93edcf84fd2cd1",
+      "paired_vs_incumbent": {
+        "cer": {
+          "point": -0.025242304824794976,
+          "ci95_low": -0.03226270029460372,
+          "ci95_high": -0.018659629037653787
+        },
+        "wer": {
+          "point": -0.029227557411273475,
+          "ci95_low": -0.04152915291529152,
+          "ci95_high": -0.016579406631762633
+        }
+      }
+    },
+    "seamless_v6_55000": {
+      "clips": 344,
+      "missing_predictions": 0,
+      "runtime_errors": 0,
+      "micro_cer": 0.08985692477012107,
+      "micro_wer": 0.23284620737647876,
+      "cer_ci95": [
+        0.060560870039646456,
+        0.12651825598995828
+      ],
+      "wer_ci95": [
+        0.18602416254805051,
+        0.2925280367517903
+      ],
+      "strata": {
+        "senior": {
+          "clips": 47,
+          "micro_cer": 0.1043956043956044,
+          "micro_wer": 0.2970760233918129
+        },
+        "non_senior": {
+          "clips": 297,
+          "micro_cer": 0.08794343336949098,
+          "micro_wer": 0.2241706161137441
+        },
+        "noisy_or_phone_or_reverberant": {
+          "clips": 183,
+          "micro_cer": 0.10726413209934084,
+          "micro_wer": 0.26050639519707647
+        },
+        "clean": {
+          "clips": 161,
+          "micro_cer": 0.06997261940979617,
+          "micro_wer": 0.20125223613595708
+        },
+        "spontaneous": {
+          "clips": 175,
+          "micro_cer": 0.09411203489164509,
+          "micro_wer": 0.24681190223166843
+        },
+        "read_or_scripted": {
+          "clips": 169,
+          "micro_cer": 0.08522937819610168,
+          "micro_wer": 0.21748026892721425
+        }
+      },
+      "latency_ms": {
+        "median": 854.5550000000001,
+        "p90": 1272.14,
+        "short_clip_median": 720.51,
+        "short_clip_p90": 876.59,
+        "short_clips": 175
+      },
+      "load_seconds": 13.42,
+      "peak_torch_gib": 3.841,
+      "checkpoint": "checkpoint55000",
+      "predictions_sha256": "be78f0c6ad34bed8e04e234a2b322a1df45b0d3d0797a98f8f1065b24f63ba1b",
+      "paired_vs_incumbent": {
+        "cer": {
+          "point": -0.004579827457663221,
+          "ci95_low": -0.028850102669404513,
+          "ci95_high": 0.0284573502722323
+        },
+        "wer": {
+          "point": -0.006680584551148228,
+          "ci95_low": -0.04517335635160408,
+          "ci95_high": 0.050298877387374236
+        }
+      }
+    },
+    "seamless_v6_55000_direct": {
+      "clips": 344,
+      "missing_predictions": 0,
+      "runtime_errors": 0,
+      "micro_cer": 0.09631838676465368,
+      "micro_wer": 0.24453723034098818,
+      "cer_ci95": [
+        0.06093840509750917,
+        0.14294761284874924
+      ],
+      "wer_ci95": [
+        0.18700301617768028,
+        0.32350076527062754
+      ],
+      "strata": {
+        "senior": {
+          "clips": 47,
+          "micro_cer": 0.1043956043956044,
+          "micro_wer": 0.2970760233918129
+        },
+        "non_senior": {
+          "clips": 297,
+          "micro_cer": 0.09525531316540115,
+          "micro_wer": 0.23744075829383887
+        },
+        "noisy_or_phone_or_reverberant": {
+          "clips": 183,
+          "micro_cer": 0.11472135295292629,
+          "micro_wer": 0.2751239885147481
+        },
+        "clean": {
+          "clips": 161,
+          "micro_cer": 0.07529662306054152,
+          "micro_wer": 0.2096004770423375
+        },
+        "spontaneous": {
+          "clips": 175,
+          "micro_cer": 0.10174458225432738,
+          "micro_wer": 0.26168969181721574
+        },
+        "read_or_scripted": {
+          "clips": 169,
+          "micro_cer": 0.090417253390647,
+          "micro_wer": 0.22566501023092664
+        }
+      },
+      "latency_ms": {
+        "median": 683.7,
+        "p90": 1103.66,
+        "short_clip_median": 570.51,
+        "short_clip_p90": 718.43,
+        "short_clips": 175
+      },
+      "load_seconds": 13.36,
+      "peak_torch_gib": 3.841,
+      "checkpoint": "checkpoint55000",
+      "predictions_sha256": "ee339504f0c5780800a847a614049e5bbbe355078a1b0701e5998c1ca596037a",
+      "paired_vs_incumbent": {
+        "cer": {
+          "point": 0.0018816345368693893,
+          "ci95_low": -0.028589486207152952,
+          "ci95_high": 0.045178854504100904
+        },
+        "wer": {
+          "point": 0.0050104384133611846,
+          "ci95_low": -0.044217687074829926,
+          "ci95_high": 0.08229392624728848
+        }
+      }
+    },
+    "whisper_large_v3": {
+      "clips": 344,
+      "missing_predictions": 0,
+      "runtime_errors": 8,
+      "micro_cer": 0.23019845918983206,
+      "micro_wer": 0.4730688935281837,
+      "cer_ci95": [
+        0.17124352331606219,
+        0.29684262283566887
+      ],
+      "wer_ci95": [
+        0.4136734077875038,
+        0.547875131164743
+      ],
+      "strata": {
+        "senior": {
+          "clips": 47,
+          "micro_cer": 0.25457875457875456,
+          "micro_wer": 0.5286549707602339
+        },
+        "non_senior": {
+          "clips": 297,
+          "micro_cer": 0.22698967498292555,
+          "micro_wer": 0.4655608214849921
+        },
+        "noisy_or_phone_or_reverberant": {
+          "clips": 183,
+          "micro_cer": 0.2195885212064718,
+          "micro_wer": 0.45157922213521273
+        },
+        "clean": {
+          "clips": 161,
+          "micro_cer": 0.24231822330392455,
+          "micro_wer": 0.49761478831246275
+        },
+        "spontaneous": {
+          "clips": 175,
+          "micro_cer": 0.2829494343737222,
+          "micro_wer": 0.5209883103081828
+        },
+        "read_or_scripted": {
+          "clips": 169,
+          "micro_cer": 0.17283035648113837,
+          "micro_wer": 0.4203449283835136
+        }
+      },
+      "latency_ms": {
+        "median": 1100.645,
+        "p90": 1964.57,
+        "short_clip_median": 880.62,
+        "short_clip_p90": 1230.6,
+        "short_clips": 175
+      },
+      "load_seconds": 8.79,
+      "peak_torch_gib": 3.223,
+      "checkpoint": "whisper-large-v3-full",
+      "predictions_sha256": "a35d1825ac03894265afddd5385137785848c03225fc6eb8ff7a9a7066a95c08",
+      "paired_vs_incumbent": {
+        "cer": {
+          "point": 0.13576170696204776,
+          "ci95_low": 0.07961992136304062,
+          "ci95_high": 0.2005474515782544
+        },
+        "wer": {
+          "point": 0.23354210160055672,
+          "ci95_low": 0.17953641475792076,
+          "ci95_high": 0.3032840507654062
+        }
+      }
+    },
+    "qwen3_asr_1p7b": {
+      "clips": 344,
+      "missing_predictions": 0,
+      "runtime_errors": 0,
+      "micro_cer": 0.2046721340575851,
+      "micro_wer": 0.49464161447459987,
+      "cer_ci95": [
+        0.1859468427055611,
+        0.2259617025634024
+      ],
+      "wer_ci95": [
+        0.46756152125279643,
+        0.5217847769028872
+      ],
+      "strata": {
+        "senior": {
+          "clips": 47,
+          "micro_cer": 0.2496947496947497,
+          "micro_wer": 0.6339181286549708
+        },
+        "non_senior": {
+          "clips": 297,
+          "micro_cer": 0.19874653489212968,
+          "micro_wer": 0.4758293838862559
+        },
+        "noisy_or_phone_or_reverberant": {
+          "clips": 183,
+          "micro_cer": 0.21519408748918037,
+          "micro_wer": 0.5137039937353172
+        },
+        "clean": {
+          "clips": 161,
+          "micro_cer": 0.1926528749619714,
+          "micro_wer": 0.4728682170542636
+        },
+        "spontaneous": {
+          "clips": 175,
+          "micro_cer": 0.2257734768979147,
+          "micro_wer": 0.5132837407013815
+        },
+        "read_or_scripted": {
+          "clips": 169,
+          "micro_cer": 0.18172385681464462,
+          "micro_wer": 0.47413037123648055
+        }
+      },
+      "latency_ms": {
+        "median": 1466.245,
+        "p90": 2843.87,
+        "short_clip_median": 1085.19,
+        "short_clip_p90": 1573.25,
+        "short_clips": 175
+      },
+      "load_seconds": 8.77,
+      "peak_torch_gib": 3.833,
+      "checkpoint": "Qwen3-ASR-1.7B",
+      "predictions_sha256": "c502b606763b9809347d78c5e65ba5ce4cdbc9149e771e3fb674347bfb9e9422",
+      "paired_vs_incumbent": {
+        "cer": {
+          "point": 0.11023538182980082,
+          "ci95_low": 0.09919759277833502,
+          "ci95_high": 0.12189435336976319
+        },
+        "wer": {
+          "point": 0.2551148225469729,
+          "ci95_low": 0.23733371072742715,
+          "ci95_high": 0.273176761433869
+        }
+      }
+    },
+    "omniasr_ctc_1b": {
+      "clips": 344,
+      "missing_predictions": 0,
+      "runtime_errors": 0,
+      "micro_cer": 0.14037703695814252,
+      "micro_wer": 0.3638135003479471,
+      "cer_ci95": [
+        0.11218630370055295,
+        0.17243578982709418
+      ],
+      "wer_ci95": [
+        0.3296843901052033,
+        0.39823008849557523
+      ],
+      "strata": {
+        "senior": {
+          "clips": 47,
+          "micro_cer": 0.14865689865689866,
+          "micro_wer": 0.4327485380116959
+        },
+        "non_senior": {
+          "clips": 297,
+          "micro_cer": 0.13928729259571732,
+          "micro_wer": 0.35450236966824644
+        },
+        "noisy_or_phone_or_reverberant": {
+          "clips": 183,
+          "micro_cer": 0.15047606365270658,
+          "micro_wer": 0.38005742625946226
+        },
+        "clean": {
+          "clips": 161,
+          "micro_cer": 0.12884088834803772,
+          "micro_wer": 0.34525939177101966
+        },
+        "spontaneous": {
+          "clips": 175,
+          "micro_cer": 0.17036936077415837,
+          "micro_wer": 0.4208289054197662
+        },
+        "read_or_scripted": {
+          "clips": 169,
+          "micro_cer": 0.10775957904098421,
+          "micro_wer": 0.3010815551008477
+        }
+      },
+      "latency_ms": {
+        "median": 55.705,
+        "p90": 74.12,
+        "short_clip_median": 47.34,
+        "short_clip_p90": 50.69,
+        "short_clips": 175
+      },
+      "load_seconds": 8.17,
+      "peak_torch_gib": 4.735,
+      "checkpoint": "omniasr-ctc-1b-v2-hf",
+      "predictions_sha256": "dec1d03e10c368fd8bed6a6786a260406609b7ac214037607739204d55833603",
+      "paired_vs_incumbent": {
+        "cer": {
+          "point": 0.04594028473035823,
+          "ci95_low": 0.02166327978221695,
+          "ci95_high": 0.07587416341576894
+        },
+        "wer": {
+          "point": 0.12428670842032014,
+          "ci95_low": 0.09885564593961119,
+          "ci95_high": 0.15483686319404696
+        }
+      }
+    },
+    "gemma4_e4b": {
+      "clips": 344,
+      "missing_predictions": 0,
+      "runtime_errors": 0,
+      "micro_cer": 0.21035254020662478,
+      "micro_wer": 0.4267223382045929,
+      "cer_ci95": [
+        0.17391304347826086,
+        0.26444628327127295
+      ],
+      "wer_ci95": [
+        0.3820979020979021,
+        0.48494143892916897
+      ],
+      "strata": {
+        "senior": {
+          "clips": 47,
+          "micro_cer": 0.2615995115995116,
+          "micro_wer": 0.5590643274853802
+        },
+        "non_senior": {
+          "clips": 297,
+          "micro_cer": 0.20360772970149854,
+          "micro_wer": 0.40884676145339655
+        },
+        "noisy_or_phone_or_reverberant": {
+          "clips": 183,
+          "micro_cer": 0.20074572208535854,
+          "micro_wer": 0.42547637692508483
+        },
+        "clean": {
+          "clips": 161,
+          "micro_cer": 0.2213264374809857,
+          "micro_wer": 0.42814549791293977
+        },
+        "spontaneous": {
+          "clips": 175,
+          "micro_cer": 0.2480577892871746,
+          "micro_wer": 0.4763549415515409
+        },
+        "read_or_scripted": {
+          "clips": 169,
+          "micro_cer": 0.1693470688505151,
+          "micro_wer": 0.3721134171294943
+        }
+      },
+      "latency_ms": {
+        "median": 2632.435,
+        "p90": 4869.24,
+        "short_clip_median": 1977.99,
+        "short_clip_p90": 2915.26,
+        "short_clips": 175
+      },
+      "load_seconds": 11.01,
+      "peak_torch_gib": 15.307,
+      "checkpoint": "gemma-4-E4B-it-qat-w4a16-ct",
+      "predictions_sha256": "ade2b38bed9edf40bc80e30c67c0f73528029265f8156f2ec9b828f738b574be",
+      "paired_vs_incumbent": {
+        "cer": {
+          "point": 0.11591578797884049,
+          "ci95_low": 0.08618757442039643,
+          "ci95_high": 0.16428172553399412
+        },
+        "wer": {
+          "point": 0.18719554627696589,
+          "ci95_low": 0.15135727995612835,
+          "ci95_high": 0.24144254278728605
+        }
+      }
+    }
+  },
+  "selection": {
+    "latency_eligible_arms": [
+      "nemo_v4_ctc",
+      "nemo_v4_rnnt",
+      "nemo_v6_ctc",
+      "nemo_v6_rnnt",
+      "omniasr_ctc_1b"
+    ],
+    "deployment_asr": "nemo_v4_ctc",
+    "accuracy_reference_asr": "seamless_v5ft"
+  },
+  "text_retained": false
+}

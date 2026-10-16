@@ -44,6 +44,8 @@ class BargeInController:
     classifier_threshold: float = 0.7
     resume_silence_ms: float = 320.0
     context_ms: float = 400.0
+    echo_margin_db: float | None = 12.0
+    floor_alpha: float = 0.05
     _pending: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=np.float32))
     _history: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=np.float32))
     _consumed: int = 0
@@ -52,6 +54,8 @@ class BargeInController:
     _onset: int = 0
     _speech_samples: int = 0
     _silence_samples: int = 0
+    _floor_db: float | None = None
+    _frames_seen: int = 0
 
     @property
     def ducked(self) -> bool:
@@ -65,6 +69,26 @@ class BargeInController:
         self._ducked = False
         self._speech_samples = 0
         self._silence_samples = 0
+        self._floor_db = None
+        self._frames_seen = 0
+
+    def _user_voice(self, frame: np.ndarray) -> bool:
+        """Speech-like and clearly louder than the running playback/echo floor."""
+
+        speech = self.scorer.score(frame) >= self.voice_threshold
+        if self.echo_margin_db is None:
+            return speech
+        level = 20.0 * float(np.log10(np.sqrt(np.mean(frame**2)) + 1e-9))
+        if self._floor_db is None:
+            self._floor_db = level
+        above = level >= self._floor_db + self.echo_margin_db
+        if not self._ducked and not (speech and above):
+            # Track the echo + noise level while the user is not talking; adapt
+            # faster for the first half second of playback.
+            alpha = 0.2 if self._frames_seen < 16 else self.floor_alpha
+            self._floor_db += alpha * (level - self._floor_db)
+        self._frames_seen += 1
+        return speech and above
 
     def captured_since_onset(self) -> np.ndarray:
         """Microphone audio from the detected onset (pre-roll for the next turn)."""
@@ -85,7 +109,7 @@ class BargeInController:
             frame_start = self._consumed
             self._consumed += FRAME_SAMPLES
             self._history = np.concatenate([self._history, frame])[-keep:]
-            voiced = self.scorer.score(frame) >= self.voice_threshold
+            voiced = self._user_voice(frame)
             if not self._ducked:
                 self._voiced_run = self._voiced_run + 1 if voiced else 0
                 if self._voiced_run >= self.duck_frames:

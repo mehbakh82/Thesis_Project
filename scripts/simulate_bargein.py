@@ -155,9 +155,12 @@ def make_scenario(pools: Pools, split: str, kind: str, timing: str, rng: random.
     }
 
 
-def run_controller(scenario: dict[str, Any], classifier: Any | None, threshold: float) -> dict[str, Any]:
+def run_controller(
+    scenario: dict[str, Any], classifier: Any | None, threshold: float, margin: float | None = 12.0
+) -> dict[str, Any]:
     controller = BargeInController(
         scorer=default_scorer(),
+        echo_margin_db=margin,
         classifier=(lambda w: float(classifier.predict_proba(window_features(w, CFG)[None])[0, 1]))
         if classifier is not None
         else None,
@@ -251,17 +254,21 @@ def summarize(results: list[dict[str, Any]], scenarios: list[dict[str, Any]]) ->
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--stage", choices=("dev", "final"), required=True)
     parser.add_argument("--pool", type=Path, required=True)
     parser.add_argument("--noise-dir", type=Path, required=True)
     parser.add_argument("--reply-dir", type=Path, required=True)
     parser.add_argument("--rir-dir", type=Path, required=True)
     parser.add_argument("--per-class-train", type=int, default=150)
     parser.add_argument("--per-class-test", type=int, default=150)
+    parser.add_argument("--choice", type=Path, help="dev receipt (required for final)")
     parser.add_argument("--model-out", type=Path)
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     if not isinstance(default_scorer(), SileroScorer):
         raise SystemExit("the simulation requires the deployed Silero VAD model")
+    if args.stage == "final" and args.out.exists():
+        raise SystemExit("refusing to overwrite the one-time final simulation receipt")
 
     pools = Pools(args.pool, args.noise_dir, args.reply_dir, args.rir_dir)
     rng = random.Random(20261016)
@@ -273,56 +280,77 @@ def main() -> int:
             for i in range(per_class)
         ]
 
-    train = build("train", args.per_class_train)
-    test = build("test", args.per_class_test)
-
     from sklearn.neural_network import MLPClassifier
     from sklearn.pipeline import make_pipeline
     from sklearn.preprocessing import StandardScaler
 
-    x_tr, y_tr = classify_windows(train)
-    mlp = make_pipeline(
-        StandardScaler(),
-        MLPClassifier(hidden_layer_sizes=(64, 32), alpha=1e-3, early_stopping=True, max_iter=500, random_state=0),
-    )
-    mlp.fit(x_tr, y_tr)
-    variants: dict[str, Any] = {}
-    for name, classifier, threshold in (
-        ("silero_duration_only", None, 0.7),
-        ("silero_plus_mlp", mlp, 0.7),
-    ):
-        results = [run_controller(sc, classifier, threshold) for sc in test]
-        variants[name] = summarize(results, test)
-    x_te, y_te = classify_windows(test)
-    mlp_window_accuracy = float((mlp.predict(x_te) == y_te).mean())
-    if args.model_out:
-        args.model_out.parent.mkdir(parents=True, exist_ok=True)
-        with args.model_out.open("wb") as handle:
-            pickle.dump({"model": mlp, "threshold": 0.7, "window_s": 0.4}, handle)
-    receipt = {
+    def fit_mlp(scenarios: list[dict[str, Any]]) -> Any:
+        x, y = classify_windows(scenarios)
+        model = make_pipeline(
+            StandardScaler(),
+            MLPClassifier(hidden_layer_sizes=(64, 32), alpha=1e-3, early_stopping=True, max_iter=500, random_state=0),
+        )
+        model.fit(x, y)
+        return model
+
+    train = build("train", args.per_class_train)
+    receipt: dict[str, Any] = {
         "schema_version": 1,
         "generated_at": datetime.now(UTC).isoformat(),
+        "stage": args.stage,
         "evidence_class": "simulated_deployment_events_from_real_recordings",
         "human_verified": False,
         "pools": pools.counts(),
-        "scenarios": {"train": len(train), "test": len(test)},
         "levels_db": {
             "user_rms": [USER_RMS_DB - 4, USER_RMS_DB + 4],
             "residual_echo_relative": [-32, -18],
             "background_relative": [-38, -24],
             "noise_burst_relative": [-6, 3],
         },
-        "controller": {"duck_frames": 2, "confirm_speech_ms": 480, "resume_silence_ms": 320},
-        "mlp_window_test_accuracy": mlp_window_accuracy,
-        "variants": variants,
         "script_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "pool_sha256": hashlib.sha256(args.pool.read_bytes()).hexdigest(),
     }
+    if args.stage == "dev":
+        order = list(range(len(train)))
+        random.Random(7).shuffle(order)
+        fit = [train[i] for i in order[: len(order) // 2]]
+        dev = [train[i] for i in order[len(order) // 2 :]]
+        mlp = fit_mlp(fit)
+        variants: dict[str, Any] = {}
+        for margin in (None, 8.0, 12.0, 16.0):
+            for name, classifier in (("duration_only", None), ("plus_mlp", mlp)):
+                key = f"{name}_margin_{margin}"
+                results = [run_controller(sc, classifier, 0.7, margin) for sc in dev]
+                variants[key] = summarize(results, dev)
+        chosen = max(variants, key=lambda k: (variants[k]["accuracy"], variants[k]["f1"]))
+        receipt.update(dev_scenarios=len(dev), fit_scenarios=len(fit), variants=variants, chosen_variant=chosen)
+        for key, v in variants.items():
+            print(key, round(v["accuracy"], 3), round(v["f1"], 3), {k: round(x["stop_rate"], 2) for k, x in v["by_kind"].items()}, v["duck_latency_ms"].get("median"))
+        print("chosen", chosen)
+    else:
+        choice = json.loads(args.choice.read_text())
+        chosen = choice["chosen_variant"]
+        margin_text = chosen.split("_margin_")[1]
+        margin = None if margin_text == "None" else float(margin_text)
+        mlp = fit_mlp(train) if chosen.startswith("plus_mlp") else None
+        test = build("test", args.per_class_test)
+        results = [run_controller(sc, mlp, 0.7, margin) for sc in test]
+        x_te, y_te = classify_windows(test)
+        reference_mlp = mlp or fit_mlp(train)
+        receipt.update(
+            chosen_variant=chosen,
+            dev_receipt_sha256=hashlib.sha256(args.choice.read_bytes()).hexdigest(),
+            test_scenarios=len(test),
+            test=summarize(results, test),
+            mlp_window_test_accuracy=float((reference_mlp.predict(x_te) == y_te).mean()),
+        )
+        if args.model_out and mlp is not None:
+            args.model_out.parent.mkdir(parents=True, exist_ok=True)
+            with args.model_out.open("wb") as handle:
+                pickle.dump({"model": mlp, "threshold": 0.7, "window_s": 0.4, "echo_margin_db": margin}, handle)
+        print(json.dumps(receipt["test"], indent=1)[:3000])
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    for name, v in variants.items():
-        print(name, json.dumps({k: v[k] for k in ("accuracy", "f1", "by_kind", "duck_latency_ms", "stop_latency_ms", "interrupt_stop_rate_by_timing", "false_ducks_before_event_rate")}, ensure_ascii=False))
-    print("pools", pools.counts(), "mlp window acc", round(mlp_window_accuracy, 3))
     return 0
 
 

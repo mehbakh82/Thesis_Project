@@ -186,3 +186,37 @@ def test_second_turn_after_playback_keeps_absolute_sample_timeline(tmp_path) -> 
         expected = (len(frames) * FRAME) + int(1.4 * SAMPLE_RATE)
         assert endpoint["turn"] == 2
         assert abs(endpoint["end_sample"] - expected) <= 1024
+
+
+class _AlwaysSpeech:
+    """Scorer that calls every frame speech, like Silero on residual echo."""
+
+    backend = "always_speech"
+
+    def score(self, frame: np.ndarray) -> float:
+        return 0.99
+
+    def reset(self) -> None:
+        return None
+
+
+def test_echo_floor_gating_ignores_quiet_residual_echo_but_ducks_on_loud_user() -> None:
+    controller = BargeInController(scorer=_AlwaysSpeech(), echo_margin_db=12.0)
+    echo = _tone(2.0, 0.01)  # about -43 dBFS: speech-like but quiet
+    events = []
+    for start in range(0, echo.size, FRAME):
+        events.extend(controller.push(echo[start : start + FRAME]))
+    assert events == []
+    user = _tone(0.8, 0.3) + _tone(0.8, 0.01)
+    for start in range(0, user.size, FRAME):
+        events.extend(controller.push(user[start : start + FRAME]))
+    assert [e.kind for e in events][:1] == ["duck"]
+
+
+def test_echo_gating_can_be_disabled() -> None:
+    controller = BargeInController(scorer=_AlwaysSpeech(), echo_margin_db=None)
+    echo = _tone(1.0, 0.01)
+    events = []
+    for start in range(0, echo.size, FRAME):
+        events.extend(controller.push(echo[start : start + FRAME]))
+    assert events and events[0].kind == "duck"
