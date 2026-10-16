@@ -56,6 +56,11 @@ FORBIDDEN_PREFIXES = (
 FORBIDDEN_EXACT = {
     ".env",
     "Thesis Proposal Template.docx",
+    "# Review and improve thesis project.md",
+    "chat_codex_project_review_early_export.md",
+    "chat_codex_project_review_extended_export.md",
+    "chat_cursor_project_planning.md",
+    "chat_cursor_report_preparation.md",
     "codex_review_and_improve_thesis_project.md",
     "cursor_bsc_thesis_project_planning.md",
     "cursor_bsc_thesis_project_report.md",

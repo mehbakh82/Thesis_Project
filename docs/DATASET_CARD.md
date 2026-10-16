@@ -5,7 +5,32 @@
 - Name: `fa-s2s-duplex-mix` (working title)
 - Language: Persian (fa-IR)
 - Intended use: train/evaluate a full-duplex speech-to-speech prototype
-- Last updated: 2026-09-09
+- Last updated: 2026-10-06
+
+## Local storage availability
+
+On 2026-10-06, the user authorized offloading **254,305 bulk processed WAV
+files / 107,117,621,530 bytes (99.76 GiB)** to the verified private S3 backup.
+All 266,435 original data files were SHA-256 checked against the backup
+inventory before deletion; the remote completion/part receipts, archive size,
+and all 70 archive-part checksums were rechecked. The backup's original upload
+verification downloaded and SHA-256 checked every part. A full archive
+extraction test has not been performed.
+
+All **12,130 retained original files** were checked for preservation after
+deletion. These include all manifests, reference transcripts, raw demo data,
+samples, recordings, and the small Moshi smoke-test audio. Models, checkpoints,
+and thesis reports were not deleted. Local recovery instructions and the
+separate deletion journal/receipt are in the ignored
+`results/release/data_backup_20261006T061709Z/` directory; backup details and
+credentials are not published here.
+
+Restore the offloaded audio before running dataset-based training, evaluation,
+listening QA, or file-presence audits. Manifest paths are intentionally retained
+for restoration, but their bulk WAV targets are no longer present locally.
+The audit snapshots below remain historical evidence; their original
+zero-missing-file results are not claims about the post-offload filesystem.
+Offloading does not change the frozen corpus selection or measured results.
 
 ## Splits (status)
 
