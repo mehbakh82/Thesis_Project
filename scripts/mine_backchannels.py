@@ -23,15 +23,12 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from thesis_s2s.bargein.lexicon import BACKCHANNEL_LEXICON  # noqa: E402
 from thesis_s2s.eval.asr_normalize import normalize_for_scoring  # noqa: E402
 from thesis_s2s.runtime.cascade import _asr_transcript, _wav_bytes, asr_http  # noqa: E402
 
 RATE = 16_000
-LEXICON = {
-    "آره", "اره", "آرہ", "بله", "بلی", "اوهوم", "اوهم", "هوم", "آها", "اها", "آهان", "اهان",
-    "باشه", "درسته", "دقیقا", "دقیقاً", "عالیه", "خب", "خوبه", "آفرین", "جدی", "واقعا", "نه",
-    "حتما", "حتماً", "صحیح", "اوکی", "اهوم", "ممنون", "مرسی", "هه", "ههه", "آ", "ا", "اوه",
-}
+LEXICON = BACKCHANNEL_LEXICON
 
 
 def read_window(path: Path) -> np.ndarray:
@@ -99,7 +96,7 @@ def main() -> int:
                     if tokens and len(tokens) <= 3 and all(t in LEXICON for t in tokens):
                         out = args.out_dir / "backchannel" / f"bc-{key}.wav"
                         write_clip(out, clip)
-                        records.append({**base, "kind": "backchannel", "audio_filepath": str(out), "asr_text": text, "duration": round(clip.size / RATE, 3)})
+                        records.append({**base, "kind": "backchannel", "audio_filepath": str(out), "asr_text": text, "asr_model_sha256": result.get("model_sha256"), "duration": round(clip.size / RATE, 3)})
                         stats["bc_kept"] += 1
                 elif 1.2 <= duration <= 4.0 and speech_taken < args.max_speech_per_window:
                     clip = audio[int(start * RATE) : int(end * RATE)]

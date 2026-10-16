@@ -11,18 +11,29 @@ user turn) and a backchannel or noise (restore the volume and continue). The
 decision uses an optional acoustic classifier on energy/F0/MFCC features
 (probability of ``interrupt``) together with how long the user keeps talking:
 backchannels such as «آره» or «اوهوم» are short.
+
+With a ``transcriber`` (the deployed ASR), stage 2 is *lexical*: the captured
+speech since the onset is transcribed once ``lexical_after_ms`` of it has been
+heard (and again every ``lexical_interval_ms`` while undecided, or when the
+user falls silent). Words of the assistant's own reply (residual echo, via
+``echo_words``) and listener tokens are discarded; any remaining word means a
+real interruption, while an empty or listener-token-only transcript means a
+backchannel or noise. The ASR time is added to the decision time.
 """
 
 from __future__ import annotations
 
+import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
 import numpy as np
 
+from thesis_s2s.bargein.lexicon import content_tokens
 from thesis_s2s.runtime.vad import FRAME_SAMPLES, SAMPLE_RATE, FrameScorer, default_scorer
 
 InterruptClassifier = Callable[[np.ndarray], float]
+Transcriber = Callable[[np.ndarray], str]
 
 
 @dataclass
@@ -31,6 +42,7 @@ class BargeInEvent:
     onset_sample: int
     decided_at_sample: int
     probability: float | None = None
+    transcript: str | None = None
 
 
 @dataclass
@@ -49,6 +61,12 @@ class BargeInController:
     dtd_margin_db: float = 10.0
     coupling_alpha: float = 0.1
     reference_active_db: float = -55.0
+    transcriber: Transcriber | None = None
+    echo_words: Callable[[], set[str]] | None = None
+    lexical_after_ms: float = 400.0
+    lexical_interval_ms: float = 200.0
+    confirm_cap_ms: float = 1600.0
+    _next_check_ms: float = 0.0
     _pending: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=np.float32))
     _pending_ref: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=np.float32))
     _recent_ref_db: list[float] = field(default_factory=list)
@@ -118,6 +136,28 @@ class BargeInController:
         self._frames_seen += 1
         return speech and above
 
+    def _lexical_step(self, speech_ms: float) -> BargeInEvent | None:
+        """Transcribe when due; return a stop/resume decision or None to keep waiting."""
+
+        ended = 1000.0 * self._silence_samples / SAMPLE_RATE >= self.resume_silence_ms
+        capped = speech_ms >= self.confirm_cap_ms
+        if not (ended or capped or speech_ms >= self._next_check_ms):
+            return None
+        assert self.transcriber is not None
+        started = time.perf_counter()
+        transcript = self.transcriber(self.captured_since_onset())
+        latency = int(round((time.perf_counter() - started) * SAMPLE_RATE))
+        echo = self.echo_words() if self.echo_words is not None else set()
+        content = content_tokens(transcript, echo)
+        if content:
+            kind = "stop"
+        elif ended or capped:
+            kind = "resume"
+        else:
+            self._next_check_ms = speech_ms + self.lexical_interval_ms
+            return None
+        return BargeInEvent(kind, self._onset, self._consumed + latency, None, transcript)
+
     def captured_since_onset(self) -> np.ndarray:
         """Microphone audio from the detected onset (pre-roll for the next turn)."""
 
@@ -164,6 +204,7 @@ class BargeInController:
                     self._onset = frame_start - (self.duck_frames - 1) * FRAME_SAMPLES
                     self._speech_samples = self.duck_frames * FRAME_SAMPLES
                     self._silence_samples = 0
+                    self._next_check_ms = self.lexical_after_ms
                     events.append(BargeInEvent("duck", self._onset, self._consumed))
                 continue
             if voiced:
@@ -172,6 +213,13 @@ class BargeInController:
             else:
                 self._silence_samples += FRAME_SAMPLES
             speech_ms = 1000.0 * self._speech_samples / SAMPLE_RATE
+            if self.transcriber is not None:
+                decision = self._lexical_step(speech_ms)
+                if decision is not None:
+                    events.append(decision)
+                    self._ducked = False
+                    self._voiced_run = 0
+                continue
             probability: float | None = None
             if self.classifier is not None and speech_ms >= self.classifier_min_ms:
                 window = self._history[-int(self.context_ms * SAMPLE_RATE / 1000) :]

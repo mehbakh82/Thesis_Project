@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Minimal loopback ASR service for a NeMo hybrid checkpoint (stdlib HTTP).
 
-Run with the NeMo environment's interpreter. It implements the runtime's
+Run with the NeMo environment's interpreter (or, with ``--backend seamless``,
+an interpreter with ``transformers`` to serve a SeamlessM4T v2 checkpoint
+directory as an independent second listener). It implements the runtime's
 ``asr_http`` contract: ``POST /transcribe/binary`` with a 16 kHz mono PCM16 WAV
 body returns ``{"text": ..., "model_sha256": ..., "decoder": ...}``;
 ``GET /health`` reports readiness. One request is served at a time so the
@@ -57,6 +59,42 @@ class NemoTranscriber:
         return str(getattr(first, "text", first)).strip()
 
 
+class SeamlessTranscriber:
+    """SeamlessM4T v2 speech-to-text, greedy, Persian target (as in ASR v2)."""
+
+    def __init__(self, checkpoint: Path) -> None:
+        import torch
+        from transformers import AutoProcessor, SeamlessM4Tv2ForSpeechToText
+
+        self.torch = torch
+        self.processor = AutoProcessor.from_pretrained(str(checkpoint))
+        self.model = (
+            SeamlessM4Tv2ForSpeechToText.from_pretrained(str(checkpoint), dtype=torch.bfloat16).cuda().eval()
+        )
+        self.decoder = "greedy"
+        self.lock = threading.Lock()
+
+    def transcribe(self, audio: np.ndarray) -> str:
+        inputs = self.processor(audio=audio, sampling_rate=16_000, return_tensors="pt")
+        inputs = {
+            k: (v.to("cuda", dtype=self.torch.bfloat16) if v.dtype.is_floating_point else v.cuda())
+            for k, v in inputs.items()
+        }
+        with self.lock, self.torch.inference_mode():
+            tokens = self.model.generate(**inputs, tgt_lang="pes", num_beams=1, do_sample=False, max_new_tokens=256)
+        return str(self.processor.decode(tokens[0], skip_special_tokens=True)).strip()
+
+
+def checkpoint_sha256(path: Path) -> str:
+    if path.is_file():
+        return sha256_file(path)
+    digest = hashlib.sha256()
+    for item in sorted(path.glob("*.safetensors")):
+        digest.update(item.name.encode())
+        digest.update(sha256_file(item).encode())
+    return digest.hexdigest()
+
+
 def decode_wav(body: bytes) -> np.ndarray:
     with wave.open(io.BytesIO(body), "rb") as handle:
         if handle.getnchannels() != 1 or handle.getsampwidth() != 2:
@@ -70,6 +108,7 @@ def decode_wav(body: bytes) -> np.ndarray:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--checkpoint", type=Path, required=True)
+    parser.add_argument("--backend", choices=("nemo", "seamless"), default="nemo")
     parser.add_argument("--decoder", choices=("ctc", "rnnt"), default="ctc")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8090)
@@ -77,8 +116,13 @@ def main() -> int:
     if args.host not in {"127.0.0.1", "localhost"}:
         raise SystemExit("the ASR service binds to loopback only")
 
-    model_sha = sha256_file(args.checkpoint)
-    transcriber = NemoTranscriber(args.checkpoint, args.decoder)
+    model_sha = checkpoint_sha256(args.checkpoint)
+    transcriber: NemoTranscriber | SeamlessTranscriber
+    if args.backend == "seamless":
+        transcriber = SeamlessTranscriber(args.checkpoint)
+        args.decoder = transcriber.decoder
+    else:
+        transcriber = NemoTranscriber(args.checkpoint, args.decoder)
     transcriber.transcribe(np.zeros(16_000, dtype=np.float32))  # warm-up
 
     class Handler(BaseHTTPRequestHandler):

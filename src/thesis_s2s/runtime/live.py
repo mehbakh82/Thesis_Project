@@ -38,7 +38,8 @@ import numpy as np
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 
-from thesis_s2s.runtime.bargein_live import BargeInController, InterruptClassifier
+from thesis_s2s.bargein.lexicon import echo_vocabulary
+from thesis_s2s.runtime.bargein_live import BargeInController, InterruptClassifier, Transcriber
 from thesis_s2s.runtime.streaming import (
     ClauseChunker,
     OpenAIStreamingResponder,
@@ -58,6 +59,7 @@ class LiveComponents:
     responder: StreamingResponder | OpenAIStreamingResponder
     tts: Callable[[str], np.ndarray]
     classifier: InterruptClassifier | None = None
+    bargein_transcriber: Transcriber | None = None
     identity: dict[str, Any] = field(default_factory=dict)
     scorer_factory: Callable[[], FrameScorer] = default_scorer
 
@@ -73,6 +75,7 @@ class LiveConfig:
     first_min_words: int = 2
     first_max_words: int = 4
     max_words: int = 14
+    lexical_confirm: bool = True
 
 
 class _Session:
@@ -86,11 +89,16 @@ class _Session:
             hangover_ms=config.hangover_ms,
             tentative_ms=config.speculative_ms,
         )
+        # Clauses synthesized for the current reply: the residual-echo vocabulary
+        # the lexical confirm stage must not mistake for the user's words.
+        self.echo_texts: list[str] = []
         self.bargein = BargeInController(
             scorer=components.scorer_factory(),
             classifier=components.classifier,
             confirm_speech_ms=config.confirm_speech_ms,
             classifier_threshold=config.classifier_threshold,
+            transcriber=components.bargein_transcriber if config.lexical_confirm else None,
+            echo_words=lambda: echo_vocabulary(self.echo_texts),
         )
         self.recent: np.ndarray = np.zeros(0, dtype=np.float32)
         self.recent_start = 0
@@ -178,6 +186,13 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
                     session.gate.set()
             gate, gate_lock = session.gate, session.gate_lock
             session.speculative_turn = turn if speculative else None
+            session.echo_texts = []
+            echo_texts = session.echo_texts
+
+            def tts(text: str) -> np.ndarray:
+                echo_texts.append(text)
+                return components.tts(text)
+
             session.speculative_end = end_sample if speculative else None
             if not speculative:
                 session.responding = True
@@ -205,7 +220,7 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
                     utterance,
                     asr=components.asr,
                     responder=components.responder,
-                    tts=components.tts,
+                    tts=tts,
                     emit_audio=emit,
                     history=list(session.history),
                     cancel=cancel,
@@ -361,9 +376,16 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
                             if reference_rms is None
                             else np.full(FRAME, reference_rms, dtype=np.float32)
                         )
-                        for barge in session.bargein.push(
-                            pcm, sample_offset=start, reference_level=reference
-                        ):
+                        if session.bargein.transcriber is not None:
+                            # The lexical confirm may call the ASR service; keep the loop free.
+                            barges = await asyncio.to_thread(
+                                session.bargein.push, pcm, start, reference
+                            )
+                        else:
+                            barges = session.bargein.push(
+                                pcm, sample_offset=start, reference_level=reference
+                            )
+                        for barge in barges:
                             turn = session.turn
                             await send_json(
                                 {
@@ -372,6 +394,7 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
                                     "onset_sample": barge.onset_sample,
                                     "decided_sample": barge.decided_at_sample,
                                     "probability": barge.probability,
+                                    "transcript": barge.transcript,
                                 }
                             )
                             record = session.records.get(turn, {})
@@ -381,6 +404,7 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
                                     "onset_sample": barge.onset_sample,
                                     "decided_sample": barge.decided_at_sample,
                                     "probability": barge.probability,
+                                    "lexical": barge.transcript is not None,
                                 }
                             )
                             if barge.kind == "stop":
@@ -645,5 +669,12 @@ def default_live_components(
         "tts_model": piper.name if piper is not None else None,
         "persian_only_decoding": True,
         "streaming": True,
+        "bargein_confirm": "lexical_asr_with_echo_rejection",
     }
-    return LiveComponents(asr=asr, responder=responder, tts=tts, identity=identity)
+
+    def bargein_transcriber(audio: np.ndarray) -> str:
+        return asr(audio)[0]
+
+    return LiveComponents(
+        asr=asr, responder=responder, tts=tts, bargein_transcriber=bargein_transcriber, identity=identity
+    )

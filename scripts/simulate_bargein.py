@@ -11,7 +11,10 @@ noise, and one user event at an early, middle, or late point of the reply:
 * ``none``       – nothing.
 
 The deployed two-stage controller (`BargeInController`, Silero VAD) runs on
-20 ms frames. ``stop`` is the positive decision; accuracy/F1 treat
+20 ms frames, confirming either by duration/acoustic classifier or lexically
+with the deployed ASR (``lexical`` variants: the reply text is the echo
+vocabulary). Backchannel clips are selected by a *different* ASR listener
+than the one used for the lexical confirm (see the pool's ``asr_model_sha256``). ``stop`` is the positive decision; accuracy/F1 treat
 ``interrupt`` as positive and every other event as negative. Sources are split
 by session (speech, backchannels) or file (noise, replies) so the optional
 energy/F0/MFCC MLP confirm-classifier is trained and tested on disjoint audio.
@@ -37,7 +40,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from thesis_s2s.bargein.features import FeatureConfig, frame_feature_matrix  # noqa: E402
+from thesis_s2s.bargein.lexicon import echo_vocabulary  # noqa: E402
 from thesis_s2s.runtime.bargein_live import BargeInController  # noqa: E402
+from thesis_s2s.runtime.cascade import _asr_transcript, _wav_bytes, asr_http  # noqa: E402
 from thesis_s2s.runtime.vad import SileroScorer, default_scorer  # noqa: E402
 
 RATE = 16_000
@@ -85,8 +90,15 @@ def window_features(window: np.ndarray, cfg: FeatureConfig) -> np.ndarray:
 
 
 class Pools:
-    def __init__(self, pool: Path, noise_dir: Path, reply_dir: Path, rir_dir: Path) -> None:
+    def __init__(self, pool: Path, noise_dir: Path, reply_dir: Path, rir_dir: Path, reply_texts: Path | None = None) -> None:
         rows = [json.loads(line) for line in pool.read_text(encoding="utf-8").splitlines() if line]
+        self.reply_text: dict[str, str] = {}
+        if reply_texts is not None:
+            for line in reply_texts.read_text(encoding="utf-8").splitlines():
+                if line:
+                    item = json.loads(line)
+                    self.reply_text[item["file"]] = item["text"]
+        self.listeners = sorted({str(r["asr_model_sha256"]) for r in rows if r.get("asr_model_sha256")})
         self.items: dict[tuple[str, str], list[Any]] = {}
         for row in rows:
             split = "test" if is_test(row["session_id"]) else "train"
@@ -115,7 +127,8 @@ def noise_burst(audio: np.ndarray, rng: random.Random) -> np.ndarray:
 
 
 def make_scenario(pools: Pools, split: str, kind: str, timing: str, rng: random.Random) -> dict[str, Any]:
-    reply = read(rng.choice(pools.items[(split, "reply")]))
+    reply_path = rng.choice(pools.items[(split, "reply")])
+    reply = read(reply_path)
     user_db = USER_RMS_DB + rng.uniform(-4, 4)
     mic = np.zeros(reply.size + int(2.5 * RATE), np.float32)
     echo_db = user_db + rng.uniform(-32, -18)
@@ -161,6 +174,7 @@ def make_scenario(pools: Pools, split: str, kind: str, timing: str, rng: random.
         "onset_s": onset_s,
         "event_s": event_s,
         "reply_s": reply_s,
+        "echo_words": echo_vocabulary([pools.reply_text.get(Path(reply_path).name, "")]),
     }
 
 
@@ -170,8 +184,11 @@ def run_controller(
     threshold: float,
     margin: float | None = 12.0,
     dtd_margin: float | None = None,
+    transcriber: Any | None = None,
 ) -> dict[str, Any]:
     controller = BargeInController(
+        transcriber=transcriber,
+        echo_words=lambda: scenario["echo_words"],
         scorer=default_scorer(),
         echo_margin_db=margin,
         dtd_margin_db=dtd_margin if dtd_margin is not None else 10.0,
@@ -198,7 +215,9 @@ def run_controller(
     duck = next((e for e in in_event if e.kind == "duck"), None)
     if scenario["kind"] == "none":
         stop = next((e for e in events if e.kind == "stop"), None)
+    lexical = [e for e in events if e.transcript is not None]
     return {
+        "asr_calls_decisions": len(lexical),
         "stopped": stop is not None,
         "ducked": duck is not None,
         "false_ducks_before_event": len(early_ducks),
@@ -280,6 +299,7 @@ def main() -> int:
     parser.add_argument("--noise-dir", type=Path, required=True)
     parser.add_argument("--reply-dir", type=Path, required=True)
     parser.add_argument("--rir-dir", type=Path, required=True)
+    parser.add_argument("--reply-texts", type=Path, help="JSONL file/text of the reply clips (echo vocabulary)")
     parser.add_argument("--per-class-train", type=int, default=150)
     parser.add_argument("--per-class-test", type=int, default=150)
     parser.add_argument("--choice", type=Path, help="dev receipt (required for final)")
@@ -291,7 +311,17 @@ def main() -> int:
     if args.stage == "final" and args.out.exists():
         raise SystemExit("refusing to overwrite the one-time final simulation receipt")
 
-    pools = Pools(args.pool, args.noise_dir, args.reply_dir, args.rir_dir)
+    pools = Pools(args.pool, args.noise_dir, args.reply_dir, args.rir_dir, args.reply_texts)
+
+    def transcribe(audio: np.ndarray) -> str:
+        return _asr_transcript(asr_http(_wav_bytes(audio)))
+
+    confirm_asr: dict[str, Any] | None = None
+    if args.reply_texts is not None:
+        result = asr_http(_wav_bytes(np.zeros(RATE // 2, np.float32)))
+        confirm_asr = {"model_sha256": result.get("model_sha256"), "decoder": result.get("decoder")}
+        if confirm_asr["model_sha256"] in pools.listeners:
+            raise SystemExit("the backchannel pool was selected by the same ASR as the lexical confirm")
     rng = random.Random(20261016)
 
     def build(split: str, per_class: int) -> list[dict[str, Any]]:
@@ -330,6 +360,9 @@ def main() -> int:
         },
         "script_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "pool_sha256": hashlib.sha256(args.pool.read_bytes()).hexdigest(),
+        "pool_selection_asr_sha256": pools.listeners,
+        "lexical_confirm_asr": confirm_asr,
+        "reply_texts_sha256": hashlib.sha256(args.reply_texts.read_bytes()).hexdigest() if args.reply_texts else None,
     }
     if args.stage == "dev":
         order = list(range(len(train)))
@@ -344,6 +377,11 @@ def main() -> int:
                 key = f"{name}_margin_{margin}_dtd_{dtd}"
                 results = [run_controller(sc, classifier, 0.7, margin, dtd) for sc in dev]
                 variants[key] = summarize(results, dev)
+        if confirm_asr is not None:
+            for dtd in (None, 6.0, 10.0, 14.0):
+                key = f"lexical_margin_12.0_dtd_{dtd}"
+                results = [run_controller(sc, None, 0.7, 12.0, dtd, transcribe) for sc in dev]
+                variants[key] = summarize(results, dev)
         chosen = max(variants, key=lambda k: (variants[k]["accuracy"], variants[k]["f1"]))
         receipt.update(dev_scenarios=len(dev), fit_scenarios=len(fit), variants=variants, chosen_variant=chosen)
         for key, v in variants.items():
@@ -356,8 +394,11 @@ def main() -> int:
         margin = None if margin_text == "None" else float(margin_text)
         dtd = None if dtd_text == "None" else float(dtd_text)
         mlp = fit_mlp(train) if chosen.startswith("plus_mlp") else None
+        lexical = chosen.startswith("lexical")
+        if lexical and confirm_asr is None:
+            raise SystemExit("the chosen lexical variant needs --reply-texts and the confirm ASR")
         test = build("test", args.per_class_test)
-        results = [run_controller(sc, mlp, 0.7, margin, dtd) for sc in test]
+        results = [run_controller(sc, mlp, 0.7, margin, dtd, transcribe if lexical else None) for sc in test]
         x_te, y_te = classify_windows(test)
         reference_mlp = mlp or fit_mlp(train)
         receipt.update(

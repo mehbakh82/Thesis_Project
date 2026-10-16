@@ -248,3 +248,33 @@ def test_double_talk_detector_ignores_echo_tracking_the_reference() -> None:
     for start in range(0, user.size, FRAME):
         events.extend(controller.push(user[start : start + FRAME], reference_level=ref_user[start : start + FRAME]))
     assert events and events[0].kind == "duck"
+
+
+def test_lexical_confirm_resumes_when_asr_hears_only_a_backchannel(tmp_path) -> None:
+    heard: list[int] = []
+
+    def transcriber(audio: np.ndarray) -> str:
+        heard.append(audio.size)
+        return "آره آره"
+
+    components = LiveComponents(
+        asr=lambda audio: ("سلام چطوری", None),
+        responder=_Responder(),  # type: ignore[arg-type]
+        tts=lambda text: _tone(2.0, 0.1),
+        bargein_transcriber=transcriber,
+        identity={"asr_backend": "fake"},
+        scorer_factory=EnergyScorer,
+    )
+    client = TestClient(build_live_app(components, LiveConfig(hangover_ms=256)))
+    audio = np.concatenate([_quiet(0.6), _tone(0.8), _quiet(0.6, 1)])
+    with client.websocket_connect("/ws") as ws:
+        frames = _frames(audio, 0)
+        for frame in frames:
+            ws.send_bytes(frame)
+        _receive_until(ws, lambda p: p.get("event") == "endpoint")
+        barge = _frames(np.concatenate([_tone(0.6, 0.3), _quiet(0.6, 3)]), len(frames))
+        for frame in barge:
+            ws.send_bytes(frame)
+        seen = _receive_until(ws, lambda p: p.get("event") in {"resume", "stop"})
+    assert seen[-1][1]["event"] == "resume" and seen[-1][1]["transcript"] == "آره آره"
+    assert heard
