@@ -46,7 +46,13 @@ class BargeInController:
     context_ms: float = 400.0
     echo_margin_db: float | None = 12.0
     floor_alpha: float = 0.05
+    dtd_margin_db: float = 10.0
+    coupling_alpha: float = 0.1
+    reference_active_db: float = -55.0
     _pending: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=np.float32))
+    _pending_ref: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=np.float32))
+    _recent_ref_db: list[float] = field(default_factory=list)
+    _coupling_db: float | None = None
     _history: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=np.float32))
     _consumed: int = 0
     _voiced_run: int = 0
@@ -71,9 +77,19 @@ class BargeInController:
         self._silence_samples = 0
         self._floor_db = None
         self._frames_seen = 0
+        self._pending_ref = np.zeros(0, dtype=np.float32)
+        self._recent_ref_db = []
+        self._coupling_db = None
 
-    def _user_voice(self, frame: np.ndarray) -> bool:
-        """Speech-like and clearly louder than the running playback/echo floor."""
+    def _user_voice(self, frame: np.ndarray, reference_rms: float | None = None) -> bool:
+        """Speech-like and louder than the expected echo (double-talk detection).
+
+        With a playback reference level, the expected echo is the loudest recent
+        reference frame (covering echo delay) plus an adaptively estimated
+        echo coupling; the microphone must exceed it by ``dtd_margin_db`` (a
+        Geigel-style detector). Without a reference, a running noise/echo floor
+        plus ``echo_margin_db`` is used.
+        """
 
         speech = self.scorer.score(frame) >= self.voice_threshold
         if self.echo_margin_db is None:
@@ -82,9 +98,21 @@ class BargeInController:
         if self._floor_db is None:
             self._floor_db = level
         above = level >= self._floor_db + self.echo_margin_db
-        if not self._ducked and not (speech and above):
-            # Track the echo + noise level while the user is not talking; adapt
-            # faster for the first half second of playback.
+        reference_active = False
+        if reference_rms is not None:
+            ref_db = 20.0 * float(np.log10(reference_rms + 1e-9))
+            self._recent_ref_db = (self._recent_ref_db + [ref_db])[-8:]
+            ref_max = max(self._recent_ref_db)
+            reference_active = ref_max > self.reference_active_db
+            if reference_active:
+                if self._coupling_db is None:
+                    self._coupling_db = level - ref_max
+                above = level >= ref_max + self._coupling_db + self.dtd_margin_db
+                if not self._ducked and not (speech and above):
+                    self._coupling_db += self.coupling_alpha * (level - ref_max - self._coupling_db)
+        if not reference_active and not self._ducked and not (speech and above):
+            # Track the noise level while the user is not talking; adapt faster
+            # for the first half second.
             alpha = 0.2 if self._frames_seen < 16 else self.floor_alpha
             self._floor_db += alpha * (level - self._floor_db)
         self._frames_seen += 1
@@ -96,20 +124,39 @@ class BargeInController:
         start = max(0, self._history.size - (self._consumed - self._onset))
         return self._history[start:].copy()
 
-    def push(self, pcm: np.ndarray, sample_offset: int | None = None) -> list[BargeInEvent]:
-        """Feed microphone PCM captured while the assistant is speaking."""
+    def push(
+        self,
+        pcm: np.ndarray,
+        sample_offset: int | None = None,
+        reference_level: np.ndarray | None = None,
+    ) -> list[BargeInEvent]:
+        """Feed microphone PCM captured while the assistant is speaking.
+
+        ``reference_level`` optionally gives, per microphone sample, the RMS of
+        the assistant audio being played at that moment (as reported by the
+        client); it enables double-talk detection against residual echo.
+        """
 
         if sample_offset is not None and not self._pending.size:
             self._consumed = sample_offset
         events: list[BargeInEvent] = []
-        self._pending = np.concatenate([self._pending, np.asarray(pcm, dtype=np.float32)])
+        pcm = np.asarray(pcm, dtype=np.float32)
+        self._pending = np.concatenate([self._pending, pcm])
+        if reference_level is not None:
+            self._pending_ref = np.concatenate(
+                [self._pending_ref, np.asarray(reference_level, dtype=np.float32)[: pcm.size]]
+            )
         keep = int(4 * SAMPLE_RATE)
         while self._pending.size >= FRAME_SAMPLES:
             frame, self._pending = self._pending[:FRAME_SAMPLES], self._pending[FRAME_SAMPLES:]
+            reference_rms: float | None = None
+            if self._pending_ref.size >= FRAME_SAMPLES:
+                reference_rms = float(np.mean(self._pending_ref[:FRAME_SAMPLES]))
+                self._pending_ref = self._pending_ref[FRAME_SAMPLES:]
             frame_start = self._consumed
             self._consumed += FRAME_SAMPLES
             self._history = np.concatenate([self._history, frame])[-keep:]
-            voiced = self._user_voice(frame)
+            voiced = self._user_voice(frame, reference_rms)
             if not self._ducked:
                 self._voiced_run = self._voiced_run + 1 if voiced else 0
                 if self._voiced_run >= self.duck_frames:

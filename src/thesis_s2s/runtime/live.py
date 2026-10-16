@@ -2,8 +2,10 @@
 
 Protocol over ``/ws`` (all audio 16 kHz mono PCM16):
 
-* client -> server binary: ``uint32 seq`` followed by exactly 320 samples
-  (20 ms). ``seq`` starts at 0, so sample index = ``seq * 320``.
+* client -> server binary: ``uint32 seq``, optionally ``float32`` playback RMS
+  (the level of assistant audio being played when the frame was captured,
+  used for double-talk detection), then exactly 320 samples (20 ms). ``seq``
+  starts at 0, so sample index = ``seq * 320``.
 * server -> client binary: ``uint32 turn``, ``uint32 chunk`` then PCM16 of one
   synthesized clause.
 * server -> client JSON events: ``endpoint`` (with the acoustic ``end_sample``
@@ -309,12 +311,22 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
                     break
                 raw = message.get("bytes")
                 if raw is not None:
-                    if len(raw) != 4 + 2 * FRAME:
+                    reference_rms: float | None = None
+                    if len(raw) == 4 + 2 * FRAME:
+                        (seq,) = struct.unpack("<I", raw[:4])
+                        payload_start = 4
+                    elif len(raw) == 8 + 2 * FRAME:
+                        seq, reference_rms = struct.unpack("<If", raw[:8])
+                        payload_start = 8
+                        if not np.isfinite(reference_rms) or reference_rms < 0:
+                            reference_rms = None
+                    else:
                         await send_json({"event": "error", "message": "invalid frame size"})
                         continue
-                    (seq,) = struct.unpack("<I", raw[:4])
                     start = seq * FRAME
-                    pcm = np.frombuffer(raw[4:], dtype="<i2").astype(np.float32) / 32768.0
+                    pcm = (
+                        np.frombuffer(raw[payload_start:], dtype="<i2").astype(np.float32) / 32768.0
+                    )
                     session.remember(pcm, start)
                     if not session.responding:
                         for event in session.endpointer.push(pcm, sample_offset=start):
@@ -344,7 +356,14 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
                                 session.utterance_start = None
                                 start_turn(utterance, event.sample, event.decided_at_sample)
                     else:
-                        for barge in session.bargein.push(pcm, sample_offset=start):
+                        reference: np.ndarray | None = (
+                            None
+                            if reference_rms is None
+                            else np.full(FRAME, reference_rms, dtype=np.float32)
+                        )
+                        for barge in session.bargein.push(
+                            pcm, sample_offset=start, reference_level=reference
+                        ):
                             turn = session.turn
                             await send_json(
                                 {
@@ -433,6 +452,9 @@ const logEl=document.getElementById('log');
 const log=(t)=>{logEl.textContent=t+'\n'+logEl.textContent.slice(0,2000);};
 const ctx=new (window.AudioContext||window.webkitAudioContext)();
 const out=ctx.createGain(); out.connect(ctx.destination);
+const analyser=ctx.createAnalyser(); analyser.fftSize=1024; out.connect(analyser);
+const refBuf=new Float32Array(analyser.fftSize);
+function playbackRms(){analyser.getFloatTimeDomainData(refBuf); let s=0; for(let i=0;i<refBuf.length;i++) s+=refBuf[i]*refBuf[i]; return Math.sqrt(s/refBuf.length);}
 let ws, seq=0, carry=new Float32Array(0);
 const frameTimes=new Map();
 let nextStart=0, currentTurn=0, firstReported=new Set(), endSample=new Map();
@@ -451,10 +473,12 @@ function resampleTo16k(x, rate){
 function sendFrames(mono){
   let buf=new Float32Array(carry.length+mono.length); buf.set(carry); buf.set(mono, carry.length);
   let off=0;
+  const ref=playbackRms();
   while(buf.length-off>=320){
-    const msg=new ArrayBuffer(4+640), dv=new DataView(msg);
+    const msg=new ArrayBuffer(8+640), dv=new DataView(msg);
     dv.setUint32(0, seq, true);
-    for(let i=0;i<320;i++){dv.setInt16(4+2*i, Math.max(-32768,Math.min(32767,Math.round(buf[off+i]*32767))), true);}
+    dv.setFloat32(4, ref, true);
+    for(let i=0;i<320;i++){dv.setInt16(8+2*i, Math.max(-32768,Math.min(32767,Math.round(buf[off+i]*32767))), true);}
     frameTimes.set(seq, performance.now());
     if(frameTimes.size>6000) frameTimes.delete(seq-6000);
     if(ws&&ws.readyState===1) ws.send(msg);

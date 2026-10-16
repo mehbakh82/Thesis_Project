@@ -220,3 +220,31 @@ def test_echo_gating_can_be_disabled() -> None:
     for start in range(0, echo.size, FRAME):
         events.extend(controller.push(echo[start : start + FRAME]))
     assert events and events[0].kind == "duck"
+
+
+def test_frames_with_playback_reference_are_accepted(tmp_path) -> None:
+    app, _ = _app(tmp_path, telemetry=False)
+    client = TestClient(app)
+    audio = np.concatenate([_quiet(0.6), _tone(0.8), _quiet(0.6, 1)])
+    with client.websocket_connect("/ws") as ws:
+        for index in range(audio.size // FRAME):
+            pcm = (audio[index * FRAME : (index + 1) * FRAME] * 32767).astype("<i2").tobytes()
+            ws.send_bytes(struct.pack("<If", index, 0.0) + pcm)
+        seen = _receive_until(ws, lambda p: p.get("event") == "reply_done")
+        assert any(kind == "json" and p["event"] == "endpoint" for kind, p in seen)
+
+
+def test_double_talk_detector_ignores_echo_tracking_the_reference() -> None:
+    controller = BargeInController(scorer=_AlwaysSpeech(), echo_margin_db=12.0, dtd_margin_db=10.0)
+    played = _tone(2.0, 0.2)
+    echo = 0.05 * played  # -12 dB coupling, speech-like and loud
+    reference = np.repeat(np.sqrt((played[: played.size // FRAME * FRAME].reshape(-1, FRAME) ** 2).mean(1)), FRAME)
+    events = []
+    for start in range(0, reference.size, FRAME):
+        events.extend(controller.push(echo[start : start + FRAME], reference_level=reference[start : start + FRAME]))
+    assert events == []
+    user = echo[: int(0.8 * SAMPLE_RATE)] + _tone(0.8, 0.5)
+    ref_user = reference[: user.size]
+    for start in range(0, user.size, FRAME):
+        events.extend(controller.push(user[start : start + FRAME], reference_level=ref_user[start : start + FRAME]))
+    assert events and events[0].kind == "duck"

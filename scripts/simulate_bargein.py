@@ -119,7 +119,11 @@ def make_scenario(pools: Pools, split: str, kind: str, timing: str, rng: random.
     user_db = USER_RMS_DB + rng.uniform(-4, 4)
     mic = np.zeros(reply.size + int(2.5 * RATE), np.float32)
     echo_db = user_db + rng.uniform(-32, -18)
-    mic[: reply.size] += at_db(reply, echo_db)
+    delay = int(rng.uniform(0.02, 0.06) * RATE)  # echo path delay after the played reference
+    played = at_db(reply, -20.0)
+    reference = np.zeros(mic.size, np.float32)
+    reference[: reply.size] = played
+    mic[delay : delay + reply.size] += at_db(reply, echo_db)[: mic.size - delay]
     background = read(rng.choice(pools.items[(split, "noise")]))
     background = np.tile(background, int(np.ceil(mic.size / max(1, background.size))))[: mic.size]
     mic += at_db(background, user_db + rng.uniform(-38, -24))
@@ -145,9 +149,14 @@ def make_scenario(pools: Pools, split: str, kind: str, timing: str, rng: random.
         end = min(mic.size, start + source.size)
         mic[start:end] += source[: end - start]
         event_s = source.size / RATE
+    frames = reference[: reference.size // FRAME * FRAME].reshape(-1, FRAME)
+    envelope = np.repeat(np.sqrt((frames**2).mean(axis=1)), FRAME)
+    reference_level = np.zeros(mic.size, np.float32)
+    reference_level[: envelope.size] = envelope
     return {
         "kind": kind,
         "timing": timing,
+        "reference_level": reference_level,
         "mic": np.clip(mic, -1, 1).astype(np.float32),
         "onset_s": onset_s,
         "event_s": event_s,
@@ -156,11 +165,16 @@ def make_scenario(pools: Pools, split: str, kind: str, timing: str, rng: random.
 
 
 def run_controller(
-    scenario: dict[str, Any], classifier: Any | None, threshold: float, margin: float | None = 12.0
+    scenario: dict[str, Any],
+    classifier: Any | None,
+    threshold: float,
+    margin: float | None = 12.0,
+    dtd_margin: float | None = None,
 ) -> dict[str, Any]:
     controller = BargeInController(
         scorer=default_scorer(),
         echo_margin_db=margin,
+        dtd_margin_db=dtd_margin if dtd_margin is not None else 10.0,
         classifier=(lambda w: float(classifier.predict_proba(window_features(w, CFG)[None])[0, 1]))
         if classifier is not None
         else None,
@@ -168,8 +182,15 @@ def run_controller(
     )
     events = []
     mic = scenario["mic"]
+    reference = scenario["reference_level"] if dtd_margin is not None else None
     for start in range(0, mic.size - FRAME + 1, FRAME):
-        events.extend(controller.push(mic[start : start + FRAME], sample_offset=start if start == 0 else None))
+        events.extend(
+            controller.push(
+                mic[start : start + FRAME],
+                sample_offset=start if start == 0 else None,
+                reference_level=None if reference is None else reference[start : start + FRAME],
+            )
+        )
     onset = scenario["onset_s"]
     in_event = [e for e in events if e.onset_sample / RATE >= onset - 0.25]
     early_ducks = [e for e in events if e.kind == "duck" and e.onset_sample / RATE < onset - 0.25]
@@ -317,10 +338,11 @@ def main() -> int:
         dev = [train[i] for i in order[len(order) // 2 :]]
         mlp = fit_mlp(fit)
         variants: dict[str, Any] = {}
-        for margin in (None, 8.0, 12.0, 16.0):
+        configs = [(m, None) for m in (12.0, 16.0)] + [(12.0, d) for d in (6.0, 10.0, 14.0)]
+        for margin, dtd in configs:
             for name, classifier in (("duration_only", None), ("plus_mlp", mlp)):
-                key = f"{name}_margin_{margin}"
-                results = [run_controller(sc, classifier, 0.7, margin) for sc in dev]
+                key = f"{name}_margin_{margin}_dtd_{dtd}"
+                results = [run_controller(sc, classifier, 0.7, margin, dtd) for sc in dev]
                 variants[key] = summarize(results, dev)
         chosen = max(variants, key=lambda k: (variants[k]["accuracy"], variants[k]["f1"]))
         receipt.update(dev_scenarios=len(dev), fit_scenarios=len(fit), variants=variants, chosen_variant=chosen)
@@ -330,11 +352,12 @@ def main() -> int:
     else:
         choice = json.loads(args.choice.read_text())
         chosen = choice["chosen_variant"]
-        margin_text = chosen.split("_margin_")[1]
+        margin_text, dtd_text = chosen.split("_margin_")[1].split("_dtd_")
         margin = None if margin_text == "None" else float(margin_text)
+        dtd = None if dtd_text == "None" else float(dtd_text)
         mlp = fit_mlp(train) if chosen.startswith("plus_mlp") else None
         test = build("test", args.per_class_test)
-        results = [run_controller(sc, mlp, 0.7, margin) for sc in test]
+        results = [run_controller(sc, mlp, 0.7, margin, dtd) for sc in test]
         x_te, y_te = classify_windows(test)
         reference_mlp = mlp or fit_mlp(train)
         receipt.update(
@@ -347,7 +370,10 @@ def main() -> int:
         if args.model_out and mlp is not None:
             args.model_out.parent.mkdir(parents=True, exist_ok=True)
             with args.model_out.open("wb") as handle:
-                pickle.dump({"model": mlp, "threshold": 0.7, "window_s": 0.4, "echo_margin_db": margin}, handle)
+                pickle.dump(
+                    {"model": mlp, "threshold": 0.7, "window_s": 0.4, "echo_margin_db": margin, "dtd_margin_db": dtd},
+                    handle,
+                )
         print(json.dumps(receipt["test"], indent=1)[:3000])
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
