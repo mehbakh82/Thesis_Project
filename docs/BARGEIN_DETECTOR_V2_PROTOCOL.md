@@ -55,6 +55,23 @@ test < 15, validation 15–29, training ≥ 30, so no session spans splits. The
 its threshold (grid 0.20–0.80). The `final` stage refits that frozen choice on
 training + validation and evaluates the test sessions once.
 
+## Amendment before test access (2026-10-16)
+
+The first development run (validation only; test untouched) showed that
+selecting by validation F1 is degenerate under the roughly 3:1 positive/negative
+imbalance: the best-F1 thresholds made every candidate answer "stop" for nearly
+every event (false-accept rates 0.66–0.78), and an always-stop rule already has
+F1 ≈ 0.85. Model and threshold are therefore selected by **balanced accuracy** (mean of
+recall on floor-taking and non-floor events). Because the 15-session
+validation split is small, selection uses session-grouped 5-fold
+cross-validation over the training and validation sessions together (pooled
+out-of-fold predictions; augmentation only inside training folds). Speaker-
+contrast features (voiced-frame means of the decision window minus those of a
+900 ms pre-onset reference, MFCC distance, F0 and energy change) were added
+because a mono podcast window always contains both voices. Accuracy and F1
+remain the reported target metrics; the test sessions were not opened before
+this amendment.
+
 ## Reported metrics and target
 
 Accuracy, F1, precision, recall, false-accept/false-reject rates, balanced

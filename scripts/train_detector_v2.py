@@ -35,6 +35,7 @@ from thesis_s2s.bargein.features import FeatureConfig, frame_feature_matrix  # n
 RATE = 16_000
 PRE_S = 0.10
 POST_S = 0.48
+CONTEXT_S = 1.00  # pre-onset reference for speaker-contrast features
 SPLIT_SEED = "detector-v2-20261016"
 POSITIVE = {"interrupt", "turn_change"}
 NEGATIVE = {"backchannel", "noise", "none"}
@@ -64,14 +65,35 @@ def onset_seconds(event: dict[str, Any]) -> float:
 
 
 def window(audio: np.ndarray, onset: float) -> np.ndarray:
-    start = max(0, int((onset - PRE_S) * RATE))
+    """Return [onset - CONTEXT_S, onset + POST_S]; the last PRE_S+POST_S is the decision window."""
+
+    start = max(0, int((onset - CONTEXT_S) * RATE))
     end = min(audio.size, int((onset + POST_S) * RATE))
-    return audio[start:end]
+    segment = audio[start:end]
+    want = int((CONTEXT_S + POST_S) * RATE)
+    if segment.size < want:
+        segment = np.concatenate([np.zeros(want - segment.size, np.float32), segment])
+    return segment
 
 
 def features(segment: np.ndarray, cfg: FeatureConfig) -> np.ndarray:
-    frames = frame_feature_matrix(segment, cfg)  # (n_frames, 30)
+    split = int((CONTEXT_S - PRE_S) * RATE)
+    reference = frame_feature_matrix(segment[: split], cfg)
+    frames = frame_feature_matrix(segment[split:], cfg)  # decision window (n_frames, 30)
     half = max(1, frames.shape[0] // 2)
+    ref_voiced = reference[reference[:, 3] > 0.5] if (reference[:, 3] > 0.5).any() else reference
+    cur_voiced = frames[frames[:, 3] > 0.5] if (frames[:, 3] > 0.5).any() else frames
+    contrast = np.concatenate(
+        [
+            cur_voiced.mean(axis=0) - ref_voiced.mean(axis=0),
+            [
+                float(np.linalg.norm(cur_voiced[:, 4:17].mean(0) - ref_voiced[:, 4:17].mean(0))),
+                float(np.median(cur_voiced[:, 2]) - np.median(ref_voiced[:, 2])),
+                float(frames[:, 0].mean() - reference[:, 0].mean()),
+                float(reference[:, 3].mean()),
+            ],
+        ]
+    )
     energy = frames[:, 0]
     voiced = frames[:, 3]
     slope = np.polyfit(np.arange(energy.size), energy, 1)[0] if energy.size > 1 else 0.0
@@ -83,6 +105,7 @@ def features(segment: np.ndarray, cfg: FeatureConfig) -> np.ndarray:
             frames[:half].mean(axis=0),
             frames[half:].mean(axis=0),
             [voiced.mean(), float(slope), float(np.percentile(energy, 90) - np.percentile(energy, 10))],
+            contrast,
         ]
     )
 
@@ -207,7 +230,7 @@ def energy_rule_scores(segments: list[np.ndarray]) -> np.ndarray:
 
     scores = []
     for seg in segments:
-        post = seg[int(PRE_S * RATE) :]
+        post = seg[int(CONTEXT_S * RATE) :]
         frames = post[: post.size // 320 * 320].reshape(-1, 320)
         level = 20 * np.log10(np.sqrt((frames**2).mean(axis=1)) + 1e-9)
         scores.append(float((level > -35.0).mean()) if frames.size else 0.0)
@@ -241,7 +264,7 @@ def main() -> int:
         if not clip.is_file():
             continue
         segment = window(read_clip(clip), onset_seconds(event))
-        if segment.size < int(0.4 * RATE):
+        if segment.size < int((CONTEXT_S + POST_S) * RATE):
             continue
         split = split_of(event["session_id"])
         bucket = data[split]
@@ -280,35 +303,59 @@ def main() -> int:
         "positive_classes": sorted(POSITIVE),
         "negative_classes": sorted(NEGATIVE),
         "decision_window_s": [-PRE_S, POST_S],
+        "speaker_contrast_reference_s": [-CONTEXT_S, -PRE_S],
         "splits": summary,
         "script_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
     }
     if args.stage == "develop":
-        x_train, y_train = matrix("train", augment=True)
-        x_val, y_val = matrix("val", augment=False)
+        from sklearn.model_selection import GroupKFold
+
+        pool_seg = data["train"]["seg"] + data["val"]["seg"]
+        pool_y = np.asarray(data["train"]["y"] + data["val"]["y"])
+        pool_sessions = data["train"]["session"] + data["val"]["session"]
+        clean = np.asarray([features(seg, cfg) for seg in pool_seg])
+        augmented = [
+            [features(augmenter(seg), cfg) for _ in range(args.augment_copies)] for seg in pool_seg
+        ]
+        folds = list(GroupKFold(n_splits=5).split(clean, pool_y, groups=pool_sessions))
         candidates: dict[str, Any] = {}
-        for name, model in build_models().items():
-            model.fit(x_train, y_train)
-            p_val = model.predict_proba(x_val)[:, 1]
+        for name in build_models():
+            oof = np.zeros(pool_y.size)
+            for train_idx, held_idx in folds:
+                x_fit = np.vstack(
+                    [clean[train_idx]] + [np.asarray([augmented[i][c] for i in train_idx]) for c in range(args.augment_copies)]
+                )
+                y_fit = np.concatenate([pool_y[train_idx]] * (1 + args.augment_copies))
+                model = build_models()[name]
+                model.fit(x_fit, y_fit)
+                oof[held_idx] = model.predict_proba(clean[held_idx])[:, 1]
             best = max(
-                (metrics(y_val, p_val, data["val"]["session"], t)["f1"], t)
+                (metrics(pool_y, oof, pool_sessions, t)["balanced_accuracy"], t)
                 for t in np.linspace(0.2, 0.8, 25)
             )
             candidates[name] = {
                 "threshold": float(best[1]),
-                "validation": metrics(y_val, p_val, data["val"]["session"], float(best[1])),
+                "cross_validation": metrics(pool_y, oof, pool_sessions, float(best[1])),
             }
-        energy = energy_rule_scores(data["val"]["seg"])
-        best_e = max((metrics(y_val, energy, data["val"]["session"], t)["f1"], t) for t in np.linspace(0.1, 0.9, 33))
+        energy = energy_rule_scores(pool_seg)
+        best_e = max(
+            (metrics(pool_y, energy, pool_sessions, t)["balanced_accuracy"], t)
+            for t in np.linspace(0.1, 0.9, 33)
+        )
         candidates["energy_rule"] = {
             "threshold": float(best_e[1]),
-            "validation": metrics(y_val, energy, data["val"]["session"], float(best_e[1])),
+            "cross_validation": metrics(pool_y, energy, pool_sessions, float(best_e[1])),
         }
         chosen = max(
             (n for n in candidates if n != "energy_rule"),
-            key=lambda n: candidates[n]["validation"]["f1"],
+            key=lambda n: candidates[n]["cross_validation"]["balanced_accuracy"],
         )
-        receipt.update(candidates=candidates, chosen_model=chosen, chosen_threshold=candidates[chosen]["threshold"])
+        receipt.update(
+            selection="session-grouped 5-fold CV on train+val, pooled out-of-fold balanced accuracy",
+            candidates=candidates,
+            chosen_model=chosen,
+            chosen_threshold=candidates[chosen]["threshold"],
+        )
     else:
         choice = json.loads(args.choice.read_text())
         name, threshold = choice["chosen_model"], float(choice["chosen_threshold"])
@@ -337,15 +384,23 @@ def main() -> int:
         if args.model_out:
             args.model_out.parent.mkdir(parents=True, exist_ok=True)
             with args.model_out.open("wb") as handle:
-                pickle.dump({"model": model, "threshold": threshold, "feature_window_s": [-PRE_S, POST_S]}, handle)
+                pickle.dump(
+                    {
+                        "model": model,
+                        "threshold": threshold,
+                        "feature_window_s": [-PRE_S, POST_S],
+                        "reference_window_s": [-CONTEXT_S, -PRE_S],
+                    },
+                    handle,
+                )
             receipt["model_sha256"] = hashlib.sha256(args.model_out.read_bytes()).hexdigest()
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: receipt.get(k) for k in ("stage", "splits", "chosen_model", "chosen_threshold")}, ensure_ascii=False, indent=1))
     if args.stage == "develop":
         for name, cand in receipt["candidates"].items():
-            v = cand["validation"]
-            print(f"{name:20s} val acc {v['accuracy']:.3f} f1 {v['f1']:.3f} far {v['false_accept_rate']:.3f} frr {v['false_reject_rate']:.3f} thr {cand['threshold']:.2f}")
+            v = cand["cross_validation"]
+            print(f"{name:20s} val bal {v['balanced_accuracy']:.3f} acc {v['accuracy']:.3f} f1 {v['f1']:.3f} far {v['false_accept_rate']:.3f} frr {v['false_reject_rate']:.3f} thr {cand['threshold']:.2f}")
     return 0
 
 
