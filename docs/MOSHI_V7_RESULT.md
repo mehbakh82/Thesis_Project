@@ -56,3 +56,5 @@ ASR (NeMo v4 CTC), the generated speech has a mean equal-length-prefix CER of
 transcript is empty (`results/moshi_v7a_step200_intelligibility.json`,
 `scripts/score_moshi_v7_intelligibility.py`). The audible, text-bearing output
 is therefore not yet intelligible Persian speech.
+
+Note (2026-10-17): commit messages were later edited (co-author trailers removed, content and dates unchanged). The protocol commit recorded in the runtime receipt, `a5d7b01`, is now `43df266`; the full mapping is in `results/release/commit_message_rewrite_20261017.json`.
