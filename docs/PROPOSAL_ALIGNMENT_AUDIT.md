@@ -7,6 +7,27 @@
 runtime, measurement, evidence-integrity, experimental-path, and strict-QA
 readiness hardening; proposal-level statuses are unchanged)
 
+## Closeout update (2026-10-17)
+
+The strict acceptance figure is unchanged (0/5) because its contract requires
+human labels, physical 12–24 GB hardware, and a complete human study. The
+machine-readable receipt now also reports each criterion under the closeout's
+**automatic** evidence (`closeout_automatic` in
+`results/proposal_alignment_audit.json`): **3 of 5** are met there.
+
+| Proposal criterion | Closeout automatic evidence | Met there? |
+|---|---|---|
+| ≥100 h annotated conversation | 108.584 h, zero leaks; labels automatic | Yes (automatic labels) |
+| Direct S2S, lower loss and intelligible Persian | Moshi v7a 6/9 but unintelligible (prefix CER 0.88); Gemma speech input below the cascade | **No** |
+| Streaming ≤ 500 ms on one 12–24 GB GPU | Real-browser loopback: mean 418 ms, p90 487 ms, 0 unanswered of 201; 11.0 GB GPU stack | Yes (H100 compute, 12 GB memory budget) |
+| Full duplex, ≥80% detection, ≤150 ms | Simulation 0.933 / 0.880, duck median 120 ms; browser 0.850 / 0.847 | Yes (automatic labels, no physical audio path) |
+| MOS ≥ 3.5, 5–10 speakers, ≥2 aged 60+ | Listening study frozen and distributed | Pending |
+
+The architecture remains a cascade, not the proposal's direct model; the
+measured root cause of the direct failure (tokenizer fertility at 12.5 Hz) is
+documented in `docs/MOSHI_V7_RESULT.md`. The historical audit below is kept
+unchanged for traceability.
+
 ## Bottom line
 
 The project is strongly aligned with the proposal's research direction, but it

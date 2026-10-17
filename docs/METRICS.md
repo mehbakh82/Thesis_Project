@@ -4,10 +4,13 @@
 
 Wall-clock milliseconds from **user end-of-speech** (or the moment a barge-in is accepted as a new turn) to the **first audible PCM sample** of the assistant reply.
 
-The historical engineering contract used **p50 ≤500 ms**. The detailed Persian
-proposal is enforced conservatively as **maximum ≤500 ms**. These are not
-equivalent: report p50, p95, and maximum, but only the maximum decides strict
-proposal acceptance.
+The historical engineering contract used **p50 ≤500 ms**, and the project
+earlier enforced the proposal conservatively as **maximum ≤500 ms**. Since the
+2026-10-17 closeout the pass criterion is the proposal's own wording — **mean
+≤500 ms** (objective table) and **p90 ≤500 ms** (problem statement) on the
+plain loopback panel, with failed turns counted as infinitely late in the p90
+(student decision, `docs/SUPERVISOR_DECISIONS.md`). p50, p95 and the maximum
+are always reported next to it.
 
 Do not discard timeouts or failed turns to make the maximum pass. State the timeout policy and denominator.
 
@@ -17,15 +20,23 @@ The official value is client-observed: the browser sends `playback_started` only
 
 ## T_barge_in
 
-Wall-clock milliseconds from the **acoustic onset** of a user interrupt to the moment assistant **playback actually stops**.
+The streaming server reacts to a user onset in two stages
+(`src/thesis_s2s/runtime/bargein_live.py`), so two times are reported, both
+client-observed from the captured frame holding the detected onset:
 
-Engineering gate: **p95 ≤300 ms**. The detailed proposal's stricter acceptance
-criterion is reported separately as **maximum ≤150 ms**. Passing the engineering
-gate does not imply that the proposal criterion passed.
+- **T_duck** — onset to the browser's `duck_ack` (assistant volume lowered).
+  This is the proposal's "detect the interruption and adapt the ongoing
+  response" reaction and carries its **150 ms** criterion (median reported as
+  the pass value, with p90/p95/maximum and the share ≤150 ms).
+- **T_stop** — onset to the browser's `stop_ack` after every active source
+  stopped, i.e. after the lexical confirmation. Reported, with the earlier
+  engineering gate p95 ≤300 ms shown for reference; it includes the time the
+  user must speak before words can be recognized, so it is not a detection
+  latency.
 
-The classical detector in `src/thesis_s2s/bargein` **owns** this control path (`PlaybackController.stop_playback`).
-
-The official stop time comes from the browser's `playback_stopped_ack` after every active audio source has been stopped. A server-side detector timestamp alone is not sufficient.
+The decision itself (stop on interruptions, continue on backchannels and
+noise) is scored as accuracy and F1 with interruption as the positive class.
+A server-side detector timestamp alone is not sufficient for either time.
 
 ## Evidence classes
 

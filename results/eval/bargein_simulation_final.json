@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-17T06:57:41.007128+00:00",
+  "stage": "final",
+  "evidence_class": "simulated_deployment_events_from_real_recordings",
+  "human_verified": false,
+  "pools": {
+    "test/backchannel": 312,
+    "test/interrupt": 550,
+    "test/noise": 294,
+    "test/reply": 70,
+    "train/backchannel": 359,
+    "train/interrupt": 608,
+    "train/noise": 549,
+    "train/reply": 90
+  },
+  "levels_db": {
+    "user_rms": [
+      -27.0,
+      -19.0
+    ],
+    "residual_echo_relative": [
+      -32,
+      -18
+    ],
+    "background_relative": [
+      -38,
+      -24
+    ],
+    "noise_burst_relative": [
+      -6,
+      3
+    ]
+  },
+  "script_sha256": "77fd7ea055fbd9fe6c966794c6e30b9e60217a5df2c16b8dcb982f137012f3de",
+  "pool_sha256": "2e55a55efa963267c124458adbd49749b7d246f89d5a35d964a53fda1f38b943",
+  "pool_selection_asr_sha256": [
+    "4b92fbf88bad28832e8660e77b892daaff3c517822a12defcf78a76e03632ce6"
+  ],
+  "lexical_confirm_asr": {
+    "model_sha256": "b8026984a64dad888037763f3e0da3b27d13eb073be3d7c3e5683e399d682928",
+    "decoder": "ctc"
+  },
+  "reply_texts_sha256": "9612c2f80cfc52ce4e9a82e65551f1eeac919631a991ce48b6cc2823f0580c0b",
+  "chosen_variant": "lexical2f1_margin_12.0_dtd_14.0",
+  "chosen_options": {
+    "initial_coupling_db": 0.0,
+    "lexical_matching": "v2",
+    "drop_function_words": true,
+    "duck_frames": 1
+  },
+  "dev_receipt_sha256": "f09ea2495323ba07aaa382b6043d63f0610cf2bb7c33d8bb3330709fcce57f5b",
+  "test_scenarios": 600,
+  "test": {
+    "accuracy": 0.9333333333333333,
+    "f1": 0.8802395209580839,
+    "precision": 0.7989130434782609,
+    "recall_interrupt_stopped": 0.98,
+    "confusion": {
+      "tp": 147,
+      "tn": 413,
+      "fp": 37,
+      "fn": 3
+    },
+    "by_kind": {
+      "interrupt": {
+        "scenarios": 150,
+        "stop_rate": 0.98
+      },
+      "backchannel": {
+        "scenarios": 150,
+        "stop_rate": 0.08666666666666667
+      },
+      "noise": {
+        "scenarios": 150,
+        "stop_rate": 0.09333333333333334
+      },
+      "none": {
+        "scenarios": 150,
+        "stop_rate": 0.06666666666666667
+      }
+    },
+    "interrupt_stop_rate_by_timing": {
+      "early": 0.94,
+      "mid": 1.0,
+      "late": 1.0
+    },
+    "duck_latency_ms": {
+      "n": 149,
+      "median": 120.50042025170349,
+      "p90": 247.45394369960428,
+      "p95": 327.0986203328293,
+      "max": 985.0482990858204,
+      "share_le_150ms": 0.6644295302013423
+    },
+    "stop_latency_ms": {
+      "n": 147,
+      "median": 785.7679872826875,
+      "p90": 1343.559802200053,
+      "p95": 1603.2624020309315,
+      "max": 2023.1339758428257,
+      "share_le_150ms": 0.0
+    },
+    "false_ducks_before_event_rate": 0.09
+  },
+  "mlp_window_test_accuracy": 0.765
+}

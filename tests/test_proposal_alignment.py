@@ -121,3 +121,41 @@ def test_proposal_latency_duplex_and_human_criteria_are_closable(tmp_path: Path)
     assert criteria["full_duplex_interrupt_80_f1_150_ms"]["strictly_passed"] is True
     assert criteria["human_mos_3_5_elderly"]["strictly_passed"] is True
     assert report["scoring_contract"]["strict_acceptance_percent"] == 60.0
+
+
+def test_closeout_criteria_never_promote_without_their_evidence() -> None:
+    import importlib.util
+    from pathlib import Path
+
+    spec = importlib.util.spec_from_file_location(
+        "audit_proposal_alignment_closeout",
+        Path(__file__).resolve().parents[1] / "scripts" / "audit_proposal_alignment.py",
+    )
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    empty = module._closeout_criteria({}, False)
+    assert not any(row["met_under_automatic_evidence"] for row in empty.values())
+    evidence = {
+        "closeout_2026_10": {
+            "browser_loopback": {
+                "acceptance": {
+                    "plain_mean_le_500ms": True,
+                    "plain_p90_le_500ms_failures_counted": True,
+                    "bargein_accuracy_and_f1_gt_0_8": True,
+                },
+                "gpu_memory": {"peak_stack_mib": 11000.0},
+            },
+            "bargein_simulation": {"test_accuracy": 0.93, "test_f1": 0.88, "duck_latency_ms": {"median": 120.0}},
+            "listening_study": {
+                "definition_requirement": {"participants_5_to_10": True, "at_least_two_aged_60_plus": True},
+                "naturalness_by_condition": {"tts_mana": {"naturalness_mos": 3.4}},
+            },
+        }
+    }
+    rows = module._closeout_criteria(evidence, True)
+    assert rows["streaming_latency_500_ms"]["met_under_automatic_evidence"]
+    assert rows["full_duplex_interrupt_80_f1_150_ms"]["met_under_automatic_evidence"]
+    assert not rows["human_mos_3_5_elderly"]["met_under_automatic_evidence"]  # MOS below 3.5
+    evidence["closeout_2026_10"]["browser_loopback"]["gpu_memory"]["peak_stack_mib"] = 20000.0
+    assert not module._closeout_criteria(evidence, True)["streaming_latency_500_ms"]["met_under_automatic_evidence"]

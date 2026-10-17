@@ -1,0 +1,282 @@
+{
+  "schema_version": 1,
+  "experiment": "speech_input_llm_v1",
+  "protocol": "docs/SPEECH_INPUT_LLM_V1_PROTOCOL.md",
+  "evidence_class": "automatic_llm_judge",
+  "human_verified": false,
+  "panel_rows": 120,
+  "incumbent": "cascade_nemo_qwen3_promptv2",
+  "judge": "qwen3.8-27b (local, temperature 0); Gemini judging pending",
+  "text_retained": false,
+  "arms": {
+    "cascade_nemo_qwen3_promptv2": {
+      "natural_turns": {
+        "relevance": 2.85,
+        "coherence": 3.433333333333333,
+        "elderly_appropriateness": 2.783333333333333,
+        "first_token_after_audio_ms_median": 85.2809909847565,
+        "first_token_after_audio_ms_p90": 91.54935006517917,
+        "empty_replies": 0
+      },
+      "elderly_requests": {
+        "relevance": 2.75,
+        "coherence": 3.283333333333333,
+        "elderly_appropriateness": 2.45,
+        "first_token_after_audio_ms_median": 86.2103629624471,
+        "first_token_after_audio_ms_p90": 93.10859499964863,
+        "empty_replies": 0
+      },
+      "all": {
+        "relevance": 2.8,
+        "coherence": 3.3583333333333334,
+        "elderly_appropriateness": 2.6166666666666667,
+        "first_token_after_audio_ms_median": 85.96432552440092,
+        "first_token_after_audio_ms_p90": 92.52205898519605,
+        "empty_replies": 0
+      }
+    },
+    "cascade_nemo_gemma_elderly": {
+      "natural_turns": {
+        "relevance": 2.033333333333333,
+        "coherence": 3.7666666666666666,
+        "elderly_appropriateness": 3.0166666666666666,
+        "first_token_after_audio_ms_median": 97.5406490615569,
+        "first_token_after_audio_ms_p90": 103.37738099042326,
+        "empty_replies": 0
+      },
+      "elderly_requests": {
+        "relevance": 2.95,
+        "coherence": 3.6166666666666667,
+        "elderly_appropriateness": 3.283333333333333,
+        "first_token_after_audio_ms_median": 98.55791594600305,
+        "first_token_after_audio_ms_p90": 103.29782997723669,
+        "empty_replies": 0
+      },
+      "all": {
+        "relevance": 2.4916666666666667,
+        "coherence": 3.691666666666667,
+        "elderly_appropriateness": 3.15,
+        "first_token_after_audio_ms_median": 97.7506535127759,
+        "first_token_after_audio_ms_p90": 103.37738099042326,
+        "empty_replies": 0
+      },
+      "paired_vs_incumbent": {
+        "natural_turns": {
+          "relevance_minus_incumbent_ci95": [
+            -1.2,
+            -0.43333333333333335
+          ],
+          "coherence_minus_incumbent_ci95": [
+            0.05,
+            0.6333333333333333
+          ],
+          "elderly_appropriateness_minus_incumbent_ci95": [
+            0.0,
+            0.4666666666666667
+          ]
+        },
+        "elderly_requests": {
+          "relevance_minus_incumbent_ci95": [
+            -0.18333333333333332,
+            0.5833333333333334
+          ],
+          "coherence_minus_incumbent_ci95": [
+            0.0,
+            0.65
+          ],
+          "elderly_appropriateness_minus_incumbent_ci95": [
+            0.4666666666666667,
+            1.1833333333333333
+          ]
+        },
+        "all": {
+          "relevance_minus_incumbent_ci95": [
+            -0.5916666666666667,
+            -0.025
+          ],
+          "coherence_minus_incumbent_ci95": [
+            0.11666666666666667,
+            0.55
+          ],
+          "elderly_appropriateness_minus_incumbent_ci95": [
+            0.31666666666666665,
+            0.75
+          ]
+        }
+      }
+    },
+    "speechin_gemma_elderly": {
+      "natural_turns": {
+        "relevance": 1.65,
+        "coherence": 3.5166666666666666,
+        "elderly_appropriateness": 2.783333333333333,
+        "first_token_after_audio_ms_median": 69.2953325342387,
+        "first_token_after_audio_ms_p90": 102.32095199171454,
+        "empty_replies": 0
+      },
+      "elderly_requests": {
+        "relevance": 2.316666666666667,
+        "coherence": 3.683333333333333,
+        "elderly_appropriateness": 2.9166666666666665,
+        "first_token_after_audio_ms_median": 63.70564503595233,
+        "first_token_after_audio_ms_p90": 99.96133798267692,
+        "empty_replies": 0
+      },
+      "all": {
+        "relevance": 1.9833333333333334,
+        "coherence": 3.6,
+        "elderly_appropriateness": 2.85,
+        "first_token_after_audio_ms_median": 67.05201201839373,
+        "first_token_after_audio_ms_p90": 101.64657596033067,
+        "empty_replies": 0
+      },
+      "paired_vs_incumbent": {
+        "natural_turns": {
+          "relevance_minus_incumbent_ci95": [
+            -1.6333333333333333,
+            -0.75
+          ],
+          "coherence_minus_incumbent_ci95": [
+            -0.21666666666666667,
+            0.4
+          ],
+          "elderly_appropriateness_minus_incumbent_ci95": [
+            -0.26666666666666666,
+            0.2833333333333333
+          ]
+        },
+        "elderly_requests": {
+          "relevance_minus_incumbent_ci95": [
+            -0.8666666666666667,
+            0.0
+          ],
+          "coherence_minus_incumbent_ci95": [
+            0.15,
+            0.65
+          ],
+          "elderly_appropriateness_minus_incumbent_ci95": [
+            0.15,
+            0.7833333333333333
+          ]
+        },
+        "all": {
+          "relevance_minus_incumbent_ci95": [
+            -1.1333333333333333,
+            -0.5
+          ],
+          "coherence_minus_incumbent_ci95": [
+            0.05,
+            0.44166666666666665
+          ],
+          "elderly_appropriateness_minus_incumbent_ci95": [
+            0.025,
+            0.44166666666666665
+          ]
+        }
+      }
+    },
+    "speechin_gemma_lora": {
+      "natural_turns": {
+        "relevance": 1.9666666666666666,
+        "coherence": 3.9166666666666665,
+        "elderly_appropriateness": 3.033333333333333,
+        "first_token_after_audio_ms_median": 200.86768048349768,
+        "first_token_after_audio_ms_p90": 226.39522899407893,
+        "empty_replies": 0
+      },
+      "elderly_requests": {
+        "relevance": 2.1333333333333333,
+        "coherence": 3.7,
+        "elderly_appropriateness": 2.6666666666666665,
+        "first_token_after_audio_ms_median": 199.54934704583138,
+        "first_token_after_audio_ms_p90": 219.09484395291656,
+        "empty_replies": 0
+      },
+      "all": {
+        "relevance": 2.05,
+        "coherence": 3.808333333333333,
+        "elderly_appropriateness": 2.85,
+        "first_token_after_audio_ms_median": 199.9266225611791,
+        "first_token_after_audio_ms_p90": 225.71144497487694,
+        "empty_replies": 0
+      },
+      "paired_vs_incumbent": {
+        "natural_turns": {
+          "relevance_minus_incumbent_ci95": [
+            -1.2666666666666666,
+            -0.45
+          ],
+          "coherence_minus_incumbent_ci95": [
+            0.23333333333333334,
+            0.75
+          ],
+          "elderly_appropriateness_minus_incumbent_ci95": [
+            0.016666666666666666,
+            0.48333333333333334
+          ]
+        },
+        "elderly_requests": {
+          "relevance_minus_incumbent_ci95": [
+            -1.05,
+            -0.18333333333333332
+          ],
+          "coherence_minus_incumbent_ci95": [
+            0.1,
+            0.7166666666666667
+          ],
+          "elderly_appropriateness_minus_incumbent_ci95": [
+            -0.13333333333333333,
+            0.5666666666666667
+          ]
+        },
+        "all": {
+          "relevance_minus_incumbent_ci95": [
+            -1.05,
+            -0.4583333333333333
+          ],
+          "coherence_minus_incumbent_ci95": [
+            0.25,
+            0.6583333333333333
+          ],
+          "elderly_appropriateness_minus_incumbent_ci95": [
+            0.025,
+            0.44166666666666665
+          ]
+        }
+      }
+    }
+  },
+  "lora": {
+    "base": "gemma-4-E4B-it-qat-w4a16-ct (dequantized to bf16 for training; served on the w4a16 base)",
+    "train_turns": 3817,
+    "train_examples": 7634,
+    "train_hours": 11.248,
+    "train_sessions": 137,
+    "teacher": {
+      "endpoint_model": "gemma-4-e4b-it",
+      "prompt": "elderly_v1",
+      "decoding": "greedy, Persian-only regex"
+    },
+    "train_manifest_sha256": "d188dcc713e109e6414d6b05588dfd53d679e5b88f4a4a1ee4b2424ca948af26",
+    "steps": 455,
+    "trainable_parameters": 34881536,
+    "peak_gib": 30.19,
+    "heldout_val_loss": {
+      "0": 1.2957,
+      "100": 0.8131,
+      "200": 0.7675,
+      "300": 0.7346,
+      "400": 0.7155,
+      "455": 0.7123
+    },
+    "selected_checkpoint": "step_00455",
+    "adapter_sha256": "bb50b7fb043384c532331a99ffc109efa1cd1fbe54e893d495208fbb3726aa92",
+    "serving_note": "served as an unmerged vLLM LoRA; the ~130 ms extra time to first token is LoRA-serving overhead, not inherent to the model"
+  },
+  "decision": {
+    "best_speech_input_arm": "speechin_gemma_lora",
+    "positive_direct_route_result": false,
+    "adopted_as_deployed_responder": false,
+    "rule": "pooled relevance within 0.10 of the production cascade and lower median time to first token; adoption also per panel"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-09-16T08:15:57.329001+00:00",
+  "generated_at": "2026-10-17T12:53:53.983950+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1077,6 +1077,231 @@
     ],
     "platform_limited_not_a_scientific_gate": []
   },
+  "closeout_2026_10": {
+    "asr_v2": {
+      "status": "present",
+      "evidence_class": "human_reference_transcripts_psrb_public",
+      "deployment_asr": "nemo_v4_ctc",
+      "accuracy_reference_asr": "seamless_v5ft",
+      "clips": 344,
+      "micro_cer": {
+        "nemo_v4_ctc": 0.09443675222778429,
+        "nemo_v4_rnnt": 0.13402208257890438,
+        "nemo_v6_ctc": 0.10150175737565235,
+        "nemo_v6_rnnt": 0.16135903717115774,
+        "seamless_v5ft": 0.06919444740298931,
+        "seamless_v5ft_direct": 0.06919444740298931,
+        "seamless_v6_55000": 0.08985692477012107,
+        "seamless_v6_55000_direct": 0.09631838676465368,
+        "whisper_large_v3": 0.23019845918983206,
+        "qwen3_asr_1p7b": 0.2046721340575851,
+        "omniasr_ctc_1b": 0.14037703695814252,
+        "gemma4_e4b": 0.21035254020662478
+      }
+    },
+    "responder_v2": {
+      "status": "present",
+      "evidence_class": "automatic_llm_judge",
+      "judges": [
+        "qwen38",
+        "gemini"
+      ],
+      "promotion": {
+        "gemma4_e4b_elderly_v1": {
+          "meets_rule_under_every_judge": false,
+          "judges": [
+            "qwen38",
+            "gemini"
+          ]
+        },
+        "qwen35_4b_elderly_v1": {
+          "meets_rule_under_every_judge": false,
+          "judges": [
+            "qwen38",
+            "gemini"
+          ]
+        },
+        "qwen3_4b_elderly_v1": {
+          "meets_rule_under_every_judge": false,
+          "judges": [
+            "qwen38",
+            "gemini"
+          ]
+        }
+      },
+      "second_judge_missing": false,
+      "inter_judge_relevance_exact_agreement": 0.44583333333333336
+    },
+    "tts_v2": {
+      "status": "present",
+      "evidence_class": "automatic_round_trip_asr_and_dnsmos_proxies",
+      "ranking_by_two_listener_cer": [
+        "piper_mana",
+        "piper_ganji_adabi",
+        "piper_gyro",
+        "piper_reza_ibrahim",
+        "piper_ganji",
+        "piper_amir"
+      ],
+      "cer_two_listener_mean": {
+        "piper_mana": 0.058247903075489285,
+        "piper_amir": 0.11731127679403541,
+        "piper_ganji": 0.09016775396085741,
+        "piper_ganji_adabi": 0.06931500465983224,
+        "piper_gyro": 0.07304287045666355,
+        "piper_reza_ibrahim": 0.08387698042870456
+      }
+    },
+    "tts_v3": {
+      "status": "present",
+      "ranking_by_two_listener_cer": [
+        "piper_mana",
+        "piper_ganji_adabi",
+        "parsvoice_xtts"
+      ],
+      "cer_two_listener_mean": {
+        "piper_mana": 0.058247903075489285,
+        "piper_ganji_adabi": 0.06931500465983224,
+        "parsvoice_xtts": 0.13548462255358806
+      }
+    },
+    "speech_input_v1": {
+      "status": "present",
+      "evidence_class": "automatic_llm_judge",
+      "decision": {
+        "best_speech_input_arm": "speechin_gemma_lora",
+        "positive_direct_route_result": false,
+        "adopted_as_deployed_responder": false,
+        "rule": "pooled relevance within 0.10 of the production cascade and lower median time to first token; adoption also per panel"
+      },
+      "second_judge_relevance": {
+        "cascade_nemo_qwen3_promptv2": 1.9083333333333334,
+        "cascade_nemo_gemma_elderly": 3.0,
+        "speechin_gemma_elderly": 2.183333333333333,
+        "speechin_gemma_lora": 2.5166666666666666
+      }
+    },
+    "moshi_v7a": {
+      "status": "present",
+      "tokenizer_tokens_per_word": {
+        "persian_script": 6.585479517382804,
+        "romanized": 2.6699304882207158
+      },
+      "panel_pass_counts": {
+        "50": 0,
+        "100": 0,
+        "150": 6,
+        "200": 4
+      },
+      "diagnostic_positive": false,
+      "secondary_mean_prefix_cer": 0.8839111111111111,
+      "final_test_accessed": false
+    },
+    "bargein_simulation": {
+      "status": "present",
+      "evidence_class": "simulated_deployment_events_from_real_recordings",
+      "chosen_variant": "lexical2f1_margin_12.0_dtd_14.0",
+      "test_accuracy": 0.9333333333333333,
+      "test_f1": 0.8802395209580839,
+      "duck_latency_ms": {
+        "n": 149,
+        "median": 120.50042025170349,
+        "p90": 247.45394369960428,
+        "p95": 327.0986203328293,
+        "max": 985.0482990858204,
+        "share_le_150ms": 0.6644295302013423
+      },
+      "human_verified": false
+    },
+    "bargein_detector_v2": {
+      "status": "present",
+      "evidence_class": "independent_automatic_two_pass_gemini_labels",
+      "test": {
+        "accuracy": 0.574468085106383,
+        "f1": 0.6721311475409836,
+        "precision": 0.8367346938775511,
+        "recall": 0.5616438356164384,
+        "false_accept_rate": 0.38095238095238093,
+        "false_reject_rate": 0.4383561643835616,
+        "balanced_accuracy": 0.5903457273320287,
+        "tp": 41,
+        "tn": 13,
+        "fp": 8,
+        "fn": 32,
+        "accuracy_session_ci95": [
+          0.45161290322580644,
+          0.6956521739130435
+        ],
+        "f1_session_ci95": [
+          0.5378151260504203,
+          0.7857142857142856
+        ],
+        "events": 94,
+        "sessions": 31
+      }
+    },
+    "browser_loopback": {
+      "status": "present",
+      "evidence_class": "automated_browser_loopback",
+      "official_e2e_eligible": false,
+      "plain_t_first_audio_ms": {
+        "n": 201,
+        "mean": 417.8817537943989,
+        "median": 415.2374999523163,
+        "p90": 486.9375,
+        "p95": 506.33749997615814,
+        "max": 536.6375000476837
+      },
+      "plain_p90_failures_as_late_ms": 486.9375,
+      "interrupt_t_duck_ms": {
+        "n": 57,
+        "mean": 45.423464921482825,
+        "median": 45.737500071525574,
+        "p90": 60.19750001430511,
+        "p95": 60.91749999523163,
+        "max": 62.4375
+      },
+      "bargein_pooled": {
+        "accuracy": 0.85,
+        "f1": 0.847457627118644,
+        "confusion": {
+          "tp": 50,
+          "tn": 52,
+          "fp": 8,
+          "fn": 10
+        }
+      },
+      "acceptance": {
+        "plain_mean_le_500ms": true,
+        "plain_p90_le_500ms_failures_counted": true,
+        "duck_median_le_150ms": true,
+        "bargein_accuracy_and_f1_gt_0_8": true
+      },
+      "gpu_memory": {
+        "samples": 10329,
+        "peak_mib": {
+          "asr_nemo": 1606.0,
+          "llm_vllm": 9388.0
+        },
+        "peak_stack_mib": 10994.0,
+        "cpu_components": [
+          "Mana Piper TTS (ONNX Runtime, 8 threads)",
+          "Silero VAD (ONNX)"
+        ],
+        "note": "vLLM reserves its whole --gpu-memory-utilization budget up front; the peak is that reservation, not the minimum need."
+      },
+      "hardware": "shared NVIDIA H100 host (not a 12-24 GB device; memory budget emulated, compute not)"
+    },
+    "listening_study": {
+      "status": "pending",
+      "evidence_class": null,
+      "participants_accepted": null,
+      "participants_aged_60_plus": null,
+      "naturalness_by_condition": null,
+      "definition_requirement": null
+    },
+    "claim_boundary": "Automatic, simulated, and automated-loopback evidence on the shared H100; Gemini labels are independent automatic labels, not human verification."
+  },
   "artifact_provenance": {
     "conversation_audit": {
       "path": "results/conversation_audit.json",
@@ -1357,8 +1582,8 @@
     "metrics_definition": {
       "path": "docs/METRICS.md",
       "present": true,
-      "bytes": 6249,
-      "sha256": "f20f9782869767ae58e408db8d6e5b93c2fb85a35d56517a3c2f2076a994ce17"
+      "bytes": 6892,
+      "sha256": "2257c9f81a93577050281fd94d38741854ba6b6b2c0c5d9d282f9aaf2fbabe83"
     },
     "storage_cleanup": {
       "path": "results/hardware/storage_cleanup_20260831.json",
@@ -1369,8 +1594,8 @@
     "final_audit": {
       "path": "results/release/final_audit.json",
       "present": true,
-      "bytes": 13479,
-      "sha256": "fbbed87726c1351a1d7d2e3fd132e21e3a045edd06a02dece239f6751fb820cd"
+      "bytes": 13604,
+      "sha256": "6dfcc7016c7e799ffe133cacbb52192882c643f8207a3557d9e56237a77e0215"
     },
     "submission_tag_attestation": {
       "path": "results/release/submission_tag_attestation.json",
@@ -1383,6 +1608,84 @@
       "present": true,
       "bytes": 798,
       "sha256": "3b289ac03c95bb2b2f6d28ca9f80e7882e2a529d85bb063b36b39315ab13d408"
+    },
+    "closeout_asr_v2": {
+      "path": "results/eval/asr_candidates_v2_psrb_human.json",
+      "present": true,
+      "bytes": 24843,
+      "sha256": "590acda403e89d4968344cd2cde4729dac2bb3ddb3d7f9b1f58537ce83e725c7"
+    },
+    "closeout_responder_v2": {
+      "path": "results/eval/responder_candidates_v2_two_judges.json",
+      "present": true,
+      "bytes": 8095,
+      "sha256": "a98fc60d8615e0d2ebe5ae7f06a83da8fde292d3d8fda1ed2ee49395f8157bd6"
+    },
+    "closeout_tts_v2": {
+      "path": "results/eval/tts_candidates_v2.json",
+      "present": true,
+      "bytes": 7678,
+      "sha256": "bca0240e368c15f1cb3ab8ae0ccc2ee9dcdcc6c121d83b43befed605741f9fbc"
+    },
+    "closeout_tts_v3": {
+      "path": "results/eval/tts_candidates_v3.json",
+      "present": true,
+      "bytes": 4859,
+      "sha256": "ae3d1d00e8513482f38c29b422dc5730b02875207a34fb631e2cbece32538c06"
+    },
+    "closeout_speech_input_v1": {
+      "path": "results/eval/speech_input_llm_v1.json",
+      "present": true,
+      "bytes": 9013,
+      "sha256": "a29965ff8ab8d328d5c4aa9fd93be68ee9f7c727de2893a674d19096724142cf"
+    },
+    "closeout_speech_input_v1_gemini": {
+      "path": "results/eval/speech_input_v1_gemini_judge.json",
+      "present": true,
+      "bytes": 7732,
+      "sha256": "fbbedbe90900c5c4971ac729777e2555bbf253de16666c2cb3c05a555b340c2f"
+    },
+    "closeout_moshi_tokenizer": {
+      "path": "results/moshi_tokenizer_audit.json",
+      "present": true,
+      "bytes": 1857,
+      "sha256": "6449e25f9390174e2df5fc8f96e3e909b002c453dd863b661ad123c09226f171"
+    },
+    "closeout_moshi_v7a_runtime": {
+      "path": "results/moshi_v7a_overfit_runtime.json",
+      "present": true,
+      "bytes": 138672,
+      "sha256": "131c15252b84f22a620cf584ebea7c797a3062c1098dc34dd4b7e372829d8afa"
+    },
+    "closeout_moshi_v7a_intelligibility": {
+      "path": "results/moshi_v7a_step200_intelligibility.json",
+      "present": true,
+      "bytes": 2410,
+      "sha256": "c87292121f7ce30733b72321cc6708fbdaf248a481e15a44b8e94432f71c4783"
+    },
+    "closeout_bargein_simulation": {
+      "path": "results/eval/bargein_simulation_final.json",
+      "present": true,
+      "bytes": 2746,
+      "sha256": "b4072ee5f7327072ac4d4ae1c6401cff5f003b6cf68b25df2695a2acf41bd208"
+    },
+    "closeout_bargein_detector_v2": {
+      "path": "results/eval/bargein_detector_v2_final.json",
+      "present": true,
+      "bytes": 3172,
+      "sha256": "3cd491ec972d6e68019505fc3d9f24ebbfbfb4fad5aa15818c919c80297eda71"
+    },
+    "closeout_loopback": {
+      "path": "results/eval/live_loopback_formal.json",
+      "present": true,
+      "bytes": 6671,
+      "sha256": "ce34f4c9c7e2daab1d1585654f193c82e6e7b1e8d390c5d09a54d3ba440d66f6"
+    },
+    "closeout_listening_study": {
+      "path": "results/eval/listening_study.json",
+      "present": false,
+      "bytes": null,
+      "sha256": null
     }
   }
 }

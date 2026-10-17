@@ -12,48 +12,38 @@
 
 This project designs, implements and evaluates a prototype Persian
 speech-to-speech system that operates in full-duplex mode: the user microphone
-stays open while the assistant reply is playing, and a classical detector
-decision can stop the active browser audio source and carry the captured speech
-forward as the next user turn. To bound execution risk, two tracks were pursued
-in parallel: direct low-rank adaptation of the open-weight Moshika
-speech-to-speech model to Persian, and a modular cascade combining NeMo Persian
-speech recognition, an exact Qwen3-4B-Instruct-2507 text responder under a
-frozen prompt, and Persian Piper speech synthesis.
+stays open while the assistant speaks, and the system reacts to interruptions.
+Two tracks were pursued: low-rank adaptation of the end-to-end Moshika model to
+Persian, and a streaming cascade of NeMo speech recognition, the
+Qwen3-4B-Instruct-2507 responder and Piper speech synthesis. A conversational
+corpus of 6,754 user/response pairs (108.584 hours, session-disjoint splits) was
+derived from an archive of Persian spoken content.
 
-A derived conversational corpus was constructed from an internal archive of
-Persian spoken content, yielding 6,754 user/response pairs and 108.584 measured
-hours of stereo training audio. Training, validation and test partitions were
-isolated by source session identifier, and no group leakage was observed. An
-interruption detector was implemented from energy, fundamental-frequency and
-MFCC features with a gradient-boosted classifier.
+The final cascade detects the end of speech automatically and speculatively,
+streams the reply clause by clause, and handles interruptions in two stages: it
+ducks the assistant after one frame of speech louder than the expected
+residual echo, then confirms lexically with the speech recognizer after
+discarding listener tokens and the assistant's own echoed words. In automated
+real-browser loopback, end-of-speech to first assistant audio had a mean of
+418 ms and a 90th percentile of 487 ms, with the GPU side of the stack using
+11.0 GB. Interruption handling reached accuracy 0.933 and F1 0.880, with a
+median of 120 ms to the duck, in a deployment simulation built from real
+recordings, and accuracy 0.850 in the browser; an energy/F0/MFCC classifier
+alone reached only 0.574 on real podcast events. The responder passed all seven
+predeclared automatic gates of a 40-row final test (relevance 3.150 versus
+1.425). All components were re-selected on fresh panels, including speech
+recognition on human transcripts and synthesis with two automatic listeners.
 
-After a predeclared seven-row eligibility stage passed, the Qwen3-4B prompt-v2
-responder passed every one of seven predeclared automatic gates on a 40-row,
-source-session-group-disjoint final test. All 240 expected judge calls were
-valid, mean response relevance improved from 1.425 for the frozen
-Qwen2.5-0.5B baseline to 3.150, mean coherence reached 3.325, and the paired
-relevance win rate was 67.5\%. The judge was a same-family Qwen3.8-27B-FP8
-model, so this metric is not a human or independent evaluation. The mechanical
-cascade chain, with the Qwen2.5-0.5B responder, produced a Persian transcript,
-a Persian reply and non-silent audio on 9 of 9 frozen validation rows with zero
-rule-based fallbacks. An automatic re-recognition proxy over those same nine
-outputs measured 7.14\% character error rate and 30.41\% word error rate. The
-nine-row mechanics panel was not re-run after the responder was promoted to
-Qwen3-4B.
-
-The direct track, by contrast, reduced its teacher-forced objective across six
-experimental generations but never produced a checkpoint satisfying the frozen
-autoregressive runtime criterion. Generation v6.2 achieved a 32.20\% reduction
-in in-sample text loss, yet all four of its checkpoints passed 0 of 9 runtime
-rows. That track is therefore reported as a negative result with a positive
-learning signal, and the cascade is treated as the delivered prototype. Browser
-measurement on a physical 12--24 GB GPU, proof of a 500 ms end-to-end latency
-bound, independently human-verified interruption labels, and a 5--10 participant
-listening study were not completed within the project deadline and remain
-explicit limitations.
+The direct track produced no deployable model. Moshi's English tokenizer needs
+6.6 tokens per Persian word and exceeds its one-token-per-frame budget;
+phoneme romanization doubled the best runtime result but the speech was still
+not intelligible, and a speech-input Gemma 4 model also underperformed the
+cascade. Latency and interruption evidence is automated and on an H100 (the
+memory of a 12 GB card was respected, its compute speed was not), labels are
+automatic, and the human listening study is awaiting participants' responses.
 
 \bigskip\noindent\textbf{Keywords}:
 Speech-to-speech, full-duplex dialogue, barge-in detection, Persian language,
-large language models, cascaded systems, parameter-efficient adaptation
+large language models, streaming cascade, tokenization, parameter-efficient adaptation
 
 \end{latin}

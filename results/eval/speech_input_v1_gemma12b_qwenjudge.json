@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "panel_rows": 120,
+  "arms": {
+    "speechin_gemma12b_elderly": {
+      "natural_turns": {
+        "relevance": 2.316666666666667,
+        "coherence": 3.966666666666667,
+        "elderly_appropriateness": 3.466666666666667,
+        "first_token_after_audio_ms_median": 97.55621250951663,
+        "first_token_after_audio_ms_p90": 129.62389702443033,
+        "empty_replies": 0
+      },
+      "elderly_requests": {
+        "relevance": 0.65,
+        "coherence": 4.0,
+        "elderly_appropriateness": 2.316666666666667,
+        "first_token_after_audio_ms_median": 91.92089346470311,
+        "first_token_after_audio_ms_p90": 101.97878000326455,
+        "empty_replies": 0
+      },
+      "all": {
+        "relevance": 1.4833333333333334,
+        "coherence": 3.9833333333333334,
+        "elderly_appropriateness": 2.8916666666666666,
+        "first_token_after_audio_ms_median": 93.50089955842122,
+        "first_token_after_audio_ms_p90": 120.41794299148023,
+        "empty_replies": 0
+      }
+    },
+    "cascade_nemo_gemma12b_elderly": {
+      "natural_turns": {
+        "relevance": 2.0166666666666666,
+        "coherence": 3.933333333333333,
+        "elderly_appropriateness": 3.2,
+        "first_token_after_audio_ms_median": 116.90689547685906,
+        "first_token_after_audio_ms_p90": 126.04599096812308,
+        "empty_replies": 0
+      },
+      "elderly_requests": {
+        "relevance": 3.0833333333333335,
+        "coherence": 3.9166666666666665,
+        "elderly_appropriateness": 3.5166666666666666,
+        "first_token_after_audio_ms_median": 114.33340946678072,
+        "first_token_after_audio_ms_p90": 128.7508150562644,
+        "empty_replies": 0
+      },
+      "all": {
+        "relevance": 2.55,
+        "coherence": 3.925,
+        "elderly_appropriateness": 3.3583333333333334,
+        "first_token_after_audio_ms_median": 116.25300714513287,
+        "first_token_after_audio_ms_p90": 128.2727230573073,
+        "empty_replies": 0
+      }
+    }
+  },
+  "incumbent": "cascade_nemo_qwen3_promptv2",
+  "judge": "qwen3.8-27b (local, temperature 0)",
+  "text_retained": false
+}

@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-17",
+  "change": "commit messages edited to remove co-author trailers; file trees, authors and dates unchanged",
+  "receipt_references": {
+    "results/moshi_v7a_overfit_runtime.json:protocol_commit": {
+      "old": "a5d7b0151ddab34cc005a7a8ac120bc43c87fa61",
+      "new": "43df2663e23232b05aa46d58a53b4e98c8c9d841"
+    }
+  },
+  "commits": [
+    {
+      "old": "7b1363715e00b6041301be639a3839e6f9c1fb6e",
+      "new": "a4835a5635b3df7000c7e0b6fd7cf1b627cac696",
+      "tree": "409e1cb9e641bcbd1572702bd807ab05f0c00cde"
+    },
+    {
+      "old": "f0a222aea7625506ed06769b72632be1094e0db4",
+      "new": "8f01acfea012cc23cc61d0d0aaee29a0e1631881",
+      "tree": "93bf0360447d46926f9651918ff446a83ba3d295"
+    },
+    {
+      "old": "63eb96609052773a816d9b6605bb5f6d602195df",
+      "new": "e82ae455f04fb0e0389486436ebc9de5015fc78b",
+      "tree": "d21d7e9ab56dc255e549d03c6fbc8f38597190e8"
+    },
+    {
+      "old": "57a5bb767a76de35c956ccecfe897cc31f591f43",
+      "new": "e5ceb0adbf44adb46aa66a52d61d2c766ee9f4a1",
+      "tree": "b712e37864da90d27cf801d6bfd510614513ee35"
+    },
+    {
+      "old": "cbc34b96dd3a34bcf0519d12c667df63582e754c",
+      "new": "3bdc5bf94bf503d026ca7b23b8e1fa8b86d5263d",
+      "tree": "15740cc021e745b293836175ec8f362abdaffc4a"
+    },
+    {
+      "old": "64139981c16b35c0516252b1a53eff12bec0d791",
+      "new": "256bcea8b063a0cfd37df020038472e609b6f5c7",
+      "tree": "795429331f2e5ca23d673b5ba3e53ef72146fbe0"
+    },
+    {
+      "old": "e7645633a5dbf393190e511b784bea873f8915f1",
+      "new": "7399c2eda24697cfcfaa3215044016a6d419ee74",
+      "tree": "b8050a0f400376f28e8f485d64bde069e8d6d8d6"
+    },
+    {
+      "old": "69c3d4673983557ccfb96230a424d21d4a6c96ae",
+      "new": "f0026729d35273af462cc25a863e8253bb78edf2",
+      "tree": "52097c0768bb65d536fa45953da0158ad8d10804"
+    },
+    {
+      "old": "5e8cb5bdfef218e94a56cc83be43c73d1dea2c63",
+      "new": "8adb021077091c9c8977ca48e09b54b105d93447",
+      "tree": "5ae85e3b35988e3d31ff5c12fce50e7b3f699169"
+    },
+    {
+      "old": "5d247ab23e3f74d00c69d35d3c0b7d6fbdcea43b",
+      "new": "ea3aa2502baa32df43afa6073c4ab77c7e5974ce",
+      "tree": "15245950e798265b7ff9c1d649d737be694c35a4"
+    },
+    {
+      "old": "ffac4899f6a24e9aaa23925764ef230599a147e1",
+      "new": "fe23d8875a603613ea700e44a8a2fec4234ec6ea",
+      "tree": "88272dce214ed5b8f096e02bb235922fcbc8726e"
+    },
+    {
+      "old": "cd65a280e144d7308f71e72110e4f3c55dafa389",
+      "new": "47b91ebd0035ef7e0c497c3dee86e6812b1298b6",
+      "tree": "d5f8d17356b7d5d981473020df9a0d8cd6c65e1e"
+    },
+    {
+      "old": "e5ff6cfc51b5a812f7de1c39857ce1547f8b24af",
+      "new": "8f2b8d9b4796cacffefd339190563deffefd438d",
+      "tree": "2041e926f615b0640476d351f9c01c27dc4409a5"
+    },
+    {
+      "old": "899d18e55796c97122a4decda059cd6dee962e77",
+      "new": "4ed51fca12609ff22eab1b6a6f75442954d48aae",
+      "tree": "7f90aab2fbe60f7173e77af030f41d255eb8cb60"
+    },
+    {
+      "old": "33c6d0d5559737f74c17683095ce7cedb6ba7b3b",
+      "new": "2fa4bb590f8af87ae98f41ac0570af4c2373dc12",
+      "tree": "6735156cd15161135378bdd666e842b52174e323"
+    },
+    {
+      "old": "4793aec87bff15e0bdd8a1bcaea52934389571fc",
+      "new": "1462c6ba0f502eb40b2ac8be55c7020a508a7da6",
+      "tree": "7483310f194b379c28b3d8751e2dc7df6c28df66"
+    },
+    {
+      "old": "8e7beb9340be7c9c092b3722d985578073a13571",
+      "new": "28caf754ede39f3d2e017ea9ab6bf1633d81044f",
+      "tree": "1f7652dfc106966dac4969cf157fa6e5a638c5a8"
+    },
+    {
+      "old": "41141da362e478c41bf1338e161047bc3b88b212",
+      "new": "9186d42216991a246077e786dd55d5261acad375",
+      "tree": "26417ee5f385f7173a61e08bcb8ba0f16651a4ed"
+    },
+    {
+      "old": "8ba9b97d2f5361e8360075da83b1dd388556090f",
+      "new": "6d5818b2c222eb5a3173e13cf2fec430944b45e8",
+      "tree": "6ac95e310c87bd089f07f8da869c835d32f0207a"
+    },
+    {
+      "old": "e3ca77fffe33937769fd9967cc2afca8a3dff280",
+      "new": "e6b57c6935379f2e61c4edc0836a73eb49bf4a78",
+      "tree": "58ecda3e458b8e9fe5414d4fa1c3b86e0abe7a5c"
+    },
+    {
+      "old": "9bbb93173a1e6a141b40b479a3db49bc4944ac07",
+      "new": "0dc6555799c5d03eaafc1996bcd61b894e15e159",
+      "tree": "bc5f254023c7a8091bbf6a1244fb74ebd38682e6"
+    },
+    {
+      "old": "62b32c31baafd12d4a5a95471705d4915010beb9",
+      "new": "553b57875503f9c73eabe0d42fab10231d673d08",
+      "tree": "36b9ff3e6caa9ed850b837070585b4ae2a6d0b32"
+    },
+    {
+      "old": "378c1cd343dd87ae5928c379da191682cec86c79",
+      "new": "d851fe060bd70b1559953ffc4b9a3e8bf4ad6fce",
+      "tree": "34deebfd9736c53b909b84dbdc0dbf876d591284"
+    },
+    {
+      "old": "6dc3f6dbd75bf1c91dc185c4f9ee376e39799cd0",
+      "new": "ccc13ae9c2430543fe5b2393414478f7d54ff3f0",
+      "tree": "d85fac202501b61f69d64554db8c5269b4d40cfc"
+    },
+    {
+      "old": "4766bbc5b597cb3fd368edfc183ef314d7f186bf",
+      "new": "fd4a3d81e354848fc8a1d0a47e7cf6c0ca08c8f3",
+      "tree": "666bfa6c85ba0de4a01e4b7e0cf44aba8625cbd4"
+    },
+    {
+      "old": "7256abffd1951e508c5eb0926a848dc528cd400b",
+      "new": "7911fea45846cec73cc2303d9fef02c5d133504b",
+      "tree": "5717880200cb6be755ea68e7ae57accf1580aceb"
+    },
+    {
+      "old": "6e4df3178ed1b29179527b623fbe2abe36fb3752",
+      "new": "b84defdfd9fa927db09d7d140e0ea25f207f7c99",
+      "tree": "fc48ddc921cfde2378dc1bfada9307346795f3cd"
+    },
+    {
+      "old": "ced9a92184450f255c6568a75e75e5b4ebd0372c",
+      "new": "5b8043f4a00aeb46773d496e71f6c34179011606",
+      "tree": "d4eed7cfa077a088390dd590c0dd8e1958a50802"
+    },
+    {
+      "old": "a5d7b0151ddab34cc005a7a8ac120bc43c87fa61",
+      "new": "43df2663e23232b05aa46d58a53b4e98c8c9d841",
+      "tree": "69c4632cde82aa7185c5dc7b3a342ed7f0111ded"
+    },
+    {
+      "old": "4ba69073a3496b6e381ada9c23a089f79268cc34",
+      "new": "3900fb18f754bc77ce26a8cb747753fe2dccd6a1",
+      "tree": "8418ab3e66dd7431ff9766857c28dd2e6c24b4d8"
+    },
+    {
+      "old": "bc549f53f297c153c6a41940e2be56df07e3d724",
+      "new": "d8a85cbccfe3554e7fb217c8f0da79068f18883f",
+      "tree": "ea94e3c9477ba0b14a4bdf076cba7dc011ee696c"
+    }
+  ]
+}

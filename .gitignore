@@ -82,6 +82,7 @@ results/release/*.json
 !results/release/final_audit.json
 !results/release/submission_tag_attestation.json
 !results/release/branch_protection.json
+!results/release/commit_message_rewrite_20261017.json
 !tests/fixtures/**
 
 # experiment dumps
