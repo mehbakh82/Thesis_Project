@@ -7,7 +7,7 @@ in `docs/SUPERVISOR_DECISIONS.md`; no supervisor approval is claimed).
 
 One self-contained, mobile-friendly Persian HTML page built by
 `scripts/build_listening_study.py` (SHA-256 of the distributed page:
-`ca6ece097125c2f7989955af2cb6d1f9ba542dc98b67034a91adc3db1b1c3dc9`). Nothing is
+`08f44bcd164ef0972b7cb353a93ee2cc29556eb27544f4e2e6811cc5d9259e0d` after the amendment below; the first build was `ca6ece09…`). Nothing is
 recorded from the participant and no name or contact detail is asked. The page
 asks for consent, an age group (under 40 / 40–59 / 60+), first language, and
 listening device, then:
@@ -88,3 +88,8 @@ No participant had received the page. Two changes:
    bootstrap 95% interval, and the tie share. It is reported as human evidence
    on the judge disagreement; it does not by itself change the deployed
    responder.
+
+Outcome of the voice rule: ParsVoice-XTTS was significantly less intelligible
+than Mana in TTS v3 and is not included; the lab VITS model could not be run
+(missing front-end checkpoint). The study therefore keeps Mana, ganji_adabi and
+the human anchor, and adds the reply-preference section.

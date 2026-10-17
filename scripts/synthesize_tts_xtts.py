@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import statistics
 import time
 import wave
@@ -56,7 +57,8 @@ def main() -> int:
 
     def preprocess_text(self, txt, lang):  # type: ignore[no-untyped-def]
         if lang.split("-")[0] == "fa":
-            return xtts_tokenizer.basic_cleaners(txt)
+            # basic_cleaners of the training fork: lowercase + collapse whitespace
+            return re.sub(r"\s+", " ", txt.lower())
         return original(self, txt, lang)
 
     xtts_tokenizer.VoiceBpeTokenizer.preprocess_text = preprocess_text
@@ -70,6 +72,7 @@ def main() -> int:
         vocab_path=str(args.model_dir / "vocab.json"),
         use_deepspeed=False,
     )
+    model.tokenizer.char_limits.setdefault("fa", 300)  # the training fork's default limit
     model.cuda().eval()
     torch.cuda.reset_peak_memory_stats()
     latents, speaker = model.get_conditioning_latents(audio_path=[str(p) for p in args.reference])
