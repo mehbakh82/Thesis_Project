@@ -4,8 +4,10 @@
 The user clip is streamed at real-time pace; every synthesized clause is placed
 on the same timeline at the moment it arrived (as the browser would schedule
 it, 10 ms later). With ``--interrupt-clip`` a second user utterance starts
-``--interrupt-after`` seconds after the first reply audio arrives, and the
-assistant audio is cut at the moment the server's ``stop`` event arrives.
+``--interrupt-after`` seconds after the first reply audio arrives. As in the
+browser client, the assistant audio is lowered to 0.2 gain from a ``duck``
+event until ``resume``, and the stopped turn is cut at the ``stop`` event. A
+backchannel clip (``--expect-replies 1``) should not create a second reply.
 The output mixes both sides (user slightly quieter) and a JSON sidecar records
 the measured timings. This is a recording of actual system behaviour, not a
 re-synthesis.
@@ -33,7 +35,9 @@ RATE = 16_000
 FRAME = 320
 
 
-async def record(url: str, first: np.ndarray, interrupt: np.ndarray | None, after: float) -> dict:
+async def record(
+    url: str, first: np.ndarray, interrupt: np.ndarray | None, after: float, needed: int
+) -> dict:
     import websockets
 
     timeline_user = np.concatenate([np.zeros(int(0.5 * RATE), np.float32), first])
@@ -43,7 +47,7 @@ async def record(url: str, first: np.ndarray, interrupt: np.ndarray | None, afte
     async with websockets.connect(url, max_size=None) as ws:
         await ws.send(json.dumps({"event": "hello"}))
         await ws.recv()
-        state = {"first_audio_t": None, "stop_t": None, "done": False}
+        state: dict = {"first_audio_t": None, "stop_t": None, "stop_turn": None, "done": False}
         user_stream = [timeline_user]
 
         async def sender() -> None:
@@ -70,10 +74,12 @@ async def record(url: str, first: np.ndarray, interrupt: np.ndarray | None, afte
         task = asyncio.create_task(sender())
         deadline = time.perf_counter() + 40
         replies_done = 0
-        needed = 2 if interrupt is not None else 1
         try:
             while time.perf_counter() < deadline:
-                message = await asyncio.wait_for(ws.recv(), timeout=40)
+                try:
+                    message = await asyncio.wait_for(ws.recv(), timeout=max(0.1, deadline - time.perf_counter()))
+                except TimeoutError:
+                    break
                 now = time.perf_counter() - t0
                 if isinstance(message, bytes):
                     turn, index = struct.unpack("<II", message[:8])
@@ -86,6 +92,7 @@ async def record(url: str, first: np.ndarray, interrupt: np.ndarray | None, afte
                 events.append((now, payload))
                 if payload.get("event") == "stop" and state["stop_t"] is None:
                     state["stop_t"] = now
+                    state["stop_turn"] = payload.get("turn")
                 if payload.get("event") == "reply_done":
                     replies_done += 1
                     if replies_done >= needed:
@@ -94,7 +101,13 @@ async def record(url: str, first: np.ndarray, interrupt: np.ndarray | None, afte
         finally:
             state["done"] = True
             task.cancel()
-    return {"chunks": chunks, "events": events, "user": user_stream[0], "stop_t": state["stop_t"]}
+    return {
+        "chunks": chunks,
+        "events": events,
+        "user": user_stream[0],
+        "stop_t": state["stop_t"],
+        "stop_turn": state["stop_turn"],
+    }
 
 
 def mix(result: dict) -> np.ndarray:
@@ -102,18 +115,31 @@ def mix(result: dict) -> np.ndarray:
     out = np.zeros(int(end * RATE), np.float32)
     user = result["user"]
     out[: user.size] += 0.8 * user
+    gain = np.ones(out.size, np.float32)
+    ducked_at: float | None = None
+    for t, event in result["events"]:
+        kind = event.get("event")
+        if kind == "duck":
+            ducked_at = t
+        elif kind in {"resume", "stop"} and ducked_at is not None:
+            gain[int(ducked_at * RATE) : int(t * RATE)] = 0.2
+            ducked_at = None
+    if ducked_at is not None:
+        gain[int(ducked_at * RATE) :] = 0.2
+    assistant = np.zeros(out.size, np.float32)
     play_cursor: dict[int, float] = {}
-    stop_t = result["stop_t"]
+    stop_t, stop_turn = result["stop_t"], result["stop_turn"]
     for t, turn, pcm in result["chunks"]:
         start = max(t, play_cursor.get(turn, 0.0))
         play_cursor[turn] = start + pcm.size / RATE
         a = int(start * RATE)
         segment = pcm
-        if stop_t is not None and turn == 1 and start < stop_t:
+        if stop_t is not None and turn == stop_turn:
+            if start >= stop_t:
+                continue
             segment = pcm[: max(0, int((stop_t - start) * RATE))]
-        elif stop_t is not None and turn == 1 and start >= stop_t:
-            continue
-        out[a : a + segment.size] += segment[: max(0, out.size - a)]
+        assistant[a : a + segment.size] += segment[: max(0, out.size - a)]
+    out += assistant * gain
     return np.clip(out, -1, 1)
 
 
@@ -122,12 +148,14 @@ def main() -> int:
     parser.add_argument("--clip", type=Path, required=True)
     parser.add_argument("--interrupt-clip", type=Path)
     parser.add_argument("--interrupt-after", type=float, default=1.2)
+    parser.add_argument("--expect-replies", type=int, help="default: 2 with an interrupt clip, else 1")
     parser.add_argument("--url", default="ws://127.0.0.1:8766/ws")
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     first, _ = read_wav(args.clip)
     interrupt = read_wav(args.interrupt_clip)[0] if args.interrupt_clip else None
-    result = asyncio.run(record(args.url, first, interrupt, args.interrupt_after))
+    needed = args.expect_replies or (2 if interrupt is not None else 1)
+    result = asyncio.run(record(args.url, first, interrupt, args.interrupt_after, needed))
     audio = mix(result)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     with wave.open(str(args.out), "wb") as handle:
@@ -141,6 +169,8 @@ def main() -> int:
         "events": [{"t": round(t, 3), **{k: v for k, v in e.items() if k in ("event", "turn", "transcript", "reply_text", "server_timings_ms")}} for t, e in result["events"]],
         "first_audio_arrival_s": round(result["chunks"][0][0], 3) if result["chunks"] else None,
         "stop_t": result["stop_t"],
+        "stop_turn": result["stop_turn"],
+        "bargein_events": [e.get("event") for _t, e in result["events"] if e.get("event") in {"duck", "resume", "stop"}],
     }
     args.out.with_suffix(".json").write_text(json.dumps(sidecar, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(sidecar, ensure_ascii=False)[:800])
