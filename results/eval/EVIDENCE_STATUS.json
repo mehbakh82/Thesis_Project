@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-10-17T06:11:30.409376+00:00",
+  "generated_at": "2026-10-17T07:05:24.963316+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1174,12 +1174,19 @@
       "final_test_accessed": false
     },
     "bargein_simulation": {
-      "status": "pending",
-      "evidence_class": null,
-      "chosen_variant": null,
-      "test_accuracy": null,
-      "test_f1": null,
-      "duck_latency_ms": null,
+      "status": "present",
+      "evidence_class": "simulated_deployment_events_from_real_recordings",
+      "chosen_variant": "lexical2f1_margin_12.0_dtd_14.0",
+      "test_accuracy": 0.9333333333333333,
+      "test_f1": 0.8802395209580839,
+      "duck_latency_ms": {
+        "n": 149,
+        "median": 120.50042025170349,
+        "p90": 247.45394369960428,
+        "p95": 327.0986203328293,
+        "max": 985.0482990858204,
+        "share_le_150ms": 0.6644295302013423
+      },
       "human_verified": false
     },
     "bargein_detector_v2": {
@@ -1560,9 +1567,9 @@
     },
     "closeout_bargein_simulation": {
       "path": "results/eval/bargein_simulation_final.json",
-      "present": false,
-      "bytes": null,
-      "sha256": null
+      "present": true,
+      "bytes": 2746,
+      "sha256": "b4072ee5f7327072ac4d4ae1c6401cff5f003b6cf68b25df2695a2acf41bd208"
     },
     "closeout_bargein_detector_v2": {
       "path": "results/eval/bargein_detector_v2_final.json",
