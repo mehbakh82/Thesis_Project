@@ -185,10 +185,10 @@ def main() -> int:
         "plan": plan,
         "turns": [
             {k: t.get(k) for k in (
-                "turn", "utterance_seconds", "client_t_first_audio_ms", "client_t_first_audible_ms",
+                "turn", "end_sample", "utterance_seconds", "client_t_first_audio_ms", "client_t_first_audible_ms",
                 "client_t_duck_ms", "client_t_stop_ms", "server_timings_ms", "outcome",
                 "speculative_start", "speculation_confirmed", "bargein_events", "asr_error",
-                "responder_error", "clauses",
+                "responder_error", "clauses", "speculation_cancelled",
             )}
             for t in turns
         ],

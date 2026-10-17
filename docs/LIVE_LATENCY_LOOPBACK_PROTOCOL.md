@@ -37,6 +37,17 @@ words.
    starting 0.9 s after the turn ends, and 60 turns with an isolated real
    backchannel token at the same offset.
 
+### Amendment before the formal runs (2026-10-17)
+
+The server now confirms barge-ins lexically with the deployed NeMo ASR
+(`docs/BARGEIN_SIMULATION_PROTOCOL.md`). The backchannel panel originally used
+the 49 clips that NeMo itself had selected as listener tokens, which would make
+the confirm circular; it is replaced by 60 clips drawn at random (seed
+20261017) from the pool selected by an independent listener (SeamlessM4T v2).
+For the barge-in panels the decision outcome is scored as well: a turn with an
+interruption counts as correct when playback was stopped, a turn with a
+backchannel when the reply completed.
+
 ## Acceptance (proposal criteria)
 
 The proposal states **average ≤ 500 ms** (objective table) and **90th
