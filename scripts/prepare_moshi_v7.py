@@ -27,7 +27,7 @@ import os
 import statistics
 import sys
 import wave
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -218,7 +218,7 @@ def main() -> int:
     )
     receipt = {
         "schema_version": 1,
-        "generated_at": datetime.now(UTC).isoformat(),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "purpose": "Moshi v7 romanized word-aligned inner-monologue targets",
         "final_test_accessed": False,
         "audio_rewritten": False,

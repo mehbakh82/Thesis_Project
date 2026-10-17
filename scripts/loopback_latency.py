@@ -27,7 +27,7 @@ import random
 import statistics
 import time
 import wave
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -166,7 +166,7 @@ def main() -> int:
         outcomes[str(t.get("outcome"))] = outcomes.get(str(t.get("outcome")), 0) + 1
     receipt = {
         "schema_version": 1,
-        "generated_at": datetime.now(UTC).isoformat(),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "evidence_class": "automated_browser_loopback",
         "official_e2e_eligible": False,
         "condition": args.condition,

@@ -19,7 +19,7 @@ import subprocess
 import sys
 import unicodedata
 import wave
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -272,7 +272,7 @@ def main() -> int:
     report: dict[str, Any] = {
         "schema_version": 1,
         "status": "running",
-        "generated_at": datetime.now(UTC).isoformat(),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "experiment": "moshi_v7a_romanized_word_aligned",
         "diagnostic_only": True,
         "generalization_claim_allowed": False,
@@ -415,7 +415,7 @@ def main() -> int:
     report["diagnostic_positive"] = bool(selected) and loss_rule
     report["diagnostic_outcome"] = "positive" if report["diagnostic_positive"] else "negative"
     report["status"] = "passed" if all(report["requirements"].values()) else "failed"
-    report["completed_at"] = datetime.now(UTC).isoformat()
+    report["completed_at"] = datetime.now(timezone.utc).isoformat()
     write_report(out_path, report)
     print(json.dumps({k: report[k] for k in ("panel_pass_counts", "diagnostic_outcome", "status")}, indent=2))
     return 0 if report["status"] == "passed" else 1

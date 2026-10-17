@@ -151,9 +151,11 @@ class BargeInController:
         capped = speech_ms >= self.confirm_cap_ms
         if not (ended or capped or speech_ms >= self._next_check_ms):
             return None
-        assert self.transcriber is not None
+        transcriber = self.transcriber
+        if transcriber is None:
+            return None
         started = time.perf_counter()
-        transcript = self.transcriber(self.captured_since_onset())
+        transcript = transcriber(self.captured_since_onset())
         latency = int(round((time.perf_counter() - started) * SAMPLE_RATE))
         echo = self.echo_words() if self.echo_words is not None else set()
         content = content_tokens(

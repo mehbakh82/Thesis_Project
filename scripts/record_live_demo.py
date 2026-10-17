@@ -91,7 +91,7 @@ async def record(
                     break
                 try:
                     message = await asyncio.wait_for(ws.recv(), timeout=0.2)
-                except TimeoutError:
+                except asyncio.TimeoutError:
                     continue
                 now = time.perf_counter() - t0
                 if isinstance(message, bytes):

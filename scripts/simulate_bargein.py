@@ -30,7 +30,7 @@ import random
 import statistics
 import sys
 import wave
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -366,7 +366,7 @@ def main() -> int:
     train = build("train", args.per_class_train)
     receipt: dict[str, Any] = {
         "schema_version": 1,
-        "generated_at": datetime.now(UTC).isoformat(),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "stage": args.stage,
         "evidence_class": "simulated_deployment_events_from_real_recordings",
         "human_verified": False,
