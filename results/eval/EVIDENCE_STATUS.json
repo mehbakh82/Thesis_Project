@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-10-17T11:25:42.540330+00:00",
+  "generated_at": "2026-10-17T12:53:53.983950+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1152,6 +1152,19 @@
         "piper_reza_ibrahim": 0.08387698042870456
       }
     },
+    "tts_v3": {
+      "status": "present",
+      "ranking_by_two_listener_cer": [
+        "piper_mana",
+        "piper_ganji_adabi",
+        "parsvoice_xtts"
+      ],
+      "cer_two_listener_mean": {
+        "piper_mana": 0.058247903075489285,
+        "piper_ganji_adabi": 0.06931500465983224,
+        "parsvoice_xtts": 0.13548462255358806
+      }
+    },
     "speech_input_v1": {
       "status": "present",
       "evidence_class": "automatic_llm_judge",
@@ -1160,6 +1173,12 @@
         "positive_direct_route_result": false,
         "adopted_as_deployed_responder": false,
         "rule": "pooled relevance within 0.10 of the production cascade and lower median time to first token; adoption also per panel"
+      },
+      "second_judge_relevance": {
+        "cascade_nemo_qwen3_promptv2": 1.9083333333333334,
+        "cascade_nemo_gemma_elderly": 3.0,
+        "speechin_gemma_elderly": 2.183333333333333,
+        "speechin_gemma_lora": 2.5166666666666666
       }
     },
     "moshi_v7a": {
@@ -1576,7 +1595,7 @@
       "path": "results/release/final_audit.json",
       "present": true,
       "bytes": 13604,
-      "sha256": "bd3a6f04ea86bf6e49f32c60472662595fbcbc7f6fb40891573c044d20bd6ca6"
+      "sha256": "6dfcc7016c7e799ffe133cacbb52192882c643f8207a3557d9e56237a77e0215"
     },
     "submission_tag_attestation": {
       "path": "results/release/submission_tag_attestation.json",
@@ -1608,11 +1627,23 @@
       "bytes": 7678,
       "sha256": "bca0240e368c15f1cb3ab8ae0ccc2ee9dcdcc6c121d83b43befed605741f9fbc"
     },
+    "closeout_tts_v3": {
+      "path": "results/eval/tts_candidates_v3.json",
+      "present": true,
+      "bytes": 4859,
+      "sha256": "ae3d1d00e8513482f38c29b422dc5730b02875207a34fb631e2cbece32538c06"
+    },
     "closeout_speech_input_v1": {
       "path": "results/eval/speech_input_llm_v1.json",
       "present": true,
       "bytes": 9013,
       "sha256": "a29965ff8ab8d328d5c4aa9fd93be68ee9f7c727de2893a674d19096724142cf"
+    },
+    "closeout_speech_input_v1_gemini": {
+      "path": "results/eval/speech_input_v1_gemini_judge.json",
+      "present": true,
+      "bytes": 7732,
+      "sha256": "fbbedbe90900c5c4971ac729777e2555bbf253de16666c2cb3c05a555b340c2f"
     },
     "closeout_moshi_tokenizer": {
       "path": "results/moshi_tokenizer_audit.json",
