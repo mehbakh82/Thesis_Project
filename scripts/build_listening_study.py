@@ -40,7 +40,7 @@ textarea{width:100%;font-size:1.05rem;min-height:80px}
 const STUDY = __STUDY__;
 const LABELS = ["بد","ضعیف","متوسط","خوب","عالی"];
 const app = document.getElementById('app');
-const answers = {study: STUDY.id, ratings: {}, interactions: {}};
+const answers = {study: STUDY.id, ratings: {}, interactions: {}, preferences: {}};
 let order = [];
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function scale(name, onPick){
@@ -76,8 +76,23 @@ function screenClip(i){
   document.getElementById('s').appendChild(scale(clip.id, v=>{answers.ratings[clip.id]=v; document.getElementById('next').disabled=false;}));
   document.getElementById('next').onclick=()=>screenClip(i+1);
 }
+function screenPreference(i){
+  const prefs=STUDY.preferences||[];
+  if(i>=prefs.length){screenEnd();return;}
+  const it=prefs[i]; const swap=Math.random()<0.5;
+  const first=swap?it.b:it.a, second=swap?it.a:it.b;
+  app.innerHTML=`<div class="card"><p class="muted">پرسش ${i+1} از ${prefs.length}</p>
+  <p>یک فرد مسن از دستیار پرسیده است:</p><p><b>«${it.request}»</b></p>
+  <p>پاسخ ۱: ${first.text}</p><p>پاسخ ۲: ${second.text}</p>
+  <p>کدام پاسخ برای یک فرد مسن بهتر است؟</p>
+  <div class="scale"><button id="p1">پاسخ ۱</button><button id="p2">پاسخ ۲</button><button id="p0">فرقی ندارند</button></div></div>`;
+  const pick=(v)=>{answers.preferences[it.id]=v; screenPreference(i+1);};
+  document.getElementById('p1').onclick=()=>pick(first.condition);
+  document.getElementById('p2').onclick=()=>pick(second.condition);
+  document.getElementById('p0').onclick=()=>pick('tie');
+}
 function screenInteraction(i){
-  if(i>=STUDY.interactions.length){screenEnd();return;}
+  if(i>=STUDY.interactions.length){screenPreference(0);return;}
   const it=STUDY.interactions[i]; const res={};
   app.innerHTML=`<div class="card"><p class="muted">گفت‌وگوی ${i+1} از ${STUDY.interactions.length}</p>
   <p>${it.description}</p><audio controls src="${it.src}"></audio>
@@ -139,11 +154,20 @@ def main() -> int:
         }
         for it in spec["interactions"]
     ]
-    study = {"id": spec["study_id"], "clips": clips, "interactions": interactions}
+    preferences = [
+        {
+            "id": it["id"],
+            "request": it["request"],
+            "a": {"text": it["a"]["text"], "condition": it["a"]["condition"]},
+            "b": {"text": it["b"]["text"], "condition": it["b"]["condition"]},
+        }
+        for it in spec.get("preferences", [])
+    ]
+    study = {"id": spec["study_id"], "clips": clips, "interactions": interactions, "preferences": preferences}
     html = PAGE.replace("__STUDY__", json.dumps(study, ensure_ascii=False))
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(html, encoding="utf-8")
-    print(json.dumps({"clips": len(clips), "interactions": len(interactions), "bytes": len(html.encode()), "sha256": hashlib.sha256(html.encode()).hexdigest()}))
+    print(json.dumps({"clips": len(clips), "interactions": len(interactions), "preferences": len(preferences), "bytes": len(html.encode()), "sha256": hashlib.sha256(html.encode()).hexdigest()}))
     return 0
 
 

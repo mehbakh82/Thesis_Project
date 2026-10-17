@@ -97,6 +97,26 @@ def main() -> int:
         if uses:
             summary["would_use_yes_share"] = sum(u == "yes" for u in uses) / len(uses)
         interactions[item["id"]] = summary
+    preferences: dict[str, Any] = {}
+    pref_items = spec.get("preferences", [])
+    if pref_items:
+        conditions_seen = sorted({it["a"]["condition"] for it in pref_items} | {it["b"]["condition"] for it in pref_items})
+        counts = {c: 0 for c in conditions_seen + ["tie"]}
+        per_participant_share: dict[str, list[float]] = {c: [] for c in conditions_seen}
+        for a in accepted:
+            picks = [a.get("preferences", {}).get(it["id"]) for it in pref_items]
+            picks = [p for p in picks if p in counts]
+            for p in picks:
+                counts[p] += 1
+            for c in conditions_seen:
+                if picks:
+                    per_participant_share[c].append(sum(p == c for p in picks) / len(picks))
+        preferences = {
+            "items": len(pref_items),
+            "counts": counts,
+            "share_by_condition": {c: statistics.fmean(v) if v else None for c, v in per_participant_share.items()},
+            "share_ci95": {c: boot_ci(v) for c, v in per_participant_share.items()},
+        }
     ages = [a.get("age") for a in accepted]
     receipt = {
         "schema_version": 1,
@@ -110,6 +130,7 @@ def main() -> int:
         "excluded": dict(excluded),
         "naturalness_by_condition": by_condition,
         "interactions": interactions,
+        "responder_preferences": preferences,
         "free_text_retained_in_receipt": False,
         "definition_requirement": {
             "participants_5_to_10": 5 <= len(accepted) <= 10,

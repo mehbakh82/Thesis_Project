@@ -78,3 +78,16 @@ is reported as negative or mixed, with the numbers.
 Automatic judge scores on 120 requests (one LLM judge; family-different from
 Gemma and Qwen3-4B only in size, a disclosed limitation), simulated elderly
 voices, H100 timing. No human ratings.
+
+## Addendum (2026-10-17, after the v1 decision; exploratory)
+
+- **Second judge.** The four v1 arms' replies are also judged by Gemini 3.8
+  Flash (as planned above, once budget allowed); reported separately, the v1
+  decision stays with the original judge.
+- **Gemma 4 12B.** It was skipped in v1 because the pinned transformers could
+  not load its `gemma4_unified` architecture; vLLM 0.30 can. Two exploratory
+  arms on the same panels and settings: `speechin_gemma12b_elderly` (12B hears
+  the audio, zero-shot) and `cascade_nemo_gemma12b_elderly` (NeMo transcript →
+  12B text). Both judges. Being added after the v1 result, they cannot change
+  the v1 decision; they show whether a larger model of the same family closes
+  the speech-understanding gap.

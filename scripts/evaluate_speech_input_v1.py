@@ -36,6 +36,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from evaluate_responder_candidates_v2 import (  # noqa: E402
     ELDERLY_PROMPT_V1,
     SCORE_KEYS,
+    judge_gemini,
     judge_qwen38,
 )
 
@@ -129,11 +130,16 @@ def write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
     path.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows), encoding="utf-8")
 
 
-def judge_with_retry(reference: str, reply: str, endpoint: str, wait_s: float = 1500.0) -> dict[str, Any]:
+def judge_with_retry(
+    reference: str, reply: str, endpoint: str, wait_s: float = 1500.0, judge: str = "qwen38", cache: Path | None = None
+) -> dict[str, Any]:
     """The shared judge restarts on a day/night schedule; wait it out instead of failing."""
     deadline = time.monotonic() + wait_s
     while True:
         try:
+            if judge == "gemini":
+                assert cache is not None  # noqa: S101 - script-level invariant
+                return judge_gemini(reference, reply, cache)
             return judge_qwen38(reference, reply, endpoint)
         except (urllib.error.URLError, ConnectionError, TimeoutError):
             if time.monotonic() > deadline:
@@ -169,6 +175,8 @@ def main() -> int:
     parser.add_argument("--gemma-model", default="gemma-4-e4b-it")
     parser.add_argument("--speech-model", help="served name for a speech-input LoRA adapter")
     parser.add_argument("--judge-endpoint", default="http://127.0.0.1:8003")
+    parser.add_argument("--judge", choices=("qwen38", "gemini"), default="qwen38")
+    parser.add_argument("--gemini-cache", type=Path, help="cache directory for the Gemini judge")
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
 
@@ -181,13 +189,18 @@ def main() -> int:
     results: dict[str, Any] = {"schema_version": 1, "panel_rows": len(rows), "arms": {}}
     judged: dict[str, list[dict[str, Any]]] = {}
     for arm in args.arms:
-        judged_path = args.work / f"speech_input_{arm}.jsonl"
+        suffix = "" if args.judge == "qwen38" else f".{args.judge}"
+        judged_path = args.work / f"speech_input_{arm}{suffix}.jsonl"
         replies_path = args.work / f"speech_input_{arm}.replies.jsonl"
+        first_judge_path = args.work / f"speech_input_{arm}.jsonl"
         if judged_path.exists():
             judged[arm] = load_jsonl(judged_path)
         else:
             if replies_path.exists():
                 replies = load_jsonl(replies_path)
+            elif args.judge != "qwen38" and first_judge_path.exists():
+                # same replies as judged by the first judge, scores removed
+                replies = [{k: v for k, v in r.items() if k not in SCORE_KEYS} for r in load_jsonl(first_judge_path)]
             else:
                 run_arm(arm, rows[:1], args)  # warm-up of this path
                 replies = run_arm(arm, rows, args)
@@ -196,7 +209,9 @@ def main() -> int:
             random.Random(f"speech-input-v1:{arm}").shuffle(order)
             for index in order:
                 record = replies[index]
-                raw = judge_with_retry(refs[record["row_id"]], record["reply"], args.judge_endpoint)
+                raw = judge_with_retry(
+                    refs[record["row_id"]], record["reply"], args.judge_endpoint, judge=args.judge, cache=args.gemini_cache
+                )
                 record.update({k: int(raw[k]) for k in SCORE_KEYS})
             write_jsonl(judged_path, replies)
             judged[arm] = replies
@@ -218,7 +233,9 @@ def main() -> int:
                 }
             results["arms"][arm]["paired_vs_incumbent"] = delta
     results["incumbent"] = INCUMBENT
-    results["judge"] = "qwen3.8-27b (local, temperature 0); Gemini judging pending"
+    results["judge"] = (
+        "qwen3.8-27b (local, temperature 0)" if args.judge == "qwen38" else "gemini-3.8-flash (independent automatic judge)"
+    )
     results["text_retained"] = False
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(results, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

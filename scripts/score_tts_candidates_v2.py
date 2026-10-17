@@ -57,6 +57,7 @@ def main() -> int:
     parser.add_argument("--work", type=Path, required=True, help="directory with panel_*.jsonl and asr_*/")
     parser.add_argument("--synthesis", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--experiment", default="tts_candidates_v2")
     args = parser.parse_args()
     if args.out.exists():
         raise SystemExit(f"refusing to overwrite write-once receipt {args.out}")
@@ -97,7 +98,7 @@ def main() -> int:
     ranking = sorted(arms, key=lambda a: arms[a]["cer_two_listener_mean"])
     receipt = {
         "schema_version": 1,
-        "experiment": "tts_candidates_v2",
+        "experiment": args.experiment,
         "incumbent": INCUMBENT,
         "listeners": list(LISTENERS),
         "normalizer": NORMALIZER_VERSION,

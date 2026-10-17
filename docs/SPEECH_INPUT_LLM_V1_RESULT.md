@@ -54,3 +54,34 @@ speech-input route is neither a positive result nor adopted. The cascade stays.
 
 One automatic LLM judge, 120 requests, simulated elderly voices, H100 timing.
 The natural-turn references are YouTube captions. No human ratings.
+
+## Addendum: second judge and Gemma 4 12B (2026-10-17, exploratory)
+
+Receipts: `results/eval/speech_input_v1_gemini_judge.json`,
+`results/eval/speech_input_v1_gemma12b_qwenjudge.json`,
+`results/eval/speech_input_v1_gemma12b_geminijudge.json`.
+
+| Arm | Relevance, Qwen3.8 judge | Relevance, Gemini judge (gain vs production, 95% CI) |
+|---|---|---|
+| NeMo → Qwen3-4B prompt-v2 (production) | **2.80** | 1.91 |
+| NeMo → Gemma 4 E4B text, elderly prompt | 2.49 | **3.00** (+1.09, 0.82–1.36) |
+| Gemma 4 E4B hears the audio (zero-shot) | 1.98 | 2.18 (+0.27, −0.03–0.57) |
+| Gemma 4 E4B + speech LoRA | 2.05 | 2.52 (+0.61, 0.31–0.89); natural 3.37, elderly 1.67 |
+| Gemma 4 12B hears the audio (zero-shot) | 1.48 | 1.63 |
+| NeMo → Gemma 4 12B text, elderly prompt | 2.55 | 3.12 |
+
+- **The verdict depends on the judge.** The decision above was fixed with the
+  Qwen3.8 judge and stays negative. Under the Gemini judge, which rates the
+  production responder's replies below every other v1 arm, the zero-shot speech-input
+  route would meet the rule (relevance not lower, first token sooner), and the
+  LoRA would beat production on relevance (at higher, unmerged-serving latency).
+  The same split appears in responder v2
+  (`docs/RESPONDER_CANDIDATE_COMPARISON_V2_RESULT.md`): the two judges disagree
+  about the deployed responder, not about Persian speech understanding.
+- **Skipping ASR still costs relevance under both judges**: the Gemma text arm
+  beats the Gemma speech arm by 0.5 (Qwen) and 0.8 (Gemini) for E4B, and by
+  1.1 and 1.5 for 12B.
+- **A bigger model of the same family does not hear Persian better**: Gemma 4
+  12B speech input scores below E4B under both judges, while its text mode
+  scores above. The likely bottleneck is the audio front-end's Persian
+  coverage rather than the language model's size (a hypothesis, not tested).

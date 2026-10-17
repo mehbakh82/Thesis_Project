@@ -68,3 +68,23 @@ consent, or with incomplete ratings are excluded and counted.
 A small remote study with self-reported age, on headphones or phone speakers,
 rating recorded clips and recorded interactions (not live use). It is the only
 human evidence of the project.
+
+## Amendment before distribution (2026-10-17)
+
+No participant had received the page. Two changes:
+
+1. **Voices.** The naturalness section follows the TTS v3 rule
+   (`docs/TTS_CANDIDATE_COMPARISON_V3_PROTOCOL.md`): Mana (deployed) plus up to
+   two other voices that are not significantly less intelligible and score at
+   least Mana's DNSMOS. The same 8 texts are used for every voice.
+2. **Reply preference (human tie-breaker for the responder judges).** The two
+   automatic judges disagree about the deployed responder
+   (`docs/RESPONDER_CANDIDATE_COMPARISON_V2_RESULT.md`). Eight elderly requests
+   (seeded random choice among the 52 not used for the voice clips) are shown
+   as text with two replies in random order — the deployed Qwen3-4B prompt-v2
+   reply and the Qwen3.5-4B elderly-prompt reply — and the participant picks
+   the better reply for an older person, or "no difference". Analysis: the
+   per-participant share of picks for each responder, with a participant
+   bootstrap 95% interval, and the tie share. It is reported as human evidence
+   on the judge disagreement; it does not by itself change the deployed
+   responder.
