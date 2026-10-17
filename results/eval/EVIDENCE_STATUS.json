@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-10-17T09:02:24.251387+00:00",
+  "generated_at": "2026-10-17T11:25:42.540330+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1103,29 +1103,34 @@
       "status": "present",
       "evidence_class": "automatic_llm_judge",
       "judges": [
-        "qwen38"
+        "qwen38",
+        "gemini"
       ],
       "promotion": {
         "gemma4_e4b_elderly_v1": {
           "meets_rule_under_every_judge": false,
           "judges": [
-            "qwen38"
+            "qwen38",
+            "gemini"
           ]
         },
         "qwen35_4b_elderly_v1": {
           "meets_rule_under_every_judge": false,
           "judges": [
-            "qwen38"
+            "qwen38",
+            "gemini"
           ]
         },
         "qwen3_4b_elderly_v1": {
           "meets_rule_under_every_judge": false,
           "judges": [
-            "qwen38"
+            "qwen38",
+            "gemini"
           ]
         }
       },
-      "second_judge_missing": true
+      "second_judge_missing": false,
+      "inter_judge_relevance_exact_agreement": 0.44583333333333336
     },
     "tts_v2": {
       "status": "present",
@@ -1592,10 +1597,10 @@
       "sha256": "590acda403e89d4968344cd2cde4729dac2bb3ddb3d7f9b1f58537ce83e725c7"
     },
     "closeout_responder_v2": {
-      "path": "results/eval/responder_candidates_v2_qwen38.json",
+      "path": "results/eval/responder_candidates_v2_two_judges.json",
       "present": true,
-      "bytes": 4457,
-      "sha256": "004300af90427df77802eb52efdc8579b0e875fbf6f2ecd57d4d6a42d9168d8c"
+      "bytes": 8095,
+      "sha256": "a98fc60d8615e0d2ebe5ae7f06a83da8fde292d3d8fda1ed2ee49395f8157bd6"
     },
     "closeout_tts_v2": {
       "path": "results/eval/tts_candidates_v2.json",

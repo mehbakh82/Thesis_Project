@@ -82,7 +82,7 @@ ARTIFACTS: dict[str, str] = {
     "submission_tag_attestation": "results/release/submission_tag_attestation.json",
     "branch_protection": "results/release/branch_protection.json",
     "closeout_asr_v2": "results/eval/asr_candidates_v2_psrb_human.json",
-    "closeout_responder_v2": "results/eval/responder_candidates_v2_qwen38.json",
+    "closeout_responder_v2": "results/eval/responder_candidates_v2_two_judges.json",
     "closeout_tts_v2": "results/eval/tts_candidates_v2.json",
     "closeout_speech_input_v1": "results/eval/speech_input_llm_v1.json",
     "closeout_moshi_tokenizer": "results/moshi_tokenizer_audit.json",
@@ -1719,6 +1719,7 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
             "judges": list((responder.get("judges") or {}).keys()),
             "promotion": responder.get("promotion"),
             "second_judge_missing": "gemini" not in (responder.get("judges") or {}),
+            "inter_judge_relevance_exact_agreement": responder.get("inter_judge_relevance_exact_agreement"),
         },
         "tts_v2": {
             "status": status(tts),
