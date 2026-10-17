@@ -81,6 +81,17 @@ ARTIFACTS: dict[str, str] = {
     "final_audit": "results/release/final_audit.json",
     "submission_tag_attestation": "results/release/submission_tag_attestation.json",
     "branch_protection": "results/release/branch_protection.json",
+    "closeout_asr_v2": "results/eval/asr_candidates_v2_psrb_human.json",
+    "closeout_responder_v2": "results/eval/responder_candidates_v2_qwen38.json",
+    "closeout_tts_v2": "results/eval/tts_candidates_v2.json",
+    "closeout_speech_input_v1": "results/eval/speech_input_llm_v1.json",
+    "closeout_moshi_tokenizer": "results/moshi_tokenizer_audit.json",
+    "closeout_moshi_v7a_runtime": "results/moshi_v7a_overfit_runtime.json",
+    "closeout_moshi_v7a_intelligibility": "results/moshi_v7a_step200_intelligibility.json",
+    "closeout_bargein_simulation": "results/eval/bargein_simulation_final.json",
+    "closeout_bargein_detector_v2": "results/eval/bargein_detector_v2_final.json",
+    "closeout_loopback": "results/eval/live_loopback_formal.json",
+    "closeout_listening_study": "results/eval/listening_study.json",
 }
 
 
@@ -1652,6 +1663,7 @@ def build_evidence_status(
                 else ["Main-branch protection has not been verified from the GitHub API."]
             ),
         },
+        "closeout_2026_10": _closeout_2026_10(project),
         "artifact_provenance": _artifact_provenance(project),
     }
     if out is not None:
@@ -1660,6 +1672,117 @@ def build_evidence_status(
             destination = project / destination
         write_json(destination, payload)
     return payload
+
+
+def _closeout_2026_10(project: Path) -> dict[str, Any]:
+    """Receipts of the 2026-10 closeout; absent receipts are reported as pending.
+
+    These are automatic, simulated, or automated-loopback evidence classes (plus
+    the minimal remote listening study). They never satisfy the strict
+    human/physical-hardware gates above by themselves.
+    """
+
+    def load(name: str) -> dict[str, Any]:
+        return _read_json(project, ARTIFACTS[name])
+
+    def status(payload: dict[str, Any]) -> str:
+        return "present" if payload else "pending"
+
+    asr = load("closeout_asr_v2")
+    responder = load("closeout_responder_v2")
+    tts = load("closeout_tts_v2")
+    speech = load("closeout_speech_input_v1")
+    tokenizer = load("closeout_moshi_tokenizer")
+    v7 = load("closeout_moshi_v7a_runtime")
+    v7_asr = load("closeout_moshi_v7a_intelligibility")
+    simulation = load("closeout_bargein_simulation")
+    detector = load("closeout_bargein_detector_v2")
+    loopback = load("closeout_loopback")
+    study = load("closeout_listening_study")
+    asr_arms = asr.get("arms") or {}
+    tts_arms = tts.get("arms") or {}
+    sim_test = simulation.get("test") or {}
+    plain = (loopback.get("conditions") or {}).get("plain") or {}
+    interrupt = (loopback.get("conditions") or {}).get("bargein_interrupt") or {}
+    return {
+        "asr_v2": {
+            "status": status(asr),
+            "evidence_class": "human_reference_transcripts_psrb_public",
+            "deployment_asr": (asr.get("selection") or {}).get("deployment_asr"),
+            "accuracy_reference_asr": (asr.get("selection") or {}).get("accuracy_reference_asr"),
+            "clips": asr.get("panel_clips"),
+            "micro_cer": {arm: row.get("micro_cer") for arm, row in asr_arms.items()},
+        },
+        "responder_v2": {
+            "status": status(responder),
+            "evidence_class": "automatic_llm_judge",
+            "judges": list((responder.get("judges") or {}).keys()),
+            "promotion": responder.get("promotion"),
+            "second_judge_missing": "gemini" not in (responder.get("judges") or {}),
+        },
+        "tts_v2": {
+            "status": status(tts),
+            "evidence_class": "automatic_round_trip_asr_and_dnsmos_proxies",
+            "ranking_by_two_listener_cer": tts.get("ranking_by_two_listener_cer"),
+            "cer_two_listener_mean": {
+                arm: row.get("cer_two_listener_mean") for arm, row in tts_arms.items()
+            },
+        },
+        "speech_input_v1": {
+            "status": status(speech),
+            "evidence_class": speech.get("evidence_class"),
+            "decision": speech.get("decision"),
+        },
+        "moshi_v7a": {
+            "status": status(v7),
+            "tokenizer_tokens_per_word": {
+                "persian_script": (tokenizer.get("persian_script") or {}).get("tokens_per_word"),
+                "romanized": (tokenizer.get("romanized_phonemes") or {}).get("tokens_per_word"),
+            },
+            "panel_pass_counts": v7.get("panel_pass_counts"),
+            "diagnostic_positive": v7.get("diagnostic_positive"),
+            "secondary_mean_prefix_cer": v7_asr.get("mean_prefix_cer"),
+            "final_test_accessed": v7.get("final_test_accessed"),
+        },
+        "bargein_simulation": {
+            "status": status(simulation),
+            "evidence_class": simulation.get("evidence_class"),
+            "chosen_variant": simulation.get("chosen_variant"),
+            "test_accuracy": sim_test.get("accuracy"),
+            "test_f1": sim_test.get("f1"),
+            "duck_latency_ms": sim_test.get("duck_latency_ms"),
+            "human_verified": False,
+        },
+        "bargein_detector_v2": {
+            "status": status(detector),
+            "evidence_class": "independent_automatic_two_pass_gemini_labels",
+            "test": detector.get("test"),
+        },
+        "browser_loopback": {
+            "status": status(loopback),
+            "evidence_class": loopback.get("evidence_class"),
+            "official_e2e_eligible": False,
+            "plain_t_first_audio_ms": plain.get("t_first_audio_ms"),
+            "plain_p90_failures_as_late_ms": plain.get("t_first_audio_p90_failures_as_late_ms"),
+            "interrupt_t_duck_ms": interrupt.get("t_duck_ms"),
+            "bargein_pooled": loopback.get("bargein_pooled"),
+            "acceptance": loopback.get("acceptance"),
+            "gpu_memory": loopback.get("gpu_memory"),
+            "hardware": loopback.get("hardware"),
+        },
+        "listening_study": {
+            "status": status(study),
+            "evidence_class": study.get("evidence_class"),
+            "participants_accepted": study.get("participants_accepted"),
+            "participants_aged_60_plus": study.get("participants_aged_60_plus"),
+            "naturalness_by_condition": study.get("naturalness_by_condition"),
+            "definition_requirement": study.get("definition_requirement"),
+        },
+        "claim_boundary": (
+            "Automatic, simulated, and automated-loopback evidence on the shared H100; "
+            "Gemini labels are independent automatic labels, not human verification."
+        ),
+    }
 
 
 def render_evidence_summary(payload: dict[str, Any]) -> str:

@@ -55,7 +55,8 @@ the same w4a16 base as the zero-shot arm.
 
 ## Measures
 
-- Relevance, coherence, elderly appropriateness (1–5) from the local Qwen3.8
+- Relevance, coherence, elderly appropriateness (0–4; erratum: originally
+  written "1–5", but the responder-v2 rubric used throughout is 0–4) from the local Qwen3.8
   judge with the responder-v2 rubric, replies shuffled per arm; a Gemini judge
   is added when budget allows and is reported separately.
 - Time to first token after the end of the user audio:

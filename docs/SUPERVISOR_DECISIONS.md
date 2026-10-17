@@ -54,11 +54,18 @@ approval is claimed.
 - **Human evaluation:** a minimal remote listening study (5–6 native Persian
   listeners, at least two aged 60+, about 15 minutes, no voice recording) is
   the planned human evidence for naturalness and perceived responsiveness.
+- **Latency criterion:** the formal browser-loopback runs are judged by the
+  proposal's own two criteria — mean ≤ 500 ms (objective table) and 90th
+  percentile ≤ 500 ms (problem statement) of end-of-speech-to-first-audio on
+  the plain panel, with failed turns counted. The project's earlier,
+  self-imposed maximum-≤500 ms rule is still reported but is no longer the pass
+  criterion (`docs/LIVE_LATENCY_LOOPBACK_PROTOCOL.md`). Supervisor confirmation
+  is not claimed.
 
 ## Still awaiting explicit supervisor decisions
 
 - Final direct speech-to-speech base model/trainer choice.
-- Whether to replace the project's conservative maximum-≤500 ms rule with p95,
-  p90, mean, or median latency; absent that decision, maximum remains binding.
+- Confirmation of the student's latency criterion above (proposal mean and p90
+  instead of the earlier self-imposed maximum).
 - Final manual-QA sample size and acceptance threshold.
 - Human-study execution or a written alternative if recruitment is impossible.
