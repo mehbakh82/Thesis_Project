@@ -558,6 +558,70 @@ amir & 11.73\% & [$+4.5$, $+7.6$] pp & 3.32 & 63 ms \\
 خودکار به دست آمده‌اند و بازبینی مستقل انسانی ندارند. بنابراین
 نیازمندی ن۵ با این شواهد «اثبات نشده» است.}
 
+\subsection{شبیه‌سازی موقعیت استقرار}
+\label{sec:res-bargein-sim}
+
+کنترل‌گر مستقر (بخش~\ref{sec:bargein}) در شبیه‌سازی‌ای سنجیده شد که میکروفون
+را در هنگام پخش پاسخ دستیار بازسازی می‌کند: پژواک باقی‌مانده پاسخ (\N{18} تا
+\N{32} دسی‌بل پایین‌تر از کاربر و \N{20} تا \N{60} میلی‌ثانیه دیرتر)، نویز
+زمینه، پاسخ اتاق و یک رخداد واقعی در آغاز، میانه یا پایان پاسخ: وقفه (گفتار
+واقعی فارسی)، بازخورد کلامی واقعی، انفجار نویز واقعی، یا هیچ. شش اجرای
+توسعه فقط روی صوت بخش آموزشی انجام شد (جدول~\ref{tab:bargein-dev}) و گونه
+برگزیده یک‌بار روی \N{600} سناریوی بخش آزمون اجرا شد
+(جدول~\ref{tab:bargein-sim}).
+
+\begin{table}[ht]
+\centering
+\caption{اجراهای توسعه شبیه‌سازی (فقط بخش آموزشی)}
+\label{tab:bargein-dev}
+\small
+\begin{latin}
+\begin{tabular}{llr}
+\toprule
+Run & Change & Dev accuracy / F1 \\
+\midrule
+dev3 & duration/MLP confirm + double-talk detector & 0.687 / 0.624 \\
+dev4 & lexical ASR confirm with echo rejection & 0.840 / 0.765 \\
+dev5 & + coupling prior, wider echo matching, function words & 0.920 / 0.862 \\
+dev6 & + one-frame duck (latency tie-break) & 0.913 / 0.856 \\
+\bottomrule
+\end{tabular}
+\end{latin}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{نتیجه یک‌باره شبیه‌سازی روی \N{600} سناریوی آزمون (بازه اطمینان \N{95} درصد ویلسون)}
+\label{tab:bargein-sim}
+\small
+\begin{latin}
+\begin{tabular}{lr}
+\toprule
+Measure & Value \\
+\midrule
+Accuracy (interrupt = positive) & \textbf{0.933} (0.910--0.951) \\
+F1 & \textbf{0.880} \\
+Interruptions stopped (recall) & 0.980 (0.943--0.993) \\
+Stop rate: backchannel / noise / no event & 0.087 / 0.093 / 0.067 \\
+Onset $\rightarrow$ duck, median / p90 & \textbf{120} / 247 ms (66\% $\le$ 150 ms) \\
+Onset $\rightarrow$ stop, median / p90 & 786 / 1344 ms \\
+\bottomrule
+\end{tabular}
+\end{latin}
+\end{table}
+
+دقت و \en{F1} هر دو از \N{0.80} بالاترند و میانه زمان کم‌کردن صدا \N{120}
+میلی‌ثانیه است. توقف کامل بیشتر طول می‌کشد (میانه \N{786} میلی‌ثانیه)، چون
+کنترل‌گر صبر می‌کند تا واژه‌ای شنیده شود؛ در این فاصله صدای دستیار کم شده
+است. بزرگ‌ترین جهش در اجراهای توسعه از دو جا آمد: تأیید واژگانی (که
+بازخوردهای کلامی و پژواک را از وقفه جدا می‌کند) و رفع مقداردهی ضریب
+جفت‌شدگی آشکارساز هم‌سخنی.
+
+\مرزادعا{این نتیجه روی آمیزه‌های شبیه‌سازی‌شده از ضبط‌های واقعی است و نه
+کاربران زنده؛ پژواک به‌صورت گفتار تضعیف‌شده و تأخیری دستیار مدل شده و
+برچسب‌ها از قواعد استخراج و یک بازشناس به‌همراه فهرست واژه‌های شنونده
+آمده‌اند، نه از انسان.}
+
 \section{پیوستگی انتقال تمام‌دوطرفه}
 \label{sec:res-duplex}
 
