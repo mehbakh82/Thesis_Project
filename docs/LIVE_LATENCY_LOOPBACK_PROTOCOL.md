@@ -48,6 +48,18 @@ For the barge-in panels the decision outcome is scored as well: a turn with an
 interruption counts as correct when playback was stopped, a turn with a
 backchannel when the reply completed.
 
+### Scoring correction after the formal runs (2026-10-17)
+
+The runs themselves were not changed. The first pass of the new scorer
+(`scripts/score_loopback_formal.py`) mapped server turns to planned turns with
+a fixed ±0.3 s window and reported 14 plain-panel turns as unanswered; all of
+them had in fact been answered — the browser's capture clock drifts against the
+fake-microphone timeline (up to about 6.8 s over the 42-minute plain run), so
+later turns fell outside the window. The scorer now tracks that offset turn by
+turn (updated from the assigned end of speech nearest the expected one). That
+uncommitted first receipt was discarded and regenerated; every planned turn is
+mapped, and the raw per-condition receipts are unchanged.
+
 ## Acceptance (proposal criteria)
 
 The proposal states **average ≤ 500 ms** (objective table) and **90th

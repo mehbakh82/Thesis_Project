@@ -72,32 +72,46 @@ async def record(
                 cursor += FRAME
 
         task = asyncio.create_task(sender())
-        deadline = time.perf_counter() + 40
+        deadline = time.perf_counter() + 60
         replies_done = 0
+        play_end: dict[int, float] = {}  # virtual playback end per turn, as the browser queue would play it
+        ended: set[int] = set()
+        stopped: set[int] = set()
         try:
             while time.perf_counter() < deadline:
-                try:
-                    message = await asyncio.wait_for(ws.recv(), timeout=max(0.1, deadline - time.perf_counter()))
-                except TimeoutError:
+                now = time.perf_counter() - t0
+                # emulate the browser: report the end of playback so the server returns to listening
+                for turn, end in list(play_end.items()):
+                    if turn not in ended and turn not in stopped and now > end:
+                        ended.add(turn)
+                        await ws.send(json.dumps({"event": "playback_ended", "turn": turn}))
+                if replies_done >= needed and all(t in ended or t in stopped for t in play_end) and now > max(
+                    play_end.values(), default=0.0
+                ) + 1.5:
                     break
+                try:
+                    message = await asyncio.wait_for(ws.recv(), timeout=0.2)
+                except TimeoutError:
+                    continue
                 now = time.perf_counter() - t0
                 if isinstance(message, bytes):
                     turn, index = struct.unpack("<II", message[:8])
                     pcm = np.frombuffer(message[8:], dtype="<i2").astype(np.float32) / 32768.0
                     if state["first_audio_t"] is None:
                         state["first_audio_t"] = now
+                    start = max(now + 0.01, play_end.get(turn, 0.0))
+                    play_end[turn] = start + pcm.size / RATE
                     chunks.append((now + 0.01, turn, pcm))
                     continue
                 payload = json.loads(message)
                 events.append((now, payload))
-                if payload.get("event") == "stop" and state["stop_t"] is None:
-                    state["stop_t"] = now
-                    state["stop_turn"] = payload.get("turn")
+                if payload.get("event") == "stop":
+                    stopped.add(int(payload.get("turn") or 0))
+                    if state["stop_t"] is None:
+                        state["stop_t"] = now
+                        state["stop_turn"] = payload.get("turn")
                 if payload.get("event") == "reply_done":
                     replies_done += 1
-                    if replies_done >= needed:
-                        await asyncio.sleep(1.0)
-                        break
         finally:
             state["done"] = True
             task.cancel()

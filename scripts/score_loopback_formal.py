@@ -61,30 +61,53 @@ def finite_or_none(value: float) -> float | None:
 
 
 def map_turns(receipt: dict[str, Any]) -> list[dict[str, Any]]:
+    """Assign server turns to planned turns, tracking the capture-clock offset.
+
+    The browser's capture clock drifts against the fake-microphone timeline
+    (several seconds over a 40-minute run), so a fixed window fails. Planned
+    turns are about 13 s apart; each planned turn takes the server turns that
+    end inside its window shifted by the current offset estimate, and the
+    offset is updated from the assigned end of speech nearest the expected one.
+    """
+
     plan = receipt["plan"]
     turns = sorted((t for t in receipt["turns"] if t.get("end_sample") is not None), key=lambda t: t["end_sample"])
+    ends = [t["end_sample"] / RATE for t in turns]
+    # initial offset: median distance of the first answered server turns to the nearest planned end
+    first = [
+        min((e - p["end_s"] for p in plan[:12]), key=abs)
+        for e, t in zip(ends, turns, strict=True)
+        if t.get("client_t_first_audio_ms") is not None
+    ][:8]
+    offset = statistics.median(first) if first else 0.0
     rows = []
     for index, planned in enumerate(plan):
-        window_end = plan[index + 1]["start_s"] if index + 1 < len(plan) else math.inf
-        mine = [
-            t for t in turns
-            if planned["start_s"] - 0.3 <= t["end_sample"] / RATE < window_end - 0.3
-            and not t.get("speculation_cancelled")
-        ]
+        lo = planned["start_s"] + offset - 1.5
+        hi = (plan[index + 1]["start_s"] if index + 1 < len(plan) else math.inf) + offset - 1.5
+        mine = [t for t, e in zip(turns, ends, strict=True) if lo <= e < hi]
+        if mine:
+            # the end of the planned utterance itself (not of an overlaid interruption)
+            expected = planned["end_s"] + offset
+            nearest = min((t["end_sample"] / RATE for t in mine), key=lambda e: abs(e - expected))
+            offset = 0.7 * offset + 0.3 * (nearest - planned["end_s"])
+        mine = [t for t in mine if not t.get("speculation_cancelled")]
         heard = [t for t in mine if t.get("client_t_first_audio_ms") is not None]
-        first = heard[0] if heard else None
+        first_reply = heard[0] if heard else None
         events = [e for t in mine for e in (t.get("bargein_events") or [])]
         rows.append(
             {
                 "id": planned["id"],
                 "server_turns": len(mine),
-                "t_first_audio_ms": float(first["client_t_first_audio_ms"]) if first else math.inf,
-                "t_first_audible_ms": float(first["client_t_first_audible_ms"]) if first and first.get("client_t_first_audible_ms") is not None else math.inf,
+                "clock_offset_s": round(offset, 3),
+                "t_first_audio_ms": float(first_reply["client_t_first_audio_ms"]) if first_reply else math.inf,
+                "t_first_audible_ms": float(first_reply["client_t_first_audible_ms"])
+                if first_reply and first_reply.get("client_t_first_audible_ms") is not None
+                else math.inf,
                 "t_duck_ms": next((float(t["client_t_duck_ms"]) for t in mine if t.get("client_t_duck_ms") is not None), None),
                 "t_stop_ms": next((float(t["client_t_stop_ms"]) for t in mine if t.get("client_t_stop_ms") is not None), None),
                 "stopped": any(e.get("kind") == "stop" for e in events),
                 "ducked": any(e.get("kind") == "duck" for e in events),
-                "outcome": first.get("outcome") if first else None,
+                "outcome": first_reply.get("outcome") if first_reply else None,
                 "errors": [t.get("asr_error") or t.get("responder_error") for t in mine if t.get("asr_error") or t.get("responder_error")],
             }
         )

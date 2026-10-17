@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-10-17T07:05:24.963316+00:00",
+  "generated_at": "2026-10-17T08:49:00.031443+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1195,16 +1195,56 @@
       "test": null
     },
     "browser_loopback": {
-      "status": "pending",
-      "evidence_class": null,
+      "status": "present",
+      "evidence_class": "automated_browser_loopback",
       "official_e2e_eligible": false,
-      "plain_t_first_audio_ms": null,
-      "plain_p90_failures_as_late_ms": null,
-      "interrupt_t_duck_ms": null,
-      "bargein_pooled": null,
-      "acceptance": null,
-      "gpu_memory": null,
-      "hardware": null
+      "plain_t_first_audio_ms": {
+        "n": 201,
+        "mean": 417.8817537943989,
+        "median": 415.2374999523163,
+        "p90": 486.9375,
+        "p95": 506.33749997615814,
+        "max": 536.6375000476837
+      },
+      "plain_p90_failures_as_late_ms": 486.9375,
+      "interrupt_t_duck_ms": {
+        "n": 57,
+        "mean": 45.423464921482825,
+        "median": 45.737500071525574,
+        "p90": 60.19750001430511,
+        "p95": 60.91749999523163,
+        "max": 62.4375
+      },
+      "bargein_pooled": {
+        "accuracy": 0.85,
+        "f1": 0.847457627118644,
+        "confusion": {
+          "tp": 50,
+          "tn": 52,
+          "fp": 8,
+          "fn": 10
+        }
+      },
+      "acceptance": {
+        "plain_mean_le_500ms": true,
+        "plain_p90_le_500ms_failures_counted": true,
+        "duck_median_le_150ms": true,
+        "bargein_accuracy_and_f1_gt_0_8": true
+      },
+      "gpu_memory": {
+        "samples": 10329,
+        "peak_mib": {
+          "asr_nemo": 1606.0,
+          "llm_vllm": 9388.0
+        },
+        "peak_stack_mib": 10994.0,
+        "cpu_components": [
+          "Mana Piper TTS (ONNX Runtime, 8 threads)",
+          "Silero VAD (ONNX)"
+        ],
+        "note": "vLLM reserves its whole --gpu-memory-utilization budget up front; the peak is that reservation, not the minimum need."
+      },
+      "hardware": "shared NVIDIA H100 host (not a 12-24 GB device; memory budget emulated, compute not)"
     },
     "listening_study": {
       "status": "pending",
@@ -1579,9 +1619,9 @@
     },
     "closeout_loopback": {
       "path": "results/eval/live_loopback_formal.json",
-      "present": false,
-      "bytes": null,
-      "sha256": null
+      "present": true,
+      "bytes": 6671,
+      "sha256": "ce34f4c9c7e2daab1d1585654f193c82e6e7b1e8d390c5d09a54d3ba440d66f6"
     },
     "closeout_listening_study": {
       "path": "results/eval/listening_study.json",
