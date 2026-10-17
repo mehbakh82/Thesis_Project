@@ -51,6 +51,12 @@ CLASSES = ("interrupt", "backchannel", "noise", "none")
 TIMINGS = ("early", "mid", "late")
 SPLIT_SEED = "bargein-sim-20261016"
 USER_RMS_DB = -23.0
+# Lexical-confirm variant families (controller options); "lexical" is the dev4 design.
+LEXICAL_FAMILIES: dict[str, dict[str, Any]] = {
+    "lexical": {},
+    "lexicalinit": {"initial_coupling_db": 0.0},
+    "lexical2": {"initial_coupling_db": 0.0, "lexical_matching": "v2", "drop_function_words": True},
+}
 
 
 def read(path: Path | str) -> np.ndarray:
@@ -185,8 +191,10 @@ def run_controller(
     margin: float | None = 12.0,
     dtd_margin: float | None = None,
     transcriber: Any | None = None,
+    options: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     controller = BargeInController(
+        **(options or {}),
         transcriber=transcriber,
         echo_words=lambda: scenario["echo_words"],
         scorer=default_scorer(),
@@ -300,6 +308,8 @@ def main() -> int:
     parser.add_argument("--reply-dir", type=Path, required=True)
     parser.add_argument("--rir-dir", type=Path, required=True)
     parser.add_argument("--reply-texts", type=Path, help="JSONL file/text of the reply clips (echo vocabulary)")
+    parser.add_argument("--lexical-only", action="store_true", help="dev: skip the duration/MLP grid")
+    parser.add_argument("--families", nargs="+", default=["lexical"], help="dev: lexical variant families")
     parser.add_argument("--per-class-train", type=int, default=150)
     parser.add_argument("--per-class-test", type=int, default=150)
     parser.add_argument("--choice", type=Path, help="dev receipt (required for final)")
@@ -372,18 +382,27 @@ def main() -> int:
         mlp = fit_mlp(fit)
         variants: dict[str, Any] = {}
         configs = [(m, None) for m in (12.0, 16.0)] + [(12.0, d) for d in (6.0, 10.0, 14.0)]
-        for margin, dtd in configs:
+        for margin, dtd in [] if args.lexical_only else configs:
             for name, classifier in (("duration_only", None), ("plus_mlp", mlp)):
                 key = f"{name}_margin_{margin}_dtd_{dtd}"
                 results = [run_controller(sc, classifier, 0.7, margin, dtd) for sc in dev]
                 variants[key] = summarize(results, dev)
         if confirm_asr is not None:
-            for dtd in (None, 6.0, 10.0, 14.0):
-                key = f"lexical_margin_12.0_dtd_{dtd}"
-                results = [run_controller(sc, None, 0.7, 12.0, dtd, transcribe) for sc in dev]
-                variants[key] = summarize(results, dev)
+            for family in args.families:
+                for dtd in (None, 6.0, 10.0, 14.0):
+                    key = f"{family}_margin_12.0_dtd_{dtd}"
+                    results = [
+                        run_controller(sc, None, 0.7, 12.0, dtd, transcribe, LEXICAL_FAMILIES[family]) for sc in dev
+                    ]
+                    variants[key] = summarize(results, dev)
         chosen = max(variants, key=lambda k: (variants[k]["accuracy"], variants[k]["f1"]))
-        receipt.update(dev_scenarios=len(dev), fit_scenarios=len(fit), variants=variants, chosen_variant=chosen)
+        receipt.update(
+            dev_scenarios=len(dev),
+            fit_scenarios=len(fit),
+            variants=variants,
+            chosen_variant=chosen,
+            lexical_families={f: LEXICAL_FAMILIES[f] for f in args.families},
+        )
         for key, v in variants.items():
             print(key, round(v["accuracy"], 3), round(v["f1"], 3), {k: round(x["stop_rate"], 2) for k, x in v["by_kind"].items()}, v["duck_latency_ms"].get("median"))
         print("chosen", chosen)
@@ -394,15 +413,22 @@ def main() -> int:
         margin = None if margin_text == "None" else float(margin_text)
         dtd = None if dtd_text == "None" else float(dtd_text)
         mlp = fit_mlp(train) if chosen.startswith("plus_mlp") else None
-        lexical = chosen.startswith("lexical")
+        family = chosen.split("_margin_")[0]
+        lexical = family in LEXICAL_FAMILIES
         if lexical and confirm_asr is None:
             raise SystemExit("the chosen lexical variant needs --reply-texts and the confirm ASR")
         test = build("test", args.per_class_test)
-        results = [run_controller(sc, mlp, 0.7, margin, dtd, transcribe if lexical else None) for sc in test]
+        results = [
+            run_controller(
+                sc, mlp, 0.7, margin, dtd, transcribe if lexical else None, LEXICAL_FAMILIES.get(family)
+            )
+            for sc in test
+        ]
         x_te, y_te = classify_windows(test)
         reference_mlp = mlp or fit_mlp(train)
         receipt.update(
             chosen_variant=chosen,
+            chosen_options=LEXICAL_FAMILIES.get(family),
             dev_receipt_sha256=hashlib.sha256(args.choice.read_bytes()).hexdigest(),
             test_scenarios=len(test),
             test=summarize(results, test),

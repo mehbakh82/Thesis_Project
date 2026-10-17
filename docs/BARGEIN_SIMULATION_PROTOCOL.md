@@ -67,6 +67,41 @@ Development variants: the dev3 duration/MLP grid (for comparison) plus
 `lexical` with echo-floor margin 12 dB and double-talk margin ∈ {none, 6, 10,
 14} dB.
 
+### dev4 result and a stopped final start (2026-10-17)
+
+dev4 (training split, Seamless-selected backchannel pool) chose
+`lexical_margin_12.0_dtd_14.0`: accuracy 0.840, F1 0.765; stop rates interrupt
+0.96, backchannel 0.25, noise 0.11, none 0.27 (duration-only with the same
+double-talk margin: 0.797 / 0.719). An automated chain then started the final
+run; it was killed about 20 seconds later, before it wrote any output or
+printed any result, so that the remaining echo-only and backchannel false
+stops could be analysed on development scenarios first. No test-split result
+has been observed. The next development round and the final run follow the
+rule below.
+
+### dev5 (written before its results)
+
+A diagnostic rerun of the dev4 development scenarios logged the transcript
+behind every wrong stop. Three causes were found: (1) many false ducks happen
+in the first 0.1–0.4 s of a reply, because the double-talk detector initialised
+its echo-coupling estimate from the first playback frame, before the delayed
+echo arrived; (2) echo words cut at the edges of the captured window
+(«کانورسی…», «هیچوق…») escape the one-edit match; (3) lone function words
+(«از», «این», «یه», «چه») counted as interruption content. dev5 reruns the same
+300 development scenarios with three lexical families, each at double-talk
+margins {none, 6, 10, 14} dB:
+
+- `lexical`: the dev4 design (reproduction);
+- `lexicalinit`: (1) fixed by a conservative coupling prior of 0 dB that
+  adapts down while the user is quiet;
+- `lexical2`: all three — the prior, echo matching that also accepts a
+  prefix/suffix of three or more letters and one edit for three-letter words,
+  and a closed-class function-word list (`FUNCTION_WORDS`) that neither
+  confirms nor denies.
+
+The duration/MLP grid is not rerun (dev4 already compared it). The variant
+with the highest development accuracy, then F1, goes to the final run.
+
 ## Selection and final run
 
 The development variant with the highest accuracy (then F1) is frozen and run

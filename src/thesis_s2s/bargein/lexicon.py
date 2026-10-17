@@ -21,12 +21,34 @@ BACKCHANNEL_LEXICON = frozenset(
 )
 
 
-def _close(a: str, b: str) -> bool:
-    """Equal, or one edit apart for words of four or more letters."""
+# Closed-class words (prepositions, conjunctions, pronouns, demonstratives,
+# copulas) that say nothing about whether the user wants the floor.
+FUNCTION_WORDS = frozenset(
+    {
+        "از", "به", "با", "در", "بر", "برای", "که", "و", "یا", "تا", "را", "رو", "هم",
+        "این", "اون", "آن", "همین", "همون", "یه", "یک", "چه", "چی", "هر", "همه",
+        "من", "تو", "او", "ما", "شما", "اونا", "اینا", "ای", "ها", "های",
+        "اگه", "اگر", "ولی", "اما", "پس", "است", "هست", "بود",
+    }
+)
+
+
+def _close(a: str, b: str, matching: str = "v1") -> bool:
+    """Whether a transcript token can be the assistant word ``b`` (echo).
+
+    ``v1``: equal, or one edit apart for words of four or more letters.
+    ``v2``: additionally one edit for three-letter words, and a token of three
+    or more letters that is a prefix or suffix of the word (or vice versa) —
+    words cut at the edges of the captured window.
+    """
 
     if a == b:
         return True
-    if min(len(a), len(b)) < 4 or abs(len(a) - len(b)) > 1:
+    if matching == "v2" and min(len(a), len(b)) >= 3:
+        if a.startswith(b) or b.startswith(a) or a.endswith(b) or b.endswith(a):
+            return True
+    shortest = 3 if matching == "v2" else 4
+    if min(len(a), len(b)) < shortest or abs(len(a) - len(b)) > 1:
         return False
     if len(a) == len(b):
         return sum(x != y for x, y in zip(a, b, strict=True)) == 1
@@ -43,7 +65,13 @@ def echo_vocabulary(texts: Iterable[str]) -> set[str]:
     return words
 
 
-def content_tokens(transcript: str, echo_words: set[str] | frozenset[str] = frozenset()) -> list[str]:
+def content_tokens(
+    transcript: str,
+    echo_words: set[str] | frozenset[str] = frozenset(),
+    *,
+    matching: str = "v1",
+    drop_function_words: bool = False,
+) -> list[str]:
     """Transcript tokens that are neither listener tokens nor the assistant's own words."""
 
     tokens = normalize_for_scoring(transcript).split()
@@ -51,7 +79,9 @@ def content_tokens(transcript: str, echo_words: set[str] | frozenset[str] = froz
     for token in tokens:
         if token in BACKCHANNEL_LEXICON:
             continue
-        if token in echo_words or any(_close(token, word) for word in echo_words):
+        if drop_function_words and (token in FUNCTION_WORDS or len(token) < 2):
+            continue
+        if token in echo_words or any(_close(token, word, matching) for word in echo_words):
             continue
         out.append(token)
     return out

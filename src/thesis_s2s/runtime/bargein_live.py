@@ -63,6 +63,9 @@ class BargeInController:
     reference_active_db: float = -55.0
     transcriber: Transcriber | None = None
     echo_words: Callable[[], set[str]] | None = None
+    lexical_matching: str = "v1"
+    drop_function_words: bool = False
+    initial_coupling_db: float | None = None
     lexical_after_ms: float = 400.0
     lexical_interval_ms: float = 200.0
     confirm_cap_ms: float = 1600.0
@@ -124,7 +127,12 @@ class BargeInController:
             reference_active = ref_max > self.reference_active_db
             if reference_active:
                 if self._coupling_db is None:
-                    self._coupling_db = level - ref_max
+                    # Legacy: the first active frame (often before the delayed
+                    # echo arrives, so far too low). A conservative prior instead
+                    # assumes strong coupling and adapts down while the user is quiet.
+                    self._coupling_db = (
+                        level - ref_max if self.initial_coupling_db is None else self.initial_coupling_db
+                    )
                 above = level >= ref_max + self._coupling_db + self.dtd_margin_db
                 if not self._ducked and not (speech and above):
                     self._coupling_db += self.coupling_alpha * (level - ref_max - self._coupling_db)
@@ -148,7 +156,9 @@ class BargeInController:
         transcript = self.transcriber(self.captured_since_onset())
         latency = int(round((time.perf_counter() - started) * SAMPLE_RATE))
         echo = self.echo_words() if self.echo_words is not None else set()
-        content = content_tokens(transcript, echo)
+        content = content_tokens(
+            transcript, echo, matching=self.lexical_matching, drop_function_words=self.drop_function_words
+        )
         if content:
             kind = "stop"
         elif ended or capped:

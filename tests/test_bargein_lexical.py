@@ -82,3 +82,45 @@ def test_lexical_confirm_waits_while_transcript_is_empty_then_caps() -> None:
     assert [e.kind for e in events[:2]] == ["duck", "stop"]
     # decided only after several re-checks, not at the first one
     assert events[1].decided_at_sample - events[1].onset_sample > 0.9 * SAMPLE_RATE
+
+
+def test_v2_matching_accepts_words_cut_at_the_window_edges_and_drops_function_words() -> None:
+    echo = echo_vocabulary(["این کار را کرده بود، یه کانورسیشن ساده"])
+    assert content_tokens("کانورسی", echo) == ["کانورسی"]  # two letters cut off
+    assert content_tokens("کانورسی", echo, matching="v2") == []
+    assert content_tokens("کرد", echo) == ["کرد"]
+    assert content_tokens("کرد", echo, matching="v2") == []
+    assert content_tokens("از این", frozenset(), drop_function_words=True) == []
+    assert content_tokens("از بلیط", frozenset(), drop_function_words=True) == ["بلیط"]
+
+
+def test_conservative_coupling_prior_avoids_a_duck_when_the_echo_arrives_late() -> None:
+    from thesis_s2s.runtime.vad import FRAME_SAMPLES
+
+    class _AlwaysSpeech:
+        def score(self, frame: np.ndarray) -> float:
+            return 0.99
+
+        def reset(self) -> None:
+            return None
+
+    def run(prior: float | None) -> list:
+        controller = BargeInController(
+            scorer=_AlwaysSpeech(), echo_margin_db=12.0, dtd_margin_db=14.0, initial_coupling_db=prior
+        )
+        played = _tone(1.5, 0.1)  # reference playback level (about -23 dBFS)
+        delay = int(0.06 * SAMPLE_RATE)
+        quiet = 0.0003 * np.random.default_rng(0).standard_normal(delay).astype(np.float32)
+        mic = np.concatenate([quiet, 0.2 * played[:-delay]])  # echo 14 dB down, 60 ms late
+        level = np.full(played.size, float(np.sqrt(np.mean(played**2))), np.float32)
+        events = []
+        for start in range(0, played.size - FRAME_SAMPLES + 1, FRAME_SAMPLES):
+            events.extend(
+                controller.push(
+                    mic[start : start + FRAME_SAMPLES], reference_level=level[start : start + FRAME_SAMPLES]
+                )
+            )
+        return events
+
+    assert [e.kind for e in run(None)][:1] == ["duck"]  # legacy: coupling learned before the echo
+    assert run(0.0) == []
