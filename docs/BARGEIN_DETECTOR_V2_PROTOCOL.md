@@ -72,6 +72,18 @@ because a mono podcast window always contains both voices. Accuracy and F1
 remain the reported target metrics; the test sessions were not opened before
 this amendment.
 
+## Amendment: labeling closed at the budget limit (2026-10-17, before test access)
+
+Gemini labeling stopped on 2026-10-16 when the gateway budget was exhausted,
+after 866 of the 2,782 sampled events; 682 events have two-pass agreement
+(training 464, validation 124, test 94 events from 31 test sessions). No further
+labels are expected before submission, so labeling is declared complete at this
+point. The development selection (`develop_partial_cv.json`) used exactly this
+label set. The final stage is run once on these 94 test events. The detector is
+not the deployed confirm stage (the deployed controller confirms lexically, see
+`docs/BARGEIN_SIMULATION_RESULT.md`); this test remains the acoustic-classifier
+benchmark on podcast mixtures, where both voices share one channel.
+
 ## Reported metrics and target
 
 Accuracy, F1, precision, recall, false-accept/false-reject rates, balanced

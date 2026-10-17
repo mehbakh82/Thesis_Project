@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-10-17T08:49:00.031443+00:00",
+  "generated_at": "2026-10-17T08:51:02.883282+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1190,9 +1190,31 @@
       "human_verified": false
     },
     "bargein_detector_v2": {
-      "status": "pending",
+      "status": "present",
       "evidence_class": "independent_automatic_two_pass_gemini_labels",
-      "test": null
+      "test": {
+        "accuracy": 0.574468085106383,
+        "f1": 0.6721311475409836,
+        "precision": 0.8367346938775511,
+        "recall": 0.5616438356164384,
+        "false_accept_rate": 0.38095238095238093,
+        "false_reject_rate": 0.4383561643835616,
+        "balanced_accuracy": 0.5903457273320287,
+        "tp": 41,
+        "tn": 13,
+        "fp": 8,
+        "fn": 32,
+        "accuracy_session_ci95": [
+          0.45161290322580644,
+          0.6956521739130435
+        ],
+        "f1_session_ci95": [
+          0.5378151260504203,
+          0.7857142857142856
+        ],
+        "events": 94,
+        "sessions": 31
+      }
     },
     "browser_loopback": {
       "status": "present",
@@ -1613,9 +1635,9 @@
     },
     "closeout_bargein_detector_v2": {
       "path": "results/eval/bargein_detector_v2_final.json",
-      "present": false,
-      "bytes": null,
-      "sha256": null
+      "present": true,
+      "bytes": 3172,
+      "sha256": "3cd491ec972d6e68019505fc3d9f24ebbfbfb4fad5aa15818c919c80297eda71"
     },
     "closeout_loopback": {
       "path": "results/eval/live_loopback_formal.json",
