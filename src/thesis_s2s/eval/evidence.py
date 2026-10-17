@@ -84,7 +84,9 @@ ARTIFACTS: dict[str, str] = {
     "closeout_asr_v2": "results/eval/asr_candidates_v2_psrb_human.json",
     "closeout_responder_v2": "results/eval/responder_candidates_v2_two_judges.json",
     "closeout_tts_v2": "results/eval/tts_candidates_v2.json",
+    "closeout_tts_v3": "results/eval/tts_candidates_v3.json",
     "closeout_speech_input_v1": "results/eval/speech_input_llm_v1.json",
+    "closeout_speech_input_v1_gemini": "results/eval/speech_input_v1_gemini_judge.json",
     "closeout_moshi_tokenizer": "results/moshi_tokenizer_audit.json",
     "closeout_moshi_v7a_runtime": "results/moshi_v7a_overfit_runtime.json",
     "closeout_moshi_v7a_intelligibility": "results/moshi_v7a_step200_intelligibility.json",
@@ -1691,6 +1693,8 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
     asr = load("closeout_asr_v2")
     responder = load("closeout_responder_v2")
     tts = load("closeout_tts_v2")
+    tts_v3 = load("closeout_tts_v3")
+    speech_gemini = load("closeout_speech_input_v1_gemini")
     speech = load("closeout_speech_input_v1")
     tokenizer = load("closeout_moshi_tokenizer")
     v7 = load("closeout_moshi_v7a_runtime")
@@ -1729,10 +1733,21 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
                 arm: row.get("cer_two_listener_mean") for arm, row in tts_arms.items()
             },
         },
+        "tts_v3": {
+            "status": status(tts_v3),
+            "ranking_by_two_listener_cer": tts_v3.get("ranking_by_two_listener_cer"),
+            "cer_two_listener_mean": {
+                arm: row.get("cer_two_listener_mean") for arm, row in (tts_v3.get("arms") or {}).items()
+            },
+        },
         "speech_input_v1": {
             "status": status(speech),
             "evidence_class": speech.get("evidence_class"),
             "decision": speech.get("decision"),
+            "second_judge_relevance": {
+                arm: ((row.get("all") or {}).get("relevance"))
+                for arm, row in (speech_gemini.get("arms") or {}).items()
+            },
         },
         "moshi_v7a": {
             "status": status(v7),
