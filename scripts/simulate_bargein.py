@@ -56,6 +56,9 @@ LEXICAL_FAMILIES: dict[str, dict[str, Any]] = {
     "lexical": {},
     "lexicalinit": {"initial_coupling_db": 0.0},
     "lexical2": {"initial_coupling_db": 0.0, "lexical_matching": "v2", "drop_function_words": True},
+    "lexical2f1": {
+        "initial_coupling_db": 0.0, "lexical_matching": "v2", "drop_function_words": True, "duck_frames": 1,
+    },
 }
 
 
@@ -310,6 +313,12 @@ def main() -> int:
     parser.add_argument("--reply-texts", type=Path, help="JSONL file/text of the reply clips (echo vocabulary)")
     parser.add_argument("--lexical-only", action="store_true", help="dev: skip the duration/MLP grid")
     parser.add_argument("--families", nargs="+", default=["lexical"], help="dev: lexical variant families")
+    parser.add_argument("--dtd-margins", nargs="+", default=["None", "6.0", "10.0", "14.0"])
+    parser.add_argument(
+        "--prefer-low-latency-within",
+        type=float,
+        help="dev: among variants within this accuracy and F1 of the best, choose the lowest median duck latency",
+    )
     parser.add_argument("--per-class-train", type=int, default=150)
     parser.add_argument("--per-class-test", type=int, default=150)
     parser.add_argument("--choice", type=Path, help="dev receipt (required for final)")
@@ -389,13 +398,20 @@ def main() -> int:
                 variants[key] = summarize(results, dev)
         if confirm_asr is not None:
             for family in args.families:
-                for dtd in (None, 6.0, 10.0, 14.0):
+                for dtd in [None if m == "None" else float(m) for m in args.dtd_margins]:
                     key = f"{family}_margin_12.0_dtd_{dtd}"
                     results = [
                         run_controller(sc, None, 0.7, 12.0, dtd, transcribe, LEXICAL_FAMILIES[family]) for sc in dev
                     ]
                     variants[key] = summarize(results, dev)
         chosen = max(variants, key=lambda k: (variants[k]["accuracy"], variants[k]["f1"]))
+        if args.prefer_low_latency_within is not None:
+            tol = args.prefer_low_latency_within
+            near = [
+                k for k, v in variants.items()
+                if v["accuracy"] >= variants[chosen]["accuracy"] - tol and v["f1"] >= variants[chosen]["f1"] - tol
+            ]
+            chosen = min(near, key=lambda k: variants[k]["duck_latency_ms"].get("median") or float("inf"))
         receipt.update(
             dev_scenarios=len(dev),
             fit_scenarios=len(fit),

@@ -102,6 +102,28 @@ margins {none, 6, 10, 14} dB:
 The duration/MLP grid is not rerun (dev4 already compared it). The variant
 with the highest development accuracy, then F1, goes to the final run.
 
+**dev5 result:** `lexical2_margin_12.0_dtd_14.0` — accuracy 0.920, F1 0.862;
+stop rates interrupt 0.93, backchannel 0.12, noise 0.05, none 0.07; median
+onset-to-duck 156 ms (`lexicalinit` alone: 0.907 / 0.844; `lexical`
+reproduced dev4 exactly).
+
+### dev6 (written before its results)
+
+The median duck latency of the dev5 choice is just above the proposal's
+150 ms. With echo gating now keeping false ducks rare, a one-frame duck is a
+principled way to react sooner. dev6 compares `lexical2` with the two-frame duck
+and `lexical2f1` (identical but `duck_frames = 1`), both at double-talk margin
+14 dB, on the same 300 development scenarios. Selection: the variant with the
+highest accuracy (then F1), except that among variants within 0.01 of the best
+accuracy **and** within 0.01 of its F1, the one with the lowest median
+onset-to-duck latency is chosen. That variant goes to the final run.
+
+**dev6 result:** `lexical2f1_margin_12.0_dtd_14.0` chosen — accuracy 0.913,
+F1 0.856 (within 0.01 of `lexical2`: 0.920 / 0.862), median onset-to-duck
+122 ms instead of 156 ms; stop rates interrupt 0.95, backchannel 0.12, noise
+0.09, none 0.08. The live server's defaults (`LiveConfig`) are set to this
+variant, and it is run once on the test split.
+
 ## Selection and final run
 
 The development variant with the highest accuracy (then F1) is frozen and run

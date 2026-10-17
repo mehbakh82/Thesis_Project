@@ -76,6 +76,13 @@ class LiveConfig:
     first_max_words: int = 4
     max_words: int = 14
     lexical_confirm: bool = True
+    # Barge-in variant selected by the deployment simulation (development split).
+    echo_margin_db: float | None = 12.0
+    dtd_margin_db: float = 14.0
+    initial_coupling_db: float | None = 0.0
+    lexical_matching: str = "v2"
+    drop_function_words: bool = True
+    duck_frames: int = 1
 
 
 class _Session:
@@ -99,6 +106,12 @@ class _Session:
             classifier_threshold=config.classifier_threshold,
             transcriber=components.bargein_transcriber if config.lexical_confirm else None,
             echo_words=lambda: echo_vocabulary(self.echo_texts),
+            echo_margin_db=config.echo_margin_db,
+            dtd_margin_db=config.dtd_margin_db,
+            initial_coupling_db=config.initial_coupling_db,
+            lexical_matching=config.lexical_matching,
+            drop_function_words=config.drop_function_words,
+            duck_frames=config.duck_frames,
         )
         self.recent: np.ndarray = np.zeros(0, dtype=np.float32)
         self.recent_start = 0
@@ -148,7 +161,20 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
 
     @app.get("/health")
     def health() -> dict[str, Any]:
-        return {"ok": True, "mode": "live_streaming", "sample_rate": SAMPLE_RATE, **components.identity}
+        bargein = {
+            key: getattr(config, key)
+            for key in (
+                "lexical_confirm", "echo_margin_db", "dtd_margin_db", "initial_coupling_db",
+                "lexical_matching", "drop_function_words", "duck_frames", "hangover_ms", "speculative_ms",
+            )
+        }
+        return {
+            "ok": True,
+            "mode": "live_streaming",
+            "sample_rate": SAMPLE_RATE,
+            **components.identity,
+            "live_config": bargein,
+        }
 
     @app.get("/", response_class=HTMLResponse)
     def index() -> str:
