@@ -49,3 +49,10 @@ nine clips are those of the last evaluated checkpoint (step 200). The
 predeclared secondary Persian ASR intelligibility measurement is therefore
 reported for step 200 only, once the project ASR is re-selected. The frozen
 evaluator was not modified after the run.
+
+**Secondary measure (step 200, reported, not gated):** with the re-selected
+ASR (NeMo v4 CTC), the generated speech has a mean equal-length-prefix CER of
+0.88 against the Persian targets; 0 of 9 rows are at or below 0.75 and one
+transcript is empty (`results/moshi_v7a_step200_intelligibility.json`,
+`scripts/score_moshi_v7_intelligibility.py`). The audible, text-bearing output
+is therefore not yet intelligible Persian speech.
