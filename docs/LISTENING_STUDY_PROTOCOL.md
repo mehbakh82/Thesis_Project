@@ -93,3 +93,10 @@ Outcome of the voice rule: ParsVoice-XTTS was significantly less intelligible
 than Mana in TTS v3 and is not included; the lab VITS model could not be run
 (missing front-end checkpoint). The study therefore keeps Mana, ganji_adabi and
 the human anchor, and adds the reply-preference section.
+
+Update (2026-10-18, before any participant received the page): once its
+front-end checkpoint was available, the lab VITS model was evaluated as served
+and after inference optimization (`docs/TTS_LAB_VITS_OPTIMIZATION_RESULT.md`).
+Both versions are significantly less intelligible than Mana (two-listener CER
+9.89% and 9.19% against 5.82%), so the voice rule excludes it and the study page
+is unchanged.

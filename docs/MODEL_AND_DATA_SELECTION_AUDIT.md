@@ -50,7 +50,7 @@ and a direct speech-input alternative:
 |---|---|---|---|
 | ASR | NeMo v4/v6 (CTC, RNNT), Seamless v5ft/v6, Whisper large-v3, Qwen3-ASR 1.7B, omniASR CTC 1B, Gemma 4 E4B audio | Seamless most accurate (CER 6.92%) but 671 ms; **NeMo v4 CTC best within the 150 ms budget (9.44%, 58 ms)** | `docs/ASR_CANDIDATE_COMPARISON_V2_PROTOCOL.md`, `results/eval/asr_candidates_v2_psrb_human.json` (344 PSRB clips, human transcripts) |
 | Responder | Qwen3-4B prompt-v2, Qwen3-4B / Qwen3.5-4B / Gemma 4 E4B with an elderly prompt | No promotion (bar required under both judges). The judges disagree: Qwen3.8 rates Qwen3.5-4B equal to the deployed model (+0.02); Gemini rates it +0.98 and Gemma 4 +1.16 higher (deployed 2.38). Qwen3.5-4B with the elderly prompt is the strongest replacement candidate | `docs/RESPONDER_CANDIDATE_COMPARISON_V2_RESULT.md`, `results/eval/responder_candidates_v2_two_judges.json` |
-| TTS | all six Persian Piper voices | **Mana most intelligible** (two-listener CER 5.82%); ganji_adabi tied, best DNSMOS — both sent to the listening study | `docs/TTS_CANDIDATE_COMPARISON_V2.md`, `results/eval/tts_candidates_v2.json` |
+| TTS | all six Persian Piper voices; ParsVoice-XTTS; the lab VITS model as served and after inference optimization | **Mana most intelligible** (two-listener CER 5.82%); ganji_adabi tied with a better DNSMOS — both sent to the listening study. XTTS (13.55%) and the lab VITS (9.89% as served, 9.19% optimized, highest DNSMOS 3.43) are significantly less intelligible | `docs/TTS_CANDIDATE_COMPARISON_V2.md`, `docs/TTS_CANDIDATE_COMPARISON_V3.md`, `docs/TTS_LAB_VITS_OPTIMIZATION_RESULT.md`, `results/eval/tts_lab_vits_optimized_eval.json` |
 | Direct S2S (Moshi) | v7a: romanized phonemes + word timing | Tokenizer bottleneck confirmed (6.6 vs 2.7 tokens/word); best 6/9 vs 3/9 baseline, still not 9/9 and not intelligible (prefix CER 0.88); v7b not started | `docs/MOSHI_V7_RESULT.md` |
 | Direct speech input | Gemma 4 E4B zero-shot and with a self-distilled speech LoRA | Negative: relevance 1.98 / 2.05 vs 2.80 for the cascade | `docs/SPEECH_INPUT_LLM_V1_RESULT.md` |
 | PersonaPlex | documentary | Same architecture and English tokenizer as Moshi, English-only, no training code — same root cause, not trained | `docs/MOSHI_V7_ROMANIZED_ALIGNMENT_PROTOCOL.md` |
@@ -63,7 +63,7 @@ and a direct speech-input alternative:
 | Direct S2S | Moshika 7B engineering baseline | No | Failed Persian runtime output; no same-panel comparison |
 | ASR | NeMo v4 CTC (fine-tuned Persian) | Yes | Most accurate of 10 model configurations (12 arms) within the latency budget on human-transcribed PSRB; Seamless is more accurate but too slow for streaming |
 | Responder | Qwen3-4B prompt-v2 | Yes | Retained by the responder-v2 two-judge rule; the cross-family judge prefers Qwen3.5-4B / Gemma 4 with the elderly prompt by about one point, the Qwen judge does not — unresolved without human ratings |
-| TTS | Mana Persian Piper | Yes | Most intelligible of six voices under two ASR listeners; naturalness decided by the listening study |
+| TTS | Mana Persian Piper | Yes | Most intelligible of nine voices and configurations (six Piper voices, ParsVoice-XTTS, the lab VITS as served and optimized) under two ASR listeners; naturalness decided by the listening study |
 
 The current direct shortlist is Moshika, PersonaPlex, Qwen3-Omni,
 MiniCPM-o 4.5, Covo-Audio-Chat-FD, BayLing-Duplex, DuplexOmni, Lychee-FD,

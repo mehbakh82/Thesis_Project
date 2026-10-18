@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "experiment": "tts_candidates_v3_with_lab_vits",
+  "incumbent": "piper_mana",
+  "listeners": [
+    "nemo_v4_ctc",
+    "seamless_v5ft_direct"
+  ],
+  "normalizer": "fa-asr-score-v1",
+  "texts": 60,
+  "texts_sha256": "1981f1f1736c24f73885a9b85a0b2b071cc9d054ae34b47f27f67b039d4721e5",
+  "dnsmos_model_sha256": "269fbebdb513aa23cddfbb593542ecc540284a91849ac50516870e1ac78f6edd",
+  "dnsmos_note": "DNSMOS P.835 is an automatic signal-quality proxy trained on noisy-speech ratings; it is not a Persian naturalness MOS.",
+  "input_sha256": {
+    "panel_piper_mana": "e697fb7cebe1e91e681fb6578089971cc28ca8abc6487de4fae5627637167790",
+    "asr_nemo/piper_mana": "335e01fcdbfdf57ee5c11f732fc49f2a6baac14906935b066bfa76db1be88d91",
+    "asr_seamless/piper_mana": "ce7b29ad301032110361bb1fc689410491fc38ea5fe2697e80ebfcfd39dd2744",
+    "panel_piper_ganji_adabi": "9c73687f43d5be11e5ba6522960c0c14aa2ec36ec3d2359b4ae2e9ba2285e621",
+    "asr_nemo/piper_ganji_adabi": "71c0221607b937ae9922650db375d8e277d3cf4152c127a60573698b7053087f",
+    "asr_seamless/piper_ganji_adabi": "2d90d393f0ec41be496800d1fdc3dc426c85af046a7864745af60f78c956bc65",
+    "panel_parsvoice_xtts": "dd98ac7e5e9aa8cc0441403d3e042e388bd1c72e844866f7d847f86e264bc106",
+    "asr_nemo/parsvoice_xtts": "d9a2b9e5fcc52fff31101b9982ad2b4e3f926c9b30c69c5021b6996b7db2b5b1",
+    "asr_seamless/parsvoice_xtts": "6e58aae91692a0445d9f4c1f10f62807838bec61960b71c564e729e7abd4eab8",
+    "panel_star_vits": "d4acf121909b05402b7818cf33424f0e16fc672c2e3e30063fd36900bc7fb496",
+    "asr_nemo/star_vits": "2053eabf03f0e3ab0de951aebb253a7de1438ec7e35af9ae9f15c9879c702dac",
+    "asr_seamless/star_vits": "873c9f6d2f08413e22d90e7e329eeca1f04c541be9511bdbe8eb7d8b14403bd3"
+  },
+  "arms": {
+    "piper_mana": {
+      "voice_sha256": "e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126",
+      "texts": 60,
+      "render_rtf_median": 0.05805895966562778,
+      "first_four_words_ms_median": 84.23628198215738,
+      "first_four_words_ms_p90": 131.7283830139786,
+      "dnsmos_sig": 3.4938436116683413,
+      "dnsmos_bak": 3.892586814859695,
+      "dnsmos_ovrl": 3.127256745046903,
+      "reused_from": "TTS v2 (deterministic, identical inputs)",
+      "device": "CPU",
+      "cer_nemo_v4_ctc": 0.06337371854613234,
+      "wer_nemo_v4_ctc": 0.13873873873873874,
+      "cer_seamless_v5ft_direct": 0.05312208760484623,
+      "wer_seamless_v5ft_direct": 0.11891891891891893,
+      "cer_two_listener_mean": 0.058247903075489285
+    },
+    "piper_ganji_adabi": {
+      "voice_sha256": "e9073b41ae65759dcf95778e569c8f3780406dac99549436f6ab8e7d2336ed72",
+      "texts": 60,
+      "render_rtf_median": 0.04210735728064939,
+      "first_four_words_ms_median": 91.58696251688525,
+      "first_four_words_ms_p90": 136.52762200217694,
+      "dnsmos_sig": 3.6244790704263052,
+      "dnsmos_bak": 4.139726495465499,
+      "dnsmos_ovrl": 3.4010064947589074,
+      "reused_from": "TTS v2 (deterministic, identical inputs)",
+      "device": "CPU",
+      "cer_nemo_v4_ctc": 0.05591798695246971,
+      "wer_nemo_v4_ctc": 0.12432432432432433,
+      "cer_seamless_v5ft_direct": 0.08271202236719478,
+      "wer_seamless_v5ft_direct": 0.1918918918918919,
+      "cer_two_listener_mean": 0.06931500465983224,
+      "clip_cer_minus_incumbent_mean": 0.012664402540280027,
+      "clip_cer_minus_incumbent_ci95": [
+        -0.010674798113557428,
+        0.04948643606011782
+      ]
+    },
+    "parsvoice_xtts": {
+      "arm": "parsvoice_xtts",
+      "model_sha256": "eb7900e19dc264c9e8de2a01e5100c6938fa2da0206f76c50a91b86bea0b4ca1",
+      "reference_sha256": [
+        "f0f085b7a61f94e35aabc0eefe851e8df768914a02858fd71d8e38e8d55d80fc",
+        "79b43d3368d56c00172a5b1d4709d70dc9c99dfdd9430a86c7fe23d1fdc33328"
+      ],
+      "device": "NVIDIA H100 NVL",
+      "texts": 60,
+      "render_rtf_median": 0.3428830088907395,
+      "first_four_words_ms_median": 1750.8442779653706,
+      "first_four_words_ms_p90": 2687.1128560742363,
+      "stream_first_chunk_ms_median": 307.4053894961253,
+      "stream_first_chunk_ms_p90": 462.9919659346342,
+      "peak_gpu_gib": 2.19,
+      "seed": 20261017,
+      "persian_text_preprocessing": "basic_cleaners (as in the ParsVoice training fork)",
+      "dnsmos_sig": 3.483263330364983,
+      "dnsmos_bak": 3.878156063526489,
+      "dnsmos_ovrl": 3.13648224266893,
+      "cer_nemo_v4_ctc": 0.08038210624417522,
+      "wer_nemo_v4_ctc": 0.17207207207207206,
+      "cer_seamless_v5ft_direct": 0.19058713886300094,
+      "wer_seamless_v5ft_direct": 0.4072072072072072,
+      "cer_two_listener_mean": 0.13548462255358806,
+      "clip_cer_minus_incumbent_mean": 0.07711845956903808,
+      "clip_cer_minus_incumbent_ci95": [
+        0.009199692073991267,
+        0.19303904417333848
+      ]
+    },
+    "star_vits": {
+      "arm": "star_vits",
+      "model_sha256": "a3de9cfe47ea8fa89ad626ab6b4bd4f29bad6256aafc749b67d4c116580b1e29",
+      "ezafe_checkpoint_sha256": "1f1a3f29910e9e0dcb8129cc1a424d0464f1e10b62d0483eb592a5a7755344c1",
+      "device": "CPU",
+      "torch_threads": 20,
+      "texts": 60,
+      "render_rtf_median": 0.2842224251556452,
+      "first_four_words_ms_median": 1024.8725434648804,
+      "first_four_words_ms_p90": 1779.114939039573,
+      "text_pipeline": "lab Triton service: Persian digits, eng2fa, sentence split, per-sentence VITS, kaiser_best 16 kHz, trim",
+      "dnsmos_sig": 3.640680079236808,
+      "dnsmos_bak": 4.160454890783794,
+      "dnsmos_ovrl": 3.386405060394536,
+      "cer_nemo_v4_ctc": 0.08364398881640261,
+      "wer_nemo_v4_ctc": 0.2072072072072072,
+      "cer_seamless_v5ft_direct": 0.11416589002795899,
+      "wer_seamless_v5ft_direct": 0.28378378378378377,
+      "cer_two_listener_mean": 0.0989049394221808,
+      "clip_cer_minus_incumbent_mean": 0.04117087364991259,
+      "clip_cer_minus_incumbent_ci95": [
+        0.013535407542487042,
+        0.0807088656953208
+      ]
+    }
+  },
+  "ranking_by_two_listener_cer": [
+    "piper_mana",
+    "piper_ganji_adabi",
+    "star_vits",
+    "parsvoice_xtts"
+  ],
+  "ranking_by_dnsmos_ovrl": [
+    "piper_ganji_adabi",
+    "star_vits",
+    "parsvoice_xtts",
+    "piper_mana"
+  ],
+  "text_retained": false,
+  "claim_boundary": "Round-trip ASR intelligibility and DNSMOS are automatic proxies; Persian naturalness is measured only by the listening study."
+}

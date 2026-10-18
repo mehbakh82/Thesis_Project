@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "experiment": "tts_lab_vits_dev_tokenize",
+  "protocol": "docs/TTS_LAB_VITS_OPTIMIZATION_PROTOCOL.md",
+  "split": "development (responder v2 replies of the other arms; no evaluation text), texts without digits",
+  "texts": 313,
+  "texts_sha256": "06fdd57d096f61049819ff6f610a108be9af91031c337b622abd29337a439620",
+  "model_sha256": "a3de9cfe47ea8fa89ad626ab6b4bd4f29bad6256aafc749b67d4c116580b1e29",
+  "resample": "kaiser_best_poly",
+  "device": "NVIDIA H100 NVL",
+  "listeners": [
+    "nemo_v4_ctc",
+    "seamless_v5ft_direct"
+  ],
+  "normalizer": "fa-asr-score-v1",
+  "dnsmos_model_sha256": "269fbebdb513aa23cddfbb593542ecc540284a91849ac50516870e1ac78f6edd",
+  "input_sha256": {
+    "panel_tokenize.jsonl": "993148d5d4343afe3e6ed003441a897fe46a00e7c0881cd1f7d9b64665102ce5",
+    "asr_nemo/tokenize.jsonl": "9ad24821d7ec12a10156d920acd2b051c09c8213a1dfd28dc6336a1f0cb8963e",
+    "asr_seamless/tokenize.jsonl": "e2ca30ebae3a22fef400bce3606436a33e424d42178313442deb7ff79689e37f"
+  },
+  "configs": {
+    "ns0_dp0.5_ls1.1": {
+      "settings": {
+        "noise_scale": 0.0,
+        "noise_scale_dp": 0.5,
+        "length_scale": 1.1,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.03681469056237309,
+      "cer_seamless_v5ft_direct": 0.026794385097554517,
+      "cer_two_listener_mean": 0.0318045378299638,
+      "dnsmos_sig": 3.675675745616323,
+      "dnsmos_bak": 4.17233651772838,
+      "dnsmos_ovrl": 3.422053833036189,
+      "seconds_audio_median": 12.832
+    },
+    "ns0_dp0.5_ls1.1_tokfix": {
+      "settings": {
+        "noise_scale": 0.0,
+        "noise_scale_dp": 0.5,
+        "length_scale": 1.1,
+        "split": "service",
+        "tokenizer_fix": true
+      },
+      "cer_nemo_v4_ctc": 0.03540213648803743,
+      "cer_seamless_v5ft_direct": 0.02582325417144875,
+      "cer_two_listener_mean": 0.03061269532974309,
+      "dnsmos_sig": 3.6755277370283426,
+      "dnsmos_bak": 4.172102501276576,
+      "dnsmos_ovrl": 3.421837353197969,
+      "seconds_audio_median": 12.832
+    }
+  },
+  "rule": "tokenizer fix kept if development CER is not worse (amendment 2)",
+  "decision": {
+    "base": "ns0_dp0.5_ls1.1",
+    "candidate": "ns0_dp0.5_ls1.1_tokfix",
+    "candidate_kept": true,
+    "selected": "ns0_dp0.5_ls1.1_tokfix"
+  },
+  "text_retained": false,
+  "claim_boundary": "Development-set automatic proxies used for selection only; not an evaluation result."
+}

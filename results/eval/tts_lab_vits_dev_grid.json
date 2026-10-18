@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "experiment": "tts_lab_vits_dev_grid",
+  "protocol": "docs/TTS_LAB_VITS_OPTIMIZATION_PROTOCOL.md",
+  "split": "development (responder v2 replies of the other arms; no evaluation text), texts without digits",
+  "texts": 313,
+  "texts_sha256": "06fdd57d096f61049819ff6f610a108be9af91031c337b622abd29337a439620",
+  "model_sha256": "a3de9cfe47ea8fa89ad626ab6b4bd4f29bad6256aafc749b67d4c116580b1e29",
+  "resample": "kaiser_best_poly",
+  "device": "NVIDIA H100 NVL",
+  "listeners": [
+    "nemo_v4_ctc",
+    "seamless_v5ft_direct"
+  ],
+  "normalizer": "fa-asr-score-v1",
+  "dnsmos_model_sha256": "269fbebdb513aa23cddfbb593542ecc540284a91849ac50516870e1ac78f6edd",
+  "input_sha256": {
+    "panel_grid.jsonl": "3feb0bc3183609506fe462a55bf0e513eeac445cd47c51be6c9edeca5784d790",
+    "asr_nemo/grid.jsonl": "e17403cb407e329871d74ea148eaee9f0d141b23b0fc4e530330216a6413ca3e",
+    "asr_seamless/grid.jsonl": "5b23554dfc7a83967135f3ae09ad982c3ae4a39e6fdb41ae8d95a86da789550e"
+  },
+  "configs": {
+    "ns0.667_dp1_ls1": {
+      "settings": {
+        "noise_scale": 0.667,
+        "noise_scale_dp": 1.0,
+        "length_scale": 1.0,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.04467202260086519,
+      "cer_seamless_v5ft_direct": 0.032709455283835086,
+      "cer_two_listener_mean": 0.03869073894235014,
+      "dnsmos_sig": 3.6495980933816554,
+      "dnsmos_bak": 4.1536971021301285,
+      "dnsmos_ovrl": 3.390236978248478,
+      "seconds_audio_median": 12.8
+    },
+    "ns0.667_dp1_ls1.1": {
+      "settings": {
+        "noise_scale": 0.667,
+        "noise_scale_dp": 1.0,
+        "length_scale": 1.1,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.04754127306435949,
+      "cer_seamless_v5ft_direct": 0.035534563432506404,
+      "cer_two_listener_mean": 0.04153791824843295,
+      "dnsmos_sig": 3.647152305310483,
+      "dnsmos_bak": 4.15336992551864,
+      "dnsmos_ovrl": 3.3861709464208296,
+      "seconds_audio_median": 13.824
+    },
+    "ns0.667_dp0.5_ls1": {
+      "settings": {
+        "noise_scale": 0.667,
+        "noise_scale_dp": 0.5,
+        "length_scale": 1.0,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.041449633618786966,
+      "cer_seamless_v5ft_direct": 0.03213560519113622,
+      "cer_two_listener_mean": 0.03679261940496159,
+      "dnsmos_sig": 3.6473163295019058,
+      "dnsmos_bak": 4.155856809313927,
+      "dnsmos_ovrl": 3.3917371823024167,
+      "seconds_audio_median": 11.904
+    },
+    "ns0.667_dp0.5_ls1.1": {
+      "settings": {
+        "noise_scale": 0.667,
+        "noise_scale_dp": 0.5,
+        "length_scale": 1.1,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.041228922044672024,
+      "cer_seamless_v5ft_direct": 0.02900150083870398,
+      "cer_two_listener_mean": 0.035115211441688,
+      "dnsmos_sig": 3.652716872437835,
+      "dnsmos_bak": 4.151469150871836,
+      "dnsmos_ovrl": 3.392734425151294,
+      "seconds_audio_median": 12.832
+    },
+    "ns0.667_dp0_ls1": {
+      "settings": {
+        "noise_scale": 0.667,
+        "noise_scale_dp": 0.0,
+        "length_scale": 1.0,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.03963979871104441,
+      "cer_seamless_v5ft_direct": 0.029972631764809746,
+      "cer_two_listener_mean": 0.034806215237927075,
+      "dnsmos_sig": 3.6432888252474775,
+      "dnsmos_bak": 4.146239377978398,
+      "dnsmos_ovrl": 3.3846781556972156,
+      "seconds_audio_median": 11.584
+    },
+    "ns0.667_dp0_ls1.1": {
+      "settings": {
+        "noise_scale": 0.667,
+        "noise_scale_dp": 0.0,
+        "length_scale": 1.1,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.041317206674318,
+      "cer_seamless_v5ft_direct": 0.03226803213560519,
+      "cer_two_listener_mean": 0.03679261940496159,
+      "dnsmos_sig": 3.6478472165394087,
+      "dnsmos_bak": 4.145094791883915,
+      "dnsmos_ovrl": 3.387640566693736,
+      "seconds_audio_median": 12.352
+    },
+    "ns0.333_dp1_ls1": {
+      "settings": {
+        "noise_scale": 0.333,
+        "noise_scale_dp": 1.0,
+        "length_scale": 1.0,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.04259733380418469,
+      "cer_seamless_v5ft_direct": 0.031208616579853448,
+      "cer_two_listener_mean": 0.03690297519201907,
+      "dnsmos_sig": 3.660750221305615,
+      "dnsmos_bak": 4.171251123226048,
+      "dnsmos_ovrl": 3.4089634270835085,
+      "seconds_audio_median": 12.8
+    },
+    "ns0.333_dp1_ls1.1": {
+      "settings": {
+        "noise_scale": 0.333,
+        "noise_scale_dp": 1.0,
+        "length_scale": 1.1,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.043171183896883555,
+      "cer_seamless_v5ft_direct": 0.03213560519113622,
+      "cer_two_listener_mean": 0.037653394544009886,
+      "dnsmos_sig": 3.6617257680160873,
+      "dnsmos_bak": 4.170573484408517,
+      "dnsmos_ovrl": 3.4090658335059407,
+      "seconds_audio_median": 13.824
+    },
+    "ns0.333_dp0.5_ls1": {
+      "settings": {
+        "noise_scale": 0.333,
+        "noise_scale_dp": 0.5,
+        "length_scale": 1.0,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.03805067537741679,
+      "cer_seamless_v5ft_direct": 0.028118654542244194,
+      "cer_two_listener_mean": 0.03308466495983049,
+      "dnsmos_sig": 3.663006995033729,
+      "dnsmos_bak": 4.173416943489578,
+      "dnsmos_ovrl": 3.4145915871806767,
+      "seconds_audio_median": 11.904
+    },
+    "ns0.333_dp0.5_ls1.1": {
+      "settings": {
+        "noise_scale": 0.333,
+        "noise_scale_dp": 0.5,
+        "length_scale": 1.1,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.03747682528471793,
+      "cer_seamless_v5ft_direct": 0.026088108060386687,
+      "cer_two_listener_mean": 0.03178246667255231,
+      "dnsmos_sig": 3.666153216482247,
+      "dnsmos_bak": 4.171377323024251,
+      "dnsmos_ovrl": 3.4152776209191575,
+      "seconds_audio_median": 12.832
+    },
+    "ns0.333_dp0_ls1": {
+      "settings": {
+        "noise_scale": 0.333,
+        "noise_scale_dp": 0.0,
+        "length_scale": 1.0,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.03809481769223978,
+      "cer_seamless_v5ft_direct": 0.026970954356846474,
+      "cer_two_listener_mean": 0.03253288602454313,
+      "dnsmos_sig": 3.6566964459502684,
+      "dnsmos_bak": 4.163903242672662,
+      "dnsmos_ovrl": 3.4058325129280043,
+      "seconds_audio_median": 11.584
+    },
+    "ns0.333_dp0_ls1.1": {
+      "settings": {
+        "noise_scale": 0.333,
+        "noise_scale_dp": 0.0,
+        "length_scale": 1.1,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.03782996380330184,
+      "cer_seamless_v5ft_direct": 0.02732409287543039,
+      "cer_two_listener_mean": 0.03257702833936611,
+      "dnsmos_sig": 3.6595488623491925,
+      "dnsmos_bak": 4.1655122036994126,
+      "dnsmos_ovrl": 3.409267559624363,
+      "seconds_audio_median": 12.352
+    },
+    "ns0_dp1_ls1": {
+      "settings": {
+        "noise_scale": 0.0,
+        "noise_scale_dp": 1.0,
+        "length_scale": 1.0,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.041317206674318,
+      "cer_seamless_v5ft_direct": 0.0318266089873753,
+      "cer_two_listener_mean": 0.03657190783084665,
+      "dnsmos_sig": 3.6731441512544674,
+      "dnsmos_bak": 4.1754749521694805,
+      "dnsmos_ovrl": 3.419662067449492,
+      "seconds_audio_median": 12.736
+    },
+    "ns0_dp1_ls1.1": {
+      "settings": {
+        "noise_scale": 0.0,
+        "noise_scale_dp": 1.0,
+        "length_scale": 1.1,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.042464906859715726,
+      "cer_seamless_v5ft_direct": 0.031517612783614375,
+      "cer_two_listener_mean": 0.036991259821665054,
+      "dnsmos_sig": 3.6750959303273807,
+      "dnsmos_bak": 4.176137731076234,
+      "dnsmos_ovrl": 3.421003378591063,
+      "seconds_audio_median": 13.76
+    },
+    "ns0_dp0.5_ls1": {
+      "settings": {
+        "noise_scale": 0.0,
+        "noise_scale_dp": 0.5,
+        "length_scale": 1.0,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.037211971395779996,
+      "cer_seamless_v5ft_direct": 0.028118654542244194,
+      "cer_two_listener_mean": 0.032665312969012095,
+      "dnsmos_sig": 3.672388303540737,
+      "dnsmos_bak": 4.174831345129033,
+      "dnsmos_ovrl": 3.420784571869922,
+      "seconds_audio_median": 11.84
+    },
+    "ns0_dp0.5_ls1.1": {
+      "settings": {
+        "noise_scale": 0.0,
+        "noise_scale_dp": 0.5,
+        "length_scale": 1.1,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.03712368676613401,
+      "cer_seamless_v5ft_direct": 0.027015096671669462,
+      "cer_two_listener_mean": 0.03206939171890174,
+      "dnsmos_sig": 3.675375742934454,
+      "dnsmos_bak": 4.172157125199626,
+      "dnsmos_ovrl": 3.4216928515108367,
+      "seconds_audio_median": 12.704
+    },
+    "ns0_dp0_ls1": {
+      "settings": {
+        "noise_scale": 0.0,
+        "noise_scale_dp": 0.0,
+        "length_scale": 1.0,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.0359318442659133,
+      "cer_seamless_v5ft_direct": 0.026750242782731526,
+      "cer_two_listener_mean": 0.03134104352432242,
+      "dnsmos_sig": 3.6675114537364784,
+      "dnsmos_bak": 4.166933010568387,
+      "dnsmos_ovrl": 3.4152108175458915,
+      "seconds_audio_median": 11.36
+    },
+    "ns0_dp0_ls1.1": {
+      "settings": {
+        "noise_scale": 0.0,
+        "noise_scale_dp": 0.0,
+        "length_scale": 1.1,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.03588770195109032,
+      "cer_seamless_v5ft_direct": 0.027853800653306258,
+      "cer_two_listener_mean": 0.03187075130219829,
+      "dnsmos_sig": 3.6707984016478195,
+      "dnsmos_bak": 4.170043837174882,
+      "dnsmos_ovrl": 3.4182158184321065,
+      "seconds_audio_median": 12.064
+    }
+  },
+  "rule": "lowest two-listener CER; among settings within 0.5 pp of it, highest DNSMOS OVRL",
+  "decision": {
+    "tied_within_0_5pp": [
+      "ns0.333_dp0.5_ls1",
+      "ns0.333_dp0.5_ls1.1",
+      "ns0.333_dp0_ls1",
+      "ns0.333_dp0_ls1.1",
+      "ns0.667_dp0.5_ls1.1",
+      "ns0.667_dp0_ls1",
+      "ns0_dp0.5_ls1",
+      "ns0_dp0.5_ls1.1",
+      "ns0_dp0_ls1",
+      "ns0_dp0_ls1.1"
+    ],
+    "selected": "ns0_dp0.5_ls1.1"
+  },
+  "text_retained": false,
+  "claim_boundary": "Development-set automatic proxies used for selection only; not an evaluation result."
+}

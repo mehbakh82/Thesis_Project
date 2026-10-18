@@ -42,6 +42,8 @@ def main() -> int:
     parser.add_argument("--work", type=Path, required=True)
     parser.add_argument("--new-arms", nargs="+", required=True)
     parser.add_argument("--dnsmos", type=Path, required=True)
+    parser.add_argument("--experiment", default="tts_candidates_v3")
+    parser.add_argument("--protocol", default="docs/TTS_CANDIDATE_COMPARISON_V3_PROTOCOL.md")
     args = parser.parse_args()
 
     v2 = json.loads((args.v2_work / "synthesis.json").read_text(encoding="utf-8"))
@@ -68,11 +70,15 @@ def main() -> int:
             "dnsmos_bak": statistics.fmean(q["bak"] for q in quality),
             "dnsmos_ovrl": statistics.fmean(q["ovrl"] for q in quality),
         }
+        for device in ("gpu", "cpu"):  # optional latency-only runs on the other device
+            timing = args.work / f"synthesis_{arm}_{device}_timing.json"
+            if timing.exists():
+                arms[arm][f"timing_{device}"] = json.loads(timing.read_text(encoding="utf-8"))
         print(arm, round(arms[arm]["dnsmos_ovrl"], 3))
     receipt = {
         "schema_version": 1,
-        "experiment": "tts_candidates_v3",
-        "protocol": "docs/TTS_CANDIDATE_COMPARISON_V3_PROTOCOL.md",
+        "experiment": args.experiment,
+        "protocol": args.protocol,
         "texts_sha256": v2["texts_sha256"],
         "dnsmos_model_sha256": hashlib.sha256(args.dnsmos.read_bytes()).hexdigest(),
         "dnsmos_note": v2["dnsmos_note"],

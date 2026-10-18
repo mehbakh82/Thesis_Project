@@ -85,6 +85,14 @@ ARTIFACTS: dict[str, str] = {
     "closeout_responder_v2": "results/eval/responder_candidates_v2_two_judges.json",
     "closeout_tts_v2": "results/eval/tts_candidates_v2.json",
     "closeout_tts_v3": "results/eval/tts_candidates_v3.json",
+    "closeout_tts_v3_lab_vits": "results/eval/tts_candidates_v3_with_lab_vits_pinned.json",
+    "closeout_tts_lab_vits_serving_first": "results/eval/tts_lab_vits_dev_serving.json",
+    "closeout_tts_lab_vits_serving": "results/eval/tts_lab_vits_dev_serving_v2.json",
+    "closeout_tts_lab_vits_dev_grid": "results/eval/tts_lab_vits_dev_grid.json",
+    "closeout_tts_lab_vits_dev_split": "results/eval/tts_lab_vits_dev_split.json",
+    "closeout_tts_lab_vits_dev_punct": "results/eval/tts_lab_vits_dev_punct.json",
+    "closeout_tts_lab_vits_dev_tokenize": "results/eval/tts_lab_vits_dev_tokenize.json",
+    "closeout_tts_lab_vits_eval": "results/eval/tts_lab_vits_optimized_eval.json",
     "closeout_speech_input_v1": "results/eval/speech_input_llm_v1.json",
     "closeout_speech_input_v1_gemini": "results/eval/speech_input_v1_gemini_judge.json",
     "closeout_moshi_tokenizer": "results/moshi_tokenizer_audit.json",
@@ -1694,6 +1702,9 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
     responder = load("closeout_responder_v2")
     tts = load("closeout_tts_v2")
     tts_v3 = load("closeout_tts_v3")
+    lab_serving = load("closeout_tts_lab_vits_serving")
+    lab_dev = {step: load(f"closeout_tts_lab_vits_dev_{step}") for step in ("grid", "split", "punct", "tokenize")}
+    lab_eval = load("closeout_tts_lab_vits_eval")
     speech_gemini = load("closeout_speech_input_v1_gemini")
     speech = load("closeout_speech_input_v1")
     tokenizer = load("closeout_moshi_tokenizer")
@@ -1738,6 +1749,27 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
             "ranking_by_two_listener_cer": tts_v3.get("ranking_by_two_listener_cer"),
             "cer_two_listener_mean": {
                 arm: row.get("cer_two_listener_mean") for arm, row in (tts_v3.get("arms") or {}).items()
+            },
+        },
+        "tts_lab_vits": {
+            "status": status(lab_eval),
+            "evidence_class": "automatic_round_trip_asr_and_dnsmos_proxies",
+            "serving_equivalence_passes": bool(
+                (lab_serving.get("espeak") or {}).get("passes") and (lab_serving.get("resampler") or {}).get("passes")
+            )
+            if lab_serving
+            else None,
+            "development_decisions": {
+                step: (payload.get("decision") or {}).get("selected") for step, payload in lab_dev.items()
+            },
+            "arms": {
+                arm: {
+                    "cer_two_listener_mean": row.get("cer_two_listener_mean"),
+                    "clip_cer_minus_mana_ci95": row.get("clip_cer_minus_incumbent_ci95"),
+                    "dnsmos_ovrl": row.get("dnsmos_ovrl"),
+                    "first_four_words_ms_median": row.get("first_four_words_ms_median"),
+                }
+                for arm, row in (lab_eval.get("arms") or {}).items()
             },
         },
         "speech_input_v1": {

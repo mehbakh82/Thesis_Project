@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "experiment": "tts_lab_vits_optimized_eval",
+  "incumbent": "piper_mana",
+  "listeners": [
+    "nemo_v4_ctc",
+    "seamless_v5ft_direct"
+  ],
+  "normalizer": "fa-asr-score-v1",
+  "texts": 60,
+  "texts_sha256": "1981f1f1736c24f73885a9b85a0b2b071cc9d054ae34b47f27f67b039d4721e5",
+  "dnsmos_model_sha256": "269fbebdb513aa23cddfbb593542ecc540284a91849ac50516870e1ac78f6edd",
+  "dnsmos_note": "DNSMOS P.835 is an automatic signal-quality proxy trained on noisy-speech ratings; it is not a Persian naturalness MOS.",
+  "input_sha256": {
+    "panel_piper_mana": "e697fb7cebe1e91e681fb6578089971cc28ca8abc6487de4fae5627637167790",
+    "asr_nemo/piper_mana": "335e01fcdbfdf57ee5c11f732fc49f2a6baac14906935b066bfa76db1be88d91",
+    "asr_seamless/piper_mana": "ce7b29ad301032110361bb1fc689410491fc38ea5fe2697e80ebfcfd39dd2744",
+    "panel_piper_ganji_adabi": "9c73687f43d5be11e5ba6522960c0c14aa2ec36ec3d2359b4ae2e9ba2285e621",
+    "asr_nemo/piper_ganji_adabi": "71c0221607b937ae9922650db375d8e277d3cf4152c127a60573698b7053087f",
+    "asr_seamless/piper_ganji_adabi": "2d90d393f0ec41be496800d1fdc3dc426c85af046a7864745af60f78c956bc65",
+    "panel_star_vits": "2636a100bfdfb3977a0647d90838a587e83946d71667c4c9b51165a14d14868d",
+    "asr_nemo/star_vits": "f3b104c7cbefe5fa47ed4000d34155badcd6002a825211ed4cfdc595d7409d4c",
+    "asr_seamless/star_vits": "78c1dcdb91820ecff620c8e1dd26c465db312d02137f793a19627a995dae7ccf",
+    "panel_star_vits_opt": "d2706e86055862641a51979d23342510c49456f8632c4edc3a7cf16304d8ce2c",
+    "asr_nemo/star_vits_opt": "bd577ab55f11811dd788b7a3e7b7305f03a0d2a221ac71c5e69a48f5be4f8f98",
+    "asr_seamless/star_vits_opt": "09ccacc2a0761239c1cf002bbcafba57d95df7312ef92ac772c7d51a372722b8"
+  },
+  "arms": {
+    "piper_mana": {
+      "voice_sha256": "e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126",
+      "texts": 60,
+      "render_rtf_median": 0.05805895966562778,
+      "first_four_words_ms_median": 84.23628198215738,
+      "first_four_words_ms_p90": 131.7283830139786,
+      "dnsmos_sig": 3.4938436116683413,
+      "dnsmos_bak": 3.892586814859695,
+      "dnsmos_ovrl": 3.127256745046903,
+      "reused_from": "TTS v2 (deterministic, identical inputs)",
+      "device": "CPU",
+      "cer_nemo_v4_ctc": 0.06337371854613234,
+      "wer_nemo_v4_ctc": 0.13873873873873874,
+      "cer_seamless_v5ft_direct": 0.05312208760484623,
+      "wer_seamless_v5ft_direct": 0.11891891891891893,
+      "cer_two_listener_mean": 0.058247903075489285
+    },
+    "piper_ganji_adabi": {
+      "voice_sha256": "e9073b41ae65759dcf95778e569c8f3780406dac99549436f6ab8e7d2336ed72",
+      "texts": 60,
+      "render_rtf_median": 0.04210735728064939,
+      "first_four_words_ms_median": 91.58696251688525,
+      "first_four_words_ms_p90": 136.52762200217694,
+      "dnsmos_sig": 3.6244790704263052,
+      "dnsmos_bak": 4.139726495465499,
+      "dnsmos_ovrl": 3.4010064947589074,
+      "reused_from": "TTS v2 (deterministic, identical inputs)",
+      "device": "CPU",
+      "cer_nemo_v4_ctc": 0.05591798695246971,
+      "wer_nemo_v4_ctc": 0.12432432432432433,
+      "cer_seamless_v5ft_direct": 0.08271202236719478,
+      "wer_seamless_v5ft_direct": 0.1918918918918919,
+      "cer_two_listener_mean": 0.06931500465983224,
+      "clip_cer_minus_incumbent_mean": 0.012664402540280027,
+      "clip_cer_minus_incumbent_ci95": [
+        -0.010674798113557428,
+        0.04948643606011782
+      ]
+    },
+    "star_vits": {
+      "arm": "star_vits",
+      "model_sha256": "a3de9cfe47ea8fa89ad626ab6b4bd4f29bad6256aafc749b67d4c116580b1e29",
+      "ezafe_checkpoint_sha256": "1f1a3f29910e9e0dcb8129cc1a424d0464f1e10b62d0483eb592a5a7755344c1",
+      "device": "CPU",
+      "vits_on_gpu": false,
+      "torch_threads": 20,
+      "texts": 60,
+      "render_rtf_median": 0.15531796911013165,
+      "first_four_words_ms_median": 538.0239380174316,
+      "first_four_words_ms_p90": 1001.0961050866172,
+      "text_pipeline": "lab Triton service: Persian digits, eng2fa, sentence split, per-sentence VITS, kaiser_best 16 kHz, trim",
+      "dnsmos_sig": 3.640680079236808,
+      "dnsmos_bak": 4.160454890783794,
+      "dnsmos_ovrl": 3.386405060394536,
+      "timing_gpu": {
+        "arm": "star_vits",
+        "model_sha256": "a3de9cfe47ea8fa89ad626ab6b4bd4f29bad6256aafc749b67d4c116580b1e29",
+        "ezafe_checkpoint_sha256": "1f1a3f29910e9e0dcb8129cc1a424d0464f1e10b62d0483eb592a5a7755344c1",
+        "device": "NVIDIA H100 NVL",
+        "vits_on_gpu": true,
+        "torch_threads": 20,
+        "texts": 60,
+        "render_rtf_median": 0.04499316389286744,
+        "first_four_words_ms_median": 186.896737490315,
+        "first_four_words_ms_p90": 275.6840670481324,
+        "text_pipeline": "lab Triton service: Persian digits, eng2fa, sentence split, per-sentence VITS, kaiser_best 16 kHz, trim"
+      },
+      "cer_nemo_v4_ctc": 0.08364398881640261,
+      "wer_nemo_v4_ctc": 0.2072072072072072,
+      "cer_seamless_v5ft_direct": 0.11416589002795899,
+      "wer_seamless_v5ft_direct": 0.28378378378378377,
+      "cer_two_listener_mean": 0.0989049394221808,
+      "clip_cer_minus_incumbent_mean": 0.04117087364991259,
+      "clip_cer_minus_incumbent_ci95": [
+        0.013535407542487042,
+        0.0807088656953208
+      ]
+    },
+    "star_vits_opt": {
+      "arm": "star_vits_opt",
+      "model_sha256": "a3de9cfe47ea8fa89ad626ab6b4bd4f29bad6256aafc749b67d4c116580b1e29",
+      "ezafe_checkpoint_sha256": "1f1a3f29910e9e0dcb8129cc1a424d0464f1e10b62d0483eb592a5a7755344c1",
+      "device": "NVIDIA H100 NVL",
+      "vits_on_gpu": true,
+      "torch_threads": 20,
+      "texts": 60,
+      "render_rtf_median": 0.024083555901445584,
+      "first_four_words_ms_median": 115.84634648170322,
+      "first_four_words_ms_p90": 129.3130830163136,
+      "text_pipeline": "star_tts_plus: {\"fast_espeak\": true, \"length_scale\": 1.1, \"noise_scale\": 0.0, \"noise_scale_dp\": 0.5, \"numbers\": true, \"pause_ms\": 0.0, \"persian_punct\": false, \"resample\": \"kaiser_best_poly\", \"split\": \"service\", \"tokenizer_fix\": true}",
+      "dnsmos_sig": 3.670506226813818,
+      "dnsmos_bak": 4.188345137849392,
+      "dnsmos_ovrl": 3.426651588548883,
+      "timing_cpu": {
+        "arm": "star_vits_opt",
+        "model_sha256": "a3de9cfe47ea8fa89ad626ab6b4bd4f29bad6256aafc749b67d4c116580b1e29",
+        "ezafe_checkpoint_sha256": "1f1a3f29910e9e0dcb8129cc1a424d0464f1e10b62d0483eb592a5a7755344c1",
+        "device": "CPU",
+        "vits_on_gpu": false,
+        "torch_threads": 20,
+        "texts": 60,
+        "render_rtf_median": 0.1277638150807268,
+        "first_four_words_ms_median": 415.551993472036,
+        "first_four_words_ms_p90": 650.3764069639146,
+        "text_pipeline": "star_tts_plus: {\"fast_espeak\": true, \"length_scale\": 1.1, \"noise_scale\": 0.0, \"noise_scale_dp\": 0.5, \"numbers\": true, \"pause_ms\": 0.0, \"persian_punct\": false, \"resample\": \"kaiser_best_poly\", \"split\": \"service\", \"tokenizer_fix\": true}"
+      },
+      "cer_nemo_v4_ctc": 0.0750232991612302,
+      "wer_nemo_v4_ctc": 0.1891891891891892,
+      "cer_seamless_v5ft_direct": 0.10880708294501398,
+      "wer_seamless_v5ft_direct": 0.2747747747747748,
+      "cer_two_listener_mean": 0.0919151910531221,
+      "clip_cer_minus_incumbent_mean": 0.03682519002969655,
+      "clip_cer_minus_incumbent_ci95": [
+        0.008203389001735038,
+        0.08092058647627011
+      ]
+    }
+  },
+  "ranking_by_two_listener_cer": [
+    "piper_mana",
+    "piper_ganji_adabi",
+    "star_vits_opt",
+    "star_vits"
+  ],
+  "ranking_by_dnsmos_ovrl": [
+    "star_vits_opt",
+    "piper_ganji_adabi",
+    "star_vits",
+    "piper_mana"
+  ],
+  "text_retained": false,
+  "claim_boundary": "Round-trip ASR intelligibility and DNSMOS are automatic proxies; Persian naturalness is measured only by the listening study."
+}
