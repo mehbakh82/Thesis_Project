@@ -278,3 +278,47 @@ def test_lexical_confirm_resumes_when_asr_hears_only_a_backchannel(tmp_path) -> 
         seen = _receive_until(ws, lambda p: p.get("event") in {"resume", "stop"})
     assert seen[-1][1]["event"] == "resume" and seen[-1][1]["transcript"] == "آره آره"
     assert heard
+
+
+def test_heard_prefix_keeps_only_the_played_words() -> None:
+    from thesis_s2s.runtime.live import heard_prefix
+
+    spoken = [("سلام دوست من.", 4800), ("امروز هوا سرد است.", 6400)]
+    assert heard_prefix(spoken, 0.0) == "…"
+    assert heard_prefix(spoken, 300.0) == "سلام دوست من. …"
+    assert heard_prefix(spoken, 500.0) == "سلام دوست من. امروز هوا …"
+    assert heard_prefix(spoken, 10_000.0) == "سلام دوست من. امروز هوا سرد است."
+
+
+def test_interrupted_reply_enters_history_only_as_heard(tmp_path) -> None:
+    histories: list[list[tuple[str, str]]] = []
+
+    class _Recorder(_Responder):
+        def stream(self, text: str, history=(), cancel=None) -> Iterator[str]:
+            histories.append(list(history))
+            yield from super().stream(text, history, cancel)
+
+    components = LiveComponents(
+        asr=lambda audio: ("سلام چطوری", None),
+        responder=_Recorder(),  # type: ignore[arg-type]
+        tts=lambda text: _tone(0.3, 0.1),
+        identity={"asr_backend": "fake"},
+        scorer_factory=EnergyScorer,
+    )
+    client = TestClient(build_live_app(components, LiveConfig(hangover_ms=256, speculative_ms=None)))
+    audio = np.concatenate([_quiet(0.6), _tone(0.8), _quiet(0.6, 1)])
+    with client.websocket_connect("/ws") as ws:
+        frames = _frames(audio, 0)
+        for frame in frames:
+            ws.send_bytes(frame)
+        _receive_until(ws, lambda p: p.get("event") == "reply_done")
+        barge = _frames(np.concatenate([_tone(1.0, 0.3), _quiet(0.8, 2)]), len(frames))
+        for frame in barge[:50]:
+            ws.send_bytes(frame)
+        stop = _receive_until(ws, lambda p: p.get("event") == "stop")[-1][1]
+        # the first clause (0.3 s) was heard, the second was not
+        ws.send_text(json.dumps({"event": "stop_ack", "turn": stop["turn"], "latency_ms": 20, "played_ms": 300.0}))
+        for frame in barge[50:]:
+            ws.send_bytes(frame)
+        _receive_until(ws, lambda p: p.get("event") == "reply_done" and p.get("turn") == stop["turn"] + 1)
+    assert histories[-1] == [("سلام چطوری", "سلام دوست من. …")]

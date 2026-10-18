@@ -493,6 +493,12 @@ def main(argv: list[str] | None = None) -> None:
     p_live.add_argument("--host", default="127.0.0.1")
     p_live.add_argument("--port", type=int, default=8766)
     p_live.add_argument("--hangover-ms", type=float, default=256.0)
+    p_live.add_argument(
+        "--speculative-ms",
+        type=float,
+        default=None,
+        help="silence before a speculative turn starts (default: the LiveConfig value)",
+    )
     p_live.add_argument("--telemetry", type=Path)
     p_live.add_argument("--history-turns", type=int, default=2)
     p_serve = sub.add_parser("serve")
@@ -1000,6 +1006,7 @@ def main(argv: list[str] | None = None) -> None:
                 hangover_ms=args.hangover_ms,
                 history_turns=args.history_turns,
                 telemetry_path=args.telemetry,
+                **({} if args.speculative_ms is None else {"speculative_ms": args.speculative_ms}),
             ),
         )
         uvicorn.run(app, host=args.host, port=args.port, log_level="warning")

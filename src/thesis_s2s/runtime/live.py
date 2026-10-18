@@ -14,10 +14,14 @@ Protocol over ``/ws`` (all audio 16 kHz mono PCM16):
 * client -> server JSON events: ``playback_started`` (client-clock
   ``t_first_audio_ms`` from the captured end-of-speech frame to the scheduled
   start of the first clause), ``duck_ack`` / ``stop_ack`` (client-clock
-  latency from the captured onset frame), ``playback_ended``.
+  latency from the captured onset frame; ``stop_ack`` also carries
+  ``played_ms``, how much of the reply reached the speaker before the user
+  started talking), ``playback_ended``.
 
 The microphone is processed continuously: endpointing while the user speaks,
-barge-in control while the assistant responds. Turn telemetry can be appended
+barge-in control while the assistant responds. An interrupted reply enters the
+conversation history only as far as it was heard (``heard_prefix``), so the next
+reply does not assume the user heard the rest. Turn telemetry can be appended
 to a JSONL file for automated loopback evaluation.
 """
 
@@ -120,12 +124,15 @@ class _Session:
         self.responding = False
         self.cancel = threading.Event()
         self.history: list[tuple[str, str]] = []
+        self.spoken: dict[int, list[tuple[str, int]]] = {}
+        self.heard_text: dict[int, str] = {}
         self.records: dict[int, dict[str, Any]] = {}
         self.gate = threading.Event()
         self.gate_lock = threading.Lock()
         self.held: list[bytes] = []
         self.speculative_turn: int | None = None
         self.speculative_end: int | None = None
+        self.history_turns_ids: list[int] = []
 
     def remember(self, pcm: np.ndarray, start: int) -> None:
         if not self.recent.size:
@@ -214,6 +221,10 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
             session.speculative_turn = turn if speculative else None
             session.echo_texts = []
             echo_texts = session.echo_texts
+            spoken = session.spoken.setdefault(turn, [])
+            for old in [t for t in session.spoken if t < turn - 4]:
+                session.spoken.pop(old, None)
+                session.heard_text.pop(old, None)
 
             def tts(text: str) -> np.ndarray:
                 echo_texts.append(text)
@@ -234,6 +245,8 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
             session.records[turn] = record
 
             def emit(audio: np.ndarray, index: int) -> None:
+                if echo_texts:  # speak() synthesizes and emits one clause at a time
+                    spoken.append((echo_texts[-1], int(audio.size)))
                 payload = struct.pack("<II", turn, index) + _pcm16(audio)
                 with gate_lock:
                     if not gate.is_set():
@@ -296,9 +309,25 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
 
         async def deliver_reply(done: dict[str, Any]) -> None:
             if done["transcript"] and done["reply_text"]:
-                session.history.append((done["transcript"], done["reply_text"]))
+                # an interrupted reply enters the history only as far as it was heard
+                reply = session.heard_text.get(done["turn"], done["reply_text"])
+                session.history.append((done["transcript"], reply))
                 session.history = session.history[-config.history_turns :]
+                session.history_turns_ids = (session.history_turns_ids + [done["turn"]])[
+                    -config.history_turns :
+                ]
             await send_json(done)
+
+        def truncate_to_heard(turn: int, played_ms: float | None) -> None:
+            if played_ms is None:
+                return
+            heard = heard_prefix(session.spoken.get(turn, []), float(played_ms))
+            session.heard_text[turn] = heard
+            if turn in session.history_turns_ids:
+                index = session.history_turns_ids.index(turn)
+                transcript, _ = session.history[index]
+                session.history[index] = (transcript, heard)
+            finish_record(turn, client_played_ms=played_ms, heard_words=sum(w != "…" for w in heard.split()))
 
         async def confirm_speculative(end_sample: int) -> None:
             """Open the gate of the speculative turn and release held audio."""
@@ -459,6 +488,8 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
                         key = "client_t_duck_ms" if event == "duck_ack" else "client_t_stop_ms"
                         finish_record(turn, **{key: payload.get("latency_ms")})
                         if event == "stop_ack":
+                            played = payload.get("played_ms")
+                            truncate_to_heard(turn, float(played) if isinstance(played, (int, float)) else None)
                             finish_record(turn, close=True, outcome="interrupted")
                     elif event == "playback_ended":
                         if turn == session.turn:
@@ -536,7 +567,15 @@ function sendFrames(mono){
   }
   carry=buf.slice(off);
 }
+const turnStart=new Map();
 function stopAll(){ for(const s of sources){try{s.stop();}catch(_){}} sources.clear(); nextStart=0; }
+function playedMs(turn, onsetSample){
+  // audio of `turn` that reached the speaker before the user started talking
+  if(!turnStart.has(turn)) return 0;
+  const onsetPerf=sampleTime(onsetSample), lag=(ctx.outputLatency||0)+(ctx.baseLatency||0);
+  const heardUntil=onsetPerf===null?ctx.currentTime:ctx.currentTime-(performance.now()-onsetPerf)/1000;
+  return Math.max(0,(heardUntil-lag-turnStart.get(turn))*1000);
+}
 function playChunk(turn, index, pcm){
   if(turn<currentTurn) return;
   currentTurn=turn;
@@ -544,6 +583,7 @@ function playChunk(turn, index, pcm){
   const b=ctx.createBuffer(1,f.length,16000); b.getChannelData(0).set(f);
   const src=ctx.createBufferSource(); src.buffer=b; src.connect(out);
   const when=Math.max(ctx.currentTime+0.01, nextStart); nextStart=when+b.duration;
+  if(!turnStart.has(turn)) turnStart.set(turn, when);
   src.start(when); sources.add(src);
   src.onended=()=>{sources.delete(src); if(sources.size===0 && ws.readyState===1){ws.send(JSON.stringify({event:'playback_ended', turn}));}};
   if(!firstReported.has(turn) && endSample.has(turn)){
@@ -572,7 +612,7 @@ async function start(){
     if(m.event==='endpoint'){endSample.set(m.turn, m.end_sample); log('در حال پاسخ...');}
     else if(m.event==='duck'){out.gain.setTargetAtTime(0.2, ctx.currentTime, 0.01); const r=sampleTime(m.onset_sample); ws.send(JSON.stringify({event:'duck_ack', turn:m.turn, latency_ms:r===null?null:performance.now()-r}));}
     else if(m.event==='resume'){out.gain.setTargetAtTime(1.0, ctx.currentTime, 0.02);}
-    else if(m.event==='stop'){stopAll(); out.gain.setValueAtTime(1.0, ctx.currentTime); currentTurn=m.turn+1; const r=sampleTime(m.onset_sample); ws.send(JSON.stringify({event:'stop_ack', turn:m.turn, latency_ms:r===null?null:performance.now()-r})); log('ساکت شدم؛ بفرمایید.');}
+    else if(m.event==='stop'){const played=playedMs(m.turn, m.onset_sample); stopAll(); out.gain.setValueAtTime(1.0, ctx.currentTime); currentTurn=m.turn+1; const r=sampleTime(m.onset_sample); ws.send(JSON.stringify({event:'stop_ack', turn:m.turn, latency_ms:r===null?null:performance.now()-r, played_ms:played})); log('ساکت شدم؛ بفرمایید.');}
     else if(m.event==='reply_done'){log('شما: '+(m.transcript||'')+'\nدستیار: '+(m.reply_text||''));}
     window.__events=(window.__events||[]); window.__events.push(m);
   };
@@ -581,6 +621,31 @@ document.getElementById('start').onclick=()=>{start(); document.getElementById('
 if(new URLSearchParams(location.search).get('autostart')==='1') start();
 </script></body></html>
 """
+
+
+def heard_prefix(spoken: list[tuple[str, int]], played_ms: float) -> str:
+    """The part of a reply the user heard before interrupting, ending in «…».
+
+    ``spoken`` lists the emitted clauses with their audio length in samples, in
+    playback order; a clause cut part-way keeps the share of its words that was
+    played.
+    """
+
+    heard_samples = max(0.0, played_ms) * SAMPLE_RATE / 1000.0
+    words: list[str] = []
+    position = 0
+    for text, samples in spoken:
+        if position + samples <= heard_samples:
+            words += text.split()
+        else:
+            tokens = text.split()
+            share = (heard_samples - position) / samples if samples else 0.0
+            words += tokens[: int(len(tokens) * max(0.0, share))]
+            break
+        position += samples
+    else:
+        return " ".join(words)
+    return " ".join(words + ["…"])
 
 
 def _low_latency_piper(model: Path | None) -> Any:

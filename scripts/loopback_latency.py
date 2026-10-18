@@ -11,7 +11,9 @@ the acoustic end of speech to the scheduled start of the first clause.
 
 Optional scripted interruptions place a second utterance ``--barge-offset``
 seconds after a turn ends (during the reply); optional backchannels place a
-short listener token at the same offset. This is automated loopback evidence on
+short listener token at the same offset. A panel row may instead carry its own
+``barge_audio_filepath`` (and ``barge_offset_s``), for scripted dialogues where
+the interruption belongs to the request; ``--keep-order`` keeps the panel order. This is automated loopback evidence on
 the machine where it runs; it is never a human-study or target-GPU result by
 itself.
 
@@ -59,18 +61,20 @@ def build_timeline(
     gap_seconds: float,
     barge: list[np.ndarray | None],
     barge_offset: float,
+    barge_offsets: list[float | None] | None = None,
 ) -> tuple[np.ndarray, list[dict]]:
     parts = [np.zeros(int(1.5 * RATE), np.float32)]
     cursor = parts[0].size
     plan = []
-    for row, extra in zip(utterances, barge, strict=True):
+    offsets = barge_offsets or [None] * len(utterances)
+    for row, extra, own_offset in zip(utterances, barge, offsets, strict=True):
         audio = read_mono16(row["audio_filepath"])
         start, end = cursor, cursor + audio.size
         segment = np.zeros(audio.size + int(gap_seconds * RATE), np.float32)
         segment[: audio.size] = audio
         entry = {"id": row["id"], "start_s": start / RATE, "end_s": end / RATE}
         if extra is not None:
-            offset = audio.size + int(barge_offset * RATE)
+            offset = audio.size + int((barge_offset if own_offset is None else own_offset) * RATE)
             segment[offset : offset + extra.size] += extra
             entry["barge_onset_s"] = (cursor + offset) / RATE
             entry["barge_seconds"] = extra.size / RATE
@@ -111,6 +115,7 @@ def main() -> int:
     parser.add_argument("--barge-offset", type=float, default=0.9)
     parser.add_argument("--condition", default="plain")
     parser.add_argument("--seed", type=int, default=20261016)
+    parser.add_argument("--keep-order", action="store_true", help="do not shuffle the panel")
     parser.add_argument("--work-dir", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
@@ -120,15 +125,23 @@ def main() -> int:
     rows = [json.loads(line) for line in args.panel.read_text(encoding="utf-8").splitlines() if line]
     rows = [r for r in rows if args.min_seconds <= float(r["duration"]) <= args.max_seconds]
     rng = random.Random(args.seed)
-    rng.shuffle(rows)
+    if not args.keep_order:
+        rng.shuffle(rows)
     rows = rows[: args.turns]
     barge: list[np.ndarray | None] = [None] * len(rows)
     if args.barge_panel:
         clips = [json.loads(line) for line in args.barge_panel.read_text().splitlines() if line]
         rng.shuffle(clips)
         barge = [read_mono16(clips[i % len(clips)]["audio_filepath"]) for i in range(len(rows))]
+    for i, row in enumerate(rows):  # a row's own interruption takes precedence
+        if row.get("barge_audio_filepath"):
+            barge[i] = read_mono16(row["barge_audio_filepath"])
     audio, plan = build_timeline(
-        rows, gap_seconds=args.gap_seconds, barge=barge, barge_offset=args.barge_offset
+        rows,
+        gap_seconds=args.gap_seconds,
+        barge=barge,
+        barge_offset=args.barge_offset,
+        barge_offsets=[row.get("barge_offset_s") for row in rows],
     )
     args.work_dir.mkdir(parents=True, exist_ok=True)
     mic = args.work_dir / f"fake_mic_{args.condition}.wav"
@@ -188,7 +201,7 @@ def main() -> int:
                 "turn", "end_sample", "utterance_seconds", "client_t_first_audio_ms", "client_t_first_audible_ms",
                 "client_t_duck_ms", "client_t_stop_ms", "server_timings_ms", "outcome",
                 "speculative_start", "speculation_confirmed", "bargein_events", "asr_error",
-                "responder_error", "clauses", "speculation_cancelled",
+                "responder_error", "clauses", "speculation_cancelled", "client_played_ms", "heard_words",
             )}
             for t in turns
         ],
