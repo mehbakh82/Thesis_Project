@@ -499,6 +499,12 @@ def main(argv: list[str] | None = None) -> None:
         default=None,
         help="silence before a speculative turn starts (default: the LiveConfig value)",
     )
+    p_live.add_argument(
+        "--lexical-pre-roll-ms",
+        type=float,
+        default=None,
+        help="audio before the barge-in onset given to the confirm ASR (default: the LiveConfig value)",
+    )
     p_live.add_argument("--telemetry", type=Path)
     p_live.add_argument("--history-turns", type=int, default=2)
     p_serve = sub.add_parser("serve")
@@ -1007,6 +1013,7 @@ def main(argv: list[str] | None = None) -> None:
                 history_turns=args.history_turns,
                 telemetry_path=args.telemetry,
                 **({} if args.speculative_ms is None else {"speculative_ms": args.speculative_ms}),
+                **({} if args.lexical_pre_roll_ms is None else {"lexical_pre_roll_ms": args.lexical_pre_roll_ms}),
             ),
         )
         uvicorn.run(app, host=args.host, port=args.port, log_level="warning")
