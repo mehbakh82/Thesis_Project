@@ -102,6 +102,9 @@ ARTIFACTS: dict[str, str] = {
     "closeout_bargein_simulation": "results/eval/bargein_simulation_final.json",
     "closeout_bargein_detector_v2": "results/eval/bargein_detector_v2_final.json",
     "closeout_loopback": "results/eval/live_loopback_formal.json",
+    "closeout_loopback_v2": "results/eval/live_loopback_v2.json",
+    "closeout_loopback_v2_dev_choice": "results/eval/live_loopback_v2_dev_choice.json",
+    "closeout_loopback_v2_failures": "results/eval/live_loopback_v2_failures.json",
     "closeout_listening_study": "results/eval/listening_study.json",
 }
 
@@ -1714,7 +1717,8 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
     v7_asr = load("closeout_moshi_v7a_intelligibility")
     simulation = load("closeout_bargein_simulation")
     detector = load("closeout_bargein_detector_v2")
-    loopback = load("closeout_loopback")
+    loopback_v1 = load("closeout_loopback")
+    loopback = load("closeout_loopback_v2") or loopback_v1  # the deployed configuration
     study = load("closeout_listening_study")
     asr_arms = asr.get("arms") or {}
     tts_arms = tts.get("arms") or {}
@@ -1818,8 +1822,15 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
             "evidence_class": "independent_automatic_two_pass_gemini_labels",
             "test": detector.get("test"),
         },
+        "browser_loopback_v1": {
+            "status": status(loopback_v1),
+            "plain_t_first_audio_ms": ((loopback_v1.get("conditions") or {}).get("plain") or {}).get("t_first_audio_ms"),
+            "bargein_pooled": loopback_v1.get("bargein_pooled"),
+            "peak_stack_gpu_mib": (loopback_v1.get("gpu_memory") or {}).get("peak_stack_mib"),
+        },
         "browser_loopback": {
             "status": status(loopback),
+            "protocol": loopback.get("protocol"),
             "evidence_class": loopback.get("evidence_class"),
             "official_e2e_eligible": False,
             "plain_t_first_audio_ms": plain.get("t_first_audio_ms"),

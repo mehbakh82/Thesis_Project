@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "experiment": "loopback_failure_modes",
+  "source_dir_name": "formal",
+  "latency": {
+    "plain": {
+      "planned_turns": 201,
+      "missing_turns": 0,
+      "turns_over_500_ms": 0,
+      "slowest_stage_relative_to_median": {},
+      "stage_medians_ms": {
+        "asr": 64.755,
+        "first_token": 41.985,
+        "first_clause": 85.05,
+        "synthesis": 56.315
+      }
+    },
+    "elderly": {
+      "planned_turns": 80,
+      "missing_turns": 0,
+      "turns_over_500_ms": 1,
+      "slowest_stage_relative_to_median": {
+        "first_clause": 1
+      },
+      "stage_medians_ms": {
+        "asr": 64.17,
+        "first_token": 40.235,
+        "first_clause": 86.55000000000001,
+        "synthesis": 58.26000000000002
+      }
+    }
+  },
+  "missed_interruptions": {
+    "events": 60,
+    "stopped": 47,
+    "missed_without_duck": 4,
+    "missed_after_duck_resumed": 9
+  },
+  "backchannel_false_stops": {
+    "events": 60,
+    "false_stops": 8,
+    "ducked_and_resumed": 45
+  },
+  "text_retained": false
+}

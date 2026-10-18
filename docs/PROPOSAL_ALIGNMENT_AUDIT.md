@@ -19,7 +19,7 @@ machine-readable receipt now also reports each criterion under the closeout's
 |---|---|---|
 | ≥100 h annotated conversation | 108.584 h, zero leaks; labels automatic | Yes (automatic labels) |
 | Direct S2S, lower loss and intelligible Persian | Moshi v7a 6/9 but unintelligible (prefix CER 0.88); Gemma speech input below the cascade | **No** |
-| Streaming ≤ 500 ms on one 12–24 GB GPU | Real-browser loopback: mean 418 ms, p90 487 ms, 0 unanswered of 201; 11.0 GB GPU stack | Yes (H100 compute, 12 GB memory budget) |
+| Streaming ≤ 500 ms on one 12–24 GB GPU | Real-browser loopback: mean 372 ms, p90 431 ms, max 491 ms, 0 unanswered of 201 (audible p90 473 ms); 11.1 GiB GPU stack | Yes (H100 compute, 12 GiB memory budget) |
 | Full duplex, ≥80% detection, ≤150 ms | Simulation 0.933 / 0.880, duck median 120 ms; browser 0.850 / 0.847 | Yes (automatic labels, no physical audio path) |
 | MOS ≥ 3.5, 5–10 speakers, ≥2 aged 60+ | Listening study frozen and distributed | Pending |
 

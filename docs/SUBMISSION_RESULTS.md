@@ -19,8 +19,8 @@ while the assistant speaks:
 
 | Result | Value | Evidence class | Source |
 |---|---|---|---|
-| End of speech → first audio (plain, 201 turns) | mean 418 ms, p90 487 ms, max 537 ms, 0 unanswered | automated real-browser loopback, H100 | `docs/LIVE_LATENCY_LOOPBACK_RESULT.md` |
-| Whole-stack GPU memory | 11.0 GB peak (LLM capped to a 12 GB budget) | measured, H100 | same |
+| End of speech → first audio (plain, 201 turns) | mean 372 ms, p90 431 ms, max 491 ms, 0 unanswered (audible p90 473 ms); v1 with a 160 ms speculative start: 418 / 487 / 537 | automated real-browser loopback, H100 | `docs/LIVE_LOOPBACK_V2_RESULT.md` |
+| Whole-stack GPU memory | 11,336 MiB = 11.1 GiB peak (LLM capped to fit a 12 GiB card) | measured, H100 | same |
 | Barge-in, deployment simulation (600 test scenarios) | accuracy 0.933, F1 0.880, onset→duck median 120 ms | simulated from real recordings, automatic labels | `docs/BARGEIN_SIMULATION_RESULT.md` |
 | Barge-in, browser loopback (120 turns) | accuracy 0.850, F1 0.847, duck 46 ms from detected onset | automated loopback | `docs/LIVE_LATENCY_LOOPBACK_RESULT.md` |
 | Acoustic detector alone (94 podcast events) | accuracy 0.574, F1 0.672 — negative | Gemini two-pass labels | `docs/BARGEIN_DETECTOR_V2_RESULT.md` |

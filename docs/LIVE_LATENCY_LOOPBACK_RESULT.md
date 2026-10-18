@@ -18,7 +18,7 @@ double-talk margin 14 dB, coupling prior 0 dB, lexical confirm v2).
 
 **Memory budget:** the LLM server was capped at 0.105 of the H100 (2048-token
 context, two sequences) so that the GPU side of the stack fits a 12 GB card.
-Measured peak during all runs: **11.0 GB** (LLM 9.4 GB reserved + ASR 1.6 GB);
+Measured peak during all runs: **10,994 MiB = 10.7 GiB** (LLM 9,388 MiB reserved + ASR 1,606 MiB), within a 12 GiB (12,288 MiB) card;
 TTS and VAD run on CPU. Compute speed is that of the H100, not of a 12–24 GB
 GPU (disclosed deviation).
 
@@ -27,7 +27,7 @@ GPU (disclosed deviation).
 | Panel | Planned turns | Missing | Mean | Median | p90 | p95 | Max | ≤ 500 ms |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | Plain (61 PSRB + 140 corpus utterances, 1–5 s) | 201 | 0 | **418** | 415 | **487** | 506 | 537 | 93.5% |
-| Simulated elderly (0.85× tempo, −3 dB) | 80 | 0 | 436 | 433 | 508 | 525 | 575 | 86.3% |
+| Simulated elderly (0.85× tempo, −3 dB) | 80 | 0 | 435 | 433 | 508 | 525 | 575 | 86.3% |
 | Barge-in panels (base turns) | 120 | 0 | 399 | 388 | 464 | 472 | 509 | 99.2% |
 
 T_first_audible (adding the browser's reported output latency): plain median

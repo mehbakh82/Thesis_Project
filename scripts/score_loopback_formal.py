@@ -142,6 +142,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dir", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--protocol", default="docs/LIVE_LATENCY_LOOPBACK_PROTOCOL.md")
+    parser.add_argument("--note", default=None, help="free-text provenance note recorded in the receipt")
     args = parser.parse_args()
     if args.out.exists():
         raise SystemExit(f"refusing to overwrite write-once receipt {args.out}")
@@ -150,7 +152,8 @@ def main() -> int:
         "schema_version": 1,
         "evidence_class": "automated_browser_loopback",
         "official_e2e_eligible": False,
-        "protocol": "docs/LIVE_LATENCY_LOOPBACK_PROTOCOL.md",
+        "protocol": args.protocol,
+        **({"note": args.note} if args.note else {}),
         "hardware": "shared NVIDIA H100 host (not a 12-24 GB device; memory budget emulated, compute not)",
         "server_identity": json.loads((args.dir / "health.json").read_text()),
         "conditions": {},

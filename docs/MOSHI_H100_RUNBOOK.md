@@ -322,7 +322,9 @@ The counts above describe what existed when each experiment was evaluated and
 certified. After v1–v5 were finalized as non-deployable, the chained verified cleanups
 through 2026-08-31 retained 13 representative adapter tensors: v1 steps
 500/1000/2000/4000/8000, v2 steps 400/2000, and v3/v4/v5 steps 400/500. Every
-retained tensor hash matches its committed certificate. Other non-promoted
+retained tensor hash matched its committed certificate. A recheck on 2026-10-17
+found only the five v1 tensors still on disk; the eight v2–v5 tensors survive
+only as committed hashes and derived evidence. Other non-promoted
 negative intermediates and superseded one-step probe tensors were removed;
 all results, runtime outputs, configurations, logs, schemas, and hashes remain.
 Therefore, commands that reevaluate the complete candidate set require

@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "protocol": "docs/LIVE_LOOPBACK_V2_PROTOCOL.md",
+  "rule": "lowest development p90 of T_first_audible; a larger candidate within 10 ms is preferred; candidates with a missing turn are excluded",
+  "candidates": {
+    "64": {
+      "planned_turns": 60,
+      "missing_turns": 0,
+      "t_first_audio_ms": {
+        "n": 60,
+        "mean": 360.3791666805741,
+        "median": 357.9375,
+        "p90": 441.5474999189377,
+        "p95": 462.24250006675715,
+        "max": 501.33750009536743
+      },
+      "t_first_audible_ms": {
+        "n": 60,
+        "mean": 402.3791666805741,
+        "median": 399.9375,
+        "p90": 483.5474999189377,
+        "p95": 504.24250006675715,
+        "max": 543.3375000953674
+      },
+      "t_first_audible_p90_ms": 483.5474999189377,
+      "speculative_starts": 76,
+      "speculative_cancelled": 10,
+      "speculative_starts_per_planned_turn": 1.2666666666666666
+    },
+    "96": {
+      "planned_turns": 60,
+      "missing_turns": 0,
+      "t_first_audio_ms": {
+        "n": 60,
+        "mean": 383.0908333301541,
+        "median": 374.5875000357628,
+        "p90": 445.59750005006794,
+        "p95": 460.5574999988079,
+        "max": 530.9375
+      },
+      "t_first_audible_ms": {
+        "n": 60,
+        "mean": 425.0908333301541,
+        "median": 416.5875000357628,
+        "p90": 487.59750005006794,
+        "p95": 502.5574999988079,
+        "max": 572.9375
+      },
+      "t_first_audible_p90_ms": 487.59750005006794,
+      "speculative_starts": 74,
+      "speculative_cancelled": 8,
+      "speculative_starts_per_planned_turn": 1.2333333333333334
+    },
+    "128": {
+      "planned_turns": 60,
+      "missing_turns": 0,
+      "t_first_audio_ms": {
+        "n": 60,
+        "mean": 412.84245842861003,
+        "median": 416.38749998807725,
+        "p90": 471.4274999380112,
+        "p95": 489.2574999988079,
+        "max": 559.5375000238419
+      },
+      "t_first_audible_ms": {
+        "n": 60,
+        "mean": 454.84245842861003,
+        "median": 458.38749998807725,
+        "p90": 513.4274999380111,
+        "p95": 531.2574999988079,
+        "max": 601.5375000238419
+      },
+      "t_first_audible_p90_ms": 513.4274999380111,
+      "speculative_starts": 72,
+      "speculative_cancelled": 6,
+      "speculative_starts_per_planned_turn": 1.2
+    },
+    "160": {
+      "planned_turns": 60,
+      "missing_turns": 0,
+      "t_first_audio_ms": {
+        "n": 60,
+        "mean": 424.3491666714347,
+        "median": 424.68749994039536,
+        "p90": 499.2075000524521,
+        "p95": 519.7875000238419,
+        "max": 556.0375000238419
+      },
+      "t_first_audible_ms": {
+        "n": 60,
+        "mean": 466.3491666714347,
+        "median": 466.68749994039536,
+        "p90": 541.2075000524521,
+        "p95": 561.7875000238419,
+        "max": 598.0375000238419
+      },
+      "t_first_audible_p90_ms": 541.2075000524521,
+      "speculative_starts": 72,
+      "speculative_cancelled": 6,
+      "speculative_starts_per_planned_turn": 1.2
+    }
+  },
+  "chosen_speculative_ms": 96
+}
