@@ -71,3 +71,28 @@ Findings from reading the lab front-end, added before they are run:
   «? ; ,» (which are in the model's symbol set) before the front-end is tested
   after step 4, on top of the step 4 winner, and kept under the step 4 rule
   (development CER not worse and DNSMOS OVRL not lower).
+
+## Amendment 2 (2026-10-18, after step 4b, before the evaluation texts)
+
+Steps 3, 4 and 4b are complete (`results/eval/tts_lab_vits_dev_{grid,split,punct}.json`);
+the evaluation texts have not been synthesized.
+
+- **Step 1 correction.** The first serving check
+  (`results/eval/tts_lab_vits_dev_serving.json`, kept) failed: 904 of 909
+  development chunks had identical phonemes. The in-process espeak-ng
+  synthesized the text with the newline the fork appends, but the espeak-ng
+  CLI's bulk stdin mode overwrites that last byte with the terminating NUL, so
+  the CLI never sees it; on 5 chunks ending in a dangling «می‌» this changed a
+  stress mark. The in-process input now matches the CLI byte for byte, and the
+  check is repeated into `results/eval/tts_lab_vits_dev_serving_v2.json`
+  (criterion unchanged: identical on all development chunks).
+- **Step 2b, tokenizer fix (found while investigating those 5 chunks).** The
+  fork's number step re-tokenizes every sentence with hazm's `word_tokenize`,
+  whose verb-part joining treats «خواهید/خواهد» as the future auxiliary: at
+  the end of a sentence the word is dropped («چه چیزی می‌خواهید» is spoken
+  «چه چیزی می»; 5 of the 909 development chunks), elsewhere it is joined to the
+  next word with «_», which espeak-ng reads as a space. The fix tokenizes
+  without verb joining (unit tests in `tools/star_tts_plus/tests/test_frontend.py`).
+  As a correctness fix it is judged on intelligibility: kept if the development
+  CER (texts without digits, on top of the step 4b winner) is not worse;
+  DNSMOS is reported.
