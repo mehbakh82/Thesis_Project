@@ -87,6 +87,7 @@ class LiveConfig:
     lexical_matching: str = "v2"
     drop_function_words: bool = True
     duck_frames: int = 1
+    lexical_pre_roll_ms: float = 0.0
 
 
 class _Session:
@@ -116,6 +117,7 @@ class _Session:
             lexical_matching=config.lexical_matching,
             drop_function_words=config.drop_function_words,
             duck_frames=config.duck_frames,
+            lexical_pre_roll_ms=config.lexical_pre_roll_ms,
         )
         self.recent: np.ndarray = np.zeros(0, dtype=np.float32)
         self.recent_start = 0
@@ -172,7 +174,7 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
             key: getattr(config, key)
             for key in (
                 "lexical_confirm", "echo_margin_db", "dtd_margin_db", "initial_coupling_db",
-                "lexical_matching", "drop_function_words", "duck_frames", "hangover_ms", "speculative_ms",
+                "lexical_matching", "drop_function_words", "duck_frames", "lexical_pre_roll_ms", "hangover_ms", "speculative_ms",
             )
         }
         return {

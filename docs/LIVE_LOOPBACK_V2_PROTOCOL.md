@@ -74,3 +74,25 @@ timings and for the coherence of the response.
 Automated browser loopback with recorded or synthesized speech on the shared
 H100 host, with the GPU memory of a 12 GB card but not its compute; automatic
 judges; no human user.
+
+## Amendment 1 (2026-10-18, while the v2 formal runs were in progress)
+
+The thesis lists one more barge-in improvement as future work: the lexical
+confirm transcribes the microphone from the detected onset, and because the duck
+follows the first voiced frame, the first phoneme is often cut («آره» heard as
+«کار»). Change 3 gives the confirm ASR 200 ms of audio before the onset
+(`lexical_pre_roll_ms`, default off until decided).
+
+- **Development:** the barge-in simulation's development stage on training
+  audio, exactly as development run 6, with the families `lexical2f1` (the
+  deployed controller) and `lexical2f1pre` (plus the pre-roll), double-talk
+  margin 14 dB; the simulation's selection rule (highest accuracy, F1 next,
+  lowest median duck within 0.01) decides.
+- **If the pre-roll is chosen:** the simulation test split is re-run once with
+  it (`results/eval/bargein_simulation_v2.json`; a second look at the test
+  split after a change chosen on training audio, reported next to the first),
+  and the two loopback barge-in panels and the coherence scenarios are run
+  again with it (latency panels are unaffected: the pre-roll changes only the
+  confirm decision). Otherwise nothing changes.
+- These runs start only after the v2 runs end, so that they do not share the
+  ASR service with a latency measurement.

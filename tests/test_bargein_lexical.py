@@ -124,3 +124,20 @@ def test_conservative_coupling_prior_avoids_a_duck_when_the_echo_arrives_late() 
 
     assert [e.kind for e in run(None)][:1] == ["duck"]  # legacy: coupling learned before the echo
     assert run(0.0) == []
+
+
+def test_confirm_pre_roll_gives_the_asr_audio_before_the_detected_onset() -> None:
+    sizes: dict[float, int] = {}
+
+    for pre_roll in (0.0, 200.0):
+
+        def transcribe(audio: np.ndarray, pre_roll: float = pre_roll) -> str:
+            sizes.setdefault(pre_roll, audio.size)
+            return "صبر کن"
+
+        controller = BargeInController(
+            scorer=EnergyScorer(), echo_margin_db=None, transcriber=transcribe, lexical_pre_roll_ms=pre_roll
+        )
+        events = _run(controller, np.concatenate([_quiet(0.5), _tone(0.6), _quiet(0.6, 2)]))
+        assert [e.kind for e in events][:2] == ["duck", "stop"]
+    assert sizes[200.0] - sizes[0.0] == int(0.2 * SAMPLE_RATE)

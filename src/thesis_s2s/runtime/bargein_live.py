@@ -69,6 +69,7 @@ class BargeInController:
     lexical_after_ms: float = 400.0
     lexical_interval_ms: float = 200.0
     confirm_cap_ms: float = 1600.0
+    lexical_pre_roll_ms: float = 0.0  # audio before the detected onset given to the confirm ASR
     _next_check_ms: float = 0.0
     _pending: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=np.float32))
     _pending_ref: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=np.float32))
@@ -155,7 +156,7 @@ class BargeInController:
         if transcriber is None:
             return None
         started = time.perf_counter()
-        transcript = transcriber(self.captured_since_onset())
+        transcript = transcriber(self.captured_since_onset(self.lexical_pre_roll_ms))
         latency = int(round((time.perf_counter() - started) * SAMPLE_RATE))
         echo = self.echo_words() if self.echo_words is not None else set()
         content = content_tokens(
@@ -170,10 +171,16 @@ class BargeInController:
             return None
         return BargeInEvent(kind, self._onset, self._consumed + latency, None, transcript)
 
-    def captured_since_onset(self) -> np.ndarray:
-        """Microphone audio from the detected onset (pre-roll for the next turn)."""
+    def captured_since_onset(self, pre_roll_ms: float = 0.0) -> np.ndarray:
+        """Microphone audio from the detected onset, optionally with some audio before it.
 
-        start = max(0, self._history.size - (self._consumed - self._onset))
+        The duck follows the first voiced frame, so the first phoneme often lies
+        just before the detected onset; ``pre_roll_ms`` keeps it for the
+        confirm ASR (the history holds the last 4 s).
+        """
+
+        pre_roll = int(pre_roll_ms * SAMPLE_RATE / 1000)
+        start = max(0, self._history.size - (self._consumed - self._onset) - pre_roll)
         return self._history[start:].copy()
 
     def push(

@@ -59,6 +59,10 @@ LEXICAL_FAMILIES: dict[str, dict[str, Any]] = {
     "lexical2f1": {
         "initial_coupling_db": 0.0, "lexical_matching": "v2", "drop_function_words": True, "duck_frames": 1,
     },
+    "lexical2f1pre": {
+        "initial_coupling_db": 0.0, "lexical_matching": "v2", "drop_function_words": True, "duck_frames": 1,
+        "lexical_pre_roll_ms": 200.0,
+    },
 }
 
 
