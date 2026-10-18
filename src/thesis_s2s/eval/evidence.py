@@ -93,6 +93,7 @@ ARTIFACTS: dict[str, str] = {
     "closeout_tts_lab_vits_dev_punct": "results/eval/tts_lab_vits_dev_punct.json",
     "closeout_tts_lab_vits_dev_tokenize": "results/eval/tts_lab_vits_dev_tokenize.json",
     "closeout_tts_lab_vits_eval": "results/eval/tts_lab_vits_optimized_eval.json",
+    "closeout_corpus_label_verification": "results/eval/corpus_label_verification.json",
     "closeout_speech_input_v1": "results/eval/speech_input_llm_v1.json",
     "closeout_speech_input_v1_gemini": "results/eval/speech_input_v1_gemini_judge.json",
     "closeout_moshi_tokenizer": "results/moshi_tokenizer_audit.json",
@@ -1705,6 +1706,7 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
     lab_serving = load("closeout_tts_lab_vits_serving")
     lab_dev = {step: load(f"closeout_tts_lab_vits_dev_{step}") for step in ("grid", "split", "punct", "tokenize")}
     lab_eval = load("closeout_tts_lab_vits_eval")
+    corpus_check = load("closeout_corpus_label_verification")
     speech_gemini = load("closeout_speech_input_v1_gemini")
     speech = load("closeout_speech_input_v1")
     tokenizer = load("closeout_moshi_tokenizer")
@@ -1750,6 +1752,16 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
             "cer_two_listener_mean": {
                 arm: row.get("cer_two_listener_mean") for arm, row in (tts_v3.get("arms") or {}).items()
             },
+        },
+        "corpus_label_verification": {
+            "status": status(corpus_check),
+            "evidence_class": "independent_automatic_labels_not_human",
+            "speaker_change_rate_weighted": corpus_check.get("speaker_change_rate_weighted"),
+            "overlap_label_confirmed_rate": {
+                name: (row or {}).get("overlap_label_confirmed_rate")
+                for name, row in (corpus_check.get("strata") or {}).items()
+            },
+            "caption_cer_vs_gemini": (corpus_check.get("caption_vs_gemini") or {}).get("corpus_cer"),
         },
         "tts_lab_vits": {
             "status": status(lab_eval),
