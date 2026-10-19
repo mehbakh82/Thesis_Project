@@ -356,6 +356,17 @@ See `docs/YOUTUBE_CONVERSATION_PIPELINE.md`, `docs/MOSHI_H100_RUNBOOK.md`,
 `docs/RIGHTS_REVIEW_FA.md`, `docs/SUPERVISOR_DECISIONS.md`, and
 `docs/REVIEW.md`.
 
+Closeout documents (2026-10), each protocol committed before its run:
+
+| Area | Protocol → result |
+|---|---|
+| Component selection | `docs/MODEL_AND_DATA_SELECTION_AUDIT.md`; ASR `docs/ASR_CANDIDATE_COMPARISON_V2_PROTOCOL.md`; responder `docs/RESPONDER_CANDIDATE_COMPARISON_V2_PROTOCOL.md` → `..._RESULT.md`; TTS `docs/TTS_CANDIDATE_COMPARISON_V2.md`, `docs/TTS_CANDIDATE_COMPARISON_V3_PROTOCOL.md` → `docs/TTS_CANDIDATE_COMPARISON_V3.md`; lab VITS `docs/TTS_LAB_VITS_OPTIMIZATION_PROTOCOL.md` → `..._RESULT.md` |
+| Direct routes | `docs/MOSHI_V7_ROMANIZED_ALIGNMENT_PROTOCOL.md` → `docs/MOSHI_V7_RESULT.md`; `docs/SPEECH_INPUT_LLM_V1_PROTOCOL.md` → `..._RESULT.md` |
+| Barge-in | `docs/BARGEIN_SIMULATION_PROTOCOL.md` → `..._RESULT.md`; `docs/BARGEIN_DETECTOR_V2_PROTOCOL.md` → `..._RESULT.md` |
+| Live system | `docs/LIVE_LATENCY_LOOPBACK_PROTOCOL.md` → `..._RESULT.md` (v1); `docs/LIVE_LOOPBACK_V2_PROTOCOL.md` → `docs/LIVE_LOOPBACK_V2_RESULT.md` (deployed configuration, coherence after interruptions) |
+| Corpus labels | `docs/CORPUS_LABEL_VERIFICATION_PROTOCOL.md` → `..._RESULT.md` |
+| Human study | `docs/LISTENING_STUDY_PROTOCOL.md` (awaiting participants) |
+
 The ordered evidence and delivery path to a fully complete project is tracked
 in `docs/PROJECT_10_OF_10_CHECKLIST.md`.
 

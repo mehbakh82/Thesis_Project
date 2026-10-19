@@ -2,7 +2,7 @@
 
 ## T_first_audio
 
-Wall-clock milliseconds from **user end-of-speech** (or the moment a barge-in is accepted as a new turn) to the **first audible PCM sample** of the assistant reply.
+Client-clock milliseconds from the captured 20 ms frame holding the **user's acoustic end of speech** to the **scheduled start of the first synthesized clause** in the browser's audio graph. **T_first_audible** adds the browser's reported output latency (`outputLatency + baseLatency`, about 42 ms here), which is closer to the moment sound leaves the speaker; both are reported (`docs/LIVE_LATENCY_LOOPBACK_PROTOCOL.md`).
 
 The historical engineering contract used **p50 ≤500 ms**, and the project
 earlier enforced the proposal conservatively as **maximum ≤500 ms**. Since the
@@ -119,3 +119,23 @@ report precision/recall, FAR, FRR, confusion matrix, denominators, and 95%
 confidence intervals. Energy-only VAD is the baseline. This conservative
 conjunction resolves the proposal's inconsistent use of “accuracy” and “F1”
 without silently choosing the easier interpretation.
+
+## Coherence after an interruption
+
+`docs/LIVE_LOOPBACK_V2_PROTOCOL.md`: scripted dialogues in which a follow-up is
+spoken over the reply to an elderly request (early, mid or late) versus asked as
+a normal second turn. Reported: the stop rate among interruptions that landed
+while the reply was playing, the follow-up transcript CER, and two automatic
+judges' 0–4 scores of the reply to the follow-up (relevance given the first
+request, use of its context, coherence); the criterion compares the
+interrupted and the normal condition. After a stop, the conversation history
+keeps only the part of the reply that was played before the user spoke.
+
+## Corpus label agreement
+
+`docs/CORPUS_LABEL_VERIFICATION_PROTOCOL.md`: on a stratified sample, the share
+of pipeline turn boundaries at which an independent automatic listener
+(Gemini, two agreeing passes) hears a different speaker start, the share of
+marked boundary overlaps it hears as overlap, and the caption CER against its
+verbatim transcript. Independent automatic labels, never human verification.
+

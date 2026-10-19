@@ -18,6 +18,7 @@ import argparse
 import hashlib
 import json
 import random
+import re
 import statistics
 import sys
 import urllib.request
@@ -50,6 +51,47 @@ coherent; 3 clear with a minor issue; 4 clear and internally coherent.
 Do not reward verbosity. Do not guess how the reply was produced."""
 
 
+MAX_PAUSE_MS = 160  # internal pauses longer than this are shortened to SHORT_PAUSE_MS
+SHORT_PAUSE_MS = 120
+
+
+def one_breath(text: str) -> str:
+    """The line without internal pause marks (a final question mark is kept)."""
+
+    end = "؟" if text.rstrip().endswith(("؟", "?")) else ""
+    body = re.sub(r"[،,؟?.!؛:]", " ", text.rstrip().rstrip("؟?.!"))
+    return re.sub(r"\s+", " ", body).strip() + end
+
+
+def shorten_pauses(audio: np.ndarray, frame: int = 320) -> np.ndarray:
+    """Shorten internal silences (40 dB below the loudest frame) to SHORT_PAUSE_MS.
+
+    The synthesized user lines are scripted single turns; a long pause inside a
+    line would let the endpointer close the turn mid-sentence (the first,
+    discarded coherence run), which is not what the scenario tests.
+    """
+
+    frames = audio[: audio.size // frame * frame].reshape(-1, frame)
+    level = 20 * np.log10(np.sqrt((frames**2).mean(axis=1)) + 1e-9)
+    silent = level < level.max() - 40
+    voiced = np.flatnonzero(~silent)
+    if voiced.size == 0:
+        return audio
+    keep: list[np.ndarray] = [frames[: voiced[0]]]
+    run: list[np.ndarray] = []
+    for index in range(voiced[0], voiced[-1] + 1):
+        if silent[index]:
+            run.append(frames[index])
+            continue
+        if run:
+            limit = MAX_PAUSE_MS // 20 if len(run) * 20 <= MAX_PAUSE_MS else SHORT_PAUSE_MS // 20
+            keep.append(np.stack(run[:limit]))
+            run = []
+        keep.append(frames[index : index + 1])
+    keep.append(frames[voiced[-1] + 1 :])
+    return np.concatenate([k.reshape(-1) for k in keep if k.size])
+
+
 def write_wav(path: Path, audio: np.ndarray) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with wave.open(str(path), "wb") as handle:
@@ -70,8 +112,11 @@ def prepare(args: argparse.Namespace) -> int:
     scenarios = [json.loads(line) for line in args.scenarios.read_text(encoding="utf-8").splitlines() if line]
 
     def synth(text: str, path: Path) -> float:
-        pieces = [np.frombuffer(c.audio_int16_bytes, dtype="<i2").astype(np.float32) / 32768 for c in voice.synthesize(text, config)]
-        audio = resample(np.concatenate(pieces), voice.config.sample_rate, RATE)
+        pieces = [
+            np.frombuffer(c.audio_int16_bytes, dtype="<i2").astype(np.float32) / 32768
+            for c in voice.synthesize(one_breath(text), config)
+        ]
+        audio = shorten_pauses(resample(np.concatenate(pieces), voice.config.sample_rate, RATE))
         write_wav(path, 0.9 * audio / max(1e-6, float(np.max(np.abs(audio)))))
         return round(audio.size / RATE, 3)
 

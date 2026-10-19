@@ -96,3 +96,20 @@ follows the first voiced frame, the first phoneme is often cut («آره» heard
   confirm decision). Otherwise nothing changes.
 - These runs start only after the v2 runs end, so that they do not share the
   ASR service with a latency measurement.
+
+## Amendment 2 (2026-10-19, after the first coherence run, before scoring it)
+
+The first coherence run (2026-10-18, v2 configuration) does not test what the
+scenarios intend: the synthesized user lines contained Piper pauses at «،» and
+mid-line «؟» (median longest internal pause 380 ms; two thirds of the lines had
+one of 256 ms or more), so the endpointer closed many requests mid-sentence
+before the scripted follow-up (20 of 30 interrupt and 19 of 30 control sessions
+had more turns than scripted). It is reported only for that observation and is
+not scored. The stimuli are fixed without changing the texts' words: each line
+is synthesized without internal pause marks and any internal silence longer
+than 160 ms is shortened to 120 ms (`one_breath` and `shorten_pauses` in
+`scripts/run_interruption_coherence.py`; longest remaining internal pause
+180 ms by a 35 dB rule). The coherence scenarios are then run once with the
+final deployed configuration (with the confirm pre-roll if amendment 1 adopts
+it) and scored as pre-registered. Premature endpointing on real mid-sentence
+pauses remains a reported failure mode of the system.
