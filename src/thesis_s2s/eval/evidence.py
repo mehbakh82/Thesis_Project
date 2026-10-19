@@ -100,11 +100,13 @@ ARTIFACTS: dict[str, str] = {
     "closeout_moshi_v7a_runtime": "results/moshi_v7a_overfit_runtime.json",
     "closeout_moshi_v7a_intelligibility": "results/moshi_v7a_step200_intelligibility.json",
     "closeout_bargein_simulation": "results/eval/bargein_simulation_final.json",
+    "closeout_bargein_preroll_dev": "results/eval/bargein_simulation_dev7_preroll.json",
     "closeout_bargein_detector_v2": "results/eval/bargein_detector_v2_final.json",
     "closeout_loopback": "results/eval/live_loopback_formal.json",
     "closeout_loopback_v2": "results/eval/live_loopback_v2.json",
     "closeout_loopback_v2_dev_choice": "results/eval/live_loopback_v2_dev_choice.json",
     "closeout_loopback_v2_failures": "results/eval/live_loopback_v2_failures.json",
+    "closeout_interruption_coherence": "results/eval/interruption_coherence_v2.json",
     "closeout_listening_study": "results/eval/listening_study.json",
 }
 
@@ -1710,6 +1712,7 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
     lab_dev = {step: load(f"closeout_tts_lab_vits_dev_{step}") for step in ("grid", "split", "punct", "tokenize")}
     lab_eval = load("closeout_tts_lab_vits_eval")
     corpus_check = load("closeout_corpus_label_verification")
+    coherence = load("closeout_interruption_coherence")
     speech_gemini = load("closeout_speech_input_v1_gemini")
     speech = load("closeout_speech_input_v1")
     tokenizer = load("closeout_moshi_tokenizer")
@@ -1756,6 +1759,12 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
             "cer_two_listener_mean": {
                 arm: row.get("cer_two_listener_mean") for arm, row in (tts_v3.get("arms") or {}).items()
             },
+        },
+        "interruption_coherence": {
+            "status": status(coherence),
+            "evidence_class": "automated_browser_loopback_with_automatic_judges",
+            "interruption": coherence.get("interruption"),
+            "criterion": coherence.get("criterion"),
         },
         "corpus_label_verification": {
             "status": status(corpus_check),

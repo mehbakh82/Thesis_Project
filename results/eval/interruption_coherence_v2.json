@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "experiment": "interruption_coherence_v2",
+  "protocol": "docs/LIVE_LOOPBACK_V2_PROTOCOL.md",
+  "scenarios_sha256": "3276730b84bfb390b0a99900c3192ae2938f4c21113b50f8430d1d87e13a6f0d",
+  "runs_sha256": "953868c9bd740a7bd4ed16a473a385088164cf41065faa6c1d7afd3d4303bc35",
+  "scenarios": 30,
+  "interruption": {
+    "reply_playing_at_onset": 27,
+    "stopped_when_playing": 24,
+    "stop_rate": 0.8888888888888888,
+    "not_an_interruption_reply_already_ended": 3,
+    "by_timing": {
+      "early": {
+        "playing": 10,
+        "stopped": 10
+      },
+      "mid": {
+        "playing": 10,
+        "stopped": 10
+      },
+      "late": {
+        "playing": 7,
+        "stopped": 4
+      }
+    },
+    "heard_words_median": 3.0
+  },
+  "missing_follow_up_replies": {
+    "interrupt": 0,
+    "control": 0
+  },
+  "follow_up_transcript_cer_median": 0.1905241935483871,
+  "normalizer": "fa-asr-score-v1",
+  "judges": {
+    "gemini": {
+      "all": {
+        "scenarios": 30,
+        "relevance": {
+          "interrupt": 1.6666666666666667,
+          "control": 1.6666666666666667,
+          "difference": 0.0,
+          "difference_ci95": [
+            -0.43333333333333335,
+            0.43333333333333335
+          ]
+        },
+        "context_use": {
+          "interrupt": 1.5,
+          "control": 1.5,
+          "difference": 0.0,
+          "difference_ci95": [
+            -0.4666666666666667,
+            0.4666666666666667
+          ]
+        },
+        "coherence": {
+          "interrupt": 2.2333333333333334,
+          "control": 2.3,
+          "difference": -0.06666666666666667,
+          "difference_ci95": [
+            -0.5666666666666667,
+            0.43333333333333335
+          ]
+        }
+      },
+      "early": {
+        "scenarios": 10,
+        "relevance": {
+          "interrupt": 2.0,
+          "control": 1.7
+        },
+        "context_use": {
+          "interrupt": 1.7,
+          "control": 1.9
+        },
+        "coherence": {
+          "interrupt": 2.3,
+          "control": 2.4
+        }
+      },
+      "mid": {
+        "scenarios": 10,
+        "relevance": {
+          "interrupt": 2.1,
+          "control": 2.4
+        },
+        "context_use": {
+          "interrupt": 1.9,
+          "control": 1.9
+        },
+        "coherence": {
+          "interrupt": 2.8,
+          "control": 2.7
+        }
+      },
+      "late": {
+        "scenarios": 10,
+        "relevance": {
+          "interrupt": 0.9,
+          "control": 0.9
+        },
+        "context_use": {
+          "interrupt": 0.9,
+          "control": 0.7
+        },
+        "coherence": {
+          "interrupt": 1.6,
+          "control": 1.8
+        }
+      }
+    },
+    "qwen38": {
+      "all": {
+        "scenarios": 30,
+        "relevance": {
+          "interrupt": 2.9,
+          "control": 2.8,
+          "difference": 0.1,
+          "difference_ci95": [
+            -0.43333333333333335,
+            0.6666666666666666
+          ]
+        },
+        "context_use": {
+          "interrupt": 3.0,
+          "control": 2.8333333333333335,
+          "difference": 0.16666666666666666,
+          "difference_ci95": [
+            -0.3333333333333333,
+            0.7
+          ]
+        },
+        "coherence": {
+          "interrupt": 3.033333333333333,
+          "control": 3.033333333333333,
+          "difference": 0.0,
+          "difference_ci95": [
+            -0.5,
+            0.5
+          ]
+        }
+      },
+      "early": {
+        "scenarios": 10,
+        "relevance": {
+          "interrupt": 3.7,
+          "control": 3.4
+        },
+        "context_use": {
+          "interrupt": 3.8,
+          "control": 3.4
+        },
+        "coherence": {
+          "interrupt": 3.7,
+          "control": 3.4
+        }
+      },
+      "mid": {
+        "scenarios": 10,
+        "relevance": {
+          "interrupt": 3.0,
+          "control": 2.8
+        },
+        "context_use": {
+          "interrupt": 3.0,
+          "control": 2.7
+        },
+        "coherence": {
+          "interrupt": 3.0,
+          "control": 2.8
+        }
+      },
+      "late": {
+        "scenarios": 10,
+        "relevance": {
+          "interrupt": 2.0,
+          "control": 2.2
+        },
+        "context_use": {
+          "interrupt": 2.2,
+          "control": 2.4
+        },
+        "coherence": {
+          "interrupt": 2.4,
+          "control": 2.9
+        }
+      }
+    }
+  },
+  "criterion": {
+    "rule": "interrupt mean relevance at most 0.25 below control under both judges",
+    "per_judge": {
+      "gemini": true,
+      "qwen38": true
+    },
+    "met": true
+  },
+  "text_retained": false,
+  "claim_boundary": "Automated browser loopback with a synthesized user voice and automatic judges on the shared H100 host; no human user."
+}

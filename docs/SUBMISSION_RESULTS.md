@@ -22,7 +22,7 @@ while the assistant speaks:
 | End of speech → first audio (plain, 201 turns) | mean 372 ms, p90 431 ms, max 491 ms, 0 unanswered (audible p90 473 ms); v1 with a 160 ms speculative start: 418 / 487 / 537 | automated real-browser loopback, H100 | `docs/LIVE_LOOPBACK_V2_RESULT.md` |
 | Whole-stack GPU memory | 11,336 MiB = 11.1 GiB peak (LLM capped to fit a 12 GiB card) | measured, H100 | same |
 | Barge-in, deployment simulation (600 test scenarios) | accuracy 0.933, F1 0.880, onset→duck median 120 ms | simulated from real recordings, automatic labels | `docs/BARGEIN_SIMULATION_RESULT.md` |
-| Barge-in, browser loopback (120 turns) | accuracy 0.850, F1 0.847, duck 46 ms from detected onset | automated loopback | `docs/LIVE_LATENCY_LOOPBACK_RESULT.md` |
+| Barge-in, browser loopback (120 turns) | accuracy 0.825, F1 0.817, duck 44 ms from detected onset (v1: 0.850 / 0.847) | automated loopback | `docs/LIVE_LOOPBACK_V2_RESULT.md` |
 | Acoustic detector alone (94 podcast events) | accuracy 0.574, F1 0.672 — negative | Gemini two-pass labels | `docs/BARGEIN_DETECTOR_V2_RESULT.md` |
 | Responder final semantic test (40 rows) | relevance 3.150 vs 1.425, all 7 gates | same-family LLM judge | below |
 | ASR / responder / TTS re-selection | NeMo v4 CTC, Qwen3-4B prompt-v2, Mana retained | human-transcript ASR panel; LLM judge; two ASR listeners | `docs/MODEL_AND_DATA_SELECTION_AUDIT.md` |

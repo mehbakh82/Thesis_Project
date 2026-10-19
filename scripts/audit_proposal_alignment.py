@@ -88,6 +88,7 @@ def _closeout_criteria(evidence: dict[str, Any], data_substantial: bool) -> dict
                 "simulation_f1": simulation.get("test_f1"),
                 "simulation_duck_median_ms": duck,
                 "loopback_bargein": loopback.get("bargein_pooled"),
+                "coherence_after_interruption_met": ((closeout.get("interruption_coherence") or {}).get("criterion") or {}).get("met"),
             },
             "boundary": "simulated mixtures of real recordings and automated loopback; automatic labels",
         },

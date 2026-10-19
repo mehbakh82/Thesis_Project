@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-10-18T10:54:53.111403+00:00",
+  "generated_at": "2026-10-19T07:48:58.627828+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1165,6 +1165,49 @@
         "parsvoice_xtts": 0.13548462255358806
       }
     },
+    "interruption_coherence": {
+      "status": "present",
+      "evidence_class": "automated_browser_loopback_with_automatic_judges",
+      "interruption": {
+        "reply_playing_at_onset": 27,
+        "stopped_when_playing": 24,
+        "stop_rate": 0.8888888888888888,
+        "not_an_interruption_reply_already_ended": 3,
+        "by_timing": {
+          "early": {
+            "playing": 10,
+            "stopped": 10
+          },
+          "mid": {
+            "playing": 10,
+            "stopped": 10
+          },
+          "late": {
+            "playing": 7,
+            "stopped": 4
+          }
+        },
+        "heard_words_median": 3.0
+      },
+      "criterion": {
+        "rule": "interrupt mean relevance at most 0.25 below control under both judges",
+        "per_judge": {
+          "gemini": true,
+          "qwen38": true
+        },
+        "met": true
+      }
+    },
+    "corpus_label_verification": {
+      "status": "present",
+      "evidence_class": "independent_automatic_labels_not_human",
+      "speaker_change_rate_weighted": 0.9380361836280798,
+      "overlap_label_confirmed_rate": {
+        "boundary_overlap": 0.7567567567567568,
+        "boundary_clean": 0.6747967479674797
+      },
+      "caption_cer_vs_gemini": 0.1589305719562782
+    },
     "tts_lab_vits": {
       "status": "present",
       "evidence_class": "automatic_round_trip_asr_and_dnsmos_proxies",
@@ -1286,10 +1329,8 @@
         "sessions": 31
       }
     },
-    "browser_loopback": {
+    "browser_loopback_v1": {
       "status": "present",
-      "evidence_class": "automated_browser_loopback",
-      "official_e2e_eligible": false,
       "plain_t_first_audio_ms": {
         "n": 201,
         "mean": 417.8817537943989,
@@ -1297,15 +1338,6 @@
         "p90": 486.9375,
         "p95": 506.33749997615814,
         "max": 536.6375000476837
-      },
-      "plain_p90_failures_as_late_ms": 486.9375,
-      "interrupt_t_duck_ms": {
-        "n": 57,
-        "mean": 45.423464921482825,
-        "median": 45.737500071525574,
-        "p90": 60.19750001430511,
-        "p95": 60.91749999523163,
-        "max": 62.4375
       },
       "bargein_pooled": {
         "accuracy": 0.85,
@@ -1317,6 +1349,40 @@
           "fn": 10
         }
       },
+      "peak_stack_gpu_mib": 10994.0
+    },
+    "browser_loopback": {
+      "status": "present",
+      "protocol": "docs/LIVE_LOOPBACK_V2_PROTOCOL.md",
+      "evidence_class": "automated_browser_loopback",
+      "official_e2e_eligible": false,
+      "plain_t_first_audio_ms": {
+        "n": 201,
+        "mean": 371.9807835847037,
+        "median": 374.53749990463257,
+        "p90": 431.1375000476837,
+        "p95": 446.7374999523163,
+        "max": 491.4375
+      },
+      "plain_p90_failures_as_late_ms": 431.1375000476837,
+      "interrupt_t_duck_ms": {
+        "n": 56,
+        "mean": 44.99821430231844,
+        "median": 44.08749997615814,
+        "p90": 60.137500047683716,
+        "p95": 61.53749993443489,
+        "max": 94.03750002384186
+      },
+      "bargein_pooled": {
+        "accuracy": 0.825,
+        "f1": 0.817391304347826,
+        "confusion": {
+          "tp": 47,
+          "tn": 52,
+          "fp": 8,
+          "fn": 13
+        }
+      },
       "acceptance": {
         "plain_mean_le_500ms": true,
         "plain_p90_le_500ms_failures_counted": true,
@@ -1324,12 +1390,12 @@
         "bargein_accuracy_and_f1_gt_0_8": true
       },
       "gpu_memory": {
-        "samples": 10329,
+        "samples": 10322,
         "peak_mib": {
           "asr_nemo": 1606.0,
-          "llm_vllm": 9388.0
+          "llm_vllm": 9730.0
         },
-        "peak_stack_mib": 10994.0,
+        "peak_stack_mib": 11336.0,
         "cpu_components": [
           "Mana Piper TTS (ONNX Runtime, 8 threads)",
           "Silero VAD (ONNX)"
@@ -1628,8 +1694,8 @@
     "metrics_definition": {
       "path": "docs/METRICS.md",
       "present": true,
-      "bytes": 6892,
-      "sha256": "2257c9f81a93577050281fd94d38741854ba6b6b2c0c5d9d282f9aaf2fbabe83"
+      "bytes": 8209,
+      "sha256": "7f4364a9057235536fd29031a5223b415e51929c5676b763056cc6e093503a42"
     },
     "storage_cleanup": {
       "path": "results/hardware/storage_cleanup_20260831.json",
@@ -1727,6 +1793,12 @@
       "bytes": 7806,
       "sha256": "bf6e284100b82f9583282d8dffb9119b1d1b795c6caff449f0a38ee0c25f4695"
     },
+    "closeout_corpus_label_verification": {
+      "path": "results/eval/corpus_label_verification.json",
+      "present": true,
+      "bytes": 2957,
+      "sha256": "c44d35a5af1eef03e65065a391d53893d932bfe6a1e5fbbb81197eb34a6e89ac"
+    },
     "closeout_speech_input_v1": {
       "path": "results/eval/speech_input_llm_v1.json",
       "present": true,
@@ -1763,6 +1835,12 @@
       "bytes": 2746,
       "sha256": "b4072ee5f7327072ac4d4ae1c6401cff5f003b6cf68b25df2695a2acf41bd208"
     },
+    "closeout_bargein_preroll_dev": {
+      "path": "results/eval/bargein_simulation_dev7_preroll.json",
+      "present": true,
+      "bytes": 4478,
+      "sha256": "439b836a631fa9785fa73535784f9941aec10b4da7a828e211fc54047b2bb993"
+    },
     "closeout_bargein_detector_v2": {
       "path": "results/eval/bargein_detector_v2_final.json",
       "present": true,
@@ -1774,6 +1852,30 @@
       "present": true,
       "bytes": 6671,
       "sha256": "ce34f4c9c7e2daab1d1585654f193c82e6e7b1e8d390c5d09a54d3ba440d66f6"
+    },
+    "closeout_loopback_v2": {
+      "path": "results/eval/live_loopback_v2.json",
+      "present": true,
+      "bytes": 6779,
+      "sha256": "b48bfee01d11a7012f0b59a6ec424f9bd851aa800f8e58cebaa85a5c67032509"
+    },
+    "closeout_loopback_v2_dev_choice": {
+      "path": "results/eval/live_loopback_v2_dev_choice.json",
+      "present": true,
+      "bytes": 3061,
+      "sha256": "ce6eec626cf6f565000e94c2520d93ae59e1f88bb3b85f42d12f2169826a352d"
+    },
+    "closeout_loopback_v2_failures": {
+      "path": "results/eval/live_loopback_v2_failures.json",
+      "present": true,
+      "bytes": 1042,
+      "sha256": "fc4b79db612221e701a08160ecd14854e99488720da9952f842caec3ec437af2"
+    },
+    "closeout_interruption_coherence": {
+      "path": "results/eval/interruption_coherence_v2.json",
+      "present": true,
+      "bytes": 4741,
+      "sha256": "62e55b20715828a8f1fdaa9811d95d346217b41a527a8332c6fd8cb6a51a2d0b"
     },
     "closeout_listening_study": {
       "path": "results/eval/listening_study.json",

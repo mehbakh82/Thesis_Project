@@ -9,7 +9,7 @@
   },
   "aggregate_evidence": {
     "path": "results/eval/EVIDENCE_STATUS.json",
-    "sha256": "f6d1c16b7c41c6609531ce099ffda97371ca96f3590dca0cee0aac419e815016",
+    "sha256": "87542d6c4d9f8d3e67c5556d0a3ce4e7c60a28a2d8a7a4f1214220bfc4ae315e",
     "schema_version": 17
   },
   "scoring_contract": {
@@ -108,14 +108,14 @@
       "observed": {
         "plain_t_first_audio_ms": {
           "n": 201,
-          "mean": 417.8817537943989,
-          "median": 415.2374999523163,
-          "p90": 486.9375,
-          "p95": 506.33749997615814,
-          "max": 536.6375000476837
+          "mean": 371.9807835847037,
+          "median": 374.53749990463257,
+          "p90": 431.1375000476837,
+          "p95": 446.7374999523163,
+          "max": 491.4375
         },
-        "plain_p90_failures_as_late_ms": 486.9375,
-        "peak_stack_gpu_mib": 10994.0
+        "plain_p90_failures_as_late_ms": 431.1375000476837,
+        "peak_stack_gpu_mib": 11336.0
       },
       "boundary": "automated real-browser loopback on an H100 with a 12 GB memory budget; not physical target hardware"
     },
@@ -126,15 +126,16 @@
         "simulation_f1": 0.8802395209580839,
         "simulation_duck_median_ms": 120.50042025170349,
         "loopback_bargein": {
-          "accuracy": 0.85,
-          "f1": 0.847457627118644,
+          "accuracy": 0.825,
+          "f1": 0.817391304347826,
           "confusion": {
-            "tp": 50,
+            "tp": 47,
             "tn": 52,
             "fp": 8,
-            "fn": 10
+            "fn": 13
           }
-        }
+        },
+        "coherence_after_interruption_met": true
       },
       "boundary": "simulated mixtures of real recordings and automated loopback; automatic labels"
     },
