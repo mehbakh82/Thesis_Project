@@ -1,6 +1,14 @@
 # Code map
 
-## Deployable path
+## Deployable path (streaming full duplex, `thesis_s2s.cli serve-live`)
+
+- `src/thesis_s2s/runtime/live.py` — the production server: open browser microphone (20 ms frames with the playback level), Silero endpointing with a speculative start and audio held until the end of the turn is confirmed, clause-by-clause streamed replies, the two-stage barge-in (duck, then lexical confirm), heard-only history after an interruption (`heard_prefix`), and per-turn telemetry for loopback evaluation.
+- `src/thesis_s2s/runtime/streaming.py` — one streamed turn: ASR → token-streamed responder (vLLM, Persian-script decoding constraint, two-turn history) → Persian clause chunker → Piper per clause.
+- `src/thesis_s2s/runtime/vad.py` and `runtime/bargein_live.py` — endpointer and barge-in controller (Geigel-style double-talk duck, lexical ASR confirm); `src/thesis_s2s/bargein/lexicon.py` — listener tokens, closed-class function words and echo-word matching.
+- `tests/test_live_server.py`, `tests/test_streaming_pipeline.py`, `tests/test_bargein_lexical.py` — WebSocket-level regression of streaming, endpointing, ducking, lexical confirm, interruption pre-roll and heard-only history.
+- `scripts/loopback_latency.py`, `scripts/score_loopback_formal.py`, `scripts/choose_speculative_start.py`, `scripts/run_interruption_coherence.py` — automated real-browser loopback (latency, barge-in, coherence after an interruption).
+
+## Earlier push-to-talk path (kept for regression tests and study endpoints)
 
 - `src/thesis_s2s/runtime/duplex.py` — FastAPI UI, continuous 16 kHz microphone stream, WebSocket protocol, browser playback acknowledgements, and study endpoints.
 - `tests/test_duplex_transport.py` — WebSocket-level regression of interruption pre-roll continuity, acknowledgement persistence, cancellation, simultaneous turns, reconnect, malformed/silent inputs, recoverable generation failure, runtime identity telemetry, and no-WAV metrics retention.
@@ -41,6 +49,8 @@
 - `src/thesis_s2s/data/diarize.py`, `manual_qa.py`, `interaction_qa.py`, and `conversation.py` — collision-free primary/reserve reports, transcript-aligned speakers, stratified window QA, conservative raw-boundary interaction candidates, fail-closed pair review, overlap-preserving response-pair building, and verified-only interruption audits.
 - `src/thesis_s2s/data/audit.py` — manifest integrity, split leakage, conversational-supervision coverage, and caption/independent-ASR alignment-risk audits.
 - `src/thesis_s2s/data/factory.py` — data pipeline orchestration.
+- `scripts/verify_corpus_labels.py` — stratified check of corpus turn-boundary, overlap and caption labels by an independent automatic listener (Gemini; two passes, agreed labels only).
+- `tools/star_tts_plus/` and `scripts/tune_tts_lab_vits.py` — inference improvements and their measured tuning for the lab VITS voice (number reading, tokenizer fix, in-process espeak-ng, exact faster resampling), without retraining.
 - `src/thesis_s2s/bakeoff/codecs.py` — codec/component probes, not a comparative full-model benchmark.
 - `src/thesis_s2s/eval/bench.py` — component proxy measurements and evidence metadata. Official end-to-end latency comes only from live browser telemetry on eligible physical hardware.
 - `scripts/analyze_cascade_validation.py` — privacy-safe post-hoc analysis of
@@ -56,7 +66,8 @@
   tables without opening frozen final-test rows.
 - `results/hardware/storage_cleanup_20260831.json` — chained hash-verified local
   retention receipt separating historically certified candidate sets from the
-  13 representative adapter tensors that remain after v5 cleanup.
+  13 representative adapter tensors recorded as retained after v5 cleanup (a
+  2026-10-17 recheck found only the five v1 tensors still on disk).
 - `results/release/final_audit.json` — commit-bound CI-equivalent and
   WebSocket transport regression receipt with explicit physical-browser,
   4090, human-quality, and direct-adapter claim exclusions.

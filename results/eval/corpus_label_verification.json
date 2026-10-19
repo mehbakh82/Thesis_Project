@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "experiment": "corpus_label_verification",
+  "protocol": "docs/CORPUS_LABEL_VERIFICATION_PROTOCOL.md",
+  "labeler": "google/gemini-3.8-flash, two boundary passes + one verbatim transcript, temperature 0",
+  "independent_automatic_labels": true,
+  "human_verified": false,
+  "frame": {
+    "manifest_pairs": 6551,
+    "manifest_sha256": "f1a1848b64640ec6b2881f9c122bae59f477c2192b74695331558ffabf2e18ac",
+    "local_frame_pairs": 1353,
+    "strata_full_manifest": {
+      "boundary_overlap": 2428,
+      "boundary_clean": 4123
+    },
+    "strata_local_frame": {
+      "boundary_overlap": 679,
+      "boundary_clean": 674
+    },
+    "channels_local_frame": {
+      "Digiato": 956,
+      "Zoomit": 281,
+      "Mehran Rowshan Persian": 107,
+      "Tabaghe16": 9
+    },
+    "channels_sample": {
+      "Digiato": 208,
+      "Zoomit": 67,
+      "Mehran Rowshan Persian": 24,
+      "Tabaghe16": 1
+    }
+  },
+  "sample_sha256": "189a3de4efbe7bc0c3afc6a06987b1f1bf826d3682d4257205d017479e885e82",
+  "strata_weights_full_manifest": {
+    "boundary_overlap": 0.3706304381010533,
+    "boundary_clean": 0.6293695618989468
+  },
+  "strata": {
+    "boundary_overlap": {
+      "pairs": 150,
+      "label_agreement": 0.7266666666666667,
+      "agreed_label_distribution": {
+        "interrupt": 80,
+        "turn_change": 16,
+        "backchannel": 7,
+        "none": 6
+      },
+      "speaker_change_rate": 0.944954128440367,
+      "speaker_change_ci95": [
+        0.885082725847891,
+        0.9745304076027645
+      ],
+      "overlap_flag_agreement": 0.74,
+      "overlap_label_confirmed_rate": 0.7567567567567568,
+      "overlap_label_confirmed_ci95": [
+        0.6692307510969576,
+        0.8271056816280572
+      ]
+    },
+    "boundary_clean": {
+      "pairs": 150,
+      "label_agreement": 0.7066666666666667,
+      "agreed_label_distribution": {
+        "turn_change": 60,
+        "interrupt": 35,
+        "none": 7,
+        "backchannel": 4
+      },
+      "speaker_change_rate": 0.9339622641509434,
+      "speaker_change_ci95": [
+        0.8699249604256265,
+        0.9676458528879637
+      ],
+      "overlap_flag_agreement": 0.82,
+      "overlap_label_confirmed_rate": 0.6747967479674797,
+      "overlap_label_confirmed_ci95": [
+        0.5878080039827918,
+        0.7511978731160025
+      ]
+    }
+  },
+  "speaker_change_rate_weighted": 0.9380361836280798,
+  "caption_vs_gemini": {
+    "normalizer": "fa-asr-score-v1",
+    "reference": "caption (the corpus text); hypothesis: Gemini verbatim transcript",
+    "turns_scored": 279,
+    "turns_longer_than_60_s": 21,
+    "turns_without_gemini_speech": 0,
+    "corpus_cer": 0.1589305719562782,
+    "median_turn_cer": 0.16463414634146342,
+    "share_turns_cer_le_20pct": 0.5842293906810035
+  },
+  "text_retained": false,
+  "claim_boundary": "Automatic corpus labels checked by an independent automatic listener on a convenience frame (pairs whose audio is still local); not human annotation."
+}

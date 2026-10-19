@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "experiment": "moshi_v7a_secondary_intelligibility",
+  "checkpoint": "step 200 (only retained candidate)",
+  "asr_model_sha256": "b8026984a64dad888037763f3e0da3b27d13eb073be3d7c3e5683e399d682928",
+  "normalizer": "fa-asr-score-v1",
+  "metric": "character error rate of the ASR transcript against the equal-length prefix of the Persian target",
+  "rows": [
+    {
+      "pair_id": "pair-0425ed291e8c461eee4103cf",
+      "audio_sha256": "b84d4e88119d1055a17c47b91e74987cdd844440eb97f7d11c89dfa54156c357",
+      "hypothesis_chars": 19,
+      "prefix_cer": 0.8421
+    },
+    {
+      "pair_id": "pair-07cba240ead7b4e51b8b8547",
+      "audio_sha256": "f8e9992ea6c6638e9d261593fa0b8aa08c17a7468c1e4da0b4169899f5455b55",
+      "hypothesis_chars": 26,
+      "prefix_cer": 0.7692
+    },
+    {
+      "pair_id": "pair-1206d862786b5aa5774dd6f7",
+      "audio_sha256": "785501cce1da9c7da8183d1617ce95df7a96162ac59340ed1fdf5d08b64dc178",
+      "hypothesis_chars": 27,
+      "prefix_cer": 0.9259
+    },
+    {
+      "pair_id": "pair-254396fd9329aa48a4f0ec20",
+      "audio_sha256": "b9dad4567d07add8d7bb0ff2fb420eed1d20c4b267f11fae65c6c9f69b77b1a1",
+      "hypothesis_chars": 26,
+      "prefix_cer": 0.8077
+    },
+    {
+      "pair_id": "pair-54cdd67ef20a8412e452600f",
+      "audio_sha256": "2da49eafd10388129b16b4de2bb42081867606e3cc2ff6e82ace959ffdd4ccfc",
+      "hypothesis_chars": 13,
+      "prefix_cer": 0.9231
+    },
+    {
+      "pair_id": "pair-7148cb566ace804f8d3b284f",
+      "audio_sha256": "9d33d1d29d3e02a0a2a1ad1b820547aceeee2a831c91fd59a7cc383da3b48bd1",
+      "hypothesis_chars": 19,
+      "prefix_cer": 0.7895
+    },
+    {
+      "pair_id": "pair-afc5768be8e8b1ca1570d64f",
+      "audio_sha256": "d2000aef4a1d7c870f86c675c76dacd1f98236d5723cb38a9f53a436784ab84b",
+      "hypothesis_chars": 0,
+      "prefix_cer": 1.0
+    },
+    {
+      "pair_id": "pair-ba0cb80c96558f59f25785ab",
+      "audio_sha256": "0338dfbcb47aa2c64ac6ee4fb5b42389254601e0a9f910360d4d0ce1f606267f",
+      "hypothesis_chars": 23,
+      "prefix_cer": 0.9565
+    },
+    {
+      "pair_id": "pair-c2823295f6e46a78403cdd1c",
+      "audio_sha256": "c1db15cda10ad2c2e9abd5c4f51829cfbf3b480a342ce72e5b6677e5ac8b092e",
+      "hypothesis_chars": 17,
+      "prefix_cer": 0.9412
+    }
+  ],
+  "mean_prefix_cer": 0.8839111111111111,
+  "rows_cer_le_0_75": 0,
+  "empty_transcripts": 1,
+  "gated": false,
+  "text_retained": false
+}

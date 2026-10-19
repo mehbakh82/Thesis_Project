@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "experiment": "tts_lab_vits_dev_serving",
+  "protocol": "docs/TTS_LAB_VITS_OPTIMIZATION_PROTOCOL.md (step 1, amendment 1)",
+  "split": "development texts (all, including digits)",
+  "texts": 339,
+  "texts_sha256": "06fdd57d096f61049819ff6f610a108be9af91031c337b622abd29337a439620",
+  "model_sha256": "a3de9cfe47ea8fa89ad626ab6b4bd4f29bad6256aafc749b67d4c116580b1e29",
+  "espeak": {
+    "chunks": 909,
+    "identical_phoneme_strings": {
+      "fork_tokenizer": 909,
+      "tokenizer_fix": 909
+    },
+    "passes": true,
+    "front_end_ms_per_chunk": {
+      "fork_processes": 34.33835117491648,
+      "in_process_cached": 9.895818309148423
+    },
+    "chunks_changed_by_tokenizer_fix": 5
+  },
+  "resampler": {
+    "method": "kaiser_best_poly",
+    "reference": "kaiser_best (librosa / resampy)",
+    "snr_db_min": 113.08082580566406,
+    "snr_db_median": 115.08818054199219,
+    "criterion_snr_db_min": 40.0,
+    "passes": true,
+    "ms_per_clip_median": {
+      "kaiser_best": 158.25233596842736,
+      "kaiser_best_poly": 16.48021093569696
+    }
+  },
+  "device": "NVIDIA H100 NVL",
+  "text_retained": false
+}

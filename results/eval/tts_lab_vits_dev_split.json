@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "experiment": "tts_lab_vits_dev_split",
+  "protocol": "docs/TTS_LAB_VITS_OPTIMIZATION_PROTOCOL.md",
+  "split": "development (responder v2 replies of the other arms; no evaluation text), texts without digits",
+  "texts": 313,
+  "texts_sha256": "06fdd57d096f61049819ff6f610a108be9af91031c337b622abd29337a439620",
+  "model_sha256": "a3de9cfe47ea8fa89ad626ab6b4bd4f29bad6256aafc749b67d4c116580b1e29",
+  "resample": "kaiser_best_poly",
+  "device": "NVIDIA H100 NVL",
+  "listeners": [
+    "nemo_v4_ctc",
+    "seamless_v5ft_direct"
+  ],
+  "normalizer": "fa-asr-score-v1",
+  "dnsmos_model_sha256": "269fbebdb513aa23cddfbb593542ecc540284a91849ac50516870e1ac78f6edd",
+  "input_sha256": {
+    "panel_split.jsonl": "327b4fdf10c6308331ff731f9c0ab961781659af3c4a9096ff844389636d5f45",
+    "asr_nemo/split.jsonl": "bfff6576f28d32386aa3dd98d3fb7e2d2dbcbff5db2fa85511e8443dcf57183d",
+    "asr_seamless/split.jsonl": "092b4fd70cbb87417b6403d1a3641939a90c83360bdf302b5099aecab296b735"
+  },
+  "configs": {
+    "ns0_dp0.5_ls1.1": {
+      "settings": {
+        "noise_scale": 0.0,
+        "noise_scale_dp": 0.5,
+        "length_scale": 1.1,
+        "split": "service"
+      },
+      "cer_nemo_v4_ctc": 0.03712368676613401,
+      "cer_seamless_v5ft_direct": 0.027015096671669462,
+      "cer_two_listener_mean": 0.03206939171890174,
+      "dnsmos_sig": 3.675375742934454,
+      "dnsmos_bak": 4.172157125199626,
+      "dnsmos_ovrl": 3.4216928515108367,
+      "seconds_audio_median": 12.704
+    },
+    "ns0_dp0.5_ls1.1_punct120": {
+      "settings": {
+        "noise_scale": 0.0,
+        "noise_scale_dp": 0.5,
+        "length_scale": 1.1,
+        "split": "punct",
+        "pause_ms": 120.0
+      },
+      "cer_nemo_v4_ctc": 0.03756510991436391,
+      "cer_seamless_v5ft_direct": 0.025116977134280922,
+      "cer_two_listener_mean": 0.03134104352432242,
+      "dnsmos_sig": 3.669519048610786,
+      "dnsmos_bak": 4.167917562319576,
+      "dnsmos_ovrl": 3.4124527079000213,
+      "seconds_audio_median": 13.152
+    }
+  },
+  "rule": "punctuation-aware split kept if development CER is not worse and DNSMOS OVRL is not lower",
+  "decision": {
+    "base": "ns0_dp0.5_ls1.1",
+    "candidate": "ns0_dp0.5_ls1.1_punct120",
+    "candidate_kept": false,
+    "selected": "ns0_dp0.5_ls1.1"
+  },
+  "text_retained": false,
+  "claim_boundary": "Development-set automatic proxies used for selection only; not an evaluation result."
+}

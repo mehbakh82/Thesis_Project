@@ -2,12 +2,15 @@
 
 ## T_first_audio
 
-Wall-clock milliseconds from **user end-of-speech** (or the moment a barge-in is accepted as a new turn) to the **first audible PCM sample** of the assistant reply.
+Client-clock milliseconds from the captured 20 ms frame holding the **user's acoustic end of speech** to the **scheduled start of the first synthesized clause** in the browser's audio graph. **T_first_audible** adds the browser's reported output latency (`outputLatency + baseLatency`, about 42 ms here), which is closer to the moment sound leaves the speaker; both are reported (`docs/LIVE_LATENCY_LOOPBACK_PROTOCOL.md`).
 
-The historical engineering contract used **p50 ≤500 ms**. The detailed Persian
-proposal is enforced conservatively as **maximum ≤500 ms**. These are not
-equivalent: report p50, p95, and maximum, but only the maximum decides strict
-proposal acceptance.
+The historical engineering contract used **p50 ≤500 ms**, and the project
+earlier enforced the proposal conservatively as **maximum ≤500 ms**. Since the
+2026-10-17 closeout the pass criterion is the proposal's own wording — **mean
+≤500 ms** (objective table) and **p90 ≤500 ms** (problem statement) on the
+plain loopback panel, with failed turns counted as infinitely late in the p90
+(student decision, `docs/SUPERVISOR_DECISIONS.md`). p50, p95 and the maximum
+are always reported next to it.
 
 Do not discard timeouts or failed turns to make the maximum pass. State the timeout policy and denominator.
 
@@ -17,15 +20,23 @@ The official value is client-observed: the browser sends `playback_started` only
 
 ## T_barge_in
 
-Wall-clock milliseconds from the **acoustic onset** of a user interrupt to the moment assistant **playback actually stops**.
+The streaming server reacts to a user onset in two stages
+(`src/thesis_s2s/runtime/bargein_live.py`), so two times are reported, both
+client-observed from the captured frame holding the detected onset:
 
-Engineering gate: **p95 ≤300 ms**. The detailed proposal's stricter acceptance
-criterion is reported separately as **maximum ≤150 ms**. Passing the engineering
-gate does not imply that the proposal criterion passed.
+- **T_duck** — onset to the browser's `duck_ack` (assistant volume lowered).
+  This is the proposal's "detect the interruption and adapt the ongoing
+  response" reaction and carries its **150 ms** criterion (median reported as
+  the pass value, with p90/p95/maximum and the share ≤150 ms).
+- **T_stop** — onset to the browser's `stop_ack` after every active source
+  stopped, i.e. after the lexical confirmation. Reported, with the earlier
+  engineering gate p95 ≤300 ms shown for reference; it includes the time the
+  user must speak before words can be recognized, so it is not a detection
+  latency.
 
-The classical detector in `src/thesis_s2s/bargein` **owns** this control path (`PlaybackController.stop_playback`).
-
-The official stop time comes from the browser's `playback_stopped_ack` after every active audio source has been stopped. A server-side detector timestamp alone is not sufficient.
+The decision itself (stop on interruptions, continue on backchannels and
+noise) is scored as accuracy and F1 with interruption as the positive class.
+A server-side detector timestamp alone is not sufficient for either time.
 
 ## Evidence classes
 
@@ -108,3 +119,23 @@ report precision/recall, FAR, FRR, confusion matrix, denominators, and 95%
 confidence intervals. Energy-only VAD is the baseline. This conservative
 conjunction resolves the proposal's inconsistent use of “accuracy” and “F1”
 without silently choosing the easier interpretation.
+
+## Coherence after an interruption
+
+`docs/LIVE_LOOPBACK_V2_PROTOCOL.md`: scripted dialogues in which a follow-up is
+spoken over the reply to an elderly request (early, mid or late) versus asked as
+a normal second turn. Reported: the stop rate among interruptions that landed
+while the reply was playing, the follow-up transcript CER, and two automatic
+judges' 0–4 scores of the reply to the follow-up (relevance given the first
+request, use of its context, coherence); the criterion compares the
+interrupted and the normal condition. After a stop, the conversation history
+keeps only the part of the reply that was played before the user spoke.
+
+## Corpus label agreement
+
+`docs/CORPUS_LABEL_VERIFICATION_PROTOCOL.md`: on a stratified sample, the share
+of pipeline turn boundaries at which an independent automatic listener
+(Gemini, two agreeing passes) hears a different speaker start, the share of
+marked boundary overlaps it hears as overlap, and the caption CER against its
+verbatim transcript. Independent automatic labels, never human verification.
+

@@ -161,8 +161,11 @@ Status date: 2026-09-16
   finding fails the build, and the npm development server is prohibited.
 - Post-finalization storage cleanup removed only ignored/regenerable assets and
   non-promoted negative checkpoint tensors after their hashes and derived
-  evidence were committed. Thirteen representative v1–v5 adapters remain
-  hash-verified, alongside four separately retained v6.2 diagnostic checkpoints;
+  evidence were committed. That receipt listed thirteen representative v1–v5
+  adapters as retained; a recheck on 2026-10-17 found only the five v1 adapters
+  (steps 500–8000) still on disk — the eight v2–v5 tensors no longer exist, so
+  only their committed hashes and derived evidence remain. Four v6.2
+  diagnostic checkpoints are retained separately;
   the receipt uses no private absolute host path and is included in the release
   snapshot and authoritative evidence aggregation.
 - The complete GitHub Actions run `34013864466` passed at duplex-ready commit

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-16T08:49:28.820138+00:00",
+  "purpose": "Moshi v7 romanized word-aligned inner-monologue targets",
+  "final_test_accessed": false,
+  "audio_rewritten": false,
+  "inputs": {
+    "source_manifest": "data/processed/moshi_finetune_v6_overfit/train.jsonl",
+    "source_manifest_sha256": "efb9533504f947f9fece336a1ceccdd6ca14f2e05928add723e56e218a823645",
+    "piper_model_sha256": "e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126",
+    "romanization_version": "piper-espeak-fa-ascii-v1",
+    "romanize_source_sha256": "455c0a77c738d39f771d2879ea687d014fa71af0040714e0181d542337e17172",
+    "script_sha256": "3e618736c425487a7b657dd84410515ade722a85121ec3b66906579efe045888"
+  },
+  "output": {
+    "manifest": "data/processed/moshi_v7a_overfit/train.jsonl",
+    "manifest_sha256": "0373f5a2282ca8d08637dcad47ee0f09dae55a4f27c6db56cbf260d1183ff106",
+    "rows": 32,
+    "audio_links": {
+      "hardlink": 32
+    }
+  },
+  "reproduction": {
+    "minimum_correlation_required": 0.999,
+    "minimum_correlation_observed": 0.9999999392051968,
+    "median_correlation": 0.9999999908476991
+  },
+  "words_per_row_median": 7.5,
+  "failures": [],
+  "passes": true
+}

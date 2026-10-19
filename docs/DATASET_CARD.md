@@ -109,3 +109,13 @@ All participants sign the mode-specific `docs/CONSENT.md` and explicitly opt int
 ## Moshi direct-model derivative
 
 After either completed strict QA or validation of the explicit limited-training waiver, non-reused adjacent turns are exported in the official Moshi stereo schema. The user channel retains authorized natural archive audio. The primary assistant channel is synthesized deterministically from the approved next-turn text with the pinned Mana-Persian-Piper voice. Original podcast response audio is an explicit multi-voice ablation. Neither derivative corpus is redistributed; waiver-derived data is not represented as human-verified.
+
+## Independent automatic label check (2026-10-18)
+
+`docs/CORPUS_LABEL_VERIFICATION_RESULT.md`: Gemini 3.8 Flash (two passes, agreed
+labels) on 300 balanced-v2 pairs whose source audio is still local. A new voice
+starts at the pipeline's turn boundary in 93.8% of cases (corpus-weighted);
+marked boundary overlaps are heard as overlap in 75.7%, while a third of
+unmarked boundaries are also heard as overlapping (diarization under-reports
+short overlaps); captions differ from Gemini verbatim transcripts by 15.9% CER.
+Independent automatic labels, not human verification; the corpus is unchanged.

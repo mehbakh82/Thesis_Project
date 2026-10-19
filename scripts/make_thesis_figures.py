@@ -371,6 +371,12 @@ def fig_moshi_trials() -> None:
         labels.append(label)
         losses.append(float(loss))
         best.append(max(counts) if counts else 0)
+    # v7a (romanized phonemes + word timing): in-sample loss, like v6.2
+    v7_eval = load("results/moshi_v7a_overfit_reevaluation.json")
+    v7_runtime = load("results/moshi_v7a_overfit_runtime.json")
+    labels.append("v7a")
+    losses.append(min(float(c["eval_loss"]) for c in v7_eval["candidates"]))
+    best.append(max(int(v) for v in v7_runtime["panel_pass_counts"].values()))
 
     fig, axes = plt.subplots(1, 2, figsize=(6.4, 2.6))
     xs = list(range(len(labels)))

@@ -1,0 +1,152 @@
+{
+  "judges": {
+    "qwen38": {
+      "gemma4_e4b_elderly_v1": {
+        "elderly_requests": {
+          "relevance": 3.683333333333333,
+          "coherence": 3.933333333333333,
+          "elderly_appropriateness": 3.783333333333333,
+          "n": 60
+        },
+        "natural_turns": {
+          "relevance": 2.316666666666667,
+          "coherence": 3.9166666666666665,
+          "elderly_appropriateness": 3.2,
+          "n": 60
+        },
+        "all": {
+          "relevance": 3.0,
+          "coherence": 3.925,
+          "elderly_appropriateness": 3.4916666666666667,
+          "n": 120
+        },
+        "paired_vs_incumbent": {
+          "relevance_gain": -0.2916666666666667,
+          "relevance_gain_ci95": [
+            -0.5666666666666667,
+            0.0
+          ],
+          "coherence_gain": 0.5,
+          "appropriateness_gain": 0.6583333333333333,
+          "row_win_rate": 0.225,
+          "row_loss_rate": 0.4166666666666667
+        }
+      },
+      "qwen35_4b_elderly_v1": {
+        "elderly_requests": {
+          "relevance": 3.7333333333333334,
+          "coherence": 3.9166666666666665,
+          "elderly_appropriateness": 3.7666666666666666,
+          "n": 60
+        },
+        "natural_turns": {
+          "relevance": 2.8833333333333333,
+          "coherence": 3.6666666666666665,
+          "elderly_appropriateness": 3.3833333333333333,
+          "n": 60
+        },
+        "all": {
+          "relevance": 3.308333333333333,
+          "coherence": 3.7916666666666665,
+          "elderly_appropriateness": 3.575,
+          "n": 120
+        },
+        "paired_vs_incumbent": {
+          "relevance_gain": 0.016666666666666666,
+          "relevance_gain_ci95": [
+            -0.23333333333333334,
+            0.275
+          ],
+          "coherence_gain": 0.36666666666666664,
+          "appropriateness_gain": 0.7416666666666667,
+          "row_win_rate": 0.23333333333333334,
+          "row_loss_rate": 0.2833333333333333
+        }
+      },
+      "qwen3_4b_elderly_v1": {
+        "elderly_requests": {
+          "relevance": 3.2666666666666666,
+          "coherence": 3.2,
+          "elderly_appropriateness": 3.033333333333333,
+          "n": 60
+        },
+        "natural_turns": {
+          "relevance": 2.55,
+          "coherence": 3.4,
+          "elderly_appropriateness": 2.933333333333333,
+          "n": 60
+        },
+        "all": {
+          "relevance": 2.908333333333333,
+          "coherence": 3.3,
+          "elderly_appropriateness": 2.9833333333333334,
+          "n": 120
+        },
+        "paired_vs_incumbent": {
+          "relevance_gain": -0.38333333333333336,
+          "relevance_gain_ci95": [
+            -0.6333333333333333,
+            -0.13333333333333333
+          ],
+          "coherence_gain": -0.125,
+          "appropriateness_gain": 0.15,
+          "row_win_rate": 0.15,
+          "row_loss_rate": 0.36666666666666664
+        }
+      },
+      "qwen3_4b_prompt_v2": {
+        "elderly_requests": {
+          "relevance": 3.216666666666667,
+          "coherence": 3.4,
+          "elderly_appropriateness": 2.816666666666667,
+          "n": 60
+        },
+        "natural_turns": {
+          "relevance": 3.3666666666666667,
+          "coherence": 3.45,
+          "elderly_appropriateness": 2.85,
+          "n": 60
+        },
+        "all": {
+          "relevance": 3.2916666666666665,
+          "coherence": 3.425,
+          "elderly_appropriateness": 2.8333333333333335,
+          "n": 120
+        }
+      }
+    }
+  },
+  "arms": [
+    "gemma4_e4b_elderly_v1",
+    "qwen35_4b_elderly_v1",
+    "qwen3_4b_elderly_v1",
+    "qwen3_4b_prompt_v2"
+  ],
+  "promotion": {
+    "gemma4_e4b_elderly_v1": {
+      "meets_rule_under_every_judge": false,
+      "judges": [
+        "qwen38"
+      ]
+    },
+    "qwen35_4b_elderly_v1": {
+      "meets_rule_under_every_judge": false,
+      "judges": [
+        "qwen38"
+      ]
+    },
+    "qwen3_4b_elderly_v1": {
+      "meets_rule_under_every_judge": false,
+      "judges": [
+        "qwen38"
+      ]
+    }
+  },
+  "schema_version": 1,
+  "generated_at": "2026-10-16T14:19:28.738672+00:00",
+  "protocol": "docs/RESPONDER_CANDIDATE_COMPARISON_V2_PROTOCOL.md",
+  "evaluator_sha256": "c4c914c679cdcffcc350fd6d3c714e476c89de0523bacba0cd5eb536966e3bfc",
+  "panel_sha256": "c97c1e1761e6706976e9ad2afa681e1a9203843cbe135f8e3380584977619993",
+  "elderly_prompt_sha256": "ecaa1293680ecd0534b69b766001ea2dfd0cd3fd78b212f0e3722d0474d909b5",
+  "text_retained": false
+}

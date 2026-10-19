@@ -1,8 +1,43 @@
 # Submission results and claim boundary
 
-Status date: 2026-09-16
+Status date: 2026-10-17 (closeout; earlier sections below are kept as the
+historical record)
 
-## Final architecture decision
+## Closeout summary (2026-10-17)
+
+The submitted system is a **streaming full-duplex cascade**:
+
+```text
+browser mic (20 ms frames + playback level)
+    -> Silero endpointing (speculative start 160 ms, confirm 256 ms)
+    -> NeMo v4 CTC ASR -> Qwen3-4B-Instruct-2507 prompt-v2 (vLLM, streamed, Persian-only)
+    -> clause chunker -> Mana Piper (CPU) -> browser playback queue
+while the assistant speaks:
+    one frame of speech above the expected echo -> duck
+    -> lexical ASR confirm (listener tokens, function words and echo discarded) -> stop or resume
+```
+
+| Result | Value | Evidence class | Source |
+|---|---|---|---|
+| End of speech → first audio (plain, 201 turns) | mean 372 ms, p90 431 ms, max 491 ms, 0 unanswered (audible p90 473 ms); v1 with a 160 ms speculative start: 418 / 487 / 537 | automated real-browser loopback, H100 | `docs/LIVE_LOOPBACK_V2_RESULT.md` |
+| Whole-stack GPU memory | 11,336 MiB = 11.1 GiB peak (LLM capped to fit a 12 GiB card) | measured, H100 | same |
+| Barge-in, deployment simulation (600 test scenarios) | accuracy 0.933, F1 0.880, onset→duck median 120 ms | simulated from real recordings, automatic labels | `docs/BARGEIN_SIMULATION_RESULT.md` |
+| Barge-in, browser loopback (120 turns) | accuracy 0.825, F1 0.817, duck 44 ms from detected onset (v1: 0.850 / 0.847) | automated loopback | `docs/LIVE_LOOPBACK_V2_RESULT.md` |
+| Acoustic detector alone (94 podcast events) | accuracy 0.574, F1 0.672 — negative | Gemini two-pass labels | `docs/BARGEIN_DETECTOR_V2_RESULT.md` |
+| Responder final semantic test (40 rows) | relevance 3.150 vs 1.425, all 7 gates | same-family LLM judge | below |
+| ASR / responder / TTS re-selection | NeMo v4 CTC, Qwen3-4B prompt-v2, Mana retained | human-transcript ASR panel; LLM judge; two ASR listeners | `docs/MODEL_AND_DATA_SELECTION_AUDIT.md` |
+| Moshi v7a (tokenizer root cause) | 6/9 vs 3/9 baseline; speech not intelligible | runtime gate | `docs/MOSHI_V7_RESULT.md` |
+| Gemma 4 speech input | negative (relevance 2.05 vs 2.80) | LLM judge | `docs/SPEECH_INPUT_LLM_V1_RESULT.md` |
+| Listening study | instrument frozen, awaiting participants | human (pending) | `docs/LISTENING_STUDY_PROTOCOL.md` |
+
+Claim boundary: the latency and barge-in numbers are automated, on the shared
+H100 (12 GB memory budget respected, compute speed not), with automatic labels
+and no physical microphone/speaker path. They meet the proposal's numeric
+criteria (mean and p90 latency ≤ 500 ms, interruption detection ≥ 80%, duck
+≤ 150 ms median) under those conditions; they are not the proposal's physical
+target-hardware or human-evaluation evidence.
+
+## Final architecture decision (2026-09-16, superseded by the closeout above)
 
 Use the modular cascade as the submitted working system:
 

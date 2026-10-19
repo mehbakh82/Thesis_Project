@@ -33,6 +33,83 @@ def _write_json(path: Path, payload: dict[str, Any]) -> None:
     temporary.replace(path)
 
 
+def _closeout_criteria(evidence: dict[str, Any], data_substantial: bool) -> dict[str, dict[str, Any]]:
+    """Per-criterion status under the 2026-10 closeout's automatic evidence."""
+
+    closeout = evidence.get("closeout_2026_10") or {}
+    loopback = closeout.get("browser_loopback") or {}
+    acceptance = loopback.get("acceptance") or {}
+    memory = (loopback.get("gpu_memory") or {}).get("peak_stack_mib")
+    simulation = closeout.get("bargein_simulation") or {}
+    duck = (simulation.get("duck_latency_ms") or {}).get("median")
+    v7 = closeout.get("moshi_v7a") or {}
+    speech = (closeout.get("speech_input_v1") or {}).get("decision") or {}
+    study = closeout.get("listening_study") or {}
+    mana = ((study.get("naturalness_by_condition") or {}).get("tts_mana") or {}).get("naturalness_mos")
+    requirement = study.get("definition_requirement") or {}
+    sim_ok = bool(
+        (simulation.get("test_accuracy") or 0) > 0.8
+        and (simulation.get("test_f1") or 0) > 0.8
+        and duck is not None
+        and duck <= 150
+    )
+    return {
+        "dataset_100_to_200_annotated_hours": {
+            "met_under_automatic_evidence": data_substantial,
+            "boundary": "automatic turn/overlap labels; no human QA",
+        },
+        "direct_s2s_persian_finetune": {
+            "met_under_automatic_evidence": bool(v7.get("diagnostic_positive")) or bool(speech.get("positive_direct_route_result")),
+            "observed": {
+                "moshi_v7a_diagnostic_positive": v7.get("diagnostic_positive"),
+                "moshi_v7a_secondary_mean_prefix_cer": v7.get("secondary_mean_prefix_cer"),
+                "speech_input_positive": speech.get("positive_direct_route_result"),
+            },
+            "boundary": "negative: no direct route produced intelligible deployable Persian output",
+        },
+        "streaming_latency_500_ms": {
+            "met_under_automatic_evidence": bool(
+                acceptance.get("plain_mean_le_500ms")
+                and acceptance.get("plain_p90_le_500ms_failures_counted")
+                and memory is not None
+                and memory <= 12 * 1024
+            ),
+            "observed": {
+                "plain_t_first_audio_ms": loopback.get("plain_t_first_audio_ms"),
+                "plain_p90_failures_as_late_ms": loopback.get("plain_p90_failures_as_late_ms"),
+                "peak_stack_gpu_mib": memory,
+            },
+            "boundary": "automated real-browser loopback on an H100 with a 12 GB memory budget; not physical target hardware",
+        },
+        "full_duplex_interrupt_80_f1_150_ms": {
+            "met_under_automatic_evidence": bool(sim_ok and acceptance.get("bargein_accuracy_and_f1_gt_0_8")),
+            "observed": {
+                "simulation_accuracy": simulation.get("test_accuracy"),
+                "simulation_f1": simulation.get("test_f1"),
+                "simulation_duck_median_ms": duck,
+                "loopback_bargein": loopback.get("bargein_pooled"),
+                "coherence_after_interruption_met": ((closeout.get("interruption_coherence") or {}).get("criterion") or {}).get("met"),
+            },
+            "boundary": "simulated mixtures of real recordings and automated loopback; automatic labels",
+        },
+        "human_mos_3_5_elderly": {
+            "met_under_automatic_evidence": bool(
+                requirement.get("participants_5_to_10")
+                and requirement.get("at_least_two_aged_60_plus")
+                and mana is not None
+                and mana >= 3.5
+            ),
+            "observed": {
+                "status": study.get("status"),
+                "participants": study.get("participants_accepted"),
+                "aged_60_plus": study.get("participants_aged_60_plus"),
+                "tts_mana_mos": mana,
+            },
+            "boundary": "human evidence from the minimal remote listening study (pending until codes are returned)",
+        },
+    }
+
+
 def build_report(
     proposal_path: Path,
     evidence: dict[str, Any],
@@ -190,6 +267,8 @@ def build_report(
     traced = len(criteria)
     substantial = sum(bool(row["substantially_implemented"]) for row in criteria)
     passed = sum(bool(row["strictly_passed"]) for row in criteria)
+    closeout = _closeout_criteria(evidence, data_substantial)
+    closeout_met = sum(bool(row["met_under_automatic_evidence"]) for row in closeout.values())
     return {
         "schema_version": 2,
         "evidence_class": "proposal_requirements_alignment_audit",
@@ -210,8 +289,14 @@ def build_report(
             "substantial_implementation_percent": round(100.0 * substantial / 5, 1),
             "strict_acceptance_percent": round(100.0 * passed / 5, 1),
             "warning": "Implementation coverage is not acceptance. A criterion passes only with its proposal-level evidence.",
+            "closeout_automatic_criteria_met": closeout_met,
+            "closeout_warning": (
+                "Closeout criteria use automated, simulated, or automated-loopback evidence on non-target "
+                "hardware; they never change strict acceptance."
+            ),
         },
         "criteria": criteria,
+        "closeout_automatic": closeout,
         "proposal_internal_ambiguities": [
             "The problem statement binds p90 latency, the objective table binds average latency, and neither defines the timing endpoints.",
             "The detector objective says accuracy >=80% while labeling the criterion F1; accuracy and F1 are not interchangeable.",

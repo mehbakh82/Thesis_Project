@@ -9,7 +9,7 @@
   },
   "aggregate_evidence": {
     "path": "results/eval/EVIDENCE_STATUS.json",
-    "sha256": "d9cd576acc10ba6346ddcc5e65ef44b66502ab623609831b6d9a6b1364a75097",
+    "sha256": "e4c2650ea295cfa3d74516ecde52ad95657dc9273bbaffc00022a2322934e6b7",
     "schema_version": 17
   },
   "scoring_contract": {
@@ -17,7 +17,9 @@
     "traceability_percent": 100.0,
     "substantial_implementation_percent": 80.0,
     "strict_acceptance_percent": 0.0,
-    "warning": "Implementation coverage is not acceptance. A criterion passes only with its proposal-level evidence."
+    "warning": "Implementation coverage is not acceptance. A criterion passes only with its proposal-level evidence.",
+    "closeout_automatic_criteria_met": 3,
+    "closeout_warning": "Closeout criteria use automated, simulated, or automated-loopback evidence on non-target hardware; they never change strict acceptance."
   },
   "criteria": [
     {
@@ -87,6 +89,67 @@
       "gap": "No qualifying 5-10-person study establishes MOS >=3.5 with at least two participants aged 60+."
     }
   ],
+  "closeout_automatic": {
+    "dataset_100_to_200_annotated_hours": {
+      "met_under_automatic_evidence": true,
+      "boundary": "automatic turn/overlap labels; no human QA"
+    },
+    "direct_s2s_persian_finetune": {
+      "met_under_automatic_evidence": false,
+      "observed": {
+        "moshi_v7a_diagnostic_positive": false,
+        "moshi_v7a_secondary_mean_prefix_cer": 0.8839111111111111,
+        "speech_input_positive": false
+      },
+      "boundary": "negative: no direct route produced intelligible deployable Persian output"
+    },
+    "streaming_latency_500_ms": {
+      "met_under_automatic_evidence": true,
+      "observed": {
+        "plain_t_first_audio_ms": {
+          "n": 201,
+          "mean": 371.9807835847037,
+          "median": 374.53749990463257,
+          "p90": 431.1375000476837,
+          "p95": 446.7374999523163,
+          "max": 491.4375
+        },
+        "plain_p90_failures_as_late_ms": 431.1375000476837,
+        "peak_stack_gpu_mib": 11336.0
+      },
+      "boundary": "automated real-browser loopback on an H100 with a 12 GB memory budget; not physical target hardware"
+    },
+    "full_duplex_interrupt_80_f1_150_ms": {
+      "met_under_automatic_evidence": true,
+      "observed": {
+        "simulation_accuracy": 0.9333333333333333,
+        "simulation_f1": 0.8802395209580839,
+        "simulation_duck_median_ms": 120.50042025170349,
+        "loopback_bargein": {
+          "accuracy": 0.825,
+          "f1": 0.817391304347826,
+          "confusion": {
+            "tp": 47,
+            "tn": 52,
+            "fp": 8,
+            "fn": 13
+          }
+        },
+        "coherence_after_interruption_met": true
+      },
+      "boundary": "simulated mixtures of real recordings and automated loopback; automatic labels"
+    },
+    "human_mos_3_5_elderly": {
+      "met_under_automatic_evidence": false,
+      "observed": {
+        "status": "pending",
+        "participants": null,
+        "aged_60_plus": null,
+        "tts_mana_mos": null
+      },
+      "boundary": "human evidence from the minimal remote listening study (pending until codes are returned)"
+    }
+  },
   "proposal_internal_ambiguities": [
     "The problem statement binds p90 latency, the objective table binds average latency, and neither defines the timing endpoints.",
     "The detector objective says accuracy >=80% while labeling the criterion F1; accuracy and F1 are not interchangeable.",

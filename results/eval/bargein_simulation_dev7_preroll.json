@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-19T06:32:59.910991+00:00",
+  "stage": "dev",
+  "evidence_class": "simulated_deployment_events_from_real_recordings",
+  "human_verified": false,
+  "pools": {
+    "test/backchannel": 312,
+    "test/interrupt": 550,
+    "test/noise": 294,
+    "test/reply": 70,
+    "train/backchannel": 359,
+    "train/interrupt": 608,
+    "train/noise": 549,
+    "train/reply": 90
+  },
+  "levels_db": {
+    "user_rms": [
+      -27.0,
+      -19.0
+    ],
+    "residual_echo_relative": [
+      -32,
+      -18
+    ],
+    "background_relative": [
+      -38,
+      -24
+    ],
+    "noise_burst_relative": [
+      -6,
+      3
+    ]
+  },
+  "script_sha256": "d4df7704512d830843ce647c45bbd92eafe027611e33d38d60d5700c16b3d594",
+  "pool_sha256": "2e55a55efa963267c124458adbd49749b7d246f89d5a35d964a53fda1f38b943",
+  "pool_selection_asr_sha256": [
+    "4b92fbf88bad28832e8660e77b892daaff3c517822a12defcf78a76e03632ce6"
+  ],
+  "lexical_confirm_asr": {
+    "model_sha256": "b8026984a64dad888037763f3e0da3b27d13eb073be3d7c3e5683e399d682928",
+    "decoder": "ctc"
+  },
+  "reply_texts_sha256": "9612c2f80cfc52ce4e9a82e65551f1eeac919631a991ce48b6cc2823f0580c0b",
+  "dev_scenarios": 300,
+  "fit_scenarios": 300,
+  "variants": {
+    "lexical2f1_margin_12.0_dtd_14.0": {
+      "accuracy": 0.9133333333333333,
+      "f1": 0.8555555555555555,
+      "precision": 0.7777777777777778,
+      "recall_interrupt_stopped": 0.9506172839506173,
+      "confusion": {
+        "tp": 77,
+        "tn": 197,
+        "fp": 22,
+        "fn": 4
+      },
+      "by_kind": {
+        "interrupt": {
+          "scenarios": 81,
+          "stop_rate": 0.9506172839506173
+        },
+        "backchannel": {
+          "scenarios": 73,
+          "stop_rate": 0.1232876712328767
+        },
+        "noise": {
+          "scenarios": 75,
+          "stop_rate": 0.09333333333333334
+        },
+        "none": {
+          "scenarios": 71,
+          "stop_rate": 0.08450704225352113
+        }
+      },
+      "interrupt_stop_rate_by_timing": {
+        "early": 0.9285714285714286,
+        "mid": 0.9230769230769231,
+        "late": 1.0
+      },
+      "duck_latency_ms": {
+        "n": 81,
+        "median": 121.66220438761866,
+        "p90": 235.80665122307153,
+        "p95": 641.2063156076202,
+        "max": 1875.6837614518495,
+        "share_le_150ms": 0.6790123456790124
+      },
+      "stop_latency_ms": {
+        "n": 77,
+        "median": 834.7216383852802,
+        "p90": 1433.2075154692072,
+        "p95": 1550.255614819262,
+        "max": 2812.2462614518495,
+        "share_le_150ms": 0.0
+      },
+      "false_ducks_before_event_rate": 0.12333333333333334
+    },
+    "lexical2f1pre_margin_12.0_dtd_14.0": {
+      "accuracy": 0.9,
+      "f1": 0.8404255319148937,
+      "precision": 0.7383177570093458,
+      "recall_interrupt_stopped": 0.9753086419753086,
+      "confusion": {
+        "tp": 79,
+        "tn": 191,
+        "fp": 28,
+        "fn": 2
+      },
+      "by_kind": {
+        "interrupt": {
+          "scenarios": 81,
+          "stop_rate": 0.9753086419753086
+        },
+        "backchannel": {
+          "scenarios": 73,
+          "stop_rate": 0.136986301369863
+        },
+        "noise": {
+          "scenarios": 75,
+          "stop_rate": 0.14666666666666667
+        },
+        "none": {
+          "scenarios": 71,
+          "stop_rate": 0.09859154929577464
+        }
+      },
+      "interrupt_stop_rate_by_timing": {
+        "early": 0.9642857142857143,
+        "mid": 0.9615384615384616,
+        "late": 1.0
+      },
+      "duck_latency_ms": {
+        "n": 81,
+        "median": 121.66220438761866,
+        "p90": 235.80665122307153,
+        "p95": 641.2063156076202,
+        "max": 1875.6837614518495,
+        "share_le_150ms": 0.6790123456790124
+      },
+      "stop_latency_ms": {
+        "n": 79,
+        "median": 749.8186234280953,
+        "p90": 1305.0043113533757,
+        "p95": 1550.0681148192612,
+        "max": 2979.940602000761,
+        "share_le_150ms": 0.0
+      },
+      "false_ducks_before_event_rate": 0.12333333333333334
+    }
+  },
+  "chosen_variant": "lexical2f1_margin_12.0_dtd_14.0",
+  "lexical_families": {
+    "lexical2f1": {
+      "initial_coupling_db": 0.0,
+      "lexical_matching": "v2",
+      "drop_function_words": true,
+      "duck_frames": 1
+    },
+    "lexical2f1pre": {
+      "initial_coupling_db": 0.0,
+      "lexical_matching": "v2",
+      "drop_function_words": true,
+      "duck_frames": 1,
+      "lexical_pre_roll_ms": 200.0
+    }
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-17T08:49:50.368468+00:00",
+  "stage": "final",
+  "protocol": "docs/BARGEIN_DETECTOR_V2_PROTOCOL.md",
+  "labels_sha256": "d60cc91859edf1ffe18a003e21728752775ad5412ec71e1d93c30b68c0019e69",
+  "label_source": "gemini-3.8-flash two-pass agreed (independent automatic, not human)",
+  "positive_classes": [
+    "interrupt",
+    "turn_change"
+  ],
+  "negative_classes": [
+    "backchannel",
+    "noise",
+    "none"
+  ],
+  "decision_window_s": [
+    -0.1,
+    0.48
+  ],
+  "speaker_contrast_reference_s": [
+    -1.0,
+    -0.1
+  ],
+  "splits": {
+    "train": {
+      "events": 464,
+      "sessions": 148,
+      "labels": {
+        "interrupt": 171,
+        "backchannel": 54,
+        "none": 68,
+        "turn_change": 170,
+        "noise": 1
+      }
+    },
+    "val": {
+      "events": 124,
+      "sessions": 39,
+      "labels": {
+        "turn_change": 34,
+        "interrupt": 58,
+        "none": 21,
+        "backchannel": 11
+      }
+    },
+    "test": {
+      "events": 94,
+      "sessions": 31,
+      "labels": {
+        "turn_change": 33,
+        "interrupt": 40,
+        "backchannel": 11,
+        "none": 10
+      }
+    }
+  },
+  "script_sha256": "4c487489e4397d4667d33591cb5aab726c0ce7b1b4690b848097d5815ee33f4d",
+  "chosen_model": "gbdt",
+  "chosen_threshold": 0.7750000000000001,
+  "develop_receipt_sha256": "29ea6a3d6b919be5562ab9990e4fce9aea022bb5e3ed85456e09662ce77baa9b",
+  "test": {
+    "accuracy": 0.574468085106383,
+    "f1": 0.6721311475409836,
+    "precision": 0.8367346938775511,
+    "recall": 0.5616438356164384,
+    "false_accept_rate": 0.38095238095238093,
+    "false_reject_rate": 0.4383561643835616,
+    "balanced_accuracy": 0.5903457273320287,
+    "tp": 41,
+    "tn": 13,
+    "fp": 8,
+    "fn": 32,
+    "accuracy_session_ci95": [
+      0.45161290322580644,
+      0.6956521739130435
+    ],
+    "f1_session_ci95": [
+      0.5378151260504203,
+      0.7857142857142856
+    ],
+    "events": 94,
+    "sessions": 31
+  },
+  "test_interrupt_vs_backchannel": {
+    "accuracy": 0.5294117647058824,
+    "f1": 0.6363636363636364,
+    "precision": 0.8076923076923077,
+    "recall": 0.525,
+    "false_accept_rate": 0.45454545454545453,
+    "false_reject_rate": 0.475,
+    "balanced_accuracy": 0.5352272727272727,
+    "tp": 21,
+    "tn": 6,
+    "fp": 5,
+    "fn": 19,
+    "accuracy_session_ci95": [
+      0.3877551020408163,
+      0.6666666666666666
+    ],
+    "f1_session_ci95": [
+      0.48979591836734687,
+      0.7647058823529411
+    ],
+    "events": 51,
+    "sessions": 21
+  },
+  "test_energy_rule": {
+    "accuracy": 0.7553191489361702,
+    "f1": 0.8588957055214723,
+    "precision": 0.7777777777777778,
+    "recall": 0.958904109589041,
+    "false_accept_rate": 0.9523809523809523,
+    "false_reject_rate": 0.0410958904109589,
+    "balanced_accuracy": 0.5032615786040443,
+    "tp": 70,
+    "tn": 1,
+    "fp": 20,
+    "fn": 3,
+    "accuracy_session_ci95": [
+      0.6559139784946236,
+      0.84
+    ],
+    "f1_session_ci95": [
+      0.7887323943661971,
+      0.9120879120879121
+    ],
+    "events": 94,
+    "sessions": 31
+  },
+  "model_sha256": "0e4d5e1e8ee9c6524b17a1d3f9998ae29d195f74a6b2a785babb2612109073aa"
+}

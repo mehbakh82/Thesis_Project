@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "mode": "persian_text_head_adaptation_romanized_word_aligned",
+  "diagnostic_only": true,
+  "launcher_environment": {
+    "MOSHI_DISTRIBUTED_BACKEND": "gloo",
+    "MOSHI_PERSIAN_TEXT_ADAPTATION": "1",
+    "MOSHI_TEXT_EMBEDDINGS_ONLY": "0",
+    "MOSHI_AUDIO_LOSS_WEIGHT": "0.1"
+  },
+  "upstream_lora_ft_embed": false,
+  "expected_lora_tensor_count": 674,
+  "expected_total_adapter_tensor_count": 677,
+  "trainable_full_parameters": [
+    "depformer_text_emb.weight",
+    "text_emb.weight",
+    "text_linear.frozen_W.weight"
+  ],
+  "full_text_output_projection": "text_linear.frozen_W.weight",
+  "frozen_audio_embeddings": true,
+  "audio_loss_weight": 0.1,
+  "estimated_adapter_bytes": 977709056,
+  "scientific_hypothesis": "v1-v6.2 trained Moshi's inner monologue on Persian script with one whole-turn alignment. Moshi's English SentencePiece needs 6.59 tokens per Persian word (55% byte fallback), i.e. 1.64 text tokens per 12.5 Hz frame, so 98.5% of turns cannot be emitted at speech pace and the pinned interleaver (keep_and_shift=false) drifts or drops tokens. Romanizing the exact phonemes Piper spoke needs 0.67 tokens per frame (0.3% of turns over budget) and word-level timing restores Moshi's text-ahead-of-audio monologue. With every other v6 factor unchanged, the 32-row memorization diagnostic should then pass the frozen runtime panel that v6/v6.1 failed.",
+  "parent_policy": "configs/moshi_v6_overfit_policy.json",
+  "text_representation": "piper-espeak-fa-ascii-v1 (src/thesis_s2s/data/romanize.py)",
+  "alignment_granularity": "word (exact Piper phoneme-to-sample alignment)"
+}
