@@ -6,7 +6,8 @@ are validated (consent, age group, integer 1-5 ratings, study id); a participant
 failing the attention check is excluded and counted. The receipt reports, per
 clip condition, the naturalness MOS with a participant-bootstrap 95% interval,
 the same by age group, the interaction ratings, willingness to use, and the
-number of participants aged 60+. Free-text notes are kept only in the private
+number of participants aged 60+, and the human part of the responder switch rule
+(docs/RESPONDER_SWITCH_PROTOCOL.md). Free-text notes are kept only in the private
 work file, never in the receipt.
 """
 
@@ -35,6 +36,43 @@ def boot_ci(per_participant: list[float], draws: int = 5000) -> list[float] | No
         statistics.fmean(rng.choice(per_participant) for _ in per_participant) for _ in range(draws)
     )
     return [means[int(0.025 * draws)], means[int(0.975 * draws) - 1]]
+
+
+CHALLENGER = "qwen35_4b_elderly_v1"
+INCUMBENT = "deployed_qwen3_4b_prompt_v2"
+
+
+def responder_switch_rule(accepted: list[dict[str, Any]], pref_items: list[dict[str, Any]]) -> dict[str, Any]:
+    """Human part of the pre-registered responder switch rule."""
+
+    differences, older = [], []
+    for a in accepted:
+        picks = [a.get("preferences", {}).get(it["id"]) for it in pref_items]
+        picks = [p for p in picks if p in (CHALLENGER, INCUMBENT, "tie")]
+        if not picks:
+            continue
+        d = (sum(p == CHALLENGER for p in picks) - sum(p == INCUMBENT for p in picks)) / len(picks)
+        differences.append(d)
+        if a.get("age") == "60plus":
+            older.append(d)
+    ages = [a.get("age") for a in accepted]
+    sample_ok = len(accepted) >= 5 and ages.count("60plus") >= 2
+    mean = statistics.fmean(differences) if differences else None
+    ci = boot_ci(differences)
+    preference_ok = mean is not None and mean > 0 and ci is not None and ci[0] > 0
+    older_ok = bool(older) and all(d >= 0 for d in older)
+    return {
+        "challenger": CHALLENGER,
+        "incumbent": INCUMBENT,
+        "participants": len(differences),
+        "mean_preference_difference": mean,
+        "mean_preference_difference_ci95": ci,
+        "aged_60_plus_differences": older,
+        "sample_requirement_met": sample_ok,
+        "preference_interval_above_zero": preference_ok,
+        "no_60_plus_participant_prefers_incumbent": older_ok,
+        "human_preference_met": sample_ok and preference_ok and older_ok,
+    }
 
 
 def main() -> int:
@@ -117,6 +155,8 @@ def main() -> int:
             "share_by_condition": {c: statistics.fmean(v) if v else None for c, v in per_participant_share.items()},
             "share_ci95": {c: boot_ci(v) for c, v in per_participant_share.items()},
         }
+        if {CHALLENGER, INCUMBENT} <= set(conditions_seen):
+            preferences["responder_switch_rule"] = responder_switch_rule(accepted, pref_items)
     ages = [a.get("age") for a in accepted]
     receipt = {
         "schema_version": 1,
