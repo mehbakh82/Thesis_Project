@@ -63,7 +63,7 @@ and a direct speech-input alternative:
 |---|---|---:|---|
 | Direct S2S | Moshika 7B engineering baseline | No | Failed Persian runtime output; no same-panel comparison |
 | ASR | NeMo v4 CTC (fine-tuned Persian) | Yes | Most accurate of 10 model configurations (12 arms) within the latency budget on human-transcribed PSRB; Seamless is more accurate but too slow for streaming |
-| Responder | Qwen3-4B prompt-v2 | Yes | Retained by the responder-v2 two-judge rule; the cross-family judge prefers Qwen3.5-4B / Gemma 4 with the elderly prompt by about one point, the Qwen judge does not — unresolved without human ratings |
+| Responder | Qwen3-4B prompt-v2 | Yes | Retained by the responder-v2 two-judge rule; the cross-family judge prefers Qwen3.5-4B / Gemma 4 with the elderly prompt by about one point, the Qwen judge does not. A pre-registered switch rule now lets the listening study decide; Qwen3.5-4B with the elderly prompt passed its deployment qualification (`docs/RESPONDER_SWITCH_PROTOCOL.md`, `docs/RESPONDER_SWITCH_RESULT.md`) |
 | TTS | Mana Persian Piper | Yes | Most intelligible of nine voices and configurations (six Piper voices, ParsVoice-XTTS, the lab VITS as served and optimized) under two ASR listeners; naturalness decided by the listening study |
 
 The current direct shortlist is Moshika, PersonaPlex, Qwen3-Omni,

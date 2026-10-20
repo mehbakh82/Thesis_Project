@@ -1862,7 +1862,7 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
         },
         "end_of_turn_gate": {
             "status": status(eot or eot_stage1),
-            "evidence_class": "offline_replay_development_then_automated_browser_loopback",
+            "evidence_class": "offline_replay_on_development_audio_automatic_labels",
             "baseline_premature_rate": (eot or eot_stage1).get("baseline", {}).get("premature_rate"),
             "stage1_adopted": eot_stage1.get("adopted"),
             "chosen": (eot or {}).get("chosen"),

@@ -20,7 +20,7 @@ An evidence-first Persian full-duplex voice assistant: a streaming cascade (NeMo
 | Conversational interruption supervision | Raw speaker boundaries recover **770 conservative candidates** (717 interruption-like, 53 backchannel-like) from the 6,754 pairs. The preserved deterministic 24-row sheet was sampled from the earlier 712-candidate pool and covers all four channels / **168.3 seconds** of excerpt audio. They remain automatic candidates; **zero human-verified direct interruptions** are claimed under the waiver |
 | Barge-in >80% (historical v1 proxy) | Recorded-audio automatic-label proxy: 81.06% accuracy / 78.99% interrupt F1 on 132 events from 22 held-out sessions (session CI 74.44–87.18%). Superseded by the closeout rows above |
 | Official ≤500 ms on a physical 12–24 GB GPU | Not available (no such GPU); disclosed deviation — see the automated loopback row above |
-| Human study | Minimal remote listening study frozen (`docs/LISTENING_STUDY_PROTOCOL.md`): naturalness of the two best Piper voices against human speech, plus three recorded live interactions and eight reply pairs that decide, by a pre-registered rule, whether Qwen3.5-4B with the elderly prompt replaces the deployed responder (`docs/RESPONDER_SWITCH_PROTOCOL.md`); awaiting 5–10 participants (at least two aged 60+) |
+| Human study | Minimal remote listening study frozen (`docs/LISTENING_STUDY_PROTOCOL.md`): naturalness of the two best Piper voices against human speech, plus three recorded live interactions and eight reply pairs that decide, by a pre-registered rule, whether Qwen3.5-4B with the elderly prompt replaces the deployed responder (`docs/RESPONDER_SWITCH_PROTOCOL.md`; that configuration already passed the deployment qualification — 11,326 MiB, mean 345 ms / p90 398 ms, coherence after interruption under both judges, `docs/RESPONDER_SWITCH_RESULT.md`); awaiting 5–10 participants (at least two aged 60+) |
 | Project source license | **Apache-2.0 selected.** It covers repository-owned code/documentation only; third-party software, weights, datasets, adapters, restricted media, and generated derivatives retain their separate terms |
 
 The headline positive result is
@@ -367,7 +367,7 @@ Closeout documents (2026-10), each protocol committed before its run:
 | Live system | `docs/LIVE_LATENCY_LOOPBACK_PROTOCOL.md` → `..._RESULT.md` (v1); `docs/LIVE_LOOPBACK_V2_PROTOCOL.md` → `docs/LIVE_LOOPBACK_V2_RESULT.md` (deployed configuration, coherence after interruptions) |
 | Corpus labels | `docs/CORPUS_LABEL_VERIFICATION_PROTOCOL.md` → `..._RESULT.md` |
 | End-of-turn gate | `docs/END_OF_TURN_PROTOCOL.md` → `docs/END_OF_TURN_RESULT.md` |
-| Responder switch | `docs/RESPONDER_SWITCH_PROTOCOL.md` (human part from the study) |
+| Responder switch | `docs/RESPONDER_SWITCH_PROTOCOL.md` → `docs/RESPONDER_SWITCH_RESULT.md` (qualification passed; human part from the study) |
 | Human study | `docs/LISTENING_STUDY_PROTOCOL.md` (awaiting participants) |
 
 The ordered evidence and delivery path to a fully complete project is tracked
