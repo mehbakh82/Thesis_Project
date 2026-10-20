@@ -171,6 +171,49 @@ def voiced_frames(audio: np.ndarray) -> np.ndarray:
     return np.array([scorer.score(audio[i * FRAME_SAMPLES : (i + 1) * FRAME_SAMPLES]) for i in range(count)])
 
 
+def _mine_pair(job: tuple[str, str]) -> tuple[str, list[dict[str, Any]]]:
+    """Examples from one pair (run in a worker process); returns (outcome, examples)."""
+
+    from thesis_s2s.runtime.vad import FRAME_SAMPLES
+
+    path, out_dir = Path(job[0]), Path(job[1])
+    frame_s = FRAME_SAMPLES / RATE
+    session = json.loads(path.with_suffix(".json").read_text(encoding="utf-8"))["source_session_id"]
+    with wave.open(str(path), "rb") as handle:
+        stereo = np.frombuffer(handle.readframes(handle.getnframes()), dtype="<i2").reshape(-1, 2)
+    user = stereo[:, 1].astype(np.float32) / 32768.0  # channel 1 is the user stream
+    # amendment 1: cut both classes where a pause begins, as the live gate sees audio
+    voiced = voiced_frames(user) >= 0.35
+    if voiced.sum() * frame_s < 1.5:
+        return "too_short", []
+    frames = user[: user.size // FRAME_SAMPLES * FRAME_SAMPLES].reshape(-1, FRAME_SAMPLES)
+    present = np.sqrt((frames**2).mean(axis=1)) > 1e-4  # not the digital silence after the cut
+    last = int(np.flatnonzero(voiced)[-1]) + 1
+    content_end = int(np.flatnonzero(present)[-1]) + 1 if present.any() else 0
+    if (content_end - last) * frame_s < 0.1:
+        return "no_natural_end", []  # the speaker was still voicing where the turn was cut
+    end = last * frame_s
+    pauses, run = [], 0
+    for f in range(int(np.flatnonzero(voiced)[0]), last):
+        if voiced[f]:
+            cut = (f - run) * frame_s
+            if run * frame_s >= 0.1 and cut >= 1.0 and cut <= end - 0.3:
+                pauses.append(cut)
+            run = 0
+        else:
+            run += 1
+    if not pauses:
+        return "no_internal_pause", []
+    rng = random.Random(f"{SEED}:{path.name}")
+    examples = []
+    for label, cut in (("complete", end), ("incomplete", rng.choice(pauses))):
+        clip = user[max(0, int(cut * RATE) - MAX_SAMPLES) : int(cut * RATE)]
+        name = hashlib.sha256(f"{path.name}|{label}|{cut:.3f}".encode()).hexdigest()[:16]
+        np.save(out_dir / f"{name}.npy", (clip * 32767).astype(np.int16))
+        examples.append({"id": name, "label": label, "session_id": session, "seconds": round(clip.size / RATE, 3)})
+    return "used", examples
+
+
 def mine(args: argparse.Namespace) -> int:
     """Examples from the user channel of the training-split conversation pairs.
 
@@ -183,59 +226,26 @@ def mine(args: argparse.Namespace) -> int:
     end), after which the same speaker continues.
     """
 
-    from thesis_s2s.runtime.vad import FRAME_SAMPLES
+    from concurrent.futures import ProcessPoolExecutor
 
     excluded = set(json.loads(args.exclude_sessions.read_text(encoding="utf-8")))
     records = [json.loads(line) for line in args.pairs.read_text(encoding="utf-8").splitlines() if line]
-    rng = random.Random(SEED)
-    rng.shuffle(records)
-    frame_s = FRAME_SAMPLES / RATE
     out_dir = args.work / "examples"
     out_dir.mkdir(parents=True, exist_ok=True)
+    outcomes = {"excluded_session": 0, "no_natural_end": 0, "no_internal_pause": 0, "too_short": 0, "used": 0}
+    jobs = []
+    for record in sorted(records, key=lambda r: r["path"]):
+        meta = json.loads(Path(record["path"]).with_suffix(".json").read_text(encoding="utf-8"))
+        if meta["source_session_id"] in excluded:
+            outcomes["excluded_session"] += 1
+        else:
+            jobs.append((record["path"], str(out_dir)))
     examples: list[dict[str, Any]] = []
-    skipped = {"excluded_session": 0, "no_natural_end": 0, "no_internal_pause": 0, "too_short": 0}
-    for record in records:
-        if len(examples) >= 2 * args.max_pairs:
-            break
-        audio_path = Path(record["path"])
-        meta = json.loads(audio_path.with_suffix(".json").read_text(encoding="utf-8"))
-        session = meta["source_session_id"]
-        if session in excluded:
-            skipped["excluded_session"] += 1
-            continue
-        with wave.open(str(audio_path), "rb") as handle:
-            stereo = np.frombuffer(handle.readframes(handle.getnframes()), dtype="<i2").reshape(-1, 2)
-        user = stereo[:, 1].astype(np.float32) / 32768.0  # channel 1 is the user stream
-        # amendment 1: cut both classes where a pause begins, as the live gate sees audio
-        voiced = voiced_frames(user) >= 0.35
-        if voiced.sum() * frame_s < 1.5:
-            skipped["too_short"] += 1
-            continue
-        frames = user[: user.size // FRAME_SAMPLES * FRAME_SAMPLES].reshape(-1, FRAME_SAMPLES)
-        present = np.sqrt((frames**2).mean(axis=1)) > 1e-4  # not the digital silence after the cut
-        last = int(np.flatnonzero(voiced)[-1]) + 1
-        content_end = int(np.flatnonzero(present)[-1]) + 1 if present.any() else 0
-        if (content_end - last) * frame_s < 0.1:
-            skipped["no_natural_end"] += 1  # the speaker was still voicing where the turn was cut
-            continue
-        end = last * frame_s
-        pauses, run = [], 0
-        for f in range(int(np.flatnonzero(voiced)[0]), last):
-            if voiced[f]:
-                cut = (f - run) * frame_s
-                if run * frame_s >= 0.1 and cut >= 1.0 and cut <= end - 0.3:
-                    pauses.append(cut)
-                run = 0
-            else:
-                run += 1
-        if not pauses:
-            skipped["no_internal_pause"] += 1
-            continue
-        for label, cut in (("complete", end), ("incomplete", rng.choice(pauses))):
-            clip = user[max(0, int(cut * RATE) - MAX_SAMPLES) : int(cut * RATE)]
-            name = hashlib.sha256(f"{audio_path.name}|{label}|{cut:.3f}".encode()).hexdigest()[:16]
-            np.save(out_dir / f"{name}.npy", (clip * 32767).astype(np.int16))
-            examples.append({"id": name, "label": label, "session_id": session, "seconds": round(clip.size / RATE, 3)})
+    with ProcessPoolExecutor(max_workers=args.workers) as pool:
+        for outcome, found in pool.map(_mine_pair, jobs, chunksize=16):
+            outcomes[outcome] += 1
+            examples.extend(found)
+    rng = random.Random(SEED)
     sessions = sorted({e["session_id"] for e in examples})
     rng.shuffle(sessions)
     val = set(sessions[: max(1, len(sessions) // 10)])
@@ -248,8 +258,7 @@ def mine(args: argparse.Namespace) -> int:
         fold: {lab: sum(e["fold"] == fold and e["label"] == lab for e in examples) for lab in ("complete", "incomplete")}
         for fold in ("train", "val")
     }
-    print(json.dumps({"pairs_seen": sum(skipped.values()) + len(examples) // 2, "skipped": skipped,
-                      "sessions": len(sessions), "examples": summary}, ensure_ascii=False))
+    print(json.dumps({"pairs": len(records), "outcomes": outcomes, "sessions": len(sessions), "examples": summary}))
     return 0
 
 
@@ -389,7 +398,7 @@ def main() -> int:
     p.add_argument("--pairs", type=Path, required=True, help="training-split pair list (moshi_finetune/train.jsonl)")
     p.add_argument("--exclude-sessions", type=Path, required=True)
     p.add_argument("--work", type=Path, required=True)
-    p.add_argument("--max-pairs", type=int, default=6000)
+    p.add_argument("--workers", type=int, default=8)
     p = sub.add_parser("train")
     p.add_argument("--work", type=Path, required=True)
     p.add_argument("--init", type=Path, required=True)

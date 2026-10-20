@@ -184,10 +184,31 @@ def test_development_selection_rule(tmp_path) -> None:
     }))
     (tmp_path / "replay_smart_turn_v3_2.json").write_text(json.dumps({"smart_turn_v3_2|0.5|640": rows(5, 9)}))
     out = tmp_path / "receipt.json"
-    args = type("A", (), {"work": tmp_path, "out": out})()
+    args = type("A", (), {"work": tmp_path, "out": out, "stage2_training": None, "invalid_replay": None})()
     assert dev.select(args) == 0
     receipt = json.loads(out.read_text())
     assert receipt["adopted"] and receipt["chosen"]["hold_ms"] == 1024
     assert receipt["relative_reduction"] == pytest.approx(0.4)
     with pytest.raises(SystemExit):
         dev.select(args)  # write-once
+
+
+def test_responder_switch_qualification_checks() -> None:
+    switch = _script("score_responder_switch")
+    loopback = {
+        "conditions": {
+            "plain": {"turns_without_first_audio": 0, "t_first_audio_ms": {"mean": 410.0},
+                      "t_first_audio_p90_failures_as_late_ms": 470.0},
+            "elderly": {"t_first_audio_p90_failures_as_late_ms": 480.0},
+        },
+        "acceptance": {"plain_mean_le_500ms": True, "plain_p90_le_500ms_failures_counted": True,
+                       "elderly_p90_le_500ms_failures_counted": True},
+        "gpu_memory": {"peak_stack_mib": 11300},
+    }
+    coherence = {"criterion": {"per_judge": {"gemini": True, "qwen38": True}, "met": True}}
+    result = switch.qualification(loopback, coherence, ["سلام عزیزم", "بله"])
+    assert result["part2_passed"]
+    result = switch.qualification(loopback, coherence, ["سلام OK"])
+    assert not result["checks"]["q4_script"]["passed"] and not result["part2_passed"]
+    loopback["gpu_memory"]["peak_stack_mib"] = 12400
+    assert not switch.qualification(loopback, coherence, [])["checks"]["q1_memory"]["passed"]

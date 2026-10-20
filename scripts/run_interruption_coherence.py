@@ -240,8 +240,8 @@ def score(args: argparse.Namespace) -> int:
     }
     receipt = {
         "schema_version": 1,
-        "experiment": "interruption_coherence_v2",
-        "protocol": "docs/LIVE_LOOPBACK_V2_PROTOCOL.md",
+        "experiment": args.experiment,
+        "protocol": args.protocol,
         "scenarios_sha256": hashlib.sha256(args.scenarios.read_bytes()).hexdigest(),
         "runs_sha256": hashlib.sha256(args.runs.read_bytes()).hexdigest(),
         "scenarios": len(ids),
@@ -301,6 +301,8 @@ def main() -> int:
     p.add_argument("--telemetry", type=Path, required=True)
     p.add_argument("--cache", type=Path, required=True)
     p.add_argument("--endpoint", default="http://127.0.0.1:8003")
+    p.add_argument("--experiment", default="interruption_coherence_v2")
+    p.add_argument("--protocol", default="docs/LIVE_LOOPBACK_V2_PROTOCOL.md")
     p.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     return {"prepare": prepare, "score": score}[args.command](args)

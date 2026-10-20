@@ -91,6 +91,8 @@ on natural speech is a real failure mode: 15 of 201 plain and 7 of 80 elderly
 planned utterances produced more than one server turn in v2. The stimuli were
 fixed (no internal pause marks, internal pauses longer than 160 ms shortened to
 120 ms) and the scenarios were run once more with the final configuration.
+A semantic end-of-turn gate against this failure mode was tested afterwards and
+not adopted (`docs/END_OF_TURN_RESULT.md`).
 
 ## Coherence after an interruption (final configuration)
 

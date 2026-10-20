@@ -343,9 +343,23 @@ def select(args: argparse.Namespace) -> int:
         "chosen": chosen,
         "relative_reduction": reduction,
         "adopted": adopted,
-        "next": "loopback v3 with the chosen gate" if adopted else "stage 2 (fine-tune Smart Turn on Persian)",
+        "next": "loopback v3 with the chosen gate" if adopted else (
+            "no gate adopted; the loopback test is not opened" if args.stage2_training else
+            "stage 2 (fine-tune Smart Turn on Persian)"
+        ),
         "text_retained": False,
     }
+    if args.stage2_training:
+        training = json.loads(args.stage2_training.read_text(encoding="utf-8"))
+        receipt["stage2"] = {
+            "training": training,
+            "invalid_first_attempt": {
+                "reason": "complete examples ended while the speaker was still voicing (pair audio cut at the "
+                          "speaker change); the model learned the cut (protocol amendment 1)",
+                "configurations": summarize(json.loads(args.invalid_replay.read_text(encoding="utf-8")))
+                if args.invalid_replay else None,
+            },
+        }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"chosen": chosen and {k: chosen[k] for k in ("candidate", "threshold", "hold_ms",
@@ -368,6 +382,8 @@ def main() -> int:
     p_select = sub.add_parser("select")
     p_select.add_argument("--work", type=Path, required=True)
     p_select.add_argument("--out", type=Path, default=ROOT / "results/eval/end_of_turn_dev.json")
+    p_select.add_argument("--stage2-training", type=Path, help="training receipt of the stage-2 model")
+    p_select.add_argument("--invalid-replay", type=Path, help="replay of the invalid first stage-2 model")
     args = parser.parse_args()
     return {"build": build, "score": score, "select": select}[args.cmd](args)
 

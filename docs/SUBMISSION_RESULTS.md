@@ -28,7 +28,8 @@ while the assistant speaks:
 | ASR / responder / TTS re-selection | NeMo v4 CTC, Qwen3-4B prompt-v2, Mana retained | human-transcript ASR panel; LLM judge; two ASR listeners | `docs/MODEL_AND_DATA_SELECTION_AUDIT.md` |
 | Moshi v7a (tokenizer root cause) | 6/9 vs 3/9 baseline; speech not intelligible | runtime gate | `docs/MOSHI_V7_RESULT.md` |
 | Gemma 4 speech input | negative (relevance 2.05 vs 2.80) | LLM judge | `docs/SPEECH_INPUT_LLM_V1_RESULT.md` |
-| Listening study | instrument frozen, awaiting participants | human (pending) | `docs/LISTENING_STUDY_PROTOCOL.md` |
+| Semantic end-of-turn gate (4 candidates, 850 dev trials) | negative: every configuration lowered premature endpoints (19.8% without a gate) but held at least 13% of genuine turn ends (limit 5%); not deployed | offline replay, automatic labels | `docs/END_OF_TURN_RESULT.md` |
+| Listening study | instrument frozen, awaiting participants; its reply pairs decide the responder switch | human (pending) | `docs/LISTENING_STUDY_PROTOCOL.md`, `docs/RESPONDER_SWITCH_PROTOCOL.md` |
 
 Claim boundary: the latency and barge-in numbers are automated, on the shared
 H100 (12 GB memory budget respected, compute speed not), with automatic labels
