@@ -109,8 +109,6 @@ ARTIFACTS: dict[str, str] = {
     "closeout_interruption_coherence": "results/eval/interruption_coherence_v2.json",
     "closeout_end_of_turn_dev_stage1": "results/eval/end_of_turn_dev_stage1.json",
     "closeout_end_of_turn_dev": "results/eval/end_of_turn_dev.json",
-    "closeout_loopback_v3": "results/eval/live_loopback_v3.json",
-    "closeout_loopback_v3_splits": "results/eval/live_loopback_v3_splits.json",
     "closeout_responder_switch_latency": "results/eval/responder_switch_qualification_loopback.json",
     "closeout_responder_switch_coherence": "results/eval/responder_switch_qualification_coherence.json",
     "closeout_responder_switch": "results/eval/responder_switch_qualification.json",
@@ -1732,8 +1730,6 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
     study = load("closeout_listening_study")
     eot_stage1 = load("closeout_end_of_turn_dev_stage1")
     eot = load("closeout_end_of_turn_dev")
-    loopback_v3 = load("closeout_loopback_v3")
-    splits_v3 = load("closeout_loopback_v3_splits")
     switch_latency = load("closeout_responder_switch_latency")
     switch_coherence = load("closeout_responder_switch_coherence")
     switch = load("closeout_responder_switch")
@@ -1871,11 +1867,7 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
             "stage1_adopted": eot_stage1.get("adopted"),
             "chosen": (eot or {}).get("chosen"),
             "adopted": (eot or eot_stage1).get("adopted"),
-            "loopback_v3_status": status(loopback_v3)
-            if (eot or {}).get("adopted") is not False
-            else "not_run_no_gate_adopted",
-            "loopback_v3_acceptance": loopback_v3.get("acceptance"),
-            "loopback_v3_splits": splits_v3.get("pooled"),
+            "loopback_test": "not run: no gate met the development rule" if eot and not eot.get("adopted") else None,
         },
         "responder_switch_qualification": {
             "status": status(switch),

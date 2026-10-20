@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-10-19T07:52:25.749593+00:00",
+  "generated_at": "2026-10-20T08:30:51.016363+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1404,6 +1404,24 @@
       },
       "hardware": "shared NVIDIA H100 host (not a 12-24 GB device; memory budget emulated, compute not)"
     },
+    "end_of_turn_gate": {
+      "status": "present",
+      "evidence_class": "offline_replay_development_then_automated_browser_loopback",
+      "baseline_premature_rate": 0.1976470588235294,
+      "stage1_adopted": false,
+      "chosen": null,
+      "adopted": false,
+      "loopback_test": "not run: no gate met the development rule"
+    },
+    "responder_switch_qualification": {
+      "status": "pending",
+      "part2_passed": null,
+      "evidence_class": "automated_browser_loopback_with_automatic_judges",
+      "latency_acceptance": null,
+      "peak_stack_gpu_mib": null,
+      "coherence_criterion": null,
+      "human_preference": null
+    },
     "listening_study": {
       "status": "pending",
       "evidence_class": null,
@@ -1876,6 +1894,36 @@
       "present": true,
       "bytes": 4741,
       "sha256": "62e55b20715828a8f1fdaa9811d95d346217b41a527a8332c6fd8cb6a51a2d0b"
+    },
+    "closeout_end_of_turn_dev_stage1": {
+      "path": "results/eval/end_of_turn_dev_stage1.json",
+      "present": true,
+      "bytes": 10837,
+      "sha256": "f6dcd15caa365277b145a4f8a74e3271559a18bbc005fc26cd55417685f9dab1"
+    },
+    "closeout_end_of_turn_dev": {
+      "path": "results/eval/end_of_turn_dev.json",
+      "present": true,
+      "bytes": 21105,
+      "sha256": "fbc84016c80af49f41a501bd0c6d1c83b196a9805dac5029abcc05d3a378d504"
+    },
+    "closeout_responder_switch_latency": {
+      "path": "results/eval/responder_switch_qualification_loopback.json",
+      "present": false,
+      "bytes": null,
+      "sha256": null
+    },
+    "closeout_responder_switch_coherence": {
+      "path": "results/eval/responder_switch_qualification_coherence.json",
+      "present": false,
+      "bytes": null,
+      "sha256": null
+    },
+    "closeout_responder_switch": {
+      "path": "results/eval/responder_switch_qualification.json",
+      "present": false,
+      "bytes": null,
+      "sha256": null
     },
     "closeout_listening_study": {
       "path": "results/eval/listening_study.json",
