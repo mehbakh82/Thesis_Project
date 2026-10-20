@@ -123,10 +123,23 @@ class Endpointer:
     _speech_start: int = 0
     _last_voiced_end: int = 0
     _paused: bool = False
+    _hold_samples: int = 0
 
     @property
     def in_speech(self) -> bool:
         return self._in_speech
+
+    def hold(self, silence_ms: float) -> bool:
+        """Extend the open pause: confirm the end only after ``silence_ms`` of silence.
+
+        Used by a semantic end-of-turn gate; returns False when no pause is open
+        (the end was already confirmed or the speaker resumed).
+        """
+
+        if not (self._in_speech and self._paused):
+            return False
+        self._hold_samples = int(silence_ms * SAMPLE_RATE / 1000)
+        return True
 
     def reset(self) -> None:
         self.scorer.reset()
@@ -136,6 +149,7 @@ class Endpointer:
         self._voiced_run = 0
         self._silence_samples = 0
         self._paused = False
+        self._hold_samples = 0
 
     def push(self, pcm: np.ndarray, sample_offset: int | None = None) -> list[EndpointEvent]:
         """Feed PCM and return any endpoint decisions it completes.
@@ -170,6 +184,7 @@ class Endpointer:
             elif prob >= self.offset_threshold:
                 self._last_voiced_end = self._consumed
                 self._silence_samples = 0
+                self._hold_samples = 0
                 if self._paused:
                     self._paused = False
                     events.append(EndpointEvent("speech_resume", self._consumed, self._consumed))
@@ -186,10 +201,11 @@ class Endpointer:
                     events.append(
                         EndpointEvent("speech_pause", self._last_voiced_end, self._consumed)
                     )
-                if self._silence_samples >= hangover:
+                if self._silence_samples >= max(hangover, self._hold_samples):
                     self._in_speech = False
                     self._voiced_run = 0
                     self._paused = False
+                    self._hold_samples = 0
                     if long_enough:
                         events.append(
                             EndpointEvent("speech_end", self._last_voiced_end, self._consumed)

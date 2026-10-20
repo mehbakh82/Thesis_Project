@@ -507,6 +507,20 @@ def main(argv: list[str] | None = None) -> None:
     )
     p_live.add_argument("--telemetry", type=Path)
     p_live.add_argument("--history-turns", type=int, default=2)
+    p_live.add_argument(
+        "--responder",
+        default="qwen3_4b_prompt_v2",
+        choices=["qwen3_4b_prompt_v2", "qwen35_4b_elderly_v1"],
+        help="responder configuration (docs/RESPONDER_SWITCH_PROTOCOL.md)",
+    )
+    p_live.add_argument(
+        "--turn-end-gate",
+        default=None,
+        choices=["lexical", "smart_turn_v3_2", "llm_completeness"],
+        help="semantic end-of-turn gate (docs/END_OF_TURN_PROTOCOL.md); off by default",
+    )
+    p_live.add_argument("--turn-end-threshold", type=float, default=None)
+    p_live.add_argument("--turn-end-hold-ms", type=float, default=None)
     p_serve = sub.add_parser("serve")
     p_serve.add_argument("--host", default="127.0.0.1")
     p_serve.add_argument("--port", type=int, default=8765)
@@ -1005,7 +1019,11 @@ def main(argv: list[str] | None = None) -> None:
 
         if args.host not in {"127.0.0.1", "localhost"}:
             raise SystemExit("serve-live binds to loopback only; use an SSH tunnel for remote use")
-        components = default_live_components(history_turns=args.history_turns)
+        components = default_live_components(
+            history_turns=args.history_turns,
+            responder_preset=args.responder,
+            turn_end_gate=args.turn_end_gate,
+        )
         app = build_live_app(
             components,
             LiveConfig(
@@ -1014,6 +1032,8 @@ def main(argv: list[str] | None = None) -> None:
                 telemetry_path=args.telemetry,
                 **({} if args.speculative_ms is None else {"speculative_ms": args.speculative_ms}),
                 **({} if args.lexical_pre_roll_ms is None else {"lexical_pre_roll_ms": args.lexical_pre_roll_ms}),
+                **({} if args.turn_end_threshold is None else {"turn_end_threshold": args.turn_end_threshold}),
+                **({} if args.turn_end_hold_ms is None else {"turn_end_hold_ms": args.turn_end_hold_ms}),
             ),
         )
         uvicorn.run(app, host=args.host, port=args.port, log_level="warning")

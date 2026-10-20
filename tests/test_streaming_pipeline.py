@@ -172,3 +172,26 @@ def test_endpointer_ignores_clicks_shorter_than_min_speech() -> None:
     for start in range(0, audio.size, 512):
         events.extend(endpointer.push(audio[start : start + 512]))
     assert [e.kind for e in events if e.kind == "speech_end"] == []
+
+
+def test_openai_responder_sends_chat_template_kwargs(monkeypatch) -> None:
+    import io
+    import json
+    import urllib.request
+
+    from thesis_s2s.runtime.streaming import OpenAIStreamingResponder
+
+    sent = {}
+
+    def fake_urlopen(request, timeout):
+        sent.update(json.loads(request.data))
+        return io.BytesIO(b'data: {"choices": [{"delta": {"content": "\\u0633\\u0644\\u0627\\u0645"}}]}\n')
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    responder = OpenAIStreamingResponder(
+        endpoint="http://llm", model="qwen35-4b", system_prompt="p",
+        chat_template_kwargs={"enable_thinking": False},
+    )
+    assert list(responder.stream("سلام")) == ["سلام"]
+    assert sent["chat_template_kwargs"] == {"enable_thinking": False}
+    assert "structured_outputs" in sent
