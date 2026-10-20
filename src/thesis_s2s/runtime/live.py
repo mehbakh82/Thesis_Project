@@ -269,7 +269,8 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
 
             def judge(transcript: str | None) -> None:
                 # Runs off the event loop; the hold itself is applied on the loop.
-                assert gate_model is not None
+                if gate_model is None:
+                    return
                 started = time.perf_counter()
                 try:
                     p_complete: float | None = gate_model.p_complete(utterance, transcript)
