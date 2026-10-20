@@ -263,8 +263,10 @@ class OpenAIStreamingResponder:
         history_turns: int = 2,
         persian_only: bool = True,
         timeout: float = 30.0,
+        chat_template_kwargs: dict[str, Any] | None = None,
     ) -> None:
         self.endpoint = endpoint.rstrip("/")
+        self.chat_template_kwargs = chat_template_kwargs
         self.model = model
         self.system_prompt = system_prompt
         self.max_new_tokens = max_new_tokens
@@ -298,6 +300,8 @@ class OpenAIStreamingResponder:
         }
         if self.persian_only:
             body["structured_outputs"] = {"regex": PERSIAN_ONLY_REGEX}
+        if self.chat_template_kwargs:
+            body["chat_template_kwargs"] = self.chat_template_kwargs
         request = urllib.request.Request(
             f"{self.endpoint}/v1/chat/completions",
             data=json.dumps(body).encode("utf-8"),
@@ -331,13 +335,20 @@ def run_streamed_turn(
     cancel: threading.Event | None = None,
     chunker: ClauseChunker | None = None,
     empty_reply: str = "متأسفم، صدای شما را درست نشنیدم. لطفاً دوباره بگویید.",
+    on_transcript: Callable[[str], None] | None = None,
 ) -> StreamedTurn:
-    """Run one turn, emitting each synthesized clause as soon as it is ready."""
+    """Run one turn, emitting each synthesized clause as soon as it is ready.
+
+    ``on_transcript`` is called with the ASR transcript before generation starts
+    (the end-of-turn gate reuses the speculative transcript).
+    """
 
     stop = cancel or threading.Event()
     timings = TurnTimings(start=time.perf_counter())
     transcript, asr_error = asr(user_audio)
     timings.asr_done = time.perf_counter()
+    if on_transcript is not None:
+        on_transcript(transcript)
     chunker = chunker or ClauseChunker()
     clauses: list[str] = []
     samples = 0

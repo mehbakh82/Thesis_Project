@@ -1,0 +1,752 @@
+{
+  "schema_version": 1,
+  "experiment": "end_of_turn_gate_development",
+  "protocol": "docs/END_OF_TURN_PROTOCOL.md",
+  "generated_at": "2026-10-20T08:18:19+00:00",
+  "evaluator_sha256": "e5b49a9d6dfe9b4b2650f1fe86f84c7f382cb065f6031cb7c35d34100da2cd2f",
+  "trials_sha256": "2630fefbe579029414919e19d460ae341caec32b6166dfa01742945f623d7540",
+  "endpointer": {
+    "hangover_ms": 256.0,
+    "speculative_ms": 96.0,
+    "frame": 320
+  },
+  "rule": "lowest pooled premature-end rate among configurations with false-hold rate <= 5%; ties within 1 point: lower false-hold rate, smaller hold, cheaper candidate; adopted only if the premature-end rate falls by at least 25% relative to no gate",
+  "baseline": {
+    "candidate": "none",
+    "threshold": 0.0,
+    "hold_ms": 256,
+    "trials": 850,
+    "premature_rate": 0.1976470588235294,
+    "false_hold_rate": 0.0,
+    "late_hold_attempts": 0,
+    "unended": 0,
+    "mean_added_delay_ms": 0.0,
+    "p90_added_delay_ms": 0.0,
+    "by_condition": {
+      "plain": {
+        "trials": 425,
+        "premature": 78,
+        "false_holds": 0
+      },
+      "simulated_elderly": {
+        "trials": 425,
+        "premature": 90,
+        "false_holds": 0
+      }
+    }
+  },
+  "configurations": {
+    "none|0.0|256": {
+      "candidate": "none",
+      "threshold": 0.0,
+      "hold_ms": 256,
+      "trials": 850,
+      "premature_rate": 0.1976470588235294,
+      "false_hold_rate": 0.0,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 0.0,
+      "p90_added_delay_ms": 0.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 78,
+          "false_holds": 0
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 90,
+          "false_holds": 0
+        }
+      }
+    },
+    "lexical|1.0|640": {
+      "candidate": "lexical",
+      "threshold": 1.0,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.14705882352941177,
+      "false_hold_rate": 0.13058823529411764,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 50.14588235294118,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 60,
+          "false_holds": 56
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 65,
+          "false_holds": 55
+        }
+      }
+    },
+    "lexical|1.0|1024": {
+      "candidate": "lexical",
+      "threshold": 1.0,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.14352941176470588,
+      "false_hold_rate": 0.13176470588235295,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 101.19529411764705,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 58,
+          "false_holds": 57
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 64,
+          "false_holds": 55
+        }
+      }
+    },
+    "smart_turn_v3_2|0.3|640": {
+      "candidate": "smart_turn_v3_2",
+      "threshold": 0.3,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.15176470588235294,
+      "false_hold_rate": 0.2576470588235294,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 98.9364705882353,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 64,
+          "false_holds": 91
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 65,
+          "false_holds": 128
+        }
+      }
+    },
+    "smart_turn_v3_2|0.3|1024": {
+      "candidate": "smart_turn_v3_2",
+      "threshold": 0.3,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.14823529411764705,
+      "false_hold_rate": 0.25882352941176473,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 198.7764705882353,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 64,
+          "false_holds": 91
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 62,
+          "false_holds": 129
+        }
+      }
+    },
+    "smart_turn_v3_2|0.5|640": {
+      "candidate": "smart_turn_v3_2",
+      "threshold": 0.5,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.13529411764705881,
+      "false_hold_rate": 0.32588235294117646,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 125.13882352941177,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 59,
+          "false_holds": 121
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 56,
+          "false_holds": 156
+        }
+      }
+    },
+    "smart_turn_v3_2|0.5|1024": {
+      "candidate": "smart_turn_v3_2",
+      "threshold": 0.5,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.13176470588235295,
+      "false_hold_rate": 0.3270588235294118,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 251.18117647058824,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 59,
+          "false_holds": 121
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 53,
+          "false_holds": 157
+        }
+      }
+    },
+    "smart_turn_v3_2|0.7|640": {
+      "candidate": "smart_turn_v3_2",
+      "threshold": 0.7,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.11647058823529412,
+      "false_hold_rate": 0.3941176470588235,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 151.34117647058824,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 52,
+          "false_holds": 144
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 47,
+          "false_holds": 191
+        }
+      }
+    },
+    "smart_turn_v3_2|0.7|1024": {
+      "candidate": "smart_turn_v3_2",
+      "threshold": 0.7,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.11294117647058824,
+      "false_hold_rate": 0.39647058823529413,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 304.4894117647059,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 52,
+          "false_holds": 144
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 44,
+          "false_holds": 193
+        }
+      }
+    },
+    "llm_completeness|0.3|640": {
+      "candidate": "llm_completeness",
+      "threshold": 0.3,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.13294117647058823,
+      "false_hold_rate": 0.15411764705882353,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 59.181176470588234,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 52,
+          "false_holds": 65
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 61,
+          "false_holds": 66
+        }
+      }
+    },
+    "llm_completeness|0.3|1024": {
+      "candidate": "llm_completeness",
+      "threshold": 0.3,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.12941176470588237,
+      "false_hold_rate": 0.15529411764705883,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 119.26588235294118,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 50,
+          "false_holds": 66
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 60,
+          "false_holds": 66
+        }
+      }
+    },
+    "llm_completeness|0.5|640": {
+      "candidate": "llm_completeness",
+      "threshold": 0.5,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.12588235294117647,
+      "false_hold_rate": 0.16470588235294117,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 63.247058823529414,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 49,
+          "false_holds": 73
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 58,
+          "false_holds": 67
+        }
+      }
+    },
+    "llm_completeness|0.5|1024": {
+      "candidate": "llm_completeness",
+      "threshold": 0.5,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.12117647058823529,
+      "false_hold_rate": 0.16705882352941176,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 128.30117647058825,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 47,
+          "false_holds": 74
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 56,
+          "false_holds": 68
+        }
+      }
+    },
+    "llm_completeness|0.7|640": {
+      "candidate": "llm_completeness",
+      "threshold": 0.7,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.11764705882352941,
+      "false_hold_rate": 0.19058823529411764,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 73.18588235294118,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 47,
+          "false_holds": 85
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 53,
+          "false_holds": 77
+        }
+      }
+    },
+    "llm_completeness|0.7|1024": {
+      "candidate": "llm_completeness",
+      "threshold": 0.7,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.11294117647058824,
+      "false_hold_rate": 0.19294117647058823,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 148.17882352941177,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 45,
+          "false_holds": 86
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 51,
+          "false_holds": 78
+        }
+      }
+    },
+    "smart_turn_v3_2_fa|0.3|640": {
+      "candidate": "smart_turn_v3_2_fa",
+      "threshold": 0.3,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.023529411764705882,
+      "false_hold_rate": 0.6529411764705882,
+      "late_hold_attempts": 1,
+      "unended": 0,
+      "mean_added_delay_ms": 250.72941176470587,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 6,
+          "false_holds": 280
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 14,
+          "false_holds": 275
+        }
+      }
+    },
+    "smart_turn_v3_2_fa|0.3|1024": {
+      "candidate": "smart_turn_v3_2_fa",
+      "threshold": 0.3,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.01764705882352941,
+      "false_hold_rate": 0.6552941176470588,
+      "late_hold_attempts": 1,
+      "unended": 0,
+      "mean_added_delay_ms": 503.26588235294116,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 4,
+          "false_holds": 281
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 11,
+          "false_holds": 276
+        }
+      }
+    },
+    "smart_turn_v3_2_fa|0.5|640": {
+      "candidate": "smart_turn_v3_2_fa",
+      "threshold": 0.5,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.018823529411764704,
+      "false_hold_rate": 0.7552941176470588,
+      "late_hold_attempts": 2,
+      "unended": 0,
+      "mean_added_delay_ms": 290.0329411764706,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 5,
+          "false_holds": 325
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 11,
+          "false_holds": 317
+        }
+      }
+    },
+    "smart_turn_v3_2_fa|0.5|1024": {
+      "candidate": "smart_turn_v3_2_fa",
+      "threshold": 0.5,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.012941176470588235,
+      "false_hold_rate": 0.7576470588235295,
+      "late_hold_attempts": 2,
+      "unended": 0,
+      "mean_added_delay_ms": 581.8729411764706,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 3,
+          "false_holds": 326
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 8,
+          "false_holds": 318
+        }
+      }
+    },
+    "smart_turn_v3_2_fa|0.7|640": {
+      "candidate": "smart_turn_v3_2_fa",
+      "threshold": 0.7,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.015294117647058824,
+      "false_hold_rate": 0.8611764705882353,
+      "late_hold_attempts": 2,
+      "unended": 0,
+      "mean_added_delay_ms": 330.69176470588235,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 4,
+          "false_holds": 371
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 9,
+          "false_holds": 361
+        }
+      }
+    },
+    "smart_turn_v3_2_fa|0.7|1024": {
+      "candidate": "smart_turn_v3_2_fa",
+      "threshold": 0.7,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.009411764705882352,
+      "false_hold_rate": 0.8647058823529412,
+      "late_hold_attempts": 2,
+      "unended": 0,
+      "mean_added_delay_ms": 664.0941176470589,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 2,
+          "false_holds": 372
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 6,
+          "false_holds": 363
+        }
+      }
+    }
+  },
+  "chosen": null,
+  "relative_reduction": null,
+  "adopted": false,
+  "next": "no gate adopted; the loopback test is not opened",
+  "text_retained": false,
+  "stage2": {
+    "training": {
+      "init_sha256": "861313533a7a6a511911c8127a408c1af71b9c0a2d589e857c7cd562de42d030",
+      "examples_sha256": "1ac3c0bafb96b95db1401b8955aed809ad429dda4bfc1d4bf38d684eca636266",
+      "train_examples": 738,
+      "val_examples": 72,
+      "epochs": 4,
+      "batch": 64,
+      "learning_rate": 5e-05,
+      "warmup_ratio": 0.2,
+      "weight_decay": 0.01,
+      "history": [
+        {
+          "epoch": 0,
+          "accuracy": 0.6111111111111112,
+          "f1": 0.5625000000000001,
+          "complete_recall": 0.5,
+          "incomplete_recall": 0.7222222222222222
+        },
+        {
+          "epoch": 1,
+          "accuracy": 0.7361111111111112,
+          "f1": 0.7865168539325842,
+          "complete_recall": 0.9722222222222222,
+          "incomplete_recall": 0.5
+        },
+        {
+          "epoch": 2,
+          "accuracy": 0.7777777777777778,
+          "f1": 0.7999999999999999,
+          "complete_recall": 0.8888888888888888,
+          "incomplete_recall": 0.6666666666666666
+        },
+        {
+          "epoch": 3,
+          "accuracy": 0.7777777777777778,
+          "f1": 0.7948717948717949,
+          "complete_recall": 0.8611111111111112,
+          "incomplete_recall": 0.6944444444444444
+        },
+        {
+          "epoch": 4,
+          "accuracy": 0.7916666666666666,
+          "f1": 0.8051948051948052,
+          "complete_recall": 0.8611111111111112,
+          "incomplete_recall": 0.7222222222222222
+        }
+      ],
+      "best_epoch": 4,
+      "best_sha256": "a1681ffcdb7a074601ffc5d10926ab9449a42637f7a878b042207ac13a0d2a31",
+      "onnx_sha256": "34cc54d38d9f7c5d38ecd3d754dc428e5be702bf723a15ed216f4e5f8098cc6f",
+      "onnx_max_abs_diff_vs_torch": 1.1920928955078125e-07
+    },
+    "invalid_first_attempt": {
+      "reason": "complete examples ended while the speaker was still voicing (pair audio cut at the speaker change); the model learned the cut (protocol amendment 1)",
+      "configurations": {
+        "smart_turn_v3_2_fa|0.3|640": {
+          "candidate": "smart_turn_v3_2_fa",
+          "threshold": 0.3,
+          "hold_ms": 640,
+          "trials": 850,
+          "premature_rate": 0.01647058823529412,
+          "false_hold_rate": 0.9176470588235294,
+          "late_hold_attempts": 3,
+          "unended": 0,
+          "mean_added_delay_ms": 352.3764705882353,
+          "p90_added_delay_ms": 384.0,
+          "by_condition": {
+            "plain": {
+              "trials": 425,
+              "premature": 7,
+              "false_holds": 395
+            },
+            "simulated_elderly": {
+              "trials": 425,
+              "premature": 7,
+              "false_holds": 385
+            }
+          }
+        },
+        "smart_turn_v3_2_fa|0.3|1024": {
+          "candidate": "smart_turn_v3_2_fa",
+          "threshold": 0.3,
+          "hold_ms": 1024,
+          "trials": 850,
+          "premature_rate": 0.010588235294117647,
+          "false_hold_rate": 0.9223529411764706,
+          "late_hold_attempts": 3,
+          "unended": 0,
+          "mean_added_delay_ms": 708.3670588235294,
+          "p90_added_delay_ms": 768.0,
+          "by_condition": {
+            "plain": {
+              "trials": 425,
+              "premature": 5,
+              "false_holds": 397
+            },
+            "simulated_elderly": {
+              "trials": 425,
+              "premature": 4,
+              "false_holds": 387
+            }
+          }
+        },
+        "smart_turn_v3_2_fa|0.5|640": {
+          "candidate": "smart_turn_v3_2_fa",
+          "threshold": 0.5,
+          "hold_ms": 640,
+          "trials": 850,
+          "premature_rate": 0.011764705882352941,
+          "false_hold_rate": 0.9470588235294117,
+          "late_hold_attempts": 3,
+          "unended": 0,
+          "mean_added_delay_ms": 363.67058823529413,
+          "p90_added_delay_ms": 384.0,
+          "by_condition": {
+            "plain": {
+              "trials": 425,
+              "premature": 4,
+              "false_holds": 407
+            },
+            "simulated_elderly": {
+              "trials": 425,
+              "premature": 6,
+              "false_holds": 398
+            }
+          }
+        },
+        "smart_turn_v3_2_fa|0.5|1024": {
+          "candidate": "smart_turn_v3_2_fa",
+          "threshold": 0.5,
+          "hold_ms": 1024,
+          "trials": 850,
+          "premature_rate": 0.0058823529411764705,
+          "false_hold_rate": 0.951764705882353,
+          "late_hold_attempts": 3,
+          "unended": 0,
+          "mean_added_delay_ms": 730.9552941176471,
+          "p90_added_delay_ms": 768.0,
+          "by_condition": {
+            "plain": {
+              "trials": 425,
+              "premature": 2,
+              "false_holds": 409
+            },
+            "simulated_elderly": {
+              "trials": 425,
+              "premature": 3,
+              "false_holds": 400
+            }
+          }
+        },
+        "smart_turn_v3_2_fa|0.7|640": {
+          "candidate": "smart_turn_v3_2_fa",
+          "threshold": 0.7,
+          "hold_ms": 640,
+          "trials": 850,
+          "premature_rate": 0.009411764705882352,
+          "false_hold_rate": 0.9670588235294117,
+          "late_hold_attempts": 3,
+          "unended": 0,
+          "mean_added_delay_ms": 371.35058823529414,
+          "p90_added_delay_ms": 384.0,
+          "by_condition": {
+            "plain": {
+              "trials": 425,
+              "premature": 4,
+              "false_holds": 411
+            },
+            "simulated_elderly": {
+              "trials": 425,
+              "premature": 4,
+              "false_holds": 411
+            }
+          }
+        },
+        "smart_turn_v3_2_fa|0.7|1024": {
+          "candidate": "smart_turn_v3_2_fa",
+          "threshold": 0.7,
+          "hold_ms": 1024,
+          "trials": 850,
+          "premature_rate": 0.0035294117647058825,
+          "false_hold_rate": 0.971764705882353,
+          "late_hold_attempts": 3,
+          "unended": 0,
+          "mean_added_delay_ms": 746.3152941176471,
+          "p90_added_delay_ms": 768.0,
+          "by_condition": {
+            "plain": {
+              "trials": 425,
+              "premature": 2,
+              "false_holds": 413
+            },
+            "simulated_elderly": {
+              "trials": 425,
+              "premature": 1,
+              "false_holds": 413
+            }
+          }
+        }
+      }
+    }
+  }
+}

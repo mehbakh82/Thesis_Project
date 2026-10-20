@@ -54,6 +54,7 @@ and a direct speech-input alternative:
 | Direct S2S (Moshi) | v7a: romanized phonemes + word timing | Tokenizer bottleneck confirmed (6.6 vs 2.7 tokens/word); best 6/9 vs 3/9 baseline, still not 9/9 and not intelligible (prefix CER 0.88); v7b not started | `docs/MOSHI_V7_RESULT.md` |
 | Direct speech input | Gemma 4 E4B zero-shot and with a self-distilled speech LoRA | Negative: relevance 1.98 / 2.05 vs 2.80 for the cascade | `docs/SPEECH_INPUT_LLM_V1_RESULT.md` |
 | PersonaPlex | documentary | Same architecture and English tokenizer as Moshi, English-only, no training code — same root cause, not trained | `docs/MOSHI_V7_ROMANIZED_ALIGNMENT_PROTOCOL.md` |
+| J-Moshi (Ohashi et al., Interspeech 2025) | documentary | Published Moshi adaptation to Japanese: replaced the tokenizer (32k Japanese SentencePiece), then pre-trained on ~60,000 h of Japanese dialogue (128 V100 × 36 h) before 344 h stereo + 602 h synthetic fine-tuning — the scale a direct Persian model would need | `docs/MOSHI_V7_RESULT.md` |
 | Barge-in confirm | duration, MLP, lexical ASR confirm variants | **Lexical confirm with echo rejection and a one-frame duck**: test accuracy 0.933, F1 0.880 | `docs/BARGEIN_SIMULATION_RESULT.md` |
 
 ## Current candidate audit
@@ -62,7 +63,7 @@ and a direct speech-input alternative:
 |---|---|---:|---|
 | Direct S2S | Moshika 7B engineering baseline | No | Failed Persian runtime output; no same-panel comparison |
 | ASR | NeMo v4 CTC (fine-tuned Persian) | Yes | Most accurate of 10 model configurations (12 arms) within the latency budget on human-transcribed PSRB; Seamless is more accurate but too slow for streaming |
-| Responder | Qwen3-4B prompt-v2 | Yes | Retained by the responder-v2 two-judge rule; the cross-family judge prefers Qwen3.5-4B / Gemma 4 with the elderly prompt by about one point, the Qwen judge does not — unresolved without human ratings |
+| Responder | Qwen3-4B prompt-v2 | Yes | Retained by the responder-v2 two-judge rule; the cross-family judge prefers Qwen3.5-4B / Gemma 4 with the elderly prompt by about one point, the Qwen judge does not. A pre-registered switch rule now lets the listening study decide; Qwen3.5-4B with the elderly prompt passed its deployment qualification (`docs/RESPONDER_SWITCH_PROTOCOL.md`, `docs/RESPONDER_SWITCH_RESULT.md`) |
 | TTS | Mana Persian Piper | Yes | Most intelligible of nine voices and configurations (six Piper voices, ParsVoice-XTTS, the lab VITS as served and optimized) under two ASR listeners; naturalness decided by the listening study |
 
 The current direct shortlist is Moshika, PersonaPlex, Qwen3-Omni,

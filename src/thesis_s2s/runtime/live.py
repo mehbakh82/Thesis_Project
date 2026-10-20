@@ -50,6 +50,7 @@ from thesis_s2s.runtime.streaming import (
     StreamingResponder,
     run_streamed_turn,
 )
+from thesis_s2s.runtime.turn_end import TurnEndGate
 from thesis_s2s.runtime.vad import SAMPLE_RATE, Endpointer, FrameScorer, default_scorer
 
 FRAME = 320
@@ -66,6 +67,7 @@ class LiveComponents:
     bargein_transcriber: Transcriber | None = None
     identity: dict[str, Any] = field(default_factory=dict)
     scorer_factory: Callable[[], FrameScorer] = default_scorer
+    turn_end_gate: TurnEndGate | None = None
 
 
 @dataclass
@@ -75,7 +77,7 @@ class LiveConfig:
     telemetry_path: Path | None = None
     confirm_speech_ms: float = 480.0
     classifier_threshold: float = 0.7
-    speculative_ms: float | None = 160.0
+    speculative_ms: float | None = 96.0  # chosen in live loopback v2
     first_min_words: int = 2
     first_max_words: int = 4
     max_words: int = 14
@@ -88,6 +90,10 @@ class LiveConfig:
     drop_function_words: bool = True
     duck_frames: int = 1
     lexical_pre_roll_ms: float = 0.0
+    # Semantic end-of-turn gate (docs/END_OF_TURN_PROTOCOL.md): below the
+    # threshold, the pause is held until this much total silence.
+    turn_end_threshold: float = 0.5
+    turn_end_hold_ms: float = 640.0
 
 
 class _Session:
@@ -175,8 +181,11 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
             for key in (
                 "lexical_confirm", "echo_margin_db", "dtd_margin_db", "initial_coupling_db",
                 "lexical_matching", "drop_function_words", "duck_frames", "lexical_pre_roll_ms", "hangover_ms", "speculative_ms",
+                "turn_end_threshold", "turn_end_hold_ms",
             )
         }
+        gate = components.turn_end_gate
+        bargein["turn_end_gate"] = gate.name if gate is not None else None
         return {
             "ok": True,
             "mode": "live_streaming",
@@ -256,6 +265,29 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
                         return
                 asyncio.run_coroutine_threadsafe(ws.send_bytes(payload), loop)
 
+            gate_model = components.turn_end_gate if speculative else None
+
+            def judge(transcript: str | None) -> None:
+                # Runs off the event loop; the hold itself is applied on the loop.
+                if gate_model is None:
+                    return
+                started = time.perf_counter()
+                try:
+                    p_complete: float | None = gate_model.p_complete(utterance, transcript)
+                except Exception as exc:  # noqa: BLE001 - a failed gate never holds
+                    p_complete, record["turn_end_error"] = None, repr(exc)
+                elapsed = (time.perf_counter() - started) * 1000
+                loop.call_soon_threadsafe(apply_gate, turn, p_complete, elapsed, gate_started)
+
+            gate_started = time.perf_counter()
+            on_transcript: Callable[[str], None] | None = None
+            if gate_model is not None:
+                if gate_model.needs_transcript:
+                    def on_transcript(text: str) -> None:
+                        threading.Thread(target=judge, args=(text,), daemon=True).start()
+                else:
+                    threading.Thread(target=judge, args=(None,), daemon=True).start()
+
             def run() -> Any:
                 return run_streamed_turn(
                     utterance,
@@ -270,6 +302,7 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
                         first_max_words=config.first_max_words,
                         max_words=config.max_words,
                     ),
+                    on_transcript=on_transcript,
                 )
 
             async def finish() -> None:
@@ -354,6 +387,20 @@ def build_live_app(components: LiveComponents, config: LiveConfig | None = None)
             pending = record.pop("pending_reply_done", None)
             if pending is not None:
                 await deliver_reply(pending)
+
+        def apply_gate(turn: int, p_complete: float | None, compute_ms: float, started: float) -> None:
+            record = session.records.get(turn, {})
+            record["turn_end_p_complete"] = p_complete
+            record["turn_end_compute_ms"] = round(compute_ms, 1)
+            record["turn_end_ready_ms"] = round((time.perf_counter() - started) * 1000, 1)
+            if session.speculative_turn != turn:
+                record["turn_end_gate"] = "late"  # already confirmed or cancelled
+                return
+            if p_complete is None or p_complete >= config.turn_end_threshold:
+                record["turn_end_gate"] = "complete"
+                return
+            held = session.endpointer.hold(config.turn_end_hold_ms)
+            record["turn_end_gate"] = "held" if held else "late"
 
         def cancel_speculative() -> None:
             turn = session.speculative_turn
@@ -673,11 +720,34 @@ def _low_latency_piper(model: Path | None) -> Any:
     return PiperVoice(session=session, config=config)
 
 
+# Responder configurations the live server can run (docs/RESPONDER_SWITCH_PROTOCOL.md).
+RESPONDER_PRESETS: dict[str, dict[str, Any]] = {
+    "qwen3_4b_prompt_v2": {
+        "prompt": "QWEN4B_PROMPT_V2",
+        "served_name": "qwen3-4b-instruct-2507",
+        "model": "Qwen/Qwen3-4B-Instruct-2507",
+        "revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+        "max_new_tokens": 64,
+        "chat_template_kwargs": None,
+    },
+    "qwen35_4b_elderly_v1": {
+        "prompt": "ELDERLY_PROMPT_V1",
+        "served_name": "qwen35-4b",
+        "model": "Qwen/Qwen3.5-4B",
+        "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+        "max_new_tokens": 96,
+        "chat_template_kwargs": {"enable_thinking": False},
+    },
+}
+
+
 def default_live_components(
     *,
     system_prompt: str | None = None,
-    max_new_tokens: int = 64,
+    max_new_tokens: int | None = None,
     history_turns: int = 2,
+    responder_preset: str = "qwen3_4b_prompt_v2",
+    turn_end_gate: str | None = None,
 ) -> LiveComponents:
     """Production components: HTTP ASR service, streamed local LLM, strict Piper TTS.
 
@@ -687,30 +757,32 @@ def default_live_components(
 
     import os
 
-    from thesis_s2s.runtime.cascade import (
-        QWEN4B_PROMPT_V2,
-        TextResponder,
-        _asr_transcript,
-        _wav_bytes,
-        asr_http,
-    )
+    from thesis_s2s.runtime import cascade
+    from thesis_s2s.runtime.cascade import TextResponder, _asr_transcript, _wav_bytes, asr_http
     from thesis_s2s.runtime.tts import os_piper_model
+    from thesis_s2s.runtime.turn_end import make_gate
 
-    prompt = system_prompt or QWEN4B_PROMPT_V2
+    preset = RESPONDER_PRESETS[responder_preset]
+    prompt = system_prompt or getattr(cascade, preset["prompt"])
+    max_new_tokens = max_new_tokens or int(preset["max_new_tokens"])
     endpoint = os.environ.get("TEXT_LLM_ENDPOINT", "").strip()
+    served_name = os.environ.get("TEXT_LLM_SERVED_NAME", preset["served_name"])
     responder: StreamingResponder | OpenAIStreamingResponder
     if endpoint:
         responder = OpenAIStreamingResponder(
             endpoint=endpoint,
-            model=os.environ.get("TEXT_LLM_SERVED_NAME", "qwen3-4b-instruct-2507"),
+            model=served_name,
             system_prompt=prompt,
             max_new_tokens=max_new_tokens,
             history_turns=history_turns,
+            chat_template_kwargs=preset["chat_template_kwargs"],
         )
-        model_name = os.environ.get("TEXT_LLM_MODEL", "Qwen/Qwen3-4B-Instruct-2507")
-        model_revision = os.environ.get("TEXT_LLM_REVISION", "cdbee75f17c01a7cc42f958dc650907174af0554")
+        model_name = os.environ.get("TEXT_LLM_MODEL", preset["model"])
+        model_revision = os.environ.get("TEXT_LLM_REVISION", preset["revision"])
         backend = "openai_compatible_stream"
     else:
+        if responder_preset != "qwen3_4b_prompt_v2":
+            raise RuntimeError("only the Qwen3-4B preset can run in-process; set TEXT_LLM_ENDPOINT")
         base = TextResponder()
         if base.model is None or base.tokenizer is None:
             raise RuntimeError(f"responder failed to load: {base.initialization_error}")
@@ -763,11 +835,33 @@ def default_live_components(
         "persian_only_decoding": True,
         "streaming": True,
         "bargein_confirm": "lexical_asr_with_echo_rejection",
+        "responder_preset": responder_preset,
+        "max_new_tokens": max_new_tokens,
     }
+    gate = (
+        make_gate(
+            turn_end_gate,
+            endpoint=endpoint,
+            model=served_name,
+            chat_template_kwargs=preset["chat_template_kwargs"],
+        )
+        if turn_end_gate
+        else None
+    )
+    if gate is not None:
+        identity["turn_end_gate"] = gate.name
+        model_path = getattr(gate, "model_path", None)
+        if model_path is not None:
+            identity["turn_end_model_sha256"] = hashlib.sha256(Path(model_path).read_bytes()).hexdigest()
 
     def bargein_transcriber(audio: np.ndarray) -> str:
         return asr(audio)[0]
 
     return LiveComponents(
-        asr=asr, responder=responder, tts=tts, bargein_transcriber=bargein_transcriber, identity=identity
+        asr=asr,
+        responder=responder,
+        tts=tts,
+        bargein_transcriber=bargein_transcriber,
+        identity=identity,
+        turn_end_gate=gate,
     )

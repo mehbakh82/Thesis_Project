@@ -34,6 +34,16 @@ above the 0.75 limit) and one row that stayed silent at every checkpoint.
   teacher-forcing/free-running gap (exposure bias) remains.
 - This is an in-sample memorization diagnostic. Even a pass would not have
   shown generalization or deployability.
+- External precedent: J-Moshi (Ohashi et al., Interspeech 2025,
+  arXiv:2506.02979), the published adaptation of Moshi to Japanese, also found
+  Moshi's English tokenizer inefficient for its language, replaced it with a
+  32,000-word Japanese SentencePiece model and re-initialized the text
+  embeddings, and then pre-trained on about 60,000 hours of Japanese spoken
+  dialogue (J-CHAT; 128 V100 GPUs for 36 hours) before fine-tuning on 344 hours
+  of stereo dialogue and 602 hours of synthetic dialogue. That is more than 500
+  times this project's 108.6 hours; no public Persian conversational corpus of
+  that scale exists. The tokenizer fix is therefore necessary but, as v7a
+  shows, not sufficient at this data scale.
 
 ## Decision
 

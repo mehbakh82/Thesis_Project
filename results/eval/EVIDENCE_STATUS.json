@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-10-19T07:52:25.749593+00:00",
+  "generated_at": "2026-10-20T10:34:13.207270+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1404,6 +1404,35 @@
       },
       "hardware": "shared NVIDIA H100 host (not a 12-24 GB device; memory budget emulated, compute not)"
     },
+    "end_of_turn_gate": {
+      "status": "present",
+      "evidence_class": "offline_replay_on_development_audio_automatic_labels",
+      "baseline_premature_rate": 0.1976470588235294,
+      "stage1_adopted": false,
+      "chosen": null,
+      "adopted": false,
+      "loopback_test": "not run: no gate met the development rule"
+    },
+    "responder_switch_qualification": {
+      "status": "present",
+      "part2_passed": true,
+      "evidence_class": "automated_browser_loopback_with_automatic_judges",
+      "latency_acceptance": {
+        "plain_mean_le_500ms": true,
+        "plain_p90_le_500ms_failures_counted": true,
+        "elderly_p90_le_500ms_failures_counted": true
+      },
+      "peak_stack_gpu_mib": 11326.0,
+      "coherence_criterion": {
+        "rule": "interrupt mean relevance at most 0.25 below control under both judges",
+        "per_judge": {
+          "gemini": true,
+          "qwen38": true
+        },
+        "met": true
+      },
+      "human_preference": null
+    },
     "listening_study": {
       "status": "pending",
       "evidence_class": null,
@@ -1706,8 +1735,8 @@
     "final_audit": {
       "path": "results/release/final_audit.json",
       "present": true,
-      "bytes": 13604,
-      "sha256": "b42769a8aacb2ec5d711bf7af09d1cf3d0635333c30d0f84813b3961afe02cda"
+      "bytes": 13675,
+      "sha256": "893f2793947714607553be1af681d24db846629de3b03169ea6b937ada7baa93"
     },
     "submission_tag_attestation": {
       "path": "results/release/submission_tag_attestation.json",
@@ -1876,6 +1905,36 @@
       "present": true,
       "bytes": 4741,
       "sha256": "62e55b20715828a8f1fdaa9811d95d346217b41a527a8332c6fd8cb6a51a2d0b"
+    },
+    "closeout_end_of_turn_dev_stage1": {
+      "path": "results/eval/end_of_turn_dev_stage1.json",
+      "present": true,
+      "bytes": 10837,
+      "sha256": "f6dcd15caa365277b145a4f8a74e3271559a18bbc005fc26cd55417685f9dab1"
+    },
+    "closeout_end_of_turn_dev": {
+      "path": "results/eval/end_of_turn_dev.json",
+      "present": true,
+      "bytes": 21105,
+      "sha256": "fbc84016c80af49f41a501bd0c6d1c83b196a9805dac5029abcc05d3a378d504"
+    },
+    "closeout_responder_switch_latency": {
+      "path": "results/eval/responder_switch_qualification_loopback.json",
+      "present": true,
+      "bytes": 3900,
+      "sha256": "44bf1a5fea8d7e59dab76b73c032987af88a654103a48b260dcb0e719756599f"
+    },
+    "closeout_responder_switch_coherence": {
+      "path": "results/eval/responder_switch_qualification_coherence.json",
+      "present": true,
+      "bytes": 4802,
+      "sha256": "9e80a2acc6b5496efcbfa15144a4a230ed9fddb8a874cc4c534fd0985246ee11"
+    },
+    "closeout_responder_switch": {
+      "path": "results/eval/responder_switch_qualification.json",
+      "present": true,
+      "bytes": 1363,
+      "sha256": "309fc683852408072a5e7bd6ec78dae43f437ed2a0b4155cd01974c99e3139d1"
     },
     "closeout_listening_study": {
       "path": "results/eval/listening_study.json",

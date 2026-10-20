@@ -231,15 +231,15 @@
     "directory": "thesis-report",
     "tracked_files": 67,
     "latex_source_files": 32,
-    "source_tree_git_oid": "5751f4d45bb4e0cbb8b06c8d850173ca9758bb05",
-    "release_iteration": 6,
+    "source_tree_git_oid": "f87606921207640295aaa6554f461b8d5e011dd0",
+    "release_iteration": 7,
     "assistant_modified_report_sources_during_release_integration": true,
-    "validation_method": "in-place full rebuild with thesis-report/build.sh all (closeout 2026-10-19); other sections of this receipt describe the earlier release",
+    "validation_method": "in-place full rebuild with thesis-report/build.sh all (closeout 2026-10-20: end-of-turn result, responder switch qualification, J-Moshi precedent); other sections of this receipt describe the earlier release",
     "texlive_image_resolved": "ghcr.io/xu-cheng/texlive-full@sha256:11383430b9a3e48c0b79339f34d8092f942f897d91ab3749d4899d06731fea7f",
     "full": {
       "path": "thesis-report/thesis.pdf",
-      "sha256": "bf550d784942c1dca5686db1b0721b97f45af058b08066a4ceb4dd3c4b07ccac",
-      "bytes": 616915,
+      "sha256": "4c78b35bbc5a43b73512b66f0a02b178d40363e32b7e1493589d2e3a7504d22a",
+      "bytes": 622805,
       "pages": 119,
       "latex_errors": 0,
       "undefined_references_or_citations": 0,
@@ -247,8 +247,8 @@
     },
     "concise": {
       "path": "thesis-report/thesis-short.pdf",
-      "sha256": "129b89d099e61006c1187b1186b409b90492b1b5652d0dc86681e5bfb6cdb653",
-      "bytes": 244402,
+      "sha256": "5b4d580e9e085c744a504dda188a925ed17ca16e5078209b5b1545aa9755e532",
+      "bytes": 246413,
       "pages": 30,
       "page_limit": 30,
       "latex_errors": 0,
@@ -257,8 +257,8 @@
     },
     "scientific_figures_regenerated_to_temporary_output": 8,
     "bibliography": {
-      "cited_keys": 50,
-      "tracked_entries": 50,
+      "cited_keys": 65,
+      "tracked_entries": 65,
       "missing_keys": 0,
       "unused_entries": 0
     },
@@ -266,7 +266,7 @@
     "template_attribution_retained": true,
     "template_license": "CC-BY-4.0",
     "project_license_boundary_documented": true,
-    "updated_at": "2026-10-17"
+    "updated_at": "2026-10-20"
   },
   "qwen35_local_compatibility": {
     "status": "passed",
