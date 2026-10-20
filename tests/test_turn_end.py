@@ -94,14 +94,18 @@ def test_llm_gate_reads_the_digit_probabilities(monkeypatch) -> None:
 
 
 def test_elderly_prompt_is_the_responder_v2_prompt() -> None:
+    import ast
+
     from thesis_s2s.runtime.cascade import ELDERLY_PROMPT_V1
 
-    script = ROOT / "scripts" / "evaluate_responder_candidates_v2.py"
-    spec = importlib.util.spec_from_file_location("responder_v2", script)
-    assert spec and spec.loader
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    assert ELDERLY_PROMPT_V1 == module.ELDERLY_PROMPT_V1
+    # read the frozen evaluator's constant without importing it (it needs Python 3.11)
+    tree = ast.parse((ROOT / "scripts" / "evaluate_responder_candidates_v2.py").read_text(encoding="utf-8"))
+    frozen = next(
+        ast.literal_eval(node.value)
+        for node in tree.body
+        if isinstance(node, ast.Assign) and getattr(node.targets[0], "id", "") == "ELDERLY_PROMPT_V1"
+    )
+    assert ELDERLY_PROMPT_V1 == frozen
     digest = hashlib.sha256(ELDERLY_PROMPT_V1.encode("utf-8")).hexdigest()
     assert digest == "ecaa1293680ecd0534b69b766001ea2dfd0cd3fd78b212f0e3722d0474d909b5"
 
