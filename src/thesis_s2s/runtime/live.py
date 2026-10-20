@@ -837,7 +837,16 @@ def default_live_components(
         "responder_preset": responder_preset,
         "max_new_tokens": max_new_tokens,
     }
-    gate = make_gate(turn_end_gate, endpoint=endpoint, model=served_name) if turn_end_gate else None
+    gate = (
+        make_gate(
+            turn_end_gate,
+            endpoint=endpoint,
+            model=served_name,
+            chat_template_kwargs=preset["chat_template_kwargs"],
+        )
+        if turn_end_gate
+        else None
+    )
     if gate is not None:
         identity["turn_end_gate"] = gate.name
         model_path = getattr(gate, "model_path", None)

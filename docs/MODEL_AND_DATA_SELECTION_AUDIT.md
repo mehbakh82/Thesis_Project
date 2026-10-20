@@ -54,6 +54,7 @@ and a direct speech-input alternative:
 | Direct S2S (Moshi) | v7a: romanized phonemes + word timing | Tokenizer bottleneck confirmed (6.6 vs 2.7 tokens/word); best 6/9 vs 3/9 baseline, still not 9/9 and not intelligible (prefix CER 0.88); v7b not started | `docs/MOSHI_V7_RESULT.md` |
 | Direct speech input | Gemma 4 E4B zero-shot and with a self-distilled speech LoRA | Negative: relevance 1.98 / 2.05 vs 2.80 for the cascade | `docs/SPEECH_INPUT_LLM_V1_RESULT.md` |
 | PersonaPlex | documentary | Same architecture and English tokenizer as Moshi, English-only, no training code — same root cause, not trained | `docs/MOSHI_V7_ROMANIZED_ALIGNMENT_PROTOCOL.md` |
+| J-Moshi (Ohashi et al., Interspeech 2025) | documentary | Published Moshi adaptation to Japanese: replaced the tokenizer (32k Japanese SentencePiece), then pre-trained on ~60,000 h of Japanese dialogue (128 V100 × 36 h) before 344 h stereo + 602 h synthetic fine-tuning — the scale a direct Persian model would need | `docs/MOSHI_V7_RESULT.md` |
 | Barge-in confirm | duration, MLP, lexical ASR confirm variants | **Lexical confirm with echo rejection and a one-frame duck**: test accuracy 0.933, F1 0.880 | `docs/BARGEIN_SIMULATION_RESULT.md` |
 
 ## Current candidate audit

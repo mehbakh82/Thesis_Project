@@ -516,7 +516,7 @@ def main(argv: list[str] | None = None) -> None:
     p_live.add_argument(
         "--turn-end-gate",
         default=None,
-        choices=["lexical", "smart_turn_v3_2", "llm_completeness"],
+        choices=["lexical", "smart_turn_v3_2", "smart_turn_v3_2_fa", "llm_completeness"],
         help="semantic end-of-turn gate (docs/END_OF_TURN_PROTOCOL.md); off by default",
     )
     p_live.add_argument("--turn-end-threshold", type=float, default=None)

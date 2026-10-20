@@ -144,6 +144,10 @@ def main() -> int:
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--protocol", default="docs/LIVE_LATENCY_LOOPBACK_PROTOCOL.md")
     parser.add_argument("--note", default=None, help="free-text provenance note recorded in the receipt")
+    parser.add_argument(
+        "--conditions", nargs="+", default=list(CONDITIONS), choices=CONDITIONS,
+        help="conditions to score (a latency-only run has plain and elderly)",
+    )
     args = parser.parse_args()
     if args.out.exists():
         raise SystemExit(f"refusing to overwrite write-once receipt {args.out}")
@@ -158,7 +162,7 @@ def main() -> int:
         "server_identity": json.loads((args.dir / "health.json").read_text()),
         "conditions": {},
     }
-    for condition in CONDITIONS:
+    for condition in args.conditions:
         path = args.dir / f"{condition}.json"
         receipt = json.loads(path.read_text())
         rows = map_turns(receipt)
@@ -194,6 +198,17 @@ def main() -> int:
     mean = plain["t_first_audio_ms"].get("mean", math.inf)
     p90 = plain["t_first_audio_p90_failures_as_late_ms"]
     p90 = math.inf if p90 is None else p90
+    result["acceptance"] = {
+        "plain_mean_le_500ms": bool(mean <= 500),
+        "plain_p90_le_500ms_failures_counted": bool(p90 <= 500),
+    }
+    if "elderly" in result["conditions"]:
+        elderly_p90 = result["conditions"]["elderly"]["t_first_audio_p90_failures_as_late_ms"]
+        result["acceptance"]["elderly_p90_le_500ms_failures_counted"] = bool(
+            elderly_p90 is not None and elderly_p90 <= 500
+        )
+    if not {"bargein_interrupt", "bargein_backchannel"} <= set(result["conditions"]):
+        return _write(args, result)
     interrupt = result["conditions"]["bargein_interrupt"]
     backchannel = result["conditions"]["bargein_backchannel"]
     tp = round(interrupt["decision_accuracy"] * interrupt["planned_turns"])
@@ -207,20 +222,22 @@ def main() -> int:
         "f1": 2 * precision * recall / (precision + recall) if precision + recall else 0.0,
         "confusion": {"tp": tp, "tn": tn, "fp": fp, "fn": fn},
     }
-    result["acceptance"] = {
-        "plain_mean_le_500ms": bool(mean <= 500),
-        "plain_p90_le_500ms_failures_counted": bool(p90 <= 500),
-        "duck_median_le_150ms": bool(interrupt["t_duck_ms"].get("median", math.inf) <= 150),
-        "bargein_accuracy_and_f1_gt_0_8": bool(
+    result["acceptance"].update(
+        duck_median_le_150ms=bool(interrupt["t_duck_ms"].get("median", math.inf) <= 150),
+        bargein_accuracy_and_f1_gt_0_8=bool(
             result["bargein_pooled"]["accuracy"] > 0.8 and result["bargein_pooled"]["f1"] > 0.8
         ),
-    }
+    )
+    return _write(args, result)
+
+
+def _write(args: argparse.Namespace, result: dict[str, Any]) -> int:
     pids_path = args.dir / "stack_pids.json"
     if pids_path.exists() and (args.dir / "gpu_memory.csv").exists():
         result["gpu_memory"] = memory(args.dir / "gpu_memory.csv", json.loads(pids_path.read_text()))
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
-    print(json.dumps({"acceptance": result["acceptance"], "bargein_pooled": result["bargein_pooled"]}, indent=1))
+    print(json.dumps({"acceptance": result["acceptance"], "bargein_pooled": result.get("bargein_pooled")}, indent=1))
     return 0
 
 

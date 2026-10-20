@@ -46,10 +46,10 @@ PRE_ROLL = int(0.2 * SAMPLE_RATE)
 HANGOVER_MS = 256.0
 SPECULATIVE_MS = 96.0
 LEAD, TAIL = int(0.3 * SAMPLE_RATE), int(1.5 * SAMPLE_RATE)
-CANDIDATES = ("lexical", "smart_turn_v3_2", "llm_completeness")
+CANDIDATES = ("lexical", "smart_turn_v3_2", "llm_completeness", "smart_turn_v3_2_fa")
 THRESHOLDS = (0.3, 0.5, 0.7)
 HOLDS_MS = (640.0, 1024.0)
-COST_ORDER = {"none": -1, "lexical": 0, "smart_turn_v3_2": 1, "llm_completeness": 2}
+COST_ORDER = {"none": -1, "lexical": 0, "smart_turn_v3_2": 1, "smart_turn_v3_2_fa": 1, "llm_completeness": 2}
 TEST_PANELS = ("plain", "elderly", "interruptions", "backchannels", "backchannels_seamless")
 
 

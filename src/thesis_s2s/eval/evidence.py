@@ -107,6 +107,12 @@ ARTIFACTS: dict[str, str] = {
     "closeout_loopback_v2_dev_choice": "results/eval/live_loopback_v2_dev_choice.json",
     "closeout_loopback_v2_failures": "results/eval/live_loopback_v2_failures.json",
     "closeout_interruption_coherence": "results/eval/interruption_coherence_v2.json",
+    "closeout_end_of_turn_dev_stage1": "results/eval/end_of_turn_dev_stage1.json",
+    "closeout_end_of_turn_dev": "results/eval/end_of_turn_dev.json",
+    "closeout_loopback_v3": "results/eval/live_loopback_v3.json",
+    "closeout_loopback_v3_splits": "results/eval/live_loopback_v3_splits.json",
+    "closeout_responder_switch_latency": "results/eval/responder_switch_qualification_loopback.json",
+    "closeout_responder_switch_coherence": "results/eval/responder_switch_qualification_coherence.json",
     "closeout_listening_study": "results/eval/listening_study.json",
 }
 
@@ -1723,6 +1729,12 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
     loopback_v1 = load("closeout_loopback")
     loopback = load("closeout_loopback_v2") or loopback_v1  # the deployed configuration
     study = load("closeout_listening_study")
+    eot_stage1 = load("closeout_end_of_turn_dev_stage1")
+    eot = load("closeout_end_of_turn_dev")
+    loopback_v3 = load("closeout_loopback_v3")
+    splits_v3 = load("closeout_loopback_v3_splits")
+    switch_latency = load("closeout_responder_switch_latency")
+    switch_coherence = load("closeout_responder_switch_coherence")
     asr_arms = asr.get("arms") or {}
     tts_arms = tts.get("arms") or {}
     sim_test = simulation.get("test") or {}
@@ -1849,6 +1861,27 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
             "acceptance": loopback.get("acceptance"),
             "gpu_memory": loopback.get("gpu_memory"),
             "hardware": loopback.get("hardware"),
+        },
+        "end_of_turn_gate": {
+            "status": status(eot or eot_stage1),
+            "evidence_class": "offline_replay_development_then_automated_browser_loopback",
+            "baseline_premature_rate": (eot or eot_stage1).get("baseline", {}).get("premature_rate"),
+            "stage1_adopted": eot_stage1.get("adopted"),
+            "chosen": (eot or {}).get("chosen"),
+            "adopted": (eot or eot_stage1).get("adopted"),
+            "loopback_v3_status": status(loopback_v3),
+            "loopback_v3_acceptance": loopback_v3.get("acceptance"),
+            "loopback_v3_splits": splits_v3.get("pooled"),
+        },
+        "responder_switch_qualification": {
+            "status": status(switch_latency),
+            "evidence_class": "automated_browser_loopback_with_automatic_judges",
+            "latency_acceptance": switch_latency.get("acceptance"),
+            "peak_stack_gpu_mib": (switch_latency.get("gpu_memory") or {}).get("peak_stack_mib"),
+            "coherence_criterion": switch_coherence.get("criterion"),
+            "human_preference": ((study.get("responder_preferences") or {}).get("responder_switch_rule") or {}).get(
+                "human_preference_met"
+            ),
         },
         "listening_study": {
             "status": status(study),

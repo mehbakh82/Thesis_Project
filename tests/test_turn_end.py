@@ -144,3 +144,50 @@ def test_held_pause_merges_a_mid_sentence_pause_into_one_turn(gated: bool) -> No
         assert abs(endpoint["end_sample"] - int(2.15 * SAMPLE_RATE)) <= 1024
     else:  # cut after the first fragment
         assert abs(endpoint["end_sample"] - int(1.1 * SAMPLE_RATE)) <= 1024
+
+
+def _script(name: str):
+    spec = importlib.util.spec_from_file_location(name, ROOT / "scripts" / f"{name}.py")
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_split_comparison_uses_an_exact_mcnemar_test() -> None:
+    splits = _script("compare_loopback_splits")
+    assert splits.mcnemar_exact(0, 0) == 1.0
+    assert splits.mcnemar_exact(6, 0) == pytest.approx(2 / 64)
+    before = {"a": True, "b": True, "c": False, "d": True}
+    after = {"a": False, "b": True, "c": True, "d": False}
+    result = splits.compare(before, after)
+    assert (result["split_before"], result["split_after"]) == (3, 2)
+    assert (result["split_only_before"], result["split_only_after"]) == (2, 1)
+
+
+def test_development_selection_rule(tmp_path) -> None:
+    dev = _script("end_of_turn_dev")
+
+    def rows(premature: int, held: int, n: int = 100) -> list[dict]:
+        return [
+            {"trial": str(i), "condition": "plain", "premature": i < premature,
+             "final_held": premature <= i < premature + held, "added_delay_ms": 0.0,
+             "late_holds": 0, "unended": False}
+            for i in range(n)
+        ]
+
+    (tmp_path / "trials.jsonl").write_text("{}\n")
+    (tmp_path / "replay_none.json").write_text(json.dumps({"none|0.0|256": rows(20, 0)}))
+    (tmp_path / "replay_lexical.json").write_text(json.dumps({
+        "lexical|1.0|640": rows(12, 4),   # eligible, -40%
+        "lexical|1.0|1024": rows(12, 3),  # tie on premature, fewer false holds -> chosen
+    }))
+    (tmp_path / "replay_smart_turn_v3_2.json").write_text(json.dumps({"smart_turn_v3_2|0.5|640": rows(5, 9)}))
+    out = tmp_path / "receipt.json"
+    args = type("A", (), {"work": tmp_path, "out": out})()
+    assert dev.select(args) == 0
+    receipt = json.loads(out.read_text())
+    assert receipt["adopted"] and receipt["chosen"]["hold_ms"] == 1024
+    assert receipt["relative_reduction"] == pytest.approx(0.4)
+    with pytest.raises(SystemExit):
+        dev.select(args)  # write-once

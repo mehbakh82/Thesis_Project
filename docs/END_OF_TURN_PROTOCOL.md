@@ -116,3 +116,31 @@ Automated loopback with recorded and tempo-slowed speech on the shared H100
 host; simulated elderly speech, not real older speakers; development clips are
 podcast segments whose ends are diarization boundaries, not always finished
 sentences.
+
+## Amendment 1 (2026-10-20, after the first stage-2 model, before the corrected one)
+
+Stage 1 adopted nothing (`results/eval/end_of_turn_dev_stage1.json`): every
+zero-shot candidate held more than 5% of the final ends (best false-hold rate
+13.1%, lexical). Inspection of the held final ends showed that many development
+clips end mid-sentence (most often in «که», «این», «رو», «یعنی»), so part of
+every candidate's false-hold rate is correct holding of unfinished clip ends.
+
+Stage 2 examples could not come from the diarized windows (after excluding the
+development and test sessions only 6 windows remained); they were mined from
+the user channel of the training-split conversation pairs (144 sessions,
+9,308 training and 964 validation examples). The first fine-tuned model is
+**invalid**: in the pairs the user channel is cut to digital silence where the
+other speaker takes over, so its *complete* examples ended while the speaker
+was still voicing (last 60 ms at a median −0.8 dB relative to the clip, against
+−13.0 dB for *incomplete* examples cut at a pause). The model learned the cut,
+not the turn end, and on the development trials held 92–97% of final ends. It
+is reported only for that observation.
+
+Correction (the label definition is unchanged; the cut is made the way the
+live gate sees audio): both classes are cut at the last voiced frame before a
+silence of at least 100 ms (Silero offset threshold 0.35, as the endpointer);
+an example is *complete* only if the speaker stopped naturally, that is, at
+least 100 ms of non-silent channel audio follows the last voiced frame of the
+turn. The corrected model is trained with the same settings and scored once on
+the same development trials with the same rule; the loopback test is opened
+only if it is adopted.

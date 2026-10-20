@@ -13,7 +13,7 @@ import os
 import re
 import urllib.request
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 
 import numpy as np
 
@@ -21,6 +21,8 @@ SAMPLE_RATE = 16_000
 DEFAULT_SMART_TURN_PATH = (
     Path(__file__).resolve().parents[3] / "models" / "turn" / "smart-turn-v3.2-cpu.onnx"
 )
+# Stage 2: Smart Turn v3.2 fine-tuned on Persian (scripts/smart_turn_persian.py)
+DEFAULT_SMART_TURN_FA_PATH = DEFAULT_SMART_TURN_PATH.with_name("smart-turn-v3.2-fa.onnx")
 SMART_TURN_REVISION = "f766f81d3cfdf7737ac64aad813d91bbfd56bf93"
 SMART_TURN_SHA256 = "2bb026316b14a660486a75b1733cd3fbab8c2fd0314dc9af7be49f8cca967e4f"
 
@@ -92,8 +94,12 @@ class SmartTurnGate:
     name = "smart_turn_v3_2"
     needs_transcript = False
 
-    def __init__(self, model_path: Path | None = None, threads: int = 2) -> None:
+    def __init__(
+        self, model_path: Path | None = None, threads: int = 2, name: str = "smart_turn_v3_2"
+    ) -> None:
         import onnxruntime as ort
+
+        self.name = name
         from transformers import WhisperFeatureExtractor
 
         path = Path(model_path or os.environ.get("SMART_TURN_MODEL") or DEFAULT_SMART_TURN_PATH)
@@ -120,15 +126,23 @@ class LLMCompletenessGate:
     name = "llm_completeness"
     needs_transcript = True
 
-    def __init__(self, *, endpoint: str, model: str, timeout: float = 2.0) -> None:
+    def __init__(
+        self,
+        *,
+        endpoint: str,
+        model: str,
+        timeout: float = 2.0,
+        chat_template_kwargs: dict[str, Any] | None = None,
+    ) -> None:
         self.endpoint = endpoint.rstrip("/")
         self.model = model
         self.timeout = timeout
+        self.chat_template_kwargs = chat_template_kwargs
 
     def p_complete(self, audio: np.ndarray, transcript: str | None) -> float:
         if not (transcript or "").strip():
             return 0.0
-        body = {
+        body: dict[str, Any] = {
             "model": self.model,
             "messages": [
                 {"role": "system", "content": COMPLETENESS_PROMPT},
@@ -139,6 +153,8 @@ class LLMCompletenessGate:
             "logprobs": True,
             "top_logprobs": 20,
         }
+        if self.chat_template_kwargs:
+            body["chat_template_kwargs"] = self.chat_template_kwargs
         request = urllib.request.Request(
             f"{self.endpoint}/v1/chat/completions",
             data=json.dumps(body).encode("utf-8"),
@@ -158,13 +174,24 @@ class LLMCompletenessGate:
         return probs["1"] / total if total > 0 else 1.0
 
 
-def make_gate(name: str, *, endpoint: str = "", model: str = "") -> TurnEndGate:
+def make_gate(
+    name: str,
+    *,
+    endpoint: str = "",
+    model: str = "",
+    chat_template_kwargs: dict[str, Any] | None = None,
+) -> TurnEndGate:
     if name == "lexical":
         return LexicalGate()
     if name == "smart_turn_v3_2":
         return SmartTurnGate()
+    if name == "smart_turn_v3_2_fa":
+        path = Path(os.environ.get("SMART_TURN_FA_MODEL") or DEFAULT_SMART_TURN_FA_PATH)
+        return SmartTurnGate(model_path=path, name=name)
     if name == "llm_completeness":
         if not endpoint:
             raise ValueError("the LLM completeness gate needs TEXT_LLM_ENDPOINT")
-        return LLMCompletenessGate(endpoint=endpoint, model=model)
+        return LLMCompletenessGate(
+            endpoint=endpoint, model=model, chat_template_kwargs=chat_template_kwargs
+        )
     raise ValueError(f"unknown end-of-turn gate: {name}")
