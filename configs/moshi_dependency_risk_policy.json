@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "status": "temporary-compatibility-exception",
-  "reviewed_at": "2026-08-24",
+  "reviewed_at": "2026-10-20",
   "scope": "Pinned private Moshi training/runtime environment only; not the general application environment.",
   "review_command": ".venv/bin/python scripts/audit_moshi_dependencies.py",
   "accepted_risks": [
@@ -42,7 +42,10 @@
         "PYSEC-2026-237",
         "PYSEC-2026-3545",
         "PYSEC-2026-3546",
-        "PYSEC-2026-3547"
+        "PYSEC-2026-3547",
+        "CVE-2026-111063",
+        "CVE-2026-111064",
+        "GHSA-2g87-pp6c-29x5"
       ],
       "mitigations": [
         "Do not expose the pinned training environment as a public service.",
