@@ -100,3 +100,17 @@ and after inference optimization (`docs/TTS_LAB_VITS_OPTIMIZATION_RESULT.md`).
 Both versions are significantly less intelligible than Mana (two-listener CER
 9.89% and 9.19% against 5.82%), so the voice rule excludes it and the study page
 is unchanged.
+
+## Amendment 2 (2026-10-20, before the page was sent to any participant)
+
+The reply-preference section becomes the human part of a pre-registered
+responder switch rule (`docs/RESPONDER_SWITCH_PROTOCOL.md`): the deployed
+responder changes to Qwen3.5-4B with the elderly prompt only if participants
+prefer its replies (mean per-participant preference difference with a
+bootstrap 95% interval above zero, at least five accepted participants, at
+least two aged 60+, and no participant aged 60+ preferring the deployed reply
+more often) **and** the configuration passes the deployment qualification of
+that protocol. The ingest script computes the human part
+(`responder_switch_rule` in the receipt). The page and its SHA-256 are
+unchanged; this replaces the sentence "it does not by itself change the
+deployed responder" in section 2.
