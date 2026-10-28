@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "status": "temporary-known-scanner-unmapped-exception",
-  "reviewed_at": "2026-09-09",
+  "reviewed_at": "2026-10-28",
   "scope": "General application and optional responder-training requirements resolved by CI.",
   "review_command": ".venv/bin/python scripts/audit_application_dependencies.py",
   "removal_condition": "Remove only if the advisory is withdrawn or after adopting a released compatible Accelerate version declared unaffected/fixed; scanner-feed disappearance alone is not remediation.",
@@ -24,6 +24,32 @@
         "Do not accept model paths, checkpoint indexes, shard paths, FIFOs, or other model artifacts from browser/API request payloads.",
         "Keep model loading local and single-operator; this exception does not authorize a public multi-tenant model-loading service.",
         "The drift audit fails on any package/version/advisory change and makes a stale exception fail once the finding disappears."
+      ]
+    },
+    {
+      "package": "filelock",
+      "version": "4.1.0",
+      "upstream_constraint": "All six advisories are fixed in filelock 4.2.1, and every fixed release requires Python >= 3.11. The CI floor job resolves the declared minimum, Python 3.10, where 4.1.0 is the newest installable release. Python >= 3.11 installs require the fixed release (pyproject.toml and requirements.txt).",
+      "references": [
+        "https://github.com/advisories/GHSA-2g95-wg33-c5x2",
+        "https://github.com/advisories/GHSA-567q-5qvw-pf92",
+        "https://github.com/advisories/GHSA-9vhv-jxww-xfm5",
+        "https://github.com/advisories/GHSA-crv4-6mhj-j5jh",
+        "https://github.com/advisories/GHSA-jqc4-5cvw-7w85",
+        "https://github.com/advisories/GHSA-v4x8-3wr5-3wq8"
+      ],
+      "advisories": [
+        "CVE-2026-112906",
+        "CVE-2026-112907",
+        "CVE-2026-112913",
+        "CVE-2026-112914",
+        "CVE-2026-112937",
+        "CVE-2026-112940"
+      ],
+      "mitigations": [
+        "Python 3.11+ environments, including the deployed Python 3.12 runtime, require the fixed filelock >= 4.2.1.",
+        "Each advisory needs another local user who can write next to the project's lock files (or a Windows host): run the system under a dedicated account with private model and Hugging Face cache directories that untrusted local users cannot write to.",
+        "Remove this exception when the supported Python floor is raised to 3.11."
       ]
     }
   ]
