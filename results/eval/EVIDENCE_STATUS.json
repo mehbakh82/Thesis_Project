@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-10-20T10:34:13.207270+00:00",
+  "generated_at": "2026-10-28T07:02:22.989737+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1735,8 +1735,8 @@
     "final_audit": {
       "path": "results/release/final_audit.json",
       "present": true,
-      "bytes": 13675,
-      "sha256": "893f2793947714607553be1af681d24db846629de3b03169ea6b937ada7baa93"
+      "bytes": 14503,
+      "sha256": "76498545deadfca189ada24f780899f15456270e6f1b896cabdbce34fa4a929e"
     },
     "submission_tag_attestation": {
       "path": "results/release/submission_tag_attestation.json",

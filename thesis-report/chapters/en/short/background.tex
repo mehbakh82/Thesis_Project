@@ -1,0 +1,115 @@
+\chapter{Background and Key Concepts}
+\label{ch:background}
+
+This chapter gives only the concepts needed to read the method and the results,
+and positions the project against prior work.
+
+\section{Two Families of Architectures}
+
+Spoken dialogue systems fall into two families. In the \textbf{cascade} family,
+speech recognition, a text dialogue engine and text-to-speech run separately.
+This architecture is auditable and replaceable, but component latencies add up
+and each stage's errors propagate to the next. In the \textbf{end-to-end}
+family, the model goes directly from speech to speech. Natively full-duplex
+models such as Moshi model two audio streams in parallel and need no explicit
+speech segmentation for turn-taking.
+
+The project definition is end-to-end in spirit, but the bachelor's budget and
+the lack of an official Persian trainer made the cascade unavoidable as the
+delivered system.
+
+\section{Language Models, Low-Rank Adaptation and Exposure Bias}
+
+The project's text responder is an instruction-following model. Full fine-tuning
+of a multi-billion-parameter model on limited hardware was not practical, so the
+direct track used LoRA~\cite{hu2022lora}: the weight update is the product of
+two low-rank matrices added to the frozen weight.
+
+The decisive point for interpreting the direct-track results is the difference
+between training and inference. In training, the model sees the previous
+reference token at every step; this is \textbf{teacher forcing}, and the
+reported loss is computed under it. At inference, the model must condition on
+its own generated tokens. If the two distributions drift apart, errors
+accumulate. This mismatch is called \textbf{exposure
+bias}~\cite{ranzato2016scheduledsampling}, and its standard remedy is scheduled
+sampling~\cite{bengio2015scheduledsampling}. The practical consequence is
+explicit: lower teacher-forced loss does not guarantee valid autoregressive
+generation.
+
+\section{Recognition, Synthesis and Interruption Features}
+
+The system's speech recognizer is a hybrid RNNT-CTC model of the Conformer
+family, run locally with the NeMo stack~\cite{kuchaiev2019nemo}. Text-to-speech
+uses the Piper engine~\cite{piper2023} with a Persian voice.
+
+The interruption detector computes classical features on a rolling window:
+energy, zero-crossing rate, MFCCs~\cite{davis1980mfcc} and the fundamental
+frequency by YIN~\cite{decheveigne2002yin}. The classifier is gradient
+boosting~\cite{friedman2001gbm}. Confidence intervals for accuracy are reported
+with the Wilson method~\cite{wilson1927interval} and block-wise at the session
+level. In human conversation, turn-taking gaps are often around
+200 ms~\cite{skantze2021turntaking}, so the interruption decision must be made
+much faster than a complete reply is generated.
+
+\section{Position Among Prior Work}
+\label{sec:positioning}
+
+Mini-Omni2 and LLaMA-Omni2 have inference repositories but provide no complete,
+official speech-to-speech trainer. Freeze-Omni is full duplex, but its trainer
+is incomplete for a new language. Qwen2.5-Omni does not list Persian among its
+spoken input and output languages, and its 7-billion-parameter version is
+outside the target memory range. PersonaPlex~\cite{roy2026personaplex},
+built on Moshi, conditions role and voice, but at the time of this project's
+decision no official, available trainer for a new language existed. Among the
+models reviewed, only the Moshi family met all three conditions of the direct
+track: native full duplex, open weights, and an official low-rank adaptation
+trainer.
+
+For Persian, single-speaker read-speech resources are no substitute for an
+interactive conversational corpus. Table~\ref{tab:positioning} summarizes the
+comparison.
+
+\begin{table}[ht]
+\centering
+\caption{This project compared with prior work on the capabilities of the project definition}
+\label{tab:positioning}
+\small
+\begin{tabular}{L{2.9cm}ccccc}
+\toprule
+\textbf{Work} & \textbf{Full} & \textbf{Open} & \textbf{Official} &
+\textbf{Persian} & \textbf{Memory} \\
+              & \textbf{duplex} & \textbf{weights} & \textbf{trainer} &
+\textbf{support} & \textbf{range} \\
+\midrule
+Mini-Omni2   & command-based & yes & no & no & fits \\
+LLaMA-Omni2  & no & yes & no & no & fits \\
+Freeze-Omni  & yes & yes & partial & no & fits \\
+Qwen2.5-Omni & yes & yes & no & no & does not fit \\
+Moshi        & native & yes & yes & no & does not fit \\
+PersonaPlex  & native & yes & partial & no & does not fit \\
+\midrule
+This project, cascade & external control & yes & not needed & yes & fits \\
+This project, direct  & native & yes & yes & failed & does not fit \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.5em}
+{\footnotesize\itshape The ``memory range'' column is the fit to the 12--24 GB of
+the project definition, not the scientific quality of a model. ``Failed'' for
+the direct track means failing the autoregressive runtime condition, not a loss
+that did not decrease.\par}
+\end{table}
+
+\section{Measures and Model Judging}
+
+The mechanical quality of the chain is measured by whether a row passes the
+conditions of a Persian transcript, a Persian reply and non-silent audio.
+Content preservation of the generated speech is approximated by
+re-recognition and character and word error rates; this measure is not human
+intelligibility. The semantic quality of replies was measured by an LLM judge
+on relevance and coherence, double-blind and with two repetitions. Because the
+judge and the candidate are of the same family, the result stays in the class
+of ``same-family automatic approximation'' and is no substitute for human
+evaluation or the ITU-T P.800 standard~\cite{itu1996p800}. Training,
+validation and test splits are always based on the source session identifier,
+so that no group leakage occurs.

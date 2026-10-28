@@ -229,17 +229,17 @@
   "thesis_reports": {
     "status": "passed",
     "directory": "thesis-report",
-    "tracked_files": 67,
-    "latex_source_files": 32,
-    "source_tree_git_oid": "f87606921207640295aaa6554f461b8d5e011dd0",
-    "release_iteration": 7,
+    "tracked_files": 90,
+    "latex_source_files": 53,
+    "source_tree_git_oid": "3f6dfe81d1b97f29718bacf376c065953807b48c",
+    "release_iteration": 8,
     "assistant_modified_report_sources_during_release_integration": true,
-    "validation_method": "in-place full rebuild with thesis-report/build.sh all (closeout 2026-10-20: end-of-turn result, responder switch qualification, J-Moshi precedent); other sections of this receipt describe the earlier release",
+    "validation_method": "in-place full rebuild with thesis-report/build.sh everything (closeout 2026-10-28: English editions added; Persian method, limitation and abstract statements corrected); other sections of this receipt describe the earlier release",
     "texlive_image_resolved": "ghcr.io/xu-cheng/texlive-full@sha256:11383430b9a3e48c0b79339f34d8092f942f897d91ab3749d4899d06731fea7f",
     "full": {
       "path": "thesis-report/thesis.pdf",
-      "sha256": "4c78b35bbc5a43b73512b66f0a02b178d40363e32b7e1493589d2e3a7504d22a",
-      "bytes": 622805,
+      "sha256": "2f40d4aade4dec3240ee19a31e1b8895ddb781838070897ed8a49f5ac07adc8d",
+      "bytes": 622940,
       "pages": 119,
       "latex_errors": 0,
       "undefined_references_or_citations": 0,
@@ -247,8 +247,8 @@
     },
     "concise": {
       "path": "thesis-report/thesis-short.pdf",
-      "sha256": "5b4d580e9e085c744a504dda188a925ed17ca16e5078209b5b1545aa9755e532",
-      "bytes": 246413,
+      "sha256": "cb1b073bb67f138bf2c61287a9a0c6fb5f4b733b94d25cd6dde70d81478778ae",
+      "bytes": 246390,
       "pages": 30,
       "page_limit": 30,
       "latex_errors": 0,
@@ -266,7 +266,30 @@
     "template_attribution_retained": true,
     "template_license": "CC-BY-4.0",
     "project_license_boundary_documented": true,
-    "updated_at": "2026-10-20"
+    "updated_at": "2026-10-28",
+    "english_full": {
+      "path": "thesis-report/thesis-en.pdf",
+      "sha256": "261cbc4740cee45c9f89b2b1013857fe7d2bbf3c5b2b515243640acd1c3dc492",
+      "bytes": 562310,
+      "pages": 108,
+      "latex_errors": 0,
+      "undefined_references_or_citations": 0,
+      "worst_overfull_hbox_pt": 0.0,
+      "language": "en",
+      "translation_of": "thesis-report/thesis.pdf"
+    },
+    "english_concise": {
+      "path": "thesis-report/thesis-short-en.pdf",
+      "sha256": "aa20aa81f5b3e57d3ff0fd584f1a23f7e38bb1007dcead8730167e4876c61e95",
+      "bytes": 184170,
+      "pages": 28,
+      "latex_errors": 0,
+      "undefined_references_or_citations": 0,
+      "worst_overfull_hbox_pt": 0.0,
+      "language": "en",
+      "page_limit": 30,
+      "translation_of": "thesis-report/thesis-short.pdf"
+    }
   },
   "qwen35_local_compatibility": {
     "status": "passed",

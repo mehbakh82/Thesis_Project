@@ -1,0 +1,50 @@
+% English edition of the full B.Sc. project report (the Persian original is
+% thesis.tex). Numbers, requirements and claim boundaries are the same in both.
+
+\documentclass[oneside,a4paper,12pt]{book}
+
+\input{styles/english.tex}
+
+\begin{document}
+
+\input{front/info}
+\pagestyle{empty}
+\include{front/en/title}
+
+\pagestyle{plain}
+\pagenumbering{roman}
+
+\include{front/en/acknowledge}
+\include{front/en/abstract}
+
+\tableofcontents \newpage
+\listoftables \newpage
+\listoffigures \newpage
+
+\pagenumbering{arabic}
+
+\include{chapters/en/introduction}
+\include{chapters/en/preliminaries}
+\include{chapters/en/literature}
+\include{chapters/en/method}
+\include{chapters/en/results}
+\include{chapters/en/discussion}
+\include{chapters/en/conclusions}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{References}
+\begingroup
+\linespread{1.0}\selectfont
+\bibliographystyle{./styles/packages/unsrtabbrv}
+\bibliography{bibs/full,bibs/refs}
+\endgroup
+
+\begin{appendix}
+\include{chapters/en/appendix}
+\end{appendix}
+
+\pagestyle{empty}
+\include{front/en/abstract-fa}
+
+\end{document}

@@ -154,6 +154,8 @@ FINAL_AUDIT_HASH_BINDINGS = {
     ("apache_closeout", "license_sha256"): "LICENSE",
     ("thesis_reports", "full", "sha256"): "thesis-report/thesis.pdf",
     ("thesis_reports", "concise", "sha256"): "thesis-report/thesis-short.pdf",
+    ("thesis_reports", "english_full", "sha256"): "thesis-report/thesis-en.pdf",
+    ("thesis_reports", "english_concise", "sha256"): "thesis-report/thesis-short-en.pdf",
     ("qwen35_local_compatibility", "artifact_sha256"): ("results/hardware/qwen35_local_smoke.json"),
 }
 

@@ -213,7 +213,7 @@
   dashar/.style={ar,dashed}
 ]
 \node[client] (mic) at (0,0) {browser mic\\20 ms PCM16 frames\\+ playback level};
-\node[box] (vad)  at (3.2,-2.3) {Silero VAD endpointer\\speculative 160 ms\\confirm 256 ms};
+\node[box] (vad)  at (3.2,-2.3) {Silero VAD endpointer\\speculative 96 ms\\confirm 256 ms};
 \node[box] (asr)  at (6.4,-2.3) {NeMo v4 CTC\\ASR};
 \node[box] (llm)  at (9.6,-2.3) {Qwen3-4B (vLLM)\\streamed, Persian-only};
 \node[box] (tts)  at (12.8,-2.3) {clause chunker\\+ Mana Piper (CPU)};
@@ -254,7 +254,8 @@
 \subsection{تشخیص پایان گفتار و آغاز پیش‌دستانه}
 
 هر قاب با آشکارساز فعالیت گفتار \en{Silero} (\en{ONNX}) امتیاز می‌گیرد.
-پس از \N{160} میلی‌ثانیه سکوت، نوبت «پیش‌دستانه» آغاز می‌شود: بازشناسی،
+پس از \N{96} میلی‌ثانیه سکوت (برگزیده روی گفته‌های توسعه؛ اجرای نخست \N{160})،
+نوبت «پیش‌دستانه» آغاز می‌شود: بازشناسی،
 تولید متن و تولید گفتار اجرا می‌شوند، اما صوت آن پشت یک دریچه نگه داشته
 می‌شود. اگر سکوت به \N{256} میلی‌ثانیه برسد، پایان گفتار قطعی می‌شود و
 بندهای نگه‌داشته به ترتیب آزاد می‌شوند؛ اگر کاربر پیش از آن دوباره سخن

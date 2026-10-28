@@ -1,0 +1,142 @@
+\chapter{Introduction}
+\label{ch:intro}
+
+This document is the \textbf{concise edition} of the B.Sc. project report. The
+full report, with seven chapters, a glossary and a reproduction appendix, is a
+separate file. Numbers, requirements and claim boundaries are the same in both
+editions; what is shortened is explanation and repetition, not results.
+
+Spoken conversation is the most natural form of human--machine interaction, but
+until recently it was almost always built from a chain of independent
+components. Models such as Moshi~\cite{defossez2024moshi} and
+Freeze-Omni~\cite{wang2025freezeomni} showed that dialogue can be modelled as a
+single ``speech-to-speech'' problem, with one model that listens and speaks at
+the same time. This shift has happened for high-resource languages. For Persian,
+none of the open models offers official support, and no conversational corpus
+with interruption labels is publicly available.
+
+The practical question of the project is: with the budget of a bachelor's
+project, how far can one go in building a full-duplex Persian speech-to-speech
+system, and what can be ``proven'' with auditable evidence?
+
+\section{Problem Definition}
+\label{sec:problem}
+
+The defined goal is to design, implement and evaluate a prototype
+speech-to-speech large language model for Persian. The system must be full
+duplex: the user's microphone stays active while the reply plays, and the system
+must be able to react to the user's ``interruption'' (barge-in). Three properties
+separate this problem from conventional spoken question answering: listening and
+speaking at the same time; a decision to stop playback within a few tens of
+milliseconds; and continuity with what the user says at the moment of the
+interruption, so that the user does not have to repeat the sentence.
+
+\section{Motivation}
+
+A speech interface can be the only effective way to use digital services for
+users who are not comfortable with a Persian keyboard, for people with low
+vision, and in particular for older adults. Persian speech recognition and
+text-to-speech resources exist; a prominent example is
+ManaTTS~\cite{qharabagh2025manatts}, with more than 86 hours of single-speaker
+speech. These resources are read speech, however, and do not cover overlap,
+interruptions or backchannels. On the other hand, current models such as
+Qwen2.5-Omni~\cite{xu2025qwen25omni} need far more memory for their 7-billion
+parameter version than the 12--24 GB range. Showing what is and is not
+achievable within this range is itself an engineering result.
+
+\section{Defined Requirements}
+\label{sec:requirements}
+
+The project definition sets seven specific requirements
+(Table~\ref{tab:requirements}). The expected outputs are four items: a working
+prototype, documented source code, a Persian conversational dataset, and
+findings on interaction with older adults. For the fourth item, the measurement
+protocol and infrastructure are ready; its empirical finding can only be
+claimed once the human study is complete, so this report makes no claim about
+the experience of older adults.
+
+\begin{table}[ht]
+\centering
+\caption{The seven requirements of the project definition}
+\label{tab:requirements}
+\small
+\begin{tabular}{clL{6.6cm}}
+\toprule
+\textbf{ID} & \textbf{Requirement} & \textbf{Specified measure} \\
+\midrule
+R1 & Persian speech-to-speech prototype & Persian spoken reply generated from
+      Persian spoken input \\
+R2 & Full-duplex operation & Listening during playback and reacting to
+      interruptions \\
+R3 & End-to-end latency & At most 500 ms from receiving speech to producing the
+      spoken reply \\
+R4 & Persian conversational dataset & 100--200 hours of speech with noise,
+      overlap and interruptions \\
+R5 & Interruption detection module & Accuracy above 80\% with energy, pitch and
+      MFCC features \\
+R6 & Evaluation on target hardware & A GPU with 12--24 GB of memory \\
+R7 & Human evaluation & 5--10 Persian speakers, at least two aged over 60 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Two-Track Strategy and Challenges}
+\label{sec:two-track}
+
+Four challenges determined the final shape of the work: the lack of an official
+training path for Persian in models such as Mini-Omni2~\cite{xie2024miniomni2}
+and LLaMA-Omni2~\cite{fang2025llamaomni2}; the lack of a labelled Persian
+conversational corpus; the gap between reducing offline loss and valid
+autoregressive generation; and the boundary between engineering evidence and
+scientific claims.
+
+To reduce risk, two tracks were pursued in parallel. The direct track is
+low-rank adaptation of Moshika with the official trainer of the Moshi
+family~\cite{moshifinetune2024}. The cascade track is a chain of Persian speech
+recognition, a text language model and text-to-speech, on top of which
+full-duplex control and interruption logic are built separately. Both tracks
+used the same dataset. The outcome was asymmetric: the cascade track reached a
+streaming full-duplex system that meets the numeric latency and interruption
+criteria in automated tests, and the direct track is reported as a negative
+result together with its measured cause.
+
+\section{Contributions}
+\label{sec:contributions}
+
+\begin{enumerate}
+\item \textbf{A streaming full-duplex Persian voice assistant.} Open
+      microphone, speculative end-of-speech detection and clause-by-clause
+      playback; in browser loopback, a mean latency of 372 ms and a 90th
+      percentile of 431 ms with 11.1~GiB of GPU memory.
+
+\item \textbf{Two-stage interruption detection.} Ducking after one frame and a
+      lexical confirmation with echo rejection; accuracy 0.933/F1 0.880 in
+      simulation and 0.825 in the browser, against 0.574 for an acoustic
+      classifier alone.
+
+\item \textbf{An audited dataset.} 6,754 pairs with 108.584 hours of audio,
+      session-based splits and zero group leakage.
+
+\item \textbf{Evidence-based component selection.} A final semantic test
+      (3.150 versus 1.425) and re-selection of the recognizer, responder and
+      synthesizer on fresh panels.
+
+\item \textbf{A measured cause for the failure of the direct track.} Seven
+      generations of Moshika and one speech-input model; the tokenizer
+      bottleneck is real but not the only obstacle.
+
+\item \textbf{An evidence-first method.} Protocols were registered before
+      running, test splits were opened once, and artifacts are write-once.
+\end{enumerate}
+
+Latency and interruption evidence is automated and on an H100, and the results
+of the listening study are not yet available.
+
+\section{Structure of This Report}
+
+Chapter~\ref{ch:background} condenses the necessary concepts and the position of
+the work. Chapter~\ref{ch:method} describes how the data were built, the cascade
+architecture, the interruption detector, the direct-track experiments and the
+evidence classes. Chapter~\ref{ch:results} reports the measured results with the
+claim boundary of each. Chapter~\ref{ch:conclusions} summarizes the
+interpretation, limitations and future work.

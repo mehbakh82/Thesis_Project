@@ -18,7 +18,7 @@ def test_reviewed_moshi_dependency_policy_is_well_formed() -> None:
     expected, errors = _expected_findings(_load_object(DEFAULT_POLICY))
 
     assert errors == []
-    assert set(expected) == {"aiohttp", "sentencepiece", "torch"}
+    assert set(expected) == {"aiohttp", "certifi", "filelock", "pillow", "sentencepiece", "setuptools", "torch"}
     assert all(finding["advisories"] for finding in expected.values())
 
 
@@ -47,13 +47,34 @@ def test_reviewed_application_dependency_policy_is_narrow() -> None:
             "version": "1.15.0",
             "advisories": {"CVE-2026-69112"},
             "allow_unreported_by_scanner": True,
-        }
+        },
+        # Python 3.10 floor only: every fixed filelock release needs Python 3.11.
+        "filelock": {
+            "version": "4.1.0",
+            "advisories": {
+                "CVE-2026-112906",
+                "CVE-2026-112907",
+                "CVE-2026-112913",
+                "CVE-2026-112914",
+                "CVE-2026-112937",
+                "CVE-2026-112940",
+            },
+            "allow_unreported_by_scanner": False,
+        },
     }
+
+
+def test_filelock_floor_applies_wherever_the_fix_installs() -> None:
+    pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
+    requirements = Path("requirements.txt").read_text(encoding="utf-8")
+    assert "\"filelock>=4.2.1; python_version >= '3.11'\"" in pyproject
+    assert 'filelock>=4.2.1; python_version >= "3.11"' in requirements
 
 
 def test_known_scanner_unmapped_risk_requires_exact_resolved_version() -> None:
     expected, errors = _expected_findings(_load_object(APPLICATION_POLICY))
     assert errors == []
+    expected = {"accelerate": expected["accelerate"]}  # the scanner-unmapped entry
 
     assert _compare_findings(expected, {}, {"accelerate": "1.15.0"}) == []
     drift = _compare_findings(expected, {}, {"accelerate": "1.16.0"})

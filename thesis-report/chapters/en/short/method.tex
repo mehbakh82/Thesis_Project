@@ -1,0 +1,233 @@
+\chapter{Proposed Method and Implementation}
+\label{ch:method}
+
+This chapter describes the structure of the delivered system, the data
+pipeline, the interruption detector, the design of the direct-track experiments,
+and the evidence-first way of working.
+
+\section{Early Attempt and Revision}
+\label{sec:early-attempt}
+
+The first implementation was based on LLaMA-Omni2: a frozen Whisper encoder, a
+projector, the Qwen2.5-0.5B~\cite{qwen2025qwen25} language model with a LoRA
+adapter, and separate recognition and generation heads. The loss decreased, but
+an internal audit found three fundamental defects: the language model did not
+take part in the forward pass; the recognition target used per-process random
+hashes; and the generation target was reconstruction of the input utterance,
+not a conversational reply. That artifact was not a speech-to-speech model. Two
+decisions followed from this audit: serving moved to a cascade with real
+components, and for the direct track only a model with an official trainer was
+accepted.
+
+\section{Dataset Construction}
+\label{sec:data}
+
+No public Persian corpus with interruption labels was available. The dataset was
+derived from an internal archive of spoken content from four channels. Internal
+research use was recorded with the supervisor's approval; this approval is not a
+licence to redistribute the raw audio or captions, and no restricted data are in
+the code repository.
+
+In the first design, text labels were produced by re-running the speech
+recognition service. That same service had earlier been tuned on the captions of
+these channels, which created a circular loop. Once this was identified, the
+text labels were switched to the original source captions, and recognition was
+kept only as a runtime component and a measurement tool.
+
+The pipeline is: a caption inventory of 775.887 hours, weighted programme
+selection, reconstruction of fifteen-minute windows, speaker diarization, noise
+condition labels, extraction of ``user speech / response'' pairs without reuse,
+and an audited stereo export with channel zero for the reconstructed assistant
+and channel one for the user. Train/validation/test splits are by source session
+identifier. The interaction labels are automatic candidates, and the number of
+human-verified rows is zero.
+
+\section{Architecture of the Streaming Cascade}
+\label{sec:cascade}
+
+The delivered system is a streaming cascade with full-duplex control
+(Figure~\ref{fig:arch}). The first version worked with a push-to-talk button and
+built the whole reply before playback (about 2.2 seconds to the first audio). In
+the final version the stages overlap: the end of speech is detected
+automatically, generation starts speculatively, tokens arrive as a stream, and
+each clause is synthesized and played as soon as it is complete.
+
+\begin{figure}[ht]
+\centering
+\scalebox{0.92}{%
+\begin{tikzpicture}[
+  box/.style={draw,rounded corners=2pt,align=center,font=\scriptsize,
+              minimum height=9mm,inner sep=3pt,text width=23mm},
+  client/.style={box,fill=black!5},
+  lbl/.style={font=\scriptsize,inner sep=1.5pt,fill=white},
+  ar/.style={-{Latex[length=1.8mm]},thin},
+  dashar/.style={ar,dashed}
+]
+\node[client] (mic) at (0,0) {browser mic\\20 ms PCM16 frames\\+ playback level};
+\node[box] (vad)  at (3.2,-2.3) {Silero VAD endpointer\\speculative 96 ms\\confirm 256 ms};
+\node[box] (asr)  at (6.4,-2.3) {NeMo v4 CTC\\ASR};
+\node[box] (llm)  at (9.6,-2.3) {Qwen3-4B (vLLM)\\streamed, Persian-only};
+\node[box] (tts)  at (12.8,-2.3) {clause chunker\\+ Mana Piper (CPU)};
+\node[box] (dtd)  at (3.2,0) {double-talk detector\\+ Silero: \emph{duck}};
+\node[box] (lex)  at (6.4,0) {lexical confirm\\(ASR, echo words,\\listener tokens)};
+\node[client] (spk) at (12.8,0) {browser playback\\queue: duck / stop};
+\draw[ar] (mic) |- (vad.west) node[lbl,pos=0.75] {listening};
+\draw[ar] (vad) -- (asr);
+\draw[ar] (asr) -- (llm);
+\draw[ar] (llm) -- (tts);
+\draw[ar] (tts) -- (spk) node[lbl,midway] {per clause};
+\draw[ar] (mic) -- (dtd) node[lbl,midway,above=1pt] {while speaking};
+\draw[ar] (dtd) -- (lex);
+\draw[ar] (lex) -- (spk) node[lbl,midway] {stop / resume};
+\draw[dashar] (lex.south) -- ++(0,-0.6) -| (vad.north east)
+      node[lbl,pos=0.3] {stop: 200 ms pre-roll + speech to next turn};
+\end{tikzpicture}}
+\caption{The streaming architecture. The bottom row is reply generation while
+         listening; the top row is interruption control while the assistant
+         speaks.}
+\label{fig:arch}
+\end{figure}
+
+The browser client captures the microphone continuously and sends one frame
+every 20 ms (a sequence number, the level of the assistant audio being played,
+and 320 PCM16 samples); it schedules the reply clauses on a playback queue and
+reports timings with its own clock. The Silero detector starts a speculative turn
+after 96 ms of silence and holds its audio until the end of speech is confirmed
+at 256 ms; if the user continues, the turn is cancelled and the speech is added
+to the same turn. Recognition uses NeMo version 4 (CTC), which the candidate
+comparison found to be the most accurate candidate within the latency budget.
+The reply is generated by Qwen3-4B-Instruct-2507~\cite{qwen2025qwen3} with the
+locked v2 prompt, streamed from vLLM with two turns of history, and a
+``Persian script only'' constraint is applied during decoding through
+structured output. The text is cut at clause boundaries (a first fragment of 2--4
+words, then at most 14 words), and each fragment is synthesized with Piper and
+the Mana voice on the CPU.
+
+The nine-row mechanical panel and the earlier re-recognition measure were run on
+the chain before the upgrade (Qwen2.5-0.5B-Instruct); the 40-row semantic test
+is on Qwen3-4B with the Qwen3.8-27B-FP8 judge.
+
+\section{Interruption Detection and the Full-Duplex Layer}
+\label{sec:bargein}
+
+While the assistant speaks, a two-stage controller inspects the frames. Stage
+one: a frame must be speech and louder, by a margin, than the expected echo of
+the assistant's voice (the playback level reported by the client plus an
+estimated coupling factor, assumed conservatively at the start of each reply and
+then adapted); one such frame ducks the assistant --- a ``detect and adapt''
+reaction with a 150 ms target. Stage two: the speech captured since the onset of
+the interruption is transcribed by the same recognizer; listener tokens
+(\fa{آره}, \fa{بله}, \fa{اوهوم}, \ldots), words of the reply being played
+(residual echo) and function words are discarded. If any word remains, playback
+stops, generation is cancelled, and the user's speech, with a 200 ms pre-roll,
+becomes the next turn; otherwise the volume returns and the reply continues.
+Development runs of the simulation showed that a confirmation based on speech
+duration or on an acoustic classifier does not separate long backchannels, loud
+noise and echo from interruptions.
+
+Evaluation has three levels: a classifier test on podcast events with
+independent two-pass automatic Gemini labels, a deployment simulation built from
+real recordings, and loopback testing with a real browser. The test
+backchannels were selected with a different recognition model
+(SeamlessM4T~v2), so that the lexical confirmation is not circular.
+
+\section{Design of the Direct-Track Experiments}
+\label{sec:direct}
+
+The direct track is low-rank adaptation of Moshika with the official trainer. The
+input is the stereo export of Section~\ref{sec:data}. The loss is a weighted
+combination of the text loss and the audio-token loss.
+
+The runtime acceptance condition was locked before training: the adapter is
+loaded in the official streaming server, and for each of nine predefined rows
+there must be text, non-silent speech and the Persian-script constraint. A
+checkpoint is eligible only with 9/9. The condition is deliberately strict,
+because the lowest validation loss in the first version gave almost silent audio
+without text.
+
+The experiments are a chain of falsifiable hypotheses, and in each generation
+mostly one factor changed (Table~\ref{tab:moshi-design}). Version v6.2 is a
+capacity test, not a generalization test: training and evaluation on the same
+32 samples, a 12-second window, and scheduled dropout of the text input from
+0.25 to 0.75. If the loss does not decrease even on training data, the problem
+is capacity; if it decreases but runtime fails, the problem is exposure bias.
+
+\begin{table}[ht]
+\centering
+\caption{Design of the seven experimental generations of the direct track}
+\label{tab:moshi-design}
+\small
+\begin{tabular}{lL{3.6cm}L{5.0cm}c}
+\toprule
+\textbf{Version} & \textbf{Changed factor} & \textbf{Tested hypothesis} &
+\textbf{Rank} \\
+\midrule
+v1 & base configuration, 20-second window &
+the model learns Persian speech with enough data & 64 \\
+v2 & 100-second text window &
+a short window does not fit the start of the reply in context & 64 \\
+v3 & frozen embeddings, higher rank &
+training the embeddings damages the base representation & 128 \\
+v4 & only the two text embeddings &
+only the Persian text space needs adaptation & 128 \\
+v5 & first-codebook loss weight from 100 to 10 &
+a heavy semantic-codebook weight stifles acoustic learning & 128 \\
+v6.2 & in-sample capacity test, 12-second window &
+the model has capacity and the problem is exposure bias & 64 \\
+v7a & romanized phoneme text, word-level timing &
+the tokenizer breaks the one-token-per-frame budget & 64 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The final audit revealed a structural cause that the first six generations had
+not tested: Moshi's English tokenizer needs 6.6 tokens per Persian word (55\%
+byte fallback), while the model produces at most one text token per 12.5 Hz
+frame; 98.5\% of turns exceeded this budget. Version v7a made the inner-monologue
+text a romanization of the phonemes Piper actually spoke (2.7 tokens per word)
+with word-by-word timing, and kept the other conditions of the capacity test
+fixed. The second direct track is Gemma~4~E4B, which hears audio directly; it was
+measured against the cascade zero-shot and with a DiVA-style self-distillation
+LoRA adapter (3,817 turns, 11.2 hours).
+
+\clearpage
+\section{Evidence-First Method}
+\label{sec:evidence-first}
+
+Five operating rules were applied. One: the protocol, row indices and thresholds
+are registered before running. Two: semantic evaluation has two stages; only
+after the seven-row qualification passes completely is the final test opened,
+once. The Qwen3.8-27B-FP8 judge runs at temperature zero, in blind order and
+with two repetitions. Three: result artifacts are write-once. Four: each
+measurement has an evidence class (Table~\ref{tab:evidence-classes}), and only
+the official class can prove a requirement of the project definition. Five: the
+aggregator fails closed; a missing artifact or a class below what is needed makes
+a condition fail, not ``unknown''.
+
+\begin{table}[ht]
+\centering
+\caption{Evidence classes and the claim power of each class}
+\label{tab:evidence-classes}
+\small
+\begin{tabular}{L{3.6cm}L{6.0cm}c}
+\toprule
+\textbf{Evidence class} & \textbf{Required conditions} & \textbf{Proves a requirement} \\
+\midrule
+Official end-to-end & live consented session, client playback
+confirmation, real microphone and eligible hardware & yes \\
+Unofficial live & same protocol, without eligible hardware or study conditions &
+no \\
+Server-side component & generation or detector timing, without proof of the
+client's audible behaviour & no \\
+Synthetic approximation & generated audio or simulated events & regression test only \\
+Same-family automatic approximation & judging by an LLM of the candidate's
+family & no \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.5em}
+{\footnotesize\itshape The consequence of this method is that the evidence
+status of each condition is stated independently of whether the report is ready
+for presentation and examination. The final result is a clear separation of what
+was built from what was proven with official evidence.\par}
+\end{table}

@@ -21,6 +21,10 @@ dependencies = [
   "pydantic>=2.0",
   "PyYAML>=6.0",
   "websockets>=12",
+  # Security floor for a transitive dependency (GHSA-2g95-wg33-c5x2 and five
+  # related advisories, fixed in 4.2.1, which needs Python 3.11; the Python 3.10
+  # floor carries a reviewed exception in configs/application_dependency_risk_policy.json).
+  "filelock>=4.2.1; python_version >= '3.11'",
 ]
 
 [project.optional-dependencies]

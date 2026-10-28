@@ -1,0 +1,276 @@
+\chapter{Introduction}
+\label{ch:intro}
+
+Spoken conversation is the most natural form of human--machine interaction.
+Nevertheless, until recently spoken dialogue systems were almost always built
+from a chain of independent components: voice activity detection, speech
+recognition, a text dialogue engine, and then text-to-speech. The introduction of
+models such as Moshi~\cite{defossez2024moshi} and
+Freeze-Omni~\cite{wang2025freezeomni} showed that spoken dialogue can be modelled
+as a single ``speech-to-speech'' problem with one integrated model: a model that
+listens and speaks at the same time and needs no explicit speech segmentation for
+turn-taking.
+
+This shift has happened for high-resource languages such as English and Chinese.
+For Persian, none of the open speech-to-speech models offers official support,
+and Persian conversational datasets that cover overlapping speech, interruptions
+and backchannels are not publicly available either. The practical question of
+this project arises from this gap: with the computing and time budget of a
+bachelor's project, how far can one go in building a full-duplex Persian
+speech-to-speech system, and, more importantly, what can be ``proven'' about it
+with auditable evidence?
+
+\section{Problem Definition}
+\label{sec:problem}
+
+The defined goal of this project is to design, implement and evaluate a prototype
+speech-to-speech large language model for Persian. The system must work in
+\emph{full-duplex} mode: unlike half-duplex systems, which listen to the user only
+after the reply has finished, the user's microphone must stay active while the
+reply plays, and the system must be able to react if the user \emph{interrupts}.
+
+Three properties separate this problem from a conventional spoken question
+answering system:
+
+\begin{itemize}
+\item \textbf{Listening and speaking at the same time.} While playing its own
+      audio output, the system must also process the microphone input stream and
+      decide whether to continue or stop playback.
+\item \textbf{Time-critical decisions.} The decision to stop playback must be made
+      within a few tens of milliseconds, otherwise the user feels that the system
+      does not hear them.
+\item \textbf{Continuity of interrupted speech.} What the user says at the moment
+      of the interruption must not be lost; it must be carried to the next turn,
+      otherwise the user has to repeat the sentence.
+\end{itemize}
+
+\section{Motivation}
+\label{sec:motivation}
+
+Addressing this problem for Persian matters for several reasons.
+
+First, \textbf{accessibility}. A speech interface can be the only effective way to
+use digital services for users who are not comfortable with a Persian keyboard,
+for users with low vision, and in particular for older adults. In the natural
+conversation of older adults, longer pauses and mid-sentence corrections are more
+frequent; a half-duplex system that does not listen until the end of its own
+reply creates an irritating experience in these conditions.
+
+Second, \textbf{Persian is low-resource in this particular area}. Persian speech
+recognition and text-to-speech datasets are available; a prominent example is
+ManaTTS~\cite{qharabagh2025manatts}, with more than 86 hours of single-speaker
+speech. But these resources are single-speaker and read, and the interactive
+phenomena that a full-duplex model has to learn --- overlap, interruptions and
+backchannels --- do not occur in them.
+
+Third, \textbf{computational cost}. Current speech-to-speech models, such as
+Qwen2.5-Omni~\cite{xu2025qwen25omni}, need far more memory to run than a
+laboratory graphics card. Showing what is ``achievable'' and what is ``not
+achievable'' within a memory range of 12--24 GB is itself a useful engineering
+result.
+
+\section{Defined Requirements}
+\label{sec:requirements}
+
+The project definition sets seven specific requirements. They are used throughout
+this report as the yardstick of achievement and are listed in
+Table~\ref{tab:requirements}. For each requirement, the results chapter
+(Chapter~\ref{ch:results}) reports the final status and the class of the
+supporting evidence.
+
+\begin{table}[ht]
+\centering
+\caption{The seven requirements of the project definition}
+\label{tab:requirements}
+\small
+\begin{tabular}{clL{6.4cm}}
+\toprule
+\textbf{ID} & \textbf{Requirement} & \textbf{Specified measure} \\
+\midrule
+R1 & Persian speech-to-speech prototype & Persian spoken reply generated from
+      Persian spoken input \\
+R2 & Full-duplex operation & Listening during playback and reacting to
+      interruptions \\
+R3 & End-to-end latency & At most 500 ms from receiving speech to producing the
+      spoken reply \\
+R4 & Persian conversational dataset & 100--200 hours of speech with noise,
+      overlap and interruptions \\
+R5 & Interruption detection module & Accuracy above 80\% with energy, pitch and
+      MFCC features \\
+R6 & Evaluation on target hardware & A GPU with 12--24 GB of memory \\
+R7 & Human evaluation & 5--10 Persian speakers, at least two aged over 60 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The expected final outputs comprise four items: a working prototype, documented
+source code, a Persian conversational dataset, and findings on how older
+Persian-speaking adults interact with the system. For the fourth item, the
+measurement protocol and infrastructure are ready; its empirical finding can only
+be claimed once the human study is complete, so this report makes no claim about
+the experience of older adults.
+
+\section{Research Questions}
+\label{sec:rq}
+
+The project proposal poses four research questions, each of which
+Chapter~\ref{ch:conclusions} (Section~\ref{sec:rq-answers}) answers with the
+evidence of this report:
+
+\begin{enumerate}
+\item \textbf{Question 1.} How can an existing English or Chinese speech-to-speech
+model be adapted to Persian with the least retraining cost?
+\item \textbf{Question 2.} Which architectural changes, such as a dual buffer or
+an interruption detection module, are needed for full-duplex operation with a
+latency below 500 ms?
+\item \textbf{Question 3.} What is the trade-off between latency, model size and
+speech quality for Persian in real-time operation?
+\item \textbf{Question 4.} How do older Persian-speaking adults perceive the
+responsiveness and naturalness of such a system?
+\end{enumerate}
+
+\section{Main Challenges}
+\label{sec:challenges}
+
+Over the course of the project, four decisive challenges appeared that changed
+the final shape of the work.
+
+\paragraph{No official training path for Persian.}
+Mini-Omni2~\cite{xie2024miniomni2}, which the project definition names as an
+example base model, and LLaMA-Omni2~\cite{fang2025llamaomni2} have published
+repositories for inference but provide no complete, official speech-to-speech
+trainer. Among the models reviewed, only the Moshi family had published an
+official low-rank adaptation trainer~\cite{moshifinetune2024}; for this reason
+the direct track of this project was built on Moshika, the 7-billion-parameter
+version of that family.
+
+\paragraph{No labelled Persian conversational data.}
+No public Persian corpus with interruption and overlap labels was available. The
+dataset of this project therefore had to be built from an internal archive of
+Persian spoken content with an automatic pipeline of window reconstruction,
+speaker diarization and response-pair extraction. The consequence of this choice
+is that the resulting interaction labels are ``automatic'' and not human-verified;
+this boundary is kept throughout the report.
+
+\paragraph{The gap between reducing loss and valid generation.}
+This is the most important negative finding of the project. Over seven
+experimental generations, low-rank adaptation of the direct model steadily
+reduced the \emph{teacher-forced} loss, but never reached valid
+\emph{autoregressive} generation of Persian speech. The final audit revealed its
+structural cause: the model's English tokenizer needs more than six tokens per
+Persian word and exceeds the budget of one token per frame.
+
+\paragraph{The boundary between engineering evidence and scientific claims.}
+Automatic measures were available, but 12--24 GB target hardware, human labelling
+of interruptions and a large human study were not available within the project
+deadline; instead, a browser loopback test with the memory budget of a 12 GB card,
+independent two-pass automatic labels and a small listening study were designed.
+The project's methodological decision was to label every measure with its
+``evidence class'' and never to present an automatic approximation in place of
+official evidence. Section~\ref{sec:evidence-first} turns this decision into a way
+of working.
+
+\section{Two-Track Strategy}
+\label{sec:two-track}
+
+To reduce execution risk, the project pursued two tracks in parallel:
+
+\begin{enumerate}
+\item \textbf{The direct track.} Low-rank adaptation of Moshika on Persian
+      conversational data, in the hope of obtaining a single Persian
+      speech-to-speech model. This track answers the spirit of the project
+      definition directly.
+\item \textbf{The cascade track.} A modular chain of Persian speech recognition,
+      text reply generation with a large language model, and text-to-speech, on
+      top of which full-duplex control and interruption logic are built
+      separately. This track guarantees that the project has a working system to
+      demonstrate.
+\end{enumerate}
+
+Both tracks used the same dataset. The final outcome, as reported in
+Chapter~\ref{ch:results}, was asymmetric: the cascade track reached a streaming
+full-duplex system that meets the numeric latency and interruption criteria in
+automated tests, while the direct track, and a speech-input track with Gemma~4,
+are reported as negative results together with their measured causes.
+
+\section{Contributions}
+\label{sec:contributions}
+
+The contributions of this project can be summarized in six items.
+
+\begin{enumerate}
+\item \textbf{A streaming full-duplex Persian voice assistant.} The system works
+      with an open microphone, detects the end of speech automatically and
+      speculatively, and generates and plays the reply clause by clause. In
+      loopback testing with a real browser, the mean latency from end of speech to
+      the first audio of the reply was 372 ms and its 90th percentile 431 ms, no
+      turn exceeded 500 ms, and the GPU side of the system fit in 11.1~GiB of
+      memory.
+
+\item \textbf{Two-stage interruption detection with lexical confirmation.} Ducking
+      after one frame of speech louder than the expected echo, and confirmation
+      with the speech recognizer after removing listener tokens and the
+      assistant's own echo; accuracy 0.933 and F1 0.880 in a deployment
+      simulation and accuracy 0.825 in a real browser, against 0.574 for an
+      acoustic classifier alone; the reply after an interruption, keeping only the
+      heard part of the interrupted reply in the history, was as relevant as the
+      reply to a normal turn.
+
+\item \textbf{A derived and audited Persian conversational dataset.} 6,754 ``user
+      speech / response'' pairs with 108.584 hours of stereo audio, session-based
+      group splits and zero group leakage; an independent automatic listener
+      confirmed the turn boundary in 93.8\% of samples.
+
+\item \textbf{Evidence-based component selection.} A final semantic test of the
+      responder (relevance 3.150 versus 1.425), and re-selection of the recognizer
+      on human transcripts, the responder on requests of older adults and the
+      synthesizer with two automatic listeners, all under pre-registered
+      protocols; and optimization of the lab synthesizer without retraining, which
+      found and fixed several of its text front-end errors (a dropped final word,
+      misread numbers).
+
+\item \textbf{A measured cause for the failure of the direct track.} Seven
+      experimental generations of Moshika and one speech-input model; it was shown
+      that the tokenizer bottleneck is real and that removing it doubles the best
+      result, but is not enough for intelligible speech.
+
+\item \textbf{An evidence-first way of working.} Protocols and thresholds were
+      registered before running, test splits were opened only once, result
+      artifacts are write-once, and a \emph{fail-closed} aggregator prevents
+      automatic approximations from being promoted to official evidence.
+\end{enumerate}
+
+The latency and interruption evidence is automated and on an H100, the labels are
+not human, and the results of the listening study are not yet available. The exact
+scope of these results is reported in Chapter~\ref{ch:discussion}.
+
+\section{Structure of This Report}
+\label{sec:structure}
+
+This report is organized in seven chapters.
+
+Chapter~\ref{ch:prelim} introduces the necessary preliminaries: the
+representation of the speech signal and acoustic features, speech recognition and
+text-to-speech, large language models and low-rank adaptation, neural audio
+codecs and the architecture of speech-to-speech models, and the measures and
+statistical concepts used in evaluation.
+
+Chapter~\ref{ch:literature} reviews prior work and positions this project among
+cascade systems and end-to-end spoken dialogue models, Persian speech resources,
+and prior work on interruption detection.
+
+Chapter~\ref{ch:method} describes the proposed method: the dataset construction
+pipeline, the cascade architecture, the interruption detection module and the
+full-duplex transport layer, the design of the direct-track experiments, and the
+evidence-first way of working.
+
+Chapter~\ref{ch:results} presents the results with the corresponding tables and
+figures and states, for each result, its permitted claim boundary.
+
+Chapter~\ref{ch:discussion} interprets the results, in particular the gap between
+reducing loss and valid generation, and then lists the limitations and the
+ethical and legal considerations.
+
+Chapter~\ref{ch:conclusions} presents the conclusions and suggestions for future
+work. The appendix gives the reproduction commands, the exact hyperparameters of
+the experiments, and the map of evidence artifacts.

@@ -1,0 +1,78 @@
+\chapter{Discussion, Conclusions and Future Work}
+\label{ch:conclusions}
+
+\section{The Gap Between Loss and Generation}
+
+The main scientific finding of the direct track is that reducing loss under
+teacher forcing is separate from valid autoregressive generation. Version v6.2
+sharpens this separation: on the same 32 training samples, the text loss fell by
+32.20\%, but the learned behaviour did not transfer to reliable generation. The
+explanation consistent with the evidence is exposure bias, not a lack of
+capacity. The methodological consequence is that speech-to-speech checkpoint
+selection should not rest on offline loss alone.
+
+In the cascade track, two similar separations were seen. First, the 9/9
+mechanical panel with the 0.5B responder does not establish the semantic quality
+of the 4B responder. Second, passing a same-family automatic test does not
+establish perceptual quality. The gap between a character error rate of 7.14\%
+and a word error rate of 30.41\% also shows that approximately preserving
+characters is not the same as word-level intelligibility.
+
+The low score of the aligned reference in the semantic test is a reminder that the
+corpus's next turn is not necessarily an appropriate reply to the user's last
+utterance; this is why the LoRA adapter that reduced the development loss did not
+beat the baseline.
+
+\section{Why the Direct Track Failed}
+
+The final audit showed that Moshi's English tokenizer needs 6.6 tokens per Persian
+word and that 98.5\% of turns exceed the one-token-per-frame budget. Removing this
+bottleneck with phoneme romanization raised the best generation result from 3/9 to
+6/9 and made silent output audible, but the speech did not become intelligible; so
+the tokenizer bottleneck is real but not the only obstacle.
+J-Moshi~\cite{ohashi2025jmoshi} also replaced the tokenizer to bring Moshi to
+Japanese and then needed about 60,000 hours of dialogue pre-training, more than
+five hundred times this project's data. The speech-input Gemma~4 model also showed
+that removing recognition, even with the same language model, lowers quality.
+
+\section{Limitations and Considerations}
+
+The latency and interruption evidence is automated and on an H100: the memory of
+a 12 GB card was respected but not its speed, and there was no human user, no
+physical microphone and loudspeaker path, and no real acoustic echo. The
+interruption and data labels are automatic and have no human labels; the two
+automatic judges of the responder disagree considerably; elderly speech in the
+tests is simulated. Interruption detection relies on the speech recognizer, not
+on the acoustic features specified in the project definition. The dataset is
+derived from an internal archive and is not redistributable. The results of the
+listening study have not yet been received.
+
+\section{Answers to the Research Questions}
+
+\textbf{1.} Low-rank adaptation of Moshika lowered held-out perplexity (text
+tokens 2.53 to 1.19, audio 13.98 to 4.71) but did not produce intelligible speech;
+the English tokenizer is the main obstacle. \textbf{2.} In the cascade,
+speculative end-of-speech detection with audio held until confirmation, streaming
+generation with a Persian-script constraint, clause chunking, a playback queue and
+two-stage interruption control with heard-only history brought the latency to a
+mean of 372 and a 90th percentile of 431 ms. \textbf{3.} Size did not buy quality:
+the smallest Persian-specialized recognizer and synthesizer gave the best
+trade-off, and the 7.7-billion-parameter end-to-end model did not reach
+intelligible speech. \textbf{4.} The perception of older adults depends on the
+results of the listening study. The status of each requirement is in
+Table~\ref{tab:req-status}.
+
+\section{Future Work}
+
+Completing the evidence: running the same loopback test on a 12--24 GB card with a
+physical audio path; collecting the listening-study responses and a live
+interaction session with older adults; human review of a sample of the labels;
+and human judging of the responders (Qwen3.5-4B with the elderly prompt has passed
+the deployment qualification, and the participants' preference decides on its
+replacement). Improving the system: learned separation of listener words from
+content words with a clipped onset (a 200 ms pre-roll was tested and rejected),
+semantic end-of-turn detection for the pauses of elderly speech (three zero-shot
+candidates and a fine-tuned Smart Turn were tested and rejected; human-labelled
+turn ends are needed), and a more accurate recognizer within the same latency
+budget. Direct track: a tokenization that fits the frame budget, a remedy for the
+gap between teacher forcing and free generation, and the frozen-model approach.

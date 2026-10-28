@@ -1,0 +1,353 @@
+\chapter{Related Work}
+\label{ch:literature}
+
+This chapter reviews related research along four axes: cascade versus end-to-end
+spoken dialogue systems, open speech-to-speech models and their full-duplex
+capabilities, Persian speech resources, and prior work on interruption detection
+and turn-taking. At the end of the chapter, the position of this project relative
+to prior work is stated.
+
+\section{From Cascades to End-to-End Models}
+\label{sec:cascade-vs-e2e}
+
+The conventional architecture of spoken dialogue systems is a chain of four
+independent components: voice activity detection, speech recognition, a text
+dialogue engine and text-to-speech. Its advantage is modularity: each component can
+be improved, debugged and replaced with the best available model for the language
+separately. For low-resource languages this modularity is a decisive advantage,
+because for each component the chance of finding an acceptable Persian model is
+higher than the chance of finding a Persian speech-to-speech model.
+
+Against it, the authors of Moshi~\cite{defossez2024moshi} list three fundamental
+objections to the cascade architecture. First, latency accumulates along the chain
+and stretches the gap between two dialogue turns to several seconds. Second,
+non-linguistic information is lost: since text is the only interface between input
+and output, emotion, tone and non-speech sounds that change the meaning disappear.
+Third, it depends on an explicit segmentation of speech into turns, which cannot
+represent overlap, interruptions or short affirming utterances.
+
+The observations of Chapter~\ref{ch:results} support both sides of this argument.
+The latency objection shows in the measurements of the cascade track: the time to
+generate a complete reply in the cascade, even on powerful hardware, is in the order
+of seconds and grows with long inputs (Section~\ref{sec:res-cascade}). At the same
+time the advantage of modularity also shows: only this architecture reached a
+working, evaluable Persian system within the project's time frame.
+
+\section{Open Speech-to-Speech Models}
+\label{sec:openmodels}
+
+\subsection{The Mini-Omni Family}
+
+Mini-Omni2~\cite{xie2024miniomni2}, which the project definition names as an
+example base model, is a multimodal assistant based on Qwen2-0.5B that uses Whisper
+and CLIP encoders for audio and image input and generates speech with a
+``text-guided delayed parallel generation'' strategy. Two of its properties matter
+for our problem: first, its interruption mechanism is ``command-based'' rather than
+a continuous acoustic decision; second, the project has not published a complete,
+official speech-to-speech trainer, so adapting it to Persian would have required
+rewriting the training pipeline from scratch.
+
+\subsection{SpeechGPT and Discrete Speech Units}
+
+SpeechGPT~\cite{zhang2023speechgpt} is one of the first large language models that
+accepts and generates speech directly as discrete units in its vocabulary, instead
+of converting speech to text through a separate recognizer and synthesizer. It was
+trained in three stages: pre-training to adapt to the speech modality, cross-modal
+instruction tuning, and ``chain-of-modality'' instruction tuning, in which the model
+first thinks the reply as text and then turns it into speech units. The idea of
+relying on intermediate text inside one integrated model is what Moshi implements
+as an ``inner monologue'' synchronized with the audio. SpeechGPT, however, is
+turn-based and non-streaming: it takes the whole user utterance before replying and
+is not full duplex, so it was not a suitable base model for the latency and
+interruption goals of this project.
+
+\subsection{The LLaMA-Omni Family}
+
+The first version of this family~\cite{fang2025llamaomni} used a non-autoregressive
+speech decoder to reduce latency. LLaMA-Omni2~\cite{fang2025llamaomni2} is a set of
+modular speech models from 0.5 to 14 billion parameters built on Qwen2.5-Instruct
+models; it uses a Whisper encoder for input and an autoregressive streaming speech
+decoder inspired by CosyVoice~2~\cite{du2024cosyvoice2} for output. It was trained
+on only 200 thousand multi-turn dialogue samples and outperformed
+GLM-4-Voice~\cite{zeng2024glm4voice}, which was trained on millions of hours of
+speech.
+
+This model was the main option at the start of the project, because its
+0.5-billion-parameter size fitted the target memory budget and its stack (a Whisper
+encoder plus Qwen2.5) matched the available tools. But the published repository
+covers inference only. The project's first attempt to build a training pipeline for
+this architecture, as Section~\ref{sec:early-attempt} describes, reached an
+artifact that in fact learned to reconstruct the input rather than generate a
+conversational reply; this experience was the main motivation for moving to an
+official trainer.
+
+\subsection{Freeze-Omni and the Frozen-Model Approach}
+
+Freeze-Omni~\cite{wang2025freezeomni} takes a different strategy: the weights of
+the text language model stay \emph{frozen} throughout training, and only the speech
+input encoder and the speech output decoder are trained. This design has two
+important advantages that are very relevant to low-resource conditions: the
+intelligence of the base model stays intact and ``catastrophic forgetting'' does not
+occur, and training becomes possible with much less data and compute. Full-duplex
+capability is obtained by adding a state classification layer on the last layer of
+the language model, which predicts whether the user has interrupted the
+conversation.
+
+In hindsight, this approach is one of the most promising options for Persian and is
+suggested as future work in Chapter~\ref{ch:conclusions}; at the time of this
+project's decision, an official, available trainer for a new language did not
+exist.
+
+\subsection{Qwen2.5-Omni and the ``Thinker--Talker'' Architecture}
+
+Qwen2.5-Omni~\cite{xu2025qwen25omni} is an end-to-end multimodal model whose
+``Thinker--Talker'' architecture enables simultaneous text and speech generation:
+the Thinker is a language model that generates text, and the Talker is a dual-track
+autoregressive model that generates audio tokens directly from the Thinker's latent
+representations. It was set aside for our project for two reasons: its
+7-billion-parameter version needs far more memory than the target range of
+12--24 GB, and its published spoken input and output languages do not include
+Persian.
+
+\subsection{Moshi and the Final Choice of the Direct Track}
+
+Among the models reviewed, Moshi~\cite{defossez2024moshi} was the only one that met
+all three conditions this project needed: \emph{native} full-duplex capability
+through parallel modelling of two audio streams, open weights, and, most
+importantly, an ``official low-rank adaptation trainer'' published directly by the
+model's authors~\cite{moshifinetune2024}. As explained in Section~\ref{sec:codec},
+the model's ``inner monologue'' also allows the text loss and the audio loss to be
+monitored separately, which was of practical value for debugging the failed
+experiments.
+
+The published experience closest to this project's direct track is
+J-Moshi~\cite{ohashi2025jmoshi}, which brought Moshi to Japanese. Its authors also
+found Moshi's English tokenizer inefficient for Japanese, replaced it with a
+Japanese SentencePiece tokenizer with 32,000 words, and re-initialized the text
+embedding tables. They then pre-trained the model on about 60,000 hours of Japanese
+spoken dialogue (the 69,000-hour J-CHAT corpus) on 128 V100 GPUs for 36 hours, and
+afterwards fine-tuned it on 344 hours of two-channel dialogue and 602 hours of
+synthetic dialogue. In other words, adapting Moshi to a new language, even with a
+suitable tokenizer, required pre-training at the scale of tens of thousands of hours
+of dialogue.
+
+Closer prior work to this idea is dGSLM~\cite{nguyen2023dgslm}, which introduced
+generative modelling of spoken dialogue with two parallel streams and no text
+intermediary, and showed that phenomena such as overlap and backchannels can be
+reproduced in a learned way.
+
+\subsection{PersonaPlex and Role Control in a Full-Duplex Model}
+
+PersonaPlex~\cite{roy2026personaplex} is a full-duplex speech-to-speech model built
+on the Moshi architecture that conditions the assistant's role and voice with a
+combined text prompt and audio sample. Its open weights are published and keep the
+native full-duplex capability. For this project, however, it had two decisive
+limitations: its release is English-centred and does not support Persian, and its
+documented tested hardware is outside the 12--24 GB range of requirement R6. In
+addition, an official trainer to adapt it to a new language was not available at the
+time of this project's decision. It was therefore considered as a comparison option
+and not chosen for the direct track.
+
+\section{Persian Speech Resources}
+\label{sec:persian-resources}
+
+For Persian, the situation of resources is asymmetric across three areas.
+
+In \textbf{speech recognition}, usable models exist. The multilingual Common Voice
+corpus~\cite{ardila2020commonvoice} has a Persian portion, and localized models
+based on the Conformer architecture in NeMo~\cite{kuchaiev2019nemo} have reached
+acceptable quality. The recognition service used in this project belongs to this
+class.
+
+In \textbf{text-to-speech}, the most prominent public resource is
+ManaTTS~\cite{qharabagh2025manatts}: the largest public single-speaker Persian
+corpus, with about 86 hours of audio at 44.1 kHz under an open licence, together with
+an open processing pipeline including a sentence segmentation tool and a forced
+alignment method designed for low-resource languages. The Persian voice used in this
+project is derived from this resource. ParsVoice~\cite{ranjbar2025parsvoice} is a
+larger corpus of Persian audiobooks with several thousand hours of speech and
+hundreds of speakers, built for multi-speaker synthesis; an XTTS model fine-tuned on
+it was measured in Chapter~\ref{ch:results}.
+
+The project proposal names FarsTalk and Persian VoxCeleb as example Persian corpora;
+this project's search found no published corpus under these names. The closest
+published conversational resource is the Corpus of Conversational Persian
+Transcripts~\cite{mohammadi2019ccpt}: transcripts of about 20 hours of informal
+conversation in the Tehrani dialect, whose audio is not published and which is
+therefore of no use for training a speech model.
+
+In \textbf{full-duplex conversational data}, however, there is a serious gap. What a
+full-duplex model needs to learn from is natural two-sided speech with overlap,
+interruptions and backchannels. The existing Persian resources are mostly
+single-speaker and read and do not contain these phenomena. Persian conversational
+telephone corpora exist in research archives, but they have restrictive licences and
+their scale is below the 100--200 hours targeted by the project definition. This gap
+is what made the derived dataset of Chapter~\ref{ch:method} necessary.
+
+\section{Low-Latency Streaming Inference}
+\label{sec:streaming-lit}
+
+A low-latency speech system must run each component \emph{streaming}, that is, start
+the output before the whole input has arrived. A common speed measure is the
+\textbf{real-time factor} (RTF): the ratio of processing time to audio duration; an
+RTF below one means processing does not fall behind playback. For dialogue, however,
+the RTF is not enough; what the user feels is the ``latency to the first output''.
+
+In \textbf{speech recognition}, full attention of the encoder needs the whole
+utterance. The common remedy is chunked attention: the encoder processes each chunk
+with a limited past context and a short look-ahead~\cite{chen2021streamingtt}. A
+cache-aware Conformer encoder~\cite{noroozi2023cacheaware} limits past and future
+context during training too and keeps the activations of previous chunks, so that
+step-by-step inference matches training. In the \textbf{language model}, token-by-token
+generation is inherently streaming; for long dialogues, a sliding window over the
+key--value cache together with keeping a few initial tokens (``attention sinks'')
+maintains stability~\cite{xiao2024streamingllm}. In \textbf{speech synthesis},
+clause-by-clause or chunk-by-chunk generation lets playback start before the whole
+reply is generated.
+
+This project uses all three levels, but with simpler choices
+(Section~\ref{sec:cascade}): user utterances are short and the CTC recognizer
+processes each utterance in about 60 ms after its end is detected; the language model
+streams with a prefix cache; the synthesizer works clause by clause; and speculative
+end-of-speech detection starts the work before the end is confirmed.
+
+\section{Older Adults and Voice Assistants}
+\label{sec:elderly-lit}
+
+The voices of older adults differ acoustically from those of younger adults, and this
+difference harms speech recognition: in one study, the word error rate for older
+speakers was about 9 percentage points higher, and the fundamental frequency, jitter,
+shimmer and harmonicity differed significantly between the two
+groups~\cite{vipperla2010ageing}. The same pattern appeared on this project's human
+panel: the character error rate of the deployed recognizer on older speakers was
+15.6\% against 8.6\% for the others (Section~\ref{sec:reselection}).
+
+On the user side, a three-week deployment of a smart speaker in the homes of seven
+older adults with little technology experience showed that information seeking,
+especially health information, was the most persistent use, and that the
+reliability of spoken answers was a serious concern for them; reminders were
+considered useful but were used less because of doubts about their
+reliability~\cite{pradhan2020olderadults}. Other workshops with older adults listed
+both the opportunities and the barriers of voice interaction~\cite{kowalski2019olderadults}.
+These findings explain several design choices of this project: short, simple replies
+that are honest about limitations (the elderly prompt), tolerance of longer pauses in
+end-of-speech detection, slightly slower speech, and referral to a doctor or the
+emergency services on risky topics. The effect of these choices on the experience of
+older adults can only be measured by the human study.
+
+\section{Interruption Detection and Turn-Taking}
+\label{sec:bargein-lit}
+
+Prior work in this area has two branches.
+
+The \textbf{classical} branch rests on hand-crafted acoustic features and statistical
+detectors. The statistical-model-based voice activity detector~\cite{sohn1999vad} is
+the reference example of this branch. Interruption detection in traditional telephone
+dialogue systems was in practice a voice activity detector with a conservative
+threshold; the known problem of these systems was that loudspeaker playback or
+ambient noise was mistaken for an interruption. A comprehensive review of turn-taking
+mechanisms in dialogue systems and human--robot interaction is
+in~\cite{skantze2021turntaking}, which shows that turn-taking is not merely a silence
+detection problem and depends on prosodic and syntactic cues. The linguistic basis of
+the topic goes back to the classical work~\cite{sacks1974turntaking}, which showed that
+the gaps between turns in human conversation are remarkably short and regular.
+
+The \textbf{learned} branch places turn-taking inside the generative model. In Moshi
+and dGSLM there is no separate detector, and turn-taking is part of the learned
+distribution over two parallel streams. Freeze-Omni takes a middle way: a light
+classification head on the language model predicts the dialogue state.
+
+The project definition explicitly asks for the classical branch: a module based on
+energy, pitch and MFCC with a target accuracy above 80\%. This project's
+implementation follows that path, with the methodological difference that instead of
+manual thresholding, a gradient-boosting classifier is trained on the context-window
+feature vector and its decision threshold is chosen on validation sessions only.
+
+To label interaction events in recorded data automatically, \textbf{speaker
+diarization} was used. The reference tools in this area are
+pyannote.audio~\cite{bredin2020pyannote} and multi-scale diarization with dynamic
+weighting~\cite{park2022msdd}; the diarization service used in this project belongs to
+the second family.
+
+To train and measure the detector under near-deployment conditions, speech is mixed
+with noise and room responses. The common corpora for this are
+MUSAN~\cite{snyder2015musan} (music, speech and noise),
+DEMAND~\cite{thiemann2013demand} (multichannel noise of various environments) and the
+OpenSLR room impulse response and noise collection~\cite{ko2017rir}.
+
+\section{Automatic Evaluation of Dialogue Quality}
+\label{sec:eval-lit}
+
+Measuring the quality of a dialogue reply with string-matching measures is not
+meaningful. The approach that has become standard in recent years is to use a large
+language model as a judge. The reference work in this area~\cite{zheng2023mtbench}
+showed that automatic judging with strong models correlates highly with human
+preference, but the same work documented its systematic biases: position bias, length
+bias and self-enhancement bias towards the output of same-family models.
+
+This project used this method as the \emph{only} semantic measure available, but with
+three restrictions: blinding and randomizing the order of the arms, deterministic
+decoding, and repeating each judge call and reporting the agreement rate. More
+importantly, because the judge and the candidate in this project are of the same model
+family, the result is explicitly labelled a ``same-family automatic approximation''
+and is not counted as a substitute for human evaluation or an independent benchmark.
+For human measurement, the reference protocol is the mean opinion score based on
+recommendation ITU-T P.800~\cite{itu1996p800}, which this project designed but did not
+run.
+
+\section{Position of This Project}
+\label{sec:positioning}
+
+Table~\ref{tab:positioning} summarizes the position of this project relative to prior
+work.
+
+\begin{table}[ht]
+\centering
+\caption{This project compared with prior work on the capabilities required by the
+         project definition}
+\label{tab:positioning}
+\small
+\begin{tabular}{L{2.9cm}ccccc}
+\toprule
+\textbf{Work} & \textbf{Full} & \textbf{Open} & \textbf{Official} &
+\textbf{Persian} & \textbf{Memory} \\
+              & \textbf{duplex} & \textbf{weights} & \textbf{trainer} &
+\textbf{support} & \textbf{range} \\
+\midrule
+Mini-Omni2   & command-based & yes & no & no & fits \\
+LLaMA-Omni2  & no & yes & no & no & fits \\
+Freeze-Omni  & yes & yes & partial & no & fits \\
+Qwen2.5-Omni & yes & yes & no & no & does not fit \\
+Moshi        & native & yes & yes & no & does not fit \\
+PersonaPlex  & native & yes & partial & no & does not fit \\
+\midrule
+This project, cascade & external control & yes & not needed & yes & fits \\
+This project, direct  & native & yes & yes & failed & does not fit \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\claim{The ``memory range'' column refers to the fit with the 12--24 GB range of the
+project definition; for this project's direct track it is reported from the training
+memory measured on the available hardware, not from a measurement on target
+hardware.}
+
+Three points follow from this comparison.
+
+First, none of the existing end-to-end models supports Persian; any direct track
+therefore has to adapt a model, and adaptation needs an official trainer. Only Moshi
+met this condition completely. PersonaPlex is also natively full duplex, but it is
+English-centred and its adaptation trainer was not available for Persian.
+
+Second, the models with native full-duplex capability do not fit within the target
+memory range. This conflict between requirements R2 and R6 of the project definition
+is a structural constraint, not an implementation defect.
+
+Third, this project's distinctive contribution lies elsewhere. Prior work publishes
+\emph{models}; this project builds, for one specific low-resource language, ``a data
+pipeline and an evidence-first evaluation framework'' and shows which claims can and
+cannot be proven with this evidence. In particular, the negative result of the direct
+track, reported in Section~\ref{sec:res-moshi}, is a citable finding for later
+researchers: in low-rank adaptation of a speech-to-speech model to a new language, a
+reduction of the teacher-forced loss is not a sufficient criterion for checkpoint
+selection.

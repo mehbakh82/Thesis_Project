@@ -108,11 +108,17 @@ limitations, and conclusion without promoting any pending evidence gate.
 
 ## Thesis reports
 
-The submission-ready Persian reports and their LaTeX sources are under
-[`thesis-report`](thesis-report/):
+The submission-ready Persian reports, their English editions, and the LaTeX
+sources are under [`thesis-report`](thesis-report/):
 
-- [`thesis.pdf`](thesis-report/thesis.pdf) — full report.
-- [`thesis-short.pdf`](thesis-report/thesis-short.pdf) — concise report.
+- [`thesis.pdf`](thesis-report/thesis.pdf) — full report (Persian).
+- [`thesis-short.pdf`](thesis-report/thesis-short.pdf) — concise report (Persian).
+- [`thesis-en.pdf`](thesis-report/thesis-en.pdf) — full report, English edition.
+- [`thesis-short-en.pdf`](thesis-report/thesis-short-en.pdf) — concise report, English edition.
+
+The English editions translate the Persian reports one to one (same numbers,
+requirements and claim boundaries); `thesis-report/build.sh everything` rebuilds
+all four.
 
 The included report README and source headers retain attribution for the
 Creative Commons Attribution 4.0 Persian thesis template on which the reports
