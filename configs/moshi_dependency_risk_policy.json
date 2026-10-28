@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "status": "temporary-compatibility-exception",
-  "reviewed_at": "2026-10-20",
+  "reviewed_at": "2026-10-28",
   "scope": "Pinned private Moshi training/runtime environment only; not the general application environment.",
   "review_command": ".venv/bin/python scripts/audit_moshi_dependencies.py",
   "accepted_risks": [
@@ -45,7 +45,12 @@
         "PYSEC-2026-3547",
         "CVE-2026-111063",
         "CVE-2026-111064",
-        "GHSA-2g87-pp6c-29x5"
+        "GHSA-2g87-pp6c-29x5",
+        "CVE-2026-111065",
+        "CVE-2026-111066",
+        "CVE-2026-111748",
+        "CVE-2026-111749",
+        "CVE-2026-111750"
       ],
       "mitigations": [
         "Do not expose the pinned training environment as a public service.",
@@ -99,6 +104,95 @@
         "Use the isolated environment for local single-GPU research, not public multi-tenant inference.",
         "Treat audio, captions, network messages, and model files from outside the frozen corpus as untrusted.",
         "Re-evaluate and remove this exception before deployment or an upstream trainer migration."
+      ]
+    },
+    {
+      "package": "certifi",
+      "version": "2026.7.22",
+      "upstream_constraint": "certifi 2026.10.19 removes the emSign roots with compromised intermediate keys. requirements-moshi.lock records the exact environment of the completed Moshi experiments (recorded in results/hardware/moshi_environment.json); upgrading it would no longer reproduce those runs.",
+      "advisories": [
+        "PYSEC-2026-4320"
+      ],
+      "mitigations": [
+        "The recorded runs load pinned, SHA-256-verified local checkpoints and make no network requests.",
+        "Do not download models or data with this environment; fetch them in the application environment and verify hashes.",
+        "Re-evaluate and remove this exception before any reuse of the environment."
+      ]
+    },
+    {
+      "package": "filelock",
+      "version": "3.32.3",
+      "upstream_constraint": "The three advisories (Windows oplock and SQLite-backed ReadWriteLock races) are fixed in filelock 4.2.1. requirements-moshi.lock records the exact environment of the completed Moshi experiments (recorded in results/hardware/moshi_environment.json); upgrading it would no longer reproduce those runs.",
+      "advisories": [
+        "CVE-2026-112907",
+        "CVE-2026-112913",
+        "CVE-2026-112940"
+      ],
+      "mitigations": [
+        "The environment runs on a Linux host under a single operator account with private cache directories.",
+        "Re-evaluate and remove this exception before any reuse of the environment."
+      ]
+    },
+    {
+      "package": "pillow",
+      "version": "12.3.0",
+      "upstream_constraint": "Image-decoder advisories; Pillow 13.0.0 fixes the bundled libopenjp2 issue and several others list no fixed release yet. requirements-moshi.lock records the exact environment of the completed Moshi experiments (recorded in results/hardware/moshi_environment.json); upgrading it would no longer reproduce those runs.",
+      "advisories": [
+        "CVE-2026-112390",
+        "CVE-2026-112391",
+        "CVE-2026-112393",
+        "CVE-2026-112395",
+        "CVE-2026-112397",
+        "CVE-2026-112398",
+        "CVE-2026-112399",
+        "CVE-2026-112400",
+        "CVE-2026-112401",
+        "CVE-2026-112402",
+        "CVE-2026-112404",
+        "CVE-2026-112405",
+        "CVE-2026-112406",
+        "CVE-2026-112891",
+        "CVE-2026-112892",
+        "CVE-2026-112893",
+        "CVE-2026-112894",
+        "CVE-2026-112895",
+        "CVE-2026-112896",
+        "CVE-2026-112897",
+        "CVE-2026-112899",
+        "CVE-2026-112900",
+        "CVE-2026-112901",
+        "CVE-2026-114501",
+        "CVE-2026-96636",
+        "CVE-2026-96637",
+        "CVE-2026-96638",
+        "CVE-2026-96639",
+        "CVE-2026-96640",
+        "CVE-2026-96641",
+        "CVE-2026-96642",
+        "CVE-2026-96643",
+        "CVE-2026-96644",
+        "CVE-2026-96778",
+        "GHSA-78g4-xqwv-q3g8",
+        "PYSEC-2026-4326",
+        "PYSEC-2026-4327",
+        "PYSEC-2026-4328"
+      ],
+      "mitigations": [
+        "The Moshi pipeline processes audio and text only and never opens image files.",
+        "Do not open untrusted images in this environment.",
+        "Re-evaluate and remove this exception before any reuse of the environment."
+      ]
+    },
+    {
+      "package": "setuptools",
+      "version": "84.0.0",
+      "upstream_constraint": "A Windows-only path escape during legacy wheel installation, fixed in setuptools 84.1.0. requirements-moshi.lock records the exact environment of the completed Moshi experiments (recorded in results/hardware/moshi_environment.json); upgrading it would no longer reproduce those runs.",
+      "advisories": [
+        "GHSA-xmj3-9gf7-h52w"
+      ],
+      "mitigations": [
+        "The environment is installed once on Linux from the hash-pinned lock; no legacy wheels from untrusted sources are installed.",
+        "Re-evaluate and remove this exception before any reuse of the environment."
       ]
     }
   ]

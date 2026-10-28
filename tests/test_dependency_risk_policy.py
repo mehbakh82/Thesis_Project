@@ -18,7 +18,7 @@ def test_reviewed_moshi_dependency_policy_is_well_formed() -> None:
     expected, errors = _expected_findings(_load_object(DEFAULT_POLICY))
 
     assert errors == []
-    assert set(expected) == {"aiohttp", "sentencepiece", "torch"}
+    assert set(expected) == {"aiohttp", "certifi", "filelock", "pillow", "sentencepiece", "setuptools", "torch"}
     assert all(finding["advisories"] for finding in expected.values())
 
 
