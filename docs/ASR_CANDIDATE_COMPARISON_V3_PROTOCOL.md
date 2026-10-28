@@ -33,7 +33,7 @@ here.
 | `whisper_persian_v4` | local `whisper-persian-v4` (Whisper large-v3 fine-tune) | language fa, beam 1 | transformers |
 | `whisper_large_v3_turbo_fa` | local Whisper large-v3-turbo Persian fine-tune | language fa, beam 1 | transformers |
 | `c1tech_whisper_base_fa` | `C1Tech/whisper_base_persian` | language fa, beam 1 | transformers |
-| `shenava_koochik` | `Reza2kn/Shenava-Koochik-v1.0-sherpa-onnx` | greedy | sherpa-onnx |
+| `shenava_koochik` | `Reza2kn/Shenava-Koochik-v1.0` (the NeMo checkpoint behind the sherpa-onnx export screened in 2026-09) | greedy CTC | NeMo |
 | `nemo_v4_ctc_rerun` | the deployed NeMo v4 checkpoint | greedy CTC | NeMo |
 
 Not included: Vosk small Persian 0.42 (a CPU Kaldi model of 2021 that was the
