@@ -1,0 +1,167 @@
+\chapter{Conclusions and Future Work}
+\label{ch:conclusions}
+
+\section{Summary}
+\label{sec:summary}
+
+The goal of this project was to design, implement and evaluate a full-duplex
+speech-to-speech prototype for Persian. Two tracks were pursued in parallel: adapting an
+end-to-end speech-to-speech model, and a modular cascade with full-duplex control. The
+outcome was asymmetric.
+
+The \textbf{streaming cascade} reached a working prototype that operates with an open
+microphone: it detects the end of speech automatically and speculatively, generates and
+plays the reply as a stream, clause by clause, and reacts to the user's interruption during
+playback. In loopback testing with a real browser, the mean latency from end of speech to
+the assistant's first audio was 372 ms and its 90th percentile 431 ms, and none of the 201
+turns went unanswered or exceeded 500 ms; the GPU side of the whole system used 11.1~GiB of
+memory. The 40-row final semantic test of the Qwen3-4B responder passed all seven automatic
+conditions (relevance 3.150 against 1.425 for the baseline).
+
+\textbf{Interruption detection} reached the accuracy goal with a two-stage controller: one frame of
+speech louder than the expected echo ducks the assistant's voice, and then the speech recognizer,
+after setting aside listener tokens, function words and the assistant's own echo, decides to stop
+or continue. In a deployment simulation built from real recordings, an accuracy of 0.933 and an F1
+of 0.880 with a median of 120 ms to the duck were obtained, and in a real browser an accuracy of
+0.825 and an F1 of 0.817. The energy/pitch/MFCC acoustic classifier alone was limited to 0.574 on
+real podcast events; this negative result is the reason for the lexical design.
+
+The \textbf{components} were re-selected on fresh panels under pre-registered protocols: the NeMo
+recognizer was the most accurate candidate within the latency budget on human transcripts, the
+Mana voice the most intelligible voice to two automatic listeners (against the other Piper voices,
+ParsVoice-XTTS and the lab VITS model, even after optimizing its inference), and no replacement
+responder reached the replacement threshold.
+
+The \textbf{direct track} did not reach a deployable model, but its main cause was found: Moshi's
+English tokenizer needs 6.6 tokens per Persian word, and 98.5\% of turns exceed the
+one-token-per-frame budget. Removing this bottleneck with phoneme romanization doubled the best
+generation result (6/9 against 3/9) and turned silent output into audible speech, but the speech
+was still not intelligible. The experience of J-Moshi~\cite{ohashi2025jmoshi} confirms this
+diagnosis: bringing Moshi to Japanese also began with replacing the tokenizer, but then needed about
+60,000 hours of Japanese dialogue pre-training, more than five hundred times the 108.6 hours of this
+project's data. The speech-input Gemma~4 model, even with a self-distillation adapter, was weaker
+than the cascade.
+
+The \textbf{dataset} is 6,754 ``user speech and response'' pairs with 108.584 hours of audited audio
+and zero group leakage. Its labels are automatic and have no human labels.
+
+\section{Answer to the Research Question}
+\label{sec:answer}
+
+The practical question of this project had two parts. Part one: with the budget of a bachelor's
+project, how far can one go in building a full-duplex Persian speech-to-speech system? The answer
+is that a streaming cascade with interruption control meets the proposal's numeric criteria for
+latency (mean and 90th percentile below 500 ms) and interruption detection (above 80\%) in automated
+tests and fits in the memory of a 12 GB card; but an end-to-end Persian model was not achievable with
+the existing architectures and tokenizers within this budget.
+
+Part two: what can be proven with auditable evidence? The answer is in
+Table~\ref{tab:req-status}. R1 and R4 are met; R2, R3 and R5 are met with automatic evidence
+(browser loopback and simulation), R3 by the proposal's criterion and, for the main panel, even by
+the every-turn reading, and R5 by a method other than the specified acoustic features; R6 is a
+declared deviation (memory was measured, speed on target hardware was not); and R7 depends on the
+responses of the listening-study participants. The methodological contribution of this report lies
+in this separation: for each measure the permitted claim boundary is stated, and negative results are
+reported as fully as positive ones.
+
+\section{Answers to the Research Questions of the Proposal}
+\label{sec:rq-answers}
+
+\textbf{Question 1: low-cost adaptation of an existing speech-to-speech model.} Low-rank adaptation of
+Moshika with a LoRA adapter on an H100 improved the training objective: on the held-out test, the
+perplexity of the text tokens went from 2.53 to 1.19 and that of the audio tokens from 13.98 to 4.71.
+But in none of the seven generations was intelligible Persian speech produced. The main cause is the
+tokenizer: the English tokenizer needs 6.6 tokens per Persian word, while the model produces at most
+one text token per 12.5 Hz frame. Phoneme romanization brought this load to 0.67 tokens per frame and
+doubled the best run (6/9), but it was not enough. Answer: not with ``the least retraining cost'';
+adapting this architecture to Persian needs at least a text representation compatible with Persian
+and training beyond a small adapter.
+
+\textbf{Question 2: architectural changes needed for full duplex below 500 ms.} In the cascade, these
+changes were necessary and sufficient: (1) speculative end-of-speech detection that starts the work
+before the end is confirmed and holds the audio until confirmation; (2) streaming token generation
+with a ``Persian script only'' constraint at decoding time; (3) clause chunking that builds the first
+fragment from two to four words and synthesizes each clause immediately; (4) a playback queue in the
+client and an audio-holding gate in the server, which together play the role of a ``dual buffer'';
+and (5) two-stage interruption control: ducking within one frame and lexical confirmation that sets
+aside listener tokens and echo, together with keeping only the heard part of an interrupted reply in
+the history. With this design, the mean latency was 372 and the 90th percentile 431 ms, and the reply
+after an interruption stayed as relevant as the reply to a normal turn
+(Section~\ref{sec:res-latency}). In the direct track, the change needed before any architectural
+change is the tokenizer.
+
+\textbf{Question 3: the trade-off between latency, size and quality.} In this project size did not buy
+quality (Table~\ref{tab:tradeoff}): the smallest recognizer fine-tuned on Persian (117 million
+parameters) was more accurate than all the general models of one to nine billion parameters, and the
+only model more accurate than it, itself fine-tuned on Persian, was more than ten times slower; the
+smallest synthesizer (15.7 million parameters) was both the most intelligible and the fastest; and the
+largest model, the 7.7-billion-parameter end-to-end model, did not reach intelligible speech. The best
+trade-off point for real-time Persian is small components specialized for Persian.
+
+\textbf{Question 4: the perception of older adults.} The instrument and protocol of the listening study
+are ready and pre-registered, but the participants' responses have not yet arrived; until then this
+report makes no claim about the perception of older adults.
+
+\section{Future Work}
+\label{sec:future}
+
+\subsection{Completing the Evidence}
+
+\begin{enumerate}
+\item \textbf{Target hardware and a physical path.} Running the same loopback protocol on a 12--24 GB
+      card, and a test with a physical microphone and loudspeaker that includes real echo and the
+      browser's echo cancellation.
+\item \textbf{Human study.} Collecting the responses of 5--10 participants (at least two aged over 60)
+      with the registered instrument; and as a next step, a short live interaction session with older
+      adults.
+\item \textbf{Human labels.} A listening review of a sample of interruption events and dataset pairs by
+      two independent reviewers, to validate the automatic Gemini labels and the extraction rules.
+\item \textbf{Human judging of the responder.} The two automatic judges disagree considerably about the
+      responders (Gemini rates the responders with the elderly prompt about one point better and the
+      Qwen judge does not). The replacement rule was registered before the listening study was sent,
+      and the configuration of Qwen3.5-4B with the elderly prompt has passed its deployment
+      qualification; the participants' preference therefore decides whether it replaces the deployed
+      responder.
+\end{enumerate}
+
+\subsection{Improving the System}
+
+\begin{enumerate}
+\item \textbf{More accurate lexical confirmation.} The first phoneme of short backchannels is sometimes
+      clipped (\fa{«آره»} as \fa{«کار»}). Adding 200 ms of audio before the onset to the recognizer's
+      input was tested and rejected: more interruptions were stopped (0.98 versus 0.95) but more
+      backchannels and noise too, and accuracy fell (Section~\ref{sec:res-bargein-sim}). Separating
+      listener words from content words with a clipped onset needs labelled data and a learned model.
+\item \textbf{End-of-speech detection for older adults.} The long pauses of slow speech sometimes close
+      the turn before the end of the sentence (87 server turns for 80 planned turns). The system
+      compensates when the user continues by stopping the reply. A semantic end-of-turn gate with Smart
+      Turn, an LLM judgement and a lexical rule was tested, and none worked without wrongly delaying
+      more than 5\% of genuine ends (Section~\ref{sec:res-latency}); a Persian end-of-turn model needs
+      data with turn ends labelled by people, not the speaker boundaries of podcasts.
+\item \textbf{A more accurate recognizer within the same budget.} Seamless had a lower character error
+      rate but more than four times the latency budget; distilling it into a CTC model or running it in
+      streaming mode could raise accuracy without a latency cost.
+\end{enumerate}
+
+\subsection{The Direct Track}
+
+The tokenizer finding points to a clear path: a direct Persian model needs a tokenization that fits
+within the one-token-per-frame budget (phoneme-based or with a Persian vocabulary), pre-training on
+Persian dialogue at a scale close to J-Moshi's (tens of thousands of hours, for which no public
+Persian corpus exists), and a remedy for the gap between teacher forcing and free generation, such as
+scheduled input dropout at a larger scale or training on the model's own output. The frozen-model
+approach of Freeze-Omni~\cite{wang2025freezeomni} and stabilizing Persian speech generation with
+plentiful single-speaker data such as ManaTTS~\cite{qharabagh2025manatts} before dialogue training are
+also promising paths. For the speech-input model, training on more varied speech (not only podcasts)
+is needed, because self-distillation on one domain hurt outside that domain.
+
+\section{Closing Remarks}
+\label{sec:closing}
+
+This project showed that a full-duplex Persian voice assistant with an open microphone, latency below
+half a second and reliable interruption detection can be built within the budget of a bachelor's
+project with open components; and it showed that an end-to-end Persian speech-to-speech model needs
+more than low-rank adaptation, including a tokenization suited to the language. The negative result
+of the direct track, together with its measured cause, is worth no less than the positive result of
+the cascade: offline loss reduction can be misleading, and a runtime generation test must be part of
+the selection criterion.

@@ -10,6 +10,10 @@
 #   ./build.sh all          full report then concise report
 #   ./build.sh quick        single xelatex pass of the full report
 #   ./build.sh short-quick  single xelatex pass of the concise report
+#   ./build.sh en           English full report (thesis-en.tex → thesis-en.pdf)
+#   ./build.sh en-short     English concise report (thesis-short-en.tex → thesis-short-en.pdf)
+#   ./build.sh en-all       both English reports
+#   ./build.sh everything   the Persian and the English reports
 #   ./build.sh clean        remove auxiliary files
 
 set -euo pipefail
@@ -86,7 +90,11 @@ case "$MODE" in
           thesis-short-build.log thesis-short-pass1.log thesis-short-pass2.log \
           thesis-build.log thesis-pass1.log thesis-pass2.log \
           bibtex-thesis.log bibtex-thesis-short.log
+    for job in thesis-en thesis-short-en; do
+      rm -f "${job}".{aux,bbl,blg,log,lof,lot,out,toc} "${job}"-{build,pass1,pass2}.log bibtex-"${job}".log
+    done
     rm -f chapters/*.aux chapters/short/*.aux front/*.aux front/template/*.aux bibs/*.aux
+    rm -f chapters/en/*.aux chapters/en/short/*.aux front/en/*.aux
     echo "cleaned"
     ;;
   quick)
@@ -120,8 +128,25 @@ case "$MODE" in
     fi
     build_job thesis-short full
     ;;
+  en)
+    build_job thesis-en full
+    ;;
+  en-short)
+    build_job thesis-short-en full
+    ;;
+  en-all)
+    build_job thesis-en full
+    build_job thesis-short-en full
+    ;;
+  en-quick)
+    build_job thesis-en quick
+    ;;
+  everything)
+    "$0" all
+    "$0" en-all
+    ;;
   *)
-    echo "usage: $0 [full|short|all|quick|short-quick|clean]" >&2
+    echo "usage: $0 [full|short|all|quick|short-quick|en|en-short|en-all|en-quick|everything|clean]" >&2
     exit 2
     ;;
 esac

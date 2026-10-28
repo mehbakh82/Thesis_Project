@@ -1,0 +1,48 @@
+% English edition of the concise B.Sc. project report (maximum 30 pages); the
+% Persian original is thesis-short.tex. The full report is thesis-en.tex.
+
+\documentclass[oneside,a4paper,12pt]{book}
+
+\input{styles/english.tex}
+
+\linespread{1.22}
+\setlength{\parskip}{0.22em}
+\setcounter{tocdepth}{1}
+\raggedbottom
+
+\renewcommand{\claim}[1]{%
+  \par\vspace{0.08em}%
+  \noindent\begin{minipage}{\linewidth}%
+    {\footnotesize\itshape #1\par}%
+  \end{minipage}%
+  \par\vspace{0.18em}}
+
+\begin{document}
+
+\input{front/info}
+\pagestyle{empty}
+\include{front/en/title-short}
+
+\pagestyle{plain}
+\pagenumbering{roman}
+\include{front/en/abstract}
+
+\tableofcontents
+
+\pagenumbering{arabic}
+\include{chapters/en/short/introduction}
+\include{chapters/en/short/background}
+\include{chapters/en/short/method}
+\include{chapters/en/short/results}
+\include{chapters/en/short/conclusions}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{References}
+\begingroup
+\linespread{1.0}\selectfont
+\bibliographystyle{./styles/packages/unsrtabbrv}
+\bibliography{bibs/full,bibs/refs}
+\endgroup
+
+\end{document}

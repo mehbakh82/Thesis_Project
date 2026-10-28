@@ -1,0 +1,278 @@
+\chapter{Discussion and Limitations}
+\label{ch:discussion}
+
+This chapter interprets the results of Chapter~\ref{ch:results}. Four key observations
+are examined in detail, and then the limitations and the ethical and legal
+considerations are listed.
+
+\section{The Gap Between Reducing Loss and Valid Generation}
+\label{sec:disc-gap}
+
+The most important finding of this project is a pattern that repeated in all seven
+experimental generations of the direct track: the teacher-forced loss decreased
+monotonically, while the autoregressive runtime condition was never met. Version two is
+the clearest illustration of this pattern, because its best runtime behaviour occurs at
+step 400, where the validation loss is \emph{higher}, and as the loss falls further until
+step 2000, the runtime behaviour reaches zero (Figure~\ref{fig:v2}).
+
+There are three possible explanations for this observation, and the project's evidence
+helps to separate them.
+
+\paragraph{Explanation one: a lack of learning capacity.} The low-rank adapter might lack
+the capacity to represent Persian. Version v6.2 was designed specifically to falsify this
+hypothesis: training and evaluation on the same 32 samples. The 32.20\% reduction of the
+in-sample text loss shows that the adapter has the \emph{capacity} to fit the objective. This
+explanation is therefore rejected.
+
+\paragraph{Explanation two: exposure bias.} The explanation more consistent with the
+evidence is the concept introduced in Section~\ref{sec:exposure-bias}. In training, the model
+always receives the ``correct'' previous text and audio tokens as its condition, and
+predicting one step ahead is an easy problem, especially in the ``inner monologue''
+architecture, where the time-aligned text is present in the input. In autoregressive
+generation, however, the model must build both the text and the audio from scratch. If the
+first tokens drift slightly from the reference distribution, the model moves into a region it
+has not seen in training, and errors grow cumulatively.
+
+An observation that strengthens this explanation is visible in Table~\ref{tab:v45}: as the loss
+decreases, the number of rows that produce \emph{any} speech falls from 9 to 4 or 5. That is, as
+the model fits the objective better, it leans towards silence in independent generation. This
+behaviour is not consistent with a model that has merely ``not learned enough''; it is
+consistent with a model that has learned to predict correctly in the presence of the reference
+input text and collapses in its absence.
+
+Version v6.2 tried to compensate for exactly this: scheduled dropout of the text input raised
+the share of hidden reference tokens from 0.25 to 0.75, so that the model would learn to rely on
+its own predictions. This intervention kept the learning signal but did not transfer to valid
+generation. A likely explanation is that with 32 training samples and 200 steps, the budget
+available to relearn a stable generative behaviour is far below what is needed.
+
+\paragraph{Explanation three: the English-centred base model.} The base model is strongly
+English-centred. In the first generations it was observed that the output of intermediate
+checkpoints is \emph{English} speech, not Persian. That is, the adapter could not shift the
+distribution of the generated language and affected only acoustic details. Version four's
+attempt to train the text embeddings selectively was a direct answer to this hypothesis, and it
+was not enough either.
+
+\paragraph{Methodological conclusion.} Regardless of which explanation contributes most, one
+practical conclusion is certain, and in our view it is the most important scientific
+contribution of this report:
+
+\begin{quote}
+In low-rank adaptation of a speech-to-speech model to a new language, the teacher-forced
+validation loss is not a sufficient, or even a reliable, criterion for checkpoint selection. A
+runtime test of autoregressive generation must be part of the selection criterion, not a check
+after selection.
+\end{quote}
+
+Had the project based its selection criterion on loss alone, the step-8000 checkpoint of version
+one, with the lowest validation loss and a significant improvement over the base model (1.7272
+versus 3.5670 on held-out data), would have been reported as ``a Persian speech-to-speech
+model'', while that same checkpoint produced almost silent audio and no text in the official
+server.
+
+\section{Why the Word Error Rate Is Much Higher Than the Character Error Rate}
+\label{sec:disc-cer-wer}
+
+In the re-recognition measure on the same 9 outputs of the mechanical panel with the
+Qwen2.5-0.5B responder, the character error rate is 7.14\% and the word error rate 30.41\%; that
+is, the word error rate is more than four times higher. At first sight this ratio looks
+worrying, but it is to a large extent a \emph{definitional} effect in Persian.
+
+Three mechanisms contribute to this gap. First, the \textbf{word boundary in Persian}. In the
+definition used, the ZWNJ counts as a word boundary. If the recognition service writes a
+compound word with a full space while the reference writes it with a ZWNJ, one word becomes two,
+and this single difference produces two word edits, while at the character level there is only
+one character of difference. Second, \textbf{inconsistent written forms}. Many Persian words
+have several accepted written forms. Third, the \textbf{length effect}. The mean word length in
+the data of this panel is about four characters; under these conditions, every one-character
+error automatically becomes a complete word error.
+
+There is supporting evidence for this interpretation in the data: in all 9 rows, the number of
+characters in the hypothesis and the reference is almost the same (for example 52 and 52 in the
+first row), while the number of words differs (11 and 12). That is, the character content is
+almost preserved and the difference is mostly in segmentation.
+
+Nevertheless, two limitations of this interpretation must be stated explicitly. First, part of
+the error can come from wrong pronunciation by the speech engine rather than from
+segmentation; separating these two shares is not possible without human listening. Second, the
+recognition service takes part both in the system and in the measurement; their shared error can
+shift the result in either direction. A character error rate of 7.14\% can therefore not be
+translated into ``the generated speech is fully understandable for humans''.
+
+\section{Why Adapting the Responder Lowered the Loss but Did Not Improve Quality}
+\label{sec:disc-reference}
+
+The experiment of Section~\ref{sec:res-lora} has an apparent contradiction: low-rank adaptation
+of the responder reduced the development loss by 31.18\% but did not beat the baseline in the
+semantic evaluation. The answer to this contradiction lies in the nature of the training
+\emph{target}.
+
+The training target of this adapter was to reproduce the ``next speaker's turn'' in the
+conversational data. But the next speaker's turn in a natural conversation programme is not an
+assistant's answer to a question. That turn can be a short affirmation, a change of topic, a
+joke, a counter-question or the continuation of the speaker's own story. Trained on this target,
+the model learns the \emph{style} of natural turn-taking better and the loss decreases, but it does
+not learn instruction following and relevant answering, and may even damage them.
+
+The direct and decisive evidence for this interpretation is in the final semantic test: the
+``automatically aligned next-speaker reference'' arm received the lowest relevance score, 0.950,
+lower even than the 0.5-billion-parameter baseline (1.425) (Figure~\ref{fig:semantic}). That is,
+the automatic judge rated as irrelevant the very target the adapter had tried to imitate.
+
+The practical consequence of this observation for later research is clear: automatically aligned
+turns from natural conversation are \emph{valuable} material for learning speech timing,
+turn-taking and interaction phenomena, but without a stage of selection and rewriting they are a
+\emph{weak} target for training instruction-following answering. This point probably also
+explains part of the failure of the direct track, because the direct model was trained on the
+same pairs.
+
+\section{A Structural Conflict Between the Requirements}
+\label{sec:disc-conflict}
+
+The analysis of Table~\ref{tab:positioning} reveals a structural conflict in the project
+definition that is worth recording. Requirement R2 asks for full-duplex capability and
+requirement R3 for a latency of at most 500 ms, while requirement R6 requires running on a GPU
+with 12--24 GB of memory.
+
+The models with \emph{native} full-duplex capability --- those that model the user's stream and
+their own at the same time --- did not fit within the target memory range at the time of this
+project. The base model of this project's direct track used up to 28.640 GB of memory in
+training. On the other hand, the first cascade architecture fitted within the target memory
+range, but because the whole reply was built before playback, its latency (a median of 5584.7 ms
+for full reply generation, Table~\ref{tab:cascade-rows}) was far from the target.
+
+The project resolved this conflict by making the cascade streaming: speculative end-of-speech
+detection, streaming token generation, clause chunking and synthesizing each clause as soon as
+it is complete. The result was a mean of 372 and a 90th percentile of 431 ms in the browser
+loopback test, with the GPU side at 11.1~GiB; full duplex was achieved with an external
+two-stage controller instead of a native model. The cost of this solution is the loss of the
+\emph{native} capabilities of full-duplex models, such as continuous turn prediction and the
+assistant's own backchannels.
+
+\section{The Value and Boundary of the Automatic Semantic Result}
+\label{sec:disc-judge}
+
+The result of the final semantic test is positive and passed all seven predefined conditions.
+The design of this test has several methodological strengths: a qualification stage separate from
+the final test, row indices and thresholds locked before running, blinding and randomization of
+the arm order, deterministic decoding of the judge, and full validity of all 240 calls with a
+repetition agreement rate of 1.00.
+
+Nevertheless, three limitations separate it from a human result. First, the \textbf{same family
+of judge and candidate}. The judge and the candidate are of the same model family; the literature
+on automatic evaluation has shown that judges favour the output of models of their own
+family~\cite{zheng2023mtbench}. Second, an \textbf{uncalibrated rubric}. The scoring rubric is not
+calibrated against the scores of Persian speakers; we therefore do not know what level of real
+user satisfaction a score of 3.150 out of 4 corresponds to. Third, the \textbf{semantic scope}. This
+test measures only relevance and coherence and says nothing about the factual correctness of the
+content, the safety of the reply or the naturalness of the speech.
+
+Within these boundaries, the correct interpretation is: the cascade produces replies that an
+automatic judge systematically, and by a wide margin (+1.725 in relevance), rates as more
+relevant than the baseline. This is valid engineering evidence that the system works, not a
+claim of perceptual quality.
+
+\section{Limitations}
+\label{sec:limitations}
+
+The limitations of this project, stated explicitly and listed, are:
+
+\begin{enumerate}
+\item \textbf{Target hardware.} The evaluation was not run on a physical 12--24 GB GPU. The memory
+      of the whole system was measured by limiting the language model server (11.1~GiB), but the
+      compute speed is the H100's; latency on a consumer card will probably be higher.
+
+\item \textbf{Automated loopback testing.} Latency and interruptions were measured with a headless
+      browser and a fake microphone, not with a human user, a physical microphone and loudspeaker
+      and real echo; in the simulation the echo was modelled as attenuated and delayed speech. In
+      the final run all turns of the main panel are below 500 ms, but the maximum for simulated
+      elderly speech (546) is above it, and with the browser's output latency 2\% of the turns of
+      the main panel exceed 500.
+
+\item \textbf{Human study.} Only a small listening study (5--10 participants, remote, based on
+      recordings) was designed, and its results had not been received when this version was
+      written. Live interaction with older adults was not measured.
+
+\item \textbf{Automatic labels and judging.} The interruption labels come from extraction rules,
+      Gemini and a list of listener tokens, reply quality was measured with an LLM judge and speech
+      with an automatic recognizer; none of these is a human label. The two responder judges agree
+      exactly only 44.6\% of the time.
+
+\item \textbf{Interruption detection method.} The project definition asks for interruption detection
+      with energy, pitch and MFCC features; a classifier based on these features alone reached only
+      0.574 accuracy on real events, and the deployed controller relies on the speech recognizer,
+      which brings the time to a complete stop to about half a second.
+
+\item \textbf{Listening review of the data.} No row of the dataset is ``human-verified''.
+
+\item \textbf{Direct track.} No experimental generation of Moshika and no Gemma speech-input adapter
+      became eligible for deployment.
+
+\item \textbf{Generalization.} The dataset is derived from four conversational channels, and the
+      elderly user's voice in the tests is simulated (slowed machine speech), not recordings of older
+      adults.
+
+\item \textbf{Full reproduction.} The adapter tensors of versions two to five have been deleted, and
+      only their hashes and results remain.
+\end{enumerate}
+
+\section{Ethical, Privacy and Legal Considerations}
+\label{sec:ethics}
+
+\subsection{Provenance and Rights of the Data}
+
+The dataset is derived from an internal archive of Persian spoken content. Internal research use
+of these resources was recorded with the supervisor's approval. This approval is not a ``licence to
+redistribute'': the raw audio, the raw captions and their derivatives were not placed in the code
+repository and are not published in the project's delivery package either. The statement ``publicly
+available data has a free licence for training or redistribution'' is false and is not used in this
+report.
+
+\subsection{Privacy in the Human Study}
+
+The system has three data retention modes: keeping the audio file, keeping only a reduced feature
+vector, and keeping only metrics. The suggested default for the human study is the features-only
+mode, so that no reconstructable speech of a participant is stored. An automatic test also checks
+that no audio file is written in the metrics-only mode.
+
+The principle of data minimization was also kept in the automatic evaluations: the result artifacts
+do not store transcript text, reply text or judge explanations in plain text, and keep only hashes
+and aggregate values. The retrospective descriptive analysis of Section~\ref{sec:res-cascade} was
+also explicitly run without reading plain text.
+
+\subsection{Licence and Its Boundaries}
+
+The source code and documentation belonging to this project are published under the Apache-2.0
+licence. This licence does \emph{not} cover the following, and the separate terms of each still
+apply: third-party software components, the weights of language and speech models, the source
+dataset and its derivatives, trained adapters, restricted media and captions, and the materials of
+human-study participants. In particular, the speech engine used has a different licence, and its
+obligations remain separate.
+
+\subsection{Use and Misuse}
+
+A system that generates natural Persian speech can be misused. In its current form, two factors
+limit this risk: the output voice is a single, known synthesized voice and no voice cloning of
+individuals is implemented; and the text responder works with a locked prompt. Nevertheless, the
+project performed no content safety measurement, and the responder model can produce incorrect
+content; using this prototype in any setting where an incorrect answer has serious consequences is
+not permitted without a safety measurement layer.
+
+\section{Statements This Report Avoids}
+\label{sec:forbidden}
+
+For transparency, the following eight statements \textbf{cannot be claimed} with the evidence of
+this project. Each statement is quoted to make clear that these are not claims of this report but
+an explicit list of things that \textbf{have not been said} and should not be concluded from this
+project:
+
+\begin{itemize}
+\item ``Moshika was successfully fine-tuned for Persian.''
+\item ``The system's latency is below 500 ms.''
+\item ``The official interruption detection accuracy is above 80\%.''
+\item ``The speech output is natural and fully understandable for humans.''
+\item ``The system is suitable for use by older adults.''
+\item ``The nine-row panel proves that the system generalizes to Persian speech.''
+\item ``The source data have a free licence for redistribution or training.''
+\item ``The dataset was labelled and verified by humans.''
+\end{itemize}

@@ -1,0 +1,281 @@
+\chapter{Implementation and Reproduction Details}
+\label{ch:appendix}
+
+This appendix collects details that are needed to reproduce the results but did not fit in the
+main text: the repository layout, the exact hyperparameters of the experiments, the reproduction
+commands and the map of evidence artifacts.
+
+\section{Repository Layout}
+\label{sec:appendix-layout}
+
+Table~\ref{tab:layout} shows the top-level layout of the code repository.
+
+\begin{table}[ht]
+\centering
+\caption{Top-level layout of the project's code repository}
+\label{tab:layout}
+\small
+\begin{tabular}{lL{8.6cm}}
+\toprule
+\textbf{Path} & \textbf{Contents} \\
+\midrule
+\texttt{src/thesis\_s2s/runtime/}  & cascade, full-duplex server, text-to-speech, session
+                                     recording \\
+\texttt{src/thesis\_s2s/bargein/}  & feature extraction, detector, playback controller,
+                                     evaluation on recorded data \\
+\texttt{src/thesis\_s2s/data/}     & dataset pipeline, speaker diarization, pair extraction,
+                                     export and audit \\
+\texttt{src/thesis\_s2s/eval/}     & measures, comparison tests and the fail-closed evidence
+                                     aggregator \\
+\texttt{src/thesis\_s2s/model/}    & the early experimental artifact, for historical
+                                     reference only \\
+\texttt{configs/}                  & configuration of the data, detector, measures and the
+                                     seven direct-track generations \\
+\texttt{scripts/}                  & preflight, training, re-evaluation, checkpoint selection
+                                     and locked evaluations \\
+\texttt{docs/}                     & predefined protocols, the review waiver document and
+                                     recorded decisions \\
+\texttt{results/}                  & write-once result artifacts \\
+\texttt{tests/}                    & automated test suite \\
+\texttt{third\_party/}             & lock file of upstream repositories and models \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Hyperparameters of the Direct-Track Experiments}
+\label{sec:appendix-hparams}
+
+Table~\ref{tab:hparams} shows the exact hyperparameters of the seven experimental generations.
+All runs used the AdamW optimizer and gradient checkpointing.
+
+\begin{table}[ht]
+\centering
+\caption{Hyperparameters of the seven generations of low-rank adaptation in the direct track}
+\label{tab:hparams}
+\small
+\begin{tabular}{lrrrrrl}
+\toprule
+\textbf{Version} & \textbf{Max} & \textbf{Window} & \textbf{Rank} &
+\textbf{Seed} & \textbf{Peak} & \textbf{Trained} \\
+ & \textbf{steps} & \textbf{(s)} & & & \textbf{memory (GB)} &
+\textbf{embeddings} \\
+\midrule
+v1   & 8000 & 20  & 64  & 20260823 & 22.920   & upstream key \\
+v2   & 2000 & 100 & 64  & 20260827 & \missing & upstream key \\
+v3   & 500  & 100 & 128 & 20260827 & 26.504   & none \\
+v4   & 500  & 100 & 128 & 20260827 & 28.640   & two text embeddings \\
+v5   & 500  & 100 & 128 & 20260827 & 28.640   & two text embeddings \\
+v6.2 & 200  & 12  & 64  & 20260901 & 16.577   & three text tensors \\
+v7a  & 200  & 12  & 64  & 20260901 & 22.660   & three text tensors \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\claim{Versions v4 and v5 differ only in the first-codebook loss weight: 100 against 10. In
+addition to the hyperparameters above, version v6.2 had scheduled text-input dropout from 0.25 to
+0.75 and an audio loss weight of 0.1, and was trained and evaluated on the same 32 samples. Version
+v7a was trained on the same 32 samples, with the inner-monologue text as a phoneme romanization and
+word-level timing.}
+
+\section{Hyperparameters of the Detector and the Responder}
+\label{sec:appendix-detector}
+
+Table~\ref{tab:hparams2} collects the configuration of the interruption detection module and the
+text responder adapter.
+
+\begin{table}[ht]
+\centering
+\caption{Configuration of the interruption detection module and the text responder adapter}
+\label{tab:hparams2}
+\small
+\begin{tabular}{L{6.6cm}R{4.2cm}}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+\multicolumn{2}{c}{\textbf{Interruption detection module}} \\
+\midrule
+Sampling rate & 16000 Hz \\
+Frame length & 20 ms \\
+Context window length & 400 ms \\
+Number of MFCCs & 13 with deltas \\
+Fundamental frequency search range & 60--400 Hz \\
+Number of trees & 200 \\
+Maximum tree depth & 4 \\
+Learning rate & 0.08 \\
+Minimum samples per leaf & 8 \\
+Decision horizon after the acoustic onset & 120 ms \\
+Selected decision threshold & 0.70 \\
+Inference time per step on the CPU & 7.931 ms \\
+\midrule
+\multicolumn{2}{c}{\textbf{Text responder adapter}} \\
+\midrule
+Rank and scale factor & 16 and 32 \\
+Dropout & 0.05 \\
+Training epochs & 2 \\
+Random seed & 20260906 \\
+Eligible training rows & 2576 of 6419 \\
+Eligible development rows & 12 of 131 \\
+Response-token loss of the base model & 3.723 \\
+Loss after epochs one and two & 2.643 and 2.562 \\
+Reduction relative to the base model & 31.18\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Reproduction Commands}
+\label{sec:appendix-commands}
+
+The following commands reproduce the main stages. The \texttt{PYTHONPATH} variable must point to the
+\texttt{src} directory; the subcommand of each stage is listed in Table~\ref{tab:commands}.
+
+\begin{table}[ht]
+\centering
+\caption{Reproduction commands of the project's main stages}
+\label{tab:commands}
+\small
+\begin{tabular}{L{4.8cm}L{6.2cm}}
+\toprule
+\textbf{Stage} & \textbf{Subcommand} \\
+\midrule
+Corpus selection plan & \texttt{plan-conversation-corpus} \\
+Window reconstruction & \texttt{prepare-conversation-episodes} \\
+Audit of prepared windows & \texttt{audit-prepared-episodes} \\
+Speaker diarization & \texttt{diarize-conversation-episodes} \\
+Audit of diarization & \texttt{audit-diarized-episodes} \\
+Noise-condition labels & \texttt{annotate-conversation-noise} \\
+Corpus yield estimate & \texttt{estimate-conversation-yield} \\
+Building response pairs & \texttt{build-conversations} \\
+Audit of pairs & \texttt{audit-conversations} \\
+Stereo training export & \texttt{export-moshi-data} \\
+Audit of the export & \texttt{audit-moshi-data} \\
+Running the system & \texttt{serve} \\
+Aggregate evidence status & \texttt{evidence-status} \\
+Hardware preflight & \texttt{gpu-preflight} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The locked evaluations run as separate scripts in the \texttt{scripts} directory;
+Table~\ref{tab:eval-scripts} lists them.
+
+\begin{table}[ht]
+\centering
+\caption{Locked evaluation scripts}
+\label{tab:eval-scripts}
+\small
+\begin{tabular}{L{4.6cm}L{6.4cm}}
+\toprule
+\textbf{Evaluation} & \textbf{Script} \\
+\midrule
+Mechanical panel of the cascade & \path{evaluate_cascade_validation.py} \\
+Re-recognition measure & \path{evaluate_cascade_intelligibility.py} \\
+Two-stage semantic test & \path{evaluate_qwen4b_responder_v2.py} \\
+Interruption detector approximation & \path{evaluate_recorded_bargein_proxy.py} \\
+Generating the figures of this report & \path{make_thesis_figures.py} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\claim{These scripts operate on write-once artifacts and must not be used to reopen a final test or
+revise a finalized selection. The figures of this report were generated from these artifacts with
+\path{scripts/make_thesis_figures.py}.}
+
+\section{Map of Evidence Artifacts}
+\label{sec:appendix-evidence}
+
+Table~\ref{tab:evidence-map} names, for each claim of this report, its reference artifact.
+
+\begin{table}[ht]
+\centering
+\caption{Map of claims and reference artifacts. All paths are relative to the \texttt{results}
+         directory.}
+\label{tab:evidence-map}
+\footnotesize
+\begin{tabular}{L{4.6cm}L{7.4cm}}
+\toprule
+\textbf{Claim} & \textbf{Reference artifact} \\
+\midrule
+Aggregate status and acceptance conditions & \path{eval/EVIDENCE_STATUS.json} \\
+Readable summary & \texttt{eval/SUMMARY.md} \\
+Mechanical panel of the cascade & \path{eval/cascade_real_service_validation_panel.json} \\
+Retrospective descriptive analysis & \path{eval/cascade_validation_descriptive_analysis.json} \\
+Intelligibility approximation & \path{eval/cascade_intelligibility_proxy.json} \\
+Semantic qualification stage & \path{eval/qwen4b_responder_v2_development_proxy.json} \\
+Final semantic test & \path{eval/qwen4b_responder_v2_final_test_proxy.json} \\
+Responder adaptation & \path{training/responder_lora_v1.json} \\
+Interruption detector approximation & \path{eval/interrupt_recorded_proxy.json} \\
+Synthetic detector test & \path{eval/interrupt_bench.json} \\
+Dataset audit & \path{conversation_audit.json} \\
+Training export report & \path{moshi_export_report.json} \\
+Checkpoint selection of version one & \path{moshi_checkpoint_selection.json} \\
+Held-out loss of version one & \path{moshi_heldout_model_eval.json} \\
+Selection and runtime of version two & \path{moshi_v2_checkpoint_selection.json} \\
+Result of version v6.2 & \path{moshi_v6_text_dropout_reevaluation.json} \\
+Runtime of version v6.2 & \path{moshi_v6_text_dropout_runtime.json} \\
+Server-side latency & \path{eval/latency_bench.json} \\
+Human study & \path{eval/human_study.json} \\
+Final repository audit & \path{release/final_audit.json} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Runtime Environment}
+\label{sec:appendix-env}
+
+Table~\ref{tab:env} shows the main components of the runtime environment and the identifiers of the
+models used.
+
+\begin{table}[ht]
+\centering
+\caption{Main components of the runtime environment and the models used}
+\label{tab:env}
+\small
+\begin{tabular}{L{4.6cm}L{7.0cm}}
+\toprule
+\textbf{Component} & \textbf{Identifier} \\
+\midrule
+Text responder of the final system &
+Qwen3-4B-Instruct-2507
+\newline{\scriptsize cdbee75f17c01a7cc42f958dc650907174af0554} \\
+Responder of the 9/9 mechanical panel and re-recognition &
+Qwen2.5-0.5B-Instruct
+\newline{\scriptsize 7ae557604adf67be50417f59c2c2f167def9a775} \\
+Responder baseline in the semantic test & Qwen2.5-0.5B-Instruct \\
+Base model of the direct track & Moshika, seven billion parameters \\
+Audio codec of the direct track & Mimi \\
+Speech recognition & hybrid RNNT-CTC model of the Conformer family \\
+Text-to-speech & Piper with a Persian voice \\
+Judge of the semantic test &
+Qwen3.8-27B-FP8
+\newline{\scriptsize 017b9c7af6b5689d5dd426a76e0bc077eb5ca20a} \\
+Training and evaluation hardware & NVIDIA H100 NVL, 93.09 GB \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The exact revision and weight hash of each model are recorded in the lock file of upstream
+repositories and repeated in each result artifact, so that the claim ``this is exactly the model that
+was used'' is auditable.
+
+\section{Building This Report}
+\label{sec:appendix-build}
+
+The Persian original of this report is typeset with XeLaTeX and the XePersian package; this English
+edition uses XeLaTeX with polyglossia, so that the Persian examples in the text are typeset in the
+font of the Persian edition. To reproduce both, running \texttt{./build.sh everything} in the report
+directory is enough (\texttt{./build.sh en-all} for the English editions only); the script runs the
+typesetting and bibliography chain in an isolated container, so no local TeX installation is needed.
+
+Two technical points corrected while preparing the report may be useful to later users of the same
+template: first, the name of the localization option of XePersian has changed in recent versions and
+the previous option is no longer accepted; second, the right-to-left table patch of the bidi package
+is not compatible with the current release of the array package, and its dated release must be
+requested. Both corrections are recorded with comments in \texttt{styles/common.tex} (and the second
+also in \texttt{styles/english.tex}, because polyglossia loads bidi for Persian).
+
+A third point concerns the typesetting of numbers in the Persian edition. In right-to-left text, the
+bidirectional algorithm splits a decimal number at the separator into two parts and reverses their
+order; as a result the value 3.150 would be displayed as ``150.3''. For this reason, in the Persian
+edition every measured quantity is placed in an explicit left-to-right run, while the structural
+numbering --- the numbers of chapters, sections, pages, tables and figures --- keeps the automatic
+Persian digits.

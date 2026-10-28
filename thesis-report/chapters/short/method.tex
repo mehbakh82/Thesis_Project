@@ -60,7 +60,7 @@
   dashar/.style={ar,dashed}
 ]
 \node[client] (mic) at (0,0) {browser mic\\20 ms PCM16 frames\\+ playback level};
-\node[box] (vad)  at (3.2,-2.3) {Silero VAD endpointer\\speculative 160 ms\\confirm 256 ms};
+\node[box] (vad)  at (3.2,-2.3) {Silero VAD endpointer\\speculative 96 ms\\confirm 256 ms};
 \node[box] (asr)  at (6.4,-2.3) {NeMo v4 CTC\\ASR};
 \node[box] (llm)  at (9.6,-2.3) {Qwen3-4B (vLLM)\\streamed, Persian-only};
 \node[box] (tts)  at (12.8,-2.3) {clause chunker\\+ Mana Piper (CPU)};
@@ -87,7 +87,7 @@
 کارخواه مرورگر میکروفون را پیوسته می‌گیرد و هر \N{20} میلی‌ثانیه یک قاب
 (شماره ترتیب، تراز صدای در حال پخش دستیار و \N{320} نمونه \en{PCM16})
 می‌فرستد؛ بندهای پاسخ را روی صف پخش زمان‌بندی می‌کند و زمان‌ها را با ساعت
-خود گزارش می‌دهد. آشکارساز \en{Silero} پس از \N{160} میلی‌ثانیه سکوت نوبت
+خود گزارش می‌دهد. آشکارساز \en{Silero} پس از \N{96} میلی‌ثانیه سکوت نوبت
 پیش‌دستانه را آغاز می‌کند و صوت آن را تا قطعی‌شدن پایان گفتار در \N{256}
 میلی‌ثانیه نگه می‌دارد؛ اگر کاربر ادامه دهد، این نوبت لغو و گفتار به همان
 نوبت افزوده می‌شود. بازشناسی با \en{NeMo} نسخه \N{4} (\en{CTC}) انجام می‌شود

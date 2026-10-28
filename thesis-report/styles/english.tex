@@ -1,0 +1,92 @@
+% -------------------------------------------------------
+%  Styles for the English editions (thesis-en.tex, thesis-short-en.tex)
+% -------------------------------------------------------
+%
+% Same page layout, table helpers and claim-boundary notes as the Persian
+% editions; English body text, with Persian examples typeset through
+% polyglossia (\fa{...}) in the font of the Persian editions.
+
+\usepackage{amssymb,amsmath}
+\usepackage{graphicx,wrapfig}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage[figureposition=bottom,tableposition=top,font={small,bf},labelfont=bf]{caption}
+\usepackage{algorithmicx,algorithm}
+\usepackage[noend]{algpseudocode}
+% bidi (loaded by polyglossia for Persian) patches array against its 2024-06-01
+% release; the dated rollback keeps tabulars working (as in styles/common.tex).
+\usepackage{array}[=2024-06-01]
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc,backgrounds,shapes.geometric}
+\usepackage{fontspec}
+% hyperref before polyglossia: the bidi package that polyglossia loads for
+% Persian must come after hyperref.
+\usepackage[colorlinks,linkcolor=blue,citecolor=blue,urlcolor=blue,filecolor=blue]{hyperref}
+\usepackage{polyglossia}
+\setdefaultlanguage{english}
+\setotherlanguage{persian}
+
+\setmainfont[Scale=1.0]{TeX Gyre Termes}
+\setmonofont[Scale=0.86]{DejaVu Sans Mono}
+\newfontfamily\persianfont[
+  Script=Arabic,
+  Scale=1.09,
+  Extension=.ttf,
+  Path=styles/fonts/,
+  BoldFont=XB NiloofarBd,
+  ItalicFont=XB NiloofarIt,
+  BoldItalicFont=XB NiloofarBdIt
+]{XB Niloofar}
+
+% File names in tables: \path (from the url package, loaded by hyperref) may also
+% break after underscores.
+\makeatletter\g@addto@macro\UrlBreaks{\do\_}\makeatother
+
+% Persian words and short phrases quoted in the English text, kept on one line
+% (a line break inside a right-to-left quotation scrambles it); longer Persian
+% sentences use \textpersian directly.
+\newcommand{\fa}[1]{\mbox{\textpersian{#1}}}
+% The macros of the Persian sources, for pages included from them (the
+% Persian abstract at the end of the full report).
+\newcommand{\en}[1]{\textenglish{#1}}
+\newcommand{\N}[1]{\textenglish{#1}}
+
+
+% -------------------- Page Layout --------------------
+
+\newgeometry{margin=1in,bottom=1.1in,footskip=.4in}
+\linespread{1.35}
+\setlength{\parskip}{0.4em}
+\sloppy
+\renewcommand{\labelitemi}{{\small$\bullet$}}
+
+\widowpenalty=10000
+\clubpenalty=10000
+\displaywidowpenalty=10000
+
+
+% -------------------- Helpers --------------------
+
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+% Missing measured value in a numeric table cell.
+\newcommand{\missing}{--}
+
+% A claim-boundary note stating what a result may and may not be used to
+% assert; never split across pages.
+\newcommand{\claim}[1]{%
+  \par\vspace{0.15em}%
+  \noindent\begin{minipage}{\linewidth}%
+    {\footnotesize\itshape #1\par}%
+  \end{minipage}%
+  \par\vspace{0.35em}}
+
+\graphicspath{{figs/}}
+\setlength{\intextsep}{0pt}
+
+\newenvironment{alg}[2]
+	{\begin{algorithm}[t]\caption{#1}\label{algo:#2}\vspace{0.2em}\begin{algorithmic}[1]}
+	{\end{algorithmic}\vspace{0.2em}\end{algorithm}}

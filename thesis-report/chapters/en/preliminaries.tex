@@ -1,0 +1,413 @@
+\chapter{Preliminaries}
+\label{ch:prelim}
+
+This chapter introduces the concepts and tools used in the following chapters.
+It starts from the speech signal and acoustic features, moves to the components
+of the cascade and then to the architecture of end-to-end speech-to-speech
+models, and ends with the measures and statistical concepts of evaluation.
+
+\section{The Speech Signal and Acoustic Features}
+\label{sec:features}
+
+In this project speech is represented as a mono signal sampled at 16~kHz with
+16-bit integer samples. The continuous signal $x[n]$ is divided into fixed-length
+\emph{frames}; in this project a frame is 20 ms long, equivalent to 320 samples.
+Framing rests on the assumption that the statistical properties of speech are
+approximately constant over short intervals.
+
+\subsection{Energy and Zero-Crossing Rate}
+
+The simplest feature is the \textbf{frame energy}. For frame $t$ with $N$
+samples, the log energy is computed as
+
+\begin{equation}
+E_t = \log\!\left(\frac{1}{N}\sum_{n=1}^{N} x_t^2[n] + \epsilon\right),
+\label{eq:energy}
+\end{equation}
+
+where $\epsilon$ is a small positive value that avoids the logarithm of zero.
+Energy alone is not enough to detect speech, because loud noise also has high
+energy. A complementary feature is the \textbf{zero-crossing rate}, which counts
+the sign changes of the signal within the frame:
+
+\begin{equation}
+Z_t = \frac{1}{2(N-1)}\sum_{n=2}^{N}
+      \bigl|\operatorname{sgn}(x_t[n]) - \operatorname{sgn}(x_t[n-1])\bigr|.
+\label{eq:zcr}
+\end{equation}
+
+Voiced sounds have a low zero-crossing rate and fricatives a high one; combining
+the two features is the basis of classical voice activity
+detectors~\cite{sohn1999vad}.
+
+\subsection{Fundamental Frequency and the YIN Method}
+
+The \textbf{fundamental frequency}, $F_0$, is the vibration frequency of the
+vocal folds and is perceived as pitch. In this project $F_0$ is estimated with the
+YIN method~\cite{decheveigne2002yin}, which rests on the squared difference
+function:
+
+\begin{equation}
+d_t(\tau) = \sum_{n=1}^{W} \bigl(x_t[n] - x_t[n+\tau]\bigr)^2,
+\label{eq:yin-diff}
+\end{equation}
+
+where $\tau$ is the lag and $W$ the length of the analysis window. A
+``cumulative mean normalized'' version of this function is then built, and the
+first local minimum that falls below a threshold is chosen as the period
+$\hat{\tau}$; the fundamental frequency is $F_0 = f_s / \hat{\tau}$. If no minimum
+falls below the threshold, the frame is marked ``unvoiced''. In this project the
+search range of the fundamental frequency is 60--400 Hz, which covers male and
+female speakers.
+
+$F_0$ matters for interruption detection because the onset of human speech is
+usually accompanied by the appearance of voiced structure, while ambient noise or
+loudspeaker playback has no stable pitch pattern.
+
+\subsection{Mel-Frequency Cepstral Coefficients}
+
+MFCCs, the \textbf{mel-frequency cepstral coefficients}~\cite{davis1980mfcc}, are
+the most widely used short-term representation of speech; they compress the
+frame spectrum in a way that matches human auditory perception. They are computed
+as follows:
+
+\begin{enumerate}
+\item apply a window (for example a Hamming window) and compute the discrete
+      Fourier transform of the frame;
+\item compute the power spectrum and pass it through a bank of triangular filters
+      whose centres are spread on the mel scale. The mel scale relates to linear
+      frequency as
+      \begin{equation}
+      m(f) = 2595 \log_{10}\!\left(1 + \frac{f}{700}\right);
+      \label{eq:mel}
+      \end{equation}
+\item take the logarithm of each filter output;
+\item apply the discrete cosine transform to decorrelate the components and keep
+      the first coefficients.
+\end{enumerate}
+
+This project keeps 13 coefficients. So that the features also carry information
+about \emph{change} over time, the first derivative of these coefficients, known as
+the ``delta'', is computed and added to the feature vector. The features of each
+frame therefore comprise energy, zero-crossing rate, fundamental frequency, a
+voicing flag, 13 MFCCs and the 13 corresponding deltas.
+
+\subsection{Context Window and Decision Vector}
+
+A decision about an interruption cannot rely on a single frame. The features of
+the frames of a ``context window'' are therefore aggregated. In this project the
+context window is 400 ms, that is, 20 consecutive frames. For each dimension of the
+frame feature vector, three statistics --- the mean, the standard deviation and the
+maximum --- are computed over the window and concatenated into a single vector.
+This vector is the input of the classifier.
+
+\section{Speech Recognition}
+\label{sec:asr}
+
+\textbf{Speech recognition} maps an audio signal to a sequence of words. Current
+architectures usually combine a neural encoder with an alignment-free training
+objective. Two common objectives are Connectionist Temporal Classification
+(CTC)~\cite{graves2006ctc}, which marginalizes over all possible alignments under
+a conditional independence assumption, and the RNN Transducer
+(RNNT)~\cite{graves2012rnnt}, which also involves a language prediction network in
+the decision and is better suited to streaming recognition.
+
+The encoder used in the project's recognition service belongs to the Conformer
+family~\cite{gulati2020conformer}, which combines
+self-attention~\cite{vaswani2017attention} with convolution: self-attention models
+long-range dependencies and convolution local spectral patterns. The model is a
+hybrid RNNT-CTC model with subword units, implemented with
+NeMo~\cite{kuchaiev2019nemo} and served as a local service.
+
+An alternative approach is large-scale weakly supervised training; its prominent
+example is Whisper~\cite{radford2023whisper}, trained on hundreds of thousands of
+hours of multilingual data, which this project used only in component comparison
+tests.
+
+\section{Text-to-Speech}
+\label{sec:tts}
+
+Current \textbf{text-to-speech} systems are usually end-to-end. The
+VITS~\cite{kim2021vits} architecture, on which the Piper engine~\cite{piper2023} is
+based, combines a conditional variational autoencoder with adversarial training and
+a flow-based duration predictor, and generates the waveform directly without a
+separate vocoder.
+
+For Persian, text pre-processing matters particularly. Persian script does not
+write short vowels, the zero-width non-joiner (ZWNJ) marks the boundaries of the
+parts of compound words, and the written form of words can differ across sources.
+For this reason the project applies a deterministic Persian text normalizer before
+both evaluation and speech generation, so that character forms, ZWNJs and digits
+are unified.
+
+Using a \emph{deterministic} speech engine with a fixed voice is a methodological
+decision: because the audio output for a given input text is always the same,
+measurements based on it become reproducible.
+
+\section{Large Language Models and Low-Rank Adaptation}
+\label{sec:llm}
+
+\subsection{Autoregressive Language Models}
+
+A \textbf{language model} factorizes the probability of a token sequence
+$y_{1:T}$ as a chain:
+
+\begin{equation}
+p_\theta(y_{1:T}) = \prod_{t=1}^{T} p_\theta(y_t \mid y_{<t}),
+\label{eq:lm}
+\end{equation}
+
+and is fitted by minimizing the cross-entropy loss on training data. The dominant
+architecture is the decoder-only Transformer~\cite{vaswani2017attention}.
+\emph{Instruction-following} models are built with a supervised fine-tuning stage on
+instruction--response pairs~\cite{ouyang2022instructgpt}; the project's text
+responder belongs to this class.
+
+\subsection{Teacher Forcing and Exposure Bias}
+\label{sec:exposure-bias}
+
+A point that is decisive for interpreting the results of Chapter~\ref{ch:results}
+is the difference between training and inference conditions. In training, the
+model receives the ``correct'' previous tokens as its condition at every step; this
+is called \textbf{teacher forcing}. The loss reported in training and validation is
+computed under this condition.
+
+At inference, however, the model must condition on \emph{its own generated}
+tokens. If the distribution of generated tokens drifts from that of the reference
+tokens, the model enters a region of the state space it has not seen in training,
+and errors can grow cumulatively. This mismatch is known as \textbf{exposure
+bias}~\cite{ranzato2016scheduledsampling}, and its standard remedy is ``scheduled
+sampling'', which gradually replaces reference tokens with generated ones during
+training~\cite{bengio2015scheduledsampling}.
+
+The practical consequence of this concept is explicit: ``lower loss under teacher
+forcing does not by itself guarantee that the model gives usable output in
+autoregressive generation''. The direct-track experiment of this project is a clear
+example of this gap.
+
+\subsection{Parameter-Efficient Adaptation and LoRA}
+
+Full fine-tuning of a multi-billion-parameter model on limited hardware is not
+practical. \textbf{Parameter-efficient adaptation} methods train only a small
+number of parameters~\cite{houlsby2019adapters,li2021prefixtuning}. The method used
+in this project is LoRA~\cite{hu2022lora}. Its idea is that the update needed for a
+weight matrix has \emph{low rank}. For a frozen weight
+$W_0 \in \mathbb{R}^{d \times k}$, instead of learning a full $\Delta W$, two small
+matrices $A \in \mathbb{R}^{r \times k}$ and $B \in \mathbb{R}^{d \times r}$ with
+$r \ll \min(d,k)$ are trained, and the layer output becomes
+
+\begin{equation}
+h = W_0 x + \frac{\alpha}{r} B A x .
+\label{eq:lora}
+\end{equation}
+
+At the start, $B$ is zero, so the adapted model equals the base model. The
+parameter $r$ is the rank and $\alpha$ a scale factor. This project tried ranks 64
+and 128. The key advantage of LoRA for this work is that the base weights stay
+frozen, so a failed adapter never damages the base model and can simply be
+removed.
+
+\section{Neural Audio Codecs and Speech-to-Speech Models}
+\label{sec:codec}
+
+\subsection{Residual Vector Quantization}
+
+For a language model to generate speech, audio must be turned into a sequence of
+discrete tokens. A \textbf{neural audio codec} does this with an autoencoder with a
+Residual Vector Quantizer (RVQ) at its bottleneck. Prominent examples are
+SoundStream~\cite{zeghidour2021soundstream} and EnCodec~\cite{defossez2023encodec}.
+
+In residual quantization the latent vector $z$ is approximated successively. If
+$Q_i$ is the $i$-th codebook, then with $r_0 = z$:
+
+\begin{equation}
+q_i = Q_i(r_{i-1}), \qquad r_i = r_{i-1} - q_i, \qquad
+\hat{z} = \sum_{i=1}^{N_q} q_i .
+\label{eq:rvq}
+\end{equation}
+
+The first codebook carries coarse and mostly ``semantic'' information, and the
+following codebooks add ``acoustic'' detail. This hierarchy is why a larger weight
+is given to the first codebook's loss in training speech models; this weight was the
+changed factor in one of the project's experiments.
+
+\subsection{Language Modelling on Audio Tokens}
+
+Once audio is discrete, the same language modelling machinery can be applied to
+audio tokens; this idea is used in AudioLM~\cite{borsos2023audiolm} and
+VALL-E~\cite{wang2023valle}. The main challenge is that each time step has not one
+token but $N_q$ tokens (one per codebook). The solution is the
+RQ-Transformer: a large ``temporal'' Transformer works along the time axis, and a
+small ``depth'' Transformer generates the $N_q$ tokens of each time step
+autoregressively~\cite{lee2022rqvae}.
+
+\subsection{The Moshi Architecture and the ``Inner Monologue''}
+\label{sec:moshi-arch}
+
+Moshi~\cite{defossez2024moshi} models dialogue as speech-to-speech, and three of its
+properties matter for this project.
+
+First, the \textbf{Mimi codec}: a streaming audio codec that combines a semantic
+representation with an acoustic one in residual codebooks and works with an 80 ms
+time step.
+
+Second, \textbf{parallel streams}: the model models two audio streams at the same
+time, its own speech and the user's. The explicit notion of a ``turn'' therefore
+disappears, and overlap, interruptions and backchannels fit naturally into the
+model. This property is what makes Moshi a natural candidate for the full-duplex
+requirement.
+
+Third, the \textbf{Inner Monologue}: before generating the audio tokens of each
+step, the model predicts time-aligned ``text'' tokens. This intermediate text
+noticeably improves the linguistic quality of the generated speech. Its consequence
+for debugging is that the text loss and the audio loss can be monitored separately;
+Chapter~\ref{ch:results} uses this separation to show where the direct track
+failed.
+
+The version of the model used in this project is Moshika: a 7-billion-parameter
+model with a female voice, 32 Transformer layers, a latent dimension of 4096 and 16
+audio codebooks, eight of which are predicted in the depth Transformer.
+
+\section{Full Duplex and Turn-Taking}
+\label{sec:duplex}
+
+In human conversation, turn-taking is a precise and fast process. Classical work on
+turn organization showed that the gaps between turns are short and
+regular~\cite{sacks1974turntaking}; later engineering reviews report the typical gap
+as about two tenths of a second~\cite{skantze2021turntaking}.
+
+From an engineering point of view, three levels of capability should be
+distinguished:
+
+\begin{itemize}
+\item \textbf{Half duplex}: the system does not listen to the microphone while
+      playing its reply. The user has to wait.
+\item \textbf{Full duplex with external control}: the microphone is active during
+      playback and a \emph{separate} component decides whether to stop playback.
+      This is the architecture implemented and evaluated in this project.
+\item \textbf{Native full duplex}: the generative model itself models the user's
+      stream and its own at the same time, and turn-taking is part of the learned
+      distribution, as in Moshi.
+\end{itemize}
+
+For the three interaction events labelled in this report, the following
+distinction holds: an ``interruption'' is when the second speaker starts talking,
+continues and takes the turn; a ``backchannel'' is a short affirming utterance that
+does not take the turn; and a ``clean turn'' is when the second speaker starts only
+after the first speaker has finished.
+
+\section{Classification with Gradient Boosting}
+\label{sec:gbdt}
+
+The project's interruption detector uses a \textbf{gradient-boosted tree
+model}~\cite{friedman2001gbm} implemented in
+scikit-learn~\cite{pedregosa2011sklearn}. This method builds an ensemble in which
+each new tree fits the negative gradient of the loss of the current model:
+
+\begin{equation}
+F_m(x) = F_{m-1}(x) + \nu \, h_m(x),
+\label{eq:gbm}
+\end{equation}
+
+where $h_m$ is the new tree and $\nu$ the learning rate. This model family was
+chosen for three reasons: the project definition explicitly asks for a module based
+on hand-crafted features; its inference on the CPU fits within the few-millisecond
+budget of each audio step; and with a limited number of training events, tree models
+are more stable than deep neural networks.
+
+\section{Evaluation Measures and Statistical Concepts}
+\label{sec:metrics-prelim}
+
+\subsection{Word and Character Error Rates}
+
+The \textbf{Levenshtein} distance~\cite{levenshtein1966} is the minimum number of
+insertions, deletions and substitutions needed to turn one string into another. The
+word error rate and character error rate are defined on it. This report gives two
+forms of aggregation. The ``micro'' form divides the total number of edits by the
+total length of the references:
+
+\begin{equation}
+\mathrm{WER}_{\text{micro}} =
+\frac{\sum_{i} d\bigl(\hat{w}^{(i)}, w^{(i)}\bigr)}{\sum_{i} \bigl|w^{(i)}\bigr|},
+\label{eq:wer}
+\end{equation}
+
+and the ``macro'' form is the simple mean of the per-sample error rates. For
+Persian, the definition of a word boundary matters: in this project word tokens are
+separated by whitespace, and the ZWNJ also counts as a boundary. Character tokens
+are Unicode code points, excluding whitespace and ZWNJ. This definition makes the
+word error rate in Persian much stricter than the character error rate, a point
+interpreted in Chapter~\ref{ch:discussion}.
+
+\subsection{Detector Measures}
+
+For the two-class event ``interruption versus non-interruption'', the confusion
+matrix gives four values: true positives, false positives, true negatives and false
+negatives. From them the accuracy, the F1 score of the interruption class, the False
+Accept Rate (FAR) and the False Reject Rate (FRR) are computed. In full-duplex
+systems these two error rates are not equivalent: a false accept interrupts the
+system's reply for no reason, while a false reject makes the system ignore the
+user's interruption.
+
+\subsection{Confidence Intervals and Group Correlation}
+
+For proportions, the \textbf{Wilson} confidence interval~\cite{wilson1927interval} is
+reported; unlike the simple normal approximation, it remains valid for small samples
+and for proportions near the boundary.
+
+More importantly, events drawn from one speech session are not \emph{independent};
+the speaker, the acoustic conditions and the conversational style are shared. An
+event-level confidence interval therefore underestimates the real uncertainty. The
+solution used in this project is a \emph{session-level block bootstrap}: in each
+resampling repetition, \emph{sessions} are drawn with replacement, not individual
+events~\cite{efron1994bootstrap}. Chapter~\ref{ch:results} reports both intervals so
+that the effect of this difference can be seen.
+
+\subsection{Group Splits of the Data}
+\label{sec:group-split}
+
+If two parts of one speech session fall into the training and the test set, the
+model can memorize the speaker or the topic and the test result becomes optimistic.
+To avoid this ``group leakage'', the split unit in this project is the source
+session identifier: all pairs from one session fall entirely into one and only one
+split. The assignment uses deterministic hashing of the session identifier, so that
+the split is reproducible.
+
+\subsection{Automatic Judging with a Language Model}
+\label{sec:judge}
+
+The semantic quality of a dialogue reply cannot be measured with string-level
+measures, because one question has many correct answers. A standard substitute is
+to use a large language model as a ``judge''~\cite{zheng2023mtbench}. In this method,
+the candidate reply and the comparison replies are given to the judge
+\emph{double-blind} and in randomized order, and the judge scores them with a
+predefined rubric.
+
+The known limitations of this method are bias towards presentation order, bias
+towards reply length, and bias towards replies generated by models of the judge's
+own family. This project took three steps to reduce these effects: blinding the
+order, deterministic decoding of the judge at temperature zero, and repeating each
+call and reporting the agreement rate. Nevertheless, as Chapter~\ref{ch:discussion}
+stresses, this measure is an ``automatic approximation'' and no substitute for human
+evaluation, especially since in this project the judge and the candidate are of the
+same model family.
+
+\subsection{Latency Measures}
+\label{sec:latency-prelim}
+
+Two time measures are defined in this report:
+
+\begin{itemize}
+\item $T_{\text{first\_audio}}$: the time from the end of the user's speech to the
+      first \emph{audible} audio sample of the reply. The official value of this
+      measure must be reported by the client, because only the browser knows that
+      the audio source was actually scheduled.
+\item $T_{\text{barge\_in}}$: the time from the acoustic onset of the user's
+      interrupting speech to the moment playback of the reply \emph{actually} stops;
+      this value also needs client confirmation.
+\end{itemize}
+
+An important methodological point is that ``the server-side time to generate the
+whole reply'' is not the $T_{\text{first\_audio}}$ measure. Server generation time is
+a useful measurement for debugging, but not the latency acceptance condition.
+Chapter~\ref{ch:results} keeps this distinction carefully.

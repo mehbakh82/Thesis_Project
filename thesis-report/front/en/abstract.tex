@@ -1,0 +1,45 @@
+% English abstract (English editions); same text as front/abstract-eng.tex.
+\begingroup
+\setlength{\parskip}{0.3em}
+\linespread{1.2}\selectfont
+\begin{center}
+\textbf{Abstract}
+\end{center}
+
+This project designs, implements and evaluates a prototype Persian
+speech-to-speech system that operates in full-duplex mode: the user microphone
+stays open while the assistant speaks, and the system reacts to interruptions.
+Two tracks were pursued: low-rank adaptation of the end-to-end Moshika model to
+Persian, and a streaming cascade of NeMo speech recognition, the
+Qwen3-4B-Instruct-2507 responder and Piper speech synthesis. A conversational
+corpus of 6,754 user/response pairs (108.584 hours, session-disjoint splits) was
+derived from an archive of Persian spoken content.
+
+The final cascade detects the end of speech automatically and speculatively,
+streams the reply clause by clause, and handles interruptions in two stages: it
+ducks the assistant after one frame of speech louder than the expected
+residual echo, then confirms lexically with the speech recognizer after
+discarding listener tokens and the assistant's own echoed words. In automated
+real-browser loopback, end-of-speech to first assistant audio had a mean of
+372 ms and a 90th percentile of 431 ms, with every turn under 500 ms and the
+GPU side of the stack using 11.1 GiB. Interruption handling reached accuracy 0.933 and F1 0.880, with a
+median of 120 ms to the duck, in a deployment simulation built from real
+recordings, and accuracy 0.825 (F1 0.817) in the browser; an energy/F0/MFCC classifier
+alone reached only 0.574 on real podcast events. The responder passed all seven
+predeclared automatic gates of a 40-row final test (relevance 3.150 versus
+1.425). All components were re-selected on fresh panels, including speech
+recognition on human transcripts and synthesis with two automatic listeners.
+
+The direct track produced no deployable model. Moshi's English tokenizer needs
+6.6 tokens per Persian word and exceeds its one-token-per-frame budget;
+phoneme romanization doubled the best runtime result but the speech was still
+not intelligible, and a speech-input Gemma 4 model also underperformed the
+cascade. Latency and interruption evidence is automated and on an H100 (the
+memory of a 12 GB card was respected, its compute speed was not), labels are
+automatic, and the results of the human listening study are not yet available.
+
+\bigskip\noindent\textbf{Keywords}:
+Speech-to-speech, full-duplex dialogue, barge-in detection, Persian language,
+large language models, streaming cascade, tokenization, parameter-efficient adaptation
+\endgroup
+\newpage
