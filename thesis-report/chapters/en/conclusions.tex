@@ -91,12 +91,15 @@ after an interruption stayed as relevant as the reply to a normal turn
 change is the tokenizer.
 
 \textbf{Question 3: the trade-off between latency, size and quality.} In this project size did not buy
-quality (Table~\ref{tab:tradeoff}): the smallest recognizer fine-tuned on Persian (117 million
-parameters) was more accurate than all the general models of one to nine billion parameters, and the
-only model more accurate than it, itself fine-tuned on Persian, was more than ten times slower; the
-smallest synthesizer (15.7 million parameters) was both the most intelligible and the fastest; and the
-largest model, the 7.7-billion-parameter end-to-end model, did not reach intelligible speech. The best
-trade-off point for real-time Persian is small components specialized for Persian.
+quality (Table~\ref{tab:tradeoff}). The two smallest recognizers fine-tuned on Persian (115 and 117
+million parameters) were more accurate than every larger candidate but one, including a
+three-billion-parameter Persian fine-tune; the only more accurate model, itself fine-tuned on Persian,
+was more than ten times slower. Responders of 9 to 36 billion parameters, served at four bits where
+needed under a 22~GiB limit, gave no gain over the best 4B under both judges, and the largest dense one
+did not fit (Table~\ref{tab:resp-size}). The smallest synthesizer (15.7 million parameters) was both
+the most intelligible and the fastest, and the largest model, the 7.7-billion-parameter end-to-end
+model, did not reach intelligible speech. The best trade-off point for real-time Persian is small
+components specialized for Persian.
 
 \textbf{Question 4: the perception of older adults.} The instrument and protocol of the listening study
 are ready and pre-registered, but the participants' responses have not yet arrived; until then this

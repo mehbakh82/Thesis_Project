@@ -496,6 +496,58 @@ open with the short address \fa{«عزیزم،»} and the first clause is comple
 replacement decision therefore depends only on the preference section of the listening
 study.
 
+\textbf{Larger responders.} All the responders above have at most four billion
+parameters, because the stack was kept inside a 12~GiB card. The proposal's hardware range
+goes up to 24~GB, and at four bits much larger models fit it. A pre-registered comparison
+therefore asked whether a larger responder gives better replies than the best 4B
+(Qwen3.5-4B with the elderly prompt). Five larger models of 9 to 36 billion parameters,
+four of them at four bits, were served on the same path as the 4B arms (vLLM, greedy
+decoding, the Persian-only output constraint) under a 22~GiB memory limit. The 4B arms
+were generated again on that path. All replies were scored on the same 120 rows by the
+same two judges, under the replacement rule above with the best 4B as the reference
+(Table~\ref{tab:resp-size}). Gemma~4 31B at four bits does not fit: its weights take
+18.7~GiB and leave 0.05~GiB for the key-value cache, while one 2048-token request needs
+1.73~GiB.
+
+\begin{table}[ht]
+\centering
+\caption{Larger responders under a 22~GiB memory limit (120 written requests and turns;
+         scale 0--4; gain relative to the best 4B, Qwen3.5-4B)}
+\label{tab:resp-size}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrlrrrr}
+\toprule
+ & & & \multicolumn{2}{c}{Relevance (gain)} & \multicolumn{2}{c}{Median time} \\
+Arm & Params & Weights & Qwen3.8 & Gemini & First token & Reply \\
+\midrule
+Qwen3-4B (deployed) & 4.02B & bf16 & 3.25 & 2.46 & 38 ms & 170 ms \\
+Qwen3.5-4B (best 4B) & 4.66B & bf16 & 3.23 & 3.35 & 68 ms & 267 ms \\
+Gemma 4 E4B & 8.61B$^{a}$ & 4-bit & 2.88 & 3.50 & 54 ms & 240 ms \\
+Qwen3.5-9B & 9.65B & bf16 & 3.24 ($+0.01$) & 3.48 ($+0.13$) & 66 ms & 609 ms \\
+Gemma 4 12B & 12.0B & 4-bit & 3.04 ($-0.19$) & 3.61 ($+0.26$) & 56 ms & 449 ms \\
+Gemma 4 26B-A4B$^{b}$ & 25.8B & 4-bit & 2.77 ($-0.46$) & 3.55 ($+0.20$) & 53 ms & 201 ms \\
+Gemma 4 31B & 31.3B & 4-bit & \multicolumn{4}{c}{does not fit} \\
+Qwen3.5-35B-A3B$^{b}$ & 36.0B & 4-bit & 3.13 ($-0.10$) & 3.49 ($+0.14$) & 121 ms & 292 ms \\
+\bottomrule
+\end{tabular}
+\par\smallskip\footnotesize
+$^{a}$ Stored parameter count; the name refers to about 4 billion ``effective'' parameters.
+$^{b}$ Mixture of experts, with about 4 (Gemma) and 3 (Qwen) billion parameters active per
+token.
+\end{table}
+
+No larger model beats the best 4B. Under the Qwen judge none gains more than 0.01 in
+relevance, and Gemma~4 26B is worse, with an interval of $-0.66$ to $-0.26$. Under Gemini
+every larger model gains, and Gemma~4 12B reaches the threshold ($+0.26$, interval 0.08 to
+0.44). Even so, it wins only 26\% of the rows, because most rows score the same. The
+judges split along the model families again: Gemini prefers the Gemma models and the Qwen
+judge the Qwen models, and their exact agreement on relevance is 52\%. The larger Gemma
+models do score higher on coherence and elderly appropriateness under both judges, but
+not on relevance, the primary measure. On this panel, then, size did not buy reply
+quality, and no 24~GB profile was qualified. Latency does not rule the larger models out:
+every first token arrives within 53--121 ms.
+
 \subsection{Voice with Two Automatic Listeners}
 
 All six Persian Piper voices were generated with the same 60 replies, and their
@@ -1198,12 +1250,15 @@ model files themselves.
          tests of the previous sections)}
 \label{tab:tradeoff}
 \small
+\setlength{\tabcolsep}{4.5pt}
 \begin{tabular}{llrlr}
 \toprule
 Stage & Candidate & Params & Quality & Latency \\
 \midrule
 ASR & NeMo v4 CTC (deployed) & 117M & CER 9.44\% & 58 ms \\
+ & Shenava Koochik & 115M & CER 8.95\% & 65 ms \\
  & omniASR CTC 1B & 976M & CER 14.04\% & 56 ms \\
+ & Rade-ASR-CTC-3B (Persian) & 3.08B & CER 16.11\% & 122 ms \\
  & Seamless v5 fine-tune & 1.50B & \textbf{CER 6.92\%} & 671 ms \\
  & Whisper large-v3 & 1.54B & CER 23.02\% & 1101 ms \\
  & Qwen3-ASR 1.7B & 2.35B & CER 20.47\% & 1466 ms \\
@@ -1213,6 +1268,8 @@ Responder$^{b}$ & Qwen3-4B, prompt-v2 (deployed) & 4.02B & 2.80 / 1.91 & 86 ms \
  & Gemma 4 E4B, elderly prompt & 8.61B$^{a}$ & 2.49 / 3.00 & 98 ms \\
 Speech input$^{b}$ & Gemma 4 E4B, audio in & 8.61B$^{a}$ & 1.98 / 2.18 & 67 ms \\
  & + speech LoRA & 8.61B$^{a}$ & 2.05 / 2.52 & 200 ms \\
+Responder$^{d}$ & Qwen3.5-4B, elderly prompt & 4.66B & 3.23 / 3.35 & 68 ms \\
+ & four larger models & 9.65--36.0B & 2.77--3.24 / 3.48--3.61 & 53--121 ms \\
 \midrule
 TTS & Piper Mana (deployed, CPU) & 15.7M & \textbf{CER 5.82\%} & 84 ms \\
  & Lab VITS, optimized (H100) & 36.3M & CER 9.19\% & 116 ms \\
@@ -1227,16 +1284,22 @@ parameters.
 $^{b}$ Relevance of the reply to the same 120 spoken turns; the first number is the Qwen judge
 and the second the Gemini judge; latency is the first token after the end of the audio.
 $^{c}$ Prefix error 0.88 with the deployed recognizer.
+$^{d}$ Relevance on the 120 written requests and turns of Table~\ref{tab:resp-size}, Qwen
+judge / Gemini judge, under a 22~GiB limit; latency is the first token of the reply text.
+Gemma~4 31B did not fit.
 \end{table}
 
-Three patterns appear. First, within this range size does not buy quality: the smallest
-recognizer (117 million parameters, fine-tuned on Persian) is more accurate than all the general
-candidates of one to nine billion parameters, and the only model more accurate than it,
-Seamless, is itself fine-tuned on Persian and more than ten times slower. In synthesis too, the
+Three patterns appear. First, within this range size does not buy quality. The two smallest
+recognizers (115 and 117 million parameters, both NeMo models fine-tuned on Persian) are more
+accurate than every larger candidate except Seamless. That includes Rade, a
+three-billion-parameter model fine-tuned on Persian. Seamless, the only model more accurate
+than them, is itself fine-tuned on Persian and more than ten times slower. In synthesis too, the
 smallest model (Piper, 15.7 million parameters) is both the most intelligible and the fastest.
-Second, for the responder and speech input, the two judges disagree about quality and no larger
-candidate is better under both judges; the speech-input model has only a latency advantage (67
-versus 86 ms), which separate recognition in about 60 ms can make up for. Third, the largest
+Second, for the responder and speech input, the two judges disagree about quality. No larger
+candidate is better under both judges, up to 36 billion parameters at four bits
+(Table~\ref{tab:resp-size}), and the largest dense model at four bits does not fit a 22~GiB
+limit. The speech-input model has only a latency advantage (67 versus 86 ms), which separate
+recognition in about 60 ms can make up for. Third, the largest
 model, the 7.7-billion-parameter end-to-end model, did not reach intelligible Persian speech with
 low-cost training. For real-time Persian with these resources, the best trade-off point is small
 components specialized for Persian.
