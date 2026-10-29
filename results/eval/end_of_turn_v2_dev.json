@@ -1,0 +1,914 @@
+{
+  "schema_version": 1,
+  "experiment": "end_of_turn_gate_development_v2",
+  "protocol": "docs/END_OF_TURN_V2_PROTOCOL.md",
+  "generated_at": "2026-10-29T14:49:55+00:00",
+  "evaluator_sha256": "62a8195ece48cf09f6a743e052195b33effafa879a73b8906c613b52ece49f23",
+  "trials_sha256": "2630fefbe579029414919e19d460ae341caec32b6166dfa01742945f623d7540",
+  "endpointer": {
+    "hangover_ms": 256.0,
+    "speculative_ms": 96.0,
+    "frame": 320
+  },
+  "rule": "lowest pooled premature-end rate among configurations with false-hold rate on labelled-complete ends <= 5%; ties within 1 point: lower false-hold rate on labelled-complete ends, smaller hold, cheaper candidate; adopted only if the premature-end rate falls by at least 25% relative to no gate",
+  "baseline": {
+    "candidate": "none",
+    "threshold": 0.0,
+    "hold_ms": 256,
+    "trials": 850,
+    "premature_rate": 0.1976470588235294,
+    "late_hold_attempts": 0,
+    "unended": 0,
+    "mean_added_delay_ms": 0.0,
+    "p90_added_delay_ms": 0.0,
+    "by_condition": {
+      "plain": {
+        "trials": 425,
+        "premature": 78,
+        "false_holds": 0
+      },
+      "simulated_elderly": {
+        "trials": 425,
+        "premature": 90,
+        "false_holds": 0
+      }
+    },
+    "false_hold_rate_v1_all_trials": 0.0,
+    "complete_end_trials": 316,
+    "false_hold_rate": 0.0,
+    "incomplete_end_trials": 448,
+    "correct_hold_rate": 0.0
+  },
+  "configurations": {
+    "none|0.0|256": {
+      "candidate": "none",
+      "threshold": 0.0,
+      "hold_ms": 256,
+      "trials": 850,
+      "premature_rate": 0.1976470588235294,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 0.0,
+      "p90_added_delay_ms": 0.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 78,
+          "false_holds": 0
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 90,
+          "false_holds": 0
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.0,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.0,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.0
+    },
+    "lexical|1.0|640": {
+      "candidate": "lexical",
+      "threshold": 1.0,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.14705882352941177,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 50.14588235294118,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 60,
+          "false_holds": 56
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 65,
+          "false_holds": 55
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.13058823529411764,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.015822784810126583,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.23214285714285715
+    },
+    "lexical|1.0|1024": {
+      "candidate": "lexical",
+      "threshold": 1.0,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.14352941176470588,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 101.19529411764705,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 58,
+          "false_holds": 57
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 64,
+          "false_holds": 55
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.13176470588235295,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.015822784810126583,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.234375
+    },
+    "smart_turn_v3_2|0.3|640": {
+      "candidate": "smart_turn_v3_2",
+      "threshold": 0.3,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.15176470588235294,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 98.9364705882353,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 64,
+          "false_holds": 91
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 65,
+          "false_holds": 128
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.2576470588235294,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.16455696202531644,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.33035714285714285
+    },
+    "smart_turn_v3_2|0.3|1024": {
+      "candidate": "smart_turn_v3_2",
+      "threshold": 0.3,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.14823529411764705,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 198.7764705882353,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 64,
+          "false_holds": 91
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 62,
+          "false_holds": 129
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.25882352941176473,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.16455696202531644,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.3325892857142857
+    },
+    "smart_turn_v3_2|0.5|640": {
+      "candidate": "smart_turn_v3_2",
+      "threshold": 0.5,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.13529411764705881,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 125.13882352941177,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 59,
+          "false_holds": 121
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 56,
+          "false_holds": 156
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.32588235294117646,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.2120253164556962,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.41294642857142855
+    },
+    "smart_turn_v3_2|0.5|1024": {
+      "candidate": "smart_turn_v3_2",
+      "threshold": 0.5,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.13176470588235295,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 251.18117647058824,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 59,
+          "false_holds": 121
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 53,
+          "false_holds": 157
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.3270588235294118,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.2120253164556962,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.41517857142857145
+    },
+    "smart_turn_v3_2|0.7|640": {
+      "candidate": "smart_turn_v3_2",
+      "threshold": 0.7,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.11647058823529412,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 151.34117647058824,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 52,
+          "false_holds": 144
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 47,
+          "false_holds": 191
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.3941176470588235,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.26582278481012656,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.49776785714285715
+    },
+    "smart_turn_v3_2|0.7|1024": {
+      "candidate": "smart_turn_v3_2",
+      "threshold": 0.7,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.11294117647058824,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 304.4894117647059,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 52,
+          "false_holds": 144
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 44,
+          "false_holds": 193
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.39647058823529413,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.2689873417721519,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.5
+    },
+    "llm_completeness|0.3|640": {
+      "candidate": "llm_completeness",
+      "threshold": 0.3,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.13294117647058823,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 59.181176470588234,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 52,
+          "false_holds": 65
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 61,
+          "false_holds": 66
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.15411764705882353,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.04430379746835443,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.23883928571428573
+    },
+    "llm_completeness|0.3|1024": {
+      "candidate": "llm_completeness",
+      "threshold": 0.3,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.12941176470588237,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 119.26588235294118,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 50,
+          "false_holds": 66
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 60,
+          "false_holds": 66
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.15529411764705883,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.04430379746835443,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.24107142857142858
+    },
+    "llm_completeness|0.5|640": {
+      "candidate": "llm_completeness",
+      "threshold": 0.5,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.12588235294117647,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 63.247058823529414,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 49,
+          "false_holds": 73
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 58,
+          "false_holds": 67
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.16470588235294117,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.05379746835443038,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.25
+    },
+    "llm_completeness|0.5|1024": {
+      "candidate": "llm_completeness",
+      "threshold": 0.5,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.12117647058823529,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 128.30117647058825,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 47,
+          "false_holds": 74
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 56,
+          "false_holds": 68
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.16705882352941176,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.05379746835443038,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.2544642857142857
+    },
+    "llm_completeness|0.7|640": {
+      "candidate": "llm_completeness",
+      "threshold": 0.7,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.11764705882352941,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 73.18588235294118,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 47,
+          "false_holds": 85
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 53,
+          "false_holds": 77
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.19058823529411764,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.07278481012658228,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.27901785714285715
+    },
+    "llm_completeness|0.7|1024": {
+      "candidate": "llm_completeness",
+      "threshold": 0.7,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.11294117647058824,
+      "late_hold_attempts": 0,
+      "unended": 0,
+      "mean_added_delay_ms": 148.17882352941177,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 45,
+          "false_holds": 86
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 51,
+          "false_holds": 78
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.19294117647058823,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.07278481012658228,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.28348214285714285
+    },
+    "smart_turn_v3_2_fa|0.3|640": {
+      "candidate": "smart_turn_v3_2_fa",
+      "threshold": 0.3,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.023529411764705882,
+      "late_hold_attempts": 1,
+      "unended": 0,
+      "mean_added_delay_ms": 250.72941176470587,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 6,
+          "false_holds": 280
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 14,
+          "false_holds": 275
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.6529411764705882,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.41455696202531644,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.8348214285714286
+    },
+    "smart_turn_v3_2_fa|0.3|1024": {
+      "candidate": "smart_turn_v3_2_fa",
+      "threshold": 0.3,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.01764705882352941,
+      "late_hold_attempts": 1,
+      "unended": 0,
+      "mean_added_delay_ms": 503.26588235294116,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 4,
+          "false_holds": 281
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 11,
+          "false_holds": 276
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.6552941176470588,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.41455696202531644,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.8392857142857143
+    },
+    "smart_turn_v3_2_fa|0.5|640": {
+      "candidate": "smart_turn_v3_2_fa",
+      "threshold": 0.5,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.018823529411764704,
+      "late_hold_attempts": 2,
+      "unended": 0,
+      "mean_added_delay_ms": 290.0329411764706,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 5,
+          "false_holds": 325
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 11,
+          "false_holds": 317
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.7552941176470588,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.5537974683544303,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.8973214285714286
+    },
+    "smart_turn_v3_2_fa|0.5|1024": {
+      "candidate": "smart_turn_v3_2_fa",
+      "threshold": 0.5,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.012941176470588235,
+      "late_hold_attempts": 2,
+      "unended": 0,
+      "mean_added_delay_ms": 581.8729411764706,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 3,
+          "false_holds": 326
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 8,
+          "false_holds": 318
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.7576470588235295,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.5537974683544303,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.9017857142857143
+    },
+    "smart_turn_v3_2_fa|0.7|640": {
+      "candidate": "smart_turn_v3_2_fa",
+      "threshold": 0.7,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.015294117647058824,
+      "late_hold_attempts": 2,
+      "unended": 0,
+      "mean_added_delay_ms": 330.69176470588235,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 4,
+          "false_holds": 371
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 9,
+          "false_holds": 361
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.8611764705882353,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.740506329113924,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.9441964285714286
+    },
+    "smart_turn_v3_2_fa|0.7|1024": {
+      "candidate": "smart_turn_v3_2_fa",
+      "threshold": 0.7,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.009411764705882352,
+      "late_hold_attempts": 2,
+      "unended": 0,
+      "mean_added_delay_ms": 664.0941176470589,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 2,
+          "false_holds": 372
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 6,
+          "false_holds": 363
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.8647058823529412,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.7436708860759493,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.9486607142857143
+    },
+    "smart_turn_v3_2_fa_v2|0.3|640": {
+      "candidate": "smart_turn_v3_2_fa_v2",
+      "threshold": 0.3,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.042352941176470586,
+      "late_hold_attempts": 12,
+      "unended": 0,
+      "mean_added_delay_ms": 216.8470588235294,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 13,
+          "false_holds": 242
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 23,
+          "false_holds": 238
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.5647058823529412,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.2911392405063291,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.7723214285714286
+    },
+    "smart_turn_v3_2_fa_v2|0.3|1024": {
+      "candidate": "smart_turn_v3_2_fa_v2",
+      "threshold": 0.3,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.03882352941176471,
+      "late_hold_attempts": 12,
+      "unended": 0,
+      "mean_added_delay_ms": 435.50117647058823,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 11,
+          "false_holds": 243
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 22,
+          "false_holds": 239
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.5670588235294117,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.2911392405063291,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.7767857142857143
+    },
+    "smart_turn_v3_2_fa_v2|0.5|640": {
+      "candidate": "smart_turn_v3_2_fa_v2",
+      "threshold": 0.5,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.03411764705882353,
+      "late_hold_attempts": 12,
+      "unended": 0,
+      "mean_added_delay_ms": 240.33882352941177,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 10,
+          "false_holds": 270
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 19,
+          "false_holds": 262
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.6258823529411764,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.35443037974683544,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.8258928571428571
+    },
+    "smart_turn_v3_2_fa_v2|0.5|1024": {
+      "candidate": "smart_turn_v3_2_fa_v2",
+      "threshold": 0.5,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.029411764705882353,
+      "late_hold_attempts": 12,
+      "unended": 0,
+      "mean_added_delay_ms": 482.48470588235296,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 8,
+          "false_holds": 271
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 17,
+          "false_holds": 263
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.6282352941176471,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.35443037974683544,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.8303571428571429
+    },
+    "smart_turn_v3_2_fa_v2|0.7|640": {
+      "candidate": "smart_turn_v3_2_fa_v2",
+      "threshold": 0.7,
+      "hold_ms": 640,
+      "trials": 850,
+      "premature_rate": 0.03058823529411765,
+      "late_hold_attempts": 14,
+      "unended": 0,
+      "mean_added_delay_ms": 266.08941176470586,
+      "p90_added_delay_ms": 384.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 9,
+          "false_holds": 296
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 17,
+          "false_holds": 293
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.6929411764705883,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.44936708860759494,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.8660714285714286
+    },
+    "smart_turn_v3_2_fa_v2|0.7|1024": {
+      "candidate": "smart_turn_v3_2_fa_v2",
+      "threshold": 0.7,
+      "hold_ms": 1024,
+      "trials": 850,
+      "premature_rate": 0.02588235294117647,
+      "late_hold_attempts": 14,
+      "unended": 0,
+      "mean_added_delay_ms": 533.9858823529412,
+      "p90_added_delay_ms": 768.0,
+      "by_condition": {
+        "plain": {
+          "trials": 425,
+          "premature": 7,
+          "false_holds": 297
+        },
+        "simulated_elderly": {
+          "trials": 425,
+          "premature": 15,
+          "false_holds": 294
+        }
+      },
+      "false_hold_rate_v1_all_trials": 0.6952941176470588,
+      "complete_end_trials": 316,
+      "false_hold_rate": 0.44936708860759494,
+      "incomplete_end_trials": 448,
+      "correct_hold_rate": 0.8705357142857143
+    }
+  },
+  "chosen": {
+    "candidate": "llm_completeness",
+    "threshold": 0.3,
+    "hold_ms": 640,
+    "trials": 850,
+    "premature_rate": 0.13294117647058823,
+    "late_hold_attempts": 0,
+    "unended": 0,
+    "mean_added_delay_ms": 59.181176470588234,
+    "p90_added_delay_ms": 384.0,
+    "by_condition": {
+      "plain": {
+        "trials": 425,
+        "premature": 52,
+        "false_holds": 65
+      },
+      "simulated_elderly": {
+        "trials": 425,
+        "premature": 61,
+        "false_holds": 66
+      }
+    },
+    "false_hold_rate_v1_all_trials": 0.15411764705882353,
+    "complete_end_trials": 316,
+    "false_hold_rate": 0.04430379746835443,
+    "incomplete_end_trials": 448,
+    "correct_hold_rate": 0.23883928571428573
+  },
+  "relative_reduction": 0.32738095238095233,
+  "adopted": true,
+  "next": "loopback v3 with the chosen gate",
+  "text_retained": false,
+  "clip_end_labels": {
+    "labeller": "Gemini 3.8 Flash, two passes with different wording (independent automatic labels)",
+    "labels_sha256": "bed49011364d3bc013cffdb1f683fae56f9f9822971c00056eb93ef575dcdcb3",
+    "counts": {
+      "complete": 158,
+      "incomplete": 224,
+      "uncertain": 43
+    },
+    "false_hold_denominator": "trials whose clip end both passes label complete"
+  },
+  "stage2b": {
+    "training": {
+      "init_sha256": "861313533a7a6a511911c8127a408c1af71b9c0a2d589e857c7cd562de42d030",
+      "examples_sha256": "0f06d1b335a082371995b10313af019e55cc95e061a2c20b8ffcdb2b484a5614",
+      "train_examples": 4952,
+      "val_examples": 546,
+      "epochs": 4,
+      "batch": 64,
+      "learning_rate": 5e-05,
+      "warmup_ratio": 0.2,
+      "weight_decay": 0.01,
+      "history": [
+        {
+          "epoch": 0,
+          "accuracy": 0.6501831501831502,
+          "f1": 0.6061855670103092,
+          "complete_recall": 0.592741935483871,
+          "incomplete_recall": 0.697986577181208
+        },
+        {
+          "epoch": 1,
+          "accuracy": 0.8443223443223443,
+          "f1": 0.8380952380952381,
+          "complete_recall": 0.8870967741935484,
+          "incomplete_recall": 0.8087248322147651
+        },
+        {
+          "epoch": 2,
+          "accuracy": 0.86996336996337,
+          "f1": 0.8523908523908524,
+          "complete_recall": 0.8266129032258065,
+          "incomplete_recall": 0.9060402684563759
+        },
+        {
+          "epoch": 3,
+          "accuracy": 0.8424908424908425,
+          "f1": 0.8273092369477911,
+          "complete_recall": 0.8306451612903226,
+          "incomplete_recall": 0.8523489932885906
+        },
+        {
+          "epoch": 4,
+          "accuracy": 0.8406593406593407,
+          "f1": 0.8213552361396304,
+          "complete_recall": 0.8064516129032258,
+          "incomplete_recall": 0.8691275167785235
+        }
+      ],
+      "best_epoch": 2,
+      "best_sha256": "ffffdb8949ae82d6ed6b5f059465321e0f59e5b630d672be3a28a4bde78556bf",
+      "onnx_sha256": "7a9ee2ab319e115e0fe2ee7aef0b46ca2fa4da1e645878e3b6e3c2e2b9ebf17c",
+      "onnx_max_abs_diff_vs_torch": 0.0
+    },
+    "label_filter": {
+      "mined": {
+        "complete": 7905,
+        "incomplete": 22169
+      },
+      "with_transcript": 29563,
+      "gemini_labelled": 15880,
+      "agreeing": {
+        "complete": 2749,
+        "incomplete": 8042
+      },
+      "balanced_per_class": 2749,
+      "folds": {
+        "train": 4952,
+        "val": 546
+      }
+    },
+    "deviation": "The Gemini gateway budget ran out during the label filter: 15,880 of 29,563 transcribed examples were labelled (in mining order); the other 343 batches failed and their examples were dropped, as the protocol specifies for failed batches. The balanced training set has 2,749 examples per class instead of up to 12,000."
+  }
+}

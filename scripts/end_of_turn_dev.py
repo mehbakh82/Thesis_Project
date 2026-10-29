@@ -429,7 +429,13 @@ def select(args: argparse.Namespace) -> int:
             receipt["next"] = "loopback v3 with the chosen gate"
         else:
             receipt["next"] = "no gate adopted; the loopback test is not opened"
-    if args.stage2_training:
+    if labels and args.stage2_training:
+        receipt["stage2b"] = {
+            "training": json.loads(args.stage2_training.read_text(encoding="utf-8")),
+            "label_filter": json.loads(args.stage2_filter.read_text(encoding="utf-8")) if args.stage2_filter else None,
+            "deviation": args.stage2_deviation,
+        }
+    elif args.stage2_training:
         training = json.loads(args.stage2_training.read_text(encoding="utf-8"))
         receipt["stage2"] = {
             "training": training,
@@ -465,6 +471,8 @@ def main() -> int:
     p_select.add_argument("--stage2-training", type=Path, help="training receipt of the stage-2 model")
     p_select.add_argument("--invalid-replay", type=Path, help="replay of the invalid first stage-2 model")
     p_select.add_argument("--labels", type=Path, help="clip-end labels (protocol v2); changes the false-hold denominator")
+    p_select.add_argument("--stage2-filter", type=Path, help="label-filter report of the stage-2b examples")
+    p_select.add_argument("--stage2-deviation", default=None, help="recorded deviation from the protocol, if any")
     p_label = sub.add_parser("label")
     p_label.add_argument("--work", type=Path, required=True)
     p_label.add_argument("--cache", type=Path, required=True)
