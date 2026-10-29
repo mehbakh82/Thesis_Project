@@ -5,6 +5,9 @@ Protocol: `docs/END_OF_TURN_PROTOCOL.md` (with amendment 1). Receipts:
 `results/eval/end_of_turn_dev.json` (all candidates, stage 2 included, final
 decision). **Outcome: no gate met the pre-registered bar; the deployed
 endpointer is unchanged and the loopback test panels were not opened.**
+A second round, with labelled clip ends and the restored diarized windows, is
+reported in `docs/END_OF_TURN_V2_RESULT.md`; its selected gate failed the
+loopback test.
 
 ## Development benchmark
 
