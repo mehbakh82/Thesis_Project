@@ -17,7 +17,7 @@ is 0.5 points better, but the difference is not significant.
 | Rade-ASR-CTC-3B-fa | 16.1% | 13.1–19.2 | 30.0% | 115 ms |
 | NVIDIA Persian FastConformer | 19.2% | — | 26.4% | 66 ms |
 | Whisper large-v3-turbo, Persian fine-tune | 20.2% | — | 22.3% | 411 ms |
-| Whisper large-v3, Persian fine-tune v4 | 21.5% | — | 24.5% | 1,121 ms |
+| Whisper large-v3, Persian fine-tune v4 (`nezamisafa/whisper-persian-v4`) | 21.5% | — | 24.5% | 1,121 ms |
 | C1Tech Whisper base Persian | 23.3% | — | 28.2% | 834 ms |
 | NeuraSpeech 900h | 25.4% | — | 37.4% | 72 ms |
 

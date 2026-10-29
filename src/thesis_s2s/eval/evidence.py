@@ -113,6 +113,11 @@ ARTIFACTS: dict[str, str] = {
     "closeout_responder_switch_coherence": "results/eval/responder_switch_qualification_coherence.json",
     "closeout_responder_switch": "results/eval/responder_switch_qualification.json",
     "closeout_listening_study": "results/eval/listening_study.json",
+    "closeout_asr_v3": "results/eval/asr_candidates_v3_psrb_human.json",
+    "closeout_end_of_turn_v2_dev": "results/eval/end_of_turn_v2_dev.json",
+    "closeout_loopback_v3": "results/eval/live_loopback_v3.json",
+    "closeout_loopback_v3_splits": "results/eval/live_loopback_v3_splits.json",
+    "closeout_responder_size": "results/eval/responder_size_comparison.json",
 }
 
 
@@ -1733,6 +1738,11 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
     switch_latency = load("closeout_responder_switch_latency")
     switch_coherence = load("closeout_responder_switch_coherence")
     switch = load("closeout_responder_switch")
+    asr_v3 = load("closeout_asr_v3")
+    eot_v2 = load("closeout_end_of_turn_v2_dev")
+    loopback_v3 = load("closeout_loopback_v3")
+    loopback_v3_splits = load("closeout_loopback_v3_splits")
+    size = load("closeout_responder_size")
     asr_arms = asr.get("arms") or {}
     tts_arms = tts.get("arms") or {}
     sim_test = simulation.get("test") or {}
@@ -1868,6 +1878,35 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
             "chosen": (eot or {}).get("chosen"),
             "adopted": (eot or eot_stage1).get("adopted"),
             "loopback_test": "not run: no gate met the development rule" if eot and not eot.get("adopted") else None,
+        },
+        "asr_v3": {
+            "status": status(asr_v3),
+            "evidence_class": "human_reference_transcripts_psrb_public",
+            "selection": asr_v3.get("selection"),
+            "micro_cer": {arm: row.get("micro_cer") for arm, row in (asr_v3.get("arms") or {}).items()},
+        },
+        "end_of_turn_gate_v2": {
+            "status": status(eot_v2),
+            "evidence_class": "offline_replay_with_independent_automatic_clip_end_labels_then_automated_loopback",
+            "clip_end_labels": (eot_v2.get("clip_end_labels") or {}).get("counts"),
+            "chosen": eot_v2.get("chosen"),
+            "development_adopted": eot_v2.get("adopted"),
+            "loopback_acceptance": loopback_v3.get("acceptance"),
+            "split_utterances": (loopback_v3_splits.get("pooled") or {}),
+            "kept_in_deployment": bool(
+                loopback_v3
+                and all((loopback_v3.get("acceptance") or {}).values())
+                and (loopback_v3_splits.get("pooled") or {}).get("split_after", 0)
+                < (loopback_v3_splits.get("pooled") or {}).get("split_before", 0)
+            ),
+        },
+        "responder_size": {
+            "status": status(size),
+            "evidence_class": "automatic_llm_judges_two_families",
+            "fit_24gb": {arm: (row or {}).get("fits") for arm, row in (size.get("fit_24gb") or {}).items()},
+            "decisions": size.get("decisions"),
+            "size_buys_quality": size.get("size_buys_quality"),
+            "profile_24gb_candidate": size.get("profile_24gb_candidate"),
         },
         "responder_switch_qualification": {
             "status": status(switch),

@@ -313,7 +313,79 @@ tracks:
             status: verified
             source: local:results/eval/asr_candidates_v1_development.json
       shenava-koochik-v1.0-sherpa-onnx:
-        notes: Post-hoc supplemental screen was faster but less accurate than NeMo; it cannot be promoted from the reused open development panel.
+        notes: Post-hoc supplemental screen was faster but less accurate than NeMo; in ASR comparison v3 (PSRB human panel, NeMo checkpoint) it was 0.5 points better than NeMo v4 (8.95% vs 9.44% CER), not significantly (95% interval -1.07 to +0.04), so not promoted.
+      nvidia-stt-fa-fastconformer-hybrid-large:
+        notes: Evaluated in ASR comparison v3 on the PSRB human panel (19.2% CER, 66 ms median latency on clips up to 8 s); not promoted.
+        evidence:
+          persian_support:
+            status: documented
+            source: https://huggingface.co/nvidia/stt_fa_fastconformer_hybrid_large
+          streaming_or_service_runtime:
+            status: verified
+            source: local:results/eval/asr_candidates_v3_psrb_human.json
+          project_persian_evaluation:
+            status: verified
+            source: local:results/eval/asr_candidates_v3_psrb_human.json
+      buzzasr-persian:
+        notes: Evaluated in ASR comparison v3 on the PSRB human panel (15.8% CER, 471 ms median latency on clips up to 8 s); not promoted.
+        evidence:
+          persian_support:
+            status: documented
+            source: https://huggingface.co/BuzzASR/persian
+          streaming_or_service_runtime:
+            status: verified
+            source: local:results/eval/asr_candidates_v3_psrb_human.json
+          project_persian_evaluation:
+            status: verified
+            source: local:results/eval/asr_candidates_v3_psrb_human.json
+      neuraspeech-900h:
+        notes: Evaluated in ASR comparison v3 on the PSRB human panel (25.4% CER, 72 ms median latency on clips up to 8 s); not promoted.
+        evidence:
+          persian_support:
+            status: documented
+            source: https://huggingface.co/Neurai/NeuraSpeech_900h
+          streaming_or_service_runtime:
+            status: verified
+            source: local:results/eval/asr_candidates_v3_psrb_human.json
+          project_persian_evaluation:
+            status: verified
+            source: local:results/eval/asr_candidates_v3_psrb_human.json
+      whisper-large-v3-turbo-fa:
+        notes: Evaluated in ASR comparison v3 on the PSRB human panel (20.2% CER, 411 ms median latency on clips up to 8 s); not promoted.
+        evidence:
+          persian_support:
+            status: documented
+            source: https://huggingface.co/sadrasa97/whisper-large-v3-turbo-fa
+          streaming_or_service_runtime:
+            status: verified
+            source: local:results/eval/asr_candidates_v3_psrb_human.json
+          project_persian_evaluation:
+            status: verified
+            source: local:results/eval/asr_candidates_v3_psrb_human.json
+      whisper-persian-v4:
+        notes: Evaluated in ASR comparison v3 on the PSRB human panel (21.5% CER, 1,121 ms median latency on clips up to 8 s); not promoted.
+        evidence:
+          persian_support:
+            status: documented
+            source: https://huggingface.co/nezamisafa/whisper-persian-v4
+          streaming_or_service_runtime:
+            status: verified
+            source: local:results/eval/asr_candidates_v3_psrb_human.json
+          project_persian_evaluation:
+            status: verified
+            source: local:results/eval/asr_candidates_v3_psrb_human.json
+      c1tech-whisper-base-persian:
+        notes: Evaluated in ASR comparison v3 on the PSRB human panel (23.3% CER, 834 ms median latency on clips up to 8 s); not promoted.
+        evidence:
+          persian_support:
+            status: documented
+            source: https://huggingface.co/C1Tech/whisper_base_persian
+          streaming_or_service_runtime:
+            status: verified
+            source: local:results/eval/asr_candidates_v3_psrb_human.json
+          project_persian_evaluation:
+            status: verified
+            source: local:results/eval/asr_candidates_v3_psrb_human.json
         evidence:
           persian_support:
             status: documented
@@ -325,17 +397,17 @@ tracks:
             status: verified
             source: local:results/eval/asr_shenava_supplemental_v1_screen.json
       rade-asr-ctc-3b-fa:
-        notes: Current Apache-2.0 Persian checkpoint. Its exact inference stack imported on CUDA, but the deadline-bounded 6.16 GB checkpoint transfer did not complete, so no inference or Persian quality claim is made.
+        notes: Apache-2.0 Persian fine-tune of omniASR-CTC-3B. Evaluated in ASR comparison v3 with the official pipeline (16.1% CER on PSRB, mostly deleted speech; NeMo v4 9.44%); not promoted.
         evidence:
           persian_support:
             status: documented
             source: https://huggingface.co/RadeAI/Rade-ASR-CTC-3B-fa
           streaming_or_service_runtime:
-            status: documented
-            source: https://huggingface.co/RadeAI/Rade-ASR-CTC-3B-fa
+            status: verified
+            source: local:results/eval/asr_candidates_v3_psrb_human.json
           project_persian_evaluation:
-            status: unknown
-            source: local:results/hardware/rade_asr_runtime_attempt.json
+            status: verified
+            source: local:results/eval/asr_candidates_v3_psrb_human.json
       omnilingual-asr:
         notes: Broad multilingual challenger; Persian-specific project evaluation is absent.
         evidence:
