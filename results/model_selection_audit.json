@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
   "evidence_class": "requirements_constrained_static_model_audit",
-  "as_of": "2026-09-16",
+  "as_of": "2026-10-29",
   "catalog": "configs/model_selection_audit.yaml",
-  "catalog_sha256": "039a9c38bb0a5f2608b8d77a199cc5996485111f457e1a2d973304641b0baa26",
+  "catalog_sha256": "f9f71e0c3407a4a07d73fbc80e1b91bc0d21ee778b233cf613be14cc9d44a6ac",
   "claim_boundary": "This audit validates declared evidence and fail-closed eligibility. It does not run models, establish unreported Persian quality, or prove global optimality.",
   "tracks": {
     "direct_s2s": {
@@ -1497,6 +1497,10 @@
       "eligible_candidates": [
         "qwen3-4b-instruct-2507-prompt-v2",
         "qwen3.5-4b",
+        "qwen3.5-9b",
+        "gemma-4-12b-it-qat-w4a16",
+        "gemma-4-26b-a4b-it-qat-awq-int4",
+        "qwen3.5-35b-a3b-gptq-int4",
         "qwen3.5-0.8b"
       ],
       "catalog_comparison_complete": true,
@@ -1592,6 +1596,238 @@
             }
           },
           "notes": "Mechanically valid on the controlled panel but not promoted (zero mean relevance gain; 15% row win rate)."
+        },
+        "qwen3.5-9b": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "local_initialization": {
+              "criterion": "local_initialization",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "persian_generation": {
+              "criterion": "persian_generation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "group_disjoint_semantic_evaluation": {
+              "criterion": "group_disjoint_semantic_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Responder size comparison (22 GiB limit, bf16), against Qwen3.5-4B with the elderly prompt; relevance gain +0.01 (Qwen3.8 judge) and +0.13 (Gemini), so not promoted."
+        },
+        "gemma-4-12b-it-qat-w4a16": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "local_initialization": {
+              "criterion": "local_initialization",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "persian_generation": {
+              "criterion": "persian_generation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "group_disjoint_semantic_evaluation": {
+              "criterion": "group_disjoint_semantic_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Responder size comparison (22 GiB limit, official 4-bit QAT), against Qwen3.5-4B with the elderly prompt; relevance gain -0.19 (Qwen3.8 judge) and +0.26 with a 26% row win rate (Gemini), so not promoted."
+        },
+        "gemma-4-26b-a4b-it-qat-awq-int4": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "local_initialization": {
+              "criterion": "local_initialization",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "persian_generation": {
+              "criterion": "persian_generation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "group_disjoint_semantic_evaluation": {
+              "criterion": "group_disjoint_semantic_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Responder size comparison (22 GiB limit, 4-bit AWQ of the QAT weights, mixture of experts), against Qwen3.5-4B with the elderly prompt; relevance gain -0.46 (Qwen3.8 judge, interval below zero) and +0.20 (Gemini), so not promoted."
+        },
+        "qwen3.5-35b-a3b-gptq-int4": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "local_initialization": {
+              "criterion": "local_initialization",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "persian_generation": {
+              "criterion": "persian_generation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "group_disjoint_semantic_evaluation": {
+              "criterion": "group_disjoint_semantic_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Responder size comparison (22 GiB limit, official 4-bit GPTQ, mixture of experts), against Qwen3.5-4B with the elderly prompt; relevance gain -0.10 (Qwen3.8 judge) and +0.14 (Gemini), so not promoted."
+        },
+        "gemma-4-31b-it-qat-w4a16": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "local_initialization",
+            "persian_generation",
+            "group_disjoint_semantic_evaluation"
+          ],
+          "criteria": {
+            "local_initialization": {
+              "criterion": "local_initialization",
+              "minimum": "verified",
+              "status": "failed",
+              "meets": false,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "persian_generation": {
+              "criterion": "persian_generation",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/google/gemma-4-31B-it-qat-w4a16-ct",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "group_disjoint_semantic_evaluation": {
+              "criterion": "group_disjoint_semantic_evaluation",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/google/gemma-4-31B-it-qat-w4a16-ct",
+                "declared": true
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Does not fit the 24 GB profile; its 4-bit weights load in 18.7 GiB and leave 0.05 GiB of a 22 GiB limit for the KV cache, against 1.73 GiB needed for one 2048-token request."
         },
         "qwen3.5-0.8b": {
           "eligible": true,

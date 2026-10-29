@@ -1,5 +1,5 @@
 schema_version: 1
-as_of: "2026-09-16"
+as_of: "2026-10-29"
 
 # Evidence states:
 #   verified   measured inside this repository under a recorded protocol
@@ -454,6 +454,66 @@ tracks:
           group_disjoint_semantic_evaluation:
             status: verified
             source: local:results/eval/responder_candidates_v1_development.json
+      qwen3.5-9b:
+        notes: Responder size comparison (22 GiB limit, bf16), against Qwen3.5-4B with the elderly prompt; relevance gain +0.01 (Qwen3.8 judge) and +0.13 (Gemini), so not promoted.
+        evidence:
+          local_initialization:
+            status: verified
+            source: local:results/eval/responder_size_comparison.json
+          persian_generation:
+            status: verified
+            source: local:results/eval/responder_size_comparison.json
+          group_disjoint_semantic_evaluation:
+            status: verified
+            source: local:results/eval/responder_size_comparison.json
+      gemma-4-12b-it-qat-w4a16:
+        notes: Responder size comparison (22 GiB limit, official 4-bit QAT), against Qwen3.5-4B with the elderly prompt; relevance gain -0.19 (Qwen3.8 judge) and +0.26 with a 26% row win rate (Gemini), so not promoted.
+        evidence:
+          local_initialization:
+            status: verified
+            source: local:results/eval/responder_size_comparison.json
+          persian_generation:
+            status: verified
+            source: local:results/eval/responder_size_comparison.json
+          group_disjoint_semantic_evaluation:
+            status: verified
+            source: local:results/eval/responder_size_comparison.json
+      gemma-4-26b-a4b-it-qat-awq-int4:
+        notes: Responder size comparison (22 GiB limit, 4-bit AWQ of the QAT weights, mixture of experts), against Qwen3.5-4B with the elderly prompt; relevance gain -0.46 (Qwen3.8 judge, interval below zero) and +0.20 (Gemini), so not promoted.
+        evidence:
+          local_initialization:
+            status: verified
+            source: local:results/eval/responder_size_comparison.json
+          persian_generation:
+            status: verified
+            source: local:results/eval/responder_size_comparison.json
+          group_disjoint_semantic_evaluation:
+            status: verified
+            source: local:results/eval/responder_size_comparison.json
+      qwen3.5-35b-a3b-gptq-int4:
+        notes: Responder size comparison (22 GiB limit, official 4-bit GPTQ, mixture of experts), against Qwen3.5-4B with the elderly prompt; relevance gain -0.10 (Qwen3.8 judge) and +0.14 (Gemini), so not promoted.
+        evidence:
+          local_initialization:
+            status: verified
+            source: local:results/eval/responder_size_comparison.json
+          persian_generation:
+            status: verified
+            source: local:results/eval/responder_size_comparison.json
+          group_disjoint_semantic_evaluation:
+            status: verified
+            source: local:results/eval/responder_size_comparison.json
+      gemma-4-31b-it-qat-w4a16:
+        notes: Does not fit the 24 GB profile; its 4-bit weights load in 18.7 GiB and leave 0.05 GiB of a 22 GiB limit for the KV cache, against 1.73 GiB needed for one 2048-token request.
+        evidence:
+          local_initialization:
+            status: failed
+            source: local:results/eval/responder_size_comparison.json
+          persian_generation:
+            status: unknown
+            source: https://huggingface.co/google/gemma-4-31B-it-qat-w4a16-ct
+          group_disjoint_semantic_evaluation:
+            status: unknown
+            source: https://huggingface.co/google/gemma-4-31B-it-qat-w4a16-ct
       qwen3.5-0.8b:
         notes: Mechanically valid low-memory ablation; not promoted after relevance and coherence regressions.
         evidence:
