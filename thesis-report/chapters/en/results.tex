@@ -407,6 +407,16 @@ Seamless v6 (step 55000) & 8.99\% & 23.28\% & 10.44\% & 855 ms \\
 Qwen3-ASR 1.7B & 20.47\% & 49.46\% & 24.97\% & 1466 ms \\
 Gemma 4 E4B (audio input) & 21.04\% & 42.67\% & 26.16\% & 2632 ms \\
 Whisper large-v3 & 23.02\% & 47.31\% & 25.46\% & 1101 ms \\
+\midrule
+\multicolumn{5}{l}{\emph{Second round (v3): Persian checkpoints not compared before}} \\
+Shenava Koochik (NeMo CTC) & 8.95\% & 35.34\% & 14.50\% & 65 ms \\
+BuzzASR (Whisper fine-tune) & 15.76\% & 36.92\% & 19.99\% & 579 ms \\
+Rade-ASR-CTC-3B & 16.11\% & 37.33\% & 30.04\% & 122 ms \\
+NVIDIA Persian FastConformer & 19.22\% & 45.54\% & 26.43\% & 69 ms \\
+Whisper large-v3-turbo, Persian & 20.22\% & 39.21\% & 22.25\% & 484 ms \\
+Whisper large-v3, Persian v4 & 21.54\% & 41.86\% & 24.51\% & 1427 ms \\
+Whisper base, Persian & 23.30\% & 49.14\% & 28.21\% & 1027 ms \\
+NeuraSpeech 900h & 25.42\% & 48.73\% & 37.42\% & 79 ms \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -417,6 +427,19 @@ lowest error and stayed in the system. Seamless was used as the ``second indepen
 listener'' in measuring speech intelligibility and in selecting backchannels. The error
 of every candidate is higher on older speakers (15.6\% against 8.6\% for the deployed
 candidate).
+
+A second, pre-registered round added the eight Persian checkpoints that had not been
+compared on this panel, among them Rade-ASR-CTC-3B, a Persian fine-tune of the
+three-billion-parameter omniASR model whose download had earlier been left incomplete
+for lack of disk space. The rule was unchanged, with one addition: a replacement must be
+significantly better than NeMo version 4. Shenava Koochik, a NeMo model of similar size,
+is the most accurate candidate within the latency budget, but its gain of 0.50 points has
+a 95\% interval of $-1.07$ to $+0.04$ and therefore does not replace the deployed model;
+its word error is also much higher, mostly because of word spacing. Rade, the largest
+Persian-specialized model, has a character error rate of 16.1\%; most of its errors are
+speech it leaves out (14.0\% of the characters, against 5.2\% for NeMo), especially at
+the start of clips and for older speakers (30.0\%). The results on its model card, on
+read speech, did not carry over to this mostly spontaneous panel.
 
 \subsection{Responder with a Panel of Elderly Requests}
 
@@ -1056,7 +1079,7 @@ requests prematurely; that run was not scored, and the sentences were synthesize
 without internal pauses (this phenomenon also occurs in real speech;
 Section~\ref{sec:res-errors}).
 
-\textbf{Semantic end-of-turn detection (tested and rejected).} To reduce premature closing of
+\textbf{Semantic end-of-turn detection (tested twice and rejected).} To reduce premature closing of
 a turn at mid-sentence pauses, a pre-registered ``gate'' was tested: at the speculative start,
 a model estimates the probability that the utterance is complete, and if it is low,
 confirmation of the end of the turn is postponed until 640 or 1024 ms of silence. Three
@@ -1072,8 +1095,21 @@ because many of the development utterances are cut mid-sentence; but zero-shot S
 close to chance on Persian, and Persian data with natural turn endings were scarce (738
 training examples). The first fine-tuned model was declared invalid because of a data artifact
 (the audio was cut at the moment of the speaker change), and the protocol was amended before the
-corrected run. The deployed detector therefore stayed unchanged, and the loopback test panels
-were not opened for this experiment.
+corrected run. No gate qualified in this first round.
+
+A second pre-registered round fixed both data problems. Each development clip's ending was
+labelled by Gemini in two independent passes (158 complete, 224 unfinished and 43 uncertain
+endings), and false holds were counted only on complete endings. Smart Turn was also
+fine-tuned again on 5,498 examples mined from 233 hours of restored diarized windows (the
+label filter was cut short when the shared Gemini budget ran out). With correct holds no
+longer counted, the Qwen3-4B completeness judgement ($\theta = 0.3$, hold 640 ms) met the
+development rule: premature closings fell from 19.8\% to 13.3\% while 4.4\% of complete
+endings were held. The retrained Smart Turn still held 29\% or more. The gate then went to
+the loopback test, whose panels were opened for the first time. It split fewer utterances
+than before (17 against 22 over both panels, not significant), but it also held 44 finished
+turns (14.8\%), and each hold delayed the reply by up to 384 ms. The 90th percentile of the
+latency rose to 656 ms on both panels, above the 500 ms limit, so the pre-registered rule
+removed the gate and the deployed detector stayed unchanged.
 
 \claim{This automated loopback test is on the shared H100 host: the memory of a 12 GB card was
 respected but not its speed, and there was no human user and no physical microphone and

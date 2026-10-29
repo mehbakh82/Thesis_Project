@@ -134,10 +134,11 @@ report makes no claim about the perception of older adults.
       listener words from content words with a clipped onset needs labelled data and a learned model.
 \item \textbf{End-of-speech detection for older adults.} The long pauses of slow speech sometimes close
       the turn before the end of the sentence (87 server turns for 80 planned turns). The system
-      compensates when the user continues by stopping the reply. A semantic end-of-turn gate with Smart
-      Turn, an LLM judgement and a lexical rule was tested, and none worked without wrongly delaying
-      more than 5\% of genuine ends (Section~\ref{sec:res-latency}); a Persian end-of-turn model needs
-      data with turn ends labelled by people, not the speaker boundaries of podcasts.
+      compensates when the user continues by stopping the reply. A semantic end-of-turn gate was tested
+      in two rounds (Section~\ref{sec:res-latency}): the best one, an LLM completeness judgement,
+      split fewer utterances in the loopback test but held 15\% of finished turns and pushed the 90th
+      percentile above 500 ms. A gate that holds for less time, or a Persian end-of-turn model trained
+      on turn ends labelled by people rather than on podcast speaker boundaries, is the next step.
 \item \textbf{A more accurate recognizer within the same budget.} Seamless had a lower character error
       rate but more than four times the latency budget; distilling it into a CTC model or running it in
       streaming mode could raise accuracy without a latency cost.

@@ -71,8 +71,8 @@ and human judging of the responders (Qwen3.5-4B with the elderly prompt has pass
 the deployment qualification, and the participants' preference decides on its
 replacement). Improving the system: learned separation of listener words from
 content words with a clipped onset (a 200 ms pre-roll was tested and rejected),
-semantic end-of-turn detection for the pauses of elderly speech (three zero-shot
-candidates and a fine-tuned Smart Turn were tested and rejected; human-labelled
-turn ends are needed), and a more accurate recognizer within the same latency
+semantic end-of-turn detection for the pauses of elderly speech (tested in two
+rounds; the best gate split fewer utterances but delayed too many finished turns,
+so a shorter hold or human-labelled turn ends are needed), and a more accurate recognizer within the same latency
 budget. Direct track: a tokenization that fits the frame budget, a remedy for the
 gap between teacher forcing and free generation, and the frozen-model approach.
