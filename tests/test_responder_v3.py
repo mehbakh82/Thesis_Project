@@ -146,3 +146,19 @@ def test_stages_screen_every_model_and_probe_sensitivity_on_two() -> None:
     stages = {a["arm"]: a["stage"] for a in arms}
     assert stages == {"ref": "S1", "big__gguf-q4_k_m": "S1", "big__awq_int4": "S3?", "qwen3.5-4b__gptq_int4": "S2",
                       "gemma-4-e4b__official_bf16": "S2", "fp8": "S1", "x__bnb_4bit": "-"}
+
+
+def test_hub_snapshots_mount_the_whole_cache_repo(tmp_path: Path) -> None:
+    snapshot = tmp_path / "hub/models--org--m/snapshots/abc123"
+    assert v3.container_mount(snapshot) == (tmp_path / "hub/models--org--m", "/model/snapshots/abc123")
+    assert v3.container_mount(tmp_path / "org__m") == (tmp_path / "org__m", "/model")
+
+
+def test_failed_kv_profiles_are_not_used_for_deployment(tmp_path: Path) -> None:
+    arm = {"model": "org/M", "engine": "vllm"}
+    rows = [{"model": "org/M", "engine": "vllm", "kv": "auto", "error": {"2048": {"error": "engine exited during start"}}}]
+    (tmp_path / "kvprofile.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
+    assert v3.deployment_kv_bytes(tmp_path, arm, "auto") is None
+    rows.append({"model": "org/M", "engine": "vllm", "kv": "auto", "per_seq_const_bytes": 0, "per_seq_bytes_per_token": 1000})
+    (tmp_path / "kvprofile.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
+    assert v3.deployment_kv_bytes(tmp_path, arm, "auto") == int(1.03 * 2 * 1000 * 2048) + 16 * v3.MIB
