@@ -1,0 +1,1068 @@
+{
+ "description": "Elderly-assistant requests of responder comparison v3 (docs/RESPONDER_V3_PROTOCOL.md). Half written by Claude (the AI assistant running the comparison), half by GPT-6 Astra, from the same brief; not collected from older speakers.",
+ "brief": "Write 11 colloquial Persian requests for each of the eight categories below that an older Persian speaker (65 or older) might say aloud to a home voice assistant. Write them as spoken colloquial Persian, the way a speech recognizer would transcribe them; 5 to 25 words each; varied in phrasing and topic within the category; realistic for an older Iranian user. Some may ask for things the assistant cannot know (the time, the date, the news, prices, personal records) and some may involve health or safety. No names of real private people, no Latin letters, no numbering, nothing copied from the existing examples. Categories: health_and_medication, family_and_social, daily_life_and_time, information, emotional_support, home_and_safety, religion_and_culture, technology_help.",
+ "requests": [
+  {
+   "id": "c-health_and_medication-01",
+   "author": "claude",
+   "category": "health_and_medication",
+   "text": "قرص فشارمو با آب گریپ‌فروت بخورم اشکالی نداره؟"
+  },
+  {
+   "id": "c-health_and_medication-02",
+   "author": "claude",
+   "category": "health_and_medication",
+   "text": "چند روزه پاهام ورم کرده، عصرا بدتر میشه، نگران باشم؟"
+  },
+  {
+   "id": "c-health_and_medication-03",
+   "author": "claude",
+   "category": "health_and_medication",
+   "text": "دکتر گفته کلسترولت بالاست، دیگه تخم‌مرغ نخورم؟"
+  },
+  {
+   "id": "c-health_and_medication-04",
+   "author": "claude",
+   "category": "health_and_medication",
+   "text": "سرما خوردم، جوشونده بسه یا برم دکتر؟"
+  },
+  {
+   "id": "c-health_and_medication-05",
+   "author": "claude",
+   "category": "health_and_medication",
+   "text": "قرص مسکن رو با معده‌ی خالی میشه خورد؟"
+  },
+  {
+   "id": "c-health_and_medication-06",
+   "author": "claude",
+   "category": "health_and_medication",
+   "text": "دستم وقتی چیزی برمی‌دارم می‌لرزه، این طبیعیه؟"
+  },
+  {
+   "id": "c-health_and_medication-07",
+   "author": "claude",
+   "category": "health_and_medication",
+   "text": "یادم بنداز هر شب ساعت نه قطره‌ی چشممو بریزم"
+  },
+  {
+   "id": "c-health_and_medication-08",
+   "author": "claude",
+   "category": "health_and_medication",
+   "text": "موقع بالا رفتن از پله نفسم تنگ میشه، چیکار کنم؟"
+  },
+  {
+   "id": "c-health_and_medication-09",
+   "author": "claude",
+   "category": "health_and_medication",
+   "text": "واکسن آنفولانزا برای سن من لازمه؟"
+  },
+  {
+   "id": "c-health_and_medication-10",
+   "author": "claude",
+   "category": "health_and_medication",
+   "text": "دندون مصنوعیم اذیتم می‌کنه، غذا خوردن سخت شده"
+  },
+  {
+   "id": "c-health_and_medication-11",
+   "author": "claude",
+   "category": "health_and_medication",
+   "text": "فشارمو گرفتم شونزده روی ده بود، خطرناکه؟"
+  },
+  {
+   "id": "c-family_and_social-01",
+   "author": "claude",
+   "category": "family_and_social",
+   "text": "نوه‌م کنکور داره، چی بهش بگم که استرس نگیره؟"
+  },
+  {
+   "id": "c-family_and_social-02",
+   "author": "claude",
+   "category": "family_and_social",
+   "text": "سالگرد ازدواج پسرمه، یه تبریک قشنگ بگو براش بفرستم"
+  },
+  {
+   "id": "c-family_and_social-03",
+   "author": "claude",
+   "category": "family_and_social",
+   "text": "عروسم باردار شده، چی براش ببرم خوبه؟"
+  },
+  {
+   "id": "c-family_and_social-04",
+   "author": "claude",
+   "category": "family_and_social",
+   "text": "برادرم با من قهر کرده، چطوری آشتی کنم؟"
+  },
+  {
+   "id": "c-family_and_social-05",
+   "author": "claude",
+   "category": "family_and_social",
+   "text": "می‌خوام جمعه همه‌ی بچه‌ها رو ناهار دعوت کنم، چی درست کنم که همه دوست داشته باشن؟"
+  },
+  {
+   "id": "c-family_and_social-06",
+   "author": "claude",
+   "category": "family_and_social",
+   "text": "یه همسایه‌ی جدید اومده، چطوری باهاش آشنا بشم؟"
+  },
+  {
+   "id": "c-family_and_social-07",
+   "author": "claude",
+   "category": "family_and_social",
+   "text": "نوه‌م همه‌ش سرش تو گوشیه، اصلاً باهام حرف نمی‌زنه"
+  },
+  {
+   "id": "c-family_and_social-08",
+   "author": "claude",
+   "category": "family_and_social",
+   "text": "دخترم کاناداست، اونجا الان ساعت چنده؟"
+  },
+  {
+   "id": "c-family_and_social-09",
+   "author": "claude",
+   "category": "family_and_social",
+   "text": "تولد دوستمه، یه شعر کوتاه بگو براش بخونم"
+  },
+  {
+   "id": "c-family_and_social-10",
+   "author": "claude",
+   "category": "family_and_social",
+   "text": "پسرم می‌خواد خونه‌مو بفروشه، من راضی نیستم"
+  },
+  {
+   "id": "c-family_and_social-11",
+   "author": "claude",
+   "category": "family_and_social",
+   "text": "شوهرم این روزا خیلی کم‌حرف شده، نگرانشم"
+  },
+  {
+   "id": "c-daily_life_and_time-01",
+   "author": "claude",
+   "category": "daily_life_and_time",
+   "text": "ساعت چنده؟ اخبار شروع شده؟"
+  },
+  {
+   "id": "c-daily_life_and_time-02",
+   "author": "claude",
+   "category": "daily_life_and_time",
+   "text": "شام امشب یه چیزی بگو که با سیب‌زمینی و تخم‌مرغ درست بشه"
+  },
+  {
+   "id": "c-daily_life_and_time-03",
+   "author": "claude",
+   "category": "daily_life_and_time",
+   "text": "لباسای سفیدم زرد شدن، چطوری سفیدشون کنم؟"
+  },
+  {
+   "id": "c-daily_life_and_time-04",
+   "author": "claude",
+   "category": "daily_life_and_time",
+   "text": "فردا بارون میاد؟ می‌خوام برم بازار"
+  },
+  {
+   "id": "c-daily_life_and_time-05",
+   "author": "claude",
+   "category": "daily_life_and_time",
+   "text": "چایی رو چند دقیقه دم بذارم که خوش‌رنگ بشه؟"
+  },
+  {
+   "id": "c-daily_life_and_time-06",
+   "author": "claude",
+   "category": "daily_life_and_time",
+   "text": "یادم بنداز پس‌فردا قبض برق رو بدم"
+  },
+  {
+   "id": "c-daily_life_and_time-07",
+   "author": "claude",
+   "category": "daily_life_and_time",
+   "text": "کلید خونه رو کجا گذاشتم؟ پیداش نمی‌کنم"
+  },
+  {
+   "id": "c-daily_life_and_time-08",
+   "author": "claude",
+   "category": "daily_life_and_time",
+   "text": "یه برنامه‌ی ساده برای امروزم بچین، از صبح تا شب"
+  },
+  {
+   "id": "c-daily_life_and_time-09",
+   "author": "claude",
+   "category": "daily_life_and_time",
+   "text": "قورمه‌سبزی رو چقدر باید بذارم بپزه؟"
+  },
+  {
+   "id": "c-daily_life_and_time-10",
+   "author": "claude",
+   "category": "daily_life_and_time",
+   "text": "امروز تعطیله؟ می‌خوام برم بانک، بازه؟"
+  },
+  {
+   "id": "c-daily_life_and_time-11",
+   "author": "claude",
+   "category": "daily_life_and_time",
+   "text": "چند تا نرمش ساده بگو که صبحا تو خونه انجام بدم"
+  },
+  {
+   "id": "c-information-01",
+   "author": "claude",
+   "category": "information",
+   "text": "فردوسی شاهنامه رو چند سال طول کشید بنویسه؟"
+  },
+  {
+   "id": "c-information-02",
+   "author": "claude",
+   "category": "information",
+   "text": "چرا ماه بعضی وقتا نصفه‌ست؟"
+  },
+  {
+   "id": "c-information-03",
+   "author": "claude",
+   "category": "information",
+   "text": "نوروز از کی شروع شده؟ خیلی قدیمیه؟"
+  },
+  {
+   "id": "c-information-04",
+   "author": "claude",
+   "category": "information",
+   "text": "یه کم از تخت‌جمشید برام بگو"
+  },
+  {
+   "id": "c-information-05",
+   "author": "claude",
+   "category": "information",
+   "text": "زعفرون چرا انقدر گرونه؟ قدیما این‌جوری نبود"
+  },
+  {
+   "id": "c-information-06",
+   "author": "claude",
+   "category": "information",
+   "text": "فرق قند خون ناشتا با قند معمولی چیه؟"
+  },
+  {
+   "id": "c-information-07",
+   "author": "claude",
+   "category": "information",
+   "text": "خیام فقط شاعر بوده یا ریاضی‌دان هم بوده؟"
+  },
+  {
+   "id": "c-information-08",
+   "author": "claude",
+   "category": "information",
+   "text": "امروز تو اخبار چی گفتن؟"
+  },
+  {
+   "id": "c-information-09",
+   "author": "claude",
+   "category": "information",
+   "text": "چرا پرنده‌ها زمستون کوچ می‌کنن؟"
+  },
+  {
+   "id": "c-information-10",
+   "author": "claude",
+   "category": "information",
+   "text": "دریای خزر که دریاچه‌ست، چرا بهش می‌گن دریا؟"
+  },
+  {
+   "id": "c-information-11",
+   "author": "claude",
+   "category": "information",
+   "text": "یه معمای ساده بگو که ذهنم کار کنه"
+  },
+  {
+   "id": "c-emotional_support-01",
+   "author": "claude",
+   "category": "emotional_support",
+   "text": "امروز سالگرد فوت مادرمه، دلم خیلی گرفته"
+  },
+  {
+   "id": "c-emotional_support-02",
+   "author": "claude",
+   "category": "emotional_support",
+   "text": "همه سرشون شلوغه، هیچ‌کس وقت نداره به من سر بزنه"
+  },
+  {
+   "id": "c-emotional_support-03",
+   "author": "claude",
+   "category": "emotional_support",
+   "text": "شبا تو خونه تنهایی می‌ترسم، همه‌ش صدا میاد"
+  },
+  {
+   "id": "c-emotional_support-04",
+   "author": "claude",
+   "category": "emotional_support",
+   "text": "حس می‌کنم حافظه‌م ضعیف شده، خیلی ناراحتم"
+  },
+  {
+   "id": "c-emotional_support-05",
+   "author": "claude",
+   "category": "emotional_support",
+   "text": "بچه‌ها بهم می‌گن تو دیگه نمی‌فهمی، دلم شکست"
+  },
+  {
+   "id": "c-emotional_support-06",
+   "author": "claude",
+   "category": "emotional_support",
+   "text": "امروز نوه‌م اومد پیشم، خیلی خوشحالم"
+  },
+  {
+   "id": "c-emotional_support-07",
+   "author": "claude",
+   "category": "emotional_support",
+   "text": "می‌خوای یه خاطره از جوونیم برات تعریف کنم؟"
+  },
+  {
+   "id": "c-emotional_support-08",
+   "author": "claude",
+   "category": "emotional_support",
+   "text": "دیگه حوصله‌ی هیچ کاری رو ندارم"
+  },
+  {
+   "id": "c-emotional_support-09",
+   "author": "claude",
+   "category": "emotional_support",
+   "text": "دکتر گفته باید عمل کنم، خیلی می‌ترسم"
+  },
+  {
+   "id": "c-emotional_support-10",
+   "author": "claude",
+   "category": "emotional_support",
+   "text": "یه آهنگ قدیمی برام بخون، دلم گرفته"
+  },
+  {
+   "id": "c-emotional_support-11",
+   "author": "claude",
+   "category": "emotional_support",
+   "text": "دوستم که هر روز باهاش پارک می‌رفتم فوت کرده"
+  },
+  {
+   "id": "c-home_and_safety-01",
+   "author": "claude",
+   "category": "home_and_safety",
+   "text": "بخاری رو شب روشن بذارم بخوابم خطر داره؟"
+  },
+  {
+   "id": "c-home_and_safety-02",
+   "author": "claude",
+   "category": "home_and_safety",
+   "text": "یه آقایی دم دره می‌گه مأمور گازه، در رو باز کنم؟"
+  },
+  {
+   "id": "c-home_and_safety-03",
+   "author": "claude",
+   "category": "home_and_safety",
+   "text": "حموم لیزه، می‌ترسم بیفتم، چیکار کنم؟"
+  },
+  {
+   "id": "c-home_and_safety-04",
+   "author": "claude",
+   "category": "home_and_safety",
+   "text": "دستم با چاقو برید، خونش بند نمیاد"
+  },
+  {
+   "id": "c-home_and_safety-05",
+   "author": "claude",
+   "category": "home_and_safety",
+   "text": "بوی سوختگی میاد ولی نمی‌دونم از کجاست"
+  },
+  {
+   "id": "c-home_and_safety-06",
+   "author": "claude",
+   "category": "home_and_safety",
+   "text": "پریز برق جرقه زد، دیگه بهش دست بزنم؟"
+  },
+  {
+   "id": "c-home_and_safety-07",
+   "author": "claude",
+   "category": "home_and_safety",
+   "text": "شبا چراغ راهرو رو روشن بذارم بهتره؟"
+  },
+  {
+   "id": "c-home_and_safety-08",
+   "author": "claude",
+   "category": "home_and_safety",
+   "text": "یکی زنگ زد گفت پسرت تصادف کرده پول بریز، چیکار کنم؟"
+  },
+  {
+   "id": "c-home_and_safety-09",
+   "author": "claude",
+   "category": "home_and_safety",
+   "text": "آبگرمکن یه صدای عجیبی میده، خطرناکه؟"
+  },
+  {
+   "id": "c-home_and_safety-10",
+   "author": "claude",
+   "category": "home_and_safety",
+   "text": "اگه زلزله بیاد کجای خونه برم؟"
+  },
+  {
+   "id": "c-home_and_safety-11",
+   "author": "claude",
+   "category": "home_and_safety",
+   "text": "یادم رفته زیر غذا رو خاموش کردم یا نه"
+  },
+  {
+   "id": "c-religion_and_culture-01",
+   "author": "claude",
+   "category": "religion_and_culture",
+   "text": "نماز قضا رو چطوری باید بخونم؟"
+  },
+  {
+   "id": "c-religion_and_culture-02",
+   "author": "claude",
+   "category": "religion_and_culture",
+   "text": "شب قدر امسال کدوم شبه؟ می‌خوام بیدار بمونم"
+  },
+  {
+   "id": "c-religion_and_culture-03",
+   "author": "claude",
+   "category": "religion_and_culture",
+   "text": "یه حدیث کوتاه درباره‌ی صبر بگو"
+  },
+  {
+   "id": "c-religion_and_culture-04",
+   "author": "claude",
+   "category": "religion_and_culture",
+   "text": "برای فاتحه‌ی پدرم چی بخونم؟"
+  },
+  {
+   "id": "c-religion_and_culture-05",
+   "author": "claude",
+   "category": "religion_and_culture",
+   "text": "سیزده‌بدر چرا سبزه گره می‌زنن؟"
+  },
+  {
+   "id": "c-religion_and_culture-06",
+   "author": "claude",
+   "category": "religion_and_culture",
+   "text": "یه بیت از مولانا بگو که آدمو آروم کنه"
+  },
+  {
+   "id": "c-religion_and_culture-07",
+   "author": "claude",
+   "category": "religion_and_culture",
+   "text": "چهارشنبه‌سوری امسال کیه؟ نوه‌ها می‌خوان بیان"
+  },
+  {
+   "id": "c-religion_and_culture-08",
+   "author": "claude",
+   "category": "religion_and_culture",
+   "text": "نذری چی بپزم که همسایه‌ها دوست داشته باشن؟"
+  },
+  {
+   "id": "c-religion_and_culture-09",
+   "author": "claude",
+   "category": "religion_and_culture",
+   "text": "معنی این ضرب‌المثل چیه، آب که سربالا بره قورباغه ابوعطا می‌خونه"
+  },
+  {
+   "id": "c-religion_and_culture-10",
+   "author": "claude",
+   "category": "religion_and_culture",
+   "text": "عید غدیر چه رسمایی داره؟"
+  },
+  {
+   "id": "c-religion_and_culture-11",
+   "author": "claude",
+   "category": "religion_and_culture",
+   "text": "یه فال حافظ برام بگیر"
+  },
+  {
+   "id": "c-technology_help-01",
+   "author": "claude",
+   "category": "technology_help",
+   "text": "گوشیم شارژ نمیشه، شارژرو زدم ولی کار نمی‌کنه"
+  },
+  {
+   "id": "c-technology_help-02",
+   "author": "claude",
+   "category": "technology_help",
+   "text": "چطوری شماره‌ی دخترمو تو گوشی ذخیره کنم؟"
+  },
+  {
+   "id": "c-technology_help-03",
+   "author": "claude",
+   "category": "technology_help",
+   "text": "واتساپ چیه؟ نوه‌م می‌گه نصبش کن"
+  },
+  {
+   "id": "c-technology_help-04",
+   "author": "claude",
+   "category": "technology_help",
+   "text": "صفحه‌ی گوشیم خاموش نمیشه، همه‌ش روشنه"
+  },
+  {
+   "id": "c-technology_help-05",
+   "author": "claude",
+   "category": "technology_help",
+   "text": "یه پیام اومده نوشته کد تأیید رو بفرست، بفرستم؟"
+  },
+  {
+   "id": "c-technology_help-06",
+   "author": "claude",
+   "category": "technology_help",
+   "text": "عکسای نوه‌مو تو گوشی چطوری پیدا کنم؟"
+  },
+  {
+   "id": "c-technology_help-07",
+   "author": "claude",
+   "category": "technology_help",
+   "text": "رمز وای‌فای رو یادم رفته"
+  },
+  {
+   "id": "c-technology_help-08",
+   "author": "claude",
+   "category": "technology_help",
+   "text": "تلویزیون رو چطوری بذارم روی شبکه‌ی خبر؟"
+  },
+  {
+   "id": "c-technology_help-09",
+   "author": "claude",
+   "category": "technology_help",
+   "text": "می‌خوام زنگ گوشیمو عوض کنم، یه صدای آروم بذارم"
+  },
+  {
+   "id": "c-technology_help-10",
+   "author": "claude",
+   "category": "technology_help",
+   "text": "چطوری با گوشی کارت به کارت کنم؟"
+  },
+  {
+   "id": "c-technology_help-11",
+   "author": "claude",
+   "category": "technology_help",
+   "text": "گفتن یه برنامه برای نوبت دکتر نصب کن، چطوری؟"
+  },
+  {
+   "id": "g-health_and_medication-01",
+   "author": "gpt-6-astra",
+   "category": "health_and_medication",
+   "text": "این کپسولو که می‌خورم دهنم تلخ میشه، از داروشه یا یه چیز دیگه‌ست؟"
+  },
+  {
+   "id": "g-health_and_medication-02",
+   "author": "gpt-6-astra",
+   "category": "health_and_medication",
+   "text": "روی جعبه نوشته همراه غذا، یعنی وسط خوردن بخورمش یا بعدش؟"
+  },
+  {
+   "id": "g-health_and_medication-03",
+   "author": "gpt-6-astra",
+   "category": "health_and_medication",
+   "text": "مچ پام چند روزه ورم کرده، برای نشون دادنش پیش چه دکتری برم؟"
+  },
+  {
+   "id": "g-health_and_medication-04",
+   "author": "gpt-6-astra",
+   "category": "health_and_medication",
+   "text": "دندون مصنوعیم لثه‌مو زخم کرده، تا وقت دندونپزشکی چطوری غذا بخورم؟"
+  },
+  {
+   "id": "g-health_and_medication-05",
+   "author": "gpt-6-astra",
+   "category": "health_and_medication",
+   "text": "قطره چشمم یه ماهه باز شده، هنوز میشه ازش استفاده کرد؟"
+  },
+  {
+   "id": "g-health_and_medication-06",
+   "author": "gpt-6-astra",
+   "category": "health_and_medication",
+   "text": "وقتی آب می‌خورم سرفه‌م می‌گیره، لازمه اینو به دکتر بگم؟"
+  },
+  {
+   "id": "g-health_and_medication-07",
+   "author": "gpt-6-astra",
+   "category": "health_and_medication",
+   "text": "می‌تونی از توی پرونده‌م بگی آخرین آزمایش خونم کی بوده؟"
+  },
+  {
+   "id": "g-health_and_medication-08",
+   "author": "gpt-6-astra",
+   "category": "health_and_medication",
+   "text": "از صبح یه گوشم یهو کیپ شده، صبر کنم خودش باز بشه؟"
+  },
+  {
+   "id": "g-health_and_medication-09",
+   "author": "gpt-6-astra",
+   "category": "health_and_medication",
+   "text": "این قرص درشته، می‌تونم نصفش کنم یا نباید دستش بزنم؟"
+  },
+  {
+   "id": "g-health_and_medication-10",
+   "author": "gpt-6-astra",
+   "category": "health_and_medication",
+   "text": "داروهامو توی آشپزخونه کنار سماور می‌ذارم، جاشون خوبه اونجا؟"
+  },
+  {
+   "id": "g-health_and_medication-11",
+   "author": "gpt-6-astra",
+   "category": "health_and_medication",
+   "text": "یه فشار سنگین روی سینه‌مه و عرق کردم، الان باید چی کار کنم؟"
+  },
+  {
+   "id": "g-family_and_social-01",
+   "author": "gpt-6-astra",
+   "category": "family_and_social",
+   "text": "برای مهمونی جمعه چطوری بگم هر خانواده یه خوراکی با خودش بیاره؟"
+  },
+  {
+   "id": "g-family_and_social-02",
+   "author": "gpt-6-astra",
+   "category": "family_and_social",
+   "text": "خواهرم بازنشسته شده، کمکم کن یه پیام بامزه براش بفرستم"
+  },
+  {
+   "id": "g-family_and_social-03",
+   "author": "gpt-6-astra",
+   "category": "family_and_social",
+   "text": "نوه‌م توی امتحانش قبول نشده، چی بگم که خجالت نکشه؟"
+  },
+  {
+   "id": "g-family_and_social-04",
+   "author": "gpt-6-astra",
+   "category": "family_and_social",
+   "text": "برای مراسم ختم فامیل نمی‌تونم برم، چطوری محترمانه عذرخواهی کنم؟"
+  },
+  {
+   "id": "g-family_and_social-05",
+   "author": "gpt-6-astra",
+   "category": "family_and_social",
+   "text": "می‌خوام از بچه‌هام بخوام قبل اومدن خبر بدن، چی بگم بد برداشت نکنن؟"
+  },
+  {
+   "id": "g-family_and_social-06",
+   "author": "gpt-6-astra",
+   "category": "family_and_social",
+   "text": "رفیقم پول قرض خواسته، خودمم دستم تنگه، چطوری جوابشو بدم؟"
+  },
+  {
+   "id": "g-family_and_social-07",
+   "author": "gpt-6-astra",
+   "category": "family_and_social",
+   "text": "توی گروه فامیل بحث شده، یه جمله بگو آرومشون کنم"
+  },
+  {
+   "id": "g-family_and_social-08",
+   "author": "gpt-6-astra",
+   "category": "family_and_social",
+   "text": "می‌خوام خاطرات بچگیمو برای نوه‌هام ضبط کنم، از کجا شروع کنم؟"
+  },
+  {
+   "id": "g-family_and_social-09",
+   "author": "gpt-6-astra",
+   "category": "family_and_social",
+   "text": "برای تشکر از همسایه که خرید منو آورده چی بگم؟"
+  },
+  {
+   "id": "g-family_and_social-10",
+   "author": "gpt-6-astra",
+   "category": "family_and_social",
+   "text": "به برادرم قول دادم سر بزنم ولی خسته‌م، چطوری قرارو عقب بندازم؟"
+  },
+  {
+   "id": "g-family_and_social-11",
+   "author": "gpt-6-astra",
+   "category": "family_and_social",
+   "text": "کجا می‌تونم هم‌سن‌وسالای خودمو پیدا کنم که با هم بریم گردش؟"
+  },
+  {
+   "id": "g-daily_life_and_time-01",
+   "author": "gpt-6-astra",
+   "category": "daily_life_and_time",
+   "text": "بیست دقیقه دیگه صدام کن که لباسا رو از ماشین دربیارم"
+  },
+  {
+   "id": "g-daily_life_and_time-02",
+   "author": "gpt-6-astra",
+   "category": "daily_life_and_time",
+   "text": "از الان تا ساعت چهار چقدر وقت دارم آماده بشم؟"
+  },
+  {
+   "id": "g-daily_life_and_time-03",
+   "author": "gpt-6-astra",
+   "category": "daily_life_and_time",
+   "text": "فردا اداره پست بازه یا تعطیله که بیخودی راه نیفتم؟"
+  },
+  {
+   "id": "g-daily_life_and_time-04",
+   "author": "gpt-6-astra",
+   "category": "daily_life_and_time",
+   "text": "یادم بنداز پنجشنبه کتاب امانتی رو ببرم پس بدم"
+  },
+  {
+   "id": "g-daily_life_and_time-05",
+   "author": "gpt-6-astra",
+   "category": "daily_life_and_time",
+   "text": "برای خرید امروز یه فهرست درست کن، تخم‌مرغ و ماست و دستمال نداریم"
+  },
+  {
+   "id": "g-daily_life_and_time-06",
+   "author": "gpt-6-astra",
+   "category": "daily_life_and_time",
+   "text": "لکه چای روی رومیزی مونده، با چی پاکش کنم؟"
+  },
+  {
+   "id": "g-daily_life_and_time-07",
+   "author": "gpt-6-astra",
+   "category": "daily_life_and_time",
+   "text": "سبزی خوردنو چطوری نگه دارم که توی یخچال زود پلاسیده نشه؟"
+  },
+  {
+   "id": "g-daily_life_and_time-08",
+   "author": "gpt-6-astra",
+   "category": "daily_life_and_time",
+   "text": "دو کیلو خیار دارم، برای خیارشور خونگی چقدر نمک لازمه؟"
+  },
+  {
+   "id": "g-daily_life_and_time-09",
+   "author": "gpt-6-astra",
+   "category": "daily_life_and_time",
+   "text": "اگه هر ماه یه مقدار کنار بذارم، چطوری حساب پس‌اندازمو نگه دارم؟"
+  },
+  {
+   "id": "g-daily_life_and_time-10",
+   "author": "gpt-6-astra",
+   "category": "daily_life_and_time",
+   "text": "صبحا یادم میره پرده‌ها رو کنار بزنم، برام یادآوری بذار"
+  },
+  {
+   "id": "g-daily_life_and_time-11",
+   "author": "gpt-6-astra",
+   "category": "daily_life_and_time",
+   "text": "پتو رو شستم ولی هنوز نم داره، جمعش کنم بو می‌گیره؟"
+  },
+  {
+   "id": "g-information-01",
+   "author": "gpt-6-astra",
+   "category": "information",
+   "text": "خبر تازه‌ای درباره افزایش حقوق بازنشسته‌ها اومده، می‌تونی برام پیدا کنی؟"
+  },
+  {
+   "id": "g-information-02",
+   "author": "gpt-6-astra",
+   "category": "information",
+   "text": "الان یه گرم طلای معمولی چند درمیاد، قیمت امروزو داری؟"
+  },
+  {
+   "id": "g-information-03",
+   "author": "gpt-6-astra",
+   "category": "information",
+   "text": "این قطارای سریع‌السیر چه فرقی با قطارای قدیمی دارن؟"
+  },
+  {
+   "id": "g-information-04",
+   "author": "gpt-6-astra",
+   "category": "information",
+   "text": "چرا بعضی وقتا ماه وسط روز هم توی آسمون پیداست؟"
+  },
+  {
+   "id": "g-information-05",
+   "author": "gpt-6-astra",
+   "category": "information",
+   "text": "برای گرفتن کارت منزلت سالمندا باید کجا مراجعه کنم؟"
+  },
+  {
+   "id": "g-information-06",
+   "author": "gpt-6-astra",
+   "category": "information",
+   "text": "سدهای اطراف تهران امسال آبشون بیشتر شده یا کمتر؟"
+  },
+  {
+   "id": "g-information-07",
+   "author": "gpt-6-astra",
+   "category": "information",
+   "text": "این پرنده‌ها از کجا می‌فهمن وقت کوچ کردن رسیده؟"
+  },
+  {
+   "id": "g-information-08",
+   "author": "gpt-6-astra",
+   "category": "information",
+   "text": "چرا وقتی میوه رو خشک می‌کنن این‌قدر شیرین‌تر میشه؟"
+  },
+  {
+   "id": "g-information-09",
+   "author": "gpt-6-astra",
+   "category": "information",
+   "text": "نزدیک‌ترین کتابخونه عمومی به خونه من کجاست و کی باز می‌کنه؟"
+  },
+  {
+   "id": "g-information-10",
+   "author": "gpt-6-astra",
+   "category": "information",
+   "text": "این روزا برای سفر با قطار چه تخفیفی به بازنشسته‌ها میدن؟"
+  },
+  {
+   "id": "g-information-11",
+   "author": "gpt-6-astra",
+   "category": "information",
+   "text": "یه توضیح ساده بده که تورم چطوری ارزش پولمونو کم می‌کنه"
+  },
+  {
+   "id": "g-emotional_support-01",
+   "author": "gpt-6-astra",
+   "category": "emotional_support",
+   "text": "بعد اون بحث خانوادگی هنوز حرص می‌خورم، کمکم کن آروم بشم"
+  },
+  {
+   "id": "g-emotional_support-02",
+   "author": "gpt-6-astra",
+   "category": "emotional_support",
+   "text": "وقتی برای کارام کمک می‌خوام خجالت می‌کشم، میشه درباره‌ش حرف بزنیم؟"
+  },
+  {
+   "id": "g-emotional_support-03",
+   "author": "gpt-6-astra",
+   "category": "emotional_support",
+   "text": "فردا باید برم یه جمع تازه، دلشوره دارم، یه کم باهام تمرین کن"
+  },
+  {
+   "id": "g-emotional_support-04",
+   "author": "gpt-6-astra",
+   "category": "emotional_support",
+   "text": "از دست خودم عصبانی‌ام که زود از کوره در رفتم، چطور جبران کنم؟"
+  },
+  {
+   "id": "g-emotional_support-05",
+   "author": "gpt-6-astra",
+   "category": "emotional_support",
+   "text": "خبرای بد ذهنمو ول نمی‌کنن، کمکم کن یه کم ازشون فاصله بگیرم"
+  },
+  {
+   "id": "g-emotional_support-06",
+   "author": "gpt-6-astra",
+   "category": "emotional_support",
+   "text": "امروز تونستم کار عقب‌افتاده‌مو تموم کنم، بذار برات تعریف کنم"
+  },
+  {
+   "id": "g-emotional_support-07",
+   "author": "gpt-6-astra",
+   "category": "emotional_support",
+   "text": "همه برای من تصمیم می‌گیرن، کمکم کن خواسته خودمو روشن بگم"
+  },
+  {
+   "id": "g-emotional_support-08",
+   "author": "gpt-6-astra",
+   "category": "emotional_support",
+   "text": "یه اشتباه قدیمی هی یادم میاد، چطوری کمتر خودمو سرزنش کنم؟"
+  },
+  {
+   "id": "g-emotional_support-09",
+   "author": "gpt-6-astra",
+   "category": "emotional_support",
+   "text": "وقتی کسی وسط حرفم می‌پره ناراحت میشم، کمکم کن ناراحتیمو بیان کنم"
+  },
+  {
+   "id": "g-emotional_support-10",
+   "author": "gpt-6-astra",
+   "category": "emotional_support",
+   "text": "از نتیجه آزمایشم می‌ترسم، تا جوابش بیاد چطور این نگرانی رو تحمل کنم؟"
+  },
+  {
+   "id": "g-emotional_support-11",
+   "author": "gpt-6-astra",
+   "category": "emotional_support",
+   "text": "فعلا نصیحت نمی‌خوام، میشه فقط گوش بدی تا حرف دلمو بزنم؟"
+  },
+  {
+   "id": "g-home_and_safety-01",
+   "author": "gpt-6-astra",
+   "category": "home_and_safety",
+   "text": "از پریز پشت یخچال جرقه زد، الان باید چی رو قطع کنم؟"
+  },
+  {
+   "id": "g-home_and_safety-02",
+   "author": "gpt-6-astra",
+   "category": "home_and_safety",
+   "text": "روغن توی ماهیتابه آتیش گرفته، چطوری از آشپزخونه امن بیرون برم؟"
+  },
+  {
+   "id": "g-home_and_safety-03",
+   "author": "gpt-6-astra",
+   "category": "home_and_safety",
+   "text": "کف حموم خیلی لیزه، چی بذارم که پام سر نخوره؟"
+  },
+  {
+   "id": "g-home_and_safety-04",
+   "author": "gpt-6-astra",
+   "category": "home_and_safety",
+   "text": "یه غریبه پشت در میگه مأمور آبه، چطوری مطمئن بشم راست میگه؟"
+  },
+  {
+   "id": "g-home_and_safety-05",
+   "author": "gpt-6-astra",
+   "category": "home_and_safety",
+   "text": "سقف بالای بخاری سیاه شده، روشن نگه داشتنش خطر داره؟"
+  },
+  {
+   "id": "g-home_and_safety-06",
+   "author": "gpt-6-astra",
+   "category": "home_and_safety",
+   "text": "برای عوض کردن لامپ چهارپایه لق می‌زنه، راه امن‌تری هست؟"
+  },
+  {
+   "id": "g-home_and_safety-07",
+   "author": "gpt-6-astra",
+   "category": "home_and_safety",
+   "text": "وایتکس با جرم‌گیر قاطی شده و گلوم می‌سوزه، الان چیکار کنم؟"
+  },
+  {
+   "id": "g-home_and_safety-08",
+   "author": "gpt-6-astra",
+   "category": "home_and_safety",
+   "text": "دستگیره قابلمه شکسته، چطوری بدون سوختن از روی اجاق برش دارم؟"
+  },
+  {
+   "id": "g-home_and_safety-09",
+   "author": "gpt-6-astra",
+   "category": "home_and_safety",
+   "text": "سیم فرش‌شور زخمی شده، میشه با چسب درستش کرد یا خطرناکه؟"
+  },
+  {
+   "id": "g-home_and_safety-10",
+   "author": "gpt-6-astra",
+   "category": "home_and_safety",
+   "text": "زنگ هشدار دود صدا میده ولی چیزی نمی‌بینم، اول کجا برم؟"
+  },
+  {
+   "id": "g-home_and_safety-11",
+   "author": "gpt-6-astra",
+   "category": "home_and_safety",
+   "text": "برای شب کنار تخت چه چراغی بذارم که مسیر دستشویی رو ببینم؟"
+  },
+  {
+   "id": "g-religion_and_culture-01",
+   "author": "gpt-6-astra",
+   "category": "religion_and_culture",
+   "text": "قبله این اتاق کدوم طرفه، می‌تونی کمک کنی پیداش کنم؟"
+  },
+  {
+   "id": "g-religion_and_culture-02",
+   "author": "gpt-6-astra",
+   "category": "religion_and_culture",
+   "text": "اگه ایستاده نماز خوندن برام سخته، نشسته خوندنش چه جوریه؟"
+  },
+  {
+   "id": "g-religion_and_culture-03",
+   "author": "gpt-6-astra",
+   "category": "religion_and_culture",
+   "text": "یه تلاوت آروم از سوره مریم بذار گوش بدم"
+  },
+  {
+   "id": "g-religion_and_culture-04",
+   "author": "gpt-6-astra",
+   "category": "religion_and_culture",
+   "text": "برای حساب کردن زکات فطره باید تعداد مهمونا رو هم در نظر بگیرم؟"
+  },
+  {
+   "id": "g-religion_and_culture-05",
+   "author": "gpt-6-astra",
+   "category": "religion_and_culture",
+   "text": "توی سفر نماز شکسته رو چه جوری باید بخونم؟"
+  },
+  {
+   "id": "g-religion_and_culture-06",
+   "author": "gpt-6-astra",
+   "category": "religion_and_culture",
+   "text": "معنی این جمله اذان که میگه حی علی الفلاح چیه؟"
+  },
+  {
+   "id": "g-religion_and_culture-07",
+   "author": "gpt-6-astra",
+   "category": "religion_and_culture",
+   "text": "یه آواز قدیمی توی دستگاه شور برام پخش کن"
+  },
+  {
+   "id": "g-religion_and_culture-08",
+   "author": "gpt-6-astra",
+   "category": "religion_and_culture",
+   "text": "قدیما توی مراسم گلاب‌گیری کاشون چه کارایی می‌کردن؟"
+  },
+  {
+   "id": "g-religion_and_culture-09",
+   "author": "gpt-6-astra",
+   "category": "religion_and_culture",
+   "text": "فرق نقالی با تعزیه چیه، هر دوتاشون نمایش حساب میشن؟"
+  },
+  {
+   "id": "g-religion_and_culture-10",
+   "author": "gpt-6-astra",
+   "category": "religion_and_culture",
+   "text": "برای سفره نذری عدس‌پلو، سهم هر نفر چقدر برنج حساب کنم؟"
+  },
+  {
+   "id": "g-religion_and_culture-11",
+   "author": "gpt-6-astra",
+   "category": "religion_and_culture",
+   "text": "دلم می‌خواد خوشنویسی یاد بگیرم، برای شروع چه قلمی لازمه؟"
+  },
+  {
+   "id": "g-technology_help-01",
+   "author": "gpt-6-astra",
+   "category": "technology_help",
+   "text": "نوشته‌های گوشیم ریز شده، قدم‌به‌قدم بگو چطوری درشتشون کنم"
+  },
+  {
+   "id": "g-technology_help-02",
+   "author": "gpt-6-astra",
+   "category": "technology_help",
+   "text": "اینترنت خونه قطع شده، کدوم چراغ مودمو باید نگاه کنم؟"
+  },
+  {
+   "id": "g-technology_help-03",
+   "author": "gpt-6-astra",
+   "category": "technology_help",
+   "text": "گوشیم میگه حافظه پره، چطوری بفهمم چی این‌همه جا گرفته؟"
+  },
+  {
+   "id": "g-technology_help-04",
+   "author": "gpt-6-astra",
+   "category": "technology_help",
+   "text": "یه شماره ناشناس هی زنگ می‌زنه، چطوری جلوشو بگیرم؟"
+  },
+  {
+   "id": "g-technology_help-05",
+   "author": "gpt-6-astra",
+   "category": "technology_help",
+   "text": "رمز ورود گوشیمو یادم نمیاد، راهی هست اطلاعاتم پاک نشه؟"
+  },
+  {
+   "id": "g-technology_help-06",
+   "author": "gpt-6-astra",
+   "category": "technology_help",
+   "text": "می‌خوام به جای تایپ کردن حرف بزنم، کجای صفحه رو بزنم؟"
+  },
+  {
+   "id": "g-technology_help-07",
+   "author": "gpt-6-astra",
+   "category": "technology_help",
+   "text": "عکسام یه‌دفعه از توی گالری ناپدید شدن، از کجا دنبالشون بگردم؟"
+  },
+  {
+   "id": "g-technology_help-08",
+   "author": "gpt-6-astra",
+   "category": "technology_help",
+   "text": "این صفحه هی می‌چرخه ولی باز نمیشه، باید صبر کنم یا ببندمش؟"
+  },
+  {
+   "id": "g-technology_help-09",
+   "author": "gpt-6-astra",
+   "category": "technology_help",
+   "text": "چراغ‌قوه گوشیم روشن مونده، بگو از کجا خاموشش کنم"
+  },
+  {
+   "id": "g-technology_help-10",
+   "author": "gpt-6-astra",
+   "category": "technology_help",
+   "text": "می‌خوام زنگ بیدارباش فقط روزای شنبه صدا کنه، چطور تنظیمش کنم؟"
+  },
+  {
+   "id": "g-technology_help-11",
+   "author": "gpt-6-astra",
+   "category": "technology_help",
+   "text": "گوشیمو توی خونه پیدا نمی‌کنم، می‌تونی کاری کنی زنگ بخوره؟"
+  }
+ ],
+ "gpt_authoring": {
+  "model": "gpt-6-astra",
+  "tool": "Codex CLI 0.156.1 (ChatGPT account)",
+  "reasoning_effort": "medium",
+  "prompt": "the brief, then the 60 v2 requests as examples not to copy, then the JSON output instruction"
+ }
+}
