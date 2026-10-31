@@ -120,3 +120,29 @@ def test_frozen_plan_and_inventory_are_consistent() -> None:
     assert len(inv["models"]) == 14
     requests = json.loads((ROOT / "configs/responder_v3_elderly_requests.json").read_text(encoding="utf-8"))["requests"]
     assert len(requests) == 176 and {r["author"] for r in requests} == {"claude", "gpt-6-astra"}
+
+
+def test_history_turns_are_cut_to_their_last_words() -> None:
+    long_turn = " ".join(f"w{i}" for i in range(100))
+    row = {"text": "سلام", "history": [{"user": long_turn, "assistant": "کوتاه"}]}
+    messages = v3.messages_for(row, "system")
+    assert messages[1]["content"].split() == [f"w{i}" for i in range(60, 100)]
+    assert messages[2]["content"] == "کوتاه" and messages[-1]["content"] == "سلام"
+    assert "w59" not in v3.judge_prompt(row, [("A", "x")])
+
+
+def test_stages_screen_every_model_and_probe_sensitivity_on_two() -> None:
+    gib = v3.GIB
+    arms = [
+        {"arm": "ref", "model": "Qwen/Qwen3-4B", "family": "official_bf16", "engine": "vllm", "bytes": 8 * gib, "role": "reference", "tier": "A1"},
+        {"arm": "big__gguf-q4_k_m", "model": "Qwen/Qwen3.6-27B", "family": "gguf_ladder", "engine": "llamacpp", "bytes": 16 * gib, "role": "candidate", "tier": "A2"},
+        {"arm": "big__awq_int4", "model": "Qwen/Qwen3.6-27B", "family": "awq_int4", "engine": "vllm", "bytes": 17 * gib, "role": "candidate", "tier": "A3"},
+        {"arm": "qwen3.5-4b__gptq_int4", "model": "Qwen/Qwen3.5-4B", "family": "gptq_int4", "engine": "vllm", "bytes": 4 * gib, "role": "candidate", "tier": "B"},
+        {"arm": "gemma-4-e4b__official_bf16", "model": "google/gemma-4-E4B-it", "family": "official_bf16", "engine": "vllm", "bytes": 15 * gib, "role": "candidate", "tier": "A3"},
+        {"arm": "fp8", "model": "Qwen/Qwen3.8-27B", "family": "official_fp8", "engine": "remote", "bytes": 29 * gib, "role": "reference_precision", "tier": "-"},
+        {"arm": "x__bnb_4bit", "model": "Qwen/Qwen3.6-27B", "family": "bnb_4bit", "engine": "vllm", "bytes": 17 * gib, "role": "excluded", "tier": "-"},
+    ]
+    v3.assign_stages(arms)
+    stages = {a["arm"]: a["stage"] for a in arms}
+    assert stages == {"ref": "S1", "big__gguf-q4_k_m": "S1", "big__awq_int4": "S3?", "qwen3.5-4b__gptq_int4": "S2",
+                      "gemma-4-e4b__official_bf16": "S2", "fp8": "S1", "x__bnb_4bit": "-"}

@@ -262,11 +262,37 @@ def arms(work: Path) -> list[dict[str, Any]]:
         elif arm["role"] == "candidate" and not arm["fits_by_weights"]:
             arm["role"] = "excluded"
             arm["excluded_reason"] = "weights exceed the file-size limit"
+    for arm in out:
+        if arm["arm"] == "qwen3.8-27b__official_fp8":  # the existing local service, requests only (Amendment 1)
+            arm.update({"engine": "remote", "endpoint": os.environ.get("THESIS_QWEN38_ENDPOINT", "http://127.0.0.1:8003"),
+                        "served_model": "qwen3.8-27b"})
     assign_tiers(out)
-    order = {"A1": 0, "A2": 1, "A3": 2, "B": 3, "D": 4, "-": 5}
-    out.sort(key=lambda a: (order[a["tier"]], a["bytes"]))
+    assign_stages(out)
+    order = {"S1": 0, "S2": 1, "S3?": 2, "-": 3}
+    out.sort(key=lambda a: (order[a["stage"]], a["bytes"]))
     write_jsonl(work / "arms.jsonl", out)
     return out
+
+
+STAGE2_E4B = {"gemma-4-e4b__official_bf16", "gemma-4-e4b__gguf-q8_0", "gemma-4-e4b__nvfp4"}
+
+
+def assign_stages(out: list[dict[str, Any]]) -> None:
+    """Amendment 1: stage 1 model screen, stage 2 sensitivity, stage 3 chosen after screening."""
+
+    for a in out:
+        if a["engine"] == "remote" or a.get("tier") in ("A1", "A2"):
+            a["stage"] = "S1"
+        elif a["role"] in ("candidate", "reference") and (a["model"] == "Qwen/Qwen3.5-4B" or a["arm"] in STAGE2_E4B):
+            a["stage"] = "S2"
+        elif a["role"] in ("candidate", "reference"):
+            a["stage"] = "S3?"
+        else:
+            a["stage"] = "-"
+
+
+def on_host(arm: dict[str, Any]) -> bool:
+    return bool(arm.get("local")) or arm["engine"] == "remote"
 
 
 def arm_by_id(work: Path, arm_id: str) -> dict[str, Any]:
@@ -302,7 +328,7 @@ def model_dir(models: Path, arm: dict[str, Any]) -> Path:
 
 
 def fetch(models: Path, arm: dict[str, Any]) -> dict[str, Any]:
-    if arm.get("local"):
+    if on_host(arm):
         return {"arm": arm["arm"], "local": True}
     dest = model_dir(models, arm)
     dest.mkdir(parents=True, exist_ok=True)
@@ -388,15 +414,28 @@ class Server:
 
     @property
     def endpoint(self) -> str:
+        if self.engine == "remote":
+            return str(self.arm["endpoint"])
         return f"http://127.0.0.1:{VLLM_PORT if self.engine == 'vllm' else LLAMA_PORT}"
 
+    @property
+    def served_model(self) -> str:
+        return str(self.arm.get("served_model", "candidate"))
+
     def pids(self) -> set[int]:
+        if self.engine == "remote":
+            return set()
         if self.engine == "vllm":
             out = subprocess.run(["docker", "top", self.name, "-eo", "pid"], capture_output=True, text=True).stdout
             return {int(x) for x in out.split() if x.isdigit()}
         return {self.proc.pid} if self.proc else set()
 
     def start(self, timeout: float = 1800) -> None:
+        if self.engine == "remote":  # an existing service: requests only, never started or stopped here
+            with urllib.request.urlopen(f"{self.endpoint}/health", timeout=10) as response:  # noqa: S310 - local
+                if response.status != 200:
+                    raise RuntimeError("remote service is not healthy")
+            return
         need = int(self.arm["bytes"] / MIB) + 3072
         waited = 0
         while gpu_free_mib() < min(need, 23000):
@@ -464,6 +503,8 @@ class Server:
 
     def stop(self) -> str:
         self._sampling = False
+        if self.engine == "remote":
+            return ""
         text = self.logs() if (self.engine == "vllm" or self.log_path.is_file()) else ""
         if self.engine == "vllm":
             subprocess.run(["docker", "rm", "-f", self.name], capture_output=True)
@@ -503,10 +544,18 @@ def parse_engine_memory(engine: str, text: str) -> dict[str, Any]:
 
 # ---------------------------------------------------------------- generation
 
+HISTORY_WORDS = 40  # deployed history turns are short; caption windows are cut to their last 40 words (Amendment 2)
+
+
+def clip(text: str) -> str:
+    words = text.split()
+    return " ".join(words[-HISTORY_WORDS:])
+
+
 def messages_for(row: dict[str, Any], system: str) -> list[dict[str, str]]:
     msgs = [{"role": "system", "content": system}]
     for turn in row.get("history") or []:
-        msgs += [{"role": "user", "content": turn["user"]}, {"role": "assistant", "content": turn["assistant"]}]
+        msgs += [{"role": "user", "content": clip(turn["user"])}, {"role": "assistant", "content": clip(turn["assistant"])}]
     msgs.append({"role": "user", "content": row["text"]})
     return msgs
 
@@ -514,10 +563,10 @@ def messages_for(row: dict[str, Any], system: str) -> list[dict[str, str]]:
 def stream_reply(server: Server, row: dict[str, Any], system: str) -> dict[str, Any]:
     from thesis_s2s.runtime.streaming import PERSIAN_ONLY_REGEX
 
-    body: dict[str, Any] = {"model": "candidate", "messages": messages_for(row, system), "max_tokens": MAX_NEW_TOKENS,
+    body: dict[str, Any] = {"model": server.served_model, "messages": messages_for(row, system), "max_tokens": MAX_NEW_TOKENS,
                             "temperature": 0, "stream": True, "stream_options": {"include_usage": True},
                             "chat_template_kwargs": {"enable_thinking": False}}
-    if server.engine == "vllm":
+    if server.engine in ("vllm", "remote"):
         body["structured_outputs"] = {"regex": PERSIAN_ONLY_REGEX}
     else:
         body.update({"grammar": GBNF, "top_k": 1, "cache_prompt": True})
@@ -596,7 +645,7 @@ def deployment_kv_bytes(work: Path, arm: dict[str, Any], kv: str) -> int | None:
 
 def run_arm(work: Path, models: Path, arm: dict[str, Any], *, kv: str | None = None, generate: bool = True,
             panel_name: str = "dev", tag: str = "run") -> dict[str, Any]:
-    kv = kv or ("auto" if arm["engine"] == "vllm" else "f16")
+    kv = kv or ("f16" if arm["engine"] == "llamacpp" else "auto")
     kv_bytes = deployment_kv_bytes(work, arm, kv) if arm["engine"] == "vllm" else None
     if arm["engine"] == "vllm" and kv_bytes is None:
         kv_bytes = 512 * MIB  # profile not measured yet; enough for the deployment requirement of every in-scope model
@@ -697,8 +746,13 @@ def grid(work: Path, models: Path, arm: dict[str, Any]) -> list[dict[str, Any]]:
 
 # ---------------------------------------------------------------- queue
 
-def queue(work: Path, models: Path, limit: int | None, only: str | None) -> None:
-    todo = [a for a in read_jsonl(work / "arms.jsonl") if a["role"] in ("reference", "candidate")]
+def queue(work: Path, models: Path, limit: int | None, only: str | None, stages: tuple[str, ...] = ("S1", "S2"),
+          arm_list: Path | None = None) -> None:
+    todo = [a for a in read_jsonl(work / "arms.jsonl") if a["stage"] in stages]
+    if arm_list:
+        wanted = [line.strip() for line in arm_list.read_text(encoding="utf-8").splitlines() if line.strip()]
+        pool_ = {a["arm"]: a for a in read_jsonl(work / "arms.jsonl")}
+        todo = [pool_[name] for name in wanted]
     if only:
         todo = [a for a in todo if re.search(only, a["arm"])]
     done = {r["arm"] for r in read_jsonl(work / "runs.jsonl") if r.get("tag") == "run" and r.get("status") == "ok"}
@@ -719,7 +773,7 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None) -> None
     def schedule(index: int) -> None:
         if index < len(todo) and todo[index]["arm"] not in prefetch:
             arm = todo[index]
-            if not arm.get("local") and free_disk_gib() < arm["bytes"] / GIB + 8:
+            if not on_host(arm) and free_disk_gib() < arm["bytes"] / GIB + 8:
                 return
             prefetch[arm["arm"]] = pool.submit(fetch, models, arm)
 
@@ -727,7 +781,7 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None) -> None
         schedule(i)
         future = prefetch.get(arm["arm"])
         if future is None:
-            while free_disk_gib() < arm["bytes"] / GIB + 8:
+            while not on_host(arm) and free_disk_gib() < arm["bytes"] / GIB + 8:
                 log("waiting for disk space")
                 time.sleep(60)
             schedule(i)
@@ -741,7 +795,7 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None) -> None
             continue
         schedule(i + 1)
         profiled = [r for r in read_jsonl(work / "kvprofile.jsonl") if r["model"] == arm["model"] and r["engine"] == arm["engine"]]
-        if not any("per_seq_const_bytes" in r for r in profiled) and arm["arm"] not in {r["via_arm"] for r in profiled}:
+        if arm["engine"] != "remote" and not any("per_seq_const_bytes" in r for r in profiled) and arm["arm"] not in {r["via_arm"] for r in profiled}:
             log(f"kv profile {arm['model']} ({arm['engine']}) via {arm['arm']}")
             kvprofile(work, models, arm)
         log(f"run {arm['arm']} ({arm['bytes'] / GIB:.1f} GiB, {arm['engine']})")
@@ -751,7 +805,7 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None) -> None
             fallback = arm["fallbacks"].pop(0)
             attempts.append(fallback)
             log(f"  failed ({record.get('error')}); fallback {fallback}")
-            if not arm.get("local"):
+            if not on_host(arm):
                 shutil.rmtree(model_dir(models, arm), ignore_errors=True)
             arm = {**arm, "repo": fallback, "local": None}
             try:
@@ -762,7 +816,7 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None) -> None
             record = run_arm(work, models, arm)
         log(f"  {record['status']}: peak {record.get('peak_mib')} MiB; {record.get('error', '')}")
         append_jsonl(work / "attempts.jsonl", {"arm": arm["arm"], "repos_tried": attempts, "status": record["status"]})
-        if not arm.get("local"):
+        if not on_host(arm):
             shutil.rmtree(model_dir(models, arm), ignore_errors=True)
     pool.shutdown()
 
@@ -779,7 +833,7 @@ def judge_prompt(row: dict[str, Any], labelled: list[tuple[str, str]]) -> str:
     history = ""
     if row.get("history"):
         history = "Earlier in the conversation:\n" + "\n".join(
-            f"User: {t['user']}\nAssistant: {t['assistant']}" for t in row["history"]) + "\n\n"
+            f"User: {clip(t['user'])}\nAssistant: {clip(t['assistant'])}" for t in row["history"]) + "\n\n"
     body = "\n\n".join(f"[{label}] {text}" for label, text in labelled)
     labels = [label for label, _ in labelled]
     return (f"{JUDGE_BRIEF}\n\n{history}User's turn (Persian):\n{row['text']}\n\n"
@@ -937,17 +991,156 @@ def means(table: dict[str, dict[str, dict[str, int]]], arm: str, rows: list[str]
     return {k: round(statistics.mean(v[k] for v in values), 3) for k in SCORE_KEYS} if values else {}
 
 
+# Nominal bits per weight, used only to name each model's highest-precision variant.
+NOMINAL_BITS = {"official_bf16": 16.0, "official_fp8": 8.5, "fp8": 8.5, "int8": 8.5, "q8_0": 8.5, "q6_k": 6.56,
+                "q5_k_m": 5.69, "ud-q4_k_xl": 4.9, "q4_k_m": 4.85, "nvfp4": 4.5, "q4_0": 4.5, "official_qat_w4a16": 4.25,
+                "official_gptq_int4": 4.25, "awq_int4": 4.25, "gptq_int4": 4.25, "autoround_int4": 4.25,
+                "int4_compressed_tensors": 4.25, "mxfp4": 4.25, "iq4_xs": 4.25, "q3_k_m": 3.91, "q2_k": 2.96, "ud-q2_k_xl": 2.9}
+
+
+def nominal_bits(arm: dict[str, Any]) -> float:
+    return NOMINAL_BITS.get(str(arm.get("rung") or arm["family"]).lower(), 4.0)
+
+
+def fits(work: Path) -> dict[str, Any]:
+    """Footprint of every finished arm at every grid point: fixed part + concurrency × per-sequence KV."""
+
+    profiles = {(r["model"], r["engine"], r["kv"]): r for r in read_jsonl(work / "kvprofile.jsonl") if "per_seq_const_bytes" in r}
+    arms_ = {a["arm"]: a for a in read_jsonl(work / "arms.jsonl")}
+    out: dict[str, Any] = {}
+    for run in read_jsonl(work / "runs.jsonl"):
+        if run.get("tag") != "run" or run.get("status") != "ok":
+            continue
+        arm = arms_[run["arm"]]
+        kv_alloc = run["kv_bytes_requested"] / MIB if arm["engine"] == "vllm" else run["engine_memory"].get("kv_mib", 0.0)
+        fixed = run["peak_mib"] - kv_alloc
+        grid_points = []
+        for kv in (KV_VLLM if arm["engine"] == "vllm" else KV_LLAMA):
+            profile = profiles.get((arm["model"], arm["engine"], kv))
+            if not profile:
+                continue
+            for context in CONTEXTS:
+                for seqs in SEQS:
+                    per_seq = (profile["per_seq_const_bytes"] + profile["per_seq_bytes_per_token"] * context) / MIB
+                    footprint = round(fixed + seqs * per_seq)
+                    grid_points.append({"kv": kv, "context": context, "seqs": seqs, "footprint_mib": footprint,
+                                        "fits": {p: footprint <= limit for p, limit in PROFILES_MIB.items()}})
+        deploy = [g for g in grid_points if g["context"] == DEPLOY["context"] and g["seqs"] == DEPLOY["seqs"]]
+        out[run["arm"]] = {
+            "model": arm["model"], "engine": arm["engine"], "family": arm["family"], "rung": arm.get("rung"),
+            "tier": arm.get("tier"), "nominal_bits": nominal_bits(arm), "measured_peak_mib": run["peak_mib"], "fixed_mib": round(fixed),
+            "latency": run.get("latency"), "latin_replies": run.get("latin_replies"), "empty_replies": run.get("empty_replies"),
+            "grid": grid_points,
+            # For each profile, the deployment configuration with the highest KV precision that fits (None: does not fit).
+            "deployment_fit": {p: next((g["kv"] for g in deploy if g["fits"][p]), None) for p in PROFILES_MIB},
+        }
+    return out
+
+
+def variant_groups(work: Path, model: str, done: set[str]) -> list[list[str]]:
+    """All finished variants of one model, in calls of at most 12 that share the two highest-precision variants."""
+
+    arms_ = [a for a in read_jsonl(work / "arms.jsonl") if a["model"] == model and a["arm"] in done]
+    arms_.sort(key=lambda a: -nominal_bits(a))
+    names = [a["arm"] for a in arms_]
+    if len(names) <= 12:
+        return [names] if names else []
+    anchors, rest = names[:2], names[2:]
+    return [anchors + rest[i:i + 10] for i in range(0, len(rest), 10)]
+
+
+def screen(work: Path) -> dict[str, Any]:
+    """Variant screen (stage 4): each variant against its model's highest-precision variant, J2, development panel."""
+
+    table, controls = arm_scores(work, "variants", "j2")
+    arms_ = {a["arm"]: a for a in read_jsonl(work / "arms.jsonl")}
+    by_model: dict[str, list[str]] = {}
+    for arm in table:
+        by_model.setdefault(arms_[arm]["model"], []).append(arm)
+    result: dict[str, Any] = {"controls": controls, "models": {}}
+    for model, names in sorted(by_model.items()):
+        top = max(names, key=lambda a: nominal_bits(arms_[a]))
+        rows = {}
+        for arm in names:
+            gain = paired_gain(table, arm, top, "overall") if arm != top else {"mean_gain": 0.0}
+            rows[arm] = {"means": means(table, arm), "vs_highest_precision": gain,
+                         "non_inferior": arm == top or gain.get("mean_gain", -99) >= -0.3}
+        result["models"][model] = {"highest_precision": top, "variants": rows}
+    return result
+
+
+def finalists(work: Path) -> dict[str, Any]:
+    """Stage 5: per model and profile, the fitting configuration with the best development score."""
+
+    fit = fits(work)
+    scr = screen(work)
+    chosen: dict[str, dict[str, Any]] = {p: {} for p in PROFILES_MIB}
+    for model, info in scr["models"].items():
+        for profile in PROFILES_MIB:
+            options = []
+            for arm, row in info["variants"].items():
+                kv = fit.get(arm, {}).get("deployment_fit", {}).get(profile)
+                if kv is None or not row["means"]:
+                    continue
+                ttft = ((fit[arm].get("latency") or {}).get("single") or {}).get("first_token_s") or {}
+                options.append((row["means"]["overall"], -(ttft.get("median_ms") or 1e9), arm, kv))
+            if not options:
+                continue
+            best = max(o[0] for o in options)
+            near = [o for o in options if o[0] >= best - 0.1]  # ties within 0.1 go to the faster first token
+            score, _, arm, kv = max(near, key=lambda o: o[1])
+            chosen[profile][model] = {"arm": arm, "kv": kv, "dev_overall_j2": score}
+    return {"per_profile": chosen}
+
+
+def decide(work: Path, references: tuple[str, str] = ("qwen3.5-4b__official_bf16", "qwen3-4b-instruct-2507__deployed")) -> dict[str, Any]:
+    """Stage 7: the test-panel decision under both judges."""
+
+    tables = {j: arm_scores(work, "test", j) for j in ("j1", "j2")}
+    fit = fits(work)
+    result: dict[str, Any] = {"controls": {j: t[1] for j, t in tables.items()}, "profiles": {}}
+    for profile in PROFILES_MIB:
+        eligible = []
+        for arm in tables["j1"][0]:
+            if arm in references:
+                continue
+            info = fit.get(arm, {})
+            lat = info.get("latency") or {}
+            ttft = ((lat.get("single") or {}).get("first_token_s") or {}).get("median_ms")
+            decode = lat.get("decode_tok_s_median")
+            if info.get("deployment_fit", {}).get(profile) and ttft is not None and ttft <= 150 and (decode or 0) >= 30:
+                avg = statistics.mean(means(tables[j][0], arm).get("overall", 0) for j in ("j1", "j2"))
+                eligible.append((avg, arm))
+        if not eligible:
+            result["profiles"][profile] = {"winner": None}
+            continue
+        _, winner = max(eligible)
+        verdicts = {}
+        for ref in references:
+            per_judge = {j: {k: paired_gain(tables[j][0], winner, ref, k) for k in SCORE_KEYS} for j in ("j1", "j2")}
+            beats = all(
+                g["overall"].get("mean_gain", -99) >= 0.5 and g["overall"]["ci95"][0] > 0
+                and all(g[k].get("mean_gain", -99) >= 0 for k in ("relevance", "coherence", "appropriateness"))
+                for g in per_judge.values()
+            )
+            verdicts[ref] = {"beats": beats, "gains": per_judge}
+        result["profiles"][profile] = {"winner": winner, "ranking": [a for _, a in sorted(eligible, reverse=True)], "versus": verdicts}
+    return result
+
+
 # ---------------------------------------------------------------- main
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--stage", required=True, choices=["plan", "arms", "fetch", "run", "kvprofile", "grid", "kvquality", "queue", "judge"])
+    parser.add_argument("--stage", required=True, choices=["plan", "arms", "fetch", "run", "kvprofile", "grid", "kvquality", "queue", "judge", "fits", "screen", "finalists", "decide"])
     parser.add_argument("--work", type=Path, required=True)
     parser.add_argument("--models", type=Path)
     parser.add_argument("--arm")
     parser.add_argument("--kv")
     parser.add_argument("--limit", type=int)
     parser.add_argument("--only")
+    parser.add_argument("--stages", default="S1,S2")
+    parser.add_argument("--arm-list", type=Path)
     parser.add_argument("--judge", choices=["j1", "j2"])
     parser.add_argument("--judge-stage")
     parser.add_argument("--groups", help="JSON list of arm lists, one judge call per row and group")
@@ -979,8 +1172,11 @@ def main() -> int:
     elif args.stage == "grid":
         result = grid(args.work, args.models, arm_by_id(args.work, args.arm))
     elif args.stage == "queue":
-        queue(args.work, args.models, args.limit, args.only)
+        queue(args.work, args.models, args.limit, args.only, tuple(args.stages.split(",")), args.arm_list)
         result = {"queue": "finished"}
+    elif args.stage in ("fits", "screen", "finalists", "decide"):
+        result = {"fits": fits, "screen": screen, "finalists": finalists, "decide": decide}[args.stage](args.work)
+        (args.work / f"{args.stage}.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     else:
         groups = json.loads(args.groups)
         kv_of = {arm: ("auto" if arm_by_id(args.work, arm)["engine"] == "vllm" else "f16") for g in groups for arm in g}
