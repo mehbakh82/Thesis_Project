@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "protocol": "docs/RESPONDER_V3_PROTOCOL.md",
+  "created_at": "2026-10-31T08:07:47.104108+00:00",
+  "evaluator_sha256": "aaf29ef045700ce6f1017c9e42fb20e8d3132acfc00c1adfa4bd1e78fb6e9b34",
+  "panels": {
+    "dev_rows": 100,
+    "test_rows": 252,
+    "dev_elderly_by_author": {
+      "claude": 25,
+      "gpt-6-astra": 25
+    },
+    "test_elderly_by_author": {
+      "claude": 63,
+      "gpt-6-astra": 63
+    },
+    "natural_sessions": 176,
+    "excluded_v2_rows": 120,
+    "panel_dev_sha256": "d76263d55bc4c5b68d463170d54219f458a5b3a5cb6842d0e4a89149f436bb56",
+    "panel_test_sha256": "37b985182a865861ab9397aae9fd4676586966826e5f87eab45e780fb7a5e2b1",
+    "elderly_requests_sha256": "ab60f31a5650464a15964ba6be6b76ffdc78dbf22e3826f7bb38a53fe21414ec",
+    "manifest_sha256": "f1a1848b64640ec6b2881f9c122bae59f477c2192b74695331558ffabf2e18ac"
+  }
+}
