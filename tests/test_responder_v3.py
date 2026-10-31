@@ -162,3 +162,72 @@ def test_failed_kv_profiles_are_not_used_for_deployment(tmp_path: Path) -> None:
     rows.append({"model": "org/M", "engine": "vllm", "kv": "auto", "per_seq_const_bytes": 0, "per_seq_bytes_per_token": 1000})
     (tmp_path / "kvprofile.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
     assert v3.deployment_kv_bytes(tmp_path, arm, "auto") == int(1.03 * 2 * 1000 * 2048) + 16 * v3.MIB
+
+
+def test_judge_calls_show_at_most_twelve_replies_and_share_the_anchors() -> None:
+    names = ["ref1", "ref2"] + [f"arm{i}" for i in range(18)]
+    groups = v3.split_with_anchors(names, ["ref1", "ref2"])
+    assert len(groups) == 2 and all(len(g) + 1 <= 12 for g in groups)  # + the planted control
+    assert all(g[:2] == ["ref1", "ref2"] for g in groups)
+    assert sorted({a for g in groups for a in g}) == sorted(names)
+    assert groups[0][2:4] == ["arm0", "arm2"]  # the rest alternate, so both calls span every size
+    assert v3.split_with_anchors(names[:11], ["ref1"]) == [names[:11]]
+
+
+def _write(path: Path, rows: list[dict]) -> None:
+    path.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
+
+
+def _judgments(scores_by_arm: dict[str, float], rows: list[str]) -> list[dict]:
+    out = []
+    for row in rows:
+        labels = {chr(65 + i): [arm] for i, arm in enumerate(scores_by_arm)}
+        scores = {chr(65 + i): dict.fromkeys(("relevance", "coherence", "appropriateness", "overall"), s)
+                  for i, s in enumerate(scores_by_arm.values())}
+        out.append({"row_id": row, "group": 0, "labels": labels, "scores": scores})
+    return out
+
+
+def test_anchor_scores_are_averaged_over_calls(tmp_path: Path) -> None:
+    _write(tmp_path / "judgments_s_j2.jsonl", _judgments({"ref": 8, "a": 6}, ["r1"]) + _judgments({"ref": 6, "b": 7}, ["r1"]))
+    table, _ = v3.arm_scores(tmp_path, "s", "j2")
+    assert table["ref"]["r1"]["overall"] == 7 and table["a"]["r1"]["overall"] == 6
+
+
+def test_contenders_follow_amendment_one(tmp_path: Path) -> None:
+    gib = v3.GIB
+
+    def arm(name: str, model: str, family: str, engine: str, size: float, rung: str | None = None, role: str = "candidate") -> dict:
+        return {"arm": name, "model": model, "family": family, "engine": engine, "bytes": size * gib, "rung": rung, "role": role, "stage": "S1"}
+
+    q4b, q9b, g31 = "Qwen/Qwen3.5-4B", "Qwen/Qwen3.5-9B", "google/gemma-4-31B-it"
+    _write(tmp_path / "arms.jsonl", [
+        arm("qwen3-4b-instruct-2507__deployed", "Qwen/Qwen3-4B-Instruct-2507", "official_bf16", "vllm", 8, role="reference"),
+        arm("qwen3.5-4b__official_bf16", q4b, "official_bf16", "vllm", 8.7, role="reference"),
+        arm("qwen3.5-4b__gguf-q4_k_m", q4b, "gguf_ladder", "llamacpp", 2.6, "Q4_K_M"),
+        arm("qwen3.5-4b__gguf-q8_0", q4b, "gguf_ladder", "llamacpp", 4.5, "Q8_0"),
+        arm("qwen3.5-4b__gguf-q3_k_m", q4b, "gguf_ladder", "llamacpp", 2.0, "Q3_K_M"),
+        arm("qwen3.5-4b__awq_int4", q4b, "awq_int4", "vllm", 3.0),
+        arm("qwen3.5-9b__gguf-q4_k_m", q9b, "gguf_ladder", "llamacpp", 5.3, "Q4_K_M"),
+        arm("qwen3.5-9b__official_bf16", q9b, "official_bf16", "vllm", 18),
+        arm("gemma-4-31b__gguf-q4_k_m", g31, "gguf_ladder", "llamacpp", 18, "Q4_K_M"),
+        arm("gemma-4-31b__gguf-q2_k", g31, "gguf_ladder", "llamacpp", 11, "Q2_K"),
+        arm("gemma-4-31b__official_qat_w4a16", g31, "official_qat_w4a16", "vllm", 19),
+    ])
+    _write(tmp_path / "panel_dev.jsonl", [{"row_id": "r1", "panel": "natural_turns"}, {"row_id": "r2", "panel": "elderly_requests", "author": "claude"}])
+    _write(tmp_path / "judgments_stage1_j2.jsonl", _judgments({
+        "qwen3-4b-instruct-2507__deployed": 9, "qwen3.5-4b__official_bf16": 8, "qwen3.5-4b__gguf-q4_k_m": 7.5,
+        "qwen3.5-9b__gguf-q4_k_m": 7.0, "gemma-4-31b__gguf-q4_k_m": 7.8}, ["r1", "r2"]))
+    _write(tmp_path / "judgments_variants_j2.jsonl", _judgments({
+        "qwen3.5-4b__official_bf16": 8, "qwen3.5-4b__gguf-q8_0": 8, "qwen3.5-4b__awq_int4": 7.9,
+        "qwen3.5-4b__gguf-q4_k_m": 7.8, "qwen3.5-4b__gguf-q3_k_m": 7.0}, ["r1", "r2"]))
+    result = v3.contenders(tmp_path)
+    assert result["delta_q"]["delta_q"] == 0.2 and result["delta_q"]["delta"] == 0.5
+    assert result["q3_k_m_non_inferior"] is False and result["best_4bit_methods"]["Qwen"] == ["awq_int4", "q4_k_m"]
+    small, large = result["profiles"]["12gib"]["models"], result["profiles"]["24gb"]["models"]
+    assert "Qwen/Qwen3-4B-Instruct-2507" not in small  # the deployed responder is a reference, not a candidate model
+    assert small[q4b]["contender"] and not small[q9b]["contender"] and not small[g31]["has_fitting_build"]
+    assert small[q4b]["stage3_builds"] == ["qwen3.5-4b__official_bf16", "qwen3.5-4b__gguf-q8_0", "qwen3.5-4b__awq_int4"]
+    assert large[g31]["contender"] and large[g31]["stage3_builds"] == ["gemma-4-31b__official_qat_w4a16", "gemma-4-31b__gguf-q4_k_m"]
+    assert result["untested"]["gemma-4-31b__gguf-q2_k"].startswith("3 bits or fewer")
+    assert result["untested"]["qwen3.5-9b__official_bf16"].startswith("model outside")

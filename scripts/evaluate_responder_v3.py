@@ -14,7 +14,9 @@ Stages:
   kvquality development replies of one arm with a non-default KV precision;
   queue     fetch → run → delete for every arm, prefetching the next one;
   judge     listwise scoring (J1 Claude Opus 5.5 via the gateway, J2 GPT-6 Astra
-            via Codex) of one stage: variants, finalists or test;
+            via Codex) of one stage: stage1, variants, finalists or test;
+  stage1    the stage 1 model screen (Amendment 1): mean scores per arm and model;
+  contenders  Δq from stage 2, the contenders per profile and the stage 3 builds;
   score     aggregate, bootstrap and apply the frozen decision rules.
 
 Reply text and natural-turn text stay in the private work directory; receipts
@@ -27,6 +29,7 @@ import argparse
 import concurrent.futures as cf
 import hashlib
 import json
+import math
 import os
 import random
 import re
@@ -68,6 +71,8 @@ LATIN = re.compile(r"[A-Za-z]")
 GATEWAY = "https://ai-gateway.mohaymen.ir/v1/chat/completions"
 J1_MODEL = "anthropic/claude-opus-5.5"
 J2_MODEL = "gpt-6-astra"
+REFERENCES = ("qwen3.5-4b__official_bf16", "qwen3-4b-instruct-2507__deployed")
+PER_CALL = 11  # arms per judge call; with the planted control a call shows at most 12 replies
 
 
 # ---------------------------------------------------------------- utilities
@@ -978,10 +983,13 @@ def judge(work: Path, judge_name: str, stage: str, groups: list[list[str]], kv_o
 
 # ---------------------------------------------------------------- scoring
 
-def arm_scores(work: Path, stage: str, judge_name: str) -> tuple[dict[str, dict[str, dict[str, int]]], dict[str, Any]]:
-    """Per arm, per row: the scores of that arm's reply. Also control statistics."""
+Table = dict[str, dict[str, dict[str, float]]]
 
-    table: dict[str, dict[str, dict[str, int]]] = {}
+
+def arm_scores(work: Path, stage: str, judge_name: str) -> tuple[Table, dict[str, Any]]:
+    """Per arm, per row: the scores of that arm's reply (averaged if the arm is an anchor in several calls). Also control statistics."""
+
+    collected: dict[str, dict[str, list[dict[str, int]]]] = {}
     control_overall = []
     for record in read_jsonl(work / f"judgments_{stage}_{judge_name}.jsonl"):
         for label, arms_ in record["labels"].items():
@@ -989,13 +997,15 @@ def arm_scores(work: Path, stage: str, judge_name: str) -> tuple[dict[str, dict[
                 if arm == "__control__":
                     control_overall.append(record["scores"][label]["overall"])
                 else:
-                    table.setdefault(arm, {})[record["row_id"]] = record["scores"][label]
+                    collected.setdefault(arm, {}).setdefault(record["row_id"], []).append(record["scores"][label])
+    table = {arm: {row: {k: statistics.mean(s[k] for s in scores) for k in SCORE_KEYS} for row, scores in rows.items()}
+             for arm, rows in collected.items()}
     controls = {"calls": len(control_overall), "control_overall_mean": round(statistics.mean(control_overall), 2) if control_overall else None,
                 "control_failure_rate": round(sum(v >= 6 for v in control_overall) / len(control_overall), 4) if control_overall else None}
     return table, controls
 
 
-def paired_gain(table: dict[str, dict[str, dict[str, int]]], arm: str, base: str, key: str, rows: list[str] | None = None, draws: int = 5000) -> dict[str, Any]:
+def paired_gain(table: Table, arm: str, base: str, key: str, rows: list[str] | None = None, draws: int = 5000) -> dict[str, Any]:
     common = sorted(set(table.get(arm, {})) & set(table.get(base, {})) & (set(rows) if rows else set(table.get(arm, {}))))
     diffs = [table[arm][r][key] - table[base][r][key] for r in common]
     if not diffs:
@@ -1006,7 +1016,7 @@ def paired_gain(table: dict[str, dict[str, dict[str, int]]], arm: str, base: str
             "win_rate": round(sum(d > 0 for d in diffs) / len(diffs), 3), "loss_rate": round(sum(d < 0 for d in diffs) / len(diffs), 3)}
 
 
-def means(table: dict[str, dict[str, dict[str, int]]], arm: str, rows: list[str] | None = None) -> dict[str, float]:
+def means(table: Table, arm: str, rows: list[str] | None = None) -> dict[str, float]:
     values = [v for r, v in table.get(arm, {}).items() if rows is None or r in rows]
     return {k: round(statistics.mean(v[k] for v in values), 3) for k in SCORE_KEYS} if values else {}
 
@@ -1057,16 +1067,36 @@ def fits(work: Path) -> dict[str, Any]:
     return out
 
 
+def finished_arms(work: Path) -> set[str]:
+    return {r["arm"] for r in read_jsonl(work / "runs.jsonl") if r.get("tag") == "run" and r.get("status") == "ok"}
+
+
+def split_with_anchors(names: list[str], anchors: list[str]) -> list[list[str]]:
+    """Judge calls of at most PER_CALL arms; if one is not enough, every call repeats the anchors and the rest alternate."""
+
+    if len(names) <= PER_CALL:
+        return [names] if names else []
+    anchors = [a for a in anchors if a in names]
+    rest = [n for n in names if n not in anchors]
+    calls = math.ceil(len(rest) / (PER_CALL - len(anchors)))
+    return [anchors + rest[i::calls] for i in range(calls)]
+
+
 def variant_groups(work: Path, model: str, done: set[str]) -> list[list[str]]:
-    """All finished variants of one model, in calls of at most 12 that share the two highest-precision variants."""
+    """All finished variants of one model, anchored on its two highest-precision variants."""
 
     arms_ = [a for a in read_jsonl(work / "arms.jsonl") if a["model"] == model and a["arm"] in done]
     arms_.sort(key=lambda a: -nominal_bits(a))
     names = [a["arm"] for a in arms_]
-    if len(names) <= 12:
-        return [names] if names else []
-    anchors, rest = names[:2], names[2:]
-    return [anchors + rest[i:i + 10] for i in range(0, len(rest), 10)]
+    return split_with_anchors(names, names[:2])
+
+
+def stage1_groups(work: Path) -> list[list[str]]:
+    """Stage 1: every finished stage 1 arm, anchored on the two references; the rest alternate in order of size."""
+
+    arms_ = sorted((a for a in read_jsonl(work / "arms.jsonl") if a["stage"] == "S1" and a["arm"] in finished_arms(work)),
+                   key=lambda a: a["bytes"])
+    return split_with_anchors([a["arm"] for a in arms_], list(REFERENCES))
 
 
 def screen(work: Path) -> dict[str, Any]:
@@ -1086,6 +1116,143 @@ def screen(work: Path) -> dict[str, Any]:
             rows[arm] = {"means": means(table, arm), "vs_highest_precision": gain,
                          "non_inferior": arm == top or gain.get("mean_gain", -99) >= -0.3}
         result["models"][model] = {"highest_precision": top, "variants": rows}
+    return result
+
+
+def subset_rows(work: Path, panel_name: str = "dev") -> dict[str, list[str]]:
+    """Row ids of the panel's strata: natural turns and the elderly requests of each author."""
+
+    out: dict[str, list[str]] = {}
+    for row in read_jsonl(work / f"panel_{panel_name}.jsonl"):
+        key = row["panel"] if row["panel"] == "natural_turns" else f"elderly_{row['author']}"
+        out.setdefault(key, []).append(row["row_id"])
+    return out
+
+
+def stage1(work: Path) -> dict[str, Any]:
+    """Stage 1 model screen (Amendment 1): every stage 1 arm's mean development scores (J2) and each model's best."""
+
+    table, controls = arm_scores(work, "stage1", "j2")
+    arms_ = {a["arm"]: a for a in read_jsonl(work / "arms.jsonl")}
+    candidates = {a["model"] for a in arms_.values() if a["role"] == "candidate"}
+    strata = subset_rows(work)
+    per_arm = {arm: {"model": arms_[arm]["model"], "means": means(table, arm), "rows": len(table[arm]),
+                     "overall_by_stratum": {k: means(table, arm, rows).get("overall") for k, rows in strata.items()}}
+               for arm in sorted(table)}
+    best: dict[str, dict[str, Any]] = {}
+    for arm, info in per_arm.items():
+        model = info["model"]
+        if model in candidates and (model not in best or info["means"]["overall"] > best[model]["overall"]):
+            best[model] = {"arm": arm, "overall": info["means"]["overall"]}
+    # Each anchor's mean overall score in each call group: the groups should agree if they were scored on one scale.
+    by_group: dict[str, dict[int, list[int]]] = {}
+    for record in read_jsonl(work / "judgments_stage1_j2.jsonl"):
+        for label, arms_in in record["labels"].items():
+            for arm in arms_in:
+                if arm in REFERENCES:
+                    by_group.setdefault(arm, {}).setdefault(record["group"], []).append(record["scores"][label]["overall"])
+    anchors = {arm: {str(g): round(statistics.mean(v), 3) for g, v in sorted(groups.items())} for arm, groups in by_group.items()}
+    return {"judge": "j2", "panel": "dev", "controls": controls, "groups": stage1_groups(work), "anchor_overall_by_group": anchors,
+            "arms": per_arm, "best_by_model": dict(sorted(best.items(), key=lambda kv: -kv[1]["overall"]))}
+
+
+STAGE2_MODELS = ("Qwen/Qwen3.5-4B", "google/gemma-4-E4B-it", "Qwen/Qwen3.8-27B")
+METHOD_SWEEP = {"Qwen": "Qwen/Qwen3.5-4B", "google": "google/gemma-4-E4B-it"}  # each vendor's stage 2 model
+
+
+def method_of(arm: dict[str, Any]) -> str:
+    return str(arm.get("rung") or arm["family"]).lower()
+
+
+def delta_q(work: Path) -> dict[str, Any]:
+    """Δq: the largest overall gain of a stage 2 model's highest-precision variant over its Q4_K_M (J2, variants)."""
+
+    table, _ = arm_scores(work, "variants", "j2")
+    arms_ = {a["arm"]: a for a in read_jsonl(work / "arms.jsonl")}
+    per_model: dict[str, dict[str, Any]] = {}
+    for model in STAGE2_MODELS:
+        names = [a for a in table if arms_[a]["model"] == model]
+        q4 = next((a for a in names if method_of(arms_[a]) == "q4_k_m"), None)
+        if q4 is None:
+            continue
+        top = max(names, key=lambda a: nominal_bits(arms_[a]))
+        per_model[model] = {"highest_precision": top, "q4_k_m": q4, "gain": paired_gain(table, top, q4, "overall")}
+    dq = max((m["gain"]["mean_gain"] for m in per_model.values() if m["gain"].get("rows")), default=0.0)
+    return {"per_model": per_model, "delta_q": dq, "delta": max(0.5, 2 * dq)}
+
+
+def fits_profile(arm: dict[str, Any], profile: str, measured: dict[str, Any]) -> bool:
+    """Measured deployment fit for builds that ran; otherwise the weight budget used for the tiers."""
+
+    if arm["arm"] in measured:
+        return measured[arm["arm"]]["deployment_fit"][profile] is not None
+    tower = TOWER_GIB[arm["model"].split("/")[0]] if arm["engine"] == "vllm" else 0.0
+    return arm["bytes"] / GIB - tower <= WEIGHT_BUDGET_GIB[profile]
+
+
+def contenders(work: Path) -> dict[str, Any]:
+    """Stage 3 (Amendment 1): contenders per profile and the builds to test for each, with a reason for every other build."""
+
+    s1, dq, measured, scr = stage1(work), delta_q(work), fits(work), screen(work)
+    builds = [a for a in read_jsonl(work / "arms.jsonl") if a["role"] in ("candidate", "reference") and a["engine"] in ("vllm", "llamacpp")]
+    done = finished_arms(work)
+    q3 = ((scr["models"].get("Qwen/Qwen3.5-4B") or {}).get("variants") or {}).get("qwen3.5-4b__gguf-q3_k_m") or {}
+    low_bits_allowed = bool(q3.get("non_inferior"))
+    # 4-bit methods of each vendor's stage 2 model, best development score first.
+    methods: dict[str, list[str]] = {}
+    for vendor, model in METHOD_SWEEP.items():
+        variants = (scr["models"].get(model) or {}).get("variants") or {}
+        four = [(row["means"]["overall"], method_of(arm_by_id(work, arm))) for arm, row in variants.items()
+                if 4.0 <= nominal_bits(arm_by_id(work, arm)) < 5.0 and row["means"]]
+        methods[vendor] = [m for _, m in sorted(four, reverse=True)]
+    result: dict[str, Any] = {"delta_q": dq, "q3_k_m_non_inferior": low_bits_allowed, "best_4bit_methods": methods, "profiles": {}}
+    tested: dict[str, set[str]] = {}
+    for profile in PROFILES_MIB:
+        fitting = {m: [a for a in builds if a["model"] == m and fits_profile(a, profile, measured)
+                       and (low_bits_allowed or nominal_bits(a) >= 4.0)] for m in s1["best_by_model"]}
+        all_fitting = {m for m in s1["best_by_model"] if any(a["model"] == m and fits_profile(a, profile, measured) for a in builds)}
+        if not all_fitting:
+            result["profiles"][profile] = {"models": {}}
+            continue
+        bar = max(s1["best_by_model"][m]["overall"] for m in all_fitting)
+        models: dict[str, Any] = {}
+        for model, best in s1["best_by_model"].items():
+            contender = model in all_fitting and best["overall"] >= bar - dq["delta"]
+            chosen: list[str] = []
+            if contender:
+                for engine, order in (("vllm", PRECISION), ("llamacpp", RUNGS)):
+                    own = [a for a in fitting[model] if a["engine"] == engine and method_of(a) in order]
+                    if own:
+                        chosen.append(min(own, key=lambda a: order.index(method_of(a)))["arm"])
+                for method in methods.get(model.split("/")[0], []):
+                    match = [a["arm"] for a in fitting[model] if method_of(a) == method]
+                    if match:
+                        if match[0] not in chosen:
+                            chosen.append(match[0])
+                        break
+                for arm in chosen:
+                    tested.setdefault(arm, set()).add(profile)
+            models[model] = {"stage1_best": best, "has_fitting_build": model in all_fitting, "contender": contender, "stage3_builds": chosen}
+        result["profiles"][profile] = {"best_fitting_stage1": bar, "models": models}
+    contender_models = {m for p in result["profiles"].values() for m, info in p["models"].items() if info["contender"]}
+    untested = {}
+    for a in read_jsonl(work / "arms.jsonl"):
+        if a["arm"] in done or a["arm"] in tested:
+            continue
+        if a["role"] not in ("candidate", "reference"):
+            reason = a.get("excluded_reason", a["role"])
+        elif a["model"] not in contender_models:
+            reason = "model outside δ of the best stage 1 score (or no fitting build) in every profile"
+        elif not low_bits_allowed and nominal_bits(a) < 4.0:
+            reason = "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2"
+        elif not any(fits_profile(a, p, measured) for p in PROFILES_MIB):
+            reason = "fits neither profile"
+        else:
+            reason = "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2"
+        untested[a["arm"]] = reason
+    result["stage3_arms"] = sorted(a for a in tested if a not in done)
+    result["already_run"] = sorted(a for a in tested if a in done)
+    result["untested"] = untested
     return result
 
 
@@ -1113,7 +1280,7 @@ def finalists(work: Path) -> dict[str, Any]:
     return {"per_profile": chosen}
 
 
-def decide(work: Path, references: tuple[str, str] = ("qwen3.5-4b__official_bf16", "qwen3-4b-instruct-2507__deployed")) -> dict[str, Any]:
+def decide(work: Path, references: tuple[str, ...] = REFERENCES) -> dict[str, Any]:
     """Stage 7: the test-panel decision under both judges."""
 
     tables = {j: arm_scores(work, "test", j) for j in ("j1", "j2")}
@@ -1152,7 +1319,8 @@ def decide(work: Path, references: tuple[str, str] = ("qwen3.5-4b__official_bf16
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--stage", required=True, choices=["plan", "arms", "fetch", "run", "kvprofile", "grid", "kvquality", "queue", "judge", "fits", "screen", "finalists", "decide"])
+    parser.add_argument("--stage", required=True, choices=["plan", "arms", "fetch", "run", "kvprofile", "grid", "kvquality", "queue", "judge", "fits", "screen", "stage1",
+                                                         "contenders", "finalists", "decide"])
     parser.add_argument("--work", type=Path, required=True)
     parser.add_argument("--models", type=Path)
     parser.add_argument("--arm")
@@ -1163,7 +1331,7 @@ def main() -> int:
     parser.add_argument("--arm-list", type=Path)
     parser.add_argument("--judge", choices=["j1", "j2"])
     parser.add_argument("--judge-stage")
-    parser.add_argument("--groups", help="JSON list of arm lists, one judge call per row and group")
+    parser.add_argument("--groups", help="JSON list of arm lists, one judge call per row and group; or 'stage1', or 'variants:<model>,...'")
     parser.add_argument("--panel", default="dev")
     parser.add_argument("--workers", type=int, default=4)
     args = parser.parse_args()
@@ -1194,11 +1362,18 @@ def main() -> int:
     elif args.stage == "queue":
         queue(args.work, args.models, args.limit, args.only, tuple(args.stages.split(",")), args.arm_list)
         result = {"queue": "finished"}
-    elif args.stage in ("fits", "screen", "finalists", "decide"):
-        result = {"fits": fits, "screen": screen, "finalists": finalists, "decide": decide}[args.stage](args.work)
+    elif args.stage in ("fits", "screen", "stage1", "contenders", "finalists", "decide"):
+        result = {"fits": fits, "screen": screen, "stage1": stage1, "contenders": contenders, "finalists": finalists,
+                  "decide": decide}[args.stage](args.work)
         (args.work / f"{args.stage}.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     else:
-        groups = json.loads(args.groups)
+        if args.groups == "stage1":
+            groups = stage1_groups(args.work)
+        elif args.groups.startswith("variants:"):
+            done = finished_arms(args.work)
+            groups = [g for model in args.groups.split(":", 1)[1].split(",") for g in variant_groups(args.work, model, done)]
+        else:
+            groups = json.loads(args.groups)
         kv_of = {arm: ("f16" if arm_by_id(args.work, arm)["engine"] == "llamacpp" else "auto") for g in groups for arm in g}
         result = judge(args.work, args.judge, args.judge_stage, groups, kv_of, args.panel, args.workers)
     print(json.dumps(result, ensure_ascii=False, indent=2, default=str))
