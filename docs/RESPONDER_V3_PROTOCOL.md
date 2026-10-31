@@ -166,6 +166,49 @@ finished by then. Tier D keeps running; each arm finished later is screened the
 same way, and if it would have been a finalist, it is added to the test stage
 and the result says so.
 
+## Amendment 1 (2026-10-31): adaptive selection replaces tiers A3, B and D
+
+Written after the user declined a faster transfer path and asked for a sharper
+filter, while only tier A1 (builds already on the host) had run, so before any
+affected reply existed. Tiers A1 and A2 are unchanged and form stage 1; tiers
+A3, B and D are replaced by stages 2 and 3. The panels, judges, serving grid,
+finalist rule (stage 5) and decision rule (stage 7) are unchanged.
+
+- **Stage 1, model screen:** every model at Q4_K_M (tiers A1 and A2), so the
+  model is the only difference, plus Qwen3.8-27B at FP8 served by the existing
+  local `qwen3.8-27b` vLLM service (requests only, nothing restarted) as a
+  near-full-precision large model.
+- **Stage 2, precision and method sensitivity:** every other build of
+  Qwen3.5-4B (every method family and every GGUF rung); Gemma 4 E4B at bf16,
+  Q8_0 and NVFP4 next to Google's QAT builds; and Qwen3.8-27B at FP8 against
+  its Q4_K_M. For each, the development replies are scored (J2, all variants of
+  the model in one call) and compared with the model's highest-precision
+  variant. Δq is the largest overall gain of a model's highest-precision
+  variant over its Q4_K_M.
+- **Stage 3, contenders:** a model is a contender for a profile if it has a
+  build that fits the profile and its best stage 1 score (J2, development
+  panel, all stage 1 arms scored together) is within δ = max(0.5, 2·Δq) of the
+  best stage 1 score among models with a fitting build. Quantization only
+  removes information, so a model further behind cannot catch up with more
+  precision. For each contender and profile, stage 3 tests the highest-precision
+  build that fits in each engine and, if different, the build of the method
+  that scored best at 4 bits in stage 2. Rungs at 3 bits or fewer are tested
+  only if Q3_K_M was non-inferior (within 0.3) in stage 2.
+- Every build that is not tested is listed in the result with the reason
+  (model outside δ, or method or bit width dominated in stage 2). Serving
+  settings are computed for every tested build; KV precision quality is
+  measured on the stage 2 models and the finalists.
+
+## Amendment 2 (2026-10-31): history turns are cut to 40 words
+
+The first development run failed: some natural turns carry two whole caption
+windows as history, up to 3,215 tokens, more than the 2,048-token deployment
+context. The deployed runtime's history holds the assistant's own short
+replies and short user turns. So every history turn (user and assistant) is cut
+to its last 40 words when the prompt is built, for generation and for the
+judges alike. The panel files and their hashes are unchanged. No reply had been
+generated when this was decided.
+
 ## Panels
 
 Frozen by `scripts/evaluate_responder_v3.py --stage plan` with SHA-256 hashes
