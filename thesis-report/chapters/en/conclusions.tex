@@ -91,12 +91,15 @@ after an interruption stayed as relevant as the reply to a normal turn
 change is the tokenizer.
 
 \textbf{Question 3: the trade-off between latency, size and quality.} In this project size did not buy
-quality (Table~\ref{tab:tradeoff}): the smallest recognizer fine-tuned on Persian (117 million
-parameters) was more accurate than all the general models of one to nine billion parameters, and the
-only model more accurate than it, itself fine-tuned on Persian, was more than ten times slower; the
-smallest synthesizer (15.7 million parameters) was both the most intelligible and the fastest; and the
-largest model, the 7.7-billion-parameter end-to-end model, did not reach intelligible speech. The best
-trade-off point for real-time Persian is small components specialized for Persian.
+quality (Table~\ref{tab:tradeoff}). The two smallest recognizers fine-tuned on Persian (115 and 117
+million parameters) were more accurate than every larger candidate but one, including a
+three-billion-parameter Persian fine-tune; the only more accurate model, itself fine-tuned on Persian,
+was more than ten times slower. Responders of 9 to 36 billion parameters, served at four bits where
+needed under a 22~GiB limit, gave no gain over the best 4B under both judges, and the largest dense one
+did not fit (Table~\ref{tab:resp-size}). The smallest synthesizer (15.7 million parameters) was both
+the most intelligible and the fastest, and the largest model, the 7.7-billion-parameter end-to-end
+model, did not reach intelligible speech. The best trade-off point for real-time Persian is small
+components specialized for Persian.
 
 \textbf{Question 4: the perception of older adults.} The instrument and protocol of the listening study
 are ready and pre-registered, but the participants' responses have not yet arrived; until then this
@@ -134,10 +137,11 @@ report makes no claim about the perception of older adults.
       listener words from content words with a clipped onset needs labelled data and a learned model.
 \item \textbf{End-of-speech detection for older adults.} The long pauses of slow speech sometimes close
       the turn before the end of the sentence (87 server turns for 80 planned turns). The system
-      compensates when the user continues by stopping the reply. A semantic end-of-turn gate with Smart
-      Turn, an LLM judgement and a lexical rule was tested, and none worked without wrongly delaying
-      more than 5\% of genuine ends (Section~\ref{sec:res-latency}); a Persian end-of-turn model needs
-      data with turn ends labelled by people, not the speaker boundaries of podcasts.
+      compensates when the user continues by stopping the reply. A semantic end-of-turn gate was tested
+      in two rounds (Section~\ref{sec:res-latency}): the best one, an LLM completeness judgement,
+      split fewer utterances in the loopback test but held 15\% of finished turns and pushed the 90th
+      percentile above 500 ms. A gate that holds for less time, or a Persian end-of-turn model trained
+      on turn ends labelled by people rather than on podcast speaker boundaries, is the next step.
 \item \textbf{A more accurate recognizer within the same budget.} Seamless had a lower character error
       rate but more than four times the latency budget; distilling it into a CTC model or running it in
       streaming mode could raise accuracy without a latency cost.

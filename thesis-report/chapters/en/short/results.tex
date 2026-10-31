@@ -212,7 +212,9 @@ All three components were compared again under new protocols.
 most accurate (character error rate 6.92\%) but, with a median of 671 ms, exceeded
 the 150 ms budget; NeMo version 4, with 9.44\% and 58 ms, was the best candidate
 within the budget and was retained (Whisper large-v3, Qwen3-ASR and Gemma~4 above
-20\%). \textbf{Responder:} on a panel of 60 elderly requests and 60 natural turns,
+20\%). A second round added eight Persian checkpoints: Shenava Koochik was 0.50
+points better, not significantly, and Rade-ASR-CTC-3B reached 16.1\%, mostly from
+speech it left out. \textbf{Responder:} on a panel of 60 elderly requests and 60 natural turns,
 no candidate reached the replacement threshold (+0.25 relevance) under both
 judges. The judges disagree: under Gemini, Qwen3.5-4B and Gemma~4 with the elderly
 prompt are about one point better than the deployed system (3.36 and 3.54 versus
@@ -220,7 +222,12 @@ prompt are about one point better than the deployed system (3.36 and 3.54 versus
 configuration passed the pre-registered deployment qualification (memory
 11.1~GiB, mean and 90th-percentile latency 345 and 398 ms, coherence after
 interruption under both judges); its replacement depends on the preference of
-the listening-study participants. \textbf{Voice:} of the six Persian Piper voices,
+the listening-study participants. A pre-registered size comparison then served
+five larger models of 9 to 36 billion parameters, most at four bits, under a
+22~GiB limit. Gemma~4 31B did not fit, and none of the other four beat
+Qwen3.5-4B under both judges. Under the Qwen judge none gained more than 0.01
+in relevance. Under Gemini, Gemma~4 12B gained 0.26 but won only 26\% of the
+rows. On this panel, size did not buy reply quality. \textbf{Voice:} of the six Persian Piper voices,
 Mana remained the most intelligible to two automatic listeners, with a mean
 character error rate of 5.82\%; ganji\_adabi was tied and had the best DNSMOS, and
 both went to the listening study. ParsVoice-XTTS with the ManaTTS voice was on par
@@ -333,7 +340,11 @@ relevant as the reply to a normal turn under both judges. A semantic end-of-turn
 gate (Smart Turn v3.2~\cite{smartturn2025}, an LLM judgement, a lexical rule and a
 Smart Turn fine-tuned on Persian) lowered premature endpointing on development
 utterances from 19.8\%, but no candidate delayed fewer than 13\% of genuine turn
-ends (pre-registered limit 5\%); the deployed endpointer remained unchanged.
+ends (pre-registered limit 5\%). A second round labelled each development
+clip's ending (Gemini, two passes) and counted only complete endings: the LLM
+judgement then qualified (13.3\% premature, 4.4\% of complete endings held), but
+in the loopback test it held 15\% of finished turns and the 90th percentile rose
+to 656 ms, so it was removed; the deployed endpointer remained unchanged.
 
 \claim{Automated loopback on an H100 without a human user or a physical audio
 path; the proposal's criterion (mean and 90th percentile) and, on the main panel,

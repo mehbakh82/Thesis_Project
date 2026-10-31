@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-10-28T07:02:22.989737+00:00",
+  "generated_at": "2026-10-29T20:55:23.330649+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1413,6 +1413,159 @@
       "adopted": false,
       "loopback_test": "not run: no gate met the development rule"
     },
+    "asr_v3": {
+      "status": "present",
+      "evidence_class": "human_reference_transcripts_psrb_public",
+      "selection": {
+        "latency_eligible_arms": [
+          "shenava_koochik",
+          "nemo_v4_ctc",
+          "nemo_v6_ctc",
+          "nemo_v4_rnnt",
+          "omniasr_ctc_1b",
+          "rade_ctc_3b",
+          "nemo_v6_rnnt",
+          "nvidia_fa_fastconformer_ctc",
+          "neuraspeech_900h"
+        ],
+        "lowest_cer_eligible_arm": "shenava_koochik",
+        "paired_cer_difference": {
+          "point": -0.0049703553804096995,
+          "ci95_low": -0.010683188211654399,
+          "ci95_high": 0.000356506238859175
+        },
+        "significantly_better": false,
+        "senior_cer_not_higher": true,
+        "replaces_nemo_v4": false,
+        "accuracy_reference_asr": "seamless_v5ft"
+      },
+      "micro_cer": {
+        "nemo_v4_ctc": 0.09443675222778429,
+        "nemo_v4_rnnt": 0.13402208257890438,
+        "nemo_v6_ctc": 0.10150175737565235,
+        "nemo_v6_rnnt": 0.16135903717115774,
+        "seamless_v5ft": 0.06919444740298931,
+        "seamless_v5ft_direct": 0.06919444740298931,
+        "seamless_v6_55000": 0.08985692477012107,
+        "seamless_v6_55000_direct": 0.09631838676465368,
+        "whisper_large_v3": 0.23019845918983206,
+        "qwen3_asr_1p7b": 0.2046721340575851,
+        "omniasr_ctc_1b": 0.14037703695814252,
+        "gemma4_e4b": 0.21035254020662478,
+        "rade_ctc_3b": 0.16111051940213725,
+        "nvidia_fa_fastconformer_ctc": 0.19217524052969787,
+        "neuraspeech_900h": 0.2541626726310931,
+        "buzzasr_persian": 0.15759576809741896,
+        "whisper_persian_v4": 0.21535839812546598,
+        "whisper_large_v3_turbo_fa": 0.20218695636738027,
+        "c1tech_whisper_base_fa": 0.2330031597259204,
+        "shenava_koochik": 0.08946639684737459,
+        "nemo_v4_ctc_rerun": 0.09443675222778429
+      }
+    },
+    "end_of_turn_gate_v2": {
+      "status": "present",
+      "evidence_class": "offline_replay_with_independent_automatic_clip_end_labels_then_automated_loopback",
+      "clip_end_labels": {
+        "complete": 158,
+        "incomplete": 224,
+        "uncertain": 43
+      },
+      "chosen": {
+        "candidate": "llm_completeness",
+        "threshold": 0.3,
+        "hold_ms": 640,
+        "trials": 850,
+        "premature_rate": 0.13294117647058823,
+        "late_hold_attempts": 0,
+        "unended": 0,
+        "mean_added_delay_ms": 59.181176470588234,
+        "p90_added_delay_ms": 384.0,
+        "by_condition": {
+          "plain": {
+            "trials": 425,
+            "premature": 52,
+            "false_holds": 65
+          },
+          "simulated_elderly": {
+            "trials": 425,
+            "premature": 61,
+            "false_holds": 66
+          }
+        },
+        "false_hold_rate_v1_all_trials": 0.15411764705882353,
+        "complete_end_trials": 316,
+        "false_hold_rate": 0.04430379746835443,
+        "incomplete_end_trials": 448,
+        "correct_hold_rate": 0.23883928571428573
+      },
+      "development_adopted": true,
+      "loopback_acceptance": {
+        "plain_mean_le_500ms": true,
+        "plain_p90_le_500ms_failures_counted": false,
+        "elderly_p90_le_500ms_failures_counted": false
+      },
+      "split_utterances": {
+        "planned": 281,
+        "split_before": 22,
+        "split_after": 17,
+        "split_only_before": 10,
+        "split_only_after": 5,
+        "mcnemar_exact_p": 0.3017578125
+      },
+      "kept_in_deployment": false
+    },
+    "responder_size": {
+      "status": "present",
+      "evidence_class": "automatic_llm_judges_two_families",
+      "fit_24gb": {
+        "qwen3_4b_prompt_v2": true,
+        "qwen35_4b_elderly_v1": true,
+        "gemma4_e4b_elderly_v1": true,
+        "gemma4_12b_elderly_v1": true,
+        "qwen35_9b_elderly_v1": true,
+        "qwen35_35b_a3b_elderly_v1": true,
+        "gemma4_26b_a4b_elderly_v1": true,
+        "gemma4_31b_elderly_v1": false
+      },
+      "decisions": {
+        "qwen35_9b_elderly_v1": {
+          "judged": true,
+          "fits_24gb": true,
+          "beats_best_4b": false,
+          "beats_deployed": false,
+          "mean_relevance_gain_vs_best_4b": 0.07083333333333333
+        },
+        "gemma4_12b_elderly_v1": {
+          "judged": true,
+          "fits_24gb": true,
+          "beats_best_4b": false,
+          "beats_deployed": false,
+          "mean_relevance_gain_vs_best_4b": 0.03333333333333334
+        },
+        "gemma4_26b_a4b_elderly_v1": {
+          "judged": true,
+          "fits_24gb": true,
+          "beats_best_4b": false,
+          "beats_deployed": false,
+          "mean_relevance_gain_vs_best_4b": -0.12916666666666665
+        },
+        "qwen35_35b_a3b_elderly_v1": {
+          "judged": true,
+          "fits_24gb": true,
+          "beats_best_4b": false,
+          "beats_deployed": false,
+          "mean_relevance_gain_vs_best_4b": 0.02083333333333333
+        },
+        "gemma4_31b_elderly_v1": {
+          "judged": false,
+          "fits_24gb": false,
+          "beats_best_4b": false
+        }
+      },
+      "size_buys_quality": false,
+      "profile_24gb_candidate": null
+    },
     "responder_switch_qualification": {
       "status": "present",
       "part2_passed": true,
@@ -1735,8 +1888,8 @@
     "final_audit": {
       "path": "results/release/final_audit.json",
       "present": true,
-      "bytes": 14503,
-      "sha256": "76498545deadfca189ada24f780899f15456270e6f1b896cabdbce34fa4a929e"
+      "bytes": 14611,
+      "sha256": "0c1309aa9dc720eacfa4a7b925bf89e2f2f3934a82d2a30534c4fac091825e35"
     },
     "submission_tag_attestation": {
       "path": "results/release/submission_tag_attestation.json",
@@ -1941,6 +2094,36 @@
       "present": false,
       "bytes": null,
       "sha256": null
+    },
+    "closeout_asr_v3": {
+      "path": "results/eval/asr_candidates_v3_psrb_human.json",
+      "present": true,
+      "bytes": 43728,
+      "sha256": "67ad9030b690c4480226dd505b9443faf13746614e97d36486f15309b3d25be0"
+    },
+    "closeout_end_of_turn_v2_dev": {
+      "path": "results/eval/end_of_turn_v2_dev.json",
+      "present": true,
+      "bytes": 27063,
+      "sha256": "c2abc11266103457c2695d24da068fe5821d33f5d8820ce0546773a72bb5b6ca"
+    },
+    "closeout_loopback_v3": {
+      "path": "results/eval/live_loopback_v3.json",
+      "present": true,
+      "bytes": 3847,
+      "sha256": "d3a7ff31c9212f5ae7cbf041bdc3e0b8113bde7c89ee3503cf66ef8adc1377bc"
+    },
+    "closeout_loopback_v3_splits": {
+      "path": "results/eval/live_loopback_v3_splits.json",
+      "present": true,
+      "bytes": 982,
+      "sha256": "fe9a786b4cae48841c3998d35d50f2b1070d9f37e1668d58ff90dd92e2197589"
+    },
+    "closeout_responder_size": {
+      "path": "results/eval/responder_size_comparison.json",
+      "present": true,
+      "bytes": 20907,
+      "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
     }
   }
 }

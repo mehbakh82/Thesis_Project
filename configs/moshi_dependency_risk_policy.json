@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "status": "temporary-compatibility-exception",
-  "reviewed_at": "2026-10-28",
+  "reviewed_at": "2026-10-29",
   "scope": "Pinned private Moshi training/runtime environment only; not the general application environment.",
   "review_command": ".venv/bin/python scripts/audit_moshi_dependencies.py",
   "accepted_risks": [
@@ -122,10 +122,19 @@
     {
       "package": "filelock",
       "version": "3.32.3",
-      "upstream_constraint": "The three advisories (Windows oplock and SQLite-backed ReadWriteLock races) are fixed in filelock 4.2.1. requirements-moshi.lock records the exact environment of the completed Moshi experiments (recorded in results/hardware/moshi_environment.json); upgrading it would no longer reproduce those runs.",
+      "upstream_constraint": "The twelve advisories (Windows oplock and ACL handling, SQLite-backed ReadWriteLock races, and lock files, claim directories, PID markers or symlinks that another local user can write or swap) are fixed in filelock 4.2.1 (CVE-2026-112936 already in 4.0.9). requirements-moshi.lock records the exact environment of the completed Moshi experiments (recorded in results/hardware/moshi_environment.json); upgrading it would no longer reproduce those runs.",
       "advisories": [
         "CVE-2026-112907",
+        "CVE-2026-112908",
+        "CVE-2026-112909",
+        "CVE-2026-112910",
+        "CVE-2026-112911",
         "CVE-2026-112913",
+        "CVE-2026-112915",
+        "CVE-2026-112935",
+        "CVE-2026-112936",
+        "CVE-2026-112938",
+        "CVE-2026-112939",
         "CVE-2026-112940"
       ],
       "mitigations": [
@@ -136,7 +145,7 @@
     {
       "package": "pillow",
       "version": "12.3.0",
-      "upstream_constraint": "Image-decoder advisories; Pillow 13.0.0 fixes the bundled libopenjp2 issue and several others list no fixed release yet. requirements-moshi.lock records the exact environment of the completed Moshi experiments (recorded in results/hardware/moshi_environment.json); upgrading it would no longer reproduce those runs.",
+      "upstream_constraint": "Image-decoder advisories; Pillow 13.0.0 fixes the bundled libopenjp2 issue and the JPEG decoder heap overflow (CVE-2026-112403), and several others list no fixed release yet. requirements-moshi.lock records the exact environment of the completed Moshi experiments (recorded in results/hardware/moshi_environment.json); upgrading it would no longer reproduce those runs.",
       "advisories": [
         "CVE-2026-112390",
         "CVE-2026-112391",
@@ -148,6 +157,7 @@
         "CVE-2026-112400",
         "CVE-2026-112401",
         "CVE-2026-112402",
+        "CVE-2026-112403",
         "CVE-2026-112404",
         "CVE-2026-112405",
         "CVE-2026-112406",

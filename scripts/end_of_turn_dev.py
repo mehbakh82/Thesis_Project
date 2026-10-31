@@ -46,10 +46,11 @@ PRE_ROLL = int(0.2 * SAMPLE_RATE)
 HANGOVER_MS = 256.0
 SPECULATIVE_MS = 96.0
 LEAD, TAIL = int(0.3 * SAMPLE_RATE), int(1.5 * SAMPLE_RATE)
-CANDIDATES = ("lexical", "smart_turn_v3_2", "llm_completeness", "smart_turn_v3_2_fa")
+CANDIDATES = ("lexical", "smart_turn_v3_2", "llm_completeness", "smart_turn_v3_2_fa", "smart_turn_v3_2_fa_v2")
 THRESHOLDS = (0.3, 0.5, 0.7)
 HOLDS_MS = (640.0, 1024.0)
-COST_ORDER = {"none": -1, "lexical": 0, "smart_turn_v3_2": 1, "smart_turn_v3_2_fa": 1, "llm_completeness": 2}
+COST_ORDER = {"none": -1, "lexical": 0, "smart_turn_v3_2": 1, "smart_turn_v3_2_fa": 1, "smart_turn_v3_2_fa_v2": 1,
+              "llm_completeness": 2}
 TEST_PANELS = ("plain", "elderly", "interruptions", "backchannels", "backchannels_seamless")
 
 
@@ -304,14 +305,81 @@ def summarize(results: dict[str, list[dict[str, Any]]]) -> dict[str, dict[str, A
     return summary
 
 
+# Clip-end labels, protocol v2 (docs/END_OF_TURN_V2_PROTOCOL.md); wording frozen there.
+LABEL_PROMPT_A = (
+    "You will hear a short Persian speech clip. Decide whether, at the very end of the clip, the "
+    "speaker has finished what they were saying (a complete sentence or turn that a listener could "
+    "answer now) or stopped in the middle (the sentence is unfinished and the speaker would naturally "
+    'go on). Return only JSON: {"label": "complete"} or {"label": "incomplete"}.'
+)
+LABEL_PROMPT_B = (
+    "Listen to this Persian audio. Ignore the recording quality. Is the last utterance finished in "
+    "grammar and meaning, or is it cut off or trailing (for example ending in a conjunction, a "
+    'preposition, or an unfinished clause)? Return only JSON: {"finished": true} or {"finished": false}.'
+)
+
+
+def label(args: argparse.Namespace) -> int:
+    """Two independent Gemini passes over the plain development clips."""
+
+    from thesis_s2s.labeling.gemini import GeminiClient
+
+    client = GeminiClient(cache_dir=args.cache, requests_per_minute=args.rpm)
+    trials = [json.loads(line) for line in (args.work / "trials.jsonl").read_text(encoding="utf-8").splitlines()]
+    plain = [t for t in trials if t["condition"] == "plain"]
+    out_path = args.work / "clip_end_labels.jsonl"
+    done = {json.loads(line)["clip"] for line in out_path.read_text(encoding="utf-8").splitlines()} if out_path.exists() else set()
+    with out_path.open("a", encoding="utf-8") as sink:
+        for trial in plain:
+            clip = trial["trial"].split("/", 1)[1]
+            if clip in done:
+                continue
+            audio = read_wav(Path(trial["audio"]))
+            a = client.label_audio(LABEL_PROMPT_A, audio, SAMPLE_RATE, required_keys=("label",))
+            b = client.label_audio(LABEL_PROMPT_B, audio, SAMPLE_RATE, required_keys=("finished",))
+            pass_a = {"complete": "complete", "incomplete": "incomplete"}.get(str(a["label"]).strip().lower())
+            pass_b = "complete" if b["finished"] is True else "incomplete" if b["finished"] is False else None
+            agreed = pass_a if pass_a is not None and pass_a == pass_b else "uncertain"
+            sink.write(json.dumps({"clip": clip, "pass_a": pass_a, "pass_b": pass_b, "label": agreed,
+                                   "model": a["_meta"]["response_model"]}) + "\n")
+            sink.flush()
+    rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines()]
+    print(json.dumps({k: sum(r["label"] == k for r in rows) for k in ("complete", "incomplete", "uncertain")}))
+    return 0
+
+
+def clip_of(trial: str) -> str:
+    return trial.split("/", 1)[1]
+
+
+def summarize_v2(results: dict[str, list[dict[str, Any]]], labels: dict[str, str]) -> dict[str, dict[str, Any]]:
+    """v1 summary plus false holds among labelled-complete ends and holds of incomplete ends."""
+
+    summary = summarize(results)
+    for name, rows in results.items():
+        complete = [r for r in rows if labels.get(clip_of(r["trial"])) == "complete"]
+        incomplete = [r for r in rows if labels.get(clip_of(r["trial"])) == "incomplete"]
+        entry = summary[name]
+        entry["false_hold_rate_v1_all_trials"] = entry.pop("false_hold_rate")
+        entry["complete_end_trials"] = len(complete)
+        entry["false_hold_rate"] = sum(r["final_held"] for r in complete) / len(complete)
+        entry["incomplete_end_trials"] = len(incomplete)
+        entry["correct_hold_rate"] = sum(r["final_held"] for r in incomplete) / len(incomplete) if incomplete else None
+    return summary
+
+
 def select(args: argparse.Namespace) -> int:
     if args.out.exists():
         raise SystemExit(f"refusing to overwrite the write-once receipt {args.out}")
+    labels = None
+    if getattr(args, "labels", None):
+        labels = {r["clip"]: r["label"] for r in map(json.loads, args.labels.read_text(encoding="utf-8").splitlines())}
     summary: dict[str, dict[str, Any]] = {}
     for candidate in ("none",) + CANDIDATES:
         path = args.work / f"replay_{candidate}.json"
         if path.exists():
-            summary.update(summarize(json.loads(path.read_text(encoding="utf-8"))))
+            results = json.loads(path.read_text(encoding="utf-8"))
+            summary.update(summarize_v2(results, labels) if labels else summarize(results))
     baseline = next(v for v in summary.values() if v["candidate"] == "none")
     eligible = [v for v in summary.values() if v["candidate"] != "none" and v["false_hold_rate"] <= 0.05]
     eligible.sort(key=lambda v: (v["premature_rate"], v["false_hold_rate"], v["hold_ms"], COST_ORDER[v["candidate"]]))
@@ -329,8 +397,8 @@ def select(args: argparse.Namespace) -> int:
     trials_path = args.work / "trials.jsonl"
     receipt = {
         "schema_version": 1,
-        "experiment": "end_of_turn_gate_development",
-        "protocol": "docs/END_OF_TURN_PROTOCOL.md",
+        "experiment": "end_of_turn_gate_development" + ("_v2" if labels else ""),
+        "protocol": "docs/END_OF_TURN_V2_PROTOCOL.md" if labels else "docs/END_OF_TURN_PROTOCOL.md",
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "evaluator_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "trials_sha256": hashlib.sha256(trials_path.read_bytes()).hexdigest(),
@@ -349,7 +417,25 @@ def select(args: argparse.Namespace) -> int:
         ),
         "text_retained": False,
     }
-    if args.stage2_training:
+    if labels:
+        receipt["clip_end_labels"] = {
+            "labeller": "Gemini 3.8 Flash, two passes with different wording (independent automatic labels)",
+            "labels_sha256": hashlib.sha256(args.labels.read_bytes()).hexdigest(),
+            "counts": {k: sum(v == k for v in labels.values()) for k in ("complete", "incomplete", "uncertain")},
+            "false_hold_denominator": "trials whose clip end both passes label complete",
+        }
+        receipt["rule"] = receipt["rule"].replace("false-hold rate", "false-hold rate on labelled-complete ends")
+        if adopted:
+            receipt["next"] = "loopback v3 with the chosen gate"
+        else:
+            receipt["next"] = "no gate adopted; the loopback test is not opened"
+    if labels and args.stage2_training:
+        receipt["stage2b"] = {
+            "training": json.loads(args.stage2_training.read_text(encoding="utf-8")),
+            "label_filter": json.loads(args.stage2_filter.read_text(encoding="utf-8")) if args.stage2_filter else None,
+            "deviation": args.stage2_deviation,
+        }
+    elif args.stage2_training:
         training = json.loads(args.stage2_training.read_text(encoding="utf-8"))
         receipt["stage2"] = {
             "training": training,
@@ -384,8 +470,15 @@ def main() -> int:
     p_select.add_argument("--out", type=Path, default=ROOT / "results/eval/end_of_turn_dev.json")
     p_select.add_argument("--stage2-training", type=Path, help="training receipt of the stage-2 model")
     p_select.add_argument("--invalid-replay", type=Path, help="replay of the invalid first stage-2 model")
+    p_select.add_argument("--labels", type=Path, help="clip-end labels (protocol v2); changes the false-hold denominator")
+    p_select.add_argument("--stage2-filter", type=Path, help="label-filter report of the stage-2b examples")
+    p_select.add_argument("--stage2-deviation", default=None, help="recorded deviation from the protocol, if any")
+    p_label = sub.add_parser("label")
+    p_label.add_argument("--work", type=Path, required=True)
+    p_label.add_argument("--cache", type=Path, required=True)
+    p_label.add_argument("--rpm", type=float, default=15.0)
     args = parser.parse_args()
-    return {"build": build, "score": score, "select": select}[args.cmd](args)
+    return {"build": build, "score": score, "select": select, "label": label}[args.cmd](args)
 
 
 if __name__ == "__main__":

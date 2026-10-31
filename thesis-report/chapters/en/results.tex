@@ -407,6 +407,16 @@ Seamless v6 (step 55000) & 8.99\% & 23.28\% & 10.44\% & 855 ms \\
 Qwen3-ASR 1.7B & 20.47\% & 49.46\% & 24.97\% & 1466 ms \\
 Gemma 4 E4B (audio input) & 21.04\% & 42.67\% & 26.16\% & 2632 ms \\
 Whisper large-v3 & 23.02\% & 47.31\% & 25.46\% & 1101 ms \\
+\midrule
+\multicolumn{5}{l}{\emph{Second round (v3): Persian checkpoints not compared before}} \\
+Shenava Koochik (NeMo CTC) & 8.95\% & 35.34\% & 14.50\% & 65 ms \\
+BuzzASR (Whisper fine-tune) & 15.76\% & 36.92\% & 19.99\% & 579 ms \\
+Rade-ASR-CTC-3B & 16.11\% & 37.33\% & 30.04\% & 122 ms \\
+NVIDIA Persian FastConformer & 19.22\% & 45.54\% & 26.43\% & 69 ms \\
+Whisper large-v3-turbo, Persian & 20.22\% & 39.21\% & 22.25\% & 484 ms \\
+Whisper large-v3, Persian v4 & 21.54\% & 41.86\% & 24.51\% & 1427 ms \\
+Whisper base, Persian & 23.30\% & 49.14\% & 28.21\% & 1027 ms \\
+NeuraSpeech 900h & 25.42\% & 48.73\% & 37.42\% & 79 ms \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -417,6 +427,19 @@ lowest error and stayed in the system. Seamless was used as the ``second indepen
 listener'' in measuring speech intelligibility and in selecting backchannels. The error
 of every candidate is higher on older speakers (15.6\% against 8.6\% for the deployed
 candidate).
+
+A second, pre-registered round added the eight Persian checkpoints that had not been
+compared on this panel, among them Rade-ASR-CTC-3B, a Persian fine-tune of the
+three-billion-parameter omniASR model whose download had earlier been left incomplete
+for lack of disk space. The rule was unchanged, with one addition: a replacement must be
+significantly better than NeMo version 4. Shenava Koochik, a NeMo model of similar size,
+is the most accurate candidate within the latency budget, but its gain of 0.50 points has
+a 95\% interval of $-1.07$ to $+0.04$ and therefore does not replace the deployed model;
+its word error is also much higher, mostly because of word spacing. Rade, the largest
+Persian-specialized model, has a character error rate of 16.1\%; most of its errors are
+speech it leaves out (14.0\% of the characters, against 5.2\% for NeMo), especially at
+the start of clips and for older speakers (30.0\%). The results on its model card, on
+read speech, did not carry over to this mostly spontaneous panel.
 
 \subsection{Responder with a Panel of Elderly Requests}
 
@@ -472,6 +495,58 @@ its later first token, the new responder sounds sooner, because two thirds of it
 open with the short address \fa{«عزیزم،»} and the first clause is complete sooner. The
 replacement decision therefore depends only on the preference section of the listening
 study.
+
+\textbf{Larger responders.} All the responders above have at most four billion
+parameters, because the stack was kept inside a 12~GiB card. The proposal's hardware range
+goes up to 24~GB, and at four bits much larger models fit it. A pre-registered comparison
+therefore asked whether a larger responder gives better replies than the best 4B
+(Qwen3.5-4B with the elderly prompt). Five larger models of 9 to 36 billion parameters,
+four of them at four bits, were served on the same path as the 4B arms (vLLM, greedy
+decoding, the Persian-only output constraint) under a 22~GiB memory limit. The 4B arms
+were generated again on that path. All replies were scored on the same 120 rows by the
+same two judges, under the replacement rule above with the best 4B as the reference
+(Table~\ref{tab:resp-size}). Gemma~4 31B at four bits does not fit: its weights take
+18.7~GiB and leave 0.05~GiB for the key-value cache, while one 2048-token request needs
+1.73~GiB.
+
+\begin{table}[ht]
+\centering
+\caption{Larger responders under a 22~GiB memory limit (120 written requests and turns;
+         scale 0--4; gain relative to the best 4B, Qwen3.5-4B)}
+\label{tab:resp-size}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrlrrrr}
+\toprule
+ & & & \multicolumn{2}{c}{Relevance (gain)} & \multicolumn{2}{c}{Median time} \\
+Arm & Params & Weights & Qwen3.8 & Gemini & First token & Reply \\
+\midrule
+Qwen3-4B (deployed) & 4.02B & bf16 & 3.25 & 2.46 & 38 ms & 170 ms \\
+Qwen3.5-4B (best 4B) & 4.66B & bf16 & 3.23 & 3.35 & 68 ms & 267 ms \\
+Gemma 4 E4B & 8.61B$^{a}$ & 4-bit & 2.88 & 3.50 & 54 ms & 240 ms \\
+Qwen3.5-9B & 9.65B & bf16 & 3.24 ($+0.01$) & 3.48 ($+0.13$) & 66 ms & 609 ms \\
+Gemma 4 12B & 12.0B & 4-bit & 3.04 ($-0.19$) & 3.61 ($+0.26$) & 56 ms & 449 ms \\
+Gemma 4 26B-A4B$^{b}$ & 25.8B & 4-bit & 2.77 ($-0.46$) & 3.55 ($+0.20$) & 53 ms & 201 ms \\
+Gemma 4 31B & 31.3B & 4-bit & \multicolumn{4}{c}{does not fit} \\
+Qwen3.5-35B-A3B$^{b}$ & 36.0B & 4-bit & 3.13 ($-0.10$) & 3.49 ($+0.14$) & 121 ms & 292 ms \\
+\bottomrule
+\end{tabular}
+\par\smallskip\footnotesize
+$^{a}$ Stored parameter count; the name refers to about 4 billion ``effective'' parameters.
+$^{b}$ Mixture of experts, with about 4 (Gemma) and 3 (Qwen) billion parameters active per
+token.
+\end{table}
+
+No larger model beats the best 4B. Under the Qwen judge none gains more than 0.01 in
+relevance, and Gemma~4 26B is worse, with an interval of $-0.66$ to $-0.26$. Under Gemini
+every larger model gains, and Gemma~4 12B reaches the threshold ($+0.26$, interval 0.08 to
+0.44). Even so, it wins only 26\% of the rows, because most rows score the same. The
+judges split along the model families again: Gemini prefers the Gemma models and the Qwen
+judge the Qwen models, and their exact agreement on relevance is 52\%. The larger Gemma
+models do score higher on coherence and elderly appropriateness under both judges, but
+not on relevance, the primary measure. On this panel, then, size did not buy reply
+quality, and no 24~GB profile was qualified. Latency does not rule the larger models out:
+every first token arrives within 53--121 ms.
 
 \subsection{Voice with Two Automatic Listeners}
 
@@ -1056,7 +1131,7 @@ requests prematurely; that run was not scored, and the sentences were synthesize
 without internal pauses (this phenomenon also occurs in real speech;
 Section~\ref{sec:res-errors}).
 
-\textbf{Semantic end-of-turn detection (tested and rejected).} To reduce premature closing of
+\textbf{Semantic end-of-turn detection (tested twice and rejected).} To reduce premature closing of
 a turn at mid-sentence pauses, a pre-registered ``gate'' was tested: at the speculative start,
 a model estimates the probability that the utterance is complete, and if it is low,
 confirmation of the end of the turn is postponed until 640 or 1024 ms of silence. Three
@@ -1072,8 +1147,21 @@ because many of the development utterances are cut mid-sentence; but zero-shot S
 close to chance on Persian, and Persian data with natural turn endings were scarce (738
 training examples). The first fine-tuned model was declared invalid because of a data artifact
 (the audio was cut at the moment of the speaker change), and the protocol was amended before the
-corrected run. The deployed detector therefore stayed unchanged, and the loopback test panels
-were not opened for this experiment.
+corrected run. No gate qualified in this first round.
+
+A second pre-registered round fixed both data problems. Each development clip's ending was
+labelled by Gemini in two independent passes (158 complete, 224 unfinished and 43 uncertain
+endings), and false holds were counted only on complete endings. Smart Turn was also
+fine-tuned again on 5,498 examples mined from 233 hours of restored diarized windows (the
+label filter was cut short when the shared Gemini budget ran out). With correct holds no
+longer counted, the Qwen3-4B completeness judgement ($\theta = 0.3$, hold 640 ms) met the
+development rule: premature closings fell from 19.8\% to 13.3\% while 4.4\% of complete
+endings were held. The retrained Smart Turn still held 29\% or more. The gate then went to
+the loopback test, whose panels were opened for the first time. It split fewer utterances
+than before (17 against 22 over both panels, not significant), but it also held 44 finished
+turns (14.8\%), and each hold delayed the reply by up to 384 ms. The 90th percentile of the
+latency rose to 656 ms on both panels, above the 500 ms limit, so the pre-registered rule
+removed the gate and the deployed detector stayed unchanged.
 
 \claim{This automated loopback test is on the shared H100 host: the memory of a 12 GB card was
 respected but not its speed, and there was no human user and no physical microphone and
@@ -1162,12 +1250,15 @@ model files themselves.
          tests of the previous sections)}
 \label{tab:tradeoff}
 \small
+\setlength{\tabcolsep}{4.5pt}
 \begin{tabular}{llrlr}
 \toprule
 Stage & Candidate & Params & Quality & Latency \\
 \midrule
 ASR & NeMo v4 CTC (deployed) & 117M & CER 9.44\% & 58 ms \\
+ & Shenava Koochik & 115M & CER 8.95\% & 65 ms \\
  & omniASR CTC 1B & 976M & CER 14.04\% & 56 ms \\
+ & Rade-ASR-CTC-3B (Persian) & 3.08B & CER 16.11\% & 122 ms \\
  & Seamless v5 fine-tune & 1.50B & \textbf{CER 6.92\%} & 671 ms \\
  & Whisper large-v3 & 1.54B & CER 23.02\% & 1101 ms \\
  & Qwen3-ASR 1.7B & 2.35B & CER 20.47\% & 1466 ms \\
@@ -1177,6 +1268,8 @@ Responder$^{b}$ & Qwen3-4B, prompt-v2 (deployed) & 4.02B & 2.80 / 1.91 & 86 ms \
  & Gemma 4 E4B, elderly prompt & 8.61B$^{a}$ & 2.49 / 3.00 & 98 ms \\
 Speech input$^{b}$ & Gemma 4 E4B, audio in & 8.61B$^{a}$ & 1.98 / 2.18 & 67 ms \\
  & + speech LoRA & 8.61B$^{a}$ & 2.05 / 2.52 & 200 ms \\
+Responder$^{d}$ & Qwen3.5-4B, elderly prompt & 4.66B & 3.23 / 3.35 & 68 ms \\
+ & four larger models & 9.65--36.0B & 2.77--3.24 / 3.48--3.61 & 53--121 ms \\
 \midrule
 TTS & Piper Mana (deployed, CPU) & 15.7M & \textbf{CER 5.82\%} & 84 ms \\
  & Lab VITS, optimized (H100) & 36.3M & CER 9.19\% & 116 ms \\
@@ -1191,16 +1284,22 @@ parameters.
 $^{b}$ Relevance of the reply to the same 120 spoken turns; the first number is the Qwen judge
 and the second the Gemini judge; latency is the first token after the end of the audio.
 $^{c}$ Prefix error 0.88 with the deployed recognizer.
+$^{d}$ Relevance on the 120 written requests and turns of Table~\ref{tab:resp-size}, Qwen
+judge / Gemini judge, under a 22~GiB limit; latency is the first token of the reply text.
+Gemma~4 31B did not fit.
 \end{table}
 
-Three patterns appear. First, within this range size does not buy quality: the smallest
-recognizer (117 million parameters, fine-tuned on Persian) is more accurate than all the general
-candidates of one to nine billion parameters, and the only model more accurate than it,
-Seamless, is itself fine-tuned on Persian and more than ten times slower. In synthesis too, the
+Three patterns appear. First, within this range size does not buy quality. The two smallest
+recognizers (115 and 117 million parameters, both NeMo models fine-tuned on Persian) are more
+accurate than every larger candidate except Seamless. That includes Rade, a
+three-billion-parameter model fine-tuned on Persian. Seamless, the only model more accurate
+than them, is itself fine-tuned on Persian and more than ten times slower. In synthesis too, the
 smallest model (Piper, 15.7 million parameters) is both the most intelligible and the fastest.
-Second, for the responder and speech input, the two judges disagree about quality and no larger
-candidate is better under both judges; the speech-input model has only a latency advantage (67
-versus 86 ms), which separate recognition in about 60 ms can make up for. Third, the largest
+Second, for the responder and speech input, the two judges disagree about quality. No larger
+candidate is better under both judges, up to 36 billion parameters at four bits
+(Table~\ref{tab:resp-size}), and the largest dense model at four bits does not fit a 22~GiB
+limit. The speech-input model has only a latency advantage (67 versus 86 ms), which separate
+recognition in about 60 ms can make up for. Third, the largest
 model, the 7.7-billion-parameter end-to-end model, did not reach intelligible Persian speech with
 low-cost training. For real-time Persian with these resources, the best trade-off point is small
 components specialized for Persian.

@@ -129,11 +129,41 @@ class SeamlessDirectBackend:
         return outputs
 
 
+class RadeBackend:
+    """Rade-ASR-CTC-3B-fa through the official omnilingual-asr 0.2.0 pipeline.
+
+    Registers the model-card asset (``3b_v2`` architecture, the official
+    ``omniASR_tokenizer_written_v2`` tokenizer) in a private asset directory and
+    decodes greedily in fp16 with the Persian language code, as on the card.
+    """
+
+    def __init__(self, checkpoint: Path) -> None:
+        import tempfile
+
+        asset_dir = Path(tempfile.mkdtemp(prefix="rade_assets_"))
+        (asset_dir / "rade.yaml").write_text(
+            "name: rade_CTC_3B_fa\nmodel_family: wav2vec2_asr\nmodel_arch: 3b_v2\n"
+            f'checkpoint: "{checkpoint}"\ntokenizer_ref: omniASR_tokenizer_written_v2\n',
+            encoding="utf-8",
+        )
+        os.environ["FAIRSEQ2_USER_ASSET_DIR"] = str(asset_dir)
+        import torch
+        from omnilingual_asr.models.inference.pipeline import ASRInferencePipeline
+
+        self.pipe = ASRInferencePipeline(model_card="rade_CTC_3B_fa", device="cuda", dtype=torch.float16)
+
+    def predict(self, paths: list[Path]) -> list[str]:
+        texts = self.pipe.transcribe([str(p) for p in paths], lang=["pes_Arab"] * len(paths), batch_size=1)
+        return [str(t).strip() for t in texts]
+
+
 def load_backend(args: argparse.Namespace) -> Any:
     if args.backend == "gemma4":
         return GemmaAudioBackend(args.checkpoint)
     if args.backend == "seamless_direct":
         return SeamlessDirectBackend(args.checkpoint)
+    if args.backend == "rade":
+        return RadeBackend(args.checkpoint)
     if not args.external_backends:
         raise SystemExit("--external-backends is required for this backend")
     sys.path.insert(0, str(args.external_backends))

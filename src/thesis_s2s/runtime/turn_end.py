@@ -23,6 +23,8 @@ DEFAULT_SMART_TURN_PATH = (
 )
 # Stage 2: Smart Turn v3.2 fine-tuned on Persian (scripts/smart_turn_persian.py)
 DEFAULT_SMART_TURN_FA_PATH = DEFAULT_SMART_TURN_PATH.with_name("smart-turn-v3.2-fa.onnx")
+# Stage 2b (docs/END_OF_TURN_V2_PROTOCOL.md): fine-tuned on the restored diarized windows
+DEFAULT_SMART_TURN_FA_V2_PATH = DEFAULT_SMART_TURN_PATH.with_name("smart-turn-v3.2-fa-v2.onnx")
 SMART_TURN_REVISION = "f766f81d3cfdf7737ac64aad813d91bbfd56bf93"
 SMART_TURN_SHA256 = "2bb026316b14a660486a75b1733cd3fbab8c2fd0314dc9af7be49f8cca967e4f"
 
@@ -187,6 +189,9 @@ def make_gate(
         return SmartTurnGate()
     if name == "smart_turn_v3_2_fa":
         path = Path(os.environ.get("SMART_TURN_FA_MODEL") or DEFAULT_SMART_TURN_FA_PATH)
+        return SmartTurnGate(model_path=path, name=name)
+    if name == "smart_turn_v3_2_fa_v2":
+        path = Path(os.environ.get("SMART_TURN_FA_V2_MODEL") or DEFAULT_SMART_TURN_FA_V2_PATH)
         return SmartTurnGate(model_path=path, name=name)
     if name == "llm_completeness":
         if not endpoint:

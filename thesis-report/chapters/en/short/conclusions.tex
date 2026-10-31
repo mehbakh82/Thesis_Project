@@ -56,9 +56,10 @@ speculative end-of-speech detection with audio held until confirmation, streamin
 generation with a Persian-script constraint, clause chunking, a playback queue and
 two-stage interruption control with heard-only history brought the latency to a
 mean of 372 and a 90th percentile of 431 ms. \textbf{3.} Size did not buy quality:
-the smallest Persian-specialized recognizer and synthesizer gave the best
-trade-off, and the 7.7-billion-parameter end-to-end model did not reach
-intelligible speech. \textbf{4.} The perception of older adults depends on the
+the smallest Persian-specialized recognizers and synthesizer gave the best
+trade-off, responders of 9 to 36 billion parameters (four bits where needed)
+gave no gain over the best 4B under both judges, and the 7.7-billion-parameter
+end-to-end model did not reach intelligible speech. \textbf{4.} The perception of older adults depends on the
 results of the listening study. The status of each requirement is in
 Table~\ref{tab:req-status}.
 
@@ -71,8 +72,8 @@ and human judging of the responders (Qwen3.5-4B with the elderly prompt has pass
 the deployment qualification, and the participants' preference decides on its
 replacement). Improving the system: learned separation of listener words from
 content words with a clipped onset (a 200 ms pre-roll was tested and rejected),
-semantic end-of-turn detection for the pauses of elderly speech (three zero-shot
-candidates and a fine-tuned Smart Turn were tested and rejected; human-labelled
-turn ends are needed), and a more accurate recognizer within the same latency
+semantic end-of-turn detection for the pauses of elderly speech (tested in two
+rounds; the best gate split fewer utterances but delayed too many finished turns,
+so a shorter hold or human-labelled turn ends are needed), and a more accurate recognizer within the same latency
 budget. Direct track: a tokenization that fits the frame budget, a remedy for the
 gap between teacher forcing and free generation, and the frozen-model approach.

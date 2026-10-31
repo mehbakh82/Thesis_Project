@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "status": "temporary-known-scanner-unmapped-exception",
-  "reviewed_at": "2026-10-28",
+  "reviewed_at": "2026-10-29",
   "scope": "General application and optional responder-training requirements resolved by CI.",
   "review_command": ".venv/bin/python scripts/audit_application_dependencies.py",
   "removal_condition": "Remove only if the advisory is withdrawn or after adopting a released compatible Accelerate version declared unaffected/fixed; scanner-feed disappearance alone is not remediation.",
@@ -29,26 +29,48 @@
     {
       "package": "filelock",
       "version": "4.1.0",
-      "upstream_constraint": "All six advisories are fixed in filelock 4.2.1, and every fixed release requires Python >= 3.11. The CI floor job resolves the declared minimum, Python 3.10, where 4.1.0 is the newest installable release. Python >= 3.11 installs require the fixed release (pyproject.toml and requirements.txt).",
+      "upstream_constraint": "All seventeen advisories are fixed in filelock 4.2.1, and every fixed release requires Python >= 3.11. The CI floor job resolves the declared minimum, Python 3.10, where 4.1.0 is the newest installable release. Python >= 3.11 installs require the fixed release (pyproject.toml and requirements.txt).",
       "references": [
         "https://github.com/advisories/GHSA-2g95-wg33-c5x2",
         "https://github.com/advisories/GHSA-567q-5qvw-pf92",
+        "https://github.com/advisories/GHSA-6627-m3xw-93mp",
+        "https://github.com/advisories/GHSA-69hj-f68j-2879",
+        "https://github.com/advisories/GHSA-8mx5-7m5m-r77g",
+        "https://github.com/advisories/GHSA-9c4x-gm8v-wgc4",
+        "https://github.com/advisories/GHSA-9j6q-wvj5-jgjg",
         "https://github.com/advisories/GHSA-9vhv-jxww-xfm5",
         "https://github.com/advisories/GHSA-crv4-6mhj-j5jh",
+        "https://github.com/advisories/GHSA-cwqr-hh33-gh44",
+        "https://github.com/advisories/GHSA-fj95-fr6c-h845",
+        "https://github.com/advisories/GHSA-fq56-3cx3-fjxp",
         "https://github.com/advisories/GHSA-jqc4-5cvw-7w85",
-        "https://github.com/advisories/GHSA-v4x8-3wr5-3wq8"
+        "https://github.com/advisories/GHSA-m462-7rxw-wvpg",
+        "https://github.com/advisories/GHSA-rfpc-qcw5-3pc4",
+        "https://github.com/advisories/GHSA-v4x8-3wr5-3wq8",
+        "https://github.com/advisories/GHSA-wfhq-q4j2-c37m"
       ],
       "advisories": [
         "CVE-2026-112906",
         "CVE-2026-112907",
+        "CVE-2026-112908",
+        "CVE-2026-112909",
+        "CVE-2026-112910",
+        "CVE-2026-112911",
+        "CVE-2026-112912",
         "CVE-2026-112913",
         "CVE-2026-112914",
+        "CVE-2026-112915",
+        "CVE-2026-112934",
+        "CVE-2026-112935",
         "CVE-2026-112937",
-        "CVE-2026-112940"
+        "CVE-2026-112938",
+        "CVE-2026-112939",
+        "CVE-2026-112940",
+        "CVE-2026-112941"
       ],
       "mitigations": [
         "Python 3.11+ environments, including the deployed Python 3.12 runtime, require the fixed filelock >= 4.2.1.",
-        "Each advisory needs another local user who can write next to the project's lock files (or a Windows host): run the system under a dedicated account with private model and Hugging Face cache directories that untrusted local users cannot write to.",
+        "Each advisory needs another local user who can write next to or into the project's lock files, including a ReadWriteLock database (or a Windows host): run the system under a dedicated account with private model and Hugging Face cache directories that untrusted local users cannot write to.",
         "Remove this exception when the supported Python floor is raised to 3.11."
       ]
     }

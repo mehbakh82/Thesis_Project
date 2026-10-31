@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
   "evidence_class": "requirements_constrained_static_model_audit",
-  "as_of": "2026-09-16",
+  "as_of": "2026-10-29",
   "catalog": "configs/model_selection_audit.yaml",
-  "catalog_sha256": "3bbb87af9f998031aa4f6b23e6f6c356c6865ef3bb49d6fbc0f9c8856b596d47",
+  "catalog_sha256": "f9f71e0c3407a4a07d73fbc80e1b91bc0d21ee778b233cf613be14cc9d44a6ac",
   "claim_boundary": "This audit validates declared evidence and fail-closed eligibility. It does not run models, establish unreported Persian quality, or prove global optimality.",
   "tracks": {
     "direct_s2s": {
@@ -938,7 +938,13 @@
         "nemo-persian-finetune",
         "qwen3-asr-1.7b",
         "qwen3-asr-0.6b",
-        "shenava-koochik-v1.0-sherpa-onnx"
+        "nvidia-stt-fa-fastconformer-hybrid-large",
+        "buzzasr-persian",
+        "neuraspeech-900h",
+        "whisper-large-v3-turbo-fa",
+        "whisper-persian-v4",
+        "c1tech-whisper-base-persian",
+        "rade-asr-ctc-3b-fa"
       ],
       "catalog_comparison_complete": true,
       "candidates": {
@@ -1077,6 +1083,275 @@
           "notes": "Low-memory challenger; substantially worse than the incumbent on the frozen project panel."
         },
         "shenava-koochik-v1.0-sherpa-onnx": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "persian_support",
+            "streaming_or_service_runtime",
+            "project_persian_evaluation"
+          ],
+          "criteria": {
+            "persian_support": {
+              "criterion": "persian_support",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "missing",
+                "declared": false
+              },
+              "notes": ""
+            },
+            "streaming_or_service_runtime": {
+              "criterion": "streaming_or_service_runtime",
+              "minimum": "documented",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "missing",
+                "declared": false
+              },
+              "notes": ""
+            },
+            "project_persian_evaluation": {
+              "criterion": "project_persian_evaluation",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "missing",
+                "declared": false
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Post-hoc supplemental screen was faster but less accurate than NeMo; in ASR comparison v3 (PSRB human panel, NeMo checkpoint) it was 0.5 points better than NeMo v4 (8.95% vs 9.44% CER), not significantly (95% interval -1.07 to +0.04), so not promoted."
+        },
+        "nvidia-stt-fa-fastconformer-hybrid-large": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "persian_support": {
+              "criterion": "persian_support",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/nvidia/stt_fa_fastconformer_hybrid_large",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "streaming_or_service_runtime": {
+              "criterion": "streaming_or_service_runtime",
+              "minimum": "documented",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/asr_candidates_v3_psrb_human.json",
+                "present": true,
+                "sha256": "67ad9030b690c4480226dd505b9443faf13746614e97d36486f15309b3d25be0"
+              },
+              "notes": ""
+            },
+            "project_persian_evaluation": {
+              "criterion": "project_persian_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/asr_candidates_v3_psrb_human.json",
+                "present": true,
+                "sha256": "67ad9030b690c4480226dd505b9443faf13746614e97d36486f15309b3d25be0"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Evaluated in ASR comparison v3 on the PSRB human panel (19.2% CER, 66 ms median latency on clips up to 8 s); not promoted."
+        },
+        "buzzasr-persian": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "persian_support": {
+              "criterion": "persian_support",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/BuzzASR/persian",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "streaming_or_service_runtime": {
+              "criterion": "streaming_or_service_runtime",
+              "minimum": "documented",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/asr_candidates_v3_psrb_human.json",
+                "present": true,
+                "sha256": "67ad9030b690c4480226dd505b9443faf13746614e97d36486f15309b3d25be0"
+              },
+              "notes": ""
+            },
+            "project_persian_evaluation": {
+              "criterion": "project_persian_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/asr_candidates_v3_psrb_human.json",
+                "present": true,
+                "sha256": "67ad9030b690c4480226dd505b9443faf13746614e97d36486f15309b3d25be0"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Evaluated in ASR comparison v3 on the PSRB human panel (15.8% CER, 471 ms median latency on clips up to 8 s); not promoted."
+        },
+        "neuraspeech-900h": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "persian_support": {
+              "criterion": "persian_support",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/Neurai/NeuraSpeech_900h",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "streaming_or_service_runtime": {
+              "criterion": "streaming_or_service_runtime",
+              "minimum": "documented",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/asr_candidates_v3_psrb_human.json",
+                "present": true,
+                "sha256": "67ad9030b690c4480226dd505b9443faf13746614e97d36486f15309b3d25be0"
+              },
+              "notes": ""
+            },
+            "project_persian_evaluation": {
+              "criterion": "project_persian_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/asr_candidates_v3_psrb_human.json",
+                "present": true,
+                "sha256": "67ad9030b690c4480226dd505b9443faf13746614e97d36486f15309b3d25be0"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Evaluated in ASR comparison v3 on the PSRB human panel (25.4% CER, 72 ms median latency on clips up to 8 s); not promoted."
+        },
+        "whisper-large-v3-turbo-fa": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "persian_support": {
+              "criterion": "persian_support",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/sadrasa97/whisper-large-v3-turbo-fa",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "streaming_or_service_runtime": {
+              "criterion": "streaming_or_service_runtime",
+              "minimum": "documented",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/asr_candidates_v3_psrb_human.json",
+                "present": true,
+                "sha256": "67ad9030b690c4480226dd505b9443faf13746614e97d36486f15309b3d25be0"
+              },
+              "notes": ""
+            },
+            "project_persian_evaluation": {
+              "criterion": "project_persian_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/asr_candidates_v3_psrb_human.json",
+                "present": true,
+                "sha256": "67ad9030b690c4480226dd505b9443faf13746614e97d36486f15309b3d25be0"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Evaluated in ASR comparison v3 on the PSRB human panel (20.2% CER, 411 ms median latency on clips up to 8 s); not promoted."
+        },
+        "whisper-persian-v4": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "persian_support": {
+              "criterion": "persian_support",
+              "minimum": "documented",
+              "status": "documented",
+              "meets": true,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/nezamisafa/whisper-persian-v4",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "streaming_or_service_runtime": {
+              "criterion": "streaming_or_service_runtime",
+              "minimum": "documented",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/asr_candidates_v3_psrb_human.json",
+                "present": true,
+                "sha256": "67ad9030b690c4480226dd505b9443faf13746614e97d36486f15309b3d25be0"
+              },
+              "notes": ""
+            },
+            "project_persian_evaluation": {
+              "criterion": "project_persian_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/asr_candidates_v3_psrb_human.json",
+                "present": true,
+                "sha256": "67ad9030b690c4480226dd505b9443faf13746614e97d36486f15309b3d25be0"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Evaluated in ASR comparison v3 on the PSRB human panel (21.5% CER, 1,121 ms median latency on clips up to 8 s); not promoted."
+        },
+        "c1tech-whisper-base-persian": {
           "eligible": true,
           "missing_or_failed_criteria": [],
           "criteria": {
@@ -1119,13 +1394,11 @@
               "notes": ""
             }
           },
-          "notes": "Post-hoc supplemental screen was faster but less accurate than NeMo; it cannot be promoted from the reused open development panel."
+          "notes": "Evaluated in ASR comparison v3 on the PSRB human panel (23.3% CER, 834 ms median latency on clips up to 8 s); not promoted."
         },
         "rade-asr-ctc-3b-fa": {
-          "eligible": false,
-          "missing_or_failed_criteria": [
-            "project_persian_evaluation"
-          ],
+          "eligible": true,
+          "missing_or_failed_criteria": [],
           "criteria": {
             "persian_support": {
               "criterion": "persian_support",
@@ -1142,30 +1415,31 @@
             "streaming_or_service_runtime": {
               "criterion": "streaming_or_service_runtime",
               "minimum": "documented",
-              "status": "documented",
+              "status": "verified",
               "meets": true,
               "source": {
-                "kind": "remote",
-                "url": "https://huggingface.co/RadeAI/Rade-ASR-CTC-3B-fa",
-                "declared": true
+                "kind": "local",
+                "path": "results/eval/asr_candidates_v3_psrb_human.json",
+                "present": true,
+                "sha256": "67ad9030b690c4480226dd505b9443faf13746614e97d36486f15309b3d25be0"
               },
               "notes": ""
             },
             "project_persian_evaluation": {
               "criterion": "project_persian_evaluation",
               "minimum": "verified",
-              "status": "unknown",
-              "meets": false,
+              "status": "verified",
+              "meets": true,
               "source": {
                 "kind": "local",
-                "path": "results/hardware/rade_asr_runtime_attempt.json",
+                "path": "results/eval/asr_candidates_v3_psrb_human.json",
                 "present": true,
-                "sha256": "e38a42e58c73706a5da929060b79db504e22a562abc5d99ef4b9366d88ecd510"
+                "sha256": "67ad9030b690c4480226dd505b9443faf13746614e97d36486f15309b3d25be0"
               },
               "notes": ""
             }
           },
-          "notes": "Current Apache-2.0 Persian checkpoint. Its exact inference stack imported on CUDA, but the deadline-bounded 6.16 GB checkpoint transfer did not complete, so no inference or Persian quality claim is made."
+          "notes": "Apache-2.0 Persian fine-tune of omniASR-CTC-3B. Evaluated in ASR comparison v3 with the official pipeline (16.1% CER on PSRB, mostly deleted speech; NeMo v4 9.44%); not promoted."
         },
         "omnilingual-asr": {
           "eligible": false,
@@ -1223,6 +1497,10 @@
       "eligible_candidates": [
         "qwen3-4b-instruct-2507-prompt-v2",
         "qwen3.5-4b",
+        "qwen3.5-9b",
+        "gemma-4-12b-it-qat-w4a16",
+        "gemma-4-26b-a4b-it-qat-awq-int4",
+        "qwen3.5-35b-a3b-gptq-int4",
         "qwen3.5-0.8b"
       ],
       "catalog_comparison_complete": true,
@@ -1318,6 +1596,238 @@
             }
           },
           "notes": "Mechanically valid on the controlled panel but not promoted (zero mean relevance gain; 15% row win rate)."
+        },
+        "qwen3.5-9b": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "local_initialization": {
+              "criterion": "local_initialization",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "persian_generation": {
+              "criterion": "persian_generation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "group_disjoint_semantic_evaluation": {
+              "criterion": "group_disjoint_semantic_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Responder size comparison (22 GiB limit, bf16), against Qwen3.5-4B with the elderly prompt; relevance gain +0.01 (Qwen3.8 judge) and +0.13 (Gemini), so not promoted."
+        },
+        "gemma-4-12b-it-qat-w4a16": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "local_initialization": {
+              "criterion": "local_initialization",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "persian_generation": {
+              "criterion": "persian_generation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "group_disjoint_semantic_evaluation": {
+              "criterion": "group_disjoint_semantic_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Responder size comparison (22 GiB limit, official 4-bit QAT), against Qwen3.5-4B with the elderly prompt; relevance gain -0.19 (Qwen3.8 judge) and +0.26 with a 26% row win rate (Gemini), so not promoted."
+        },
+        "gemma-4-26b-a4b-it-qat-awq-int4": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "local_initialization": {
+              "criterion": "local_initialization",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "persian_generation": {
+              "criterion": "persian_generation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "group_disjoint_semantic_evaluation": {
+              "criterion": "group_disjoint_semantic_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Responder size comparison (22 GiB limit, 4-bit AWQ of the QAT weights, mixture of experts), against Qwen3.5-4B with the elderly prompt; relevance gain -0.46 (Qwen3.8 judge, interval below zero) and +0.20 (Gemini), so not promoted."
+        },
+        "qwen3.5-35b-a3b-gptq-int4": {
+          "eligible": true,
+          "missing_or_failed_criteria": [],
+          "criteria": {
+            "local_initialization": {
+              "criterion": "local_initialization",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "persian_generation": {
+              "criterion": "persian_generation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "group_disjoint_semantic_evaluation": {
+              "criterion": "group_disjoint_semantic_evaluation",
+              "minimum": "verified",
+              "status": "verified",
+              "meets": true,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Responder size comparison (22 GiB limit, official 4-bit GPTQ, mixture of experts), against Qwen3.5-4B with the elderly prompt; relevance gain -0.10 (Qwen3.8 judge) and +0.14 (Gemini), so not promoted."
+        },
+        "gemma-4-31b-it-qat-w4a16": {
+          "eligible": false,
+          "missing_or_failed_criteria": [
+            "local_initialization",
+            "persian_generation",
+            "group_disjoint_semantic_evaluation"
+          ],
+          "criteria": {
+            "local_initialization": {
+              "criterion": "local_initialization",
+              "minimum": "verified",
+              "status": "failed",
+              "meets": false,
+              "source": {
+                "kind": "local",
+                "path": "results/eval/responder_size_comparison.json",
+                "present": true,
+                "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+              },
+              "notes": ""
+            },
+            "persian_generation": {
+              "criterion": "persian_generation",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/google/gemma-4-31B-it-qat-w4a16-ct",
+                "declared": true
+              },
+              "notes": ""
+            },
+            "group_disjoint_semantic_evaluation": {
+              "criterion": "group_disjoint_semantic_evaluation",
+              "minimum": "verified",
+              "status": "unknown",
+              "meets": false,
+              "source": {
+                "kind": "remote",
+                "url": "https://huggingface.co/google/gemma-4-31B-it-qat-w4a16-ct",
+                "declared": true
+              },
+              "notes": ""
+            }
+          },
+          "notes": "Does not fit the 24 GB profile; its 4-bit weights load in 18.7 GiB and leave 0.05 GiB of a 22 GiB limit for the KV cache, against 1.73 GiB needed for one 2048-token request."
         },
         "qwen3.5-0.8b": {
           "eligible": true,
