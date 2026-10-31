@@ -134,8 +134,8 @@ definition that is worth recording. Requirement R2 asks for full-duplex capabili
 requirement R3 for a latency of at most 500 ms, while requirement R6 requires running on a GPU
 with 12--24 GB of memory.
 
-The models with \emph{native} full-duplex capability --- those that model the user's stream and
-their own at the same time --- did not fit within the target memory range at the time of this
+The models with \emph{native} full-duplex capability, which model the user's stream and
+their own at the same time, did not fit within the target memory range at the time of this
 project. The base model of this project's direct track used up to 28.640 GB of memory in
 training. On the other hand, the first cascade architecture fitted within the target memory
 range, but because the whole reply was built before playback, its latency (a median of 5584.7 ms

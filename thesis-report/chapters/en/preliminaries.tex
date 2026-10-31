@@ -97,8 +97,8 @@ voicing flag, 13 MFCCs and the 13 corresponding deltas.
 A decision about an interruption cannot rely on a single frame. The features of
 the frames of a ``context window'' are therefore aggregated. In this project the
 context window is 400 ms, that is, 20 consecutive frames. For each dimension of the
-frame feature vector, three statistics --- the mean, the standard deviation and the
-maximum --- are computed over the window and concatenated into a single vector.
+frame feature vector, three statistics (the mean, the standard deviation and the
+maximum) are computed over the window and concatenated into a single vector.
 This vector is the input of the classifier.
 
 \section{Speech Recognition}

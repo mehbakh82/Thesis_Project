@@ -114,7 +114,7 @@ While the assistant speaks, a two-stage controller inspects the frames. Stage
 one: a frame must be speech and louder, by a margin, than the expected echo of
 the assistant's voice (the playback level reported by the client plus an
 estimated coupling factor, assumed conservatively at the start of each reply and
-then adapted); one such frame ducks the assistant --- a ``detect and adapt''
+then adapted); one such frame ducks the assistant, giving a ``detect and adapt''
 reaction with a 150 ms target. Stage two: the speech captured since the onset of
 the interruption is transcribed by the same recognizer; listener tokens
 (\fa{آره}, \fa{بله}, \fa{اوهوم}, \ldots), words of the reply being played
