@@ -321,6 +321,14 @@ def _hf_headers() -> dict[str, str]:
     return {name.strip(): value.strip()}
 
 
+def container_mount(path: Path) -> tuple[Path, str]:
+    """Host directory to mount at /model and the path vLLM serves; a hub cache snapshot links into ../../blobs."""
+
+    if path.parent.name == "snapshots":
+        return path.parents[1], f"/model/snapshots/{path.name}"
+    return path, "/model"
+
+
 def model_dir(models: Path, arm: dict[str, Any]) -> Path:
     if arm.get("local"):
         return Path(os.environ.get("THESIS_MODELS_DIR", "/nonexistent")) / arm["local"]
@@ -448,8 +456,9 @@ class Server:
         path = model_dir(self.models, self.arm)
         if self.engine == "vllm":
             subprocess.run(["docker", "rm", "-f", self.name], capture_output=True)
+            mount, target = container_mount(path)
             args = ["docker", "run", "-d", "--name", self.name, "--gpus", "all", "--ipc=host",
-                    "-p", f"127.0.0.1:{VLLM_PORT}:8000", "-v", f"{path}:/model:ro", VLLM_IMAGE, "/model",
+                    "-p", f"127.0.0.1:{VLLM_PORT}:8000", "-v", f"{mount}:/model:ro", VLLM_IMAGE, target,
                     "--served-model-name", "candidate", "--gpu-memory-utilization", "0.2351",
                     "--max-model-len", str(self.context), "--max-num-seqs", str(self.seqs),
                     "--max-num-batched-tokens", "2048", "--enable-prefix-caching", "--kv-cache-dtype", self.kv,
@@ -637,7 +646,7 @@ def deployment_kv_bytes(work: Path, arm: dict[str, Any], kv: str) -> int | None:
     """KV bytes for the deployment requirement, from the model's KV profile if it exists."""
 
     for row in read_jsonl(work / "kvprofile.jsonl"):
-        if row["model"] == arm["model"] and row["engine"] == arm["engine"] and row["kv"] == kv:
+        if row["model"] == arm["model"] and row["engine"] == arm["engine"] and row["kv"] == kv and "per_seq_const_bytes" in row:
             a, b = row["per_seq_const_bytes"], row["per_seq_bytes_per_token"]
             return int(1.03 * DEPLOY["seqs"] * (a + b * DEPLOY["context"])) + 16 * MIB
     return None
@@ -746,6 +755,17 @@ def grid(work: Path, models: Path, arm: dict[str, Any]) -> list[dict[str, Any]]:
 
 # ---------------------------------------------------------------- queue
 
+def guarded_run(work: Path, models: Path, arm: dict[str, Any]) -> dict[str, Any]:
+    """run_arm, but a harness error is recorded as a failed run so one broken arm cannot stop the queue."""
+
+    try:
+        return run_arm(work, models, arm)
+    except Exception as exc:  # noqa: BLE001
+        record = {"arm": arm["arm"], "tag": "run", "status": "failed", "error": f"harness: {exc}"[:300], "finished_at": now()}
+        append_jsonl(work / "runs.jsonl", record)
+        return record
+
+
 def queue(work: Path, models: Path, limit: int | None, only: str | None, stages: tuple[str, ...] = ("S1", "S2"),
           arm_list: Path | None = None) -> None:
     todo = [a for a in read_jsonl(work / "arms.jsonl") if a["stage"] in stages]
@@ -799,7 +819,7 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None, stages:
             log(f"kv profile {arm['model']} ({arm['engine']}) via {arm['arm']}")
             kvprofile(work, models, arm)
         log(f"run {arm['arm']} ({arm['bytes'] / GIB:.1f} GiB, {arm['engine']})")
-        record = run_arm(work, models, arm)
+        record = guarded_run(work, models, arm)
         attempts = [arm["repo"]]
         while record["status"] != "ok" and arm.get("fallbacks"):
             fallback = arm["fallbacks"].pop(0)
@@ -813,7 +833,7 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None, stages:
             except Exception as exc:  # noqa: BLE001
                 append_jsonl(work / "fetch.jsonl", {"arm": arm["arm"], "error": str(exc)[:300], "at": now()})
                 continue
-            record = run_arm(work, models, arm)
+            record = guarded_run(work, models, arm)
         log(f"  {record['status']}: peak {record.get('peak_mib')} MiB; {record.get('error', '')}")
         append_jsonl(work / "attempts.jsonl", {"arm": arm["arm"], "repos_tried": attempts, "status": record["status"]})
         if not on_host(arm):
@@ -1179,7 +1199,7 @@ def main() -> int:
         (args.work / f"{args.stage}.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     else:
         groups = json.loads(args.groups)
-        kv_of = {arm: ("auto" if arm_by_id(args.work, arm)["engine"] == "vllm" else "f16") for g in groups for arm in g}
+        kv_of = {arm: ("f16" if arm_by_id(args.work, arm)["engine"] == "llamacpp" else "auto") for g in groups for arm in g}
         result = judge(args.work, args.judge, args.judge_stage, groups, kv_of, args.panel, args.workers)
     print(json.dumps(result, ensure_ascii=False, indent=2, default=str))
     return 0
