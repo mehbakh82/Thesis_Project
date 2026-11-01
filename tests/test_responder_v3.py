@@ -231,3 +231,20 @@ def test_contenders_follow_amendment_one(tmp_path: Path) -> None:
     assert large[g31]["contender"] and large[g31]["stage3_builds"] == ["gemma-4-31b__official_qat_w4a16", "gemma-4-31b__gguf-q4_k_m"]
     assert result["untested"]["gemma-4-31b__gguf-q2_k"].startswith("3 bits or fewer")
     assert result["untested"]["qwen3.5-9b__official_bf16"].startswith("model outside")
+
+
+def test_judging_stops_at_a_usage_limit_and_keeps_what_was_judged(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    calls = [{"call_id": f"c{i}", "row_id": f"r{i}", "group": 0, "prompt": "p", "labels": {"A": ["x"]}} for i in range(6)]
+    monkeypatch.setattr(v3, "build_calls", lambda *args: calls)
+    made: list[int] = []
+
+    def fake_j2(prompt: str, scratch: Path) -> tuple[str, float]:
+        made.append(1)
+        if len(made) > 2:
+            raise RuntimeError("ERROR: You've hit your usage limit. Try again at 2:34 PM.")
+        return '{"A": {"relevance": 5, "coherence": 5, "appropriateness": 5, "overall": 5}}', 0.0
+
+    monkeypatch.setattr(v3, "call_j2", fake_j2)
+    result = v3.judge(tmp_path, "j2", "s", [], {}, "dev", workers=1)
+    assert result["judged"] == 2 and result["failures"] == 0 and "usage limit" in result["stopped"]
+    assert len(made) == 3  # no retries after the limit
