@@ -949,6 +949,9 @@ def build_calls(work: Path, panel_name: str, groups: list[list[str]], kv_of: dic
     return calls
 
 
+LIMIT_MARKERS = ("out of budget", "usage limit")
+
+
 def judge(work: Path, judge_name: str, stage: str, groups: list[list[str]], kv_of: dict[str, str], panel_name: str, workers: int) -> dict[str, Any]:
     calls = build_calls(work, panel_name, groups, kv_of)
     out_path = work / f"judgments_{stage}_{judge_name}.jsonl"
@@ -958,9 +961,12 @@ def judge(work: Path, judge_name: str, stage: str, groups: list[list[str]], kv_o
     lock = threading.Lock()
     failures = [0]
     cost = [0.0]
+    stopped: list[str] = []  # a spending or usage limit: stop, and leave the rest for a later run
 
     def one(call: dict[str, Any]) -> None:
         for attempt in range(3):
+            if stopped:
+                return
             try:
                 text, spent = call_j1(call["prompt"]) if judge_name == "j1" else call_j2(call["prompt"], work / "codex_scratch")
                 scores = parse_scores(text, list(call["labels"]))
@@ -970,15 +976,18 @@ def judge(work: Path, judge_name: str, stage: str, groups: list[list[str]], kv_o
                                             "judge": judge_name, "labels": call["labels"], "scores": scores, "at": now()})
                 return
             except Exception as exc:  # noqa: BLE001 - retried, then counted
-                if "out of budget" in str(exc):
-                    raise
+                if any(marker in str(exc) for marker in LIMIT_MARKERS):
+                    stopped.append(str(exc)[-200:])
+                    return
                 time.sleep(5 * (attempt + 1))
         with lock:
             failures[0] += 1
 
     with cf.ThreadPoolExecutor(max_workers=workers) as pool:
         list(pool.map(one, todo))
-    return {"judge": judge_name, "stage": stage, "calls": len(calls), "failures": failures[0], "cost_usd": round(cost[0], 4)}
+    made = len({r["call_id"] for r in read_jsonl(out_path)} & {c["call_id"] for c in calls})
+    return {"judge": judge_name, "stage": stage, "calls": len(calls), "judged": made, "failures": failures[0],
+            "stopped": stopped[0] if stopped else None, "cost_usd": round(cost[0], 4)}
 
 
 # ---------------------------------------------------------------- scoring
