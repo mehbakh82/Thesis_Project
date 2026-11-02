@@ -334,6 +334,15 @@ def container_mount(path: Path) -> tuple[Path, str]:
     return path, "/model"
 
 
+DRAFTER = re.compile(r"(^|/)(MTP/|mtp-)", re.IGNORECASE)
+
+
+def model_files(arm: dict[str, Any]) -> list[str]:
+    """An arm's GGUF files without speculative-decoding drafters (the frozen inventory's rung match also caught MTP/mtp-*.gguf)."""
+
+    return sorted(f for f in arm.get("files") or [] if not DRAFTER.search(f))
+
+
 def model_dir(models: Path, arm: dict[str, Any]) -> Path:
     if arm.get("local"):
         return Path(os.environ.get("THESIS_MODELS_DIR", "/nonexistent")) / arm["local"]
@@ -347,16 +356,36 @@ def fetch(models: Path, arm: dict[str, Any]) -> dict[str, Any]:
     dest.mkdir(parents=True, exist_ok=True)
     files = [f for f in _api(f"/api/models/{arm['repo']}/tree/main?recursive=true") if f.get("type") == "file"]
     if arm.get("files"):
-        wanted = set(arm["files"])
+        wanted = set(model_files(arm))
         files = [f for f in files if f["path"] in wanted or (not f["path"].endswith(".gguf") and f["path"].endswith(("config.json",)))]
     else:
         files = [f for f in files if not SKIP.search(f["path"])]
     header = _hf_headers()
+    started = time.time()
+    # Segments come from huggingface.co and hf-mirror.com; a mirror that still serves an older upload of a file
+    # corrupts it, so a file that fails verification is fetched again from huggingface.co alone.
+    todo = files
+    for use_mirror in (True, False):
+        _download(arm, dest, todo, header, use_mirror)
+        bad = _unverified(dest, todo)
+        if not bad:
+            break
+        for name in bad:
+            (dest / name).unlink(missing_ok=True)
+        todo = [f for f in files if f["path"] in bad]
+    else:
+        raise RuntimeError(f"verification failed for {bad[:3]}")
+    size = sum((dest / f["path"]).stat().st_size for f in files)
+    return {"arm": arm["arm"], "files": len(files), "bytes": size, "seconds": round(time.time() - started, 1),
+            "mb_per_s": round(size / MIB / max(1.0, time.time() - started), 1), "mirror_retry": use_mirror is False}
+
+
+def _download(arm: dict[str, Any], dest: Path, files: list[dict[str, Any]], header: dict[str, str], use_mirror: bool) -> None:
     lines = []
     for f in files:
         hf = f"https://huggingface.co/{arm['repo']}/resolve/main/{f['path']}"
         mirror = f"https://hf-mirror.com/{arm['repo']}/resolve/main/{f['path']}"
-        uris = f"{hf}\t{mirror}" if f.get("lfs") else hf
+        uris = f"{hf}\t{mirror}" if f.get("lfs") and use_mirror else hf
         lines.append(f"{uris}\n  out={f['path']}\n  dir={dest}\n")
     (dest / "aria2c.input").write_text("".join(lines), encoding="utf-8")
     args = ["aria2c", "-i", str(dest / "aria2c.input"), "-j", "4", "-x", "16", "-s", "16", "-k", "8M",
@@ -364,13 +393,15 @@ def fetch(models: Path, arm: dict[str, Any]) -> dict[str, Any]:
             "--summary-interval=0", "--max-tries=5", "--retry-wait=5"]
     for name, value in header.items():
         args.append(f"--header={name}: {value}")
-    started = time.time()
     for _attempt in range(1, 31):  # signed CDN links expire mid-download; each run resolves fresh links and resumes
         if subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0:
             break
         time.sleep(5)
     else:
         raise RuntimeError(f"download failed after 30 attempts: {arm['repo']}")
+
+
+def _unverified(dest: Path, files: list[dict[str, Any]]) -> list[str]:
     bad = []
     for f in files:
         oid = (f.get("lfs") or {}).get("oid")
@@ -384,11 +415,7 @@ def fetch(models: Path, arm: dict[str, Any]) -> dict[str, Any]:
                     digest.update(chunk)
             if digest.hexdigest() != oid:
                 bad.append(f["path"])
-    if bad:
-        raise RuntimeError(f"verification failed for {bad[:3]}")
-    size = sum((dest / f["path"]).stat().st_size for f in files)
-    return {"arm": arm["arm"], "files": len(files), "bytes": size, "seconds": round(time.time() - started, 1),
-            "mb_per_s": round(size / MIB / max(1.0, time.time() - started), 1)}
+    return bad
 
 
 # ---------------------------------------------------------------- serving
@@ -472,7 +499,7 @@ class Server:
                 args += ["--kv-cache-memory-bytes", str(self.kv_bytes)]
             subprocess.run(args, check=True, capture_output=True)
         else:
-            files = sorted(self.arm["files"])
+            files = model_files(self.arm)
             binary = os.environ.get("THESIS_LLAMA_SERVER", "llama-server")
             args = [binary, "-m", str(path / files[0]), "-ngl", "999", "-fa", "on", "-c", str(self.context * self.seqs),
                     "-np", str(self.seqs), "-ctk", self.kv, "-ctv", self.kv, "--host", "127.0.0.1", "--port", str(LLAMA_PORT),
@@ -815,9 +842,21 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None, stages:
             fetched = future.result()
             append_jsonl(work / "fetch.jsonl", {**fetched, "at": now()})
         except Exception as exc:  # noqa: BLE001 - try the fallbacks of the same family
-            append_jsonl(work / "fetch.jsonl", {"arm": arm["arm"], "error": str(exc)[:300], "at": now()})
+            append_jsonl(work / "fetch.jsonl", {"arm": arm["arm"], "repo": arm["repo"], "error": str(exc)[:300], "at": now()})
             log(f"fetch failed: {arm['arm']}: {exc}")
-            continue
+            if not on_host(arm):
+                shutil.rmtree(model_dir(models, arm), ignore_errors=True)
+            while arm.get("fallbacks"):
+                arm = {**arm, "repo": arm["fallbacks"][0], "fallbacks": arm["fallbacks"][1:], "local": None}
+                log(f"  fetch fallback {arm['repo']}")
+                try:
+                    append_jsonl(work / "fetch.jsonl", {**fetch(models, arm), "repo": arm["repo"], "at": now()})
+                    break
+                except Exception as exc2:  # noqa: BLE001
+                    append_jsonl(work / "fetch.jsonl", {"arm": arm["arm"], "repo": arm["repo"], "error": str(exc2)[:300], "at": now()})
+                    shutil.rmtree(model_dir(models, arm), ignore_errors=True)
+            else:
+                continue
         schedule(i + 1)
         profiled = [r for r in read_jsonl(work / "kvprofile.jsonl") if r["model"] == arm["model"] and r["engine"] == arm["engine"]]
         if arm["engine"] != "remote" and not any("per_seq_const_bytes" in r for r in profiled) and arm["arm"] not in {r["via_arm"] for r in profiled}:

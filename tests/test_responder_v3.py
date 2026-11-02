@@ -105,9 +105,11 @@ def test_inventory_method_family_reads_the_quantization_config() -> None:
 
 
 def test_inventory_gguf_rungs_do_not_confuse_k_quant_suffixes() -> None:
-    files = [{"path": name, "size": 1} for name in ("m-Q2_K.gguf", "m-Q2_K_L.gguf", "m-UD-Q2_K_XL.gguf", "m-Q4_K_M-00001-of-00002.gguf", "m-Q4_K_M-00002-of-00002.gguf")]
-    rungs = inventory.gguf_rungs(files, ("Q2_K", "Q4_K_M", "UD-Q2_K_XL"))
+    files = [{"path": name, "size": 1} for name in ("m-Q2_K.gguf", "m-Q2_K_L.gguf", "m-UD-Q2_K_XL.gguf", "m-Q4_K_M-00001-of-00002.gguf",
+                                                     "m-Q4_K_M-00002-of-00002.gguf", "m-Q8_0.gguf", "MTP/mtp-m-Q8_0.gguf")]
+    rungs = inventory.gguf_rungs(files, ("Q2_K", "Q4_K_M", "UD-Q2_K_XL", "Q8_0"))
     assert rungs["Q2_K"]["files"] == ["m-Q2_K.gguf"]
+    assert rungs["Q8_0"]["files"] == ["m-Q8_0.gguf"]  # not the speculative-decoding drafter
     assert len(rungs["Q4_K_M"]["files"]) == 2
     assert rungs["UD-Q2_K_XL"]["files"] == ["m-UD-Q2_K_XL.gguf"]
 
@@ -248,3 +250,26 @@ def test_judging_stops_at_a_usage_limit_and_keeps_what_was_judged(tmp_path: Path
     result = v3.judge(tmp_path, "j2", "s", [], {}, "dev", workers=1)
     assert result["judged"] == 2 and result["failures"] == 0 and "usage limit" in result["stopped"]
     assert len(made) == 3  # no retries after the limit
+
+
+def test_drafter_files_are_never_served() -> None:
+    arm = {"files": ["MTP/mtp-gemma-4-E4B-it-Q8_0.gguf", "gemma-4-E4B-it-Q8_0.gguf"]}
+    assert v3.model_files(arm) == ["gemma-4-E4B-it-Q8_0.gguf"]
+
+
+def test_a_file_that_fails_verification_is_fetched_again_without_the_mirror(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import hashlib
+
+    good = b"weights"
+    files = [{"type": "file", "path": "m-Q5_K_M.gguf", "lfs": {"oid": hashlib.sha256(good).hexdigest()}}]
+    monkeypatch.setattr(v3, "_api", lambda path: files)
+    monkeypatch.setattr(v3, "_hf_headers", lambda: {})
+    passes: list[bool] = []
+
+    def fake_download(arm: dict, dest: Path, todo: list, header: dict, use_mirror: bool) -> None:
+        passes.append(use_mirror)
+        (dest / "m-Q5_K_M.gguf").write_bytes(b"mixed" if use_mirror else good)
+
+    monkeypatch.setattr(v3, "_download", fake_download)
+    result = v3.fetch(tmp_path, {"arm": "x", "repo": "org/m", "files": ["m-Q5_K_M.gguf"], "engine": "llamacpp"})
+    assert passes == [True, False] and result["mirror_retry"] is True
