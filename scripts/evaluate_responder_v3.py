@@ -989,6 +989,8 @@ def build_calls(work: Path, panel_name: str, groups: list[list[str]], kv_of: dic
 
 
 LIMIT_MARKERS = ("out of budget", "usage limit")
+RATE_MARKERS = ("Too Many Requests", "rate limit", "rate_limit")
+RATE_PATIENCE = 12  # consecutive rate-limited answers (about 2.5 hours of backoff) before the run stops
 
 
 def judge(work: Path, judge_name: str, stage: str, groups: list[list[str]], kv_of: dict[str, str], panel_name: str, workers: int) -> dict[str, Any]:
@@ -1001,9 +1003,11 @@ def judge(work: Path, judge_name: str, stage: str, groups: list[list[str]], kv_o
     failures = [0]
     cost = [0.0]
     stopped: list[str] = []  # a spending or usage limit: stop, and leave the rest for a later run
+    rate_limited = [0]  # consecutive rate-limited answers; the backoff grows with it and resets on a success
 
     def one(call: dict[str, Any]) -> None:
-        for attempt in range(3):
+        attempt = 0
+        while attempt < 3:
             if stopped:
                 return
             try:
@@ -1011,14 +1015,26 @@ def judge(work: Path, judge_name: str, stage: str, groups: list[list[str]], kv_o
                 scores = parse_scores(text, list(call["labels"]))
                 with lock:
                     cost[0] += spent
+                    rate_limited[0] = 0
                     append_jsonl(out_path, {"call_id": call["call_id"], "row_id": call["row_id"], "group": call["group"],
                                             "judge": judge_name, "labels": call["labels"], "scores": scores, "at": now()})
                 return
             except Exception as exc:  # noqa: BLE001 - retried, then counted
-                if any(marker in str(exc) for marker in LIMIT_MARKERS):
-                    stopped.append(str(exc)[-200:])
+                message = str(exc)
+                if any(marker in message for marker in LIMIT_MARKERS):
+                    stopped.append(message[-200:])
                     return
-                time.sleep(5 * (attempt + 1))
+                if any(marker in message for marker in RATE_MARKERS):  # not the call's fault: wait, do not use an attempt
+                    with lock:
+                        rate_limited[0] += 1
+                        hits = rate_limited[0]
+                    if hits > RATE_PATIENCE:
+                        stopped.append(f"rate limited {hits} times in a row: {message[-150:]}")
+                        return
+                    time.sleep(min(900, 60 * 2 ** min(hits - 1, 4)))
+                    continue
+                attempt += 1
+                time.sleep(5 * attempt)
         with lock:
             failures[0] += 1
 
