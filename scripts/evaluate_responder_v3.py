@@ -344,9 +344,12 @@ def model_files(arm: dict[str, Any]) -> list[str]:
 
 
 def model_dir(models: Path, arm: dict[str, Any]) -> Path:
+    """One directory per arm and repository: GGUF rungs of one repository must not share a directory, or deleting one
+    arm's download after its run removes the next arm's download while it is still being prefetched."""
+
     if arm.get("local"):
         return Path(os.environ.get("THESIS_MODELS_DIR", "/nonexistent")) / arm["local"]
-    return models / arm["repo"].replace("/", "__")
+    return models / f"{arm['arm']}__{arm['repo'].replace('/', '__')}"
 
 
 def fetch(models: Path, arm: dict[str, Any]) -> dict[str, Any]:

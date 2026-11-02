@@ -293,3 +293,10 @@ def test_rate_limits_back_off_without_using_attempts(tmp_path: Path, monkeypatch
     result = v3.judge(tmp_path, "j2", "s", [], {}, "dev", workers=1)
     assert result["judged"] == 1 and result["failures"] == 0 and result["stopped"] is None
     assert waits == [60, 120, 240, 480]
+
+
+def test_rungs_of_one_repository_download_to_separate_directories(tmp_path: Path) -> None:
+    q4 = {"arm": "m__gguf-q4_k_m", "repo": "org/M-GGUF", "local": None}
+    q5 = {"arm": "m__gguf-q5_k_m", "repo": "org/M-GGUF", "local": None}
+    assert v3.model_dir(tmp_path, q4) != v3.model_dir(tmp_path, q5)
+    assert v3.model_dir(tmp_path, q4) != v3.model_dir(tmp_path, {**q4, "repo": "other/M-GGUF"})  # a fallback repository
