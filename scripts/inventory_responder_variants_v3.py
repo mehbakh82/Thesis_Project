@@ -159,7 +159,7 @@ def weight_bytes(files: list[dict[str, Any]], suffix: str = ".safetensors") -> i
 
 def gguf_rungs(files: list[dict[str, Any]], labels: tuple[str, ...]) -> dict[str, dict[str, Any]]:
     rungs: dict[str, dict[str, Any]] = {}
-    ggufs = [f for f in files if f["path"].endswith(".gguf") and not re.search(r"mmproj|dspark|-f16|bf16", f["path"], re.IGNORECASE)]
+    ggufs = [f for f in files if f["path"].endswith(".gguf") and not re.search(r"mmproj|dspark|-f16|bf16|(^|/)(MTP/|mtp-)", f["path"], re.IGNORECASE)]
     for label in labels:
         pattern = re.compile(rf"(^|[-_.]){re.escape(label)}(\.gguf|-\d{{5}}-of-\d{{5}}\.gguf)$", re.IGNORECASE)
         hits = [f for f in ggufs if pattern.search(Path(f["path"]).name)]
