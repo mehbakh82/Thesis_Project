@@ -273,3 +273,23 @@ def test_a_file_that_fails_verification_is_fetched_again_without_the_mirror(tmp_
     monkeypatch.setattr(v3, "_download", fake_download)
     result = v3.fetch(tmp_path, {"arm": "x", "repo": "org/m", "files": ["m-Q5_K_M.gguf"], "engine": "llamacpp"})
     assert passes == [True, False] and result["mirror_retry"] is True
+
+
+def test_rate_limits_back_off_without_using_attempts(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    calls = [{"call_id": "c0", "row_id": "r0", "group": 0, "prompt": "p", "labels": {"A": ["x"]}}]
+    monkeypatch.setattr(v3, "build_calls", lambda *args: calls)
+    waits: list[float] = []
+    monkeypatch.setattr(v3.time, "sleep", waits.append)
+    answers = iter([RuntimeError("ERROR: exceeded retry limit, last status: 429 Too Many Requests")] * 4
+                   + ['{"A": {"relevance": 5, "coherence": 5, "appropriateness": 5, "overall": 5}}'])
+
+    def fake_j2(prompt: str, scratch: Path) -> tuple[str, float]:
+        answer = next(answers)
+        if isinstance(answer, Exception):
+            raise answer
+        return answer, 0.0
+
+    monkeypatch.setattr(v3, "call_j2", fake_j2)
+    result = v3.judge(tmp_path, "j2", "s", [], {}, "dev", workers=1)
+    assert result["judged"] == 1 and result["failures"] == 0 and result["stopped"] is None
+    assert waits == [60, 120, 240, 480]
