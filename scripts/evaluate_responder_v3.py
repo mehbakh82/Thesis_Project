@@ -41,7 +41,7 @@ import threading
 import time
 import urllib.error
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -1048,6 +1048,40 @@ def judge(work: Path, judge_name: str, stage: str, groups: list[list[str]], kv_o
             "stopped": stopped[0] if stopped else None, "cost_usd": round(cost[0], 4)}
 
 
+def limit_wait_seconds(message: str, clock: datetime) -> float:
+    """Seconds until the local time in a usage-limit message ("try again at 5:19 PM") plus three minutes; else 30 minutes."""
+
+    match = re.search(r"try again at (\d{1,2}):(\d{2})\s*([AP]M)", message)
+    if not match:
+        return 1800.0
+    hour = int(match[1]) % 12 + (12 if match[3] == "PM" else 0)
+    target = clock.replace(hour=hour, minute=int(match[2]), second=0, microsecond=0)
+    if target <= clock:
+        target += timedelta(days=1)
+    return (target - clock).total_seconds() + 180
+
+
+def judge_until_done(work: Path, judge_name: str, stage: str, groups: list[list[str]], kv_of: dict[str, str], panel_name: str,
+                     workers: int) -> dict[str, Any]:
+    """Judge, and after a usage or rate limit wait for it to lift and continue, until every call is judged."""
+
+    stalled = 0
+    while True:
+        result = judge(work, judge_name, stage, groups, kv_of, panel_name, workers)
+        log(json.dumps(result, ensure_ascii=False))
+        if result["judged"] >= result["calls"]:
+            return result
+        if result["stopped"]:
+            wait = limit_wait_seconds(result["stopped"], datetime.now())
+        else:  # calls that failed three times for another reason: retry a few times, then give up
+            stalled += 1
+            if stalled >= 3:
+                return result
+            wait = 600.0
+        log(f"judge {judge_name}/{stage}: {result['judged']} of {result['calls']} judged; resuming in {wait / 60:.0f} min")
+        time.sleep(wait)
+
+
 # ---------------------------------------------------------------- scoring
 
 Table = dict[str, dict[str, dict[str, float]]]
@@ -1401,6 +1435,7 @@ def main() -> int:
     parser.add_argument("--groups", help="JSON list of arm lists, one judge call per row and group; or 'stage1', or 'variants:<model>,...'")
     parser.add_argument("--panel", default="dev")
     parser.add_argument("--workers", type=int, default=4)
+    parser.add_argument("--until-done", action="store_true", help="judge: wait out usage limits and continue until every call is judged")
     args = parser.parse_args()
     args.work.mkdir(parents=True, exist_ok=True)
     if args.stage == "plan":
@@ -1442,7 +1477,7 @@ def main() -> int:
         else:
             groups = json.loads(args.groups)
         kv_of = {arm: ("f16" if arm_by_id(args.work, arm)["engine"] == "llamacpp" else "auto") for g in groups for arm in g}
-        result = judge(args.work, args.judge, args.judge_stage, groups, kv_of, args.panel, args.workers)
+        result = (judge_until_done if args.until_done else judge)(args.work, args.judge, args.judge_stage, groups, kv_of, args.panel, args.workers)
     print(json.dumps(result, ensure_ascii=False, indent=2, default=str))
     return 0
 
