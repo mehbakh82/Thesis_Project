@@ -319,3 +319,18 @@ def test_judging_resumes_after_a_usage_limit(tmp_path: Path, monkeypatch: pytest
     monkeypatch.setattr(v3.time, "sleep", waits.append)
     assert v3.judge_until_done(tmp_path, "j2", "s", [], {}, "dev", 2)["judged"] == 4
     assert len(waits) == 1 and waits[0] > 0
+
+
+def test_a_lapsed_codex_sign_in_stops_the_run_instead_of_failing_every_call(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    calls = [{"call_id": f"c{i}", "row_id": f"r{i}", "group": 0, "prompt": "p", "labels": {"A": ["x"]}} for i in range(3)]
+    monkeypatch.setattr(v3, "build_calls", lambda *args: calls)
+    made: list[int] = []
+
+    def fake_j2(prompt: str, scratch: Path) -> tuple[str, float]:
+        made.append(1)
+        raise RuntimeError("codex rc=1: ERROR: workspace routing discovery unauthorized (401)")
+
+    monkeypatch.setattr(v3, "call_j2", fake_j2)
+    result = v3.judge(tmp_path, "j2", "s", [], {}, "dev", workers=1)
+    assert result["failures"] == 0 and "401" in result["stopped"] and len(made) == 1
+    assert v3.limit_wait_seconds(result["stopped"], __import__("datetime").datetime(2026, 11, 3, 12, 0)) == 1800

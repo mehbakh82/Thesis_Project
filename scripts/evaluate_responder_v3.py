@@ -991,7 +991,9 @@ def build_calls(work: Path, panel_name: str, groups: list[list[str]], kv_of: dic
     return calls
 
 
-LIMIT_MARKERS = ("out of budget", "usage limit")
+# A spending or usage limit, or a lapsed Codex sign-in (the user must run `codex login --device-auth`): stop the run;
+# with --until-done, wait (until the stated time, else 30 minutes) and try again.
+LIMIT_MARKERS = ("out of budget", "usage limit", "unauthorized (401)", "401 Unauthorized", "refresh_token_invalidated")
 RATE_MARKERS = ("Too Many Requests", "rate limit", "rate_limit")
 RATE_PATIENCE = 12  # consecutive rate-limited answers (about 2.5 hours of backoff) before the run stops
 
