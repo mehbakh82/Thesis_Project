@@ -300,3 +300,22 @@ def test_rungs_of_one_repository_download_to_separate_directories(tmp_path: Path
     q5 = {"arm": "m__gguf-q5_k_m", "repo": "org/M-GGUF", "local": None}
     assert v3.model_dir(tmp_path, q4) != v3.model_dir(tmp_path, q5)
     assert v3.model_dir(tmp_path, q4) != v3.model_dir(tmp_path, {**q4, "repo": "other/M-GGUF"})  # a fallback repository
+
+
+def test_usage_limit_messages_give_the_wait_until_the_stated_time() -> None:
+    from datetime import datetime
+
+    message = "ERROR: You've hit your usage limit. ... or try again at 5:19 PM.\n"
+    assert v3.limit_wait_seconds(message, datetime(2026, 11, 2, 17, 3, 37)) == 15 * 60 + 23 + 180
+    assert v3.limit_wait_seconds("try again at 12:05 AM", datetime(2026, 11, 2, 23, 0)) == 65 * 60 + 180  # after midnight
+    assert v3.limit_wait_seconds("rate limited 13 times in a row", datetime(2026, 11, 2, 12, 0)) == 1800
+
+
+def test_judging_resumes_after_a_usage_limit(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    results = iter([{"calls": 4, "judged": 1, "stopped": "try again at 5:19 PM", "failures": 0},
+                    {"calls": 4, "judged": 4, "stopped": None, "failures": 0}])
+    monkeypatch.setattr(v3, "judge", lambda *args: next(results))
+    waits: list[float] = []
+    monkeypatch.setattr(v3.time, "sleep", waits.append)
+    assert v3.judge_until_done(tmp_path, "j2", "s", [], {}, "dev", 2)["judged"] == 4
+    assert len(waits) == 1 and waits[0] > 0
