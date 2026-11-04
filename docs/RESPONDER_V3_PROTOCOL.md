@@ -209,6 +209,42 @@ to its last 40 words when the prompt is built, for generation and for the
 judges alike. The panel files and their hashes are unchanged. No reply had been
 generated when this was decided.
 
+## Amendment 3 (2026-11-04): stage 3 judging, finalists and KV precision
+
+Written after the stage 2 judging, when the stage 3 judging had just started,
+before any stage 3 score was read and before any finalist was computed. Stage
+2 gave Δq = −0.06 (no highest-precision variant beat its Q4_K_M), so δ = 0.5.
+The contenders are Gemma 4 12B in the 12 GiB profile, and Gemma 4 12B, Gemma 4
+31B, Gemma 4 26B-A4B, Qwen3.8-27B and Qwen3.5-27B in the 24 GB profile. Stage 5
+left four points open; they are settled here.
+
+- **Stage 3 judging:** every finished build of a contender model is scored in
+  one call per row (J2, development panel), recorded apart from the stage 2
+  calls, so a model's builds are always compared within one call.
+- **Finalists come from the contenders.** A model outside δ in a profile is
+  not a finalist there (the reasoning of Amendment 1: more precision cannot
+  lift it). For each contender and profile, the finalist is the fitting
+  configuration with the highest stage 3 development score among those whose
+  development run meets the latency gate (ties within 0.1 go to the lower
+  median first-token time). If none meets the gate, it is the highest-scoring
+  fitting configuration, reported as failing the gate. Without this rule a
+  model's finalist could be a slow llama.cpp build although a faster build of
+  the same model meets the gate.
+- **Reduced KV precision:** a configuration that fits a profile only with a
+  lower KV precision (for example Gemma 4 12B QAT in the 12 GiB profile with an
+  FP8 KV cache) counts only if its replies generated with that KV precision are
+  non-inferior (overall difference at least −0.3) to the same build's
+  default-KV replies, both scored in one call per row (J2, development panel).
+  The same comparison is made, descriptively, on the stage 2 models:
+  Qwen3.5-4B bf16 with an FP8 KV cache, Qwen3.5-4B Q4_K_M with q8_0 and q4_0 KV
+  caches, and Gemma 4 E4B QAT with an FP8 KV cache.
+- **Latency for the decision:** each finalist's test-panel run measures latency
+  again, at its exact deployment configuration including its KV precision, and
+  the decision gate uses that measurement. If it differs from the development
+  run's by more than a factor of two (the host is shared, and other users' CPU
+  load slowed some single llama.cpp runs), latency is measured a third time and
+  the median of the three runs is used. All measurements are reported.
+
 ## Panels
 
 Frozen by `scripts/evaluate_responder_v3.py --stage plan` with SHA-256 hashes
