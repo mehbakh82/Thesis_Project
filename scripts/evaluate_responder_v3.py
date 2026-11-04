@@ -966,9 +966,19 @@ def parse_scores(text: str, labels: list[str]) -> dict[str, dict[str, int]]:
     return scores
 
 
+def default_kv(arm: dict[str, Any]) -> str:
+    return "f16" if arm["engine"] == "llamacpp" else "auto"
+
+
+def kv_label(work: Path, name: str) -> str:
+    """KV precision of a judged reply set: "arm@kv" names a KV variant, a bare arm its default KV precision."""
+
+    return name.split("@", 1)[1] if "@" in name else default_kv(arm_by_id(work, name))
+
+
 def build_calls(work: Path, panel_name: str, groups: list[list[str]], kv_of: dict[str, str]) -> list[dict[str, Any]]:
     panel = read_jsonl(work / f"panel_{panel_name}.jsonl")
-    replies = {arm: {r["row_id"]: r["reply"] for r in read_jsonl(work / "replies" / f"{panel_name}__{arm}__{kv_of[arm]}.jsonl")}
+    replies = {arm: {r["row_id"]: r["reply"] for r in read_jsonl(work / "replies" / f"{panel_name}__{arm.split('@')[0]}__{kv_of[arm]}.jsonl")}
                for group in groups for arm in group}
     calls = []
     for row in panel:
@@ -1202,10 +1212,11 @@ def stage1_groups(work: Path) -> list[list[str]]:
     return split_with_anchors([a["arm"] for a in arms_], list(REFERENCES))
 
 
-def screen(work: Path) -> dict[str, Any]:
-    """Variant screen (stage 4): each variant against its model's highest-precision variant, J2, development panel."""
+def screen(work: Path, stage: str = "variants") -> dict[str, Any]:
+    """Variant screen (stage 4): each variant against its model's highest-precision variant, J2, development panel.
+    Stage 2 models are judged in "variants", stage 3 contenders in "stage3" (Amendment 3)."""
 
-    table, controls = arm_scores(work, "variants", "j2")
+    table, controls = arm_scores(work, stage, "j2")
     arms_ = {a["arm"]: a for a in read_jsonl(work / "arms.jsonl")}
     by_model: dict[str, list[str]] = {}
     for arm in table:
@@ -1359,28 +1370,52 @@ def contenders(work: Path) -> dict[str, Any]:
     return result
 
 
-def finalists(work: Path) -> dict[str, Any]:
-    """Stage 5: per model and profile, the fitting configuration with the best development score."""
+def meets_gate(latency: dict[str, Any] | None) -> bool:
+    lat = latency or {}
+    ttft = ((lat.get("single") or {}).get("first_token_s") or {}).get("median_ms")
+    return ttft is not None and ttft <= 150 and (lat.get("decode_tok_s_median") or 0) >= 30
 
-    fit = fits(work)
-    scr = screen(work)
+
+def finalists(work: Path) -> dict[str, Any]:
+    """Stage 5 with Amendment 3: per profile, each contender's best fitting configuration among those that meet the
+    latency gate (else its best fitting one); a reduced KV precision counts only if non-inferior to the default."""
+
+    fit, cont, scr = fits(work), contenders(work), screen(work, "stage3")
+    kvq, kv_controls = arm_scores(work, "kvquality", "j2")
     chosen: dict[str, dict[str, Any]] = {p: {} for p in PROFILES_MIB}
-    for model, info in scr["models"].items():
-        for profile in PROFILES_MIB:
-            options = []
-            for arm, row in info["variants"].items():
-                kv = fit.get(arm, {}).get("deployment_fit", {}).get(profile)
-                if kv is None or not row["means"]:
-                    continue
-                ttft = ((fit[arm].get("latency") or {}).get("single") or {}).get("first_token_s") or {}
-                options.append((row["means"]["overall"], -(ttft.get("median_ms") or 1e9), arm, kv))
-            if not options:
+    pending_kv: set[str] = set()
+    for profile, info in cont["profiles"].items():
+        for model, row in info["models"].items():
+            if not row["contender"]:
                 continue
-            best = max(o[0] for o in options)
-            near = [o for o in options if o[0] >= best - 0.1]  # ties within 0.1 go to the faster first token
-            score, _, arm, kv = max(near, key=lambda o: o[1])
-            chosen[profile][model] = {"arm": arm, "kv": kv, "dev_overall_j2": score}
-    return {"per_profile": chosen}
+            options = []
+            for arm, variant in ((scr["models"].get(model) or {}).get("variants") or {}).items():
+                kv = fit.get(arm, {}).get("deployment_fit", {}).get(profile)
+                if kv is None or not variant["means"]:
+                    continue
+                base = default_kv(arm_by_id(work, arm))
+                kv_check = None
+                if kv != base:
+                    kv_check = paired_gain(kvq, f"{arm}@{kv}", f"{arm}@{base}", "overall")
+                    if not kv_check.get("rows"):
+                        pending_kv.add(f"{arm}@{kv}")
+                        continue
+                    if kv_check["mean_gain"] < -0.3:
+                        continue
+                latency = fit[arm].get("latency") or {}
+                ttft = ((latency.get("single") or {}).get("first_token_s") or {}).get("median_ms")
+                options.append({"arm": arm, "kv": kv, "dev_overall_j2": variant["means"]["overall"], "ttft_ms": ttft,
+                                "decode_tok_s": latency.get("decode_tok_s_median"), "meets_gate": meets_gate(latency),
+                                "kv_check": kv_check})
+            pool = [o for o in options if o["meets_gate"]] or options
+            if not pool:
+                continue
+            best = max(o["dev_overall_j2"] for o in pool)
+            near = [o for o in pool if o["dev_overall_j2"] >= best - 0.1]  # ties within 0.1 go to the faster first token
+            chosen[profile][model] = {**min(near, key=lambda o: o["ttft_ms"] if o["ttft_ms"] is not None else 1e9),
+                                      "options": len(options)}
+    return {"per_profile": chosen, "pending_kv_checks": sorted(pending_kv), "stage3_controls": scr["controls"],
+            "kvquality_controls": kv_controls}
 
 
 def decide(work: Path, references: tuple[str, ...] = REFERENCES) -> dict[str, Any]:
@@ -1478,7 +1513,7 @@ def main() -> int:
             groups = [g for model in args.groups.split(":", 1)[1].split(",") for g in variant_groups(args.work, model, done)]
         else:
             groups = json.loads(args.groups)
-        kv_of = {arm: ("f16" if arm_by_id(args.work, arm)["engine"] == "llamacpp" else "auto") for g in groups for arm in g}
+        kv_of = {name: kv_label(args.work, name) for g in groups for name in g}
         result = (judge_until_done if args.until_done else judge)(args.work, args.judge, args.judge_stage, groups, kv_of, args.panel, args.workers)
     print(json.dumps(result, ensure_ascii=False, indent=2, default=str))
     return 0

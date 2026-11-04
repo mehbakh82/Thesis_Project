@@ -334,3 +334,36 @@ def test_a_lapsed_codex_sign_in_stops_the_run_instead_of_failing_every_call(tmp_
     result = v3.judge(tmp_path, "j2", "s", [], {}, "dev", workers=1)
     assert result["failures"] == 0 and "401" in result["stopped"] and len(made) == 1
     assert v3.limit_wait_seconds(result["stopped"], __import__("datetime").datetime(2026, 11, 3, 12, 0)) == 1800
+
+
+def test_finalists_prefer_configurations_that_meet_the_latency_gate(monkeypatch: pytest.MonkeyPatch) -> None:
+    def lat(ttft: float, decode: float) -> dict:
+        return {"single": {"first_token_s": {"median_ms": ttft}}, "decode_tok_s_median": decode}
+
+    fit = {
+        "m__gguf-q5_k_m": {"deployment_fit": {"12gib": None, "24gb": "f16"}, "latency": lat(300, 60)},
+        "m__awq_int4": {"deployment_fit": {"12gib": "fp8", "24gb": "auto"}, "latency": lat(60, 90)},
+    }
+    contenders = {"profiles": {p: {"models": {"org/M": {"contender": True}, "org/N": {"contender": False}}} for p in ("12gib", "24gb")}}
+    variants = {"m__gguf-q5_k_m": {"means": {"overall": 7.2}}, "m__awq_int4": {"means": {"overall": 7.0}}}
+    engines = {"m__gguf-q5_k_m": "llamacpp", "m__awq_int4": "vllm"}
+    monkeypatch.setattr(v3, "fits", lambda work: fit)
+    monkeypatch.setattr(v3, "contenders", lambda work: contenders)
+    monkeypatch.setattr(v3, "screen", lambda work, stage: {"controls": {}, "models": {"org/M": {"variants": variants}}})
+    monkeypatch.setattr(v3, "arm_by_id", lambda work, arm: {"engine": engines[arm]})
+    kv_rows = {"m__awq_int4@fp8": {str(i): {"overall": 7} for i in range(10)}, "m__awq_int4@auto": {str(i): {"overall": 7} for i in range(10)}}
+
+    monkeypatch.setattr(v3, "arm_scores", lambda work, stage, judge: ({}, {}))
+    result = v3.finalists(Path("."))
+    assert result["per_profile"]["24gb"]["org/M"]["arm"] == "m__awq_int4"  # the faster build, although it scores 0.2 lower
+    assert "org/M" not in result["per_profile"]["12gib"] and result["pending_kv_checks"] == ["m__awq_int4@fp8"]
+
+    monkeypatch.setattr(v3, "arm_scores", lambda work, stage, judge: (kv_rows, {}))
+    result = v3.finalists(Path("."))
+    assert result["per_profile"]["12gib"]["org/M"]["kv"] == "fp8" and result["pending_kv_checks"] == []
+
+
+def test_kv_variants_are_named_with_an_at_sign(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(v3, "arm_by_id", lambda work, arm: {"engine": "llamacpp" if "gguf" in arm else "vllm"})
+    assert v3.kv_label(Path("."), "m__awq_int4@fp8") == "fp8"
+    assert v3.kv_label(Path("."), "m__gguf-q4_k_m") == "f16" and v3.kv_label(Path("."), "m__awq_int4") == "auto"
