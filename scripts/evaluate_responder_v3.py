@@ -296,6 +296,16 @@ def assign_stages(out: list[dict[str, Any]]) -> None:
             a["stage"] = "-"
 
 
+def serving_arm(work: Path, arm_id: str) -> dict[str, Any]:
+    """The arm as it was served: if a fallback repository replaced the first choice, later runs must use the same build."""
+
+    arm = arm_by_id(work, arm_id)
+    served = [r for r in read_jsonl(work / "attempts.jsonl") if r["arm"] == arm_id and r["status"] == "ok"]
+    if served and served[-1]["repos_tried"][-1] != arm["repo"]:
+        arm = {**arm, "repo": served[-1]["repos_tried"][-1], "local": None}
+    return {**arm, "fallbacks": []} if served else arm
+
+
 def on_host(arm: dict[str, Any]) -> bool:
     return bool(arm.get("local")) or arm["engine"] == "remote"
 
@@ -734,19 +744,22 @@ def kvprofile(work: Path, models: Path, arm: dict[str, Any]) -> list[dict[str, A
                 server = Server(arm, models, work, context=context, seqs=1, kv=kv, kv_bytes=1 * GIB, tag="kvprofile")
             else:
                 server = Server(arm, models, work, context=context, seqs=1, kv=kv, tag="kvprofile")
+            started = False
             try:
                 server.start()
+                started = True
             except Exception as exc:  # noqa: BLE001 - recorded
                 points[context] = {"error": str(exc)[:300]}
             finally:
                 text = server.stop()
+            # Memory lines are logged before some start failures (e.g. Gemma 4 with an FP8 KV cache in vLLM 0.30), so a
+            # point counts only if the engine started, or vLLM refused the 1 GiB cache and reported what one request needs.
             mem = parse_engine_memory(arm["engine"], text)
-            if arm["engine"] == "vllm" and mem.get("max_concurrency"):
+            if arm["engine"] == "vllm" and started and mem.get("max_concurrency"):
                 points[context] = {"per_seq_bytes": GIB / mem["max_concurrency"], **mem}
             elif arm["engine"] == "vllm" and mem.get("kv_needed_one_request_gib"):
-                # 1 GiB was too small for one request; vLLM reports what one request needs.
                 points[context] = {"per_seq_bytes": mem["kv_needed_one_request_gib"] * GIB, **mem}
-            elif arm["engine"] != "vllm" and mem.get("kv_mib"):
+            elif arm["engine"] != "vllm" and started and mem.get("kv_mib"):
                 points[context] = {"per_seq_bytes": mem["kv_mib"] * MIB, **mem}
         if all("per_seq_bytes" in points.get(c, {}) for c in (2048, 8192)):
             b = (points[8192]["per_seq_bytes"] - points[2048]["per_seq_bytes"]) / (8192 - 2048)
@@ -790,30 +803,35 @@ def grid(work: Path, models: Path, arm: dict[str, Any]) -> list[dict[str, Any]]:
 
 # ---------------------------------------------------------------- queue
 
-def guarded_run(work: Path, models: Path, arm: dict[str, Any]) -> dict[str, Any]:
+def guarded_run(work: Path, models: Path, arm: dict[str, Any], *, kv: str | None = None, panel_name: str = "dev",
+                tag: str = "run") -> dict[str, Any]:
     """run_arm, but a harness error is recorded as a failed run so one broken arm cannot stop the queue."""
 
     try:
-        return run_arm(work, models, arm)
+        return run_arm(work, models, arm, kv=kv, panel_name=panel_name, tag=tag)
     except Exception as exc:  # noqa: BLE001
-        record = {"arm": arm["arm"], "tag": "run", "status": "failed", "error": f"harness: {exc}"[:300], "finished_at": now()}
+        record = {"arm": arm["arm"], "tag": tag, "status": "failed", "error": f"harness: {exc}"[:300], "finished_at": now()}
         append_jsonl(work / "runs.jsonl", record)
         return record
 
 
 def queue(work: Path, models: Path, limit: int | None, only: str | None, stages: tuple[str, ...] = ("S1", "S2"),
-          arm_list: Path | None = None) -> None:
+          arm_list: Path | None = None, panel_name: str = "dev", tag: str = "run") -> None:
+    """Fetch, run and delete arms. With tag "test", an arm list of "arm" or "arm@kv" entries runs those configurations on
+    the given panel, each with the build that served its development run."""
+
     todo = [a for a in read_jsonl(work / "arms.jsonl") if a["stage"] in stages]
     if arm_list:
         wanted = [line.strip() for line in arm_list.read_text(encoding="utf-8").splitlines() if line.strip()]
         pool_ = {a["arm"]: a for a in read_jsonl(work / "arms.jsonl")}
-        todo = [pool_[name] for name in wanted]
+        todo = [{**(serving_arm(work, name.split("@")[0]) if tag != "run" else pool_[name.split("@")[0]]),
+                 "queue_kv": name.split("@")[1] if "@" in name else None} for name in wanted]
     if only:
         todo = [a for a in todo if re.search(only, a["arm"])]
-    done = {r["arm"] for r in read_jsonl(work / "runs.jsonl") if r.get("tag") == "run" and r.get("status") == "ok"}
+    done = {r["arm"] for r in read_jsonl(work / "runs.jsonl") if r.get("tag") == tag and r.get("status") == "ok"}
     failed: dict[str, int] = {}
     for r in read_jsonl(work / "runs.jsonl"):
-        if r.get("tag") == "run" and r.get("status") == "failed":
+        if r.get("tag") == tag and r.get("status") == "failed":
             failed[r["arm"]] = failed.get(r["arm"], 0) + 1
     todo = [a for a in todo if a["arm"] not in done and failed.get(a["arm"], 0) < 1]
     if limit:
@@ -865,8 +883,8 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None, stages:
         if arm["engine"] != "remote" and not any("per_seq_const_bytes" in r for r in profiled) and arm["arm"] not in {r["via_arm"] for r in profiled}:
             log(f"kv profile {arm['model']} ({arm['engine']}) via {arm['arm']}")
             kvprofile(work, models, arm)
-        log(f"run {arm['arm']} ({arm['bytes'] / GIB:.1f} GiB, {arm['engine']})")
-        record = guarded_run(work, models, arm)
+        log(f"{tag} {arm['arm']} ({arm['bytes'] / GIB:.1f} GiB, {arm['engine']}, kv {arm.get('queue_kv') or 'default'})")
+        record = guarded_run(work, models, arm, kv=arm.get("queue_kv"), panel_name=panel_name, tag=tag)
         attempts = [arm["repo"]]
         while record["status"] != "ok" and arm.get("fallbacks"):
             fallback = arm["fallbacks"].pop(0)
@@ -880,9 +898,10 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None, stages:
             except Exception as exc:  # noqa: BLE001
                 append_jsonl(work / "fetch.jsonl", {"arm": arm["arm"], "error": str(exc)[:300], "at": now()})
                 continue
-            record = guarded_run(work, models, arm)
+            record = guarded_run(work, models, arm, kv=arm.get("queue_kv"), panel_name=panel_name, tag=tag)
         log(f"  {record['status']}: peak {record.get('peak_mib')} MiB; {record.get('error', '')}")
-        append_jsonl(work / "attempts.jsonl", {"arm": arm["arm"], "repos_tried": attempts, "status": record["status"]})
+        if tag == "run":
+            append_jsonl(work / "attempts.jsonl", {"arm": arm["arm"], "repos_tried": attempts, "status": record["status"]})
         if not on_host(arm):
             shutil.rmtree(model_dir(models, arm), ignore_errors=True)
     pool.shutdown()
@@ -978,8 +997,13 @@ def kv_label(work: Path, name: str) -> str:
 
 def build_calls(work: Path, panel_name: str, groups: list[list[str]], kv_of: dict[str, str]) -> list[dict[str, Any]]:
     panel = read_jsonl(work / f"panel_{panel_name}.jsonl")
-    replies = {arm: {r["row_id"]: r["reply"] for r in read_jsonl(work / "replies" / f"{panel_name}__{arm.split('@')[0]}__{kv_of[arm]}.jsonl")}
-               for group in groups for arm in group}
+    replies: dict[str, dict[str, str]] = {}
+    for arm in {name for group in groups for name in group}:
+        path = work / "replies" / f"{panel_name}__{arm.split('@')[0]}__{kv_of[arm]}.jsonl"
+        replies[arm] = {r["row_id"]: r["reply"] for r in read_jsonl(path)}
+        missing = sum(row["row_id"] not in replies[arm] for row in panel)
+        if missing:  # never judge an absent reply set as empty replies
+            raise RuntimeError(f"{path.name}: {missing} of {len(panel)} rows have no reply")
     calls = []
     for row in panel:
         for gi, group in enumerate(groups):
@@ -1382,6 +1406,7 @@ def finalists(work: Path) -> dict[str, Any]:
 
     fit, cont, scr = fits(work), contenders(work), screen(work, "stage3")
     kvq, kv_controls = arm_scores(work, "kvquality", "j2")
+    kv_runs = [r for r in read_jsonl(work / "runs.jsonl") if r.get("tag") == "kvquality"]
     chosen: dict[str, dict[str, Any]] = {p: {} for p in PROFILES_MIB}
     pending_kv: set[str] = set()
     for profile, info in cont["profiles"].items():
@@ -1396,6 +1421,8 @@ def finalists(work: Path) -> dict[str, Any]:
                 base = default_kv(arm_by_id(work, arm))
                 kv_check = None
                 if kv != base:
+                    if any(r["arm"] == arm and r.get("kv") == kv and r.get("status") == "failed" for r in kv_runs):
+                        continue  # the engine could not serve this KV precision
                     kv_check = paired_gain(kvq, f"{arm}@{kv}", f"{arm}@{base}", "overall")
                     if not kv_check.get("rows"):
                         pending_kv.add(f"{arm}@{kv}")
@@ -1471,6 +1498,7 @@ def main() -> int:
     parser.add_argument("--judge-stage")
     parser.add_argument("--groups", help="JSON list of arm lists, one judge call per row and group; or 'stage1', or 'variants:<model>,...'")
     parser.add_argument("--panel", default="dev")
+    parser.add_argument("--tag", default="run", help="queue: record tag of the runs (\"test\" for test-panel runs)")
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--until-done", action="store_true", help="judge: wait out usage limits and continue until every call is judged")
     args = parser.parse_args()
@@ -1489,17 +1517,17 @@ def main() -> int:
     elif args.stage == "arms":
         result = {"arms": len(arms(args.work))}
     elif args.stage == "fetch":
-        result = fetch(args.models, arm_by_id(args.work, args.arm))
+        result = fetch(args.models, serving_arm(args.work, args.arm))
     elif args.stage == "run":
-        result = run_arm(args.work, args.models, arm_by_id(args.work, args.arm))
+        result = run_arm(args.work, args.models, serving_arm(args.work, args.arm))
     elif args.stage == "kvquality":
-        result = run_arm(args.work, args.models, arm_by_id(args.work, args.arm), kv=args.kv, tag="kvquality")
+        result = run_arm(args.work, args.models, serving_arm(args.work, args.arm), kv=args.kv, tag="kvquality")
     elif args.stage == "kvprofile":
-        result = kvprofile(args.work, args.models, arm_by_id(args.work, args.arm))
+        result = kvprofile(args.work, args.models, serving_arm(args.work, args.arm))
     elif args.stage == "grid":
-        result = grid(args.work, args.models, arm_by_id(args.work, args.arm))
+        result = grid(args.work, args.models, serving_arm(args.work, args.arm))
     elif args.stage == "queue":
-        queue(args.work, args.models, args.limit, args.only, tuple(args.stages.split(",")), args.arm_list)
+        queue(args.work, args.models, args.limit, args.only, tuple(args.stages.split(",")), args.arm_list, args.panel, args.tag)
         result = {"queue": "finished"}
     elif args.stage in ("fits", "screen", "stage1", "contenders", "finalists", "decide"):
         result = {"fits": fits, "screen": screen, "stage1": stage1, "contenders": contenders, "finalists": finalists,
@@ -1516,7 +1544,7 @@ def main() -> int:
         kv_of = {name: kv_label(args.work, name) for g in groups for name in g}
         result = (judge_until_done if args.until_done else judge)(args.work, args.judge, args.judge_stage, groups, kv_of, args.panel, args.workers)
     print(json.dumps(result, ensure_ascii=False, indent=2, default=str))
-    return 0
+    return 1 if isinstance(result, dict) and result.get("status") == "failed" else 0
 
 
 if __name__ == "__main__":

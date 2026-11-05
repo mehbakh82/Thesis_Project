@@ -367,3 +367,33 @@ def test_kv_variants_are_named_with_an_at_sign(monkeypatch: pytest.MonkeyPatch) 
     monkeypatch.setattr(v3, "arm_by_id", lambda work, arm: {"engine": "llamacpp" if "gguf" in arm else "vllm"})
     assert v3.kv_label(Path("."), "m__awq_int4@fp8") == "fp8"
     assert v3.kv_label(Path("."), "m__gguf-q4_k_m") == "f16" and v3.kv_label(Path("."), "m__awq_int4") == "auto"
+
+
+def test_kv_profiles_ignore_memory_lines_from_engines_that_crashed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    class CrashingServer:
+        def __init__(self, *args: object, **kwargs: object) -> None:
+            pass
+
+        def start(self) -> None:
+            raise RuntimeError("engine exited during start")
+
+        def stop(self) -> str:  # vLLM logs its KV size before the attention backend asserts
+            return "GPU KV cache size: 16,384 tokens\nMaximum concurrency for 2,048 tokens per request: 8.00x\nAssertionError: fp8 tensor core"
+
+    monkeypatch.setattr(v3, "Server", CrashingServer)
+    rows = v3.kvprofile(tmp_path, tmp_path, {"arm": "g__qat", "model": "google/g", "engine": "vllm"})
+    assert all("error" in r and "per_seq_const_bytes" not in r for r in rows)
+
+
+def test_judging_refuses_a_missing_reply_set(tmp_path: Path) -> None:
+    (tmp_path / "replies").mkdir()
+    (tmp_path / "panel_dev.jsonl").write_text(json.dumps({"row_id": "r1", "text": "سلام", "history": []}) + "\n", encoding="utf-8")
+    with pytest.raises(RuntimeError, match="no reply"):
+        v3.build_calls(tmp_path, "dev", [["a@fp8", "a@auto"]], {"a@fp8": "fp8", "a@auto": "auto"})
+
+
+def test_later_runs_use_the_repository_that_served_the_arm(tmp_path: Path) -> None:
+    _write(tmp_path / "arms.jsonl", [{"arm": "g__nvfp4", "repo": "first/G-NVFP4", "fallbacks": ["second/G-NVFP4"], "local": None}])
+    _write(tmp_path / "attempts.jsonl", [{"arm": "g__nvfp4", "repos_tried": ["first/G-NVFP4", "second/G-NVFP4"], "status": "ok"}])
+    arm = v3.serving_arm(tmp_path, "g__nvfp4")
+    assert arm["repo"] == "second/G-NVFP4" and arm["fallbacks"] == []
