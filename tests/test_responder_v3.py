@@ -397,3 +397,43 @@ def test_later_runs_use_the_repository_that_served_the_arm(tmp_path: Path) -> No
     _write(tmp_path / "attempts.jsonl", [{"arm": "g__nvfp4", "repos_tried": ["first/G-NVFP4", "second/G-NVFP4"], "status": "ok"}])
     arm = v3.serving_arm(tmp_path, "g__nvfp4")
     assert arm["repo"] == "second/G-NVFP4" and arm["fallbacks"] == []
+
+
+def _lat(ttft: float, decode: float) -> dict:
+    return {"single": {"first_token_s": {"median_ms": ttft}}, "decode_tok_s_median": decode}
+
+
+def test_decision_latency_follows_amendment_three(tmp_path: Path) -> None:
+    _write(tmp_path / "arms.jsonl", [{"arm": "g__gguf-q5_k_m", "engine": "llamacpp"}])
+    dev = {"arm": "g__gguf-q5_k_m", "kv": "q4_0", "tag": "kvquality", "status": "ok", "latency": _lat(120, 60)}
+    test = {"arm": "g__gguf-q5_k_m", "kv": "q4_0", "tag": "test", "status": "ok", "latency": _lat(300, 25)}
+    _write(tmp_path / "runs.jsonl", [dev, test])
+    lat = v3.decision_latency(tmp_path, "g__gguf-q5_k_m", "q4_0")
+    assert lat["source"] == "test run" and lat["third_needed"] is True  # 300 ms vs 120 ms: more than a factor of two
+    _write(tmp_path / "runs.jsonl", [dev, test, {**test, "tag": "latency3", "latency": _lat(130, 58)}])
+    lat = v3.decision_latency(tmp_path, "g__gguf-q5_k_m", "q4_0")
+    assert lat["source"] == "median of three runs" and lat["ttft_ms"] == 130 and lat["decode_tok_s"] == 58 and not lat["third_needed"]
+
+
+def test_the_decision_considers_only_each_profiles_finalists(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    fin = {"per_profile": {"12gib": {"org/S": {"arm": "s__q5", "kv": "f16"}}, "24gb": {"org/B": {"arm": "b__awq", "kv": "auto"}}}}
+    (tmp_path / "finalists.json").write_text(json.dumps(fin), encoding="utf-8")
+    engines = {"s__q5": "llamacpp", "b__awq": "vllm", "ref": "vllm", "ref2": "vllm"}
+    monkeypatch.setattr(v3, "arm_by_id", lambda work, arm: {"engine": engines[arm]})
+    rows = [str(i) for i in range(30)]
+
+    def table(score: dict[str, float]) -> dict:
+        return {arm: {r: dict.fromkeys(v3.SCORE_KEYS, s) for r in rows} for arm, s in score.items()}
+
+    scores = {"s__q5": 8.0, "b__awq": 7.0, "ref": 5.0, "ref2": 3.0}
+    monkeypatch.setattr(v3, "arm_scores", lambda work, stage, judge: (table(scores), {}))
+    monkeypatch.setattr(v3, "fits", lambda work: {"s__q5": {"deployment_fit": {"12gib": "f16", "24gb": "f16"}},
+                                                  "b__awq": {"deployment_fit": {"12gib": None, "24gb": "auto"}}})
+    monkeypatch.setattr(v3, "subset_rows", lambda work, panel: {"all": rows})
+    lats = {"s__q5": _lat(200, 100), "b__awq": _lat(100, 90)}
+    monkeypatch.setattr(v3, "decision_latency", lambda work, arm, kv: {"ttft_ms": lats[arm]["single"]["first_token_s"]["median_ms"],
+                                                                        "decode_tok_s": lats[arm]["decode_tok_s_median"], "third_needed": False})
+    result = v3.decide(tmp_path, references=("ref", "ref2"))
+    assert result["profiles"]["12gib"]["winner"] is None  # its only finalist misses the latency gate
+    assert result["profiles"]["24gb"]["winner"] == "b__awq"  # s__q5 scores higher but is not a 24 GB finalist
+    assert result["profiles"]["24gb"]["versus"]["ref"]["beats"] is True
