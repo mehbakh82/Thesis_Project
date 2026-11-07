@@ -843,10 +843,16 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None, stages:
     def free_disk_gib() -> float:
         return shutil.disk_usage(models).free / GIB
 
+    def needs_gib(arm: dict[str, Any]) -> float:
+        """Disk still needed for an arm: its size minus what is already downloaded, plus 8 GiB of headroom."""
+
+        present = sum(f.stat().st_size for f in model_dir(models, arm).rglob("*") if f.is_file()) if model_dir(models, arm).is_dir() else 0
+        return max(0.0, (arm["bytes"] - present) / GIB) + 8
+
     def schedule(index: int) -> None:
         if index < len(todo) and todo[index]["arm"] not in prefetch:
             arm = todo[index]
-            if not on_host(arm) and free_disk_gib() < arm["bytes"] / GIB + 8:
+            if not on_host(arm) and free_disk_gib() < needs_gib(arm):
                 return
             prefetch[arm["arm"]] = pool.submit(fetch, models, arm)
 
@@ -854,7 +860,7 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None, stages:
         schedule(i)
         future = prefetch.get(arm["arm"])
         if future is None:
-            while not on_host(arm) and free_disk_gib() < arm["bytes"] / GIB + 8:
+            while not on_host(arm) and free_disk_gib() < needs_gib(arm):
                 log("waiting for disk space")
                 time.sleep(60)
             schedule(i)
