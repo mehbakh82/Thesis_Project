@@ -804,11 +804,11 @@ def grid(work: Path, models: Path, arm: dict[str, Any]) -> list[dict[str, Any]]:
 # ---------------------------------------------------------------- queue
 
 def guarded_run(work: Path, models: Path, arm: dict[str, Any], *, kv: str | None = None, panel_name: str = "dev",
-                tag: str = "run") -> dict[str, Any]:
+                tag: str = "run", generate: bool = True) -> dict[str, Any]:
     """run_arm, but a harness error is recorded as a failed run so one broken arm cannot stop the queue."""
 
     try:
-        return run_arm(work, models, arm, kv=kv, panel_name=panel_name, tag=tag)
+        return run_arm(work, models, arm, kv=kv, generate=generate, panel_name=panel_name, tag=tag)
     except Exception as exc:  # noqa: BLE001
         record = {"arm": arm["arm"], "tag": tag, "status": "failed", "error": f"harness: {exc}"[:300], "finished_at": now()}
         append_jsonl(work / "runs.jsonl", record)
@@ -900,6 +900,9 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None, stages:
                 continue
             record = guarded_run(work, models, arm, kv=arm.get("queue_kv"), panel_name=panel_name, tag=tag)
         log(f"  {record['status']}: peak {record.get('peak_mib')} MiB; {record.get('error', '')}")
+        if tag == "test" and record["status"] == "ok" and needs_third(dev_latency(work, arm["arm"], record["kv"]), record.get("latency")):
+            log("  test and development latency differ by more than a factor of two: third measurement (Amendment 3)")
+            guarded_run(work, models, arm, kv=record["kv"], panel_name=panel_name, tag="latency3", generate=False)
         if tag == "run":
             append_jsonl(work / "attempts.jsonl", {"arm": arm["arm"], "repos_tried": attempts, "status": record["status"]})
         if not on_host(arm):
@@ -1394,6 +1397,50 @@ def contenders(work: Path) -> dict[str, Any]:
     return result
 
 
+def latency_point(latency: dict[str, Any] | None) -> tuple[float | None, float | None]:
+    lat = latency or {}
+    return ((lat.get("single") or {}).get("first_token_s") or {}).get("median_ms"), lat.get("decode_tok_s_median")
+
+
+def dev_latency(work: Path, arm: str, kv: str) -> dict[str, Any] | None:
+    """Latency of the development run of this configuration (the KV-quality run for a reduced KV precision)."""
+
+    tag = "run" if kv == default_kv(arm_by_id(work, arm)) else "kvquality"
+    runs = [r for r in read_jsonl(work / "runs.jsonl") if r["arm"] == arm and r.get("tag") == tag and r.get("kv") == kv and r.get("status") == "ok"]
+    return runs[-1].get("latency") if runs else None
+
+
+def needs_third(dev: dict[str, Any] | None, test: dict[str, Any] | None) -> bool:
+    """Amendment 3: a third latency measurement when two runs differ by more than a factor of two."""
+
+    for a, b in zip(latency_point(dev), latency_point(test), strict=True):
+        if a and b and max(a, b) / min(a, b) > 2:
+            return True
+    return False
+
+
+def decision_latency(work: Path, arm: str, kv: str) -> dict[str, Any]:
+    """The test run's latency, or the median of three runs if a third was measured (Amendment 3)."""
+
+    runs = [r for r in read_jsonl(work / "runs.jsonl") if r["arm"] == arm and r.get("kv") == kv and r.get("status") == "ok"]
+    test = [r["latency"] for r in runs if r.get("tag") == "test"]
+    third = [r["latency"] for r in runs if r.get("tag") == "latency3"]
+    dev = dev_latency(work, arm, kv)
+    points = {"development": latency_point(dev), "test": latency_point(test[-1]) if test else (None, None)}
+    ttft: float | None
+    decode: float | None
+    if third:
+        points["third"] = latency_point(third[-1])
+        values = [(a, b) for a, b in points.values() if a is not None and b is not None]
+        ttft, decode = statistics.median(a for a, _ in values), statistics.median(b for _, b in values)
+        source = "median of three runs"
+    else:
+        ttft, decode = points["test"]
+        source = "test run"
+    return {"ttft_ms": ttft, "decode_tok_s": decode, "source": source, "runs": points,
+            "third_needed": bool(test) and not third and needs_third(dev, test[-1])}
+
+
 def meets_gate(latency: dict[str, Any] | None) -> bool:
     lat = latency or {}
     ttft = ((lat.get("single") or {}).get("first_token_s") or {}).get("median_ms")
@@ -1445,38 +1492,54 @@ def finalists(work: Path) -> dict[str, Any]:
             "kvquality_controls": kv_controls}
 
 
-def decide(work: Path, references: tuple[str, ...] = REFERENCES) -> dict[str, Any]:
-    """Stage 7: the test-panel decision under both judges."""
+def finalist_name(work: Path, arm: str, kv: str) -> str:
+    """The judged name of a finalist configuration: the arm, or "arm@kv" for a reduced KV precision."""
 
+    return arm if kv == default_kv(arm_by_id(work, arm)) else f"{arm}@{kv}"
+
+
+def decide(work: Path, references: tuple[str, ...] = REFERENCES) -> dict[str, Any]:
+    """Stage 7: the test-panel decision under both judges, among each profile's finalists (finalists.json)."""
+
+    fin = json.loads((work / "finalists.json").read_text(encoding="utf-8"))
     tables = {j: arm_scores(work, "test", j) for j in ("j1", "j2")}
     fit = fits(work)
-    result: dict[str, Any] = {"controls": {j: t[1] for j, t in tables.items()}, "profiles": {}}
+    strata = subset_rows(work, "test")
+    result: dict[str, Any] = {"controls": {j: t[1] for j, t in tables.items()}, "references": {}, "profiles": {}}
+    for ref in references:
+        result["references"][ref] = {j: {"means": means(tables[j][0], ref),
+                                          "overall_by_stratum": {k: means(tables[j][0], ref, rows).get("overall") for k, rows in strata.items()}}
+                                     for j in tables}
     for profile in PROFILES_MIB:
+        rows: dict[str, Any] = {}
         eligible = []
-        for arm in tables["j1"][0]:
-            if arm in references:
-                continue
-            info = fit.get(arm, {})
-            lat = info.get("latency") or {}
-            ttft = ((lat.get("single") or {}).get("first_token_s") or {}).get("median_ms")
-            decode = lat.get("decode_tok_s_median")
-            if info.get("deployment_fit", {}).get(profile) and ttft is not None and ttft <= 150 and (decode or 0) >= 30:
-                avg = statistics.mean(means(tables[j][0], arm).get("overall", 0) for j in ("j1", "j2"))
-                eligible.append((avg, arm))
+        for model, f in fin["per_profile"][profile].items():
+            name = finalist_name(work, f["arm"], f["kv"])
+            lat = decision_latency(work, f["arm"], f["kv"])
+            fits_profile_ = fit.get(f["arm"], {}).get("deployment_fit", {}).get(profile) == f["kv"]
+            gate = lat["ttft_ms"] is not None and lat["ttft_ms"] <= 150 and (lat["decode_tok_s"] or 0) >= 30
+            per_judge = {j: means(tables[j][0], name) for j in tables}
+            average = statistics.mean(per_judge[j].get("overall", 0) for j in tables)
+            rows[name] = {"model": model, "kv": f["kv"], "fits": fits_profile_, "latency": lat, "meets_gate": gate,
+                          "means": per_judge, "overall_two_judge_mean": round(average, 3),
+                          "overall_by_stratum": {j: {k: means(tables[j][0], name, r).get("overall") for k, r in strata.items()} for j in tables}}
+            if fits_profile_ and gate and not lat["third_needed"]:
+                eligible.append((average, name))
         if not eligible:
-            result["profiles"][profile] = {"winner": None}
+            result["profiles"][profile] = {"winner": None, "finalists": rows}
             continue
         _, winner = max(eligible)
         verdicts = {}
         for ref in references:
-            per_judge = {j: {k: paired_gain(tables[j][0], winner, ref, k) for k in SCORE_KEYS} for j in ("j1", "j2")}
+            per_judge_gain = {j: {k: paired_gain(tables[j][0], winner, ref, k) for k in SCORE_KEYS} for j in tables}
             beats = all(
                 g["overall"].get("mean_gain", -99) >= 0.5 and g["overall"]["ci95"][0] > 0
                 and all(g[k].get("mean_gain", -99) >= 0 for k in ("relevance", "coherence", "appropriateness"))
-                for g in per_judge.values()
+                for g in per_judge_gain.values()
             )
-            verdicts[ref] = {"beats": beats, "gains": per_judge}
-        result["profiles"][profile] = {"winner": winner, "ranking": [a for _, a in sorted(eligible, reverse=True)], "versus": verdicts}
+            verdicts[ref] = {"beats": beats, "gains": per_judge_gain}
+        result["profiles"][profile] = {"winner": winner, "ranking": [a for _, a in sorted(eligible, reverse=True)],
+                                       "versus": verdicts, "finalists": rows}
     return result
 
 
