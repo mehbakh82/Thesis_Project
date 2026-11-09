@@ -516,3 +516,19 @@ def test_the_receipt_keeps_hashes_of_private_files_not_their_text(tmp_path: Path
     result = v3.receipt(tmp_path)
     assert result["decision"]["profiles"]["24gb"]["winner"] == "a" and result["exploratory"] is None
     assert list(result["data_sha256"]) == ["replies/test__a__auto.jsonl"] and "متن" not in json.dumps(result, ensure_ascii=False)
+
+
+@pytest.mark.parametrize("keep", [False, True])
+def test_the_queue_deletes_a_downloaded_model_unless_asked_to_keep_it(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, keep: bool) -> None:
+    arm = {"arm": "g__nvfp4", "model": "google/g", "engine": "vllm", "repo": "org/g-nvfp4", "fallbacks": [], "bytes": 1,
+           "local": None, "stage": "S1"}
+    _write(tmp_path / "arms.jsonl", [arm])
+    _write(tmp_path / "kvprofile.jsonl", [{"model": "google/g", "engine": "vllm", "kv": "auto", "via_arm": "x", "per_seq_const_bytes": 1}])
+    (tmp_path / "list.txt").write_text("g__nvfp4\n", encoding="utf-8")
+    weights = v3.model_dir(tmp_path / "models", arm) / "model.safetensors"
+    weights.parent.mkdir(parents=True)
+    weights.write_bytes(b"x")
+    monkeypatch.setattr(v3, "fetch", lambda models, arm: {"arm": arm["arm"]})
+    monkeypatch.setattr(v3, "guarded_run", lambda work, models, arm, **kw: {"arm": arm["arm"], "kv": "auto", "status": "ok"})
+    v3.queue(tmp_path, tmp_path / "models", None, None, arm_list=tmp_path / "list.txt", keep=keep)
+    assert weights.exists() is keep
