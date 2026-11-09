@@ -437,3 +437,71 @@ def test_the_decision_considers_only_each_profiles_finalists(tmp_path: Path, mon
     assert result["profiles"]["12gib"]["winner"] is None  # its only finalist misses the latency gate
     assert result["profiles"]["24gb"]["winner"] == "b__awq"  # s__q5 scores higher but is not a 24 GB finalist
     assert result["profiles"]["24gb"]["versus"]["ref"]["beats"] is True
+
+
+def test_an_exploratory_tuning_replaces_or_adds_vllm_flags() -> None:
+    base = ["--max-num-batched-tokens", "2048", "--language-model-only"]
+    assert v3.apply_tuning(base, "") == base
+    assert v3.apply_tuning(base, "b512") == ["--max-num-batched-tokens", "512", "--language-model-only"]
+    assert v3.apply_tuning(base, "eager_b512") == ["--max-num-batched-tokens", "512", "--language-model-only", "--enforce-eager"]
+    assert v3.apply_tuning(base + ["--enforce-eager"], "eager").count("--enforce-eager") == 1
+
+
+def test_a_tuned_run_keeps_its_kv_and_stores_replies_under_the_tuned_label(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    seen: dict[str, object] = {}
+
+    class FakeServer:
+        def __init__(self, *args: object, **kwargs: object) -> None:
+            seen.update(kwargs)
+            self.peak_mib = 10_000
+
+        def start(self) -> None:
+            pass
+
+        def stop(self) -> str:
+            return ""
+
+    monkeypatch.setattr(v3, "Server", FakeServer)
+    monkeypatch.setattr(v3, "deployment_kv_bytes", lambda work, arm, kv: 300 * v3.MIB)
+    monkeypatch.setattr(v3, "latency", lambda server, panel, system: {})
+    monkeypatch.setattr(v3, "generate_panel", lambda server, panel, system: [{"row_id": "r1", "reply": "سلام", "latin": False}])
+    monkeypatch.setattr(v3, "system_for", lambda arm: "")
+    _write(tmp_path / "panel_test.jsonl", [{"row_id": "r1"}])
+    _write(tmp_path / "panel_dev.jsonl", [{"row_id": "r1"}])
+    arm = {"arm": "g__qat", "model": "google/g", "engine": "vllm"}
+    record = v3.run_arm(tmp_path, tmp_path, arm, kv="auto+eager", panel_name="test", tag="explore")
+    assert seen["kv"] == "auto" and seen["tuning"] == "eager"
+    assert record["kv"] == "auto" and record["tuning"] == "eager" and record["status"] == "ok"
+    assert (tmp_path / "replies" / "test__g__qat__auto+eager.jsonl").exists()
+    with pytest.raises(ValueError, match="tuning"):
+        v3.run_arm(tmp_path, tmp_path, {**arm, "engine": "llamacpp"}, kv="f16+eager")
+
+
+def test_the_queue_runs_each_tuning_of_one_arm_once(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _write(tmp_path / "arms.jsonl", [{"arm": "g__qat", "model": "google/g", "engine": "vllm", "repo": "google/g-qat", "fallbacks": [],
+                                      "bytes": 1, "local": "hub/g", "stage": "S1"}])
+    _write(tmp_path / "kvprofile.jsonl", [{"model": "google/g", "engine": "vllm", "kv": "auto", "via_arm": "g__qat", "per_seq_const_bytes": 1}])
+    _write(tmp_path / "runs.jsonl", [{"arm": "g__qat", "tag": "explore", "kv": "auto", "tuning": "b512", "status": "ok"}])
+    (tmp_path / "list.txt").write_text("g__qat@auto+b512\ng__qat@auto+eager\ng__qat@auto+eager_b512\n", encoding="utf-8")
+    ran: list[str | None] = []
+
+    def fake_run(work: Path, models: Path, arm: dict, *, kv: str | None = None, panel_name: str = "dev", tag: str = "run",
+                 generate: bool = True) -> dict:
+        ran.append(kv)
+        return {"arm": arm["arm"], "kv": kv, "status": "ok"}
+
+    monkeypatch.setattr(v3, "fetch", lambda models, arm: {"arm": arm["arm"], "local": True})
+    monkeypatch.setattr(v3, "guarded_run", fake_run)
+    v3.queue(tmp_path, tmp_path, None, None, arm_list=tmp_path / "list.txt", panel_name="test", tag="explore")
+    assert ran == ["auto+eager", "auto+eager_b512"]
+
+
+def test_exploration_chooses_the_first_tuning_that_fits_and_meets_the_gate(tmp_path: Path) -> None:
+    def run(tuning: str, peak: int, ttft: float) -> dict:
+        return {"arm": "g__qat", "tag": "explore", "kv": "auto", "tuning": tuning, "status": "ok", "peak_mib": peak,
+                "latency": {"single": {"first_token_s": {"median_ms": ttft}}, "decode_tok_s_median": 60.0}}
+
+    _write(tmp_path / "runs.jsonl", [run("b512", 10_700, 50.0), run("eager", 10_500, 160.0), run("eager_b512", 10_400, 60.0)])
+    result = v3.explore(tmp_path, arm="g__qat", compared=())
+    assert result["chosen"] == "eager_b512" and not result["tunings"]["b512"]["fits_12gib"]
+    assert not result["tunings"]["eager"]["meets_gate"] and "means" not in result

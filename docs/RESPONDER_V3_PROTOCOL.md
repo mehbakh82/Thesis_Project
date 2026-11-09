@@ -245,6 +245,32 @@ left four points open; they are settled here.
   load slowed some single llama.cpp runs), latency is measured a third time and
   the median of the three runs is used. All measurements are reported.
 
+## Exploratory addendum (2026-11-09): a tuned 12 GiB configuration, outside the decision
+
+Written after the stage 7 decision (24 GB: Gemma 4 12B FP8; 12 GiB: no
+configuration both fits and meets the latency gate) and before any run
+described here. It does not change the decision, and its result may not be
+reported as a 12 GiB winner of this comparison: the test panel has already been
+opened, and the tunings below were not part of the frozen serving settings.
+
+- **Question:** can vLLM serving settings alone bring Gemma 4 12B QAT W4A16
+  (measured development peak 10,924 MiB, over the 10,682 MiB limit) into the
+  12 GiB profile while meeting the latency gate?
+- **Configurations,** in this order, each changing only the stated vLLM flags
+  (default KV precision, context 2048, 2 sequences, the build that served the
+  development run): `b512` (`--max-num-batched-tokens 512`), `eager`
+  (`--enforce-eager`), `eager_b512` (both). Each runs on the test panel and
+  records its measured peak and latency as a test run does.
+- **Choice:** the first configuration in that order whose measured peak is at
+  most 10,682 MiB and whose latency meets the gate. If none does, the result is
+  that none does.
+- **Scoring:** the chosen configuration's test replies are scored in one call
+  per row by both judges (stage `explore`), together with Gemma 4 12B FP8 (the
+  24 GB winner), Gemma 4 12B Q5_K_M (the 12 GiB finalist) and the two
+  references. Means, paired gains with bootstrap intervals, and whether the
+  stage 7 rule against each compared arm would be met are reported, all
+  labelled exploratory.
+
 ## Panels
 
 Frozen by `scripts/evaluate_responder_v3.py --stage plan` with SHA-256 hashes
