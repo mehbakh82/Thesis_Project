@@ -505,3 +505,14 @@ def test_exploration_chooses_the_first_tuning_that_fits_and_meets_the_gate(tmp_p
     result = v3.explore(tmp_path, arm="g__qat", compared=())
     assert result["chosen"] == "eager_b512" and not result["tunings"]["b512"]["fits_12gib"]
     assert not result["tunings"]["eager"]["meets_gate"] and "means" not in result
+
+
+def test_the_receipt_keeps_hashes_of_private_files_not_their_text(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(v3, "fits", lambda work: {})
+    monkeypatch.setattr(v3, "contenders", lambda work: {"profiles": {}})
+    (tmp_path / "replies").mkdir()
+    _write(tmp_path / "replies" / "test__a__auto.jsonl", [{"row_id": "r1", "reply": "متن خصوصی"}])
+    (tmp_path / "decide.json").write_text(json.dumps({"profiles": {"24gb": {"winner": "a"}}}), encoding="utf-8")
+    result = v3.receipt(tmp_path)
+    assert result["decision"]["profiles"]["24gb"]["winner"] == "a" and result["exploratory"] is None
+    assert list(result["data_sha256"]) == ["replies/test__a__auto.jsonl"] and "متن" not in json.dumps(result, ensure_ascii=False)
