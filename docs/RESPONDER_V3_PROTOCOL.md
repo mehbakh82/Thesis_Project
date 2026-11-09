@@ -245,6 +245,33 @@ left four points open; they are settled here.
   load slowed some single llama.cpp runs), latency is measured a third time and
   the median of the three runs is used. All measurements are reported.
 
+## Amendment 4 (2026-11-09): two stage 3 builds the rule required were not run
+
+Written after the stage 7 decision of 2026-11-07 had been computed and read,
+when the write-up recomputed the stage 3 contender builds. It changes no rule:
+it records an omission in carrying out Amendment 1 and how it is completed.
+
+- **What was missed:** the stage 3 builds were computed on 2026-11-04, when
+  Gemma 4 12B QAT W4A16 (12 GiB) and Gemma 4 31B QAT W4A16 (24 GB) counted as
+  fitting with an FP8 KV cache. vLLM 0.30 cannot start Gemma 4 with an FP8 KV
+  cache (found in stage 5), so neither build fits those profiles. Amendment 1
+  then names the next highest-precision fitting vLLM build of each model:
+  Gemma 4 12B NVFP4 in the 12 GiB profile and Gemma 4 31B NVFP4 in the 24 GB
+  profile. Neither was run.
+- **Completion, by the existing rules:** both builds get the development run.
+  Every finished build of each of the two models is then scored again in one
+  call per row (J2, development panel, stage `stage3`), and a build's stage 3
+  score is the mean over its calls, as with the anchors of split stages.
+  Finalists are recomputed for every profile by Amendment 3. Any new finalist
+  gets the test run (with Amendment 3's latency rule) and is scored on the
+  test panel by both judges in one call per row together with every
+  configuration scored there before, whose test scores are then also means
+  over their calls. Stage 7 is then recomputed with its unchanged rule.
+- **Reporting:** the decision of 2026-11-07 and the recomputed one are both
+  reported, with this amendment. If a build fails to start or to fit, that is
+  the result for it.
+- The exploratory addendum is not affected.
+
 ## Exploratory addendum (2026-11-09): a tuned 12 GiB configuration, outside the decision
 
 Written after the stage 7 decision (24 GB: Gemma 4 12B FP8; 12 GiB: no
