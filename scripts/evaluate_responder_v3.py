@@ -57,6 +57,13 @@ MIB = 1024**2
 GIB = 1024**3
 PROFILES_MIB = {"12gib": 10682, "24gb": 22528}
 DEPLOY = {"context": 2048, "seqs": 2}
+# Exploratory vLLM serving tunings (protocol: "Exploratory addendum"); outside the pre-registered decision. A tuned
+# configuration is named "arm@kv+tuning" and its replies are stored under that KV label.
+TUNINGS: dict[str, dict[str, str | None]] = {
+    "b512": {"--max-num-batched-tokens": "512"},
+    "eager": {"--enforce-eager": None},
+    "eager_b512": {"--max-num-batched-tokens": "512", "--enforce-eager": None},
+}
 CONTEXTS = (2048, 4096, 8192)
 SEQS = (1, 2, 4)
 KV_VLLM = ("auto", "fp8")
@@ -439,6 +446,18 @@ def gpu_free_mib() -> int:
     return int(out[0]) - int(out[1])
 
 
+def apply_tuning(args: list[str], tuning: str) -> list[str]:
+    """vLLM arguments with an exploratory tuning applied: a flag with a value replaces the default, a bare flag is added."""
+
+    out = list(args)
+    for flag, value in TUNINGS[tuning].items() if tuning else ():
+        if flag in out and value is not None:
+            out[out.index(flag) + 1] = value
+        elif flag not in out:
+            out += [flag] if value is None else [flag, value]
+    return out
+
+
 def pid_memory_mib(pids: set[int]) -> int:
     out = subprocess.run(["nvidia-smi", "--query-compute-apps=pid,used_memory", "--format=csv,noheader,nounits"],
                          capture_output=True, text=True, check=True).stdout
@@ -454,13 +473,13 @@ class Server:
     """One engine process for one arm and one serving configuration."""
 
     def __init__(self, arm: dict[str, Any], models: Path, work: Path, *, context: int, seqs: int, kv: str,
-                 kv_bytes: int | None = None, tag: str = "run") -> None:
+                 kv_bytes: int | None = None, tag: str = "run", tuning: str = "") -> None:
         self.arm, self.models, self.work = arm, models, work
-        self.context, self.seqs, self.kv, self.kv_bytes, self.tag = context, seqs, kv, kv_bytes, tag
+        self.context, self.seqs, self.kv, self.kv_bytes, self.tag, self.tuning = context, seqs, kv, kv_bytes, tag, tuning
         self.engine = arm["engine"]
         self.name = "rv3"
         self.proc: subprocess.Popen[bytes] | None = None
-        self.log_path = work / "logs" / f"{arm['arm']}__{tag}__{kv}__c{context}x{seqs}.log"
+        self.log_path = work / "logs" / f"{arm['arm']}__{tag}__{kv}{'+' + tuning if tuning else ''}__c{context}x{seqs}.log"
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
         self.peak_mib = 0
         self._sampling = False
@@ -510,7 +529,7 @@ class Server:
                     "--max-cudagraph-capture-size", "4", "--language-model-only"]
             if self.kv_bytes:
                 args += ["--kv-cache-memory-bytes", str(self.kv_bytes)]
-            subprocess.run(args, check=True, capture_output=True)
+            subprocess.run(apply_tuning(args, self.tuning), check=True, capture_output=True)
         else:
             files = model_files(self.arm)
             binary = os.environ.get("THESIS_LLAMA_SERVER", "llama-server")
@@ -699,13 +718,18 @@ def deployment_kv_bytes(work: Path, arm: dict[str, Any], kv: str) -> int | None:
 
 def run_arm(work: Path, models: Path, arm: dict[str, Any], *, kv: str | None = None, generate: bool = True,
             panel_name: str = "dev", tag: str = "run") -> dict[str, Any]:
-    kv = kv or ("f16" if arm["engine"] == "llamacpp" else "auto")
+    kv, _, tuning = (kv or ("f16" if arm["engine"] == "llamacpp" else "auto")).partition("+")
+    if tuning and (arm["engine"] != "vllm" or tuning not in TUNINGS):
+        raise ValueError(f"unknown vLLM tuning {tuning!r} for {arm['arm']}")
+    label = f"{kv}+{tuning}" if tuning else kv
     kv_bytes = deployment_kv_bytes(work, arm, kv) if arm["engine"] == "vllm" else None
     if arm["engine"] == "vllm" and kv_bytes is None:
         kv_bytes = 512 * MIB  # profile not measured yet; enough for the deployment requirement of every in-scope model
-    server = Server(arm, models, work, context=DEPLOY["context"], seqs=DEPLOY["seqs"], kv=kv, kv_bytes=kv_bytes, tag=tag)
+    server = Server(arm, models, work, context=DEPLOY["context"], seqs=DEPLOY["seqs"], kv=kv, kv_bytes=kv_bytes, tag=tag, tuning=tuning)
     record: dict[str, Any] = {"arm": arm["arm"], "tag": tag, "kv": kv, "context": DEPLOY["context"], "seqs": DEPLOY["seqs"],
                               "kv_bytes_requested": kv_bytes, "started_at": now()}
+    if tuning:
+        record["tuning"] = tuning
     try:
         server.start()
         panel = read_jsonl(work / f"panel_{panel_name}.jsonl")
@@ -713,7 +737,7 @@ def run_arm(work: Path, models: Path, arm: dict[str, Any], *, kv: str | None = N
         record["latency"] = latency(server, read_jsonl(work / "panel_dev.jsonl"), system)
         if generate:
             replies = generate_panel(server, panel, system)
-            write_jsonl(work / "replies" / f"{panel_name}__{arm['arm']}__{kv}.jsonl", replies)
+            write_jsonl(work / "replies" / f"{panel_name}__{arm['arm']}__{label}.jsonl", replies)
             record["replies"] = len(replies)
             record["empty_replies"] = sum(not r["reply"] for r in replies)
             record["latin_replies"] = sum(r["latin"] for r in replies)
@@ -810,7 +834,7 @@ def guarded_run(work: Path, models: Path, arm: dict[str, Any], *, kv: str | None
     try:
         return run_arm(work, models, arm, kv=kv, generate=generate, panel_name=panel_name, tag=tag)
     except Exception as exc:  # noqa: BLE001
-        record = {"arm": arm["arm"], "tag": tag, "status": "failed", "error": f"harness: {exc}"[:300], "finished_at": now()}
+        record = {"arm": arm["arm"], "tag": tag, "kv": kv, "status": "failed", "error": f"harness: {exc}"[:300], "finished_at": now()}
         append_jsonl(work / "runs.jsonl", record)
         return record
 
@@ -828,12 +852,21 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None, stages:
                  "queue_kv": name.split("@")[1] if "@" in name else None} for name in wanted]
     if only:
         todo = [a for a in todo if re.search(only, a["arm"])]
-    done = {r["arm"] for r in read_jsonl(work / "runs.jsonl") if r.get("tag") == tag and r.get("status") == "ok"}
-    failed: dict[str, int] = {}
-    for r in read_jsonl(work / "runs.jsonl"):
-        if r.get("tag") == tag and r.get("status") == "failed":
-            failed[r["arm"]] = failed.get(r["arm"], 0) + 1
-    todo = [a for a in todo if a["arm"] not in done and failed.get(a["arm"], 0) < 1]
+    def config(arm: str, kv: str | None, tuning: str | None) -> tuple[str, str]:
+        """A configuration in the queue: its arm and, for a KV variant or tuning, the "kv+tuning" label."""
+
+        return arm, f"{kv}+{tuning}" if tuning else (kv or "")
+
+    runs = [r for r in read_jsonl(work / "runs.jsonl") if r.get("tag") == tag]
+    explicit = {(a["arm"], a.get("queue_kv") or "") for a in todo}
+
+    def key(r: dict[str, Any]) -> tuple[str, str]:  # a run of an explicit KV/tuning entry matches only that entry
+        k = config(r["arm"], r.get("kv"), r.get("tuning"))
+        return k if k in explicit else (r["arm"], "")
+
+    done = {key(r) for r in runs if r.get("status") == "ok"}
+    failed = {key(r) for r in runs if r.get("status") == "failed"}
+    todo = [a for a in todo if (a["arm"], a.get("queue_kv") or "") not in done | failed]
     if limit:
         todo = todo[:limit]
     log(f"queue: {len(todo)} arms")
@@ -911,7 +944,7 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None, stages:
             guarded_run(work, models, arm, kv=record["kv"], panel_name=panel_name, tag="latency3", generate=False)
         if tag == "run":
             append_jsonl(work / "attempts.jsonl", {"arm": arm["arm"], "repos_tried": attempts, "status": record["status"]})
-        if not on_host(arm):
+        if not on_host(arm) and all(a["arm"] != arm["arm"] for a in todo[i + 1:]):  # kept for a later entry of the arm
             shutil.rmtree(model_dir(models, arm), ignore_errors=True)
     pool.shutdown()
 
@@ -1549,12 +1582,48 @@ def decide(work: Path, references: tuple[str, ...] = REFERENCES) -> dict[str, An
     return result
 
 
+EXPLORE_ARM = "gemma-4-12b__official_qat_w4a16"
+EXPLORE_COMPARED = ("gemma-4-12b__fp8", "gemma-4-12b__gguf-q5_k_m", *REFERENCES)
+
+
+def explore(work: Path, arm: str = EXPLORE_ARM, compared: tuple[str, ...] = EXPLORE_COMPARED) -> dict[str, Any]:
+    """Exploratory addendum: tuned vLLM runs of one build in the 12 GiB profile, outside the pre-registered decision.
+    The chosen tuning is the first, in TUNINGS order, whose measured peak fits and whose latency meets the gate."""
+
+    limit = PROFILES_MIB["12gib"]
+    tuned = {}
+    for r in read_jsonl(work / "runs.jsonl"):
+        if r["arm"] == arm and r.get("tag") == "explore" and r.get("tuning") and r.get("status") == "ok":
+            ttft, decode = latency_point(r.get("latency"))
+            tuned[r["tuning"]] = {"kv": r["kv"], "peak_mib": r["peak_mib"], "fits_12gib": r["peak_mib"] <= limit,
+                                  "ttft_ms": ttft, "decode_tok_s": decode,
+                                  "meets_gate": ttft is not None and ttft <= 150 and (decode or 0) >= 30}
+    chosen = next((t for t in TUNINGS if t in tuned and tuned[t]["fits_12gib"] and tuned[t]["meets_gate"]), None)
+    result: dict[str, Any] = {"label": "exploratory, outside the pre-registered decision", "arm": arm, "limit_mib": limit,
+                              "tunings": tuned, "chosen": chosen}
+    if chosen is None:
+        return result
+    name = f"{arm}@{tuned[chosen]['kv']}+{chosen}"
+    tables = {j: arm_scores(work, "explore", j) for j in ("j1", "j2") if (work / f"judgments_explore_{j}.jsonl").exists()}
+    if not tables:
+        return result
+    result["controls"] = {j: t[1] for j, t in tables.items()}
+    result["means"] = {a: {j: means(t[0], a) for j, t in tables.items()} for a in (name, *compared)}
+    result["versus"] = {}
+    for base in compared:
+        gains = {j: {k: paired_gain(t[0], name, base, k) for k in SCORE_KEYS} for j, t in tables.items()}
+        result["versus"][base] = {"gains": gains, "decision_rule_met": len(gains) == 2 and all(
+            g["overall"].get("mean_gain", -99) >= 0.5 and g["overall"]["ci95"][0] > 0
+            and all(g[k].get("mean_gain", -99) >= 0 for k in ("relevance", "coherence", "appropriateness")) for g in gains.values())}
+    return result
+
+
 # ---------------------------------------------------------------- main
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--stage", required=True, choices=["plan", "arms", "fetch", "run", "kvprofile", "grid", "kvquality", "queue", "judge", "fits", "screen", "stage1",
-                                                         "contenders", "finalists", "decide"])
+                                                         "contenders", "finalists", "decide", "explore"])
     parser.add_argument("--work", type=Path, required=True)
     parser.add_argument("--models", type=Path)
     parser.add_argument("--arm")
@@ -1598,9 +1667,9 @@ def main() -> int:
     elif args.stage == "queue":
         queue(args.work, args.models, args.limit, args.only, tuple(args.stages.split(",")), args.arm_list, args.panel, args.tag)
         result = {"queue": "finished"}
-    elif args.stage in ("fits", "screen", "stage1", "contenders", "finalists", "decide"):
+    elif args.stage in ("fits", "screen", "stage1", "contenders", "finalists", "decide", "explore"):
         result = {"fits": fits, "screen": screen, "stage1": stage1, "contenders": contenders, "finalists": finalists,
-                  "decide": decide}[args.stage](args.work)
+                  "decide": decide, "explore": explore}[args.stage](args.work)
         (args.work / f"{args.stage}.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     else:
         if args.groups == "stage1":
