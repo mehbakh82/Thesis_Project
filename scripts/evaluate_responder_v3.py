@@ -20,6 +20,8 @@ Stages:
   finalists the finalist of each contender model and profile (Amendment 3);
   decide    stage 7: the test-panel decision under both judges;
   explore   the exploratory 12 GiB tuning summary (outside the decision);
+  robustness  latency of every finalist against the GPU and host load (Amendment 5);
+  effort    agreement of the judges with more reasoning on a subset (Amendment 5);
   receipt   write the write-once result receipt (results/eval/responder_v3_result.json).
 
 Reply text and natural-turn text stay in the private work directory; receipts
@@ -30,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures as cf
+import fcntl
 import hashlib
 import json
 import math
@@ -486,6 +489,7 @@ class Server:
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
         self.peak_mib = 0
         self._sampling = False
+        self._lock: Any = None
 
     @property
     def endpoint(self) -> str:
@@ -511,6 +515,13 @@ class Server:
                 if response.status != 200:
                     raise RuntimeError("remote service is not healthy")
             return
+        # One engine at a time across every harness process of this work directory (Amendment 5 runs beside Amendment 4).
+        self._lock = (self.work / "gpu.lock").open("a")
+        try:
+            fcntl.flock(self._lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            log("waiting for the GPU lock")
+            fcntl.flock(self._lock, fcntl.LOCK_EX)
         need = int(self.arm["bytes"] / MIB) + 3072
         waited = 0
         while gpu_free_mib() < min(need, 23000):
@@ -591,6 +602,10 @@ class Server:
             except subprocess.TimeoutExpired:
                 self.proc.kill()
         time.sleep(3)
+        if self._lock:
+            fcntl.flock(self._lock, fcntl.LOCK_UN)
+            self._lock.close()
+            self._lock = None
         return text
 
 
@@ -682,7 +697,66 @@ def generate_panel(server: Server, panel: list[dict[str, Any]], system: str, wor
         return list(pool.map(lambda r: stream_reply(server, r, system), panel))
 
 
+def parse_pmon(text: str, own: set[int]) -> tuple[int, int]:
+    """SM utilization (%) of other processes and of this engine's processes, from `nvidia-smi pmon -s u` ("-" is idle)."""
+
+    other = mine = 0
+    for line in text.splitlines():
+        parts = line.split()
+        if line.startswith("#") or len(parts) < 4 or not parts[1].isdigit() or not parts[3].isdigit():
+            continue
+        if int(parts[1]) in own:
+            mine += int(parts[3])
+        else:
+            other += int(parts[3])
+    return other, mine
+
+
+class LoadSampler:
+    """Amendment 5: GPU and host load once per second while latency is measured."""
+
+    def __init__(self, own: set[int]) -> None:
+        self.own, self._on = own, True
+        self.samples: list[dict[str, float]] = []
+        self._thread = threading.Thread(target=self._run, daemon=True)
+        self._thread.start()
+
+    def _run(self) -> None:
+        while self._on:
+            try:
+                pmon = subprocess.run(["nvidia-smi", "pmon", "-c", "1", "-s", "u"], capture_output=True, text=True, timeout=10).stdout
+                gpu = subprocess.run(["nvidia-smi", "--query-gpu=utilization.gpu", "--format=csv,noheader,nounits"],
+                                     capture_output=True, text=True, timeout=10).stdout.split()[0]
+                other, mine = parse_pmon(pmon, self.own)
+                self.samples.append({"other_sm": other, "own_sm": mine, "gpu_util": int(gpu), "cpu_load1": os.getloadavg()[0]})
+            except Exception:  # noqa: BLE001 - sampling only
+                pass
+            time.sleep(1)
+
+    def stop(self) -> dict[str, Any] | None:
+        self._on = False
+        self._thread.join(timeout=15)
+        if not self.samples:
+            return None
+
+        def stats(key: str) -> dict[str, float]:
+            values = sorted(float(x[key]) for x in self.samples)
+            return {"median": round(statistics.median(values), 1), "p90": values[min(len(values) - 1, int(0.9 * len(values)))],
+                    "max": values[-1]}
+
+        return {"samples": len(self.samples), **{k: stats(k) for k in ("other_sm", "own_sm", "gpu_util", "cpu_load1")}}
+
+
 def latency(server: Server, panel: list[dict[str, Any]], system: str) -> dict[str, Any]:
+    sampler = LoadSampler(server.pids())
+    try:
+        result = _latency(server, panel, system)
+    finally:
+        load = sampler.stop()
+    return {**result, "load": load}
+
+
+def _latency(server: Server, panel: list[dict[str, Any]], system: str) -> dict[str, Any]:
     rows = panel[:40]
     for row in panel[-2:]:  # warm-up: the first request compiles the Persian-only constraint
         stream_reply(server, row, system)
@@ -843,7 +917,8 @@ def guarded_run(work: Path, models: Path, arm: dict[str, Any], *, kv: str | None
 
 
 def queue(work: Path, models: Path, limit: int | None, only: str | None, stages: tuple[str, ...] = ("S1", "S2"),
-          arm_list: Path | None = None, panel_name: str = "dev", tag: str = "run", keep: bool = False) -> None:
+          arm_list: Path | None = None, panel_name: str = "dev", tag: str = "run", keep: bool = False, *, repeat: int = 1,
+          spacing: float = 0.0, generate: bool = True) -> None:
     """Fetch, run and delete arms. With tag "test", an arm list of "arm" or "arm@kv" entries runs those configurations on
     the given panel, each with the build that served its development run. With keep, downloaded models stay on disk
     (a later test run then reuses them)."""
@@ -868,9 +943,12 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None, stages:
         k = config(r["arm"], r.get("kv"), r.get("tuning"))
         return k if k in explicit else (r["arm"], "")
 
-    done = {key(r) for r in runs if r.get("status") == "ok"}
+    measured: dict[tuple[str, str], int] = {}
+    for r in runs:
+        if r.get("status") == "ok":
+            measured[key(r)] = measured.get(key(r), 0) + 1
     failed = {key(r) for r in runs if r.get("status") == "failed"}
-    todo = [a for a in todo if (a["arm"], a.get("queue_kv") or "") not in done | failed]
+    todo = [a for a in todo if measured.get((a["arm"], a.get("queue_kv") or ""), 0) < repeat and (a["arm"], a.get("queue_kv") or "") not in failed]
     if limit:
         todo = todo[:limit]
     log(f"queue: {len(todo)} arms")
@@ -927,7 +1005,13 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None, stages:
             log(f"kv profile {arm['model']} ({arm['engine']}) via {arm['arm']}")
             kvprofile(work, models, arm)
         log(f"{tag} {arm['arm']} ({arm['bytes'] / GIB:.1f} GiB, {arm['engine']}, kv {arm.get('queue_kv') or 'default'})")
-        record = guarded_run(work, models, arm, kv=arm.get("queue_kv"), panel_name=panel_name, tag=tag)
+        record = guarded_run(work, models, arm, kv=arm.get("queue_kv"), panel_name=panel_name, tag=tag, generate=generate)
+        for _ in range(repeat - 1 - measured.get((arm["arm"], arm.get("queue_kv") or ""), 0)):  # Amendment 5: spaced repeats
+            if record["status"] != "ok":
+                break
+            log(f"  {record['status']}: peak {record.get('peak_mib')} MiB; next measurement in {spacing / 60:.0f} min")
+            time.sleep(spacing)
+            record = guarded_run(work, models, arm, kv=arm.get("queue_kv"), panel_name=panel_name, tag=tag, generate=generate)
         attempts = [arm["repo"]]
         while record["status"] != "ok" and arm.get("fallbacks"):
             fallback = arm["fallbacks"].pop(0)
@@ -986,9 +1070,15 @@ def _gateway_keys() -> list[str]:
 _KEY_INDEX = [0]
 
 
-def call_j1(prompt: str) -> tuple[str, float]:
+# Amendment 5: the same judges with more reasoning, on a subset of the test calls (identical prompts).
+JUDGE_VARIANTS = {"j1think": "j1", "j2high": "j2"}
+
+
+def call_j1(prompt: str, think: bool = False) -> tuple[str, float]:
     keys = _gateway_keys()
-    body = {"model": J1_MODEL, "messages": [{"role": "user", "content": prompt}], "max_tokens": 4000, "temperature": 0}
+    body: dict[str, Any] = {"model": J1_MODEL, "messages": [{"role": "user", "content": prompt}], "max_tokens": 4000, "temperature": 0}
+    if think:  # extended thinking; the provider requires the default temperature with it
+        body = {"model": J1_MODEL, "messages": body["messages"], "max_tokens": 16000, "reasoning_effort": "high"}
     while _KEY_INDEX[0] < len(keys):
         request = urllib.request.Request(GATEWAY, data=json.dumps(body).encode("utf-8"),
                                          headers={"Authorization": f"Bearer {keys[_KEY_INDEX[0]]}", "Content-Type": "application/json"})
@@ -1005,12 +1095,12 @@ def call_j1(prompt: str) -> tuple[str, float]:
     raise RuntimeError("all gateway keys are out of budget")
 
 
-def call_j2(prompt: str, scratch: Path) -> tuple[str, float]:
+def call_j2(prompt: str, scratch: Path, effort: str = "medium") -> tuple[str, float]:
     scratch.mkdir(parents=True, exist_ok=True)
     out = scratch / f"out_{threading.get_ident()}_{time.time_ns()}.txt"
     codex = os.environ.get("THESIS_CODEX", "codex")
     done = subprocess.run([codex, "exec", "-m", J2_MODEL, "-s", "read-only", "--skip-git-repo-check", "--ephemeral",
-                           "--color", "never", "-C", str(scratch), "-c", "model_reasoning_effort=medium", "-o", str(out), prompt],
+                           "--color", "never", "-C", str(scratch), "-c", f"model_reasoning_effort={effort}", "-o", str(out), prompt],
                           stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=600)
     if done.returncode != 0 or not out.is_file():
         raise RuntimeError(f"codex rc={done.returncode}: {(done.stderr or done.stdout)[-300:]}")
@@ -1078,8 +1168,12 @@ RATE_MARKERS = ("Too Many Requests", "rate limit", "rate_limit")
 RATE_PATIENCE = 12  # consecutive rate-limited answers (about 2.5 hours of backoff) before the run stops
 
 
-def judge(work: Path, judge_name: str, stage: str, groups: list[list[str]], kv_of: dict[str, str], panel_name: str, workers: int) -> dict[str, Any]:
+def judge(work: Path, judge_name: str, stage: str, groups: list[list[str]], kv_of: dict[str, str], panel_name: str, workers: int,
+          rows: int | None = None) -> dict[str, Any]:
     calls = build_calls(work, panel_name, groups, kv_of)
+    if rows:  # the first rows of the panel file (its order is the frozen SHA-256 order)
+        first = {r["row_id"] for r in read_jsonl(work / f"panel_{panel_name}.jsonl")[:rows]}
+        calls = [c for c in calls if c["row_id"] in first]
     out_path = work / f"judgments_{stage}_{judge_name}.jsonl"
     done = {r["call_id"] for r in read_jsonl(out_path)}
     todo = [c for c in calls if c["call_id"] not in done]
@@ -1096,7 +1190,10 @@ def judge(work: Path, judge_name: str, stage: str, groups: list[list[str]], kv_o
             if stopped:
                 return
             try:
-                text, spent = call_j1(call["prompt"]) if judge_name == "j1" else call_j2(call["prompt"], work / "codex_scratch")
+                if judge_name in ("j1", "j1think"):
+                    text, spent = call_j1(call["prompt"], think=judge_name == "j1think")
+                else:
+                    text, spent = call_j2(call["prompt"], work / "codex_scratch", effort="high" if judge_name == "j2high" else "medium")
                 scores = parse_scores(text, list(call["labels"]))
                 with lock:
                     cost[0] += spent
@@ -1144,12 +1241,12 @@ def limit_wait_seconds(message: str, clock: datetime) -> float:
 
 
 def judge_until_done(work: Path, judge_name: str, stage: str, groups: list[list[str]], kv_of: dict[str, str], panel_name: str,
-                     workers: int) -> dict[str, Any]:
+                     workers: int, rows: int | None = None) -> dict[str, Any]:
     """Judge, and after a usage or rate limit wait for it to lift and continue, until every call is judged."""
 
     stalled = 0
     while True:
-        result = judge(work, judge_name, stage, groups, kv_of, panel_name, workers)
+        result = judge(work, judge_name, stage, groups, kv_of, panel_name, workers, rows)
         log(json.dumps(result, ensure_ascii=False))
         if result["judged"] >= result["calls"]:
             return result
@@ -1622,6 +1719,123 @@ def explore(work: Path, arm: str = EXPLORE_ARM, compared: tuple[str, ...] = EXPL
     return result
 
 
+QUIET_SM = 10  # Amendment 5: a measurement is "quiet" if other processes' median SM utilization was at most this (%)
+
+
+def spearman(xs: list[float], ys: list[float]) -> float | None:
+    def ranks(values: list[float]) -> list[float]:
+        order = sorted(range(len(values)), key=lambda i: values[i])
+        out = [0.0] * len(values)
+        i = 0
+        while i < len(order):
+            j = i
+            while j + 1 < len(order) and values[order[j + 1]] == values[order[i]]:
+                j += 1
+            for k in range(i, j + 1):
+                out[order[k]] = (i + j) / 2
+            i = j + 1
+        return out
+
+    if len(xs) < 3:
+        return None
+    rx, ry = ranks(xs), ranks(ys)
+    mx, my = statistics.mean(rx), statistics.mean(ry)
+    sx = math.sqrt(sum((a - mx) ** 2 for a in rx))
+    sy = math.sqrt(sum((b - my) ** 2 for b in ry))
+    return round(sum((a - mx) * (b - my) for a, b in zip(rx, ry, strict=True)) / (sx * sy), 3) if sx and sy else None
+
+
+def gate_met(ttft: float | None, decode: float | None) -> bool:
+    return ttft is not None and ttft <= 150 and (decode or 0) >= 30
+
+
+def robustness(work: Path, references: tuple[str, ...] = REFERENCES) -> dict[str, Any]:
+    """Amendment 5 (sensitivity, outside the decision): every latency measurement of each finalist and reference with
+    the GPU and host load recorded during it, and whether the gate result changes with repeated or quiet measurements."""
+
+    fin = json.loads((work / "finalists.json").read_text(encoding="utf-8"))["per_profile"]
+    configs = sorted({(f["arm"], f["kv"]) for profile in fin.values() for f in profile.values()}
+                     | {(ref, default_kv(arm_by_id(work, ref))) for ref in references})
+    runs = [r for r in read_jsonl(work / "runs.jsonl") if r.get("status") == "ok" and r.get("latency") and not r.get("tuning")]
+    out: dict[str, Any] = {"quiet_other_sm_max": QUIET_SM, "configurations": {}}
+    pooled: dict[str, list[tuple[float, float, float]]] = {}
+    for arm, kv in configs:
+        rows = []
+        for r in runs:
+            if r["arm"] == arm and r["kv"] == kv:
+                ttft, decode = latency_point(r["latency"])
+                load = r["latency"].get("load")
+                rows.append({"tag": r["tag"], "started_at": r.get("started_at"), "ttft_ms": ttft, "decode_tok_s": decode,
+                             "other_sm": load["other_sm"]["median"] if load else None,
+                             "cpu_load1": load["cpu_load1"]["median"] if load else None, "gate": gate_met(ttft, decode)})
+        valid = [x for x in rows if x["ttft_ms"] is not None]
+        if not valid:
+            continue
+        quiet = [x for x in valid if x["other_sm"] is not None and x["other_sm"] <= QUIET_SM]
+
+        def median_point(items: list[dict[str, Any]]) -> dict[str, Any] | None:
+            if not items:
+                return None
+            ttft = statistics.median(x["ttft_ms"] for x in items)
+            decode = statistics.median(x["decode_tok_s"] or 0 for x in items)
+            return {"runs": len(items), "ttft_ms": round(ttft, 1), "decode_tok_s": round(decode, 1), "gate": gate_met(ttft, decode)}
+
+        decision = decision_latency(work, arm, kv)
+        decided = gate_met(decision["ttft_ms"], decision["decode_tok_s"])
+        engine = arm_by_id(work, arm)["engine"]
+        typical = statistics.median(x["ttft_ms"] for x in valid)
+        for x in valid:
+            if x["other_sm"] is not None:
+                pooled.setdefault(engine, []).append((x["other_sm"], x["cpu_load1"], x["ttft_ms"] / typical))
+        all_runs, quiet_runs = median_point(valid), median_point(quiet)
+        out["configurations"][f"{arm}@{kv}"] = {
+            "engine": engine, "measurements": rows, "all_runs": all_runs, "quiet_runs": quiet_runs,
+            "ttft_range_ms": [min(x["ttft_ms"] for x in valid), max(x["ttft_ms"] for x in valid)],
+            "share_of_runs_meeting_gate": round(sum(x["gate"] for x in valid) / len(valid), 2),
+            "decision_gate": decided,
+            "gate_differs": {"all_runs": bool(all_runs and all_runs["gate"] != decided),
+                             "quiet_runs": bool(quiet_runs and quiet_runs["gate"] != decided)}}
+    out["load_vs_first_token"] = {engine: {"measurements": len(v), "spearman_other_sm": spearman([a for a, _, _ in v], [c for _, _, c in v]),
+                                           "spearman_cpu_load1": spearman([b for _, b, _ in v], [c for _, _, c in v])}
+                                  for engine, v in pooled.items()}
+    return out
+
+
+def effort(work: Path, pairs: tuple[tuple[str, str], ...] = (("j1", "j1think"), ("j2", "j2high"))) -> dict[str, Any]:
+    """Amendment 5: the same test calls (identical prompts) scored with more judge reasoning, against the original scores."""
+
+    out: dict[str, Any] = {}
+    for base, variant in pairs:
+        again = {r["call_id"]: r for r in read_jsonl(work / f"judgments_effort_{variant}.jsonl")}
+        first = {r["call_id"]: r for r in read_jsonl(work / f"judgments_test_{base}.jsonl") if r["call_id"] in again}
+        if not first:
+            continue
+        per_arm: dict[str, list[tuple[int, int]]] = {}
+        control_fail = 0
+        for call_id, r in first.items():
+            v = again[call_id]
+            for label, arms_ in r["labels"].items():
+                a, b = r["scores"][label]["overall"], v["scores"][label]["overall"]
+                for arm in arms_:
+                    if arm == "__control__":
+                        control_fail += b >= 6
+                    else:
+                        per_arm.setdefault(arm, []).append((a, b))
+        pairs_all = [p for v in per_arm.values() for p in v]
+        means = {arm: (round(statistics.mean(a for a, _ in v), 3), round(statistics.mean(b for _, b in v), 3)) for arm, v in per_arm.items()}
+        arms_ = sorted(means)
+        out[variant] = {"base": base, "calls": len(first),
+                        "variant_control_failure_rate": round(control_fail / len(first), 4),
+                        "overall_means": {arm: {"base": m[0], "variant": m[1]} for arm, m in means.items()},
+                        "rank_correlation_of_arm_means": spearman([means[a][0] for a in arms_], [means[a][1] for a in arms_]),
+                        "ranking_base": sorted(arms_, key=lambda a: -means[a][0]),
+                        "ranking_variant": sorted(arms_, key=lambda a: -means[a][1]),
+                        "reply_scores": {"pairs": len(pairs_all), "exact": round(sum(a == b for a, b in pairs_all) / len(pairs_all), 3),
+                                         "within_one": round(sum(abs(a - b) <= 1 for a, b in pairs_all) / len(pairs_all), 3),
+                                         "mean_variant_minus_base": round(statistics.mean(b - a for a, b in pairs_all), 3)}}
+    return out
+
+
 RECEIPT = ROOT / "results/eval/responder_v3_result.json"
 
 
@@ -1647,7 +1861,8 @@ def receipt(work: Path) -> dict[str, Any]:
             "contenders_as_run_2026_11_04": load("contenders_2026-11-04.json"), "contenders": contenders(work),
             "finalists_2026_11_07": load("finalists_2026-11-07.json"), "finalists": load("finalists.json"),
             "decision_2026_11_07": load("decide_2026-11-07.json"), "decision": load("decide.json"),
-            "exploratory": load("explore.json"), "judge_controls": controls, "fits": compact, "data_sha256": data}
+            "exploratory": load("explore.json"), "latency_robustness": load("robustness.json"), "judge_effort": load("effort.json"),
+            "judge_controls": controls, "fits": compact, "data_sha256": data}
 
 
 # ---------------------------------------------------------------- main
@@ -1655,7 +1870,7 @@ def receipt(work: Path) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--stage", required=True, choices=["plan", "arms", "fetch", "run", "kvprofile", "grid", "kvquality", "queue", "judge", "fits", "screen", "stage1",
-                                                         "contenders", "finalists", "decide", "explore", "receipt"])
+                                                         "contenders", "finalists", "decide", "explore", "robustness", "effort", "receipt"])
     parser.add_argument("--work", type=Path, required=True)
     parser.add_argument("--models", type=Path)
     parser.add_argument("--arm")
@@ -1664,7 +1879,11 @@ def main() -> int:
     parser.add_argument("--only")
     parser.add_argument("--stages", default="S1,S2")
     parser.add_argument("--arm-list", type=Path)
-    parser.add_argument("--judge", choices=["j1", "j2"])
+    parser.add_argument("--judge", choices=["j1", "j2", *JUDGE_VARIANTS])
+    parser.add_argument("--rows", type=int, help="judge: only the first N rows of the panel")
+    parser.add_argument("--repeat", type=int, default=1, help="queue: measurements of each configuration (Amendment 5)")
+    parser.add_argument("--spacing", type=float, default=0.0, help="queue: seconds between repeated measurements")
+    parser.add_argument("--latency-only", action="store_true", help="queue: measure latency and memory, generate no replies")
     parser.add_argument("--judge-stage")
     parser.add_argument("--groups", help="JSON list of arm lists, one judge call per row and group; or 'stage1', or 'variants:<model>,...'")
     parser.add_argument("--panel", default="dev")
@@ -1707,11 +1926,11 @@ def main() -> int:
         RECEIPT.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     elif args.stage == "queue":
         queue(args.work, args.models, args.limit, args.only, tuple(args.stages.split(",")), args.arm_list, args.panel, args.tag,
-              args.keep_models)
+              args.keep_models, repeat=args.repeat, spacing=args.spacing, generate=not args.latency_only)
         result = {"queue": "finished"}
-    elif args.stage in ("fits", "screen", "stage1", "contenders", "finalists", "decide", "explore"):
+    elif args.stage in ("fits", "screen", "stage1", "contenders", "finalists", "decide", "explore", "robustness", "effort"):
         result = {"fits": fits, "screen": screen, "stage1": stage1, "contenders": contenders, "finalists": finalists,
-                  "decide": decide, "explore": explore}[args.stage](args.work)
+                  "decide": decide, "explore": explore, "robustness": robustness, "effort": effort}[args.stage](args.work)
         (args.work / f"{args.stage}.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     else:
         if args.groups == "stage1":
@@ -1722,7 +1941,8 @@ def main() -> int:
         else:
             groups = json.loads(args.groups)
         kv_of = {name: kv_label(args.work, name) for g in groups for name in g}
-        result = (judge_until_done if args.until_done else judge)(args.work, args.judge, args.judge_stage, groups, kv_of, args.panel, args.workers)
+        result = (judge_until_done if args.until_done else judge)(args.work, args.judge, args.judge_stage, groups, kv_of, args.panel, args.workers,
+                                                                   args.rows)
     print(json.dumps(result, ensure_ascii=False, indent=2, default=str))
     return 1 if isinstance(result, dict) and result.get("status") == "failed" else 0
 

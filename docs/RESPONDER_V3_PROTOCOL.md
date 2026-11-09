@@ -272,6 +272,42 @@ it records an omission in carrying out Amendment 1 and how it is completed.
   the result for it.
 - The exploratory addendum is not affected.
 
+## Amendment 5 (2026-11-09): latency under GPU load, and judge reasoning
+
+Written after the 2026-11-07 decision, prompted by the question whether load
+from other processes on the shared GPU, and the reasoning settings, affect the
+results; before any measurement described here. Both analyses are
+sensitivity analyses: they do not change the stage 7 decision, they are
+reported next to it, and any finalist whose gate result would change is named.
+
+- **Load recording:** every latency measurement from now on records, once per
+  second, the SM utilization of the other processes on the GPU (`nvidia-smi
+  pmon`), the total GPU utilization and the host's one-minute load average.
+  Earlier measurements have no such record.
+- **Repeated measurements:** every finalist (after Amendment 4) and both
+  references are measured five times more, at least 30 minutes apart, at the
+  decision configuration and with the test run's procedure (latency and
+  memory only, no replies). A measurement is *quiet* if the other processes'
+  median SM utilization was at most 10%. Reported per configuration: every
+  measurement with its load, the median over all measurements and over the
+  quiet ones with their gate result, the share of measurements that meet the
+  gate, and whether either median would change the gate result the decision
+  used. Also reported, per engine, is the rank correlation between the load
+  and the first-token time relative to the configuration's median.
+- **No synthetic background load:** it would slow other users' services on the
+  shared GPU. On the target card the responder shares the GPU only with the
+  stack's own recognizer and voice; that case is measured by the whole-stack
+  loopback of the deployment qualification.
+- **Judge reasoning:** the original eight-configuration test calls of the first
+  60 test rows (identical prompts) are scored again by J1 with extended
+  thinking (reasoning effort high) and by J2 with reasoning effort high.
+  Reported per judge: the rank correlation of the configuration means, both
+  rankings, exact and within-one agreement of the reply scores, the mean
+  shift, and the planted-reply failure rate.
+- **Candidate reasoning stays disabled,** as frozen. Every thinking token comes
+  before the first spoken word, so at the measured decode rates a reply with
+  thinking cannot meet the latency requirement.
+
 ## Exploratory addendum (2026-11-09): a tuned 12 GiB configuration, outside the decision
 
 Written after the stage 7 decision (24 GB: Gemma 4 12B FP8; 12 GiB: no

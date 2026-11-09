@@ -240,7 +240,7 @@ def test_judging_stops_at_a_usage_limit_and_keeps_what_was_judged(tmp_path: Path
     monkeypatch.setattr(v3, "build_calls", lambda *args: calls)
     made: list[int] = []
 
-    def fake_j2(prompt: str, scratch: Path) -> tuple[str, float]:
+    def fake_j2(prompt: str, scratch: Path, effort: str = "medium") -> tuple[str, float]:
         made.append(1)
         if len(made) > 2:
             raise RuntimeError("ERROR: You've hit your usage limit. Try again at 2:34 PM.")
@@ -283,7 +283,7 @@ def test_rate_limits_back_off_without_using_attempts(tmp_path: Path, monkeypatch
     answers = iter([RuntimeError("ERROR: exceeded retry limit, last status: 429 Too Many Requests")] * 4
                    + ['{"A": {"relevance": 5, "coherence": 5, "appropriateness": 5, "overall": 5}}'])
 
-    def fake_j2(prompt: str, scratch: Path) -> tuple[str, float]:
+    def fake_j2(prompt: str, scratch: Path, effort: str = "medium") -> tuple[str, float]:
         answer = next(answers)
         if isinstance(answer, Exception):
             raise answer
@@ -326,7 +326,7 @@ def test_a_lapsed_codex_sign_in_stops_the_run_instead_of_failing_every_call(tmp_
     monkeypatch.setattr(v3, "build_calls", lambda *args: calls)
     made: list[int] = []
 
-    def fake_j2(prompt: str, scratch: Path) -> tuple[str, float]:
+    def fake_j2(prompt: str, scratch: Path, effort: str = "medium") -> tuple[str, float]:
         made.append(1)
         raise RuntimeError("codex rc=1: ERROR: workspace routing discovery unauthorized (401)")
 
@@ -532,3 +532,27 @@ def test_the_queue_deletes_a_downloaded_model_unless_asked_to_keep_it(tmp_path: 
     monkeypatch.setattr(v3, "guarded_run", lambda work, models, arm, **kw: {"arm": arm["arm"], "kv": "auto", "status": "ok"})
     v3.queue(tmp_path, tmp_path / "models", None, None, arm_list=tmp_path / "list.txt", keep=keep)
     assert weights.exists() is keep
+
+
+def test_pmon_lines_split_into_this_engine_and_other_processes() -> None:
+    text = "# gpu pid type sm mem\n# Idx # C/G % %\n    0  111  C  40  10 - - - - x\n    0  222  C  -  - - - - - y\n    0  333  C  25  5 - - - - z\n"
+    assert v3.parse_pmon(text, {333}) == (40, 25)
+
+
+def test_spearman_handles_ties_and_order() -> None:
+    assert v3.spearman([1, 2, 3, 4], [10, 20, 30, 40]) == 1.0
+    assert v3.spearman([1, 2, 3, 4], [4, 3, 2, 1]) == -1.0
+    assert v3.spearman([1, 2], [1, 2]) is None
+
+
+def test_more_judge_reasoning_is_compared_on_identical_calls(tmp_path: Path) -> None:
+    def row(call_id: str, a: int, b: int, control: int) -> dict:
+        return {"call_id": call_id, "row_id": call_id, "labels": {"A": ["x"], "B": ["y"], "C": ["__control__"]},
+                "scores": {k: {"relevance": s, "coherence": s, "appropriateness": s, "overall": s} for k, s in (("A", a), ("B", b), ("C", control))}}
+
+    _write(tmp_path / "judgments_test_j2.jsonl", [row("c1", 8, 5, 1), row("c2", 7, 6, 1), row("c3", 9, 2, 1)])
+    _write(tmp_path / "judgments_effort_j2high.jsonl", [row("c1", 8, 4, 7), row("c2", 6, 6, 0)])
+    result = v3.effort(tmp_path, pairs=(("j2", "j2high"),))["j2high"]
+    assert result["calls"] == 2 and result["variant_control_failure_rate"] == 0.5
+    assert result["overall_means"]["x"] == {"base": 7.5, "variant": 7.0} and result["ranking_variant"] == ["x", "y"]
+    assert result["reply_scores"]["exact"] == 0.5 and result["reply_scores"]["within_one"] == 1.0
