@@ -843,9 +843,10 @@ def guarded_run(work: Path, models: Path, arm: dict[str, Any], *, kv: str | None
 
 
 def queue(work: Path, models: Path, limit: int | None, only: str | None, stages: tuple[str, ...] = ("S1", "S2"),
-          arm_list: Path | None = None, panel_name: str = "dev", tag: str = "run") -> None:
+          arm_list: Path | None = None, panel_name: str = "dev", tag: str = "run", keep: bool = False) -> None:
     """Fetch, run and delete arms. With tag "test", an arm list of "arm" or "arm@kv" entries runs those configurations on
-    the given panel, each with the build that served its development run."""
+    the given panel, each with the build that served its development run. With keep, downloaded models stay on disk
+    (a later test run then reuses them)."""
 
     todo = [a for a in read_jsonl(work / "arms.jsonl") if a["stage"] in stages]
     if arm_list:
@@ -947,7 +948,7 @@ def queue(work: Path, models: Path, limit: int | None, only: str | None, stages:
             guarded_run(work, models, arm, kv=record["kv"], panel_name=panel_name, tag="latency3", generate=False)
         if tag == "run":
             append_jsonl(work / "attempts.jsonl", {"arm": arm["arm"], "repos_tried": attempts, "status": record["status"]})
-        if not on_host(arm) and all(a["arm"] != arm["arm"] for a in todo[i + 1:]):  # kept for a later entry of the arm
+        if not keep and not on_host(arm) and all(a["arm"] != arm["arm"] for a in todo[i + 1:]):  # kept for a later entry
             shutil.rmtree(model_dir(models, arm), ignore_errors=True)
     pool.shutdown()
 
@@ -1669,6 +1670,7 @@ def main() -> int:
     parser.add_argument("--panel", default="dev")
     parser.add_argument("--tag", default="run", help="queue: record tag of the runs (\"test\" for test-panel runs)")
     parser.add_argument("--workers", type=int, default=4)
+    parser.add_argument("--keep-models", action="store_true", help="queue: keep downloaded models after their runs")
     parser.add_argument("--until-done", action="store_true", help="judge: wait out usage limits and continue until every call is judged")
     args = parser.parse_args()
     args.work.mkdir(parents=True, exist_ok=True)
@@ -1704,7 +1706,8 @@ def main() -> int:
                   **receipt(args.work)}
         RECEIPT.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     elif args.stage == "queue":
-        queue(args.work, args.models, args.limit, args.only, tuple(args.stages.split(",")), args.arm_list, args.panel, args.tag)
+        queue(args.work, args.models, args.limit, args.only, tuple(args.stages.split(",")), args.arm_list, args.panel, args.tag,
+              args.keep_models)
         result = {"queue": "finished"}
     elif args.stage in ("fits", "screen", "stage1", "contenders", "finalists", "decide", "explore"):
         result = {"fits": fits, "screen": screen, "stage1": stage1, "contenders": contenders, "finalists": finalists,
