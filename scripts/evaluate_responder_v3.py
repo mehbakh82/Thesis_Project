@@ -17,7 +17,10 @@ Stages:
             via Codex) of one stage: stage1, variants, finalists or test;
   stage1    the stage 1 model screen (Amendment 1): mean scores per arm and model;
   contenders  Δq from stage 2, the contenders per profile and the stage 3 builds;
-  score     aggregate, bootstrap and apply the frozen decision rules.
+  finalists the finalist of each contender model and profile (Amendment 3);
+  decide    stage 7: the test-panel decision under both judges;
+  explore   the exploratory 12 GiB tuning summary (outside the decision);
+  receipt   write the write-once result receipt (results/eval/responder_v3_result.json).
 
 Reply text and natural-turn text stay in the private work directory; receipts
 keep scores, timings, sizes and hashes.
@@ -1618,12 +1621,40 @@ def explore(work: Path, arm: str = EXPLORE_ARM, compared: tuple[str, ...] = EXPL
     return result
 
 
+RECEIPT = ROOT / "results/eval/responder_v3_result.json"
+
+
+def receipt(work: Path) -> dict[str, Any]:
+    """The result receipt: every stage's summary, judge controls, compact memory fits, and SHA-256 hashes of the
+    private data. Panels, replies and judgments stay private; only their hashes are published."""
+
+    def load(name: str) -> Any:
+        path = work / name
+        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+    controls = {}
+    for path in sorted(work.glob("judgments_*_j[12].jsonl")):
+        stage, judge_name = path.stem.removeprefix("judgments_").rsplit("_", 1)
+        controls[f"{stage}/{judge_name}"] = arm_scores(work, stage, judge_name)[1]
+    compact = {arm: {"engine": f["engine"], "nominal_bits": f["nominal_bits"], "measured_peak_mib": f["measured_peak_mib"],
+                     "fixed_mib": f["fixed_mib"], "deployment_fit": f["deployment_fit"], "first_token_and_decode": latency_point(f["latency"])}
+               for arm, f in fits(work).items()}
+    patterns = ("panel_*.jsonl", "arms.jsonl", "attempts.jsonl", "runs.jsonl", "kvprofile.jsonl", "judgments_*.jsonl", "replies/*.jsonl")
+    data = {path.relative_to(work).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+            for pattern in patterns for path in sorted(work.glob(pattern))}
+    return {"stage1": load("stage1.json"), "stage2_screen": load("screen.json"),
+            "contenders_as_run_2026_11_04": load("contenders_2026-11-04.json"), "contenders": contenders(work),
+            "finalists_2026_11_07": load("finalists_2026-11-07.json"), "finalists": load("finalists.json"),
+            "decision_2026_11_07": load("decide_2026-11-07.json"), "decision": load("decide.json"),
+            "exploratory": load("explore.json"), "judge_controls": controls, "fits": compact, "data_sha256": data}
+
+
 # ---------------------------------------------------------------- main
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--stage", required=True, choices=["plan", "arms", "fetch", "run", "kvprofile", "grid", "kvquality", "queue", "judge", "fits", "screen", "stage1",
-                                                         "contenders", "finalists", "decide", "explore"])
+                                                         "contenders", "finalists", "decide", "explore", "receipt"])
     parser.add_argument("--work", type=Path, required=True)
     parser.add_argument("--models", type=Path)
     parser.add_argument("--arm")
@@ -1643,13 +1674,13 @@ def main() -> int:
     args.work.mkdir(parents=True, exist_ok=True)
     if args.stage == "plan":
         result: Any = plan(args.work)
-        receipt = ROOT / "results/eval/responder_v3_plan.json"
-        if receipt.exists():
-            frozen = json.loads(receipt.read_text(encoding="utf-8"))
+        plan_receipt = ROOT / "results/eval/responder_v3_plan.json"
+        if plan_receipt.exists():
+            frozen = json.loads(plan_receipt.read_text(encoding="utf-8"))
             if frozen["panels"] != result:
                 raise SystemExit("panels differ from the frozen plan receipt")
         else:
-            receipt.write_text(json.dumps({"schema_version": 1, "protocol": "docs/RESPONDER_V3_PROTOCOL.md", "created_at": now(),
+            plan_receipt.write_text(json.dumps({"schema_version": 1, "protocol": "docs/RESPONDER_V3_PROTOCOL.md", "created_at": now(),
                                            "evaluator_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                                            "panels": result}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     elif args.stage == "arms":
@@ -1664,6 +1695,14 @@ def main() -> int:
         result = kvprofile(args.work, args.models, serving_arm(args.work, args.arm))
     elif args.stage == "grid":
         result = grid(args.work, args.models, serving_arm(args.work, args.arm))
+    elif args.stage == "receipt":
+        if RECEIPT.exists():
+            raise SystemExit(f"{RECEIPT.name} exists and is write-once")
+        result = {"schema_version": 1, "protocol": "docs/RESPONDER_V3_PROTOCOL.md", "created_at": now(),
+                  "evaluator_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                  "protocol_sha256": hashlib.sha256((ROOT / "docs/RESPONDER_V3_PROTOCOL.md").read_bytes()).hexdigest(),
+                  **receipt(args.work)}
+        RECEIPT.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     elif args.stage == "queue":
         queue(args.work, args.models, args.limit, args.only, tuple(args.stages.split(",")), args.arm_list, args.panel, args.tag)
         result = {"queue": "finished"}
