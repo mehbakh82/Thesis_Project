@@ -361,6 +361,75 @@ is reported as post hoc. It does not change the stage 7 decision.
   12 GiB stack switches to it is left to the user, after the listening study
   that decides between the 4B responders.
 
+## Exploratory addendum 2 (2026-11-11): the next models in 12 GiB
+
+Written after the 12 GiB one-sequence check failed (Q2: one planned turn with
+no reply; Q3: relevance after interruption 0.27 below the control under the
+Qwen3.8 judge) and before any reply described here is generated. It is
+exploratory: it changes no decision, and its outcome is reported as such.
+
+The stage 2 rule kept only Gemma 4 12B as a 12 GiB contender, so the two
+next-best models in the stage 1 screen that fit the profile, Gemma 4 E4B and
+Qwen3.5-9B (both 6.20, Gemma 4 12B 7.16, Qwen3.5-4B 5.43), never reached the
+test panel. This run measures whether either beats the 4B references there.
+
+- **Builds, fixed now from measurements already made:** for each model, the
+  build with the highest development score (J2, stage 2) among the builds whose
+  development run fits the 12 GiB limit and meets the latency gate. Gemma 4
+  E4B: GGUF Q8_0 on llama.cpp (6.18; 5,906 MiB, first token 106.5 ms,
+  38.7 tokens/s). The official QAT build (6.17) needs 11,608 MiB and the NVFP4
+  build scores 5.52. Qwen3.5-9B: GGUF Q4_K_M on llama.cpp, its only build run
+  (6.20 in stage 1; 5,812 MiB, 106.9 ms, 171 tokens/s). Same serving
+  configuration as stage 1 (context 2,048, two sequences, default KV).
+- **Generation:** the 252 test rows, as in stage 6, under a separate run tag,
+  so no file of the decision changes.
+- **Judging:** J1 and J2, listwise, one group per row: the two builds, the two
+  references (Qwen3.5-4B bf16 with the elderly prompt, the deployed Qwen3-4B),
+  Gemma 4 12B QAT as an anchor to the stage 7 table, and the planted control.
+  Scores go to their own judgment files.
+- **Reading:** the stage 7 rule for beating a reference (under both judges, a
+  paired mean overall gain of at least 0.5 with a 95% bootstrap interval above
+  zero, and non-negative relevance, coherence and appropriateness gains).
+  Reported for both builds against both references, with the anchor's gain.
+  A build that meets it is reported as an exploratory 12 GiB candidate that
+  needs its own deployment check; none is run in this thesis.
+
+## Post-hoc addendum 3 (2026-11-11): Gemma 4 12B Q5_K_M on llama.cpp in 12 GiB
+
+Written after the exploratory llama.cpp diagnosis and before any measurement
+described here. The diagnosis served the Gemma 4 12B Q5_K_M build with the
+harness settings on the first 40 development rows, changing one setting at a
+time. Gemma 4 uses sliding-window attention, and with its default settings
+llama.cpp saves and restores context checkpoints of the window cache around
+every reused prompt: the first token took 177–184 ms in a first pass (host
+load about 2) and 163–280 ms in a second pass under heavier host load (load 2
+to 35). In the second pass, without checkpoints (`--ctx-checkpoints 0`) it
+took 59.5 ms, and with a full-size window cache (`--swa-full`, which keeps
+prompt reuse without checkpoints) 24.8 ms at 10,088 MiB of GPU memory, within
+the 12 GiB responder limit (10,682 MiB). The other settings (log level,
+grammar, batch size, one slot) stayed between 163 and 183 ms. The harness kept llama.cpp's defaults, so this build missed the latency
+gate in stage 7 although it fits the profile and has the highest J2 test score
+of the finalists (J1 6.70, J2 7.18). Changing a serving setting after the
+results were known is post hoc, and the outcome is reported as such; it does
+not change the stage 7 decision.
+
+- **Configuration:** the same GGUF file as stage 7
+  (`unsloth/gemma-4-12b-it-GGUF`, `gemma-4-12b-it-Q5_K_M.gguf`, SHA-256
+  recorded), the harness's llama.cpp settings (context 4,096 over two slots,
+  i.e. 2,048 per sequence, flash attention, batch 2,048, micro-batch 512)
+  plus `--swa-full`; the elderly prompt v1, at most 96 new tokens, thinking
+  off, and the Persian-only constraint as the harness's llama.cpp grammar (the
+  same character class as the vLLM regular expression).
+- **Checks:** part 2 of `docs/RESPONDER_SWITCH_PROTOCOL.md`, unchanged, with the
+  12 GiB limit (Q1 whole-stack peak at most 12,288 MiB; Q2 plain panel with no
+  missing reply, mean and p90 at most 500 ms, elderly p90 at most 500 ms; Q3
+  coherence after interruption under the same two judges; Q4 no Latin letter).
+  Same harness, panels and host as the earlier qualifications.
+- **Reading:** if all four pass, this configuration is reported as a post-hoc
+  qualified 12 GiB configuration with the test-panel quality of the stage 7
+  table (the setting changes caching, not the computed replies); whether the
+  12 GiB stack switches to it is left to the user, after the listening study.
+
 ## Panels
 
 Frozen by `scripts/evaluate_responder_v3.py --stage plan` with SHA-256 hashes
