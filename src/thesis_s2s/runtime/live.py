@@ -738,6 +738,15 @@ RESPONDER_PRESETS: dict[str, dict[str, Any]] = {
         "max_new_tokens": 96,
         "chat_template_kwargs": {"enable_thinking": False},
     },
+    # 24 GB profile winner of responder comparison v3 (docs/RESPONDER_V3_RESULT.md), served by vLLM.
+    "gemma4_12b_qat_elderly_v1": {
+        "prompt": "ELDERLY_PROMPT_V1",
+        "served_name": "gemma4-12b-qat",
+        "model": "google/gemma-4-12B-it-qat-w4a16-ct",
+        "revision": "1d2c2d7f2466070e69d6fb3fd5ce9a7d75f2f6ee",
+        "max_new_tokens": 96,
+        "chat_template_kwargs": {"enable_thinking": False},
+    },
 }
 
 
