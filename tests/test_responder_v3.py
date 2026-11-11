@@ -556,3 +556,25 @@ def test_more_judge_reasoning_is_compared_on_identical_calls(tmp_path: Path) -> 
     assert result["calls"] == 2 and result["variant_control_failure_rate"] == 0.5
     assert result["overall_means"]["x"] == {"base": 7.5, "variant": 7.0} and result["ranking_variant"] == ["x", "y"]
     assert result["reply_scores"]["exact"] == 0.5 and result["reply_scores"]["within_one"] == 1.0
+
+
+def test_an_identical_prompt_in_a_new_group_reuses_the_judged_scores(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    (tmp_path / "replies").mkdir()
+    _write(tmp_path / "panel_dev.jsonl", [{"row_id": "r1", "text": "سلام", "history": []}, {"row_id": "r2", "text": "خوبی", "history": []}])
+    _write(tmp_path / "replies" / "dev__a__auto.jsonl", [{"row_id": "r1", "reply": "یک"}, {"row_id": "r2", "reply": "دو"}])
+    _write(tmp_path / "replies" / "dev__b__auto.jsonl", [{"row_id": "r1", "reply": "یک"}, {"row_id": "r2", "reply": "دو"}])
+    calls = {"n": 0}
+
+    def fake_j2(prompt: str, scratch: Path, effort: str = "medium") -> tuple[str, float]:
+        calls["n"] += 1
+        return json.dumps({k: {"relevance": 7, "coherence": 7, "appropriateness": 7, "overall": 7} for k in "ABC"}), 0.0
+
+    monkeypatch.setattr(v3, "call_j2", fake_j2)
+    v3.judge(tmp_path, "j2", "s", [["a"]], {"a": "auto"}, "dev", 1)
+    assert calls["n"] == 2
+    result = v3.judge(tmp_path, "j2", "s", [["a", "b"]], {"a": "auto", "b": "auto"}, "dev", 1)
+    # b repeats a word for word, so every prompt is one already judged: no new call, the scores are reused.
+    assert calls["n"] == 2 and result["reused_identical_prompts"] == 2 and result["judged"] == 2
+    table, controls = v3.arm_scores(tmp_path, "s", "j2")
+    assert set(table["b"]) == {"r1", "r2"} and controls["calls"] == 2
+    assert v3.judge(tmp_path, "j2", "s", [["a", "b"]], {"a": "auto", "b": "auto"}, "dev", 1)["reused_identical_prompts"] == 0
