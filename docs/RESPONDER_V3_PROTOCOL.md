@@ -334,6 +334,33 @@ opened, and the tunings below were not part of the frozen serving settings.
   stage 7 rule against each compared arm would be met are reported, all
   labelled exploratory.
 
+## Post-hoc addendum (2026-11-11): Gemma 4 12B QAT in 12 GiB with one sequence
+
+Written after the stage 7 decision and before any measurement described here,
+because the 12 GiB profile ended without a winner while the vLLM builds of
+Gemma 4 12B missed its memory limit by only about 200–250 MiB. It changes the
+profile's deployment requirement after the results were known, so its outcome
+is reported as post hoc. It does not change the stage 7 decision.
+
+- **Configuration:** Gemma 4 12B QAT W4A16 on vLLM `v0.30.0`, the 24 GB
+  preset's prompt and decoding, context 2,048 tokens, but **one** sequence
+  (`--max-num-seqs 1`, a KV cache sized from the model's profile for one
+  sequence: 749,197,135 bytes) instead of two. With one sequence, a speculative
+  start that turns out wrong makes the confirmed request wait for it; the
+  loopback latency includes that cost.
+- **Checks:** part 2 of `docs/RESPONDER_SWITCH_PROTOCOL.md`, unchanged, with
+  the 12 GiB limit: Q1 whole-stack peak (responder and recognizer) at most
+  12,288 MiB; Q2 plain panel with no missing reply, mean and p90 at most
+  500 ms, and elderly panel p90 at most 500 ms; Q3 coherence after interruption
+  under the same two judges; Q4 no Latin letter. Same harness, panels and host
+  as the 24 GB qualification.
+- **Reading:** if all four pass, Gemma 4 12B QAT with one sequence is reported
+  as a post-hoc qualified 12 GiB configuration with the test-panel quality of
+  the stage 7 table (greedy replies do not depend on the number of sequences,
+  apart from the small numerical differences of batching); whether the
+  12 GiB stack switches to it is left to the user, after the listening study
+  that decides between the 4B responders.
+
 ## Panels
 
 Frozen by `scripts/evaluate_responder_v3.py --stage plan` with SHA-256 hashes
