@@ -1175,7 +1175,22 @@ def judge(work: Path, judge_name: str, stage: str, groups: list[list[str]], kv_o
         first = {r["row_id"] for r in read_jsonl(work / f"panel_{panel_name}.jsonl")[:rows]}
         calls = [c for c in calls if c["row_id"] in first]
     out_path = work / f"judgments_{stage}_{judge_name}.jsonl"
-    done = {r["call_id"] for r in read_jsonl(out_path)}
+    prior: dict[str, list[dict[str, Any]]] = {}
+    for r in read_jsonl(out_path):
+        prior.setdefault(r["call_id"], []).append(r)
+    # A new arm whose reply repeats another arm's reply word for word can make a prompt identical to one already
+    # judged in an earlier group. The judge saw exactly this prompt, so its scores are reused under the new labels.
+    reused = 0
+    for c in calls:
+        earlier = prior.get(c["call_id"], [])
+        if earlier and all(r["labels"] != c["labels"] for r in earlier):
+            source = next(r for r in earlier if not r.get("reused_identical_prompt"))
+            if set(source["labels"]) != set(c["labels"]):
+                raise RuntimeError(f"call {c['call_id']}: identical prompt with different labels")
+            append_jsonl(out_path, {"call_id": c["call_id"], "row_id": c["row_id"], "group": c["group"], "judge": judge_name,
+                                    "labels": c["labels"], "scores": source["scores"], "reused_identical_prompt": True, "at": now()})
+            reused += 1
+    done = set(prior)
     todo = [c for c in calls if c["call_id"] not in done]
     log(f"judge {judge_name}/{stage}: {len(todo)} of {len(calls)} calls to make")
     lock = threading.Lock()
@@ -1223,8 +1238,8 @@ def judge(work: Path, judge_name: str, stage: str, groups: list[list[str]], kv_o
     with cf.ThreadPoolExecutor(max_workers=workers) as pool:
         list(pool.map(one, todo))
     made = len({r["call_id"] for r in read_jsonl(out_path)} & {c["call_id"] for c in calls})
-    return {"judge": judge_name, "stage": stage, "calls": len(calls), "judged": made, "failures": failures[0],
-            "stopped": stopped[0] if stopped else None, "cost_usd": round(cost[0], 4)}
+    return {"judge": judge_name, "stage": stage, "calls": len(calls), "judged": made, "reused_identical_prompts": reused,
+            "failures": failures[0], "stopped": stopped[0] if stopped else None, "cost_usd": round(cost[0], 4)}
 
 
 def limit_wait_seconds(message: str, clock: datetime) -> float:
@@ -1275,7 +1290,8 @@ def arm_scores(work: Path, stage: str, judge_name: str) -> tuple[Table, dict[str
         for label, arms_ in record["labels"].items():
             for arm in arms_:
                 if arm == "__control__":
-                    control_overall.append(record["scores"][label]["overall"])
+                    if not record.get("reused_identical_prompt"):  # one judge call counts once
+                        control_overall.append(record["scores"][label]["overall"])
                 else:
                     collected.setdefault(arm, {}).setdefault(record["row_id"], []).append(record["scores"][label])
     table = {arm: {row: {k: statistics.mean(s[k] for s in scores) for k in SCORE_KEYS} for row, scores in rows.items()}
@@ -1807,7 +1823,8 @@ def effort(work: Path, pairs: tuple[tuple[str, str], ...] = (("j1", "j1think"), 
     out: dict[str, Any] = {}
     for base, variant in pairs:
         again = {r["call_id"]: r for r in read_jsonl(work / f"judgments_effort_{variant}.jsonl")}
-        first = {r["call_id"]: r for r in read_jsonl(work / f"judgments_test_{base}.jsonl") if r["call_id"] in again}
+        first = {r["call_id"]: r for r in read_jsonl(work / f"judgments_test_{base}.jsonl")
+                 if r["call_id"] in again and not r.get("reused_identical_prompt")}
         if not first:
             continue
         per_arm: dict[str, list[tuple[int, int]]] = {}
