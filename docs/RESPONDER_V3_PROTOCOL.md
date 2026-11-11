@@ -361,6 +361,39 @@ is reported as post hoc. It does not change the stage 7 decision.
   12 GiB stack switches to it is left to the user, after the listening study
   that decides between the 4B responders.
 
+## Exploratory addendum 2 (2026-11-11): the next models in 12 GiB
+
+Written after the 12 GiB one-sequence check failed (Q2: one planned turn with
+no reply; Q3: relevance after interruption 0.27 below the control under the
+Qwen3.8 judge) and before any reply described here is generated. It is
+exploratory: it changes no decision, and its outcome is reported as such.
+
+The stage 2 rule kept only Gemma 4 12B as a 12 GiB contender, so the two
+next-best models in the stage 1 screen that fit the profile, Gemma 4 E4B and
+Qwen3.5-9B (both 6.20, Gemma 4 12B 7.16, Qwen3.5-4B 5.43), never reached the
+test panel. This run measures whether either beats the 4B references there.
+
+- **Builds, fixed now from measurements already made:** for each model, the
+  build with the highest development score (J2, stage 2) among the builds whose
+  development run fits the 12 GiB limit and meets the latency gate. Gemma 4
+  E4B: GGUF Q8_0 on llama.cpp (6.18; 5,906 MiB, first token 106.5 ms,
+  38.7 tokens/s). The official QAT build (6.17) needs 11,608 MiB and the NVFP4
+  build scores 5.52. Qwen3.5-9B: GGUF Q4_K_M on llama.cpp, its only build run
+  (6.20 in stage 1; 5,812 MiB, 106.9 ms, 171 tokens/s). Same serving
+  configuration as stage 1 (context 2,048, two sequences, default KV).
+- **Generation:** the 252 test rows, as in stage 6, under a separate run tag,
+  so no file of the decision changes.
+- **Judging:** J1 and J2, listwise, one group per row: the two builds, the two
+  references (Qwen3.5-4B bf16 with the elderly prompt, the deployed Qwen3-4B),
+  Gemma 4 12B QAT as an anchor to the stage 7 table, and the planted control.
+  Scores go to their own judgment files.
+- **Reading:** the stage 7 rule for beating a reference (under both judges, a
+  paired mean overall gain of at least 0.5 with a 95% bootstrap interval above
+  zero, and non-negative relevance, coherence and appropriateness gains).
+  Reported for both builds against both references, with the anchor's gain.
+  A build that meets it is reported as an exploratory 12 GiB candidate that
+  needs its own deployment check; none is run in this thesis.
+
 ## Panels
 
 Frozen by `scripts/evaluate_responder_v3.py --stage plan` with SHA-256 hashes
