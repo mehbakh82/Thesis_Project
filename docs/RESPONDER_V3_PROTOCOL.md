@@ -394,6 +394,41 @@ test panel. This run measures whether either beats the 4B references there.
   A build that meets it is reported as an exploratory 12 GiB candidate that
   needs its own deployment check; none is run in this thesis.
 
+## Post-hoc addendum 3 (2026-11-11): Gemma 4 12B Q5_K_M on llama.cpp in 12 GiB
+
+Written after the exploratory llama.cpp diagnosis and before any measurement
+described here. The diagnosis served the Gemma 4 12B Q5_K_M build with the
+harness settings on the first 40 development rows, changing one setting at a
+time. Gemma 4 uses sliding-window attention, and with its default settings
+llama.cpp saves and restores context checkpoints of the window cache around
+every reused prompt: the first token took 178–184 ms. Without checkpoints
+(`--ctx-checkpoints 0`) it took 59.5 ms, and with a full-size window cache
+(`--swa-full`, which keeps prompt reuse without checkpoints) 24.8 ms at
+10,088 MiB of GPU memory, within the 12 GiB responder limit (10,682 MiB). The
+other settings (log level, grammar, batch size, one slot) changed it by at most
+20 ms. The harness kept llama.cpp's defaults, so this build missed the latency
+gate in stage 7 although it fits the profile and has the highest J2 test score
+of the finalists (J1 6.70, J2 7.18). Changing a serving setting after the
+results were known is post hoc, and the outcome is reported as such; it does
+not change the stage 7 decision.
+
+- **Configuration:** the same GGUF file as stage 7
+  (`unsloth/gemma-4-12b-it-GGUF`, `gemma-4-12b-it-Q5_K_M.gguf`, SHA-256
+  recorded), the harness's llama.cpp settings (context 4,096 over two slots,
+  i.e. 2,048 per sequence, flash attention, batch 2,048, micro-batch 512)
+  plus `--swa-full`; the elderly prompt v1, at most 96 new tokens, thinking
+  off, and the Persian-only constraint as the harness's llama.cpp grammar (the
+  same character class as the vLLM regular expression).
+- **Checks:** part 2 of `docs/RESPONDER_SWITCH_PROTOCOL.md`, unchanged, with the
+  12 GiB limit (Q1 whole-stack peak at most 12,288 MiB; Q2 plain panel with no
+  missing reply, mean and p90 at most 500 ms, elderly p90 at most 500 ms; Q3
+  coherence after interruption under the same two judges; Q4 no Latin letter).
+  Same harness, panels and host as the earlier qualifications.
+- **Reading:** if all four pass, this configuration is reported as a post-hoc
+  qualified 12 GiB configuration with the test-panel quality of the stage 7
+  table (the setting changes caching, not the computed replies); whether the
+  12 GiB stack switches to it is left to the user, after the listening study.
+
 ## Panels
 
 Frozen by `scripts/evaluate_responder_v3.py --stage plan` with SHA-256 hashes
