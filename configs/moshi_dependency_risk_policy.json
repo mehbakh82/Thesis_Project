@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "status": "temporary-compatibility-exception",
-  "reviewed_at": "2026-10-29",
+  "reviewed_at": "2026-11-11",
   "scope": "Pinned private Moshi training/runtime environment only; not the general application environment.",
   "review_command": ".venv/bin/python scripts/audit_moshi_dependencies.py",
   "accepted_risks": [
@@ -145,7 +145,7 @@
     {
       "package": "pillow",
       "version": "12.3.0",
-      "upstream_constraint": "Image-decoder advisories; Pillow 13.0.0 fixes the bundled libopenjp2 issue and the JPEG decoder heap overflow (CVE-2026-112403), and several others list no fixed release yet. requirements-moshi.lock records the exact environment of the completed Moshi experiments (recorded in results/hardware/moshi_environment.json); upgrading it would no longer reproduce those runs.",
+      "upstream_constraint": "Image-decoder advisories; Pillow 13.0.0 fixes the bundled libopenjp2 issue and the JPEG decoder heap overflow (CVE-2026-112403), the TIFF encoder's tag handling (PYSEC-2026-4363, fixed in 13.0.0) affects only saving images, and several others list no fixed release yet. requirements-moshi.lock records the exact environment of the completed Moshi experiments (recorded in results/hardware/moshi_environment.json); upgrading it would no longer reproduce those runs.",
       "advisories": [
         "CVE-2026-112390",
         "CVE-2026-112391",
@@ -185,7 +185,8 @@
         "GHSA-78g4-xqwv-q3g8",
         "PYSEC-2026-4326",
         "PYSEC-2026-4327",
-        "PYSEC-2026-4328"
+        "PYSEC-2026-4328",
+        "PYSEC-2026-4363"
       ],
       "mitigations": [
         "The Moshi pipeline processes audio and text only and never opens image files.",
