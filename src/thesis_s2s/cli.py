@@ -510,8 +510,9 @@ def main(argv: list[str] | None = None) -> None:
     p_live.add_argument(
         "--responder",
         default="qwen3_4b_prompt_v2",
-        choices=["qwen3_4b_prompt_v2", "qwen35_4b_elderly_v1"],
-        help="responder configuration (docs/RESPONDER_SWITCH_PROTOCOL.md)",
+        choices=["qwen3_4b_prompt_v2", "qwen35_4b_elderly_v1", "gemma4_12b_qat_elderly_v1"],
+        help="responder configuration (docs/RESPONDER_SWITCH_PROTOCOL.md; the Gemma 4 12B preset is the 24 GB profile "
+        "of docs/RESPONDER_V3_RESULT.md)",
     )
     p_live.add_argument(
         "--turn-end-gate",

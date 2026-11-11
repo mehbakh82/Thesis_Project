@@ -216,3 +216,13 @@ def test_responder_switch_qualification_checks() -> None:
     assert not result["checks"]["q4_script"]["passed"] and not result["part2_passed"]
     loopback["gpu_memory"]["peak_stack_mib"] = 12400
     assert not switch.qualification(loopback, coherence, [])["checks"]["q1_memory"]["passed"]
+    # The 24 GB preset of responder comparison v3 is checked against 22,528 MiB.
+    assert switch.qualification(loopback, coherence, [], memory_limit_mib=22_528)["checks"]["q1_memory"]["passed"]
+
+
+def test_the_24gb_preset_is_the_responder_v3_winner() -> None:
+    from thesis_s2s.runtime.live import RESPONDER_PRESETS
+
+    preset = RESPONDER_PRESETS["gemma4_12b_qat_elderly_v1"]
+    assert preset["model"] == "google/gemma-4-12B-it-qat-w4a16-ct" and preset["prompt"] == "ELDERLY_PROMPT_V1"
+    assert preset["max_new_tokens"] == 96 and preset["chat_template_kwargs"] == {"enable_thinking": False}

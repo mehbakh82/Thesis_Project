@@ -22,14 +22,15 @@ MEMORY_LIMIT_MIB = 12_288
 LATIN = re.compile(r"[A-Za-z]")
 
 
-def qualification(loopback: dict[str, Any], coherence: dict[str, Any], replies: list[str]) -> dict[str, Any]:
+def qualification(loopback: dict[str, Any], coherence: dict[str, Any], replies: list[str],
+                  memory_limit_mib: int = MEMORY_LIMIT_MIB) -> dict[str, Any]:
     plain = loopback["conditions"]["plain"]
     acceptance = loopback["acceptance"]
     peak = (loopback.get("gpu_memory") or {}).get("peak_stack_mib")
     latin = [r for r in replies if LATIN.search(r)]
     checks = {
-        "q1_memory": {"peak_stack_mib": peak, "limit_mib": MEMORY_LIMIT_MIB,
-                      "passed": peak is not None and peak <= MEMORY_LIMIT_MIB},
+        "q1_memory": {"peak_stack_mib": peak, "limit_mib": memory_limit_mib,
+                      "passed": peak is not None and peak <= memory_limit_mib},
         "q2_latency": {
             "plain_missing": plain["turns_without_first_audio"],
             "plain_mean_ms": plain["t_first_audio_ms"].get("mean"),
@@ -54,6 +55,10 @@ def main() -> int:
     parser.add_argument("--coherence", type=Path, required=True)
     parser.add_argument("--telemetry", type=Path, nargs="+", required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--memory-limit-mib", type=int, default=MEMORY_LIMIT_MIB,
+                        help="Q1 limit: 12,288 for the 12 GiB stack, 22,528 for the 24 GB preset (docs/RESPONDER_V3_PROTOCOL.md)")
+    parser.add_argument("--experiment", default="responder_switch_qualification")
+    parser.add_argument("--protocol", default="docs/RESPONDER_SWITCH_PROTOCOL.md")
     args = parser.parse_args()
     if args.out.exists():
         raise SystemExit(f"refusing to overwrite the write-once receipt {args.out}")
@@ -67,8 +72,8 @@ def main() -> int:
     coherence = json.loads(args.coherence.read_text(encoding="utf-8"))
     receipt = {
         "schema_version": 1,
-        "experiment": "responder_switch_qualification",
-        "protocol": "docs/RESPONDER_SWITCH_PROTOCOL.md",
+        "experiment": args.experiment,
+        "protocol": args.protocol,
         "configuration": {k: loopback["server_identity"].get(k) for k in
                           ("responder_model", "responder_revision", "responder_preset", "system_prompt_sha256",
                            "max_new_tokens")},
@@ -76,7 +81,7 @@ def main() -> int:
             "loopback": hashlib.sha256(args.loopback.read_bytes()).hexdigest(),
             "coherence": hashlib.sha256(args.coherence.read_bytes()).hexdigest(),
         },
-        **qualification(loopback, coherence, replies),
+        **qualification(loopback, coherence, replies, args.memory_limit_mib),
         "human_part": "computed from the listening study by scripts/ingest_listening_study.py",
         "text_retained": False,
     }
