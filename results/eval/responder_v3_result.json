@@ -1,0 +1,5221 @@
+{
+  "schema_version": 1,
+  "protocol": "docs/RESPONDER_V3_PROTOCOL.md",
+  "created_at": "2026-11-11T06:48:29.902910+00:00",
+  "evaluator_sha256": "8fcc8c610c2d3d4f5639d7ec166a09ba48f3dae8f1c30281af0c7400787f97c0",
+  "protocol_sha256": "8fd3654b155d69af7962d0b9ff793d92c53c316edc4a805225922864d30fed2f",
+  "stage1": {
+    "judge": "j2",
+    "panel": "dev",
+    "controls": {
+      "calls": 200,
+      "control_overall_mean": 1.41,
+      "control_failure_rate": 0.055
+    },
+    "groups": [
+      [
+        "qwen3.5-4b__official_bf16",
+        "qwen3-4b-instruct-2507__deployed",
+        "qwen3.5-0.8b__gguf-q4_k_m",
+        "qwen3.5-0.8b__official_bf16",
+        "gemma-4-e2b__gguf-q4_k_m",
+        "qwen3.5-9b__gguf-q4_k_m",
+        "gemma-4-12b__official_qat_w4a16",
+        "qwen3.5-27b__gguf-q4_k_m",
+        "gemma-4-26b-a4b__gguf-q4_k_m",
+        "qwen3.8-27b__gguf-q4_k_m",
+        "qwen3.6-35b-a3b__gguf-q4_k_m"
+      ],
+      [
+        "qwen3.5-4b__official_bf16",
+        "qwen3-4b-instruct-2507__deployed",
+        "qwen3.5-2b__gguf-q4_k_m",
+        "qwen3.5-4b__gguf-q4_k_m",
+        "gemma-4-e4b__gguf-q4_k_m",
+        "gemma-4-12b__gguf-q4_k_m",
+        "gemma-4-e4b__official_qat_w4a16",
+        "qwen3.6-27b__gguf-q4_k_m",
+        "gemma-4-31b__gguf-q4_k_m",
+        "qwen3.5-35b-a3b__gguf-q4_k_m",
+        "qwen3.8-27b__official_fp8"
+      ]
+    ],
+    "anchor_overall_by_group": {
+      "qwen3-4b-instruct-2507__deployed": {
+        "0": 3.28,
+        "1": 3.29
+      },
+      "qwen3.5-4b__official_bf16": {
+        "0": 5.34,
+        "1": 5.28
+      }
+    },
+    "arms": {
+      "gemma-4-12b__gguf-q4_k_m": {
+        "model": "google/gemma-4-12B-it",
+        "means": {
+          "relevance": 7.35,
+          "coherence": 8.32,
+          "appropriateness": 7.68,
+          "overall": 6.72
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 6.88,
+          "elderly_gpt-6-astra": 7,
+          "natural_turns": 6.5
+        }
+      },
+      "gemma-4-12b__official_qat_w4a16": {
+        "model": "google/gemma-4-12B-it",
+        "means": {
+          "relevance": 7.46,
+          "coherence": 9.16,
+          "appropriateness": 8.22,
+          "overall": 7.16
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 6.76,
+          "elderly_gpt-6-astra": 7.12,
+          "natural_turns": 7.38
+        }
+      },
+      "gemma-4-26b-a4b__gguf-q4_k_m": {
+        "model": "google/gemma-4-26B-A4B-it",
+        "means": {
+          "relevance": 7.4,
+          "coherence": 8.96,
+          "appropriateness": 7.05,
+          "overall": 6.76
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 6.92,
+          "elderly_gpt-6-astra": 7.08,
+          "natural_turns": 6.52
+        }
+      },
+      "gemma-4-31b__gguf-q4_k_m": {
+        "model": "google/gemma-4-31B-it",
+        "means": {
+          "relevance": 7.84,
+          "coherence": 9.03,
+          "appropriateness": 7.28,
+          "overall": 7.05
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 7.48,
+          "elderly_gpt-6-astra": 7.4,
+          "natural_turns": 6.66
+        }
+      },
+      "gemma-4-e2b__gguf-q4_k_m": {
+        "model": "google/gemma-4-E2B-it",
+        "means": {
+          "relevance": 5.61,
+          "coherence": 8.48,
+          "appropriateness": 7,
+          "overall": 5.37
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 5,
+          "elderly_gpt-6-astra": 5.8,
+          "natural_turns": 5.34
+        }
+      },
+      "gemma-4-e4b__gguf-q4_k_m": {
+        "model": "google/gemma-4-E4B-it",
+        "means": {
+          "relevance": 6.56,
+          "coherence": 8.83,
+          "appropriateness": 7.59,
+          "overall": 6.2
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 6.24,
+          "elderly_gpt-6-astra": 7.12,
+          "natural_turns": 5.72
+        }
+      },
+      "gemma-4-e4b__official_qat_w4a16": {
+        "model": "google/gemma-4-E4B-it",
+        "means": {
+          "relevance": 6.71,
+          "coherence": 8.4,
+          "appropriateness": 7.31,
+          "overall": 6.18
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 5.88,
+          "elderly_gpt-6-astra": 6.84,
+          "natural_turns": 6
+        }
+      },
+      "qwen3-4b-instruct-2507__deployed": {
+        "model": "Qwen/Qwen3-4B-Instruct-2507",
+        "means": {
+          "relevance": 4.625,
+          "coherence": 5.315,
+          "appropriateness": 4.49,
+          "overall": 3.285
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 3.28,
+          "elderly_gpt-6-astra": 2.82,
+          "natural_turns": 3.52
+        }
+      },
+      "qwen3.5-0.8b__gguf-q4_k_m": {
+        "model": "Qwen/Qwen3.5-0.8B",
+        "means": {
+          "relevance": 2.55,
+          "coherence": 4.31,
+          "appropriateness": 3.43,
+          "overall": 2.1
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 2,
+          "elderly_gpt-6-astra": 1.68,
+          "natural_turns": 2.36
+        }
+      },
+      "qwen3.5-0.8b__official_bf16": {
+        "model": "Qwen/Qwen3.5-0.8B",
+        "means": {
+          "relevance": 2.98,
+          "coherence": 5.1,
+          "appropriateness": 3.84,
+          "overall": 2.42
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 2.32,
+          "elderly_gpt-6-astra": 2.28,
+          "natural_turns": 2.54
+        }
+      },
+      "qwen3.5-27b__gguf-q4_k_m": {
+        "model": "Qwen/Qwen3.5-27B",
+        "means": {
+          "relevance": 7.56,
+          "coherence": 9,
+          "appropriateness": 7.1,
+          "overall": 6.72
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 6.72,
+          "elderly_gpt-6-astra": 7.68,
+          "natural_turns": 6.24
+        }
+      },
+      "qwen3.5-2b__gguf-q4_k_m": {
+        "model": "Qwen/Qwen3.5-2B",
+        "means": {
+          "relevance": 4.46,
+          "coherence": 5.86,
+          "appropriateness": 4.64,
+          "overall": 3.32
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 2.76,
+          "elderly_gpt-6-astra": 3.76,
+          "natural_turns": 3.38
+        }
+      },
+      "qwen3.5-35b-a3b__gguf-q4_k_m": {
+        "model": "Qwen/Qwen3.5-35B-A3B",
+        "means": {
+          "relevance": 7.28,
+          "coherence": 8.95,
+          "appropriateness": 7.32,
+          "overall": 6.44
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 6.48,
+          "elderly_gpt-6-astra": 7.4,
+          "natural_turns": 5.94
+        }
+      },
+      "qwen3.5-4b__gguf-q4_k_m": {
+        "model": "Qwen/Qwen3.5-4B",
+        "means": {
+          "relevance": 6.33,
+          "coherence": 7.86,
+          "appropriateness": 6.37,
+          "overall": 5.43
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 5.2,
+          "elderly_gpt-6-astra": 5.72,
+          "natural_turns": 5.4
+        }
+      },
+      "qwen3.5-4b__official_bf16": {
+        "model": "Qwen/Qwen3.5-4B",
+        "means": {
+          "relevance": 6.06,
+          "coherence": 7.97,
+          "appropriateness": 6.35,
+          "overall": 5.31
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 4.86,
+          "elderly_gpt-6-astra": 5.76,
+          "natural_turns": 5.31
+        }
+      },
+      "qwen3.5-9b__gguf-q4_k_m": {
+        "model": "Qwen/Qwen3.5-9B",
+        "means": {
+          "relevance": 6.72,
+          "coherence": 8.86,
+          "appropriateness": 7.28,
+          "overall": 6.2
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 6.52,
+          "elderly_gpt-6-astra": 7.04,
+          "natural_turns": 5.62
+        }
+      },
+      "qwen3.6-27b__gguf-q4_k_m": {
+        "model": "Qwen/Qwen3.6-27B",
+        "means": {
+          "relevance": 6.62,
+          "coherence": 7.24,
+          "appropriateness": 6.44,
+          "overall": 5.59
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 6.72,
+          "elderly_gpt-6-astra": 7.6,
+          "natural_turns": 4.02
+        }
+      },
+      "qwen3.6-35b-a3b__gguf-q4_k_m": {
+        "model": "Qwen/Qwen3.6-35B-A3B",
+        "means": {
+          "relevance": 6.53,
+          "coherence": 8.45,
+          "appropriateness": 7.21,
+          "overall": 6.05
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 6.56,
+          "elderly_gpt-6-astra": 7.8,
+          "natural_turns": 4.92
+        }
+      },
+      "qwen3.8-27b__gguf-q4_k_m": {
+        "model": "Qwen/Qwen3.8-27B",
+        "means": {
+          "relevance": 7.46,
+          "coherence": 9.21,
+          "appropriateness": 7.46,
+          "overall": 6.76
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 6.48,
+          "elderly_gpt-6-astra": 7.36,
+          "natural_turns": 6.6
+        }
+      },
+      "qwen3.8-27b__official_fp8": {
+        "model": "Qwen/Qwen3.8-27B",
+        "means": {
+          "relevance": 7.24,
+          "coherence": 9.13,
+          "appropriateness": 7.61,
+          "overall": 6.58
+        },
+        "rows": 100,
+        "overall_by_stratum": {
+          "elderly_claude": 6.56,
+          "elderly_gpt-6-astra": 7.12,
+          "natural_turns": 6.32
+        }
+      }
+    },
+    "best_by_model": {
+      "google/gemma-4-12B-it": {
+        "arm": "gemma-4-12b__official_qat_w4a16",
+        "overall": 7.16
+      },
+      "google/gemma-4-31B-it": {
+        "arm": "gemma-4-31b__gguf-q4_k_m",
+        "overall": 7.05
+      },
+      "google/gemma-4-26B-A4B-it": {
+        "arm": "gemma-4-26b-a4b__gguf-q4_k_m",
+        "overall": 6.76
+      },
+      "Qwen/Qwen3.8-27B": {
+        "arm": "qwen3.8-27b__gguf-q4_k_m",
+        "overall": 6.76
+      },
+      "Qwen/Qwen3.5-27B": {
+        "arm": "qwen3.5-27b__gguf-q4_k_m",
+        "overall": 6.72
+      },
+      "Qwen/Qwen3.5-35B-A3B": {
+        "arm": "qwen3.5-35b-a3b__gguf-q4_k_m",
+        "overall": 6.44
+      },
+      "google/gemma-4-E4B-it": {
+        "arm": "gemma-4-e4b__gguf-q4_k_m",
+        "overall": 6.2
+      },
+      "Qwen/Qwen3.5-9B": {
+        "arm": "qwen3.5-9b__gguf-q4_k_m",
+        "overall": 6.2
+      },
+      "Qwen/Qwen3.6-35B-A3B": {
+        "arm": "qwen3.6-35b-a3b__gguf-q4_k_m",
+        "overall": 6.05
+      },
+      "Qwen/Qwen3.6-27B": {
+        "arm": "qwen3.6-27b__gguf-q4_k_m",
+        "overall": 5.59
+      },
+      "Qwen/Qwen3.5-4B": {
+        "arm": "qwen3.5-4b__gguf-q4_k_m",
+        "overall": 5.43
+      },
+      "google/gemma-4-E2B-it": {
+        "arm": "gemma-4-e2b__gguf-q4_k_m",
+        "overall": 5.37
+      },
+      "Qwen/Qwen3.5-2B": {
+        "arm": "qwen3.5-2b__gguf-q4_k_m",
+        "overall": 3.32
+      },
+      "Qwen/Qwen3.5-0.8B": {
+        "arm": "qwen3.5-0.8b__official_bf16",
+        "overall": 2.42
+      }
+    }
+  },
+  "stage2_screen": {
+    "controls": {
+      "calls": 400,
+      "control_overall_mean": 1.52,
+      "control_failure_rate": 0.0375
+    },
+    "models": {
+      "Qwen/Qwen3.5-4B": {
+        "highest_precision": "qwen3.5-4b__official_bf16",
+        "variants": {
+          "qwen3.5-4b__official_bf16": {
+            "means": {
+              "relevance": 6.025,
+              "coherence": 7.895,
+              "appropriateness": 6.63,
+              "overall": 5.345
+            },
+            "vs_highest_precision": {
+              "mean_gain": 0.0
+            },
+            "non_inferior": true
+          },
+          "qwen3.5-4b__gguf-q8_0": {
+            "means": {
+              "relevance": 6.185,
+              "coherence": 8.13,
+              "appropriateness": 6.685,
+              "overall": 5.49
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": 0.145,
+              "ci95": [
+                -0.11,
+                0.405
+              ],
+              "win_rate": 0.24,
+              "loss_rate": 0.2
+            },
+            "non_inferior": true
+          },
+          "qwen3.5-4b__gguf-q6_k": {
+            "means": {
+              "relevance": 6.32,
+              "coherence": 7.94,
+              "appropriateness": 6.69,
+              "overall": 5.58
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": 0.235,
+              "ci95": [
+                -0.045,
+                0.515
+              ],
+              "win_rate": 0.38,
+              "loss_rate": 0.31
+            },
+            "non_inferior": true
+          },
+          "qwen3.5-4b__mxfp4": {
+            "means": {
+              "relevance": 6,
+              "coherence": 7.49,
+              "appropriateness": 6.19,
+              "overall": 5.14
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": -0.205,
+              "ci95": [
+                -0.585,
+                0.19
+              ],
+              "win_rate": 0.38,
+              "loss_rate": 0.48
+            },
+            "non_inferior": true
+          },
+          "qwen3.5-4b__int8": {
+            "means": {
+              "relevance": 6.1,
+              "coherence": 8,
+              "appropriateness": 6.55,
+              "overall": 5.41
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": 0.065,
+              "ci95": [
+                -0.29,
+                0.415
+              ],
+              "win_rate": 0.46,
+              "loss_rate": 0.33
+            },
+            "non_inferior": true
+          },
+          "qwen3.5-4b__nvfp4": {
+            "means": {
+              "relevance": 5.46,
+              "coherence": 7.23,
+              "appropriateness": 5.86,
+              "overall": 4.68
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": -0.665,
+              "ci95": [
+                -1.12,
+                -0.205
+              ],
+              "win_rate": 0.31,
+              "loss_rate": 0.53
+            },
+            "non_inferior": false
+          },
+          "qwen3.5-4b__gguf-q2_k": {
+            "means": {
+              "relevance": 4.77,
+              "coherence": 5.94,
+              "appropriateness": 4.95,
+              "overall": 3.7
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": -1.645,
+              "ci95": [
+                -2.18,
+                -1.125
+              ],
+              "win_rate": 0.23,
+              "loss_rate": 0.7
+            },
+            "non_inferior": false
+          },
+          "qwen3.5-4b__gguf-ud-q4_k_xl": {
+            "means": {
+              "relevance": 6.04,
+              "coherence": 7.68,
+              "appropriateness": 6.31,
+              "overall": 5.2
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": -0.145,
+              "ci95": [
+                -0.495,
+                0.205
+              ],
+              "win_rate": 0.36,
+              "loss_rate": 0.46
+            },
+            "non_inferior": true
+          },
+          "qwen3.5-4b__awq_int4": {
+            "means": {
+              "relevance": 5.62,
+              "coherence": 7.01,
+              "appropriateness": 6.06,
+              "overall": 4.84
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": -0.505,
+              "ci95": [
+                -0.94,
+                -0.085
+              ],
+              "win_rate": 0.32,
+              "loss_rate": 0.52
+            },
+            "non_inferior": false
+          },
+          "qwen3.5-4b__gptq_int4": {
+            "means": {
+              "relevance": 5.42,
+              "coherence": 6.65,
+              "appropriateness": 5.6,
+              "overall": 4.43
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": -0.915,
+              "ci95": [
+                -1.315,
+                -0.53
+              ],
+              "win_rate": 0.25,
+              "loss_rate": 0.62
+            },
+            "non_inferior": false
+          },
+          "qwen3.5-4b__gguf-q5_k_m": {
+            "means": {
+              "relevance": 6.24,
+              "coherence": 8.35,
+              "appropriateness": 6.87,
+              "overall": 5.6
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": 0.255,
+              "ci95": [
+                -0.005,
+                0.535
+              ],
+              "win_rate": 0.42,
+              "loss_rate": 0.31
+            },
+            "non_inferior": true
+          },
+          "qwen3.5-4b__autoround_int4": {
+            "means": {
+              "relevance": 5.74,
+              "coherence": 7.24,
+              "appropriateness": 5.86,
+              "overall": 4.86
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": -0.485,
+              "ci95": [
+                -0.89,
+                -0.055
+              ],
+              "win_rate": 0.34,
+              "loss_rate": 0.51
+            },
+            "non_inferior": false
+          },
+          "qwen3.5-4b__gguf-q3_k_m": {
+            "means": {
+              "relevance": 5.61,
+              "coherence": 7.51,
+              "appropriateness": 5.9,
+              "overall": 4.69
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": -0.655,
+              "ci95": [
+                -1.095,
+                -0.22
+              ],
+              "win_rate": 0.3,
+              "loss_rate": 0.57
+            },
+            "non_inferior": false
+          },
+          "qwen3.5-4b__gguf-ud-q2_k_xl": {
+            "means": {
+              "relevance": 5.88,
+              "coherence": 7.1,
+              "appropriateness": 5.85,
+              "overall": 4.92
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": -0.425,
+              "ci95": [
+                -0.91,
+                0.05
+              ],
+              "win_rate": 0.39,
+              "loss_rate": 0.53
+            },
+            "non_inferior": false
+          },
+          "qwen3.5-4b__int4_compressed_tensors": {
+            "means": {
+              "relevance": 5.6,
+              "coherence": 7.44,
+              "appropriateness": 6.12,
+              "overall": 4.83
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": -0.515,
+              "ci95": [
+                -0.91,
+                -0.12
+              ],
+              "win_rate": 0.3,
+              "loss_rate": 0.53
+            },
+            "non_inferior": false
+          },
+          "qwen3.5-4b__gguf-iq4_xs": {
+            "means": {
+              "relevance": 6.21,
+              "coherence": 7.79,
+              "appropriateness": 6.5,
+              "overall": 5.31
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": -0.035,
+              "ci95": [
+                -0.415,
+                0.355
+              ],
+              "win_rate": 0.41,
+              "loss_rate": 0.43
+            },
+            "non_inferior": true
+          },
+          "qwen3.5-4b__gguf-q4_k_m": {
+            "means": {
+              "relevance": 6.28,
+              "coherence": 7.84,
+              "appropriateness": 6.65,
+              "overall": 5.46
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": 0.115,
+              "ci95": [
+                -0.185,
+                0.44
+              ],
+              "win_rate": 0.37,
+              "loss_rate": 0.43
+            },
+            "non_inferior": true
+          },
+          "qwen3.5-4b__fp8": {
+            "means": {
+              "relevance": 5.99,
+              "coherence": 7.82,
+              "appropriateness": 6.51,
+              "overall": 5.18
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": -0.165,
+              "ci95": [
+                -0.47,
+                0.135
+              ],
+              "win_rate": 0.34,
+              "loss_rate": 0.39
+            },
+            "non_inferior": true
+          }
+        }
+      },
+      "Qwen/Qwen3.8-27B": {
+        "highest_precision": "qwen3.8-27b__official_fp8",
+        "variants": {
+          "qwen3.8-27b__gguf-q4_k_m": {
+            "means": {
+              "relevance": 7.6,
+              "coherence": 9.2,
+              "appropriateness": 7.98,
+              "overall": 7.08
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": 0.14,
+              "ci95": [
+                -0.13,
+                0.4
+              ],
+              "win_rate": 0.28,
+              "loss_rate": 0.21
+            },
+            "non_inferior": true
+          },
+          "qwen3.8-27b__official_fp8": {
+            "means": {
+              "relevance": 7.4,
+              "coherence": 9.24,
+              "appropriateness": 7.94,
+              "overall": 6.94
+            },
+            "vs_highest_precision": {
+              "mean_gain": 0.0
+            },
+            "non_inferior": true
+          }
+        }
+      },
+      "google/gemma-4-E4B-it": {
+        "highest_precision": "gemma-4-e4b__official_bf16",
+        "variants": {
+          "gemma-4-e4b__gguf-q8_0": {
+            "means": {
+              "relevance": 6.48,
+              "coherence": 8.65,
+              "appropriateness": 7.7,
+              "overall": 6.18
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": 0.15,
+              "ci95": [
+                -0.09,
+                0.42
+              ],
+              "win_rate": 0.16,
+              "loss_rate": 0.14
+            },
+            "non_inferior": true
+          },
+          "gemma-4-e4b__official_qat_w4a16": {
+            "means": {
+              "relevance": 6.56,
+              "coherence": 8.23,
+              "appropriateness": 7.44,
+              "overall": 6.17
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": 0.14,
+              "ci95": [
+                -0.23,
+                0.52
+              ],
+              "win_rate": 0.34,
+              "loss_rate": 0.3
+            },
+            "non_inferior": true
+          },
+          "gemma-4-e4b__nvfp4": {
+            "means": {
+              "relevance": 5.78,
+              "coherence": 7.99,
+              "appropriateness": 7.21,
+              "overall": 5.52
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": -0.51,
+              "ci95": [
+                -0.89,
+                -0.12
+              ],
+              "win_rate": 0.22,
+              "loss_rate": 0.46
+            },
+            "non_inferior": false
+          },
+          "gemma-4-e4b__official_bf16": {
+            "means": {
+              "relevance": 6.3,
+              "coherence": 8.32,
+              "appropriateness": 7.45,
+              "overall": 6.03
+            },
+            "vs_highest_precision": {
+              "mean_gain": 0.0
+            },
+            "non_inferior": true
+          },
+          "gemma-4-e4b__gguf-q4_k_m": {
+            "means": {
+              "relevance": 6.39,
+              "coherence": 8.61,
+              "appropriateness": 7.65,
+              "overall": 6.09
+            },
+            "vs_highest_precision": {
+              "rows": 100,
+              "mean_gain": 0.06,
+              "ci95": [
+                -0.31,
+                0.44
+              ],
+              "win_rate": 0.32,
+              "loss_rate": 0.3
+            },
+            "non_inferior": true
+          }
+        }
+      }
+    }
+  },
+  "contenders_as_run_2026_11_04": {
+    "delta_q": {
+      "per_model": {
+        "Qwen/Qwen3.5-4B": {
+          "highest_precision": "qwen3.5-4b__official_bf16",
+          "q4_k_m": "qwen3.5-4b__gguf-q4_k_m",
+          "gain": {
+            "rows": 100,
+            "mean_gain": -0.115,
+            "ci95": [
+              -0.43,
+              0.195
+            ],
+            "win_rate": 0.43,
+            "loss_rate": 0.37
+          }
+        },
+        "google/gemma-4-E4B-it": {
+          "highest_precision": "gemma-4-e4b__official_bf16",
+          "q4_k_m": "gemma-4-e4b__gguf-q4_k_m",
+          "gain": {
+            "rows": 100,
+            "mean_gain": -0.06,
+            "ci95": [
+              -0.45,
+              0.32
+            ],
+            "win_rate": 0.3,
+            "loss_rate": 0.32
+          }
+        },
+        "Qwen/Qwen3.8-27B": {
+          "highest_precision": "qwen3.8-27b__official_fp8",
+          "q4_k_m": "qwen3.8-27b__gguf-q4_k_m",
+          "gain": {
+            "rows": 100,
+            "mean_gain": -0.14,
+            "ci95": [
+              -0.42,
+              0.13
+            ],
+            "win_rate": 0.21,
+            "loss_rate": 0.28
+          }
+        }
+      },
+      "delta_q": -0.06,
+      "delta": 0.5
+    },
+    "q3_k_m_non_inferior": false,
+    "best_4bit_methods": {
+      "Qwen": [
+        "q4_k_m",
+        "iq4_xs",
+        "ud-q4_k_xl",
+        "mxfp4",
+        "autoround_int4",
+        "awq_int4",
+        "int4_compressed_tensors",
+        "nvfp4",
+        "gptq_int4"
+      ],
+      "google": [
+        "official_qat_w4a16",
+        "q4_k_m",
+        "nvfp4"
+      ]
+    },
+    "profiles": {
+      "12gib": {
+        "best_fitting_stage1": 7.16,
+        "models": {
+          "google/gemma-4-12B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-12b__official_qat_w4a16",
+              "overall": 7.16
+            },
+            "has_fitting_build": true,
+            "contender": true,
+            "stage3_builds": [
+              "gemma-4-12b__official_qat_w4a16",
+              "gemma-4-12b__gguf-q5_k_m"
+            ]
+          },
+          "google/gemma-4-31B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-31b__gguf-q4_k_m",
+              "overall": 7.05
+            },
+            "has_fitting_build": false,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "google/gemma-4-26B-A4B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-26b-a4b__gguf-q4_k_m",
+              "overall": 6.76
+            },
+            "has_fitting_build": false,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.8-27B": {
+            "stage1_best": {
+              "arm": "qwen3.8-27b__gguf-q4_k_m",
+              "overall": 6.76
+            },
+            "has_fitting_build": false,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-27B": {
+            "stage1_best": {
+              "arm": "qwen3.5-27b__gguf-q4_k_m",
+              "overall": 6.72
+            },
+            "has_fitting_build": false,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-35B-A3B": {
+            "stage1_best": {
+              "arm": "qwen3.5-35b-a3b__gguf-q4_k_m",
+              "overall": 6.44
+            },
+            "has_fitting_build": false,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "google/gemma-4-E4B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-e4b__gguf-q4_k_m",
+              "overall": 6.2
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-9B": {
+            "stage1_best": {
+              "arm": "qwen3.5-9b__gguf-q4_k_m",
+              "overall": 6.2
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.6-35B-A3B": {
+            "stage1_best": {
+              "arm": "qwen3.6-35b-a3b__gguf-q4_k_m",
+              "overall": 6.05
+            },
+            "has_fitting_build": false,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.6-27B": {
+            "stage1_best": {
+              "arm": "qwen3.6-27b__gguf-q4_k_m",
+              "overall": 5.59
+            },
+            "has_fitting_build": false,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-4B": {
+            "stage1_best": {
+              "arm": "qwen3.5-4b__gguf-q4_k_m",
+              "overall": 5.43
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "google/gemma-4-E2B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-e2b__gguf-q4_k_m",
+              "overall": 5.37
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-2B": {
+            "stage1_best": {
+              "arm": "qwen3.5-2b__gguf-q4_k_m",
+              "overall": 3.32
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-0.8B": {
+            "stage1_best": {
+              "arm": "qwen3.5-0.8b__official_bf16",
+              "overall": 2.42
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          }
+        }
+      },
+      "24gb": {
+        "best_fitting_stage1": 7.16,
+        "models": {
+          "google/gemma-4-12B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-12b__official_qat_w4a16",
+              "overall": 7.16
+            },
+            "has_fitting_build": true,
+            "contender": true,
+            "stage3_builds": [
+              "gemma-4-12b__fp8",
+              "gemma-4-12b__gguf-q8_0",
+              "gemma-4-12b__official_qat_w4a16"
+            ]
+          },
+          "google/gemma-4-31B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-31b__gguf-q4_k_m",
+              "overall": 7.05
+            },
+            "has_fitting_build": true,
+            "contender": true,
+            "stage3_builds": [
+              "gemma-4-31b__official_qat_w4a16",
+              "gemma-4-31b__gguf-q5_k_m"
+            ]
+          },
+          "google/gemma-4-26B-A4B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-26b-a4b__gguf-q4_k_m",
+              "overall": 6.76
+            },
+            "has_fitting_build": true,
+            "contender": true,
+            "stage3_builds": [
+              "gemma-4-26b-a4b__nvfp4",
+              "gemma-4-26b-a4b__gguf-q5_k_m",
+              "gemma-4-26b-a4b__gguf-q4_k_m"
+            ]
+          },
+          "Qwen/Qwen3.8-27B": {
+            "stage1_best": {
+              "arm": "qwen3.8-27b__gguf-q4_k_m",
+              "overall": 6.76
+            },
+            "has_fitting_build": true,
+            "contender": true,
+            "stage3_builds": [
+              "qwen3.8-27b__awq_int4",
+              "qwen3.8-27b__gguf-q5_k_m",
+              "qwen3.8-27b__gguf-q4_k_m"
+            ]
+          },
+          "Qwen/Qwen3.5-27B": {
+            "stage1_best": {
+              "arm": "qwen3.5-27b__gguf-q4_k_m",
+              "overall": 6.72
+            },
+            "has_fitting_build": true,
+            "contender": true,
+            "stage3_builds": [
+              "qwen3.5-27b__nvfp4",
+              "qwen3.5-27b__gguf-q5_k_m",
+              "qwen3.5-27b__gguf-q4_k_m"
+            ]
+          },
+          "Qwen/Qwen3.5-35B-A3B": {
+            "stage1_best": {
+              "arm": "qwen3.5-35b-a3b__gguf-q4_k_m",
+              "overall": 6.44
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "google/gemma-4-E4B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-e4b__gguf-q4_k_m",
+              "overall": 6.2
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-9B": {
+            "stage1_best": {
+              "arm": "qwen3.5-9b__gguf-q4_k_m",
+              "overall": 6.2
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.6-35B-A3B": {
+            "stage1_best": {
+              "arm": "qwen3.6-35b-a3b__gguf-q4_k_m",
+              "overall": 6.05
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.6-27B": {
+            "stage1_best": {
+              "arm": "qwen3.6-27b__gguf-q4_k_m",
+              "overall": 5.59
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-4B": {
+            "stage1_best": {
+              "arm": "qwen3.5-4b__gguf-q4_k_m",
+              "overall": 5.43
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "google/gemma-4-E2B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-e2b__gguf-q4_k_m",
+              "overall": 5.37
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-2B": {
+            "stage1_best": {
+              "arm": "qwen3.5-2b__gguf-q4_k_m",
+              "overall": 3.32
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-0.8B": {
+            "stage1_best": {
+              "arm": "qwen3.5-0.8b__official_bf16",
+              "overall": 2.42
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          }
+        }
+      }
+    },
+    "stage3_arms": [
+      "gemma-4-31b__gguf-q5_k_m",
+      "gemma-4-31b__official_qat_w4a16"
+    ],
+    "already_run": [
+      "gemma-4-12b__fp8",
+      "gemma-4-12b__gguf-q5_k_m",
+      "gemma-4-12b__gguf-q8_0",
+      "gemma-4-12b__official_qat_w4a16",
+      "gemma-4-26b-a4b__gguf-q4_k_m",
+      "gemma-4-26b-a4b__gguf-q5_k_m",
+      "gemma-4-26b-a4b__nvfp4",
+      "qwen3.5-27b__gguf-q4_k_m",
+      "qwen3.5-27b__gguf-q5_k_m",
+      "qwen3.5-27b__nvfp4",
+      "qwen3.8-27b__awq_int4",
+      "qwen3.8-27b__gguf-q4_k_m",
+      "qwen3.8-27b__gguf-q5_k_m"
+    ],
+    "untested": {
+      "qwen3.5-0.8b__gguf-ud-q2_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__gguf-q2_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__gguf-q3_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__gguf-iq4_xs": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__gguf-ud-q4_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__gguf-q5_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__gguf-q6_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__int4_compressed_tensors": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__awq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__gguf-q8_0": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gguf-ud-q2_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__autoround_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__gptq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__mxfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__nvfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gguf-q2_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gguf-q3_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gguf-iq4_xs": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__fp8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gguf-ud-q4_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gguf-q5_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__int8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gguf-q6_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gguf-q8_0": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gguf-ud-q2_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__awq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gptq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__mxfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gguf-q3_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__nvfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gguf-iq4_xs": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gguf-q2_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__fp8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__autoround_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__int8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gguf-ud-q4_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gguf-q5_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e4b__gguf-ud-q2_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e4b__gguf-q3_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__gguf-ud-q2_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__gguf-q2_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e4b__gguf-q2_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gguf-q6_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__official_bf16": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__gguf-ud-q2_k_xl": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "qwen3.5-9b__gguf-q3_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e4b__gguf-iq4_xs": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__gguf-q2_k": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "gemma-4-e4b__gguf-ud-q4_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gguf-q8_0": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__gguf-iq4_xs": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e4b__gguf-q5_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__nvfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__gguf-q3_k_m": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "qwen3.5-9b__gguf-ud-q4_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__gguf-iq4_xs": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-9b__gguf-q5_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gptq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__official_qat_q4_0-q4_0": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-e4b__gguf-q6_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__gguf-ud-q4_k_xl": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-e2b__int8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__gguf-q6_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__awq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__gptq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__autoround_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-12b__mxfp4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-12b__gptq_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-e2b__official_qat_w4a16": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__autoround_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__awq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__fp8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__nvfp4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-e4b__gptq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__nvfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__gguf-q8_0": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__gguf-q6_k": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.8-27b__gguf-ud-q2_k_xl": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "gemma-4-e4b__autoround_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__official_bf16": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e4b__awq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-26b-a4b__gguf-ud-q2_k_xl": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "qwen3.8-27b__gguf-q2_k": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "gemma-4-26b-a4b__gguf-q2_k": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "qwen3.5-27b__gguf-ud-q2_k_xl": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "gemma-4-12b__awq_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-9b__int4_compressed_tensors": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-31b__gguf-ud-q2_k_xl": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "qwen3.6-27b__gguf-ud-q2_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e4b__int8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-27b__gguf-q2_k": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "qwen3.6-27b__gguf-q2_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__gguf-ud-q2_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__mxfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-35b-a3b__gguf-ud-q2_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-31b__gguf-q2_k": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "gemma-4-26b-a4b__gguf-q3_k_m": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "gemma-4-12b__int8": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-e4b__fp8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.8-27b__gguf-q3_k_m": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "qwen3.5-27b__gguf-q3_k_m": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "qwen3.6-35b-a3b__gguf-q2_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__gguf-q2_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-27b__gguf-q3_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__int8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__fp8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-26b-a4b__gguf-iq4_xs": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-31b__gguf-q3_k_m": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "gemma-4-e2b__autoround_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-27b__gguf-iq4_xs": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-26b-a4b__autoround_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-27b__gguf-iq4_xs": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.8-27b__gguf-iq4_xs": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-26b-a4b__gptq_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-26b-a4b__int4_compressed_tensors": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-35b-a3b__gguf-q3_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-31b__gguf-iq4_xs": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-26b-a4b__gguf-ud-q4_k_xl": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-35b-a3b__gguf-q3_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-26b-a4b__mxfp4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-26b-a4b__awq_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.8-27b__gguf-ud-q4_k_xl": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-27b__gguf-ud-q4_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-27b__gguf-ud-q4_k_xl": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-27b__gptq_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-27b__int4_compressed_tensors": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-27b__awq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-31b__gguf-ud-q4_k_xl": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-27b__mxfp4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-27b__autoround_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-31b__autoround_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-31b__gptq_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-9b__official_bf16": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.8-27b__gptq_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-27b__gguf-q5_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-31b__mxfp4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-35b-a3b__gguf-iq4_xs": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__gguf-iq4_xs": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-27b__mxfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.8-27b__mxfp4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.8-27b__autoround_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-27b__awq_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-35b-a3b__int4_compressed_tensors": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-31b__nvfp4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-31b__awq_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-27b__int4_compressed_tensors": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.8-27b__int4_compressed_tensors": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-27b__autoround_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-35b-a3b__autoround_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__autoround_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__int4_compressed_tensors": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-27b__gptq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-27b__nvfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__mxfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__gguf-ud-q4_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-35b-a3b__gguf-ud-q4_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.8-27b__gguf-q6_k": "fits neither profile",
+      "qwen3.5-27b__gguf-q6_k": "fits neither profile",
+      "qwen3.6-27b__gguf-q6_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-26b-a4b__gguf-q6_k": "fits neither profile",
+      "qwen3.8-27b__nvfp4": "fits neither profile",
+      "qwen3.6-35b-a3b__nvfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__official_bf16": "fits neither profile",
+      "qwen3.5-35b-a3b__official_gptq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-35b-a3b__gptq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-35b-a3b__mxfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__nvfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-35b-a3b__awq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__awq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-26b-a4b__int8": "fits neither profile",
+      "gemma-4-26b-a4b__fp8": "fits neither profile",
+      "qwen3.5-2b__ternary_qat-ternary-bonsai-2-2b-gguf-ptq1_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-2b__ternary_qat-ternary-bonsai-2-2b-gguf-pq2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-2b__ternary_qat-ternary-bonsai-2-2b-gguf-q2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-4b__ternary_qat-ternary-bonsai-2-4b-gguf-ptq1_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-0.8b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "qwen3.5-4b__ternary_qat-ternary-bonsai-2-4b-gguf-pq2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-4b__ternary_qat-ternary-bonsai-2-4b-gguf-q2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-9b__ternary_qat-ternary-bonsai-2-9b-gguf-ptq1_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-2b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "qwen3.5-9b__ternary_qat-ternary-bonsai-2-9b-gguf-pq2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-9b__ternary_qat-ternary-bonsai-2-9b-gguf-q2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-4b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "qwen3.6-27b__ternary_qat-bonsai-27b-gguf-q1_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.8-27b__ternary_qat-ternary-bonsai-2-27b-gguf-ptq1_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.6-27b__ternary_qat-ternary-bonsai-27b-gguf-pq2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.6-27b__ternary_qat-ternary-bonsai-27b-gguf-q2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.8-27b__ternary_qat-ternary-bonsai-2-27b-gguf-pq2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.8-27b__ternary_qat-ternary-bonsai-2-27b-gguf-q2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "gemma-4-e2b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "gemma-4-12b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "qwen3.5-9b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "gemma-4-e4b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "qwen3.5-27b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "qwen3.6-27b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "gemma-4-31b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "qwen3.8-27b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "gemma-4-31b__gguf-q6_k": "weights exceed the file-size limit",
+      "qwen3.6-35b-a3b__gguf-q5_k_m": "weights exceed the file-size limit",
+      "qwen3.5-35b-a3b__gguf-q5_k_m": "weights exceed the file-size limit",
+      "gemma-4-26b-a4b__gguf-q8_0": "weights exceed the file-size limit",
+      "qwen3.5-27b__gguf-q8_0": "weights exceed the file-size limit",
+      "qwen3.6-27b__gguf-q8_0": "weights exceed the file-size limit",
+      "qwen3.5-35b-a3b__gguf-q6_k": "weights exceed the file-size limit",
+      "qwen3.8-27b__gguf-q8_0": "weights exceed the file-size limit",
+      "qwen3.5-27b__int8": "weights exceed the file-size limit",
+      "qwen3.5-27b__official_gptq_int4": "weights exceed the file-size limit",
+      "qwen3.6-27b__official_fp8": "reference_precision",
+      "qwen3.6-27b__fp8": "weights exceed the file-size limit",
+      "qwen3.8-27b__fp8": "weights exceed the file-size limit",
+      "qwen3.5-27b__official_fp8": "reference_precision",
+      "qwen3.5-27b__fp8": "weights exceed the file-size limit",
+      "qwen3.6-35b-a3b__gguf-q6_k": "weights exceed the file-size limit",
+      "qwen3.6-27b__int8": "weights exceed the file-size limit",
+      "qwen3.8-27b__int8": "weights exceed the file-size limit",
+      "gemma-4-31b__gguf-q8_0": "weights exceed the file-size limit",
+      "gemma-4-31b__fp8": "weights exceed the file-size limit",
+      "gemma-4-31b__int8": "weights exceed the file-size limit",
+      "qwen3.6-35b-a3b__int8": "weights exceed the file-size limit",
+      "qwen3.5-35b-a3b__gguf-q8_0": "weights exceed the file-size limit",
+      "qwen3.6-35b-a3b__gguf-q8_0": "weights exceed the file-size limit",
+      "qwen3.6-35b-a3b__official_fp8": "reference_precision",
+      "qwen3.6-35b-a3b__fp8": "weights exceed the file-size limit",
+      "qwen3.5-35b-a3b__official_fp8": "reference_precision",
+      "qwen3.5-35b-a3b__fp8": "weights exceed the file-size limit",
+      "qwen3.5-35b-a3b__int8": "weights exceed the file-size limit",
+      "gemma-4-26b-a4b__official_bf16": "excluded",
+      "qwen3.6-27b__official_bf16": "excluded",
+      "qwen3.8-27b__official_bf16": "excluded",
+      "qwen3.5-27b__official_bf16": "excluded",
+      "gemma-4-31b__official_bf16": "excluded",
+      "qwen3.6-35b-a3b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "qwen3.6-35b-a3b__official_bf16": "excluded",
+      "qwen3.5-35b-a3b__official_bf16": "excluded"
+    }
+  },
+  "contenders": {
+    "delta_q": {
+      "per_model": {
+        "Qwen/Qwen3.5-4B": {
+          "highest_precision": "qwen3.5-4b__official_bf16",
+          "q4_k_m": "qwen3.5-4b__gguf-q4_k_m",
+          "gain": {
+            "rows": 100,
+            "mean_gain": -0.115,
+            "ci95": [
+              -0.43,
+              0.195
+            ],
+            "win_rate": 0.43,
+            "loss_rate": 0.37
+          }
+        },
+        "google/gemma-4-E4B-it": {
+          "highest_precision": "gemma-4-e4b__official_bf16",
+          "q4_k_m": "gemma-4-e4b__gguf-q4_k_m",
+          "gain": {
+            "rows": 100,
+            "mean_gain": -0.06,
+            "ci95": [
+              -0.45,
+              0.32
+            ],
+            "win_rate": 0.3,
+            "loss_rate": 0.32
+          }
+        },
+        "Qwen/Qwen3.8-27B": {
+          "highest_precision": "qwen3.8-27b__official_fp8",
+          "q4_k_m": "qwen3.8-27b__gguf-q4_k_m",
+          "gain": {
+            "rows": 100,
+            "mean_gain": -0.14,
+            "ci95": [
+              -0.42,
+              0.13
+            ],
+            "win_rate": 0.21,
+            "loss_rate": 0.28
+          }
+        }
+      },
+      "delta_q": -0.06,
+      "delta": 0.5
+    },
+    "q3_k_m_non_inferior": false,
+    "best_4bit_methods": {
+      "Qwen": [
+        "q4_k_m",
+        "iq4_xs",
+        "ud-q4_k_xl",
+        "mxfp4",
+        "autoround_int4",
+        "awq_int4",
+        "int4_compressed_tensors",
+        "nvfp4",
+        "gptq_int4"
+      ],
+      "google": [
+        "official_qat_w4a16",
+        "q4_k_m",
+        "nvfp4"
+      ]
+    },
+    "profiles": {
+      "12gib": {
+        "best_fitting_stage1": 7.16,
+        "models": {
+          "google/gemma-4-12B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-12b__official_qat_w4a16",
+              "overall": 7.16
+            },
+            "has_fitting_build": true,
+            "contender": true,
+            "stage3_builds": [
+              "gemma-4-12b__gptq_int4",
+              "gemma-4-12b__gguf-q5_k_m",
+              "gemma-4-12b__gguf-q4_k_m"
+            ]
+          },
+          "google/gemma-4-31B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-31b__gguf-q4_k_m",
+              "overall": 7.05
+            },
+            "has_fitting_build": false,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "google/gemma-4-26B-A4B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-26b-a4b__gguf-q4_k_m",
+              "overall": 6.76
+            },
+            "has_fitting_build": false,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.8-27B": {
+            "stage1_best": {
+              "arm": "qwen3.8-27b__gguf-q4_k_m",
+              "overall": 6.76
+            },
+            "has_fitting_build": false,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-27B": {
+            "stage1_best": {
+              "arm": "qwen3.5-27b__gguf-q4_k_m",
+              "overall": 6.72
+            },
+            "has_fitting_build": false,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-35B-A3B": {
+            "stage1_best": {
+              "arm": "qwen3.5-35b-a3b__gguf-q4_k_m",
+              "overall": 6.44
+            },
+            "has_fitting_build": false,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "google/gemma-4-E4B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-e4b__gguf-q4_k_m",
+              "overall": 6.2
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-9B": {
+            "stage1_best": {
+              "arm": "qwen3.5-9b__gguf-q4_k_m",
+              "overall": 6.2
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.6-35B-A3B": {
+            "stage1_best": {
+              "arm": "qwen3.6-35b-a3b__gguf-q4_k_m",
+              "overall": 6.05
+            },
+            "has_fitting_build": false,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.6-27B": {
+            "stage1_best": {
+              "arm": "qwen3.6-27b__gguf-q4_k_m",
+              "overall": 5.59
+            },
+            "has_fitting_build": false,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-4B": {
+            "stage1_best": {
+              "arm": "qwen3.5-4b__gguf-q4_k_m",
+              "overall": 5.43
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "google/gemma-4-E2B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-e2b__gguf-q4_k_m",
+              "overall": 5.37
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-2B": {
+            "stage1_best": {
+              "arm": "qwen3.5-2b__gguf-q4_k_m",
+              "overall": 3.32
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-0.8B": {
+            "stage1_best": {
+              "arm": "qwen3.5-0.8b__official_bf16",
+              "overall": 2.42
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          }
+        }
+      },
+      "24gb": {
+        "best_fitting_stage1": 7.16,
+        "models": {
+          "google/gemma-4-12B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-12b__official_qat_w4a16",
+              "overall": 7.16
+            },
+            "has_fitting_build": true,
+            "contender": true,
+            "stage3_builds": [
+              "gemma-4-12b__fp8",
+              "gemma-4-12b__gguf-q8_0",
+              "gemma-4-12b__official_qat_w4a16"
+            ]
+          },
+          "google/gemma-4-31B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-31b__gguf-q4_k_m",
+              "overall": 7.05
+            },
+            "has_fitting_build": true,
+            "contender": true,
+            "stage3_builds": [
+              "gemma-4-31b__awq_int4",
+              "gemma-4-31b__gguf-q5_k_m",
+              "gemma-4-31b__gguf-q4_k_m"
+            ]
+          },
+          "google/gemma-4-26B-A4B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-26b-a4b__gguf-q4_k_m",
+              "overall": 6.76
+            },
+            "has_fitting_build": true,
+            "contender": true,
+            "stage3_builds": [
+              "gemma-4-26b-a4b__nvfp4",
+              "gemma-4-26b-a4b__gguf-q5_k_m",
+              "gemma-4-26b-a4b__gguf-q4_k_m"
+            ]
+          },
+          "Qwen/Qwen3.8-27B": {
+            "stage1_best": {
+              "arm": "qwen3.8-27b__gguf-q4_k_m",
+              "overall": 6.76
+            },
+            "has_fitting_build": true,
+            "contender": true,
+            "stage3_builds": [
+              "qwen3.8-27b__awq_int4",
+              "qwen3.8-27b__gguf-q5_k_m",
+              "qwen3.8-27b__gguf-q4_k_m"
+            ]
+          },
+          "Qwen/Qwen3.5-27B": {
+            "stage1_best": {
+              "arm": "qwen3.5-27b__gguf-q4_k_m",
+              "overall": 6.72
+            },
+            "has_fitting_build": true,
+            "contender": true,
+            "stage3_builds": [
+              "qwen3.5-27b__nvfp4",
+              "qwen3.5-27b__gguf-q5_k_m",
+              "qwen3.5-27b__gguf-q4_k_m"
+            ]
+          },
+          "Qwen/Qwen3.5-35B-A3B": {
+            "stage1_best": {
+              "arm": "qwen3.5-35b-a3b__gguf-q4_k_m",
+              "overall": 6.44
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "google/gemma-4-E4B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-e4b__gguf-q4_k_m",
+              "overall": 6.2
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-9B": {
+            "stage1_best": {
+              "arm": "qwen3.5-9b__gguf-q4_k_m",
+              "overall": 6.2
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.6-35B-A3B": {
+            "stage1_best": {
+              "arm": "qwen3.6-35b-a3b__gguf-q4_k_m",
+              "overall": 6.05
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.6-27B": {
+            "stage1_best": {
+              "arm": "qwen3.6-27b__gguf-q4_k_m",
+              "overall": 5.59
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-4B": {
+            "stage1_best": {
+              "arm": "qwen3.5-4b__gguf-q4_k_m",
+              "overall": 5.43
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "google/gemma-4-E2B-it": {
+            "stage1_best": {
+              "arm": "gemma-4-e2b__gguf-q4_k_m",
+              "overall": 5.37
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-2B": {
+            "stage1_best": {
+              "arm": "qwen3.5-2b__gguf-q4_k_m",
+              "overall": 3.32
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          },
+          "Qwen/Qwen3.5-0.8B": {
+            "stage1_best": {
+              "arm": "qwen3.5-0.8b__official_bf16",
+              "overall": 2.42
+            },
+            "has_fitting_build": true,
+            "contender": false,
+            "stage3_builds": []
+          }
+        }
+      }
+    },
+    "stage3_arms": [
+      "gemma-4-12b__gptq_int4",
+      "gemma-4-31b__awq_int4"
+    ],
+    "already_run": [
+      "gemma-4-12b__fp8",
+      "gemma-4-12b__gguf-q4_k_m",
+      "gemma-4-12b__gguf-q5_k_m",
+      "gemma-4-12b__gguf-q8_0",
+      "gemma-4-12b__official_qat_w4a16",
+      "gemma-4-26b-a4b__gguf-q4_k_m",
+      "gemma-4-26b-a4b__gguf-q5_k_m",
+      "gemma-4-26b-a4b__nvfp4",
+      "gemma-4-31b__gguf-q4_k_m",
+      "gemma-4-31b__gguf-q5_k_m",
+      "qwen3.5-27b__gguf-q4_k_m",
+      "qwen3.5-27b__gguf-q5_k_m",
+      "qwen3.5-27b__nvfp4",
+      "qwen3.8-27b__awq_int4",
+      "qwen3.8-27b__gguf-q4_k_m",
+      "qwen3.8-27b__gguf-q5_k_m"
+    ],
+    "untested": {
+      "qwen3.5-0.8b__gguf-ud-q2_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__gguf-q2_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__gguf-q3_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__gguf-iq4_xs": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__gguf-ud-q4_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__gguf-q5_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__gguf-q6_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__int4_compressed_tensors": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__awq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__gguf-q8_0": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gguf-ud-q2_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__autoround_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__gptq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__mxfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__nvfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gguf-q2_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gguf-q3_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gguf-iq4_xs": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__fp8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gguf-ud-q4_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gguf-q5_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-0.8b__int8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gguf-q6_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gguf-q8_0": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gguf-ud-q2_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__awq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__gptq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__mxfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gguf-q3_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__nvfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gguf-iq4_xs": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gguf-q2_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__fp8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__autoround_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__int8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gguf-ud-q4_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gguf-q5_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e4b__gguf-ud-q2_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e4b__gguf-q3_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__gguf-ud-q2_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__gguf-q2_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e4b__gguf-q2_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gguf-q6_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-2b__official_bf16": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__gguf-ud-q2_k_xl": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "qwen3.5-9b__gguf-q3_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e4b__gguf-iq4_xs": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__gguf-q2_k": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "gemma-4-e4b__gguf-ud-q4_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gguf-q8_0": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__gguf-iq4_xs": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e4b__gguf-q5_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__nvfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__gguf-q3_k_m": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "qwen3.5-9b__gguf-ud-q4_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__gguf-iq4_xs": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-9b__gguf-q5_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__gptq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__official_qat_q4_0-q4_0": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-e4b__gguf-q6_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__gguf-ud-q4_k_xl": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-e2b__int8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__gguf-q6_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__awq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__gptq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__autoround_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-12b__mxfp4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-e2b__official_qat_w4a16": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__autoround_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__awq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__fp8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e4b__gptq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__nvfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__gguf-q8_0": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__gguf-q6_k": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.8-27b__gguf-ud-q2_k_xl": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "gemma-4-e4b__autoround_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e2b__official_bf16": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e4b__awq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-26b-a4b__gguf-ud-q2_k_xl": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "qwen3.8-27b__gguf-q2_k": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "gemma-4-26b-a4b__gguf-q2_k": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "qwen3.5-27b__gguf-ud-q2_k_xl": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "gemma-4-12b__awq_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-9b__int4_compressed_tensors": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-31b__gguf-ud-q2_k_xl": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "qwen3.6-27b__gguf-ud-q2_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-e4b__int8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-27b__gguf-q2_k": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "qwen3.6-27b__gguf-q2_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__gguf-ud-q2_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__mxfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-35b-a3b__gguf-ud-q2_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-31b__gguf-q2_k": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "gemma-4-26b-a4b__gguf-q3_k_m": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "gemma-4-12b__int8": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-e4b__fp8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.8-27b__gguf-q3_k_m": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "qwen3.5-27b__gguf-q3_k_m": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "qwen3.6-35b-a3b__gguf-q2_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__gguf-q2_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-27b__gguf-q3_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__int8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-9b__fp8": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-26b-a4b__gguf-iq4_xs": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-31b__gguf-q3_k_m": "3 bits or fewer, and Q3_K_M was not non-inferior in stage 2",
+      "gemma-4-e2b__autoround_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-27b__gguf-iq4_xs": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-26b-a4b__autoround_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-27b__gguf-iq4_xs": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.8-27b__gguf-iq4_xs": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-26b-a4b__gptq_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-26b-a4b__int4_compressed_tensors": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-35b-a3b__gguf-q3_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-31b__gguf-iq4_xs": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-26b-a4b__gguf-ud-q4_k_xl": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-35b-a3b__gguf-q3_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-26b-a4b__mxfp4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-26b-a4b__awq_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.8-27b__gguf-ud-q4_k_xl": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-27b__gguf-ud-q4_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-27b__gguf-ud-q4_k_xl": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-27b__gptq_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-27b__int4_compressed_tensors": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-27b__awq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-31b__gguf-ud-q4_k_xl": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-27b__mxfp4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-27b__autoround_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-31b__autoround_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "gemma-4-31b__gptq_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-9b__official_bf16": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.8-27b__gptq_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-27b__gguf-q5_k_m": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-31b__mxfp4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-35b-a3b__gguf-iq4_xs": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__gguf-iq4_xs": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-27b__mxfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.8-27b__mxfp4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.8-27b__autoround_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-27b__awq_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-35b-a3b__int4_compressed_tensors": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-27b__int4_compressed_tensors": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.8-27b__int4_compressed_tensors": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.5-27b__autoround_int4": "dominated: below the highest-precision fitting build of its engine and not the best 4-bit method of stage 2",
+      "qwen3.6-35b-a3b__autoround_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__autoround_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__int4_compressed_tensors": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-27b__gptq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-27b__nvfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__mxfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__gguf-ud-q4_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-35b-a3b__gguf-ud-q4_k_xl": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.8-27b__gguf-q6_k": "fits neither profile",
+      "qwen3.5-27b__gguf-q6_k": "fits neither profile",
+      "qwen3.6-27b__gguf-q6_k": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-26b-a4b__gguf-q6_k": "fits neither profile",
+      "qwen3.8-27b__nvfp4": "fits neither profile",
+      "qwen3.6-35b-a3b__nvfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-12b__official_bf16": "fits neither profile",
+      "qwen3.5-35b-a3b__official_gptq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-35b-a3b__gptq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-35b-a3b__mxfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__nvfp4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.6-35b-a3b__awq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "qwen3.5-35b-a3b__awq_int4": "model outside δ of the best stage 1 score (or no fitting build) in every profile",
+      "gemma-4-26b-a4b__int8": "fits neither profile",
+      "gemma-4-26b-a4b__fp8": "fits neither profile",
+      "qwen3.5-2b__ternary_qat-ternary-bonsai-2-2b-gguf-ptq1_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-2b__ternary_qat-ternary-bonsai-2-2b-gguf-pq2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-2b__ternary_qat-ternary-bonsai-2-2b-gguf-q2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-4b__ternary_qat-ternary-bonsai-2-4b-gguf-ptq1_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-0.8b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "qwen3.5-4b__ternary_qat-ternary-bonsai-2-4b-gguf-pq2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-4b__ternary_qat-ternary-bonsai-2-4b-gguf-q2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-9b__ternary_qat-ternary-bonsai-2-9b-gguf-ptq1_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-2b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "qwen3.5-9b__ternary_qat-ternary-bonsai-2-9b-gguf-pq2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-9b__ternary_qat-ternary-bonsai-2-9b-gguf-q2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.5-4b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "qwen3.6-27b__ternary_qat-bonsai-27b-gguf-q1_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.8-27b__ternary_qat-ternary-bonsai-2-27b-gguf-ptq1_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.6-27b__ternary_qat-ternary-bonsai-27b-gguf-pq2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.6-27b__ternary_qat-ternary-bonsai-27b-gguf-q2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.8-27b__ternary_qat-ternary-bonsai-2-27b-gguf-pq2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "qwen3.8-27b__ternary_qat-ternary-bonsai-2-27b-gguf-q2_0": "needs the PrismML llama.cpp fork, which was not built on this host",
+      "gemma-4-e2b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "gemma-4-12b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "qwen3.5-9b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "gemma-4-e4b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "qwen3.5-27b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "qwen3.6-27b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "gemma-4-31b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "qwen3.8-27b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "gemma-4-31b__gguf-q6_k": "weights exceed the file-size limit",
+      "qwen3.6-35b-a3b__gguf-q5_k_m": "weights exceed the file-size limit",
+      "qwen3.5-35b-a3b__gguf-q5_k_m": "weights exceed the file-size limit",
+      "gemma-4-26b-a4b__gguf-q8_0": "weights exceed the file-size limit",
+      "qwen3.5-27b__gguf-q8_0": "weights exceed the file-size limit",
+      "qwen3.6-27b__gguf-q8_0": "weights exceed the file-size limit",
+      "qwen3.5-35b-a3b__gguf-q6_k": "weights exceed the file-size limit",
+      "qwen3.8-27b__gguf-q8_0": "weights exceed the file-size limit",
+      "qwen3.5-27b__int8": "weights exceed the file-size limit",
+      "qwen3.5-27b__official_gptq_int4": "weights exceed the file-size limit",
+      "qwen3.6-27b__official_fp8": "reference_precision",
+      "qwen3.6-27b__fp8": "weights exceed the file-size limit",
+      "qwen3.8-27b__fp8": "weights exceed the file-size limit",
+      "qwen3.5-27b__official_fp8": "reference_precision",
+      "qwen3.5-27b__fp8": "weights exceed the file-size limit",
+      "qwen3.6-35b-a3b__gguf-q6_k": "weights exceed the file-size limit",
+      "qwen3.6-27b__int8": "weights exceed the file-size limit",
+      "qwen3.8-27b__int8": "weights exceed the file-size limit",
+      "gemma-4-31b__gguf-q8_0": "weights exceed the file-size limit",
+      "gemma-4-31b__fp8": "weights exceed the file-size limit",
+      "gemma-4-31b__int8": "weights exceed the file-size limit",
+      "qwen3.6-35b-a3b__int8": "weights exceed the file-size limit",
+      "qwen3.5-35b-a3b__gguf-q8_0": "weights exceed the file-size limit",
+      "qwen3.6-35b-a3b__gguf-q8_0": "weights exceed the file-size limit",
+      "qwen3.6-35b-a3b__official_fp8": "reference_precision",
+      "qwen3.6-35b-a3b__fp8": "weights exceed the file-size limit",
+      "qwen3.5-35b-a3b__official_fp8": "reference_precision",
+      "qwen3.5-35b-a3b__fp8": "weights exceed the file-size limit",
+      "qwen3.5-35b-a3b__int8": "weights exceed the file-size limit",
+      "gemma-4-26b-a4b__official_bf16": "excluded",
+      "qwen3.6-27b__official_bf16": "excluded",
+      "qwen3.8-27b__official_bf16": "excluded",
+      "qwen3.5-27b__official_bf16": "excluded",
+      "gemma-4-31b__official_bf16": "excluded",
+      "qwen3.6-35b-a3b__bnb_4bit": "vLLM v0.30.0 has no bitsandbytes quantization method",
+      "qwen3.6-35b-a3b__official_bf16": "excluded",
+      "qwen3.5-35b-a3b__official_bf16": "excluded"
+    }
+  },
+  "finalists_2026_11_07": {
+    "per_profile": {
+      "12gib": {
+        "google/gemma-4-12B-it": {
+          "arm": "gemma-4-12b__gguf-q5_k_m",
+          "kv": "f16",
+          "dev_overall_j2": 7.43,
+          "ttft_ms": 213.8,
+          "decode_tok_s": 114.2,
+          "meets_gate": false,
+          "kv_check": null,
+          "options": 2
+        }
+      },
+      "24gb": {
+        "google/gemma-4-12B-it": {
+          "arm": "gemma-4-12b__fp8",
+          "kv": "auto",
+          "dev_overall_j2": 7.03,
+          "ttft_ms": 40.2,
+          "decode_tok_s": 138.4,
+          "meets_gate": true,
+          "kv_check": null,
+          "options": 5
+        },
+        "google/gemma-4-31B-it": {
+          "arm": "gemma-4-31b__gguf-q5_k_m",
+          "kv": "q4_0",
+          "dev_overall_j2": 7.47,
+          "ttft_ms": 376.8,
+          "decode_tok_s": 58.5,
+          "meets_gate": false,
+          "kv_check": {
+            "rows": 100,
+            "mean_gain": -0.11,
+            "ci95": [
+              -0.3,
+              0.08
+            ],
+            "win_rate": 0.16,
+            "loss_rate": 0.23
+          },
+          "options": 2
+        },
+        "google/gemma-4-26B-A4B-it": {
+          "arm": "gemma-4-26b-a4b__nvfp4",
+          "kv": "auto",
+          "dev_overall_j2": 6.98,
+          "ttft_ms": 60.1,
+          "decode_tok_s": 216.6,
+          "meets_gate": true,
+          "kv_check": null,
+          "options": 3
+        },
+        "Qwen/Qwen3.8-27B": {
+          "arm": "qwen3.8-27b__awq_int4",
+          "kv": "auto",
+          "dev_overall_j2": 6.85,
+          "ttft_ms": 116.7,
+          "decode_tok_s": 100.2,
+          "meets_gate": true,
+          "kv_check": null,
+          "options": 3
+        },
+        "Qwen/Qwen3.5-27B": {
+          "arm": "qwen3.5-27b__nvfp4",
+          "kv": "auto",
+          "dev_overall_j2": 6.68,
+          "ttft_ms": 116.7,
+          "decode_tok_s": 94.2,
+          "meets_gate": true,
+          "kv_check": null,
+          "options": 3
+        }
+      }
+    },
+    "pending_kv_checks": [],
+    "stage3_controls": {
+      "calls": 500,
+      "control_overall_mean": 2.09,
+      "control_failure_rate": 0.09
+    },
+    "kvquality_controls": {
+      "calls": 100,
+      "control_overall_mean": 1.8,
+      "control_failure_rate": 0.06
+    }
+  },
+  "finalists": {
+    "per_profile": {
+      "12gib": {
+        "google/gemma-4-12B-it": {
+          "arm": "gemma-4-12b__gguf-q5_k_m",
+          "kv": "f16",
+          "dev_overall_j2": 7.41,
+          "ttft_ms": 213.8,
+          "decode_tok_s": 114.2,
+          "meets_gate": false,
+          "kv_check": null,
+          "options": 2
+        }
+      },
+      "24gb": {
+        "google/gemma-4-12B-it": {
+          "arm": "gemma-4-12b__official_qat_w4a16",
+          "kv": "auto",
+          "dev_overall_j2": 7.13,
+          "ttft_ms": 55.3,
+          "decode_tok_s": 70.1,
+          "meets_gate": true,
+          "kv_check": null,
+          "options": 6
+        },
+        "google/gemma-4-31B-it": {
+          "arm": "gemma-4-31b__gguf-q5_k_m",
+          "kv": "q4_0",
+          "dev_overall_j2": 7.435,
+          "ttft_ms": 376.8,
+          "decode_tok_s": 58.5,
+          "meets_gate": false,
+          "kv_check": {
+            "rows": 100,
+            "mean_gain": -0.11,
+            "ci95": [
+              -0.3,
+              0.08
+            ],
+            "win_rate": 0.16,
+            "loss_rate": 0.23
+          },
+          "options": 2
+        },
+        "google/gemma-4-26B-A4B-it": {
+          "arm": "gemma-4-26b-a4b__nvfp4",
+          "kv": "auto",
+          "dev_overall_j2": 6.98,
+          "ttft_ms": 60.1,
+          "decode_tok_s": 216.6,
+          "meets_gate": true,
+          "kv_check": null,
+          "options": 3
+        },
+        "Qwen/Qwen3.8-27B": {
+          "arm": "qwen3.8-27b__awq_int4",
+          "kv": "auto",
+          "dev_overall_j2": 6.85,
+          "ttft_ms": 116.7,
+          "decode_tok_s": 100.2,
+          "meets_gate": true,
+          "kv_check": null,
+          "options": 3
+        },
+        "Qwen/Qwen3.5-27B": {
+          "arm": "qwen3.5-27b__nvfp4",
+          "kv": "auto",
+          "dev_overall_j2": 6.68,
+          "ttft_ms": 116.7,
+          "decode_tok_s": 94.2,
+          "meets_gate": true,
+          "kv_check": null,
+          "options": 3
+        }
+      }
+    },
+    "pending_kv_checks": [],
+    "stage3_controls": {
+      "calls": 695,
+      "control_overall_mean": 2.1,
+      "control_failure_rate": 0.0863
+    },
+    "kvquality_controls": {
+      "calls": 100,
+      "control_overall_mean": 1.8,
+      "control_failure_rate": 0.06
+    }
+  },
+  "decision_2026_11_07": {
+    "controls": {
+      "j1": {
+        "calls": 252,
+        "control_overall_mean": 1.08,
+        "control_failure_rate": 0.0357
+      },
+      "j2": {
+        "calls": 252,
+        "control_overall_mean": 1.6,
+        "control_failure_rate": 0.0595
+      }
+    },
+    "references": {
+      "qwen3.5-4b__official_bf16": {
+        "j1": {
+          "means": {
+            "relevance": 6.171,
+            "coherence": 6.734,
+            "appropriateness": 6.27,
+            "overall": 5.29
+          },
+          "overall_by_stratum": {
+            "elderly_claude": 5.635,
+            "elderly_gpt-6-astra": 5.492,
+            "natural_turns": 5.016
+          }
+        },
+        "j2": {
+          "means": {
+            "relevance": 6.337,
+            "coherence": 7.857,
+            "appropriateness": 6.159,
+            "overall": 5.393
+          },
+          "overall_by_stratum": {
+            "elderly_claude": 6.063,
+            "elderly_gpt-6-astra": 5.571,
+            "natural_turns": 4.968
+          }
+        }
+      },
+      "qwen3-4b-instruct-2507__deployed": {
+        "j1": {
+          "means": {
+            "relevance": 4.107,
+            "coherence": 4.278,
+            "appropriateness": 4.143,
+            "overall": 2.901
+          },
+          "overall_by_stratum": {
+            "elderly_claude": 2.698,
+            "elderly_gpt-6-astra": 3.079,
+            "natural_turns": 2.913
+          }
+        },
+        "j2": {
+          "means": {
+            "relevance": 5.147,
+            "coherence": 5.448,
+            "appropriateness": 4.675,
+            "overall": 3.611
+          },
+          "overall_by_stratum": {
+            "elderly_claude": 3.349,
+            "elderly_gpt-6-astra": 3.73,
+            "natural_turns": 3.683
+          }
+        }
+      }
+    },
+    "profiles": {
+      "12gib": {
+        "winner": null,
+        "finalists": {
+          "gemma-4-12b__gguf-q5_k_m": {
+            "model": "google/gemma-4-12B-it",
+            "kv": "f16",
+            "fits": true,
+            "latency": {
+              "ttft_ms": 178.5,
+              "decode_tok_s": 117.0,
+              "source": "test run",
+              "runs": {
+                "development": [
+                  213.8,
+                  114.2
+                ],
+                "test": [
+                  178.5,
+                  117.0
+                ]
+              },
+              "third_needed": false
+            },
+            "meets_gate": false,
+            "means": {
+              "j1": {
+                "relevance": 6.889,
+                "coherence": 8.21,
+                "appropriateness": 7.96,
+                "overall": 6.722
+              },
+              "j2": {
+                "relevance": 7.615,
+                "coherence": 8.968,
+                "appropriateness": 8.218,
+                "overall": 7.187
+              }
+            },
+            "overall_two_judge_mean": 6.955,
+            "overall_by_stratum": {
+              "j1": {
+                "elderly_claude": 7.079,
+                "elderly_gpt-6-astra": 7.206,
+                "natural_turns": 6.302
+              },
+              "j2": {
+                "elderly_claude": 7.238,
+                "elderly_gpt-6-astra": 7.159,
+                "natural_turns": 7.175
+              }
+            }
+          }
+        }
+      },
+      "24gb": {
+        "winner": "gemma-4-12b__fp8",
+        "ranking": [
+          "gemma-4-12b__fp8",
+          "gemma-4-26b-a4b__nvfp4",
+          "qwen3.8-27b__awq_int4",
+          "qwen3.5-27b__nvfp4"
+        ],
+        "versus": {
+          "qwen3.5-4b__official_bf16": {
+            "beats": true,
+            "gains": {
+              "j1": {
+                "relevance": {
+                  "rows": 252,
+                  "mean_gain": 0.607,
+                  "ci95": [
+                    0.329,
+                    0.881
+                  ],
+                  "win_rate": 0.516,
+                  "loss_rate": 0.317
+                },
+                "coherence": {
+                  "rows": 252,
+                  "mean_gain": 1.103,
+                  "ci95": [
+                    0.833,
+                    1.373
+                  ],
+                  "win_rate": 0.635,
+                  "loss_rate": 0.218
+                },
+                "appropriateness": {
+                  "rows": 252,
+                  "mean_gain": 1.496,
+                  "ci95": [
+                    1.23,
+                    1.762
+                  ],
+                  "win_rate": 0.683,
+                  "loss_rate": 0.183
+                },
+                "overall": {
+                  "rows": 252,
+                  "mean_gain": 1.19,
+                  "ci95": [
+                    0.885,
+                    1.504
+                  ],
+                  "win_rate": 0.607,
+                  "loss_rate": 0.298
+                }
+              },
+              "j2": {
+                "relevance": {
+                  "rows": 252,
+                  "mean_gain": 1.25,
+                  "ci95": [
+                    0.913,
+                    1.571
+                  ],
+                  "win_rate": 0.563,
+                  "loss_rate": 0.246
+                },
+                "coherence": {
+                  "rows": 252,
+                  "mean_gain": 0.802,
+                  "ci95": [
+                    0.504,
+                    1.103
+                  ],
+                  "win_rate": 0.52,
+                  "loss_rate": 0.218
+                },
+                "appropriateness": {
+                  "rows": 252,
+                  "mean_gain": 1.933,
+                  "ci95": [
+                    1.643,
+                    2.222
+                  ],
+                  "win_rate": 0.738,
+                  "loss_rate": 0.147
+                },
+                "overall": {
+                  "rows": 252,
+                  "mean_gain": 1.603,
+                  "ci95": [
+                    1.274,
+                    1.944
+                  ],
+                  "win_rate": 0.647,
+                  "loss_rate": 0.226
+                }
+              }
+            }
+          },
+          "qwen3-4b-instruct-2507__deployed": {
+            "beats": true,
+            "gains": {
+              "j1": {
+                "relevance": {
+                  "rows": 252,
+                  "mean_gain": 2.671,
+                  "ci95": [
+                    2.369,
+                    2.984
+                  ],
+                  "win_rate": 0.817,
+                  "loss_rate": 0.095
+                },
+                "coherence": {
+                  "rows": 252,
+                  "mean_gain": 3.56,
+                  "ci95": [
+                    3.262,
+                    3.853
+                  ],
+                  "win_rate": 0.889,
+                  "loss_rate": 0.06
+                },
+                "appropriateness": {
+                  "rows": 252,
+                  "mean_gain": 3.623,
+                  "ci95": [
+                    3.377,
+                    3.873
+                  ],
+                  "win_rate": 0.937,
+                  "loss_rate": 0.028
+                },
+                "overall": {
+                  "rows": 252,
+                  "mean_gain": 3.579,
+                  "ci95": [
+                    3.286,
+                    3.861
+                  ],
+                  "win_rate": 0.917,
+                  "loss_rate": 0.063
+                }
+              },
+              "j2": {
+                "relevance": {
+                  "rows": 252,
+                  "mean_gain": 2.44,
+                  "ci95": [
+                    2.079,
+                    2.813
+                  ],
+                  "win_rate": 0.754,
+                  "loss_rate": 0.198
+                },
+                "coherence": {
+                  "rows": 252,
+                  "mean_gain": 3.21,
+                  "ci95": [
+                    2.821,
+                    3.607
+                  ],
+                  "win_rate": 0.782,
+                  "loss_rate": 0.127
+                },
+                "appropriateness": {
+                  "rows": 252,
+                  "mean_gain": 3.417,
+                  "ci95": [
+                    3.135,
+                    3.698
+                  ],
+                  "win_rate": 0.881,
+                  "loss_rate": 0.063
+                },
+                "overall": {
+                  "rows": 252,
+                  "mean_gain": 3.385,
+                  "ci95": [
+                    3.067,
+                    3.702
+                  ],
+                  "win_rate": 0.861,
+                  "loss_rate": 0.095
+                }
+              }
+            }
+          }
+        },
+        "finalists": {
+          "gemma-4-12b__fp8": {
+            "model": "google/gemma-4-12B-it",
+            "kv": "auto",
+            "fits": true,
+            "latency": {
+              "ttft_ms": 51.4,
+              "decode_tok_s": 139.4,
+              "source": "test run",
+              "runs": {
+                "development": [
+                  40.2,
+                  138.4
+                ],
+                "test": [
+                  51.4,
+                  139.4
+                ]
+              },
+              "third_needed": false
+            },
+            "meets_gate": true,
+            "means": {
+              "j1": {
+                "relevance": 6.778,
+                "coherence": 7.837,
+                "appropriateness": 7.766,
+                "overall": 6.48
+              },
+              "j2": {
+                "relevance": 7.587,
+                "coherence": 8.659,
+                "appropriateness": 8.091,
+                "overall": 6.996
+              }
+            },
+            "overall_two_judge_mean": 6.738,
+            "overall_by_stratum": {
+              "j1": {
+                "elderly_claude": 7,
+                "elderly_gpt-6-astra": 7.143,
+                "natural_turns": 5.889
+              },
+              "j2": {
+                "elderly_claude": 7.048,
+                "elderly_gpt-6-astra": 7.222,
+                "natural_turns": 6.857
+              }
+            }
+          },
+          "gemma-4-31b__gguf-q5_k_m@q4_0": {
+            "model": "google/gemma-4-31B-it",
+            "kv": "q4_0",
+            "fits": true,
+            "latency": {
+              "ttft_ms": 152.3,
+              "decode_tok_s": 55.1,
+              "source": "median of three runs",
+              "runs": {
+                "development": [
+                  336.3,
+                  13.1
+                ],
+                "test": [
+                  139.3,
+                  55.4
+                ],
+                "third": [
+                  152.3,
+                  55.1
+                ]
+              },
+              "third_needed": false
+            },
+            "meets_gate": false,
+            "means": {
+              "j1": {
+                "relevance": 7.127,
+                "coherence": 8.135,
+                "appropriateness": 7.643,
+                "overall": 6.821
+              },
+              "j2": {
+                "relevance": 7.627,
+                "coherence": 9.091,
+                "appropriateness": 7.115,
+                "overall": 6.881
+              }
+            },
+            "overall_two_judge_mean": 6.851,
+            "overall_by_stratum": {
+              "j1": {
+                "elderly_claude": 7.619,
+                "elderly_gpt-6-astra": 7.365,
+                "natural_turns": 6.151
+              },
+              "j2": {
+                "elderly_claude": 7.556,
+                "elderly_gpt-6-astra": 7.317,
+                "natural_turns": 6.325
+              }
+            }
+          },
+          "gemma-4-26b-a4b__nvfp4": {
+            "model": "google/gemma-4-26B-A4B-it",
+            "kv": "auto",
+            "fits": true,
+            "latency": {
+              "ttft_ms": 71.3,
+              "decode_tok_s": 215.6,
+              "source": "test run",
+              "runs": {
+                "development": [
+                  60.1,
+                  216.6
+                ],
+                "test": [
+                  71.3,
+                  215.6
+                ]
+              },
+              "third_needed": false
+            },
+            "meets_gate": true,
+            "means": {
+              "j1": {
+                "relevance": 6.417,
+                "coherence": 8.107,
+                "appropriateness": 7.544,
+                "overall": 6.27
+              },
+              "j2": {
+                "relevance": 7.095,
+                "coherence": 9.02,
+                "appropriateness": 7.258,
+                "overall": 6.556
+              }
+            },
+            "overall_two_judge_mean": 6.413,
+            "overall_by_stratum": {
+              "j1": {
+                "elderly_claude": 6.635,
+                "elderly_gpt-6-astra": 6.683,
+                "natural_turns": 5.881
+              },
+              "j2": {
+                "elderly_claude": 6.651,
+                "elderly_gpt-6-astra": 6.778,
+                "natural_turns": 6.397
+              }
+            }
+          },
+          "qwen3.8-27b__awq_int4": {
+            "model": "Qwen/Qwen3.8-27B",
+            "kv": "auto",
+            "fits": true,
+            "latency": {
+              "ttft_ms": 113.4,
+              "decode_tok_s": 99.6,
+              "source": "test run",
+              "runs": {
+                "development": [
+                  116.7,
+                  100.2
+                ],
+                "test": [
+                  113.4,
+                  99.6
+                ]
+              },
+              "third_needed": false
+            },
+            "meets_gate": true,
+            "means": {
+              "j1": {
+                "relevance": 6.667,
+                "coherence": 7.813,
+                "appropriateness": 7.258,
+                "overall": 6.226
+              },
+              "j2": {
+                "relevance": 7.095,
+                "coherence": 8.849,
+                "appropriateness": 7.421,
+                "overall": 6.437
+              }
+            },
+            "overall_two_judge_mean": 6.332,
+            "overall_by_stratum": {
+              "j1": {
+                "elderly_claude": 7.016,
+                "elderly_gpt-6-astra": 6.905,
+                "natural_turns": 5.492
+              },
+              "j2": {
+                "elderly_claude": 7.254,
+                "elderly_gpt-6-astra": 7.159,
+                "natural_turns": 5.667
+              }
+            }
+          },
+          "qwen3.5-27b__nvfp4": {
+            "model": "Qwen/Qwen3.5-27B",
+            "kv": "auto",
+            "fits": true,
+            "latency": {
+              "ttft_ms": 112.2,
+              "decode_tok_s": 94.3,
+              "source": "test run",
+              "runs": {
+                "development": [
+                  116.7,
+                  94.2
+                ],
+                "test": [
+                  112.2,
+                  94.3
+                ]
+              },
+              "third_needed": false
+            },
+            "meets_gate": true,
+            "means": {
+              "j1": {
+                "relevance": 6.667,
+                "coherence": 7.679,
+                "appropriateness": 7.171,
+                "overall": 6.163
+              },
+              "j2": {
+                "relevance": 6.929,
+                "coherence": 8.746,
+                "appropriateness": 7.234,
+                "overall": 6.206
+              }
+            },
+            "overall_two_judge_mean": 6.184,
+            "overall_by_stratum": {
+              "j1": {
+                "elderly_claude": 6.952,
+                "elderly_gpt-6-astra": 6.794,
+                "natural_turns": 5.452
+              },
+              "j2": {
+                "elderly_claude": 7.143,
+                "elderly_gpt-6-astra": 6.698,
+                "natural_turns": 5.492
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "decision": {
+    "controls": {
+      "j1": {
+        "calls": 501,
+        "control_overall_mean": 1.07,
+        "control_failure_rate": 0.0399
+      },
+      "j2": {
+        "calls": 501,
+        "control_overall_mean": 1.62,
+        "control_failure_rate": 0.0599
+      }
+    },
+    "references": {
+      "qwen3.5-4b__official_bf16": {
+        "j1": {
+          "means": {
+            "relevance": 6.159,
+            "coherence": 6.718,
+            "appropriateness": 6.234,
+            "overall": 5.272
+          },
+          "overall_by_stratum": {
+            "elderly_claude": 5.619,
+            "elderly_gpt-6-astra": 5.484,
+            "natural_turns": 4.992
+          }
+        },
+        "j2": {
+          "means": {
+            "relevance": 6.319,
+            "coherence": 7.861,
+            "appropriateness": 6.151,
+            "overall": 5.345
+          },
+          "overall_by_stratum": {
+            "elderly_claude": 6.008,
+            "elderly_gpt-6-astra": 5.516,
+            "natural_turns": 4.929
+          }
+        }
+      },
+      "qwen3-4b-instruct-2507__deployed": {
+        "j1": {
+          "means": {
+            "relevance": 4.075,
+            "coherence": 4.246,
+            "appropriateness": 4.131,
+            "overall": 2.839
+          },
+          "overall_by_stratum": {
+            "elderly_claude": 2.683,
+            "elderly_gpt-6-astra": 3.048,
+            "natural_turns": 2.813
+          }
+        },
+        "j2": {
+          "means": {
+            "relevance": 5.123,
+            "coherence": 5.45,
+            "appropriateness": 4.671,
+            "overall": 3.575
+          },
+          "overall_by_stratum": {
+            "elderly_claude": 3.349,
+            "elderly_gpt-6-astra": 3.659,
+            "natural_turns": 3.647
+          }
+        }
+      }
+    },
+    "profiles": {
+      "12gib": {
+        "winner": null,
+        "finalists": {
+          "gemma-4-12b__gguf-q5_k_m": {
+            "model": "google/gemma-4-12B-it",
+            "kv": "f16",
+            "fits": true,
+            "latency": {
+              "ttft_ms": 178.5,
+              "decode_tok_s": 117.0,
+              "source": "test run",
+              "runs": {
+                "development": [
+                  213.8,
+                  114.2
+                ],
+                "test": [
+                  178.5,
+                  117.0
+                ]
+              },
+              "third_needed": false
+            },
+            "meets_gate": false,
+            "means": {
+              "j1": {
+                "relevance": 6.873,
+                "coherence": 8.173,
+                "appropriateness": 7.942,
+                "overall": 6.7
+              },
+              "j2": {
+                "relevance": 7.643,
+                "coherence": 8.962,
+                "appropriateness": 8.192,
+                "overall": 7.175
+              }
+            },
+            "overall_two_judge_mean": 6.938,
+            "overall_by_stratum": {
+              "j1": {
+                "elderly_claude": 7.056,
+                "elderly_gpt-6-astra": 7.214,
+                "natural_turns": 6.266
+              },
+              "j2": {
+                "elderly_claude": 7.175,
+                "elderly_gpt-6-astra": 7.167,
+                "natural_turns": 7.179
+              }
+            }
+          }
+        }
+      },
+      "24gb": {
+        "winner": "gemma-4-12b__official_qat_w4a16",
+        "ranking": [
+          "gemma-4-12b__official_qat_w4a16",
+          "gemma-4-26b-a4b__nvfp4",
+          "qwen3.8-27b__awq_int4",
+          "qwen3.5-27b__nvfp4"
+        ],
+        "versus": {
+          "qwen3.5-4b__official_bf16": {
+            "beats": true,
+            "gains": {
+              "j1": {
+                "relevance": {
+                  "rows": 252,
+                  "mean_gain": 0.516,
+                  "ci95": [
+                    0.242,
+                    0.788
+                  ],
+                  "win_rate": 0.544,
+                  "loss_rate": 0.373
+                },
+                "coherence": {
+                  "rows": 252,
+                  "mean_gain": 1.464,
+                  "ci95": [
+                    1.222,
+                    1.702
+                  ],
+                  "win_rate": 0.77,
+                  "loss_rate": 0.127
+                },
+                "appropriateness": {
+                  "rows": 252,
+                  "mean_gain": 1.611,
+                  "ci95": [
+                    1.359,
+                    1.867
+                  ],
+                  "win_rate": 0.726,
+                  "loss_rate": 0.147
+                },
+                "overall": {
+                  "rows": 252,
+                  "mean_gain": 1.196,
+                  "ci95": [
+                    0.907,
+                    1.494
+                  ],
+                  "win_rate": 0.651,
+                  "loss_rate": 0.274
+                }
+              },
+              "j2": {
+                "relevance": {
+                  "rows": 252,
+                  "mean_gain": 1.208,
+                  "ci95": [
+                    0.883,
+                    1.538
+                  ],
+                  "win_rate": 0.579,
+                  "loss_rate": 0.278
+                },
+                "coherence": {
+                  "rows": 252,
+                  "mean_gain": 1.147,
+                  "ci95": [
+                    0.889,
+                    1.413
+                  ],
+                  "win_rate": 0.671,
+                  "loss_rate": 0.143
+                },
+                "appropriateness": {
+                  "rows": 252,
+                  "mean_gain": 2.032,
+                  "ci95": [
+                    1.744,
+                    2.323
+                  ],
+                  "win_rate": 0.774,
+                  "loss_rate": 0.143
+                },
+                "overall": {
+                  "rows": 252,
+                  "mean_gain": 1.746,
+                  "ci95": [
+                    1.427,
+                    2.069
+                  ],
+                  "win_rate": 0.69,
+                  "loss_rate": 0.234
+                }
+              }
+            }
+          },
+          "qwen3-4b-instruct-2507__deployed": {
+            "beats": true,
+            "gains": {
+              "j1": {
+                "relevance": {
+                  "rows": 252,
+                  "mean_gain": 2.599,
+                  "ci95": [
+                    2.28,
+                    2.923
+                  ],
+                  "win_rate": 0.821,
+                  "loss_rate": 0.131
+                },
+                "coherence": {
+                  "rows": 252,
+                  "mean_gain": 3.937,
+                  "ci95": [
+                    3.655,
+                    4.204
+                  ],
+                  "win_rate": 0.925,
+                  "loss_rate": 0.036
+                },
+                "appropriateness": {
+                  "rows": 252,
+                  "mean_gain": 3.714,
+                  "ci95": [
+                    3.462,
+                    3.972
+                  ],
+                  "win_rate": 0.944,
+                  "loss_rate": 0.04
+                },
+                "overall": {
+                  "rows": 252,
+                  "mean_gain": 3.629,
+                  "ci95": [
+                    3.329,
+                    3.929
+                  ],
+                  "win_rate": 0.909,
+                  "loss_rate": 0.056
+                }
+              },
+              "j2": {
+                "relevance": {
+                  "rows": 252,
+                  "mean_gain": 2.405,
+                  "ci95": [
+                    2.026,
+                    2.78
+                  ],
+                  "win_rate": 0.758,
+                  "loss_rate": 0.171
+                },
+                "coherence": {
+                  "rows": 252,
+                  "mean_gain": 3.558,
+                  "ci95": [
+                    3.188,
+                    3.909
+                  ],
+                  "win_rate": 0.841,
+                  "loss_rate": 0.091
+                },
+                "appropriateness": {
+                  "rows": 252,
+                  "mean_gain": 3.512,
+                  "ci95": [
+                    3.216,
+                    3.808
+                  ],
+                  "win_rate": 0.893,
+                  "loss_rate": 0.063
+                },
+                "overall": {
+                  "rows": 252,
+                  "mean_gain": 3.516,
+                  "ci95": [
+                    3.187,
+                    3.845
+                  ],
+                  "win_rate": 0.897,
+                  "loss_rate": 0.071
+                }
+              }
+            }
+          }
+        },
+        "finalists": {
+          "gemma-4-12b__official_qat_w4a16": {
+            "model": "google/gemma-4-12B-it",
+            "kv": "auto",
+            "fits": true,
+            "latency": {
+              "ttft_ms": 39.4,
+              "decode_tok_s": 151.8,
+              "source": "median of three runs",
+              "runs": {
+                "development": [
+                  55.3,
+                  70.1
+                ],
+                "test": [
+                  39.4,
+                  151.8
+                ],
+                "third": [
+                  37.7,
+                  155.9
+                ]
+              },
+              "third_needed": false
+            },
+            "meets_gate": true,
+            "means": {
+              "j1": {
+                "relevance": 6.675,
+                "coherence": 8.183,
+                "appropriateness": 7.845,
+                "overall": 6.468
+              },
+              "j2": {
+                "relevance": 7.528,
+                "coherence": 9.008,
+                "appropriateness": 8.183,
+                "overall": 7.091
+              }
+            },
+            "overall_two_judge_mean": 6.78,
+            "overall_by_stratum": {
+              "j1": {
+                "elderly_claude": 6.603,
+                "elderly_gpt-6-astra": 6.81,
+                "natural_turns": 6.23
+              },
+              "j2": {
+                "elderly_claude": 6.825,
+                "elderly_gpt-6-astra": 7.111,
+                "natural_turns": 7.214
+              }
+            }
+          },
+          "gemma-4-31b__gguf-q5_k_m@q4_0": {
+            "model": "google/gemma-4-31B-it",
+            "kv": "q4_0",
+            "fits": true,
+            "latency": {
+              "ttft_ms": 152.3,
+              "decode_tok_s": 55.1,
+              "source": "median of three runs",
+              "runs": {
+                "development": [
+                  336.3,
+                  13.1
+                ],
+                "test": [
+                  139.3,
+                  55.4
+                ],
+                "third": [
+                  152.3,
+                  55.1
+                ]
+              },
+              "third_needed": false
+            },
+            "meets_gate": false,
+            "means": {
+              "j1": {
+                "relevance": 7.137,
+                "coherence": 8.157,
+                "appropriateness": 7.651,
+                "overall": 6.857
+              },
+              "j2": {
+                "relevance": 7.629,
+                "coherence": 9.077,
+                "appropriateness": 7.111,
+                "overall": 6.887
+              }
+            },
+            "overall_two_judge_mean": 6.872,
+            "overall_by_stratum": {
+              "j1": {
+                "elderly_claude": 7.651,
+                "elderly_gpt-6-astra": 7.373,
+                "natural_turns": 6.202
+              },
+              "j2": {
+                "elderly_claude": 7.643,
+                "elderly_gpt-6-astra": 7.262,
+                "natural_turns": 6.321
+              }
+            }
+          },
+          "gemma-4-26b-a4b__nvfp4": {
+            "model": "google/gemma-4-26B-A4B-it",
+            "kv": "auto",
+            "fits": true,
+            "latency": {
+              "ttft_ms": 71.3,
+              "decode_tok_s": 215.6,
+              "source": "test run",
+              "runs": {
+                "development": [
+                  60.1,
+                  216.6
+                ],
+                "test": [
+                  71.3,
+                  215.6
+                ]
+              },
+              "third_needed": false
+            },
+            "meets_gate": true,
+            "means": {
+              "j1": {
+                "relevance": 6.409,
+                "coherence": 8.097,
+                "appropriateness": 7.512,
+                "overall": 6.244
+              },
+              "j2": {
+                "relevance": 7.117,
+                "coherence": 9.002,
+                "appropriateness": 7.224,
+                "overall": 6.544
+              }
+            },
+            "overall_two_judge_mean": 6.394,
+            "overall_by_stratum": {
+              "j1": {
+                "elderly_claude": 6.619,
+                "elderly_gpt-6-astra": 6.675,
+                "natural_turns": 5.841
+              },
+              "j2": {
+                "elderly_claude": 6.643,
+                "elderly_gpt-6-astra": 6.738,
+                "natural_turns": 6.397
+              }
+            }
+          },
+          "qwen3.8-27b__awq_int4": {
+            "model": "Qwen/Qwen3.8-27B",
+            "kv": "auto",
+            "fits": true,
+            "latency": {
+              "ttft_ms": 113.4,
+              "decode_tok_s": 99.6,
+              "source": "test run",
+              "runs": {
+                "development": [
+                  116.7,
+                  100.2
+                ],
+                "test": [
+                  113.4,
+                  99.6
+                ]
+              },
+              "third_needed": false
+            },
+            "meets_gate": true,
+            "means": {
+              "j1": {
+                "relevance": 6.659,
+                "coherence": 7.782,
+                "appropriateness": 7.194,
+                "overall": 6.157
+              },
+              "j2": {
+                "relevance": 7.077,
+                "coherence": 8.851,
+                "appropriateness": 7.379,
+                "overall": 6.409
+              }
+            },
+            "overall_two_judge_mean": 6.283,
+            "overall_by_stratum": {
+              "j1": {
+                "elderly_claude": 6.968,
+                "elderly_gpt-6-astra": 6.825,
+                "natural_turns": 5.417
+              },
+              "j2": {
+                "elderly_claude": 7.222,
+                "elderly_gpt-6-astra": 7.079,
+                "natural_turns": 5.667
+              }
+            }
+          },
+          "qwen3.5-27b__nvfp4": {
+            "model": "Qwen/Qwen3.5-27B",
+            "kv": "auto",
+            "fits": true,
+            "latency": {
+              "ttft_ms": 112.2,
+              "decode_tok_s": 94.3,
+              "source": "test run",
+              "runs": {
+                "development": [
+                  116.7,
+                  94.2
+                ],
+                "test": [
+                  112.2,
+                  94.3
+                ]
+              },
+              "third_needed": false
+            },
+            "meets_gate": true,
+            "means": {
+              "j1": {
+                "relevance": 6.653,
+                "coherence": 7.661,
+                "appropriateness": 7.165,
+                "overall": 6.147
+              },
+              "j2": {
+                "relevance": 6.895,
+                "coherence": 8.75,
+                "appropriateness": 7.19,
+                "overall": 6.163
+              }
+            },
+            "overall_two_judge_mean": 6.155,
+            "overall_by_stratum": {
+              "j1": {
+                "elderly_claude": 6.968,
+                "elderly_gpt-6-astra": 6.746,
+                "natural_turns": 5.437
+              },
+              "j2": {
+                "elderly_claude": 7.151,
+                "elderly_gpt-6-astra": 6.659,
+                "natural_turns": 5.421
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "exploratory": {
+    "label": "exploratory, outside the pre-registered decision",
+    "arm": "gemma-4-12b__official_qat_w4a16",
+    "limit_mib": 10682,
+    "tunings": {
+      "b512": {
+        "kv": "auto",
+        "peak_mib": 11050,
+        "fits_12gib": false,
+        "ttft_ms": 37.9,
+        "decode_tok_s": 161.7,
+        "meets_gate": true
+      },
+      "eager": {
+        "kv": "auto",
+        "peak_mib": 11062,
+        "fits_12gib": false,
+        "ttft_ms": 91.2,
+        "decode_tok_s": 25.5,
+        "meets_gate": false
+      },
+      "eager_b512": {
+        "kv": "auto",
+        "peak_mib": 10832,
+        "fits_12gib": false,
+        "ttft_ms": 94.4,
+        "decode_tok_s": 24.5,
+        "meets_gate": false
+      }
+    },
+    "chosen": null
+  },
+  "latency_robustness": {
+    "quiet_other_sm_max": 10,
+    "configurations": {
+      "gemma-4-12b__gguf-q5_k_m@f16": {
+        "engine": "llamacpp",
+        "measurements": [
+          {
+            "tag": "run",
+            "started_at": "2026-11-03T13:31:16.300524+00:00",
+            "ttft_ms": 213.8,
+            "decode_tok_s": 114.2,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": false
+          },
+          {
+            "tag": "test",
+            "started_at": "2026-11-07T06:37:44.296265+00:00",
+            "ttft_ms": 178.5,
+            "decode_tok_s": 117.0,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": false
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T01:15:26.880105+00:00",
+            "ttft_ms": 180.7,
+            "decode_tok_s": 117.3,
+            "other_sm": 0.0,
+            "cpu_load1": 1.7,
+            "gate": false
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T01:46:19.701924+00:00",
+            "ttft_ms": 175.0,
+            "decode_tok_s": 117.5,
+            "other_sm": 0.0,
+            "cpu_load1": 1.4,
+            "gate": false
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T02:17:08.629536+00:00",
+            "ttft_ms": 198.4,
+            "decode_tok_s": 116.7,
+            "other_sm": 0.0,
+            "cpu_load1": 1.5,
+            "gate": false
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T02:48:02.550004+00:00",
+            "ttft_ms": 168.9,
+            "decode_tok_s": 117.8,
+            "other_sm": 0.0,
+            "cpu_load1": 1.2,
+            "gate": false
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T03:18:51.428973+00:00",
+            "ttft_ms": 168.7,
+            "decode_tok_s": 117.9,
+            "other_sm": 0.0,
+            "cpu_load1": 1.3,
+            "gate": false
+          }
+        ],
+        "all_runs": {
+          "runs": 7,
+          "ttft_ms": 178.5,
+          "decode_tok_s": 117.3,
+          "gate": false
+        },
+        "quiet_runs": {
+          "runs": 5,
+          "ttft_ms": 175.0,
+          "decode_tok_s": 117.5,
+          "gate": false
+        },
+        "ttft_range_ms": [
+          168.7,
+          213.8
+        ],
+        "share_of_runs_meeting_gate": 0.0,
+        "decision_gate": false,
+        "gate_differs": {
+          "all_runs": false,
+          "quiet_runs": false
+        }
+      },
+      "gemma-4-12b__official_qat_w4a16@auto": {
+        "engine": "vllm",
+        "measurements": [
+          {
+            "tag": "run",
+            "started_at": "2026-10-31T12:42:11.043015+00:00",
+            "ttft_ms": 55.3,
+            "decode_tok_s": 70.1,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": true
+          },
+          {
+            "tag": "test",
+            "started_at": "2026-11-09T18:50:14.311088+00:00",
+            "ttft_ms": 39.4,
+            "decode_tok_s": 151.8,
+            "other_sm": 0.0,
+            "cpu_load1": 3.2,
+            "gate": true
+          },
+          {
+            "tag": "latency3",
+            "started_at": "2026-11-09T18:54:29.024959+00:00",
+            "ttft_ms": 37.7,
+            "decode_tok_s": 155.9,
+            "other_sm": 0.0,
+            "cpu_load1": 2.6,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-11T02:17:33.211078+00:00",
+            "ttft_ms": 38.5,
+            "decode_tok_s": 152.3,
+            "other_sm": 0.0,
+            "cpu_load1": 2.5,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-11T02:51:11.627190+00:00",
+            "ttft_ms": 48.3,
+            "decode_tok_s": 152.4,
+            "other_sm": 0.0,
+            "cpu_load1": 2.5,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-11T03:24:42.827817+00:00",
+            "ttft_ms": 40.9,
+            "decode_tok_s": 152.1,
+            "other_sm": 0.0,
+            "cpu_load1": 2.6,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-11T03:58:13.856238+00:00",
+            "ttft_ms": 41.7,
+            "decode_tok_s": 152.2,
+            "other_sm": 0.0,
+            "cpu_load1": 3.2,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-11T04:31:44.782152+00:00",
+            "ttft_ms": 39.4,
+            "decode_tok_s": 156.9,
+            "other_sm": 0.0,
+            "cpu_load1": 3.0,
+            "gate": true
+          }
+        ],
+        "all_runs": {
+          "runs": 8,
+          "ttft_ms": 40.1,
+          "decode_tok_s": 152.2,
+          "gate": true
+        },
+        "quiet_runs": {
+          "runs": 7,
+          "ttft_ms": 39.4,
+          "decode_tok_s": 152.3,
+          "gate": true
+        },
+        "ttft_range_ms": [
+          37.7,
+          55.3
+        ],
+        "share_of_runs_meeting_gate": 1.0,
+        "decision_gate": true,
+        "gate_differs": {
+          "all_runs": false,
+          "quiet_runs": false
+        }
+      },
+      "gemma-4-26b-a4b__nvfp4@auto": {
+        "engine": "vllm",
+        "measurements": [
+          {
+            "tag": "run",
+            "started_at": "2026-11-04T01:32:01.861964+00:00",
+            "ttft_ms": 60.1,
+            "decode_tok_s": 216.6,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": true
+          },
+          {
+            "tag": "test",
+            "started_at": "2026-11-07T05:08:28.543325+00:00",
+            "ttft_ms": 71.3,
+            "decode_tok_s": 215.6,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T08:11:27.450907+00:00",
+            "ttft_ms": 54.5,
+            "decode_tok_s": 229.0,
+            "other_sm": 0.0,
+            "cpu_load1": 2.2,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T08:45:14.110961+00:00",
+            "ttft_ms": 48.9,
+            "decode_tok_s": 222.8,
+            "other_sm": 0.0,
+            "cpu_load1": 4.5,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T09:19:00.596311+00:00",
+            "ttft_ms": 51.3,
+            "decode_tok_s": 211.7,
+            "other_sm": 0.0,
+            "cpu_load1": 2.2,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T09:52:48.268479+00:00",
+            "ttft_ms": 52.5,
+            "decode_tok_s": 99.3,
+            "other_sm": 42.0,
+            "cpu_load1": 3.0,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T10:27:30.328191+00:00",
+            "ttft_ms": 51.8,
+            "decode_tok_s": 211.0,
+            "other_sm": 0.0,
+            "cpu_load1": 2.1,
+            "gate": true
+          }
+        ],
+        "all_runs": {
+          "runs": 7,
+          "ttft_ms": 52.5,
+          "decode_tok_s": 215.6,
+          "gate": true
+        },
+        "quiet_runs": {
+          "runs": 4,
+          "ttft_ms": 51.5,
+          "decode_tok_s": 217.2,
+          "gate": true
+        },
+        "ttft_range_ms": [
+          48.9,
+          71.3
+        ],
+        "share_of_runs_meeting_gate": 1.0,
+        "decision_gate": true,
+        "gate_differs": {
+          "all_runs": false,
+          "quiet_runs": false
+        }
+      },
+      "gemma-4-31b__gguf-q5_k_m@q4_0": {
+        "engine": "llamacpp",
+        "measurements": [
+          {
+            "tag": "kvquality",
+            "started_at": "2026-11-05T13:34:38.935950+00:00",
+            "ttft_ms": 336.3,
+            "decode_tok_s": 13.1,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": false
+          },
+          {
+            "tag": "test",
+            "started_at": "2026-11-07T05:14:00.050378+00:00",
+            "ttft_ms": 139.3,
+            "decode_tok_s": 55.4,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": true
+          },
+          {
+            "tag": "latency3",
+            "started_at": "2026-11-07T05:18:25.244224+00:00",
+            "ttft_ms": 152.3,
+            "decode_tok_s": 55.1,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": false
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-11T00:11:23.953402+00:00",
+            "ttft_ms": 149.4,
+            "decode_tok_s": 54.7,
+            "other_sm": 0.0,
+            "cpu_load1": 3.7,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-11T00:42:37.421785+00:00",
+            "ttft_ms": 152.5,
+            "decode_tok_s": 54.6,
+            "other_sm": 0.0,
+            "cpu_load1": 1.6,
+            "gate": false
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-11T01:13:50.893925+00:00",
+            "ttft_ms": 154.8,
+            "decode_tok_s": 54.9,
+            "other_sm": 0.0,
+            "cpu_load1": 1.8,
+            "gate": false
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-11T01:45:03.186163+00:00",
+            "ttft_ms": 155.9,
+            "decode_tok_s": 54.8,
+            "other_sm": 0.0,
+            "cpu_load1": 1.5,
+            "gate": false
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-11T02:16:15.578005+00:00",
+            "ttft_ms": 156.5,
+            "decode_tok_s": 54.5,
+            "other_sm": 0.0,
+            "cpu_load1": 1.9,
+            "gate": false
+          }
+        ],
+        "all_runs": {
+          "runs": 8,
+          "ttft_ms": 153.7,
+          "decode_tok_s": 54.8,
+          "gate": false
+        },
+        "quiet_runs": {
+          "runs": 5,
+          "ttft_ms": 154.8,
+          "decode_tok_s": 54.7,
+          "gate": false
+        },
+        "ttft_range_ms": [
+          139.3,
+          336.3
+        ],
+        "share_of_runs_meeting_gate": 0.25,
+        "decision_gate": false,
+        "gate_differs": {
+          "all_runs": false,
+          "quiet_runs": false
+        }
+      },
+      "qwen3-4b-instruct-2507__deployed@auto": {
+        "engine": "vllm",
+        "measurements": [
+          {
+            "tag": "run",
+            "started_at": "2026-10-31T12:13:13.794183+00:00",
+            "ttft_ms": 36.0,
+            "decode_tok_s": 116.5,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": true
+          },
+          {
+            "tag": "test",
+            "started_at": "2026-11-07T05:24:21.129439+00:00",
+            "ttft_ms": 35.0,
+            "decode_tok_s": 253.0,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": true
+          },
+          {
+            "tag": "latency3",
+            "started_at": "2026-11-07T05:26:49.915542+00:00",
+            "ttft_ms": 36.9,
+            "decode_tok_s": 252.4,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-09T16:13:56.631954+00:00",
+            "ttft_ms": 34.1,
+            "decode_tok_s": 251.6,
+            "other_sm": 0.0,
+            "cpu_load1": 4.4,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-09T16:45:54.586559+00:00",
+            "ttft_ms": 45.6,
+            "decode_tok_s": 253.5,
+            "other_sm": 0.0,
+            "cpu_load1": 2.7,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-09T17:17:49.089148+00:00",
+            "ttft_ms": 34.0,
+            "decode_tok_s": 251.7,
+            "other_sm": 0.0,
+            "cpu_load1": 2.3,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-09T17:49:42.027497+00:00",
+            "ttft_ms": 33.7,
+            "decode_tok_s": 251.5,
+            "other_sm": 0.0,
+            "cpu_load1": 2.5,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-09T18:21:34.888290+00:00",
+            "ttft_ms": 35.5,
+            "decode_tok_s": 251.4,
+            "other_sm": 0.0,
+            "cpu_load1": 1.9,
+            "gate": true
+          }
+        ],
+        "all_runs": {
+          "runs": 8,
+          "ttft_ms": 35.2,
+          "decode_tok_s": 251.6,
+          "gate": true
+        },
+        "quiet_runs": {
+          "runs": 5,
+          "ttft_ms": 34.1,
+          "decode_tok_s": 251.6,
+          "gate": true
+        },
+        "ttft_range_ms": [
+          33.7,
+          45.6
+        ],
+        "share_of_runs_meeting_gate": 1.0,
+        "decision_gate": true,
+        "gate_differs": {
+          "all_runs": false,
+          "quiet_runs": false
+        }
+      },
+      "qwen3.5-27b__nvfp4@auto": {
+        "engine": "vllm",
+        "measurements": [
+          {
+            "tag": "run",
+            "started_at": "2026-11-04T07:34:46.439945+00:00",
+            "ttft_ms": 116.7,
+            "decode_tok_s": 94.2,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": true
+          },
+          {
+            "tag": "test",
+            "started_at": "2026-11-07T12:15:22.075322+00:00",
+            "ttft_ms": 112.2,
+            "decode_tok_s": 94.3,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T13:31:53.636589+00:00",
+            "ttft_ms": 165.5,
+            "decode_tok_s": 42.9,
+            "other_sm": 49.0,
+            "cpu_load1": 2.3,
+            "gate": false
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T14:05:39.467570+00:00",
+            "ttft_ms": 124.1,
+            "decode_tok_s": 94.3,
+            "other_sm": 0.0,
+            "cpu_load1": 3.1,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T14:38:42.213944+00:00",
+            "ttft_ms": 106.1,
+            "decode_tok_s": 94.2,
+            "other_sm": 0.0,
+            "cpu_load1": 2.0,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T15:11:38.244073+00:00",
+            "ttft_ms": 106.7,
+            "decode_tok_s": 95.6,
+            "other_sm": 44.0,
+            "cpu_load1": 2.3,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T15:45:09.631715+00:00",
+            "ttft_ms": 98.4,
+            "decode_tok_s": 94.2,
+            "other_sm": 0.0,
+            "cpu_load1": 1.6,
+            "gate": true
+          }
+        ],
+        "all_runs": {
+          "runs": 7,
+          "ttft_ms": 112.2,
+          "decode_tok_s": 94.2,
+          "gate": true
+        },
+        "quiet_runs": {
+          "runs": 3,
+          "ttft_ms": 106.1,
+          "decode_tok_s": 94.2,
+          "gate": true
+        },
+        "ttft_range_ms": [
+          98.4,
+          165.5
+        ],
+        "share_of_runs_meeting_gate": 0.86,
+        "decision_gate": true,
+        "gate_differs": {
+          "all_runs": false,
+          "quiet_runs": false
+        }
+      },
+      "qwen3.5-4b__official_bf16@auto": {
+        "engine": "vllm",
+        "measurements": [
+          {
+            "tag": "run",
+            "started_at": "2026-10-31T12:23:20.957871+00:00",
+            "ttft_ms": 63.4,
+            "decode_tok_s": 114.7,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": true
+          },
+          {
+            "tag": "test",
+            "started_at": "2026-11-07T05:19:41.209703+00:00",
+            "ttft_ms": 55.9,
+            "decode_tok_s": 243.3,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": true
+          },
+          {
+            "tag": "latency3",
+            "started_at": "2026-11-07T05:22:20.326347+00:00",
+            "ttft_ms": 55.1,
+            "decode_tok_s": 243.5,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-09T14:01:46.454977+00:00",
+            "ttft_ms": 79.3,
+            "decode_tok_s": 200.5,
+            "other_sm": 0.0,
+            "cpu_load1": 2.5,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-09T14:34:36.808188+00:00",
+            "ttft_ms": 58.0,
+            "decode_tok_s": 245.3,
+            "other_sm": 0.0,
+            "cpu_load1": 3.0,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-09T15:06:42.959303+00:00",
+            "ttft_ms": 77.2,
+            "decode_tok_s": 203.6,
+            "other_sm": 0.0,
+            "cpu_load1": 2.9,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-09T15:39:18.758706+00:00",
+            "ttft_ms": 78.3,
+            "decode_tok_s": 201.6,
+            "other_sm": 0.0,
+            "cpu_load1": 3.2,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-09T16:11:54.364815+00:00",
+            "ttft_ms": 62.2,
+            "decode_tok_s": 229.8,
+            "other_sm": 0.0,
+            "cpu_load1": 2.5,
+            "gate": true
+          }
+        ],
+        "all_runs": {
+          "runs": 8,
+          "ttft_ms": 62.8,
+          "decode_tok_s": 216.7,
+          "gate": true
+        },
+        "quiet_runs": {
+          "runs": 5,
+          "ttft_ms": 77.2,
+          "decode_tok_s": 203.6,
+          "gate": true
+        },
+        "ttft_range_ms": [
+          55.1,
+          79.3
+        ],
+        "share_of_runs_meeting_gate": 1.0,
+        "decision_gate": true,
+        "gate_differs": {
+          "all_runs": false,
+          "quiet_runs": false
+        }
+      },
+      "qwen3.8-27b__awq_int4@auto": {
+        "engine": "vllm",
+        "measurements": [
+          {
+            "tag": "run",
+            "started_at": "2026-11-04T13:40:42.021315+00:00",
+            "ttft_ms": 116.7,
+            "decode_tok_s": 100.2,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": true
+          },
+          {
+            "tag": "test",
+            "started_at": "2026-11-07T15:19:39.502796+00:00",
+            "ttft_ms": 113.4,
+            "decode_tok_s": 99.6,
+            "other_sm": null,
+            "cpu_load1": null,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T18:48:28.214717+00:00",
+            "ttft_ms": 110.1,
+            "decode_tok_s": 99.7,
+            "other_sm": 0.0,
+            "cpu_load1": 2.6,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T19:21:19.938810+00:00",
+            "ttft_ms": 108.7,
+            "decode_tok_s": 99.8,
+            "other_sm": 0.0,
+            "cpu_load1": 5.7,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T19:54:10.512757+00:00",
+            "ttft_ms": 109.5,
+            "decode_tok_s": 99.5,
+            "other_sm": 0.0,
+            "cpu_load1": 2.0,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T20:27:00.966053+00:00",
+            "ttft_ms": 110.9,
+            "decode_tok_s": 99.6,
+            "other_sm": 0.0,
+            "cpu_load1": 1.9,
+            "gate": true
+          },
+          {
+            "tag": "latrep",
+            "started_at": "2026-11-10T20:59:51.521916+00:00",
+            "ttft_ms": 108.6,
+            "decode_tok_s": 99.6,
+            "other_sm": 0.0,
+            "cpu_load1": 2.3,
+            "gate": true
+          }
+        ],
+        "all_runs": {
+          "runs": 7,
+          "ttft_ms": 110.1,
+          "decode_tok_s": 99.6,
+          "gate": true
+        },
+        "quiet_runs": {
+          "runs": 5,
+          "ttft_ms": 109.5,
+          "decode_tok_s": 99.6,
+          "gate": true
+        },
+        "ttft_range_ms": [
+          108.6,
+          116.7
+        ],
+        "share_of_runs_meeting_gate": 1.0,
+        "decision_gate": true,
+        "gate_differs": {
+          "all_runs": false,
+          "quiet_runs": false
+        }
+      }
+    },
+    "load_vs_first_token": {
+      "llamacpp": {
+        "measurements": 10,
+        "spearman_other_sm": null,
+        "spearman_cpu_load1": 0.395
+      },
+      "vllm": {
+        "measurements": 32,
+        "spearman_other_sm": 0.102,
+        "spearman_cpu_load1": 0.087
+      }
+    }
+  },
+  "judge_effort": {
+    "j1think": {
+      "base": "j1",
+      "calls": 60,
+      "variant_control_failure_rate": 0.0,
+      "overall_means": {
+        "qwen3.5-4b__official_bf16": {
+          "base": 5.55,
+          "variant": 5.617
+        },
+        "qwen3-4b-instruct-2507__deployed": {
+          "base": 2.667,
+          "variant": 2.617
+        },
+        "gemma-4-26b-a4b__nvfp4": {
+          "base": 6.667,
+          "variant": 6.617
+        },
+        "qwen3.5-27b__nvfp4": {
+          "base": 7.017,
+          "variant": 7
+        },
+        "qwen3.8-27b__awq_int4": {
+          "base": 6.983,
+          "variant": 6.967
+        },
+        "gemma-4-12b__gguf-q5_k_m": {
+          "base": 7.05,
+          "variant": 7
+        },
+        "gemma-4-12b__fp8": {
+          "base": 6.967,
+          "variant": 7
+        },
+        "gemma-4-31b__gguf-q5_k_m@q4_0": {
+          "base": 7.617,
+          "variant": 7.633
+        }
+      },
+      "rank_correlation_of_arm_means": 0.927,
+      "ranking_base": [
+        "gemma-4-31b__gguf-q5_k_m@q4_0",
+        "gemma-4-12b__gguf-q5_k_m",
+        "qwen3.5-27b__nvfp4",
+        "qwen3.8-27b__awq_int4",
+        "gemma-4-12b__fp8",
+        "gemma-4-26b-a4b__nvfp4",
+        "qwen3.5-4b__official_bf16",
+        "qwen3-4b-instruct-2507__deployed"
+      ],
+      "ranking_variant": [
+        "gemma-4-31b__gguf-q5_k_m@q4_0",
+        "gemma-4-12b__fp8",
+        "gemma-4-12b__gguf-q5_k_m",
+        "qwen3.5-27b__nvfp4",
+        "qwen3.8-27b__awq_int4",
+        "gemma-4-26b-a4b__nvfp4",
+        "qwen3.5-4b__official_bf16",
+        "qwen3-4b-instruct-2507__deployed"
+      ],
+      "reply_scores": {
+        "pairs": 480,
+        "exact": 0.769,
+        "within_one": 0.998,
+        "mean_variant_minus_base": -0.008
+      }
+    },
+    "j2high": {
+      "base": "j2",
+      "calls": 60,
+      "variant_control_failure_rate": 0.0,
+      "overall_means": {
+        "qwen3.5-4b__official_bf16": {
+          "base": 5.983,
+          "variant": 5.967
+        },
+        "qwen3.5-27b__nvfp4": {
+          "base": 7.2,
+          "variant": 7.167
+        },
+        "gemma-4-26b-a4b__nvfp4": {
+          "base": 6.667,
+          "variant": 6.65
+        },
+        "qwen3.8-27b__awq_int4": {
+          "base": 7.25,
+          "variant": 7.233
+        },
+        "qwen3-4b-instruct-2507__deployed": {
+          "base": 3.317,
+          "variant": 3.25
+        },
+        "gemma-4-12b__gguf-q5_k_m": {
+          "base": 7.217,
+          "variant": 7.117
+        },
+        "gemma-4-12b__fp8": {
+          "base": 7,
+          "variant": 6.917
+        },
+        "gemma-4-31b__gguf-q5_k_m@q4_0": {
+          "base": 7.5,
+          "variant": 7.533
+        }
+      },
+      "rank_correlation_of_arm_means": 0.976,
+      "ranking_base": [
+        "gemma-4-31b__gguf-q5_k_m@q4_0",
+        "qwen3.8-27b__awq_int4",
+        "gemma-4-12b__gguf-q5_k_m",
+        "qwen3.5-27b__nvfp4",
+        "gemma-4-12b__fp8",
+        "gemma-4-26b-a4b__nvfp4",
+        "qwen3.5-4b__official_bf16",
+        "qwen3-4b-instruct-2507__deployed"
+      ],
+      "ranking_variant": [
+        "gemma-4-31b__gguf-q5_k_m@q4_0",
+        "qwen3.8-27b__awq_int4",
+        "qwen3.5-27b__nvfp4",
+        "gemma-4-12b__gguf-q5_k_m",
+        "gemma-4-12b__fp8",
+        "gemma-4-26b-a4b__nvfp4",
+        "qwen3.5-4b__official_bf16",
+        "qwen3-4b-instruct-2507__deployed"
+      ],
+      "reply_scores": {
+        "pairs": 480,
+        "exact": 0.767,
+        "within_one": 1.0,
+        "mean_variant_minus_base": -0.037
+      }
+    }
+  },
+  "judge_controls": {
+    "finalists/j2": {
+      "calls": 100,
+      "control_overall_mean": 1.7,
+      "control_failure_rate": 0.07
+    },
+    "kvquality/j2": {
+      "calls": 100,
+      "control_overall_mean": 1.8,
+      "control_failure_rate": 0.06
+    },
+    "stage1/j2": {
+      "calls": 200,
+      "control_overall_mean": 1.41,
+      "control_failure_rate": 0.055
+    },
+    "stage3/j2": {
+      "calls": 695,
+      "control_overall_mean": 2.1,
+      "control_failure_rate": 0.0863
+    },
+    "test/j1": {
+      "calls": 501,
+      "control_overall_mean": 1.07,
+      "control_failure_rate": 0.0399
+    },
+    "test/j2": {
+      "calls": 501,
+      "control_overall_mean": 1.62,
+      "control_failure_rate": 0.0599
+    },
+    "variants/j2": {
+      "calls": 400,
+      "control_overall_mean": 1.52,
+      "control_failure_rate": 0.0375
+    }
+  },
+  "fits": {
+    "qwen3.5-0.8b__gguf-q4_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 4.85,
+      "measured_peak_mib": 1234,
+      "fixed_mib": 1147,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        29.1,
+        398.7
+      ]
+    },
+    "qwen3.5-2b__gguf-q4_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 4.85,
+      "measured_peak_mib": 1966,
+      "fixed_mib": 1879,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        30.4,
+        325.2
+      ]
+    },
+    "qwen3.5-0.8b__official_bf16": {
+      "engine": "vllm",
+      "nominal_bits": 16.0,
+      "measured_peak_mib": 2708,
+      "fixed_mib": 2560,
+      "deployment_fit": {
+        "12gib": "auto",
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        47.7,
+        240.6
+      ]
+    },
+    "qwen3.5-4b__gguf-q4_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 4.85,
+      "measured_peak_mib": 3524,
+      "fixed_mib": 3296,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        109.7,
+        206.0
+      ]
+    },
+    "gemma-4-e2b__gguf-q4_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 4.85,
+      "measured_peak_mib": 2280,
+      "fixed_mib": 2232,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        149.5,
+        23.2
+      ]
+    },
+    "gemma-4-e4b__gguf-q4_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 4.85,
+      "measured_peak_mib": 3844,
+      "fixed_mib": 3700,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        177.1,
+        19.6
+      ]
+    },
+    "qwen3.5-9b__gguf-q4_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 4.85,
+      "measured_peak_mib": 5812,
+      "fixed_mib": 5584,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        106.9,
+        171.1
+      ]
+    },
+    "gemma-4-12b__gguf-q4_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 4.85,
+      "measured_peak_mib": 8536,
+      "fixed_mib": 7512,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        184.7,
+        119.9
+      ]
+    },
+    "qwen3-4b-instruct-2507__deployed": {
+      "engine": "vllm",
+      "nominal_bits": 16.0,
+      "measured_peak_mib": 9392,
+      "fixed_mib": 8782,
+      "deployment_fit": {
+        "12gib": "auto",
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        36.0,
+        116.5
+      ]
+    },
+    "qwen3.5-4b__official_bf16": {
+      "engine": "vllm",
+      "nominal_bits": 16.0,
+      "measured_peak_mib": 9612,
+      "fixed_mib": 9256,
+      "deployment_fit": {
+        "12gib": "auto",
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        63.4,
+        114.7
+      ]
+    },
+    "gemma-4-12b__official_qat_w4a16": {
+      "engine": "vllm",
+      "nominal_bits": 4.25,
+      "measured_peak_mib": 10924,
+      "fixed_mib": 9511,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        55.3,
+        70.1
+      ]
+    },
+    "gemma-4-e4b__official_qat_w4a16": {
+      "engine": "vllm",
+      "nominal_bits": 4.25,
+      "measured_peak_mib": 11608,
+      "fixed_mib": 11359,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        48.0,
+        81.6
+      ]
+    },
+    "qwen3.5-27b__gguf-q4_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 4.85,
+      "measured_peak_mib": 16594,
+      "fixed_mib": 16039,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        307.4,
+        67.0
+      ]
+    },
+    "qwen3.6-27b__gguf-q4_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 4.85,
+      "measured_peak_mib": 16764,
+      "fixed_mib": 16209,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        293.2,
+        66.8
+      ]
+    },
+    "gemma-4-26b-a4b__gguf-q4_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 4.85,
+      "measured_peak_mib": 17772,
+      "fixed_mib": 17092,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        118.5,
+        170.7
+      ]
+    },
+    "gemma-4-31b__gguf-q4_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 4.85,
+      "measured_peak_mib": 20962,
+      "fixed_mib": 18242,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        381.5,
+        63.8
+      ]
+    },
+    "qwen3.8-27b__gguf-q4_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 4.85,
+      "measured_peak_mib": 18722,
+      "fixed_mib": 18167,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        304.8,
+        66.8
+      ]
+    },
+    "qwen3.5-35b-a3b__gguf-q4_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 4.85,
+      "measured_peak_mib": 21504,
+      "fixed_mib": 21298,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        138.4,
+        175.1
+      ]
+    },
+    "qwen3.6-35b-a3b__gguf-q4_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 4.85,
+      "measured_peak_mib": 21148,
+      "fixed_mib": 20942,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        142.9,
+        182.9
+      ]
+    },
+    "qwen3.8-27b__official_fp8": {
+      "engine": "remote",
+      "nominal_bits": 8.5,
+      "measured_peak_mib": 0,
+      "fixed_mib": 0,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": null
+      },
+      "first_token_and_decode": [
+        126.2,
+        88.4
+      ]
+    },
+    "qwen3.5-4b__gguf-ud-q2_k_xl": {
+      "engine": "llamacpp",
+      "nominal_bits": 2.9,
+      "measured_peak_mib": 2768,
+      "fixed_mib": 2540,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        110.5,
+        199.0
+      ]
+    },
+    "qwen3.5-4b__gguf-q2_k": {
+      "engine": "llamacpp",
+      "nominal_bits": 2.96,
+      "measured_peak_mib": 2978,
+      "fixed_mib": 2750,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        134.7,
+        146.5
+      ]
+    },
+    "qwen3.5-4b__gguf-q3_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 3.91,
+      "measured_peak_mib": 3098,
+      "fixed_mib": 2870,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        111.4,
+        173.1
+      ]
+    },
+    "qwen3.5-4b__gguf-ud-q4_k_xl": {
+      "engine": "llamacpp",
+      "nominal_bits": 4.9,
+      "measured_peak_mib": 3788,
+      "fixed_mib": 3560,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        118.1,
+        207.0
+      ]
+    },
+    "qwen3.5-4b__gguf-q6_k": {
+      "engine": "llamacpp",
+      "nominal_bits": 6.56,
+      "measured_peak_mib": 4272,
+      "fixed_mib": 4044,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        177.6,
+        27.1
+      ]
+    },
+    "qwen3.5-4b__gptq_int4": {
+      "engine": "vllm",
+      "nominal_bits": 4.25,
+      "measured_peak_mib": 4744,
+      "fixed_mib": 4388,
+      "deployment_fit": {
+        "12gib": "auto",
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        60.1,
+        240.9
+      ]
+    },
+    "qwen3.5-4b__nvfp4": {
+      "engine": "vllm",
+      "nominal_bits": 4.5,
+      "measured_peak_mib": 4778,
+      "fixed_mib": 4422,
+      "deployment_fit": {
+        "12gib": "auto",
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        55.7,
+        233.3
+      ]
+    },
+    "qwen3.5-4b__gguf-q8_0": {
+      "engine": "llamacpp",
+      "nominal_bits": 8.5,
+      "measured_peak_mib": 5182,
+      "fixed_mib": 4954,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        110.3,
+        190.0
+      ]
+    },
+    "qwen3.5-4b__autoround_int4": {
+      "engine": "vllm",
+      "nominal_bits": 4.25,
+      "measured_peak_mib": 4656,
+      "fixed_mib": 4300,
+      "deployment_fit": {
+        "12gib": "auto",
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        54.2,
+        229.3
+      ]
+    },
+    "qwen3.5-4b__int4_compressed_tensors": {
+      "engine": "vllm",
+      "nominal_bits": 4.25,
+      "measured_peak_mib": 6076,
+      "fixed_mib": 5720,
+      "deployment_fit": {
+        "12gib": "auto",
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        68.2,
+        215.4
+      ]
+    },
+    "qwen3.5-4b__mxfp4": {
+      "engine": "vllm",
+      "nominal_bits": 4.25,
+      "measured_peak_mib": 6436,
+      "fixed_mib": 6080,
+      "deployment_fit": {
+        "12gib": "auto",
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        86.8,
+        194.3
+      ]
+    },
+    "qwen3.5-4b__int8": {
+      "engine": "vllm",
+      "nominal_bits": 8.5,
+      "measured_peak_mib": 7842,
+      "fixed_mib": 7486,
+      "deployment_fit": {
+        "12gib": "auto",
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        61.5,
+        242.4
+      ]
+    },
+    "qwen3.5-4b__fp8": {
+      "engine": "vllm",
+      "nominal_bits": 8.5,
+      "measured_peak_mib": 7840,
+      "fixed_mib": 7484,
+      "deployment_fit": {
+        "12gib": "auto",
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        61.4,
+        241.1
+      ]
+    },
+    "gemma-4-e4b__nvfp4": {
+      "engine": "vllm",
+      "nominal_bits": 4.5,
+      "measured_peak_mib": 10344,
+      "fixed_mib": 10095,
+      "deployment_fit": {
+        "12gib": "auto",
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        42.3,
+        174.6
+      ]
+    },
+    "gemma-4-e4b__official_bf16": {
+      "engine": "vllm",
+      "nominal_bits": 16.0,
+      "measured_peak_mib": 15664,
+      "fixed_mib": 15415,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        36.0,
+        181.5
+      ]
+    },
+    "qwen3.5-4b__gguf-iq4_xs": {
+      "engine": "llamacpp",
+      "nominal_bits": 4.25,
+      "measured_peak_mib": 3270,
+      "fixed_mib": 3042,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        113.6,
+        223.4
+      ]
+    },
+    "qwen3.5-4b__awq_int4": {
+      "engine": "vllm",
+      "nominal_bits": 4.25,
+      "measured_peak_mib": 4744,
+      "fixed_mib": 4388,
+      "deployment_fit": {
+        "12gib": "auto",
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        64.9,
+        147.3
+      ]
+    },
+    "gemma-4-e4b__gguf-q8_0": {
+      "engine": "llamacpp",
+      "nominal_bits": 8.5,
+      "measured_peak_mib": 5906,
+      "fixed_mib": 5762,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        106.5,
+        38.7
+      ]
+    },
+    "qwen3.5-4b__gguf-q5_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 5.69,
+      "measured_peak_mib": 3906,
+      "fixed_mib": 3678,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        109.3,
+        200.0
+      ]
+    },
+    "gemma-4-12b__gguf-q5_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 5.69,
+      "measured_peak_mib": 9768,
+      "fixed_mib": 8744,
+      "deployment_fit": {
+        "12gib": "f16",
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        213.8,
+        114.2
+      ]
+    },
+    "gemma-4-12b__gguf-q8_0": {
+      "engine": "llamacpp",
+      "nominal_bits": 8.5,
+      "measured_peak_mib": 13824,
+      "fixed_mib": 12800,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        180.4,
+        108.4
+      ]
+    },
+    "gemma-4-12b__fp8": {
+      "engine": "vllm",
+      "nominal_bits": 8.5,
+      "measured_peak_mib": 15366,
+      "fixed_mib": 13953,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        40.2,
+        138.4
+      ]
+    },
+    "gemma-4-26b-a4b__nvfp4": {
+      "engine": "vllm",
+      "nominal_bits": 4.5,
+      "measured_peak_mib": 16826,
+      "fixed_mib": 16353,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        60.1,
+        216.6
+      ]
+    },
+    "gemma-4-26b-a4b__gguf-q5_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 5.69,
+      "measured_peak_mib": 19950,
+      "fixed_mib": 19270,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        132.5,
+        170.3
+      ]
+    },
+    "qwen3.5-27b__gguf-q5_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 5.69,
+      "measured_peak_mib": 19176,
+      "fixed_mib": 18621,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        326.8,
+        62.0
+      ]
+    },
+    "qwen3.5-27b__nvfp4": {
+      "engine": "vllm",
+      "nominal_bits": 4.5,
+      "measured_peak_mib": 20722,
+      "fixed_mib": 19756,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        116.7,
+        94.2
+      ]
+    },
+    "qwen3.8-27b__gguf-q5_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 5.69,
+      "measured_peak_mib": 20302,
+      "fixed_mib": 19747,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "f16"
+      },
+      "first_token_and_decode": [
+        362.3,
+        63.0
+      ]
+    },
+    "qwen3.8-27b__awq_int4": {
+      "engine": "vllm",
+      "nominal_bits": 4.25,
+      "measured_peak_mib": 20872,
+      "fixed_mib": 19906,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        116.7,
+        100.2
+      ]
+    },
+    "gemma-4-31b__gguf-q5_k_m": {
+      "engine": "llamacpp",
+      "nominal_bits": 5.69,
+      "measured_peak_mib": 24144,
+      "fixed_mib": 21424,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "q4_0"
+      },
+      "first_token_and_decode": [
+        376.8,
+        58.5
+      ]
+    },
+    "gemma-4-31b__official_qat_w4a16": {
+      "engine": "vllm",
+      "nominal_bits": 4.25,
+      "measured_peak_mib": 23884,
+      "fixed_mib": 20219,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": null
+      },
+      "first_token_and_decode": [
+        72.1,
+        39.9
+      ]
+    },
+    "gemma-4-12b__nvfp4": {
+      "engine": "vllm",
+      "nominal_bits": 4.5,
+      "measured_peak_mib": 10912,
+      "fixed_mib": 9499,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": "auto"
+      },
+      "first_token_and_decode": [
+        39.5,
+        142.9
+      ]
+    },
+    "gemma-4-31b__nvfp4": {
+      "engine": "vllm",
+      "nominal_bits": 4.5,
+      "measured_peak_mib": 23920,
+      "fixed_mib": 20255,
+      "deployment_fit": {
+        "12gib": null,
+        "24gb": null
+      },
+      "first_token_and_decode": [
+        47.7,
+        77.5
+      ]
+    }
+  },
+  "data_sha256": {
+    "panel_dev.jsonl": "d76263d55bc4c5b68d463170d54219f458a5b3a5cb6842d0e4a89149f436bb56",
+    "panel_test.jsonl": "37b985182a865861ab9397aae9fd4676586966826e5f87eab45e780fb7a5e2b1",
+    "arms.jsonl": "353e06792ad94304794b355f479f7be41ff065650d00b141e241d2d37da1407a",
+    "attempts.jsonl": "6a33dc1536483fa3a34da73a4e414f3c7d600eb3e221dee3fadd6fd51466cac4",
+    "runs.jsonl": "0b49d6576be2b0fea7f7c97fb00b2c0cd2e4a9d09902eda7af06b3d9748c4c92",
+    "kvprofile.jsonl": "a5433552e795eff78aa752b3c78f950a0b626e0d643d005cb0b842618a1542a7",
+    "judgments_effort_j1think.jsonl": "dd8f221aff6ab74ed912fd75bbf52d6e3c52daf7625ac11a275cd3a583b29c8d",
+    "judgments_effort_j2high.jsonl": "21807888c2d122d2d93232b850942942afa0d2b251e71b1fe6545c18e23b216e",
+    "judgments_finalists_j2.jsonl": "d5b7fd7f24cf0581133624881273a0c1ee39e67f304ff1f0084e7678deafb7fe",
+    "judgments_kvquality_j2.invalid_absent_replies.jsonl": "03cc93919c2b6fd86c3aa02aca4940e91727ff9f483558906d07338fc2bfc0ca",
+    "judgments_kvquality_j2.jsonl": "5dee507708ea3af874d6b4163a471c1e48c8467c15bc8659e6774d5198fe9d16",
+    "judgments_stage1_j2.jsonl": "b0aaed12c65dd36195752ff6edd074ae8fcb1c1532c9074c82b28451dede74ed",
+    "judgments_stage3_j2.jsonl": "8a0e22b1a35d7ebc1bbb8461628d622a60323d9b9975fa77e37f0b442f2917b1",
+    "judgments_test_j1.jsonl": "5e21e6cbf5290efb4d5885218ab8225e407f4de7484dc9a359e462971bc523cb",
+    "judgments_test_j2.jsonl": "7b79827d49136c8eb60089d3d60d5ec98cd14f1c34cb002bea5e39927a04962c",
+    "judgments_variants_j2.jsonl": "a5e25f04666e2f01e8dc66970cae02b4ddfae87ba1ab250d3306844df8e7fc81",
+    "replies/dev__gemma-4-12b__fp8__auto.jsonl": "53803e2f704bbc3a333cbf0ebc2e70e556d9927326980f2623d3672d350c5592",
+    "replies/dev__gemma-4-12b__gguf-q4_k_m__f16.jsonl": "5af94748ba25b7ea00d8a6f087fd543e8d10ea35e0dcb42634f467f76d07529c",
+    "replies/dev__gemma-4-12b__gguf-q5_k_m__f16.jsonl": "c048d999de4f88cd98ac2afc6a7050c7d5199cf6e4864e55801f4146fb5517ef",
+    "replies/dev__gemma-4-12b__gguf-q8_0__f16.jsonl": "d17624585ffc1d864694704f1835b78c73d38b0fb3dd5c467029bf0fdfe5f519",
+    "replies/dev__gemma-4-12b__nvfp4__auto.jsonl": "0fc617c8c1c7609bb3f2b3e2511f891c8bcd15674da8ac9d01a962bc02126eee",
+    "replies/dev__gemma-4-12b__official_qat_w4a16__auto.jsonl": "b1f325628dad253c671a5b1d50e4872203e1241909e6b3270b3366ae3e96b63a",
+    "replies/dev__gemma-4-26b-a4b__gguf-q4_k_m__f16.jsonl": "bc7883e52abe08403abe6304bf426ec97431ab829f7583572351d990dadabbd9",
+    "replies/dev__gemma-4-26b-a4b__gguf-q5_k_m__f16.jsonl": "2ae810cf4cc3d62a5d684d362a6c36e432fe83c655c848f88b4b5fbf0b5a4c52",
+    "replies/dev__gemma-4-26b-a4b__nvfp4__auto.jsonl": "8f9efbba0adad9ba212e13fa201dfd9f03a2572b5b75b65dda598fd54d3ee13f",
+    "replies/dev__gemma-4-31b__gguf-q4_k_m__f16.jsonl": "ecae07344c6352ee8a1ed841150f2036f98ce6fa49910327e5615ddda88c58cd",
+    "replies/dev__gemma-4-31b__gguf-q5_k_m__f16.jsonl": "c0f9a4a9b708a005f72e776cbbf4961638ea9aaade1570b23764f53df57cb851",
+    "replies/dev__gemma-4-31b__gguf-q5_k_m__q4_0.jsonl": "99d3808ebf51f07aa2a4ac3d885ce7408e67822430db4d6f53c3168b7fc45ae7",
+    "replies/dev__gemma-4-31b__nvfp4__auto.jsonl": "002c8f9b7114d3d3f08d773b71aeb5dca58300965417e563c2719c67fe6567a2",
+    "replies/dev__gemma-4-31b__official_qat_w4a16__auto.jsonl": "7a1e4d2a5b69613c9876ec52c3bcb63153feccc91ec312674f0161618c9ac9a2",
+    "replies/dev__gemma-4-e2b__gguf-q4_k_m__f16.jsonl": "db33f012035f420e1ff5085f6bd13bf0491252e4b19ae50c33e41a288600ec44",
+    "replies/dev__gemma-4-e4b__gguf-q4_k_m__f16.jsonl": "a086e80d68e68662981867443f51075b24bdcafc1e35ab84af36c1ef313090c4",
+    "replies/dev__gemma-4-e4b__gguf-q8_0__f16.jsonl": "666ed656ff32ae015e12e0552d2b8738607073481e7d0b91b66e1fe78e37cf30",
+    "replies/dev__gemma-4-e4b__nvfp4__auto.jsonl": "7242293b0c9761b279756dff777ddc835672231fb36f1ca9797d2c6991b040ad",
+    "replies/dev__gemma-4-e4b__official_bf16__auto.jsonl": "fc6aff0d305ce517e7966a8398e507ce0e124f80412c955c36db8a607e891ef6",
+    "replies/dev__gemma-4-e4b__official_qat_w4a16__auto.jsonl": "0957acfe2432ef05444371f7873be95f6ea438a142e289009710cd8ecda652fe",
+    "replies/dev__qwen3-4b-instruct-2507__deployed__auto.jsonl": "2fbe0570582f8533c490e0e50fc0e7ad685ed71173c133695d1a81515e4f6fd2",
+    "replies/dev__qwen3.5-0.8b__gguf-q4_k_m__f16.jsonl": "2fc29a0b78f76db386b6964d6a49490c3ea350c922e92e655cca82a3a6312488",
+    "replies/dev__qwen3.5-0.8b__official_bf16__auto.jsonl": "344aa40b9602c6e1c6a6f26287aad1604471c1fbe869feea214494bfa1e93fa1",
+    "replies/dev__qwen3.5-27b__gguf-q4_k_m__f16.jsonl": "1beaaa69d6e696d71d02540365755dc3035a37b231ca192e510dc4abc0494b3e",
+    "replies/dev__qwen3.5-27b__gguf-q5_k_m__f16.jsonl": "af53e36ad1337cd73ed246e55429218dba2e4b971dde964af5f431b2569cf304",
+    "replies/dev__qwen3.5-27b__nvfp4__auto.jsonl": "24201991f74b5bca3fb8c65a984b41300d8a1933e3a6f6cc387a548e865224e4",
+    "replies/dev__qwen3.5-2b__gguf-q4_k_m__f16.jsonl": "eb8ab1bbd5e4a26e3dac16c3283a6dd334d3d39e69e96d9032477b7ed6b15b4b",
+    "replies/dev__qwen3.5-35b-a3b__gguf-q4_k_m__f16.jsonl": "80abe86638815312874efd571609d6f27c01c53bd8ba5de1632fb297d574c092",
+    "replies/dev__qwen3.5-4b__autoround_int4__auto.jsonl": "4329abfd2b4c777f9322d62adc6b02164f9a357a837c9aea004b94d96a39c783",
+    "replies/dev__qwen3.5-4b__awq_int4__auto.jsonl": "6ef9bd2ba578aab7274b903ada98195898ad58d0c42601cd51a6091d8890ddc9",
+    "replies/dev__qwen3.5-4b__fp8__auto.jsonl": "b882077ed48e1321ae04720f929315f3e72a62239f11631d871dd4866ec54049",
+    "replies/dev__qwen3.5-4b__gguf-iq4_xs__f16.jsonl": "77fdd0c0109bc4c89caf1b1ff627e05740a6188ada56de14e6536772d6a6260c",
+    "replies/dev__qwen3.5-4b__gguf-q2_k__f16.jsonl": "618b2ba5f7069f759a8ec569d0d819942749024944f021bbc51c9d75c87915a7",
+    "replies/dev__qwen3.5-4b__gguf-q3_k_m__f16.jsonl": "b6dd702086b3a4bade558dec0385a4fe22cceb2785be781af2caf06ac8b40643",
+    "replies/dev__qwen3.5-4b__gguf-q4_k_m__f16.jsonl": "1c6c285840102f349abc0315ccd013d6efa996e762996f9e7cab7fc470f8d6dd",
+    "replies/dev__qwen3.5-4b__gguf-q4_k_m__q4_0.jsonl": "d626033ccf3a6d347fe4161b880019364bc80b9d0b06b1744606a327c78a9a09",
+    "replies/dev__qwen3.5-4b__gguf-q4_k_m__q8_0.jsonl": "e45b9dd09d31323d7bfdfac4d8a31bafc07503b8daae117b1258e60206c0f3b4",
+    "replies/dev__qwen3.5-4b__gguf-q5_k_m__f16.jsonl": "34578edb95ebab5c9e4cf372d91fc0a1b3ea835cd9c817d5debe113810fcb8f7",
+    "replies/dev__qwen3.5-4b__gguf-q6_k__f16.jsonl": "7e1472c03a17c48ecea57f5288df3bf654d77cea6156ebd1067273bacad12fc1",
+    "replies/dev__qwen3.5-4b__gguf-q8_0__f16.jsonl": "18d0ff6189f3be9e00ee43fb80fee52ab8727d7ab4c1c95824df221e8a25216d",
+    "replies/dev__qwen3.5-4b__gguf-ud-q2_k_xl__f16.jsonl": "f3124038be37806e56277c4e5a06054d7508e1836c2c6bb596c0a456dfc670ad",
+    "replies/dev__qwen3.5-4b__gguf-ud-q4_k_xl__f16.jsonl": "a20e0fcaee5a35e2d3024ca2b347e09d87668df2fa1f19aad90bc69df43d122c",
+    "replies/dev__qwen3.5-4b__gptq_int4__auto.jsonl": "a6ac0d81f85e3bd49e92b8fcc42134077e6a7b321aec967cf1a57686f9e5b3f9",
+    "replies/dev__qwen3.5-4b__int4_compressed_tensors__auto.jsonl": "5d1aece88e70aed07ee7c743142c46b2d4f5917901ffd0b6e3669ab178d9479d",
+    "replies/dev__qwen3.5-4b__int8__auto.jsonl": "ef93fb9db7946d06713c6b7f9499f993781440dcbfee89c5f447f94c9381e494",
+    "replies/dev__qwen3.5-4b__mxfp4__auto.jsonl": "ba6ec84464583da38401836df8ea40e85cfc5f517208c4ed5752312f983417f9",
+    "replies/dev__qwen3.5-4b__nvfp4__auto.jsonl": "ba358e5bc7adab9a0a5c81ec2cab1b116d626aa44bf08906ac5c2e165d9a0972",
+    "replies/dev__qwen3.5-4b__official_bf16__auto.jsonl": "e2ab036b31b5f0194d17450b37dd0ac127b17ab1a283516ac50fe7b83250a3d6",
+    "replies/dev__qwen3.5-4b__official_bf16__fp8.jsonl": "f651b2cd7ceb5f348d27de5c3591b4c8758b177c86d3fea7df5bbed9a8a1b4ba",
+    "replies/dev__qwen3.5-9b__gguf-q4_k_m__f16.jsonl": "5cd94680a3a1e0d92f669a8c1fe0836a6ce4bb0884212ed55eee60fdd997ccf6",
+    "replies/dev__qwen3.6-27b__gguf-q4_k_m__f16.jsonl": "fc229a6d284910b65b6691b83f2f184ebf68541242937f086f4623ca8c7e9f6c",
+    "replies/dev__qwen3.6-35b-a3b__gguf-q4_k_m__f16.jsonl": "d9b94b88886e412f013d78ca7318ebbb1f5d21a9f2e827bcb05f287a42e12f29",
+    "replies/dev__qwen3.8-27b__awq_int4__auto.jsonl": "12e1ed9b64c39cd6586aba2b8b548ccaac71f35d2595a19d4d58ab5b956208ef",
+    "replies/dev__qwen3.8-27b__gguf-q4_k_m__f16.jsonl": "e72af6bfb11714e84c1689fffbeff24c61309864449a4dcea7c3008ec6fd0b1b",
+    "replies/dev__qwen3.8-27b__gguf-q5_k_m__f16.jsonl": "1880cf8af58677f6bf2f2365834ff1a6465baa0209c2aeedc76e68617c24cc9f",
+    "replies/dev__qwen3.8-27b__official_fp8__auto.jsonl": "433f5f8632eb99cfb3fdd3a838a2cabff541ef1880a291be751a4f43a4a130d0",
+    "replies/test__gemma-4-12b__fp8__auto.jsonl": "562df84ca861a37aa87dce9eece5c2601d896ddaae22515c313c05576e152d44",
+    "replies/test__gemma-4-12b__gguf-q5_k_m__f16.jsonl": "376534bb04a7996d9cb86af82eadde2d4883cf97f8acb29843247e6c94a30b2e",
+    "replies/test__gemma-4-12b__official_qat_w4a16__auto+b512.jsonl": "33e9cdd7c7b405d3d99f6610e5aa2548417b00a582df0ca30fcfb1cd64d450f5",
+    "replies/test__gemma-4-12b__official_qat_w4a16__auto+eager.jsonl": "6fb7201faa30a310b32f6641b9e1ffdcad47209a7c8bec3685c5412787e6ef84",
+    "replies/test__gemma-4-12b__official_qat_w4a16__auto+eager_b512.jsonl": "3ff07d5c14ba689027872aa2379128fe2d959f7df69cf995a8070cdc2641ad1f",
+    "replies/test__gemma-4-12b__official_qat_w4a16__auto.jsonl": "a27c13c84d36ac3e86ef5ce74981cc2322e014a57c81022ee6df0178a9b880e8",
+    "replies/test__gemma-4-26b-a4b__nvfp4__auto.jsonl": "8dc7af94570dc1fbab4548441deebe909a29c7b4fdde741479dc9a08daf2211d",
+    "replies/test__gemma-4-31b__gguf-q5_k_m__q4_0.jsonl": "477f060cc753c9906b5f513595d378a69e3ae6e6936de15497ff2adc107bdd40",
+    "replies/test__qwen3-4b-instruct-2507__deployed__auto.jsonl": "f3b9140f7bd548bc1a001658de21a213082f65aa04b01e1d09da94f198469646",
+    "replies/test__qwen3.5-27b__nvfp4__auto.jsonl": "8161112d81b4b461dd76bee9b76cac71343ee459ce8ac4f4665218874d43d2ca",
+    "replies/test__qwen3.5-4b__official_bf16__auto.jsonl": "a056847b554f57964fe5eee7b56c819b44204e6fb6ee39872f869f735c51f0ea",
+    "replies/test__qwen3.8-27b__awq_int4__auto.jsonl": "eafefa48570ad53a57051a92c41dd9d8487f1c3243f0ce8a61d806510d88932f"
+  }
+}
