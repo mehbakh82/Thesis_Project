@@ -401,12 +401,13 @@ described here. The diagnosis served the Gemma 4 12B Q5_K_M build with the
 harness settings on the first 40 development rows, changing one setting at a
 time. Gemma 4 uses sliding-window attention, and with its default settings
 llama.cpp saves and restores context checkpoints of the window cache around
-every reused prompt: the first token took 178–184 ms. Without checkpoints
-(`--ctx-checkpoints 0`) it took 59.5 ms, and with a full-size window cache
-(`--swa-full`, which keeps prompt reuse without checkpoints) 24.8 ms at
-10,088 MiB of GPU memory, within the 12 GiB responder limit (10,682 MiB). The
-other settings (log level, grammar, batch size, one slot) changed it by at most
-20 ms. The harness kept llama.cpp's defaults, so this build missed the latency
+every reused prompt: the first token took 177–184 ms in a first pass (host
+load about 2) and 163–280 ms in a second pass under heavier host load (load 2
+to 35). In the second pass, without checkpoints (`--ctx-checkpoints 0`) it
+took 59.5 ms, and with a full-size window cache (`--swa-full`, which keeps
+prompt reuse without checkpoints) 24.8 ms at 10,088 MiB of GPU memory, within
+the 12 GiB responder limit (10,682 MiB). The other settings (log level,
+grammar, batch size, one slot) stayed between 163 and 183 ms. The harness kept llama.cpp's defaults, so this build missed the latency
 gate in stage 7 although it fits the profile and has the highest J2 test score
 of the finalists (J1 6.70, J2 7.18). Changing a serving setting after the
 results were known is post hoc, and the outcome is reported as such; it does
