@@ -738,7 +738,8 @@ RESPONDER_PRESETS: dict[str, dict[str, Any]] = {
         "max_new_tokens": 96,
         "chat_template_kwargs": {"enable_thinking": False},
     },
-    # 24 GB profile winner of responder comparison v3 (docs/RESPONDER_V3_RESULT.md), served by vLLM.
+    # 24 GB profile winner of responder comparison v3 (docs/RESPONDER_V3_RESULT.md), served by vLLM. Not qualified:
+    # its deployment check passed memory, latency and script but failed coherence after interruption (Q3).
     "gemma4_12b_qat_elderly_v1": {
         "prompt": "ELDERLY_PROMPT_V1",
         "served_name": "gemma4-12b-qat",
@@ -746,6 +747,18 @@ RESPONDER_PRESETS: dict[str, dict[str, Any]] = {
         "revision": "1d2c2d7f2466070e69d6fb3fd5ce9a7d75f2f6ee",
         "max_new_tokens": 96,
         "chat_template_kwargs": {"enable_thinking": False},
+    },
+    # The same model's GGUF Q5_K_M build on llama.cpp with a full sliding-window cache (--swa-full), for the 12 GiB
+    # stack: post-hoc addendum 3 of docs/RESPONDER_V3_PROTOCOL.md. Revision: the SHA-256 of the GGUF file. Not qualified:
+    # its check failed latency (under shared-host load) and coherence after interruption.
+    "gemma4_12b_q5km_llamacpp_elderly_v1": {
+        "prompt": "ELDERLY_PROMPT_V1",
+        "served_name": "gemma4-12b-q5km",
+        "model": "unsloth/gemma-4-12b-it-GGUF:gemma-4-12b-it-Q5_K_M.gguf",
+        "revision": "sha256:32c554c7d1338a23837ae39b3db482213a4a642f96df3b2619f516a2375d16cd",
+        "max_new_tokens": 96,
+        "chat_template_kwargs": {"enable_thinking": False},
+        "constraint": "gbnf",
     },
 }
 
@@ -785,6 +798,7 @@ def default_live_components(
             max_new_tokens=max_new_tokens,
             history_turns=history_turns,
             chat_template_kwargs=preset["chat_template_kwargs"],
+            constraint=preset.get("constraint", "regex"),
         )
         model_name = os.environ.get("TEXT_LLM_MODEL", preset["model"])
         model_revision = os.environ.get("TEXT_LLM_REVISION", preset["revision"])

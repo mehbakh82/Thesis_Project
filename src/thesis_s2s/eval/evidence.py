@@ -118,6 +118,12 @@ ARTIFACTS: dict[str, str] = {
     "closeout_loopback_v3": "results/eval/live_loopback_v3.json",
     "closeout_loopback_v3_splits": "results/eval/live_loopback_v3_splits.json",
     "closeout_responder_size": "results/eval/responder_size_comparison.json",
+    "closeout_responder_v3": "results/eval/responder_v3_result.json",
+    "closeout_responder_v3_24gb_qualification": "results/eval/responder_v3_24gb_qualification.json",
+    "closeout_responder_v3_12gib_one_sequence_qualification": "results/eval/responder_v3_12gib_one_sequence_qualification.json",
+    "closeout_responder_v3_12gib_llamacpp_qualification": "results/eval/responder_v3_12gib_llamacpp_qualification.json",
+    "closeout_responder_v3_llamacpp_diagnosis": "results/eval/responder_v3_llamacpp_first_token_diagnosis.json",
+    "closeout_responder_v3_repeat_requests": "results/eval/responder_v3_repeat_requests.json",
 }
 
 
@@ -1743,6 +1749,13 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
     loopback_v3 = load("closeout_loopback_v3")
     loopback_v3_splits = load("closeout_loopback_v3_splits")
     size = load("closeout_responder_size")
+    v3 = load("closeout_responder_v3")
+    v3_qualification = load("closeout_responder_v3_24gb_qualification")
+    v3_q12 = load("closeout_responder_v3_12gib_one_sequence_qualification")
+    v3_q12_llamacpp = load("closeout_responder_v3_12gib_llamacpp_qualification")
+    v3_diagnosis = load("closeout_responder_v3_llamacpp_diagnosis")
+    v3_repeats = load("closeout_responder_v3_repeat_requests")
+    v3_profiles = (v3.get("decision") or {}).get("profiles") or {}
     asr_arms = asr.get("arms") or {}
     tts_arms = tts.get("arms") or {}
     sim_test = simulation.get("test") or {}
@@ -1907,6 +1920,63 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
             "decisions": size.get("decisions"),
             "size_buys_quality": size.get("size_buys_quality"),
             "profile_24gb_candidate": size.get("profile_24gb_candidate"),
+        },
+        "responder_v3": {
+            "status": status(v3),
+            "evidence_class": "automatic_llm_judges_from_non_candidate_families",
+            "winners": {profile: row.get("winner") for profile, row in v3_profiles.items()},
+            "first_decision_winners": {
+                profile: row.get("winner")
+                for profile, row in ((v3.get("decision_2026_11_07") or {}).get("profiles") or {}).items()
+            },
+            "winner_beats_references": {
+                profile: {ref: verdict.get("beats") for ref, verdict in (row.get("versus") or {}).items()}
+                for profile, row in v3_profiles.items()
+                if row.get("winner")
+            },
+            "judge_controls": (v3.get("decision") or {}).get("controls"),
+            "latency_gate_changes_under_load": sorted(
+                name
+                for name, row in ((v3.get("latency_robustness") or {}).get("configurations") or {}).items()
+                if any((row.get("gate_differs") or {}).values())
+            ),
+            "judge_effort_rank_correlation": {
+                name: row.get("rank_correlation_of_arm_means") for name, row in (v3.get("judge_effort") or {}).items()
+            },
+        },
+        "responder_v3_24gb_qualification": {
+            "status": status(v3_qualification),
+            "evidence_class": "automated_browser_loopback_with_automatic_judges",
+            "part2_passed": v3_qualification.get("part2_passed"),
+            "checks": {name: (row or {}).get("passed") for name, row in (v3_qualification.get("checks") or {}).items()},
+            "memory_limit_mib": ((v3_qualification.get("checks") or {}).get("q1_memory") or {}).get("limit_mib"),
+        },
+        "responder_v3_12gib_post_hoc_checks": {
+            "label": "post hoc",
+            "evidence_class": "automated_browser_loopback_with_automatic_judges",
+            "configurations": {
+                name: {
+                    "status": status(receipt_),
+                    "part2_passed": receipt_.get("part2_passed"),
+                    "checks": {k: (row or {}).get("passed") for k, row in (receipt_.get("checks") or {}).items()},
+                }
+                for name, receipt_ in (("vllm_qat_one_sequence", v3_q12), ("llamacpp_q5_k_m_swa_full", v3_q12_llamacpp))
+            },
+        },
+        "responder_v3_llamacpp_diagnosis": {
+            "status": status(v3_diagnosis),
+            "label": v3_diagnosis.get("label"),
+            "first_token_median_ms": {
+                name: (row or {}).get("first_token_median_ms") for name, row in (v3_diagnosis.get("variants") or {}).items()
+            },
+        },
+        "responder_v3_repeat_requests": {
+            "status": status(v3_repeats),
+            "label": v3_repeats.get("label"),
+            "asks_to_repeat_of_60": {
+                name: ((row.get("interrupt") or {}).get("asks_to_repeat") or 0) + ((row.get("control") or {}).get("asks_to_repeat") or 0)
+                for name, row in (v3_repeats.get("runs") or {}).items()
+            },
         },
         "responder_switch_qualification": {
             "status": status(switch),

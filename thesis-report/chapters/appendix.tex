@@ -183,6 +183,12 @@
   \کد{evaluate\_cascade\_} \کد{intelligibility.py} \\
 آزمون معنایی دو‌مرحله‌ای &
   \کد{evaluate\_qwen4b\_} \کد{responder\_v2.py} \\
+مقایسه پاسخ‌گو، نسخه سوم &
+  \کد{evaluate\_} \کد{responder\_v3.py} \\
+درخواست تکرار پس از وقفه &
+  \کد{count\_clarification\_} \کد{requests.py} \\
+عیب‌یابی نخستین توکن \en{llama.cpp} &
+  \کد{diagnose\_llamacpp\_} \کد{first\_token.py} \\
 تقریب آشکارساز وقفه &
   \کد{evaluate\_recorded\_} \کد{bargein\_proxy.py} \\
 تولید شکل‌های این نوشتار &
@@ -228,6 +234,16 @@
   \کد{eval/qwen4b\_responder\_} \کد{v2\_final\_test\_proxy.json} \\
 تطبیق پاسخ‌گو &
   \کد{training/} \کد{responder\_lora\_v1.json} \\
+مقایسه پاسخ‌گو، نسخه سوم &
+  \کد{eval/} \کد{responder\_v3\_result.json} \\
+صلاحیت‌سنجی پاسخ‌گوی \N{24} گیگابایتی &
+  \کد{eval/responder\_v3\_} \کد{24gb\_qualification.json} \\
+درخواست تکرار (اکتشافی) &
+  \کد{eval/responder\_v3\_} \کد{repeat\_requests.json} \\
+بررسی‌های پسین \N{12} گیگابایتی &
+  \کد{eval/responder\_v3\_12gib\_} \کد{*\_qualification.json} \\
+عیب‌یابی \en{llama.cpp} (اکتشافی) &
+  \کد{eval/responder\_v3\_llamacpp\_} \کد{first\_token\_diagnosis.json} \\
 تقریب آشکارساز وقفه &
   \کد{eval/} \کد{interrupt\_recorded\_proxy.json} \\
 آزمون مصنوعی آشکارساز &
@@ -278,6 +294,9 @@
 \en{Qwen2.5-0.5B-Instruct}
 \newline{\scriptsize\en{7ae557604adf67be50417f59c2c2f167def9a775}} \\
 خط پایه پاسخ‌گو در آزمون معنایی & \en{Qwen2.5-0.5B-Instruct} \\
+پاسخ‌گوی پیش‌تنظیم \N{24} گیگابایتی &
+\en{Gemma-4-12B-it-QAT-W4A16}
+\newline{\scriptsize\en{1d2c2d7f2466070e69d6fb3fd5ce9a7d75f2f6ee}} \\
 مدل پایه مسیر مستقیم & \en{Moshika}، هفت میلیارد پارامتر \\
 رمزینه صوتی مسیر مستقیم & \en{Mimi} \\
 بازشناسی گفتار & مدل ترکیبی \en{RNNT-CTC} خانواده \en{Conformer} \\

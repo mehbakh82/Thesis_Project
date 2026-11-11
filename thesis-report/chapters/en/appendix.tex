@@ -170,6 +170,9 @@ Table~\ref{tab:eval-scripts} lists them.
 Mechanical panel of the cascade & \path{evaluate_cascade_validation.py} \\
 Re-recognition measure & \path{evaluate_cascade_intelligibility.py} \\
 Two-stage semantic test & \path{evaluate_qwen4b_responder_v2.py} \\
+Responder comparison version three & \path{evaluate_responder_v3.py} \\
+Requests to repeat after interruption & \path{count_clarification_requests.py} \\
+llama.cpp first-token diagnosis & \path{diagnose_llamacpp_first_token.py} \\
 Interruption detector approximation & \path{evaluate_recorded_bargein_proxy.py} \\
 Generating the figures of this report & \path{make_thesis_figures.py} \\
 \bottomrule
@@ -203,6 +206,11 @@ Intelligibility approximation & \path{eval/cascade_intelligibility_proxy.json} \
 Semantic qualification stage & \path{eval/qwen4b_responder_v2_development_proxy.json} \\
 Final semantic test & \path{eval/qwen4b_responder_v2_final_test_proxy.json} \\
 Responder adaptation & \path{training/responder_lora_v1.json} \\
+Responder comparison version three & \path{eval/responder_v3_result.json} \\
+Qualification of the 24 GB responder & \path{eval/responder_v3_24gb_qualification.json} \\
+Requests to repeat (exploratory) & \path{eval/responder_v3_repeat_requests.json} \\
+Post-hoc 12 GiB checks & \path{eval/responder_v3_12gib_*_qualification.json} \\
+llama.cpp diagnosis (exploratory) & \path{eval/responder_v3_llamacpp_first_token_diagnosis.json} \\
 Interruption detector approximation & \path{eval/interrupt_recorded_proxy.json} \\
 Synthetic detector test & \path{eval/interrupt_bench.json} \\
 Dataset audit & \path{conversation_audit.json} \\
@@ -241,6 +249,9 @@ Responder of the 9/9 mechanical panel and re-recognition &
 Qwen2.5-0.5B-Instruct
 \newline{\scriptsize 7ae557604adf67be50417f59c2c2f167def9a775} \\
 Responder baseline in the semantic test & Qwen2.5-0.5B-Instruct \\
+Responder of the 24 GB preset &
+Gemma-4-12B-it-QAT-W4A16
+\newline{\scriptsize 1d2c2d7f2466070e69d6fb3fd5ce9a7d75f2f6ee} \\
 Base model of the direct track & Moshika, seven billion parameters \\
 Audio codec of the direct track & Mimi \\
 Speech recognition & hybrid RNNT-CTC model of the Conformer family \\

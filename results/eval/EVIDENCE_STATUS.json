@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-10-31T06:55:34.066304+00:00",
+  "generated_at": "2026-11-11T15:10:41.005299+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1566,6 +1566,103 @@
       "size_buys_quality": false,
       "profile_24gb_candidate": null
     },
+    "responder_v3": {
+      "status": "present",
+      "evidence_class": "automatic_llm_judges_from_non_candidate_families",
+      "winners": {
+        "12gib": null,
+        "24gb": "gemma-4-12b__official_qat_w4a16"
+      },
+      "first_decision_winners": {
+        "12gib": null,
+        "24gb": "gemma-4-12b__fp8"
+      },
+      "winner_beats_references": {
+        "24gb": {
+          "qwen3.5-4b__official_bf16": true,
+          "qwen3-4b-instruct-2507__deployed": true
+        }
+      },
+      "judge_controls": {
+        "j1": {
+          "calls": 501,
+          "control_overall_mean": 1.07,
+          "control_failure_rate": 0.0399
+        },
+        "j2": {
+          "calls": 501,
+          "control_overall_mean": 1.62,
+          "control_failure_rate": 0.0599
+        }
+      },
+      "latency_gate_changes_under_load": [],
+      "judge_effort_rank_correlation": {
+        "j1think": 0.927,
+        "j2high": 0.976
+      }
+    },
+    "responder_v3_24gb_qualification": {
+      "status": "present",
+      "evidence_class": "automated_browser_loopback_with_automatic_judges",
+      "part2_passed": false,
+      "checks": {
+        "q1_memory": true,
+        "q2_latency": true,
+        "q3_coherence": false,
+        "q4_script": true
+      },
+      "memory_limit_mib": 22528
+    },
+    "responder_v3_12gib_post_hoc_checks": {
+      "label": "post hoc",
+      "evidence_class": "automated_browser_loopback_with_automatic_judges",
+      "configurations": {
+        "vllm_qat_one_sequence": {
+          "status": "present",
+          "part2_passed": false,
+          "checks": {
+            "q1_memory": true,
+            "q2_latency": false,
+            "q3_coherence": false,
+            "q4_script": true
+          }
+        },
+        "llamacpp_q5_k_m_swa_full": {
+          "status": "present",
+          "part2_passed": false,
+          "checks": {
+            "q1_memory": true,
+            "q2_latency": false,
+            "q3_coherence": false,
+            "q4_script": true
+          }
+        }
+      }
+    },
+    "responder_v3_llamacpp_diagnosis": {
+      "status": "present",
+      "label": "exploratory",
+      "first_token_median_ms": {
+        "base": 280.1,
+        "quiet_log": 183.1,
+        "no_grammar": 162.7,
+        "ubatch_2048": 175.6,
+        "one_slot": 174.7,
+        "no_prompt_cache": 135.6,
+        "no_checkpoints": 59.5,
+        "swa_full": 24.8
+      }
+    },
+    "responder_v3_repeat_requests": {
+      "status": "present",
+      "label": "exploratory, post hoc",
+      "asks_to_repeat_of_60": {
+        "qwen35_4b_vllm": 3,
+        "gemma4_12b_qat_vllm_24gb": 14,
+        "gemma4_12b_qat_vllm_12gib_one_sequence": 13,
+        "gemma4_12b_q5km_llamacpp_12gib": 11
+      }
+    },
     "responder_switch_qualification": {
       "status": "present",
       "part2_passed": true,
@@ -1888,8 +1985,8 @@
     "final_audit": {
       "path": "results/release/final_audit.json",
       "present": true,
-      "bytes": 14876,
-      "sha256": "1a8af220874a470abf0a88d1681b07018febca35474cb30ed2305639ef022b36"
+      "bytes": 15126,
+      "sha256": "516781a229dca77fe0d1ae950d39773bfa18d8660b9e428f62646f6f89653ad7"
     },
     "submission_tag_attestation": {
       "path": "results/release/submission_tag_attestation.json",
@@ -2124,6 +2221,42 @@
       "present": true,
       "bytes": 20907,
       "sha256": "28bab316f967543dcc3706e1a9cfccc8ddd238e0b20b1dc59d1e5d2966316195"
+    },
+    "closeout_responder_v3": {
+      "path": "results/eval/responder_v3_result.json",
+      "present": true,
+      "bytes": 186728,
+      "sha256": "cebe8e1ead33939da72e743efa224ec8e9c07d4087c64bede1a8bd11e1706034"
+    },
+    "closeout_responder_v3_24gb_qualification": {
+      "path": "results/eval/responder_v3_24gb_qualification.json",
+      "present": true,
+      "bytes": 1389,
+      "sha256": "c549a486d19d99c69e28de30efd7295ba664c95c81e8ac7eea484724336d0399"
+    },
+    "closeout_responder_v3_12gib_one_sequence_qualification": {
+      "path": "results/eval/responder_v3_12gib_one_sequence_qualification.json",
+      "present": true,
+      "bytes": 1402,
+      "sha256": "a4a32c389eb5b399d49215ea6181fbf79b7bf3a65a56e08e96d4e2a53016e3ef"
+    },
+    "closeout_responder_v3_12gib_llamacpp_qualification": {
+      "path": "results/eval/responder_v3_12gib_llamacpp_qualification.json",
+      "present": true,
+      "bytes": 1460,
+      "sha256": "6961029606374644831acba5fda7fbc5dcd2ab651e5cf1bea2f405e84d0925fc"
+    },
+    "closeout_responder_v3_llamacpp_diagnosis": {
+      "path": "results/eval/responder_v3_llamacpp_first_token_diagnosis.json",
+      "present": true,
+      "bytes": 3725,
+      "sha256": "c0484095d6ae9875c7955ca7b9d48c96cf88fa0cef978a3d2521cc8f4b090c69"
+    },
+    "closeout_responder_v3_repeat_requests": {
+      "path": "results/eval/responder_v3_repeat_requests.json",
+      "present": true,
+      "bytes": 4950,
+      "sha256": "36ba41b66f5dd6ddf2e3593726d52e2ed7cbafd59001d734a5b33dfd6865db8f"
     }
   }
 }

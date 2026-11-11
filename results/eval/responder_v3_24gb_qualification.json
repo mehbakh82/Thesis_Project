@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "experiment": "responder_v3_24gb_qualification",
+  "protocol": "docs/RESPONDER_V3_PROTOCOL.md",
+  "configuration": {
+    "responder_model": "google/gemma-4-12B-it-qat-w4a16-ct",
+    "responder_revision": "1d2c2d7f2466070e69d6fb3fd5ce9a7d75f2f6ee",
+    "responder_preset": "gemma4_12b_qat_elderly_v1",
+    "system_prompt_sha256": "ecaa1293680ecd0534b69b766001ea2dfd0cd3fd78b212f0e3722d0474d909b5",
+    "max_new_tokens": 96
+  },
+  "inputs_sha256": {
+    "loopback": "7d95d74e903c5f2ebaff267447c6275636a1cee60f43cbd9276d41bf774cc718",
+    "coherence": "879406301db4b4f180c33095fa2bae2b26ddf1531e376e87235ab583580c78c8"
+  },
+  "checks": {
+    "q1_memory": {
+      "peak_stack_mib": 12466.0,
+      "limit_mib": 22528,
+      "passed": true
+    },
+    "q2_latency": {
+      "plain_missing": 0,
+      "plain_mean_ms": 372.29718909147357,
+      "plain_p90_failures_as_late_ms": 468.03749990463257,
+      "elderly_p90_failures_as_late_ms": 372.56749997138985,
+      "passed": true
+    },
+    "q3_coherence": {
+      "per_judge": {
+        "gemini": false,
+        "qwen38": false
+      },
+      "passed": false
+    },
+    "q4_script": {
+      "replies_checked": 419,
+      "replies_with_latin": 0,
+      "passed": true
+    }
+  },
+  "part2_passed": false,
+  "human_part": "computed from the listening study by scripts/ingest_listening_study.py",
+  "text_retained": false
+}

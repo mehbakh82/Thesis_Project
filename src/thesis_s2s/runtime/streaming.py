@@ -244,12 +244,15 @@ class StreamingResponder:
 
 
 PERSIAN_ONLY_REGEX = r"[\u0600-\u06FF\u200c\u200f ،؛؟!.:0-9۰-۹]{1,400}"
+# The same constraint as a llama.cpp grammar (the Persian punctuation and digits lie inside U+0600-U+06FF).
+PERSIAN_ONLY_GBNF = r"root ::= [\u0600-\u06FF\u200C\u200F !.:0-9]{1,400}"
 
 
 class OpenAIStreamingResponder:
-    """Stream from an OpenAI-compatible server (e.g. vLLM) with a Persian-only constraint.
+    """Stream from an OpenAI-compatible server (vLLM or llama.cpp) with a Persian-only constraint.
 
-    The constraint is a regular-expression structured output, so Latin-script
+    The constraint is a regular-expression structured output for vLLM, or the
+    equivalent grammar for llama.cpp (``constraint="gbnf"``), so Latin-script
     text cannot be produced at all; it plays the role of the local logits mask.
     """
 
@@ -264,7 +267,11 @@ class OpenAIStreamingResponder:
         persian_only: bool = True,
         timeout: float = 30.0,
         chat_template_kwargs: dict[str, Any] | None = None,
+        constraint: str = "regex",
     ) -> None:
+        if constraint not in ("regex", "gbnf"):
+            raise ValueError(f"unknown constraint {constraint!r}")
+        self.constraint = constraint
         self.endpoint = endpoint.rstrip("/")
         self.chat_template_kwargs = chat_template_kwargs
         self.model = model
@@ -298,7 +305,9 @@ class OpenAIStreamingResponder:
             "temperature": 0,
             "stream": True,
         }
-        if self.persian_only:
+        if self.persian_only and self.constraint == "gbnf":
+            body["grammar"] = PERSIAN_ONLY_GBNF
+        elif self.persian_only:
             body["structured_outputs"] = {"regex": PERSIAN_ONLY_REGEX}
         if self.chat_template_kwargs:
             body["chat_template_kwargs"] = self.chat_template_kwargs

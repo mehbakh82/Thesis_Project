@@ -547,7 +547,132 @@ judge the Qwen models, and their exact agreement on relevance is 52\%. The large
 models do score higher on coherence and elderly appropriateness under both judges, but
 not on relevance, the primary measure. On this panel, then, size did not buy reply
 quality, and no 24~GB profile was qualified. Latency does not rule the larger models out:
-every first token arrives within 53--121 ms.
+every first token arrives within 53--121 ms. The third version of the comparison, below,
+revisits this question with judges from other families and finds the opposite.
+
+\subsection{Responder Comparison Version Three: Quantized Builds and Two Memory Profiles}
+\label{sec:res-resp-v3}
+
+The comparisons above left four gaps: both judges came from candidate families and agreed
+on fewer than half of the scores, the panel had 120 rows, few quantized builds were tried,
+and the serving settings were fixed. A third pre-registered comparison closed them (protocol
+frozen before any reply was generated, with five dated amendments). It covered 15 models of
+the Qwen3.5, Qwen3.6, Qwen3.8 and Gemma~4 families, from 0.8 to 35 billion parameters, with
+every quantized build that vLLM and llama.cpp can run, official and community. Two judges
+from families with no candidate scored the replies listwise from 0 to 10: Claude Opus~5.5
+(J1) and GPT-6 Astra (J2). Every call contained one planted reply written for another row,
+and a judge counted as unreliable if that reply scored 6 or more in more than 10\% of calls;
+the highest rate in any stage was 8.6\%. The panels were new: 100 development and 252 test
+rows, half of them requests of an older user written by the two judge families and half real
+user turns with their history. Two profiles were defined: 12~GiB, with the responder within
+10,682~MiB so that the whole stack fits a 12~GiB card, and 24~GB, with the responder within
+22,528~MiB. Both require a 2,048-token context and two concurrent requests, and a latency
+gate of a median first token of at most 150~ms and at least 30 tokens per second.
+
+Selection was adaptive. A model screen ranked the best build of each model. A quantization
+screen on Qwen3.5-4B and Gemma~4~E4B found that the GGUF builds from Q4\_K\_M up, FP8, INT8
+and MXFP4 lose nothing measurable, that most 4-bit vLLM formats (AWQ, GPTQ, AutoRound and
+NVFP4) lose 0.5 to 0.9 points, and that three bits or fewer lose more; the official 4-bit
+Gemma build trained with quantization (QAT) is the exception. The models within half a point
+of the best fitting one went on, their builds and key-value cache precisions were compared,
+one finalist was chosen per model and profile, and the finalists were measured and scored on
+the test panel (Table~\ref{tab:resp-v3}).
+
+\begin{table}[ht]
+\centering
+\caption{Finalists of responder comparison version three on the test panel (252 rows; scale
+         0--10; latency on the shared H100 at the deployment configuration)}
+\label{tab:resp-v3}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llrrrr}
+\toprule
+Model & Weights, engine & Peak memory & First token & J1 & J2 \\
+\midrule
+\textbf{Gemma 4 12B (24 GB winner)} & 4-bit QAT, vLLM & 10,914 MiB & 39 ms & 6.47 & 7.09 \\
+Gemma 4 12B (12 GiB finalist) & Q5\_K\_M, llama.cpp & 9,772 MiB & 179 ms$^{a}$ & 6.70 & 7.18 \\
+Gemma 4 31B & Q5\_K\_M, llama.cpp & 22,194 MiB & 152 ms$^{a}$ & 6.86 & 6.89 \\
+Gemma 4 26B-A4B$^{b}$ & NVFP4, vLLM & 17,282 MiB & 71 ms & 6.24 & 6.54 \\
+Qwen3.8-27B & AWQ 4-bit, vLLM & 21,150 MiB & 113 ms & 6.16 & 6.41 \\
+Qwen3.5-27B & NVFP4, vLLM & 20,656 MiB & 112 ms & 6.15 & 6.16 \\
+Qwen3.5-4B (best 4B) & bf16, vLLM & 9,634 MiB & 56 ms & 5.27 & 5.34 \\
+Qwen3-4B (deployed) & bf16, vLLM & 9,392 MiB & 35 ms & 2.84 & 3.58 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\footnotesize
+$^{a}$ Fails the latency gate.
+$^{b}$ Mixture of experts with about 4 billion active parameters.
+\end{table}
+
+In the 24~GB profile, Gemma~4 12B with Google's official 4-bit weights, served by vLLM,
+has the best score among the configurations that fit and meet the gate, and it beats both
+references under both judges by the registered rule: its overall score is 1.20 (J1) and 1.75
+(J2) points above Qwen3.5-4B and 3.63 and 3.52 points above the deployed responder, every
+95\% interval is above zero, and it loses nothing in relevance, coherence or appropriateness.
+In the 12~GiB profile no configuration both fits and meets the gate. The vLLM builds of
+Gemma~4 12B need 10.9~GB, about 200~MiB too much, and an exploratory test of serving
+settings did not bring them under the limit without dropping below 30 tokens per second; the
+llama.cpp build that fits takes 169 to 214~ms to its first token. Gemma~4 31B has the best
+mean score of the 24~GB finalists (6.87), but it missed the gate in six of its eight latency
+measurements (139 to 336~ms).
+
+Two corrections were made before the result was final, and both versions are reported. The
+first decision named the FP8 build of Gemma~4 12B. A later check found that two builds the
+rules required had not been run, because the cache precision that the original selection
+assumed for them cannot start in vLLM~0.30. Neither fits its profile, but scoring all builds of
+Gemma~4 12B together again moved its 24~GB finalist from FP8 to QAT. On the test panel the two
+builds score the same (differences of $-0.03$ and $+0.12$, both intervals across zero), and
+QAT is smaller (10.9 against 15.4~GB) and as fast. Two sensitivity analyses were registered
+after the user's question about load on the shared GPU and about reasoning settings. Five more
+spaced latency measurements of every finalist, with the other processes' GPU utilization
+recorded once per second, changed no gate result: load from other users was present in only
+3 of 40 measurements, where it could halve the decode rate, and the first-token time correlated
+only weakly with it. Scoring the first 60 test rows again with more judge reasoning (extended
+thinking for J1, high effort for J2) kept the rankings (rank correlations 0.93 and 0.98).
+The two judges also agree with each other: their configuration means have a rank correlation
+of 0.88, and 77\% of their reply scores are within one point.
+
+This result reverses the size comparison above. With judges from other families, a larger
+panel and a finer scale, every finalist of 9 to 31 billion parameters scores at least 0.8
+points above Qwen3.5-4B under both judges, and Gemma~4 is the strongest family at every size.
+Natural user turns separate the configurations most: the two Qwen 27B models lose about 1.5
+points on them relative to written requests, Gemma~4 12B the least.
+
+\textbf{Deployment qualification of the 24~GB winner.} As the protocol specifies, the winner
+was then run as the responder of the live system and measured with the four checks of the
+replacement rule above, with a whole-stack memory limit of 22,528~MiB. Three checks passed.
+The whole stack peaked at 12,466~MiB (recognizer 1,610 and vLLM 10,856); on the plain panel
+no reply was missing, and the mean and 90th percentile from end of speech to first reply
+audio were 372 and 468~ms (elderly panel: 90th percentile 373~ms); none of 419 replies
+contained a Latin letter. Coherence after interruption failed: all 30 interrupted replies
+stopped, but the replies after the interruption were 0.37 points less relevant than the
+controls under both judges (Gemini 2.37 versus 2.73, Qwen3.8 2.50 versus 2.87), more than the
+0.25 the rule allows. Both 95\% intervals include zero ($[-0.90, +0.13]$ and $[-1.10, +0.37]$),
+but the frozen rule compares the means, so the configuration is not qualified; it remains an
+opt-in preset of the live server, and the default is unchanged. The deficit lies in the late
+interruptions (relevance 2.0 versus 2.9 under Gemini, 1.9 versus 3.2 under Qwen3.8). An
+exploratory count made after this outcome shows why: when the recognizer garbles the
+follow-up, Gemma~4 12B asks the user to repeat, while Qwen3.5-4B guesses. Gemma asked in 14
+of its 60 follow-up replies, Qwen3.5-4B in 3 of 60 on the same scenarios, and the follow-ups
+Gemma asked about had a median character error rate of 0.345 against 0.161 for the others.
+The written-request comparison had clean text input and could not show this. The judges,
+who see the intended follow-up rather than the recognizer's transcript, score a request to
+repeat as irrelevant; whether older users prefer it is a question for human evaluation.
+
+\textbf{Post-hoc checks in 12~GiB.} Two addenda written after the decision, and before their
+measurements, checked whether Gemma~4 12B could still serve the 12~GiB stack, with the same four
+checks and a 12,288~MiB limit. With one sequence instead of two, the vLLM build fits (11,768~MiB),
+but one of 201 utterances received no reply (the end-of-speech detector never closed that turn) and
+coherence failed under the Qwen judge ($-0.27$). An exploratory diagnosis then traced the slow first
+token of the llama.cpp builds: Gemma~4 uses sliding-window attention, and with its default settings
+llama.cpp saves and restores checkpoints of that cache around every reused prompt. With a full-size
+window cache the first token took 24.8~ms instead of about 180~ms, at 10,088~MiB. In the live
+stack this build fit (11,700~MiB) and wrote no Latin letter, but failed latency (90th percentile
+824~ms; the first 125 turns had a median of about 365~ms, then every stage slowed at once, the
+recognizer too, which points to other users' load on the shared host) and coherence under both
+judges ($-0.33$). In all three Gemma runs the model asked the user to repeat in 11 to 14 of 60
+follow-ups, against 3 for Qwen3.5-4B. No Gemma~4 12B configuration was therefore qualified, and the
+12~GiB stack keeps the responders that the listening study decides between.
 
 \subsection{Voice with Two Automatic Listeners}
 
@@ -1271,6 +1396,9 @@ Speech input$^{b}$ & Gemma 4 E4B, audio in & 8.61B$^{a}$ & 1.98 / 2.18 & 67 ms \
  & + speech LoRA & 8.61B$^{a}$ & 2.05 / 2.52 & 200 ms \\
 Responder$^{d}$ & Qwen3.5-4B, elderly prompt & 4.66B & 3.23 / 3.35 & 68 ms \\
  & four larger models & 9.65--36.0B & 2.77--3.24 / 3.48--3.61 & 53--121 ms \\
+Responder$^{e}$ & Qwen3.5-4B, bf16 & 4.66B & 5.27 / 5.34 & 56 ms \\
+ & Gemma 4 12B, 4-bit (24 GB) & 12.0B & \textbf{6.47 / 7.09} & 39 ms \\
+ & Gemma 4 31B, Q5\_K\_M & 31.3B & 6.86 / 6.89 & 152 ms \\
 \midrule
 TTS & Piper Mana (deployed, CPU) & 15.7M & \textbf{CER 5.82\%} & 84 ms \\
  & Lab VITS, optimized (H100) & 36.3M & CER 9.19\% & 116 ms \\
@@ -1288,22 +1416,32 @@ $^{c}$ Prefix error 0.88 with the deployed recognizer.
 $^{d}$ Relevance on the 120 written requests and turns of Table~\ref{tab:resp-size}, Qwen
 judge / Gemini judge, under a 22~GiB limit; latency is the first token of the reply text.
 Gemma~4 31B did not fit.
+$^{e}$ Overall score (0--10) on the 252 test rows of Table~\ref{tab:resp-v3}, J1 / J2 (judges from
+families with no candidate); latency is the first token of the reply text.
 \end{table}
 
-Three patterns appear. First, within this range size does not buy quality. The two smallest
+Three patterns appear. First, for recognition and synthesis size does not buy quality. The two smallest
 recognizers (115 and 117 million parameters, both NeMo models fine-tuned on Persian) are more
 accurate than every larger candidate except Seamless. That includes Rade, a
 three-billion-parameter model fine-tuned on Persian. Seamless, the only model more accurate
 than them, is itself fine-tuned on Persian and more than ten times slower. In synthesis too, the
 smallest model (Piper, 15.7 million parameters) is both the most intelligible and the fastest.
-Second, for the responder and speech input, the two judges disagree about quality. No larger
-candidate is better under both judges, up to 36 billion parameters at four bits
-(Table~\ref{tab:resp-size}), and the largest dense model at four bits does not fit a 22~GiB
-limit. The speech-input model has only a latency advantage (67 versus 86 ms), which separate
-recognition in about 60 ms can make up for. Third, the largest
+Second, for the responder size does buy quality once the judges come from families with no
+candidate. The comparison judged by a Qwen model and Gemini found no larger responder better
+under both judges (Table~\ref{tab:resp-size}), but the third comparison, judged by Claude and
+GPT-6 Astra, found every 9 to 31 billion parameter finalist at least 0.8 points better than the
+best 4B, and its 24~GB winner, Gemma~4 12B at four bits, about 1.2 to 1.75 points better while
+answering in 39~ms (Table~\ref{tab:resp-v3}). That gain was measured on clean text: in the live
+stack the same model asks the user to repeat when the recognizer errs and failed the coherence
+check after interruption, so it was not qualified. Beyond 12 billion parameters the gains are small
+and cost latency: Gemma~4 31B scores only 0.1 higher and misses the latency gate. Within a 12~GiB
+card, no responder better than the 4B ones meets both the memory limit and the latency gate. The
+speech-input model has only a latency advantage (67 versus 86 ms), which separate recognition in
+about 60 ms can make up for. Third, the largest
 model, the 7.7-billion-parameter end-to-end model, did not reach intelligible Persian speech with
 low-cost training. For real-time Persian with these resources, the best trade-off point is small
-components specialized for Persian.
+recognizers and synthesizers specialized for Persian, with the largest responder that the memory
+profile allows at four bits.
 
 \section{Final Status of the Requirements}
 \label{sec:res-requirements}

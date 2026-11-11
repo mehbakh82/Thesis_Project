@@ -116,7 +116,9 @@ def map_turns(receipt: dict[str, Any]) -> list[dict[str, Any]]:
 
 def memory(csv_path: Path, pids: dict[str, Any]) -> dict[str, Any]:
     nemo = str(pids["nemo_pid"])
-    vllm = set(str(pids["vllm_pids"]).split())
+    engine = "llamacpp" if "llamacpp_pids" in pids else "vllm"  # the responder's serving engine
+    vllm = set(str(pids[f"{engine}_pids"]).split())
+    llm_role = f"llm_{engine}"
     peak: dict[str, float] = defaultdict(float)
     per_sample: dict[str, dict[str, float]] = defaultdict(dict)
     with csv_path.open() as handle:
@@ -125,7 +127,7 @@ def memory(csv_path: Path, pids: dict[str, Any]) -> dict[str, Any]:
                 continue
             stamp, pid, used = row[0].strip(), row[1].strip(), row[2].strip().split()[0]
             if pid == nemo or pid in vllm:
-                role = "asr_nemo" if pid == nemo else "llm_vllm"
+                role = "asr_nemo" if pid == nemo else llm_role
                 per_sample[stamp][role] = per_sample[stamp].get(role, 0.0) + float(used)
                 peak[role] = max(peak[role], per_sample[stamp][role])
     totals = [sum(v.values()) for v in per_sample.values() if len(v) == 2]
@@ -134,7 +136,9 @@ def memory(csv_path: Path, pids: dict[str, Any]) -> dict[str, Any]:
         "peak_mib": dict(peak),
         "peak_stack_mib": max(totals) if totals else None,
         "cpu_components": ["Mana Piper TTS (ONNX Runtime, 8 threads)", "Silero VAD (ONNX)"],
-        "note": "vLLM reserves its whole --gpu-memory-utilization budget up front; the peak is that reservation, not the minimum need.",
+        "note": "vLLM reserves its whole --gpu-memory-utilization budget up front; the peak is that reservation, not the minimum need."
+        if engine == "vllm"
+        else "llama.cpp allocates its weights and KV cache at start-up; the peak is that allocation.",
     }
 
 

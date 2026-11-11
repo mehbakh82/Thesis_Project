@@ -578,3 +578,29 @@ def test_an_identical_prompt_in_a_new_group_reuses_the_judged_scores(tmp_path: P
     table, controls = v3.arm_scores(tmp_path, "s", "j2")
     assert set(table["b"]) == {"r1", "r2"} and controls["calls"] == 2
     assert v3.judge(tmp_path, "j2", "s", [["a", "b"]], {"a": "auto", "b": "auto"}, "dev", 1)["reused_identical_prompts"] == 0
+
+
+def test_explore12_applies_the_stage7_rule_to_each_build(tmp_path: Path) -> None:
+    rows = [f"r{i}" for i in range(12)]
+    scores = {"a": 8, "b": 5.3, "qwen3.5-4b__official_bf16": 5, "qwen3-4b-instruct-2507__deployed": 3, "anchor": 8}
+    for judge in ("j1", "j2"):
+        _write(tmp_path / f"judgments_explore12_{judge}.jsonl", _judgments(scores, rows))
+    latency = {"single": {"first_token_s": {"median_ms": 106.0}}, "decode_tok_s_median": 38.0}
+    _write(tmp_path / "runs.jsonl", [{"arm": "a", "tag": "run", "status": "ok", "peak_mib": 5_900, "latency": latency},
+                                     {"arm": "b", "tag": "run", "status": "ok", "peak_mib": 11_000, "latency": latency}])
+    result = v3.explore12(tmp_path, arms=("a", "b"), anchor="anchor")
+    a, b = result["arms"]["a"], result["arms"]["b"]
+    assert a["versus"]["qwen3.5-4b__official_bf16"]["decision_rule_met"]
+    assert not b["versus"]["qwen3.5-4b__official_bf16"]["decision_rule_met"]  # +0.3 is below the 0.5 bar
+    assert b["versus"]["qwen3-4b-instruct-2507__deployed"]["decision_rule_met"]
+    assert a["development_run"]["fits_12gib"] and a["development_run"]["meets_gate"] and "test_run" not in a
+    assert not b["development_run"]["fits_12gib"]
+    assert "development_run" not in result["arms"]["anchor"]
+    assert set(result["data_sha256"]) == {"judgments_explore12_j1.jsonl", "judgments_explore12_j2.jsonl"}
+
+
+def test_explore12_needs_both_judges_for_the_rule(tmp_path: Path) -> None:
+    _write(tmp_path / "judgments_explore12_j1.jsonl", _judgments({"a": 9, "qwen3.5-4b__official_bf16": 2}, ["r1", "r2"]))
+    _write(tmp_path / "runs.jsonl", [])
+    result = v3.explore12(tmp_path, arms=("a",), anchor="a", references=("qwen3.5-4b__official_bf16",))
+    assert not result["arms"]["a"]["versus"]["qwen3.5-4b__official_bf16"]["decision_rule_met"]

@@ -32,7 +32,15 @@ recordings, and accuracy 0.825 (F1 0.817) in the browser; an energy/F0/MFCC clas
 alone reached only 0.574 on real podcast events. The responder passed all seven
 predeclared automatic gates of a 40-row final test (relevance 3.150 versus
 1.425). All components were re-selected on fresh panels, including speech
-recognition on human transcripts and synthesis with two automatic listeners.
+recognition on human transcripts and synthesis with two automatic listeners. A
+pre-registered comparison of 15 responder models and their quantized builds,
+judged by two models from families with no candidate, selected Gemma 4 12B at
+four bits for a 24 GB card (1.2 to 1.75 points of 10 above the best 4B model,
+39 ms to the first token); in the live stack it met the memory and latency
+limits but fell short of the coherence rule after late interruptions, so it
+remains an opt-in preset. For a 12 GB card, post-hoc checks of the same model
+(including a llama.cpp setting that cut its first token from about 180 to 25 ms)
+failed the same coherence rule.
 
 The direct track produced no deployable model. Moshi's English tokenizer needs
 6.6 tokens per Persian word and exceeds its one-token-per-frame budget;
