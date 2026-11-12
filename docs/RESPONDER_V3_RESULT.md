@@ -41,6 +41,11 @@ judgments; no reply or panel text).
   latency under shared-host load and coherence under both judges. In all three
   Gemma runs the model asks the user to repeat after a garbled follow-up
   (11–14 of 60 follow-ups, against 3 for Qwen3.5-4B).
+- **Exploratory 12 GiB candidates:** Gemma 4 E4B Q8_0 and Qwen3.5-9B Q4_K_M
+  (llama.cpp, about 5.9 GB) beat Qwen3.5-4B on the test panel under both judges
+  (+1.02 / +1.16 and +0.68 / +0.55). They met the latency gate in development
+  but not in test runs made during a period of shared-host load, and they have
+  had no deployment check.
 
 ## What was compared
 
@@ -443,6 +448,38 @@ stack keeps the responders the listening study decides between. Changing how
 the responder treats an uncertain transcript (the recognizer's confidence, or
 an instruction to answer the most likely request and confirm briefly) is the
 next step, and it needs its own pre-registered test.
+
+### 12 GiB: the next models (exploratory addendum 2)
+
+The stage 2 rule kept only Gemma 4 12B as a 12 GiB contender, so the next two
+models that fit, Gemma 4 E4B and Qwen3.5-9B, never reached the test panel.
+Exploratory addendum 2, written before their replies were generated, ran them
+on the 252 test rows: each model's best fitting build that met the gate in
+development (E4B GGUF Q8_0, Qwen3.5-9B GGUF Q4_K_M, both on llama.cpp). The
+judges scored them in one group with the two references and Gemma 4 12B QAT as
+an anchor (`results/eval/responder_v3_12gib_exploratory.json`; planted control
+lowest except in 4.8% (J1) and 5.6% (J2) of calls).
+
+| Configuration | J1 | J2 | Gain over Qwen3.5-4B (J1 / J2, 95% CI) | Stage 7 rule | Development run: memory, first token, decode | Test run: first token, decode |
+|---|---|---|---|---|---|---|
+| Gemma 4 E4B Q8_0 | 6.44 | 6.67 | +1.02 [0.73, 1.31] / +1.16 [0.87, 1.47] | met | 5,906 MiB, 106.5 ms, 38.7 tok/s | 167 ms, 21.4 tok/s |
+| Qwen3.5-9B Q4_K_M | 6.10 | 6.06 | +0.68 [0.37, 0.99] / +0.55 [0.27, 0.84] | met | 5,812 MiB, 106.9 ms, 171 tok/s | 158 ms, 26.9 tok/s |
+| Gemma 4 12B QAT (anchor) | 6.58 | 7.22 | +1.16 / +1.71 | met | | |
+| Qwen3.5-4B bf16 | 5.42 | 5.51 | | | | |
+| Qwen3-4B (deployed) | 3.03 | 3.75 | | | | |
+
+Both builds beat Qwen3.5-4B and the deployed responder under both judges by the
+stage 7 rule, with every component gain positive, and the anchor reproduces its
+stage 7 scores (6.47 / 7.09 there). Their development runs met the latency
+gate, but their test-panel runs did not. Both test runs (E4B ending at 13:45,
+Qwen3.5-9B from 13:45 to 13:52 UTC) fell in the afternoon of 2026-11-11, when
+the llama.cpp qualification above also slowed at every stage. That timing,
+not a property of the builds, is the likely cause, but it was not recorded,
+so the gate is unconfirmed for these two. They are exploratory 12 GiB
+candidates. They would need a quiet latency measurement and their own
+deployment check, including coherence after interruption, before any switch;
+none is run in this thesis. E4B is a Gemma 4 model and may share Gemma 4 12B's
+habit of asking the user to repeat.
 
 ## Claim boundary
 

@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-11-11T15:10:41.005299+00:00",
+  "generated_at": "2026-11-12T11:00:31.539509+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1653,6 +1653,19 @@
         "swa_full": 24.8
       }
     },
+    "responder_v3_12gib_exploratory": {
+      "status": "present",
+      "label": "exploratory (addendum 2), outside the pre-registered decision",
+      "beats_qwen35_4b_by_stage7_rule": {
+        "gemma-4-e4b__gguf-q8_0": true,
+        "qwen3.5-9b__gguf-q4_k_m": true,
+        "gemma-4-12b__official_qat_w4a16": true
+      },
+      "test_run_meets_gate": {
+        "gemma-4-e4b__gguf-q8_0": false,
+        "qwen3.5-9b__gguf-q4_k_m": false
+      }
+    },
     "responder_v3_repeat_requests": {
       "status": "present",
       "label": "exploratory, post hoc",
@@ -1985,8 +1998,8 @@
     "final_audit": {
       "path": "results/release/final_audit.json",
       "present": true,
-      "bytes": 15126,
-      "sha256": "516781a229dca77fe0d1ae950d39773bfa18d8660b9e428f62646f6f89653ad7"
+      "bytes": 15307,
+      "sha256": "e32d1697434ee5d53c81bee0086e059eda9ec62b0e3ddad01fa37ee32a6b6c1a"
     },
     "submission_tag_attestation": {
       "path": "results/release/submission_tag_attestation.json",
@@ -2257,6 +2270,12 @@
       "present": true,
       "bytes": 4950,
       "sha256": "36ba41b66f5dd6ddf2e3593726d52e2ed7cbafd59001d734a5b33dfd6865db8f"
+    },
+    "closeout_responder_v3_12gib_exploratory": {
+      "path": "results/eval/responder_v3_12gib_exploratory.json",
+      "present": true,
+      "bytes": 18758,
+      "sha256": "4a332841fea907540c678ee6db1cd3df2cc055ed3dba4f520d333e65ed58652a"
     }
   }
 }

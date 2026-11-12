@@ -124,6 +124,7 @@ ARTIFACTS: dict[str, str] = {
     "closeout_responder_v3_12gib_llamacpp_qualification": "results/eval/responder_v3_12gib_llamacpp_qualification.json",
     "closeout_responder_v3_llamacpp_diagnosis": "results/eval/responder_v3_llamacpp_first_token_diagnosis.json",
     "closeout_responder_v3_repeat_requests": "results/eval/responder_v3_repeat_requests.json",
+    "closeout_responder_v3_12gib_exploratory": "results/eval/responder_v3_12gib_exploratory.json",
 }
 
 
@@ -1755,6 +1756,7 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
     v3_q12_llamacpp = load("closeout_responder_v3_12gib_llamacpp_qualification")
     v3_diagnosis = load("closeout_responder_v3_llamacpp_diagnosis")
     v3_repeats = load("closeout_responder_v3_repeat_requests")
+    v3_explore12 = load("closeout_responder_v3_12gib_exploratory")
     v3_profiles = (v3.get("decision") or {}).get("profiles") or {}
     asr_arms = asr.get("arms") or {}
     tts_arms = tts.get("arms") or {}
@@ -1968,6 +1970,19 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
             "label": v3_diagnosis.get("label"),
             "first_token_median_ms": {
                 name: (row or {}).get("first_token_median_ms") for name, row in (v3_diagnosis.get("variants") or {}).items()
+            },
+        },
+        "responder_v3_12gib_exploratory": {
+            "status": status(v3_explore12),
+            "label": v3_explore12.get("label"),
+            "beats_qwen35_4b_by_stage7_rule": {
+                arm: ((row.get("versus") or {}).get("qwen3.5-4b__official_bf16") or {}).get("decision_rule_met")
+                for arm, row in (v3_explore12.get("arms") or {}).items()
+            },
+            "test_run_meets_gate": {
+                arm: (row.get("test_run") or {}).get("meets_gate")
+                for arm, row in (v3_explore12.get("arms") or {}).items()
+                if row.get("test_run")
             },
         },
         "responder_v3_repeat_requests": {
