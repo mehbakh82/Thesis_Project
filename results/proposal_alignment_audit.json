@@ -9,7 +9,7 @@
   },
   "aggregate_evidence": {
     "path": "results/eval/EVIDENCE_STATUS.json",
-    "sha256": "892fd3fdef78e1000c3c0e8a81fa2d4b3b0c6d792ddb2194a68f0829d70aea26",
+    "sha256": "afef56c21a4c7fca03f980fb2aa4395b6824c3d5f44f89b311040f20da67e691",
     "schema_version": 17
   },
   "scoring_contract": {
@@ -142,12 +142,12 @@
     "human_mos_3_5_elderly": {
       "met_under_automatic_evidence": false,
       "observed": {
-        "status": "pending",
+        "status": "not_run",
         "participants": null,
         "aged_60_plus": null,
         "tts_mana_mos": null
       },
-      "boundary": "human evidence from the minimal remote listening study (pending until codes are returned)"
+      "boundary": "human evidence from the minimal remote listening study; not conducted (no participants were available)"
     }
   },
   "proposal_internal_ambiguities": [

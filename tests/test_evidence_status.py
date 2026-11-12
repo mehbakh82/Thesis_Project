@@ -7,7 +7,9 @@ from pathlib import Path
 import pytest
 
 from thesis_s2s.eval.evidence import (
+    ARTIFACTS,
     STRICT_THESIS_GATE_NAMES,
+    _closeout_2026_10,
     _git_commit_is_ancestor,
     _official_e2e_reports,
     _strict_thesis_ready,
@@ -1086,3 +1088,15 @@ def test_persian_thesis_reporting_tracks_authoritative_evidence() -> None:
     assert "Moshika با موفقیت برای فارسی تنظیم شد" in manuscript
     assert "تأخیر سامانه کمتر از ۵۰۰ میلی‌ثانیه است" in manuscript
     assert "مطالعه انسانی و ارزیابی اختصاصی سالمندان انجام نشد" in manuscript
+
+
+def test_listening_study_not_run_record_closes_the_human_part(tmp_path: Path) -> None:
+    target = tmp_path / ARTIFACTS["closeout_listening_study_status"]
+    target.parent.mkdir(parents=True)
+    target.write_text(json.dumps({"status": "not_run", "reason": "no participants"}), encoding="utf-8")
+    closeout = _closeout_2026_10(tmp_path)
+    assert closeout["listening_study"]["status"] == "not_run"
+    assert closeout["listening_study"]["reason"] == "no participants"
+    assert closeout["responder_switch_qualification"]["human_preference"] is False
+    target.unlink()
+    assert _closeout_2026_10(tmp_path)["listening_study"]["status"] == "pending"

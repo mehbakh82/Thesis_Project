@@ -34,7 +34,7 @@ while the assistant speaks:
 | Gemma 4 speech input | negative (relevance 2.05 vs 2.80) | LLM judge | `docs/SPEECH_INPUT_LLM_V1_RESULT.md` |
 | Semantic end-of-turn gate, two rounds | negative: round 1 held at least 13% of turn ends (limit 5%); round 2, counting only Gemini-labelled complete ends, selected the LLM gate (13.3% premature, 4.4% held), which in the loopback test split fewer utterances (17 vs 22) but pushed the p90 to 656 ms; removed | offline replay with automatic labels, then automated loopback | `docs/END_OF_TURN_RESULT.md`, `docs/END_OF_TURN_V2_RESULT.md` |
 | Responder switch qualification (Qwen3.5-4B, elderly prompt) | passed: 11,326 MiB; plain mean 345 / p90 398 ms, elderly p90 393 ms; coherence after interruption met under both judges; 0/428 replies with Latin script | automated loopback, automatic judges | `docs/RESPONDER_SWITCH_RESULT.md` |
-| Listening study | instrument frozen, awaiting participants; its reply pairs decide the responder switch | human (pending) | `docs/LISTENING_STUDY_PROTOCOL.md`, `docs/RESPONDER_SWITCH_PROTOCOL.md` |
+| Listening study | instrument frozen but not conducted (no participants were available); the responder switch therefore did not happen | human (not run) | `docs/LISTENING_STUDY_PROTOCOL.md`, `docs/RESPONDER_SWITCH_PROTOCOL.md` |
 
 Claim boundary: the latency and barge-in numbers are automated, on the shared
 H100 (12 GB memory budget respected, compute speed not), with automatic labels

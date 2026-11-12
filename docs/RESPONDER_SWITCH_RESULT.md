@@ -43,8 +43,12 @@ part 1.
 
 ## Part 1 — human preference
 
-Pending: computed by `scripts/ingest_listening_study.py` (`responder_switch_rule`
-in `results/eval/listening_study.json`) once the study codes arrive.
+Not run (2026-11-12). No participants were available before submission, so the
+listening-study page was never sent (`results/eval/listening_study_status.json`).
+Part 1 therefore does not pass, and by the rule above **Qwen3-4B prompt-v2 stays
+deployed**. Qwen3.5-4B with the elderly prompt remains a qualified alternative
+(part 2) that lacks the human preference this protocol requires; it was not
+switched on the strength of the automatic judges alone.
 
 ## Claim boundary
 

@@ -1,6 +1,6 @@
 # Human study protocol
 
-**Status: incomplete until recruitment and validation are finished.** This document is the session script. N=5–10 native Persian speakers, **at least two aged 60+**. Recording kit: `docs/RECORDING.md` + `docs/PROMPT_SHEET.md`.
+**Status: not conducted for the submission** (no participants were available; see the outcome section of `docs/LISTENING_STUDY_PROTOCOL.md`). This document is the session script. N=5–10 native Persian speakers, **at least two aged 60+**. Recording kit: `docs/RECORDING.md` + `docs/PROMPT_SHEET.md`.
 
 ```bash
 export PYTHONPATH=src

@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-11-12T11:00:31.539509+00:00",
+  "generated_at": "2026-11-12T12:56:02.338304+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1694,10 +1694,11 @@
         },
         "met": true
       },
-      "human_preference": null
+      "human_preference": false
     },
     "listening_study": {
-      "status": "pending",
+      "status": "not_run",
+      "reason": "No participants were available before submission; the study page was never sent.",
       "evidence_class": null,
       "participants_accepted": null,
       "participants_aged_60_plus": null,
@@ -1998,8 +1999,8 @@
     "final_audit": {
       "path": "results/release/final_audit.json",
       "present": true,
-      "bytes": 15307,
-      "sha256": "e32d1697434ee5d53c81bee0086e059eda9ec62b0e3ddad01fa37ee32a6b6c1a"
+      "bytes": 15498,
+      "sha256": "b4eb19aaa7e3a902d3fe8c999da35a7a84db05eae46c4663bbd8bae195e370f5"
     },
     "submission_tag_attestation": {
       "path": "results/release/submission_tag_attestation.json",
@@ -2204,6 +2205,12 @@
       "present": false,
       "bytes": null,
       "sha256": null
+    },
+    "closeout_listening_study_status": {
+      "path": "results/eval/listening_study_status.json",
+      "present": true,
+      "bytes": 1018,
+      "sha256": "10cdd5838f6a631948e3d3b3d8d473ad8ecba0fb98530c16ebb0b9b7f28ebeb3"
     },
     "closeout_asr_v3": {
       "path": "results/eval/asr_candidates_v3_psrb_human.json",

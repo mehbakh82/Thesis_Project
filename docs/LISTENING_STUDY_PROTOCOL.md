@@ -114,3 +114,15 @@ that protocol. The ingest script computes the human part
 (`responder_switch_rule` in the receipt). The page and its SHA-256 are
 unchanged; this replaces the sentence "it does not by itself change the
 deployed responder" in section 2.
+
+## Outcome (2026-11-12): not conducted
+
+No participants were available before submission, so the page was never sent
+and no code was ingested (`results/eval/listening_study_status.json`). The
+student's own ratings were not collected in its place: the student knows which
+system produced each clip and reply, and a single rater cannot meet the sample
+above. Consequences: the naturalness criterion MOS ≥ 3.5 is not evaluated, the
+interaction ratings are not measured, and part 1 of the responder switch rule
+does not pass, so the deployed responder is unchanged. The page and
+`scripts/ingest_listening_study.py` remain as registered; a later run would
+write `results/eval/listening_study.json`, which supersedes the status record.

@@ -37,7 +37,7 @@ Detector with accuracy above 80\% on independent labels & not human &
   simulation 0.933/0.880; browser 0.825/0.817 \\
 Fit and live latency on 12--24 GB hardware & not target hardware &
   memory 11.1~GiB; mean 372 and 90th percentile 431 ms on an H100 \\
-Completion of the human study & pending & registered instrument and protocol; responses not yet received \\
+Completion of the human study & not conducted & registered instrument and protocol; no participants were available \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -45,7 +45,7 @@ Completion of the human study & pending & registered instrument and protocol; re
 \claim{Five engineering conditions have sufficient official evidence. For the three
 conditions of the detector, latency and memory, the automatic evidence meets the
 numeric criteria of the proposal, but with automatic labels and on an H100; the direct
-model is negative and the results of the human study are not yet available.}
+model is negative and the human study was not conducted.}
 
 \section{Dataset}
 \label{sec:res-data}
@@ -482,8 +482,8 @@ judge. This result shows that the absolute level of the earlier semantic test, w
 measured with the Qwen judge only, depends on the judge; only human scores can resolve the
 disagreement. Qwen3.5-4B with the elderly prompt is the strongest replacement candidate.
 
-\textbf{Replacement rule and deployment qualification.} Before the listening study was
-sent, a rule was registered: the deployed responder changes to Qwen3.5-4B with the elderly
+\textbf{Replacement rule and deployment qualification.} Before any participant could
+receive the listening study, a rule was registered: the deployed responder changes to Qwen3.5-4B with the elderly
 prompt only if participants prefer its replies (Section~\ref{sec:res-study}) and this same
 configuration passes a deployment qualification. The qualification was run with the same
 panels and the same browser loopback test and met all four of its conditions: a whole-stack
@@ -494,8 +494,8 @@ both judges (relevance 2.73 against 2.70 under Gemini and 3.27 against 3.07 unde
 with all 30 interruptions stopping the reply); and no Latin letter in 428 replies. Despite
 its later first token, the new responder sounds sooner, because two thirds of its replies
 open with the short address \fa{«عزیزم،»} and the first clause is complete sooner. The
-replacement decision therefore depends only on the preference section of the listening
-study.
+replacement decision therefore depended only on the preference section of the listening
+study, which was not conducted; by the rule, the deployed responder is unchanged.
 
 \textbf{Larger responders.} All the responders above have at most four billion
 parameters, because the stack was kept inside a 12~GiB card. The proposal's hardware range
@@ -672,7 +672,7 @@ stack this build fit (11,700~MiB) and wrote no Latin letter, but failed latency 
 recognizer too, which points to other users' load on the shared host) and coherence under both
 judges ($-0.33$). In all three Gemma runs the model asked the user to repeat in 11 to 14 of 60
 follow-ups, against 3 for Qwen3.5-4B. No Gemma~4 12B configuration was therefore qualified, and the
-12~GiB stack keeps the responders that the listening study decides between.
+12~GiB stack keeps the deployed responder, with Qwen3.5-4B as its qualified alternative.
 
 \textbf{The next models in 12~GiB (exploratory).} The stage~2 rule had kept only Gemma~4 12B
 as a 12~GiB contender, so a further exploratory addendum, written before any of their replies existed, ran the
@@ -715,7 +715,7 @@ amir & 11.73\% & [$+4.5$, $+7.6$] pp & 3.32 & 63 ms \\
 
 The Mana voice is the most intelligible, and three voices are significantly less
 intelligible than it. ganji\_adabi is on par in intelligibility and has the best DNSMOS
-score; these two voices were therefore sent to the human listening study to measure
+score; these two voices were therefore chosen for the human listening study to measure
 naturalness.
 
 In the third version, ParsVoice-XTTS (XTTS-v2 fine-tuned on 2,200 hours of Persian speech,
@@ -1364,16 +1364,21 @@ interruption with a new question), with scores for response speed, reaction to t
 interruption, satisfaction and willingness to use. To arbitrate between the two automatic judges
 of the responder, eight elderly requests are shown with two replies (the deployed system and
 Qwen3.5-4B with the elderly prompt) in random order, and the participant picks the better reply.
-By a rule registered before the study was sent, the deployed responder changes to Qwen3.5-4B
+By a rule registered before any participant received the study, the deployed responder changes to Qwen3.5-4B
 only if participants prefer its replies (the confidence interval of the preference difference
 above zero, and no participant over 60 picking the deployed reply more often) and this same
 configuration passes the deployment qualification (memory, latency, coherence after
-interruption). The protocol and the method of analysis were registered before sending.
+interruption). The protocol and the method of analysis were registered in advance.
 
-The results of this study had not yet been received when this version was written.
+The study was not conducted: no participants were available before submission, so the page was
+never sent. The author's own ratings were not used in its place, because the author knows which
+system produced each clip and a single rater cannot meet the registered sample (at least five
+participants, two of them over 60). The page and its analysis script are released and can be run
+as registered.
 
-\claim{Until the participants' responses arrive, no claim is made about the naturalness of the
-speech or the experience of older adults.}
+\claim{There is no human result: no claim is made about the naturalness of the speech, the
+experience of older adults or a human preference between the responders, and the criterion
+MOS~$\geq$~3.5 was not evaluated.}
 
 \section{The Latency, Size and Quality Trade-off}
 \label{sec:res-tradeoff}
@@ -1483,8 +1488,8 @@ R5 & accuracy goal met by another method &
      two-stage controller with lexical confirmation; energy/pitch/MFCC classifier alone 0.574 \\
 R6 & declared deviation &
      whole-system memory measured at 11.1~GiB; speed on an H100 \\
-R7 & awaiting results &
-     registered instrument and protocol; results not yet available \\
+R7 & not met (study not conducted) &
+     registered instrument and protocol; no participants were available \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1497,5 +1502,5 @@ confirmation with the speech recognizer replaced them.}
 Of the four expected outputs of the project definition, three have been produced and documented:
 a working prototype for the cascade track, documented source code with an open licence and an
 automated test suite, and the Persian conversational dataset. For the fourth item, the
-listening-study instrument and its method of analysis are registered; empirical findings on older
-adults can be reported only once the participants' responses arrive.
+listening-study instrument and its method of analysis are registered and released, but the study was
+not conducted, so there are no empirical findings on older adults.

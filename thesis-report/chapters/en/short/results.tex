@@ -29,7 +29,7 @@ Source code licence & sufficient & -- \\
 Deployable direct model & negative & v7a: 6/9, unintelligible \\
 Detector above 80\% & not human & simulation 0.933/0.880; browser 0.825/0.817 \\
 Latency and memory on target hardware & not target hardware & 11.1~GiB; mean 372, 90th percentile 431 \\
-Human study & pending & registered instrument \\
+Human study & not conducted & registered instrument \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -221,8 +221,8 @@ prompt are about one point better than the deployed system (3.36 and 3.54 versus
 2.38), but not under the Qwen judge (3.31 and 3.00 versus 3.29). The Qwen3.5-4B
 configuration passed the pre-registered deployment qualification (memory
 11.1~GiB, mean and 90th-percentile latency 345 and 398 ms, coherence after
-interruption under both judges); its replacement depends on the preference of
-the listening-study participants. A pre-registered size comparison then served
+interruption under both judges); its replacement depended on the preference of
+listening-study participants, and that study was not conducted. A pre-registered size comparison then served
 five larger models of 9 to 36 billion parameters, most at four bits, under a
 22~GiB limit. Gemma~4 31B did not fit, and none of the other four beat
 Qwen3.5-4B under both judges. Under the Qwen judge none gained more than 0.01
@@ -253,7 +253,7 @@ rules required were found unrun; both are reported. With judges from outside the
 candidate families, size did buy reply quality. \textbf{Voice:} of the six Persian Piper voices,
 Mana remained the most intelligible to two automatic listeners, with a mean
 character error rate of 5.82\%; ganji\_adabi was tied and had the best DNSMOS, and
-both went to the listening study. ParsVoice-XTTS with the ManaTTS voice was on par
+both were chosen for the listening study. ParsVoice-XTTS with the ManaTTS voice was on par
 on a typical clip but broke about one clip in ten (mean error 13.55\%,
 significantly worse), and its first streaming chunk took 307 ms; it did not enter
 the study. The lab VITS model, even after inference optimization without
@@ -375,8 +375,8 @@ the every-turn reading are met.}
 
 The small listening study (naturalness of two Piper voices and human speech,
 three recorded dialogues, and a preference between the replies of two responders
-that, by a pre-registered rule, decides on replacing the responder) is ready with a
-registered protocol; its results are not yet available.
+that, by a pre-registered rule, would decide on replacing the responder) was prepared
+with a registered protocol but not conducted, as no participants were available.
 
 \section{Final Status of the Requirements}
 \label{sec:res-requirements}
@@ -396,7 +396,7 @@ R3 & met & mean 372 and 90th percentile 431; maximum 491 ms \\
 R4 & met & 108.584 hours of audited export (automatic labels) \\
 R5 & goal met by another method & lexical confirmation; acoustic classifier alone 0.574 \\
 R6 & declared deviation & memory 11.1~GiB; speed on an H100 \\
-R7 & awaiting results & registered instrument and protocol \\
+R7 & not met (not conducted) & registered instrument and protocol \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -406,5 +406,5 @@ labels; R5 was not met by the specified acoustic features alone.}
 
 Of the four expected outputs, three have been produced and documented: the
 streaming cascade prototype, documented source code, and the Persian
-conversational dataset. Empirical findings on older adults can be reported once
-the listening-study responses arrive.
+conversational dataset. The listening study was not conducted, so there are no
+empirical findings on older adults.

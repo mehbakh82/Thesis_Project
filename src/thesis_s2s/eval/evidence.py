@@ -113,6 +113,7 @@ ARTIFACTS: dict[str, str] = {
     "closeout_responder_switch_coherence": "results/eval/responder_switch_qualification_coherence.json",
     "closeout_responder_switch": "results/eval/responder_switch_qualification.json",
     "closeout_listening_study": "results/eval/listening_study.json",
+    "closeout_listening_study_status": "results/eval/listening_study_status.json",
     "closeout_asr_v3": "results/eval/asr_candidates_v3_psrb_human.json",
     "closeout_end_of_turn_v2_dev": "results/eval/end_of_turn_v2_dev.json",
     "closeout_loopback_v3": "results/eval/live_loopback_v3.json",
@@ -1740,6 +1741,7 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
     loopback_v1 = load("closeout_loopback")
     loopback = load("closeout_loopback_v2") or loopback_v1  # the deployed configuration
     study = load("closeout_listening_study")
+    study_status = {} if study else load("closeout_listening_study_status")  # a dated "not run" record
     eot_stage1 = load("closeout_end_of_turn_dev_stage1")
     eot = load("closeout_end_of_turn_dev")
     switch_latency = load("closeout_responder_switch_latency")
@@ -2000,12 +2002,17 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
             "latency_acceptance": switch_latency.get("acceptance"),
             "peak_stack_gpu_mib": (switch_latency.get("gpu_memory") or {}).get("peak_stack_mib"),
             "coherence_criterion": switch_coherence.get("criterion"),
-            "human_preference": ((study.get("responder_preferences") or {}).get("responder_switch_rule") or {}).get(
-                "human_preference_met"
+            "human_preference": (
+                False
+                if study_status.get("status") == "not_run"
+                else ((study.get("responder_preferences") or {}).get("responder_switch_rule") or {}).get(
+                    "human_preference_met"
+                )
             ),
         },
         "listening_study": {
-            "status": status(study),
+            "status": study_status.get("status") or status(study),
+            "reason": study_status.get("reason"),
             "evidence_class": study.get("evidence_class"),
             "participants_accepted": study.get("participants_accepted"),
             "participants_aged_60_plus": study.get("participants_aged_60_plus"),

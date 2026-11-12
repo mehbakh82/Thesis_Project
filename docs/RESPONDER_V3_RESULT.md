@@ -444,7 +444,8 @@ all three the model asks the user to repeat after a garbled follow-up
 | Gemma 4 12B Q5_K_M, llama.cpp, 12 GiB | 11 | 0.420 / 0.167 |
 
 So no Gemma 4 12B configuration is qualified for either stack, and the 12 GiB
-stack keeps the responders the listening study decides between. Changing how
+stack keeps its deployed responder (the listening study that would have decided
+the Qwen3.5-4B switch was not conducted, `docs/RESPONDER_SWITCH_RESULT.md`). Changing how
 the responder treats an uncertain transcript (the recognizer's confidence, or
 an instruction to answer the most likely request and confirm briefly) is the
 next step, and it needs its own pre-registered test.
