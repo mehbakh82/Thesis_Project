@@ -1098,5 +1098,15 @@ def test_listening_study_not_run_record_closes_the_human_part(tmp_path: Path) ->
     assert closeout["listening_study"]["status"] == "not_run"
     assert closeout["listening_study"]["reason"] == "no participants"
     assert closeout["responder_switch_qualification"]["human_preference"] is False
+    pilot = tmp_path / ARTIFACTS["closeout_listening_study_author_pilot"]
+    pilot.write_text(
+        json.dumps({"evidence_class": "author_pilot_single_listener", "used_for_requirements_or_decisions": False,
+                    "ingest_receipt": {"naturalness_by_condition": {"tts_mana": {"naturalness_mos": 4.125}}}}),
+        encoding="utf-8",
+    )
+    closeout = _closeout_2026_10(tmp_path)
+    assert closeout["listening_study"]["status"] == "not_run"  # the pilot never stands in for the study
+    assert closeout["listening_study_author_pilot"]["naturalness_mos"] == {"tts_mana": 4.125}
+    pilot.unlink()
     target.unlink()
     assert _closeout_2026_10(tmp_path)["listening_study"]["status"] == "pending"
