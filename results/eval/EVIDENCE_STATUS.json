@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-11-12T12:56:02.338304+00:00",
+  "generated_at": "2026-11-12T13:14:34.937058+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1999,8 +1999,8 @@
     "final_audit": {
       "path": "results/release/final_audit.json",
       "present": true,
-      "bytes": 15498,
-      "sha256": "b4eb19aaa7e3a902d3fe8c999da35a7a84db05eae46c4663bbd8bae195e370f5"
+      "bytes": 15687,
+      "sha256": "c3d6dede062959fc4c65d693cd50449a3a6f75360e78d51e5f01bc4fd44731da"
     },
     "submission_tag_attestation": {
       "path": "results/release/submission_tag_attestation.json",
@@ -2209,8 +2209,8 @@
     "closeout_listening_study_status": {
       "path": "results/eval/listening_study_status.json",
       "present": true,
-      "bytes": 1018,
-      "sha256": "10cdd5838f6a631948e3d3b3d8d473ad8ecba0fb98530c16ebb0b9b7f28ebeb3"
+      "bytes": 1129,
+      "sha256": "e579eb662a919b854e383ccab8f2398712b868dc2ffb01b30e9bdb3556c71fa0"
     },
     "closeout_asr_v3": {
       "path": "results/eval/asr_candidates_v3_psrb_human.json",

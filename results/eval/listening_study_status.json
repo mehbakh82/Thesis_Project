@@ -7,11 +7,14 @@
   "participants_aged_60_plus": 0,
   "reason": "No participants were available before submission; the study page was never sent.",
   "author_ratings_used": false,
-  "author_ratings_reason": "The author knows which system produced each clip and reply, and one rater cannot meet the registered sample (at least 5 accepted participants, at least 2 aged 60+).",
+  "author_ratings_reason": "One rater, who is also the author, cannot meet the registered sample (at least 5 accepted participants, at least 2 aged 60+).",
   "consequences": {
     "naturalness_mos_3_5": "not evaluated",
     "responder_switch_part1": "not met because the study was not run; by the registered rule the deployed responder (Qwen3-4B prompt v2) is unchanged",
     "would_use_and_interaction_ratings": "not measured"
   },
-  "claim_boundary": "No human evidence exists for this project; if the registered page is run later, scripts/ingest_listening_study.py writes results/eval/listening_study.json, which supersedes this record."
+  "claim_boundary": "No human evidence exists for this project; if the registered page is run later, scripts/ingest_listening_study.py writes results/eval/listening_study.json, which supersedes this record.",
+  "corrections": [
+    "2026-11-12: author_ratings_reason no longer says the author knows which system produced each clip; the author does not."
+  ]
 }

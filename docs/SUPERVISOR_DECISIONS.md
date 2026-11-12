@@ -56,9 +56,8 @@ approval is claimed.
   the planned human evidence for naturalness and perceived responsiveness.
 - **Human evaluation, outcome (2026-11-12):** no participants were available
   before submission, so the listening study was not conducted and its page was
-  never sent. The student's own ratings are not used in its place (the student
-  knows which system produced each clip, and one rater cannot meet the
-  registered sample). The MOS criterion is reported as not met, and by the
+  never sent. The student's own ratings are not used in its place (one rater, who is
+  also the author, cannot meet the registered sample). The MOS criterion is reported as not met, and by the
   pre-registered switch rule the deployed responder is unchanged.
 - **Latency criterion:** the formal browser-loopback runs are judged by the
   proposal's own two criteria — mean ≤ 500 ms (objective table) and 90th
