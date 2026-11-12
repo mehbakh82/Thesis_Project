@@ -1,0 +1,684 @@
+{
+  "label": "exploratory (addendum 2), outside the pre-registered decision",
+  "limit_mib": 10682,
+  "controls": {
+    "j1": {
+      "calls": 252,
+      "control_overall_mean": 1.06,
+      "control_failure_rate": 0.0476
+    },
+    "j2": {
+      "calls": 252,
+      "control_overall_mean": 1.63,
+      "control_failure_rate": 0.0556
+    }
+  },
+  "references": {
+    "qwen3.5-4b__official_bf16": {
+      "j1": {
+        "relevance": 6.175,
+        "coherence": 6.821,
+        "appropriateness": 6.389,
+        "overall": 5.421
+      },
+      "j2": {
+        "relevance": 6.397,
+        "coherence": 7.96,
+        "appropriateness": 6.31,
+        "overall": 5.512
+      }
+    },
+    "qwen3-4b-instruct-2507__deployed": {
+      "j1": {
+        "relevance": 4.266,
+        "coherence": 4.385,
+        "appropriateness": 4.302,
+        "overall": 3.028
+      },
+      "j2": {
+        "relevance": 5.246,
+        "coherence": 5.552,
+        "appropriateness": 4.794,
+        "overall": 3.75
+      }
+    }
+  },
+  "arms": {
+    "gemma-4-e4b__gguf-q8_0": {
+      "means": {
+        "j1": {
+          "relevance": 6.738,
+          "coherence": 7.885,
+          "appropriateness": 7.464,
+          "overall": 6.44
+        },
+        "j2": {
+          "relevance": 7.171,
+          "coherence": 8.94,
+          "appropriateness": 7.706,
+          "overall": 6.675
+        }
+      },
+      "versus": {
+        "qwen3.5-4b__official_bf16": {
+          "gains": {
+            "j1": {
+              "relevance": {
+                "rows": 252,
+                "mean_gain": 0.563,
+                "ci95": [
+                  0.31,
+                  0.821
+                ],
+                "win_rate": 0.488,
+                "loss_rate": 0.302
+              },
+              "coherence": {
+                "rows": 252,
+                "mean_gain": 1.063,
+                "ci95": [
+                  0.825,
+                  1.298
+                ],
+                "win_rate": 0.623,
+                "loss_rate": 0.171
+              },
+              "appropriateness": {
+                "rows": 252,
+                "mean_gain": 1.075,
+                "ci95": [
+                  0.817,
+                  1.329
+                ],
+                "win_rate": 0.595,
+                "loss_rate": 0.226
+              },
+              "overall": {
+                "rows": 252,
+                "mean_gain": 1.02,
+                "ci95": [
+                  0.73,
+                  1.306
+                ],
+                "win_rate": 0.579,
+                "loss_rate": 0.278
+              }
+            },
+            "j2": {
+              "relevance": {
+                "rows": 252,
+                "mean_gain": 0.774,
+                "ci95": [
+                  0.48,
+                  1.087
+                ],
+                "win_rate": 0.524,
+                "loss_rate": 0.31
+              },
+              "coherence": {
+                "rows": 252,
+                "mean_gain": 0.98,
+                "ci95": [
+                  0.738,
+                  1.226
+                ],
+                "win_rate": 0.484,
+                "loss_rate": 0.099
+              },
+              "appropriateness": {
+                "rows": 252,
+                "mean_gain": 1.397,
+                "ci95": [
+                  1.135,
+                  1.659
+                ],
+                "win_rate": 0.671,
+                "loss_rate": 0.19
+              },
+              "overall": {
+                "rows": 252,
+                "mean_gain": 1.163,
+                "ci95": [
+                  0.869,
+                  1.472
+                ],
+                "win_rate": 0.591,
+                "loss_rate": 0.266
+              }
+            }
+          },
+          "decision_rule_met": true
+        },
+        "qwen3-4b-instruct-2507__deployed": {
+          "gains": {
+            "j1": {
+              "relevance": {
+                "rows": 252,
+                "mean_gain": 2.472,
+                "ci95": [
+                  2.179,
+                  2.762
+                ],
+                "win_rate": 0.802,
+                "loss_rate": 0.111
+              },
+              "coherence": {
+                "rows": 252,
+                "mean_gain": 3.5,
+                "ci95": [
+                  3.23,
+                  3.758
+                ],
+                "win_rate": 0.925,
+                "loss_rate": 0.044
+              },
+              "appropriateness": {
+                "rows": 252,
+                "mean_gain": 3.163,
+                "ci95": [
+                  2.94,
+                  3.381
+                ],
+                "win_rate": 0.933,
+                "loss_rate": 0.032
+              },
+              "overall": {
+                "rows": 252,
+                "mean_gain": 3.413,
+                "ci95": [
+                  3.147,
+                  3.679
+                ],
+                "win_rate": 0.897,
+                "loss_rate": 0.056
+              }
+            },
+            "j2": {
+              "relevance": {
+                "rows": 252,
+                "mean_gain": 1.925,
+                "ci95": [
+                  1.567,
+                  2.278
+                ],
+                "win_rate": 0.683,
+                "loss_rate": 0.238
+              },
+              "coherence": {
+                "rows": 252,
+                "mean_gain": 3.389,
+                "ci95": [
+                  3.04,
+                  3.738
+                ],
+                "win_rate": 0.821,
+                "loss_rate": 0.083
+              },
+              "appropriateness": {
+                "rows": 252,
+                "mean_gain": 2.913,
+                "ci95": [
+                  2.643,
+                  3.179
+                ],
+                "win_rate": 0.857,
+                "loss_rate": 0.063
+              },
+              "overall": {
+                "rows": 252,
+                "mean_gain": 2.925,
+                "ci95": [
+                  2.623,
+                  3.222
+                ],
+                "win_rate": 0.829,
+                "loss_rate": 0.095
+              }
+            }
+          },
+          "decision_rule_met": true
+        }
+      },
+      "development_run": {
+        "peak_mib": 5906,
+        "ttft_ms": 106.5,
+        "decode_tok_s": 38.7,
+        "fits_12gib": true,
+        "meets_gate": true,
+        "latin_replies": 0,
+        "empty_replies": 0
+      },
+      "test_run": {
+        "peak_mib": 5906,
+        "ttft_ms": 167.4,
+        "decode_tok_s": 21.4,
+        "fits_12gib": true,
+        "meets_gate": false,
+        "latin_replies": 0,
+        "empty_replies": 0
+      }
+    },
+    "qwen3.5-9b__gguf-q4_k_m": {
+      "means": {
+        "j1": {
+          "relevance": 6.619,
+          "coherence": 7.508,
+          "appropriateness": 7.091,
+          "overall": 6.099
+        },
+        "j2": {
+          "relevance": 6.837,
+          "coherence": 8.619,
+          "appropriateness": 7.02,
+          "overall": 6.063
+        }
+      },
+      "versus": {
+        "qwen3.5-4b__official_bf16": {
+          "gains": {
+            "j1": {
+              "relevance": {
+                "rows": 252,
+                "mean_gain": 0.444,
+                "ci95": [
+                  0.183,
+                  0.706
+                ],
+                "win_rate": 0.472,
+                "loss_rate": 0.298
+              },
+              "coherence": {
+                "rows": 252,
+                "mean_gain": 0.687,
+                "ci95": [
+                  0.448,
+                  0.929
+                ],
+                "win_rate": 0.52,
+                "loss_rate": 0.262
+              },
+              "appropriateness": {
+                "rows": 252,
+                "mean_gain": 0.702,
+                "ci95": [
+                  0.429,
+                  0.98
+                ],
+                "win_rate": 0.532,
+                "loss_rate": 0.262
+              },
+              "overall": {
+                "rows": 252,
+                "mean_gain": 0.679,
+                "ci95": [
+                  0.373,
+                  0.988
+                ],
+                "win_rate": 0.532,
+                "loss_rate": 0.306
+              }
+            },
+            "j2": {
+              "relevance": {
+                "rows": 252,
+                "mean_gain": 0.44,
+                "ci95": [
+                  0.167,
+                  0.722
+                ],
+                "win_rate": 0.448,
+                "loss_rate": 0.302
+              },
+              "coherence": {
+                "rows": 252,
+                "mean_gain": 0.659,
+                "ci95": [
+                  0.413,
+                  0.917
+                ],
+                "win_rate": 0.417,
+                "loss_rate": 0.202
+              },
+              "appropriateness": {
+                "rows": 252,
+                "mean_gain": 0.71,
+                "ci95": [
+                  0.452,
+                  0.984
+                ],
+                "win_rate": 0.536,
+                "loss_rate": 0.254
+              },
+              "overall": {
+                "rows": 252,
+                "mean_gain": 0.552,
+                "ci95": [
+                  0.266,
+                  0.841
+                ],
+                "win_rate": 0.48,
+                "loss_rate": 0.329
+              }
+            }
+          },
+          "decision_rule_met": true
+        },
+        "qwen3-4b-instruct-2507__deployed": {
+          "gains": {
+            "j1": {
+              "relevance": {
+                "rows": 252,
+                "mean_gain": 2.353,
+                "ci95": [
+                  2.063,
+                  2.631
+                ],
+                "win_rate": 0.821,
+                "loss_rate": 0.103
+              },
+              "coherence": {
+                "rows": 252,
+                "mean_gain": 3.123,
+                "ci95": [
+                  2.845,
+                  3.405
+                ],
+                "win_rate": 0.881,
+                "loss_rate": 0.06
+              },
+              "appropriateness": {
+                "rows": 252,
+                "mean_gain": 2.79,
+                "ci95": [
+                  2.532,
+                  3.036
+                ],
+                "win_rate": 0.885,
+                "loss_rate": 0.052
+              },
+              "overall": {
+                "rows": 252,
+                "mean_gain": 3.071,
+                "ci95": [
+                  2.782,
+                  3.361
+                ],
+                "win_rate": 0.885,
+                "loss_rate": 0.071
+              }
+            },
+            "j2": {
+              "relevance": {
+                "rows": 252,
+                "mean_gain": 1.591,
+                "ci95": [
+                  1.246,
+                  1.929
+                ],
+                "win_rate": 0.667,
+                "loss_rate": 0.218
+              },
+              "coherence": {
+                "rows": 252,
+                "mean_gain": 3.067,
+                "ci95": [
+                  2.702,
+                  3.429
+                ],
+                "win_rate": 0.79,
+                "loss_rate": 0.107
+              },
+              "appropriateness": {
+                "rows": 252,
+                "mean_gain": 2.226,
+                "ci95": [
+                  1.929,
+                  2.512
+                ],
+                "win_rate": 0.778,
+                "loss_rate": 0.119
+              },
+              "overall": {
+                "rows": 252,
+                "mean_gain": 2.313,
+                "ci95": [
+                  2.008,
+                  2.631
+                ],
+                "win_rate": 0.79,
+                "loss_rate": 0.127
+              }
+            }
+          },
+          "decision_rule_met": true
+        }
+      },
+      "development_run": {
+        "peak_mib": 5812,
+        "ttft_ms": 106.9,
+        "decode_tok_s": 171.1,
+        "fits_12gib": true,
+        "meets_gate": true,
+        "latin_replies": 0,
+        "empty_replies": 0
+      },
+      "test_run": {
+        "peak_mib": 5812,
+        "ttft_ms": 157.7,
+        "decode_tok_s": 26.9,
+        "fits_12gib": true,
+        "meets_gate": false,
+        "latin_replies": 0,
+        "empty_replies": 0
+      }
+    },
+    "gemma-4-12b__official_qat_w4a16": {
+      "means": {
+        "j1": {
+          "relevance": 6.663,
+          "coherence": 8.246,
+          "appropriateness": 7.968,
+          "overall": 6.583
+        },
+        "j2": {
+          "relevance": 7.627,
+          "coherence": 9.103,
+          "appropriateness": 8.278,
+          "overall": 7.222
+        }
+      },
+      "versus": {
+        "qwen3.5-4b__official_bf16": {
+          "gains": {
+            "j1": {
+              "relevance": {
+                "rows": 252,
+                "mean_gain": 0.488,
+                "ci95": [
+                  0.214,
+                  0.766
+                ],
+                "win_rate": 0.464,
+                "loss_rate": 0.29
+              },
+              "coherence": {
+                "rows": 252,
+                "mean_gain": 1.425,
+                "ci95": [
+                  1.187,
+                  1.667
+                ],
+                "win_rate": 0.706,
+                "loss_rate": 0.119
+              },
+              "appropriateness": {
+                "rows": 252,
+                "mean_gain": 1.579,
+                "ci95": [
+                  1.321,
+                  1.837
+                ],
+                "win_rate": 0.687,
+                "loss_rate": 0.139
+              },
+              "overall": {
+                "rows": 252,
+                "mean_gain": 1.163,
+                "ci95": [
+                  0.873,
+                  1.464
+                ],
+                "win_rate": 0.603,
+                "loss_rate": 0.258
+              }
+            },
+            "j2": {
+              "relevance": {
+                "rows": 252,
+                "mean_gain": 1.23,
+                "ci95": [
+                  0.901,
+                  1.563
+                ],
+                "win_rate": 0.56,
+                "loss_rate": 0.238
+              },
+              "coherence": {
+                "rows": 252,
+                "mean_gain": 1.143,
+                "ci95": [
+                  0.889,
+                  1.409
+                ],
+                "win_rate": 0.607,
+                "loss_rate": 0.111
+              },
+              "appropriateness": {
+                "rows": 252,
+                "mean_gain": 1.968,
+                "ci95": [
+                  1.683,
+                  2.258
+                ],
+                "win_rate": 0.742,
+                "loss_rate": 0.111
+              },
+              "overall": {
+                "rows": 252,
+                "mean_gain": 1.71,
+                "ci95": [
+                  1.381,
+                  2.044
+                ],
+                "win_rate": 0.643,
+                "loss_rate": 0.202
+              }
+            }
+          },
+          "decision_rule_met": true
+        },
+        "qwen3-4b-instruct-2507__deployed": {
+          "gains": {
+            "j1": {
+              "relevance": {
+                "rows": 252,
+                "mean_gain": 2.397,
+                "ci95": [
+                  2.063,
+                  2.722
+                ],
+                "win_rate": 0.798,
+                "loss_rate": 0.135
+              },
+              "coherence": {
+                "rows": 252,
+                "mean_gain": 3.861,
+                "ci95": [
+                  3.579,
+                  4.127
+                ],
+                "win_rate": 0.925,
+                "loss_rate": 0.044
+              },
+              "appropriateness": {
+                "rows": 252,
+                "mean_gain": 3.667,
+                "ci95": [
+                  3.409,
+                  3.925
+                ],
+                "win_rate": 0.937,
+                "loss_rate": 0.032
+              },
+              "overall": {
+                "rows": 252,
+                "mean_gain": 3.556,
+                "ci95": [
+                  3.242,
+                  3.877
+                ],
+                "win_rate": 0.881,
+                "loss_rate": 0.071
+              }
+            },
+            "j2": {
+              "relevance": {
+                "rows": 252,
+                "mean_gain": 2.381,
+                "ci95": [
+                  1.992,
+                  2.762
+                ],
+                "win_rate": 0.746,
+                "loss_rate": 0.187
+              },
+              "coherence": {
+                "rows": 252,
+                "mean_gain": 3.552,
+                "ci95": [
+                  3.187,
+                  3.905
+                ],
+                "win_rate": 0.829,
+                "loss_rate": 0.083
+              },
+              "appropriateness": {
+                "rows": 252,
+                "mean_gain": 3.484,
+                "ci95": [
+                  3.183,
+                  3.79
+                ],
+                "win_rate": 0.889,
+                "loss_rate": 0.079
+              },
+              "overall": {
+                "rows": 252,
+                "mean_gain": 3.472,
+                "ci95": [
+                  3.119,
+                  3.813
+                ],
+                "win_rate": 0.865,
+                "loss_rate": 0.075
+              }
+            }
+          },
+          "decision_rule_met": true
+        }
+      }
+    }
+  },
+  "data_sha256": {
+    "judgments_explore12_j1.jsonl": "c5d533f16fb4b326b5efab4e63f02530509e65a9c268993c2544c686e7b932e7",
+    "judgments_explore12_j2.jsonl": "7a32e34241b4877c3fbd1018275dc17bd259ec3c7523111a65d57a6bce14b1bb",
+    "replies/test__gemma-4-e4b__gguf-q8_0__f16.jsonl": "ebab288b8b3bd5d85132ef1dad2f3929c30c41a4fd4c2c552d809f0620fdebef",
+    "replies/test__qwen3.5-9b__gguf-q4_k_m__f16.jsonl": "89520e3888bd82288e1ed3b5c683ccf0c06591880cfb7d1851701d6c2182a2fc",
+    "replies/test__gemma-4-12b__official_qat_w4a16__auto+b512.jsonl": "33e9cdd7c7b405d3d99f6610e5aa2548417b00a582df0ca30fcfb1cd64d450f5",
+    "replies/test__gemma-4-12b__official_qat_w4a16__auto+eager.jsonl": "6fb7201faa30a310b32f6641b9e1ffdcad47209a7c8bec3685c5412787e6ef84",
+    "replies/test__gemma-4-12b__official_qat_w4a16__auto+eager_b512.jsonl": "3ff07d5c14ba689027872aa2379128fe2d959f7df69cf995a8070cdc2641ad1f",
+    "replies/test__gemma-4-12b__official_qat_w4a16__auto.jsonl": "a27c13c84d36ac3e86ef5ce74981cc2322e014a57c81022ee6df0178a9b880e8",
+    "replies/test__qwen3.5-4b__official_bf16__auto.jsonl": "a056847b554f57964fe5eee7b56c819b44204e6fb6ee39872f869f735c51f0ea",
+    "replies/test__qwen3-4b-instruct-2507__deployed__auto.jsonl": "f3b9140f7bd548bc1a001658de21a213082f65aa04b01e1d09da94f198469646"
+  }
+}

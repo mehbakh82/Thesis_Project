@@ -674,6 +674,18 @@ judges ($-0.33$). In all three Gemma runs the model asked the user to repeat in 
 follow-ups, against 3 for Qwen3.5-4B. No Gemma~4 12B configuration was therefore qualified, and the
 12~GiB stack keeps the responders that the listening study decides between.
 
+\textbf{The next models in 12~GiB (exploratory).} The stage~2 rule had kept only Gemma~4 12B
+as a 12~GiB contender, so a further exploratory addendum, written before any of their replies existed, ran the
+next two models that fit on the 252 test rows: Gemma~4 E4B (GGUF Q8\_0) and Qwen3.5-9B (GGUF
+Q4\_K\_M), both on llama.cpp at about 5.9~GB. Judged in one group with the two references and
+Gemma~4 12B as an anchor (which reproduced its scores, 6.58 and 7.22), both beat Qwen3.5-4B by the
+decision rule under both judges: E4B by $+1.02$ and $+1.16$ (6.44 and 6.67), Qwen3.5-9B by
+$+0.68$ and $+0.55$ (6.10 and 6.06), all intervals above zero. Both met the latency gate in their
+development runs (first token 107~ms) but not in their test runs (158 to 167~ms), which fell in
+the same afternoon as the slowed qualification above. They are therefore candidates for a later
+12~GiB check, not results: they need a quiet latency measurement and their own deployment
+qualification, including coherence after interruption.
+
 \subsection{Voice with Two Automatic Listeners}
 
 All six Persian Piper voices were generated with the same 60 replies, and their
