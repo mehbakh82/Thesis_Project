@@ -114,6 +114,7 @@ ARTIFACTS: dict[str, str] = {
     "closeout_responder_switch": "results/eval/responder_switch_qualification.json",
     "closeout_listening_study": "results/eval/listening_study.json",
     "closeout_listening_study_status": "results/eval/listening_study_status.json",
+    "closeout_listening_study_author_pilot": "results/eval/listening_study_author_pilot.json",
     "closeout_asr_v3": "results/eval/asr_candidates_v3_psrb_human.json",
     "closeout_end_of_turn_v2_dev": "results/eval/end_of_turn_v2_dev.json",
     "closeout_loopback_v3": "results/eval/live_loopback_v3.json",
@@ -1742,6 +1743,7 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
     loopback = load("closeout_loopback_v2") or loopback_v1  # the deployed configuration
     study = load("closeout_listening_study")
     study_status = {} if study else load("closeout_listening_study_status")  # a dated "not run" record
+    pilot = load("closeout_listening_study_author_pilot")  # one listener, the author; never the study
     eot_stage1 = load("closeout_end_of_turn_dev_stage1")
     eot = load("closeout_end_of_turn_dev")
     switch_latency = load("closeout_responder_switch_latency")
@@ -2018,6 +2020,16 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
             "participants_aged_60_plus": study.get("participants_aged_60_plus"),
             "naturalness_by_condition": study.get("naturalness_by_condition"),
             "definition_requirement": study.get("definition_requirement"),
+        },
+        "listening_study_author_pilot": {
+            "status": status(pilot),
+            "evidence_class": pilot.get("evidence_class"),
+            "used_for_requirements_or_decisions": pilot.get("used_for_requirements_or_decisions"),
+            "naturalness_mos": {
+                name: row.get("naturalness_mos")
+                for name, row in ((pilot.get("ingest_receipt") or {}).get("naturalness_by_condition") or {}).items()
+            },
+            "reply_preference_counts": ((pilot.get("ingest_receipt") or {}).get("responder_preferences") or {}).get("counts"),
         },
         "claim_boundary": (
             "Automatic, simulated, and automated-loopback evidence on the shared H100; "

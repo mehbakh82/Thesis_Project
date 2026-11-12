@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-11-12T13:14:34.937058+00:00",
+  "generated_at": "2026-11-12T13:29:01.780041+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1705,6 +1705,21 @@
       "naturalness_by_condition": null,
       "definition_requirement": null
     },
+    "listening_study_author_pilot": {
+      "status": "present",
+      "evidence_class": "author_pilot_single_listener",
+      "used_for_requirements_or_decisions": false,
+      "naturalness_mos": {
+        "natural_human": 5.0,
+        "tts_ganji_adabi": 4.125,
+        "tts_mana": 4.125
+      },
+      "reply_preference_counts": {
+        "deployed_qwen3_4b_prompt_v2": 1,
+        "qwen35_4b_elderly_v1": 6,
+        "tie": 1
+      }
+    },
     "claim_boundary": "Automatic, simulated, and automated-loopback evidence on the shared H100; Gemini labels are independent automatic labels, not human verification."
   },
   "artifact_provenance": {
@@ -1999,8 +2014,8 @@
     "final_audit": {
       "path": "results/release/final_audit.json",
       "present": true,
-      "bytes": 15687,
-      "sha256": "c3d6dede062959fc4c65d693cd50449a3a6f75360e78d51e5f01bc4fd44731da"
+      "bytes": 15926,
+      "sha256": "00e766dd5315f847c5530ab5a1a49e7a21dfc68ae1ff66c2caa85e737c585bd8"
     },
     "submission_tag_attestation": {
       "path": "results/release/submission_tag_attestation.json",
@@ -2209,8 +2224,14 @@
     "closeout_listening_study_status": {
       "path": "results/eval/listening_study_status.json",
       "present": true,
-      "bytes": 1129,
-      "sha256": "e579eb662a919b854e383ccab8f2398712b868dc2ffb01b30e9bdb3556c71fa0"
+      "bytes": 1239,
+      "sha256": "88c477fa6dea95570f6c2c0a791d82885159c1a26c4f4d1c4aeb5ed3e5b3c0ec"
+    },
+    "closeout_listening_study_author_pilot": {
+      "path": "results/eval/listening_study_author_pilot.json",
+      "present": true,
+      "bytes": 3446,
+      "sha256": "16f737c435d03ad4534cf9defbad5b495aace8c75c5d50bccb6070d6bacbdf7f"
     },
     "closeout_asr_v3": {
       "path": "results/eval/asr_candidates_v3_psrb_human.json",

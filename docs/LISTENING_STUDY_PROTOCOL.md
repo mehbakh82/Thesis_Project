@@ -127,3 +127,13 @@ interaction ratings are not measured, and part 1 of the responder switch rule
 does not pass, so the deployed responder is unchanged. The page and
 `scripts/ingest_listening_study.py` remain as registered; a later run would
 write `results/eval/listening_study.json`, which supersedes the status record.
+
+**Author pilot (2026-11-12).** To check the page, the result code and the ingest
+script end to end, the author completed the page once as a participant, without
+knowing which system produced each clip or reply (under 40, loudspeakers), and
+passed the attention check. Naturalness 4.13 for both Mana and ganji_adabi, 5.0
+for the human anchor; dialogues: responsiveness 5, backchannel and interruption
+handling 3 and 4, "would use" yes each time; reply pairs: Qwen3.5-4B 6, deployed
+1, no difference 1. Recorded as `results/eval/listening_study_author_pilot.json`
+(evidence class `author_pilot_single_listener`); it is not the study and is not
+used for any requirement or decision.

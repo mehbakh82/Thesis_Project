@@ -1,0 +1,109 @@
+{
+  "record": "listening_study_author_pilot",
+  "recorded_on": "2026-11-12",
+  "evidence_class": "author_pilot_single_listener",
+  "is_the_registered_study": false,
+  "used_for_requirements_or_decisions": false,
+  "rater": "the author, completing the registered page once as a participant",
+  "rater_blind_to_system_identity": true,
+  "purpose": "Check the study page, the result code and scripts/ingest_listening_study.py end to end.",
+  "code_sha256": "f88ed19f2911bcc81df6a87d480d8448864838aa421442854c4066f8e16fc523",
+  "attention_check_passed": true,
+  "ingest_receipt": {
+    "schema_version": 1,
+    "evidence_class": "author_pilot_single_listener",
+    "study_id": "fa-s2s-listening-v1",
+    "spec_sha256": "f53b5aa8c0740a8d9481ff5cbb86161ae6257ba1a517a36bdee3680e2a3f13a6",
+    "participants_accepted": 1,
+    "participants_aged_60_plus": 0,
+    "age_groups": {
+      "under_40": 1,
+      "40_59": 0,
+      "60plus": 0
+    },
+    "native_persian": 1,
+    "excluded": {},
+    "naturalness_by_condition": {
+      "natural_human": {
+        "clips": 6,
+        "naturalness_mos": 5.0,
+        "naturalness_mos_ci95": null,
+        "by_age_group": {
+          "under_40": 5.0
+        }
+      },
+      "tts_ganji_adabi": {
+        "clips": 8,
+        "naturalness_mos": 4.125,
+        "naturalness_mos_ci95": null,
+        "by_age_group": {
+          "under_40": 4.125
+        }
+      },
+      "tts_mana": {
+        "clips": 8,
+        "naturalness_mos": 4.125,
+        "naturalness_mos_ci95": null,
+        "by_age_group": {
+          "under_40": 4.125
+        }
+      }
+    },
+    "interactions": {
+      "i1": {
+        "responses": 1,
+        "responsiveness_mean": 5.0,
+        "satisfaction_mean": 5.0,
+        "would_use_yes_share": 1.0
+      },
+      "i2": {
+        "responses": 1,
+        "responsiveness_mean": 5.0,
+        "interruption_mean": 3.0,
+        "satisfaction_mean": 4.0,
+        "would_use_yes_share": 1.0
+      },
+      "i3": {
+        "responses": 1,
+        "responsiveness_mean": 5.0,
+        "interruption_mean": 4.0,
+        "satisfaction_mean": 4.0,
+        "would_use_yes_share": 1.0
+      }
+    },
+    "responder_preferences": {
+      "items": 8,
+      "counts": {
+        "deployed_qwen3_4b_prompt_v2": 1,
+        "qwen35_4b_elderly_v1": 6,
+        "tie": 1
+      },
+      "share_by_condition": {
+        "deployed_qwen3_4b_prompt_v2": 0.125,
+        "qwen35_4b_elderly_v1": 0.75
+      },
+      "share_ci95": {
+        "deployed_qwen3_4b_prompt_v2": null,
+        "qwen35_4b_elderly_v1": null
+      },
+      "responder_switch_rule": {
+        "challenger": "qwen35_4b_elderly_v1",
+        "incumbent": "deployed_qwen3_4b_prompt_v2",
+        "participants": 1,
+        "mean_preference_difference": 0.625,
+        "mean_preference_difference_ci95": null,
+        "aged_60_plus_differences": [],
+        "sample_requirement_met": false,
+        "preference_interval_above_zero": false,
+        "no_60_plus_participant_prefers_incumbent": false,
+        "human_preference_met": false
+      }
+    },
+    "free_text_retained_in_receipt": false,
+    "definition_requirement": {
+      "participants_5_to_10": false,
+      "at_least_two_aged_60_plus": false
+    }
+  },
+  "claim_boundary": "One listener, who is the author and under 40, on loudspeakers. Not evidence for the MOS criterion, the elderly-perception question or the responder switch rule (which requires at least 5 participants, at least 2 aged 60+)."
+}
