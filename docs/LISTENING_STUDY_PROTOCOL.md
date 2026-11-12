@@ -119,9 +119,10 @@ deployed responder" in section 2.
 
 No participants were available before submission, so the page was never sent
 and no code was ingested (`results/eval/listening_study_status.json`). The
-student's own ratings were not collected in its place: the student knows which
-system produced each clip and reply, and a single rater cannot meet the sample
-above. Consequences: the naturalness criterion MOS ≥ 3.5 is not evaluated, the
+student's own ratings were not collected in its place: a single rater, who is
+also the author, cannot meet the sample above. (Corrected 2026-11-12: an earlier
+wording said the student knew which system produced each clip; the student
+does not.) Consequences: the naturalness criterion MOS ≥ 3.5 is not evaluated, the
 interaction ratings are not measured, and part 1 of the responder switch rule
 does not pass, so the deployed responder is unchanged. The page and
 `scripts/ingest_listening_study.py` remain as registered; a later run would
