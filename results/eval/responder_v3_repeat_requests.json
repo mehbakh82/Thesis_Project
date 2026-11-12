@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "experiment": "coherence_repeat_requests",
+  "label": "exploratory, post hoc",
+  "protocol": "docs/RESPONDER_V3_RESULT.md",
+  "script_sha256": "81e5c91c0328c0dbb6122236279597dcd6a08572eb01eb1ac4ac7627de73b7c2",
+  "scenarios_sha256": "3276730b84bfb390b0a99900c3192ae2938f4c21113b50f8430d1d87e13a6f0d",
+  "pattern": "متوجه[^.؟!]*نشدم|دوباره[^.؟!]*(?:بگویید|بگید|بفرمایید|تکرار)|تکرار\\s*(?:کنید|کن)",
+  "normalizer": "fa-asr-score-v1",
+  "runs": {
+    "qwen35_4b_vllm": {
+      "runs_sha256": "2e301cebb2b9a4fb99df66df6c83272fc7c7796ab86fada1bba9a282e39fbe54",
+      "telemetry_sha256": "c1fc558bffff912a7f1c88252eaf86c71b6efb45dee2517d444b9c3316de1776",
+      "interrupt": {
+        "replies": 30,
+        "asks_to_repeat": 2,
+        "by_timing": {
+          "early": {
+            "replies": 10,
+            "asks_to_repeat": 1
+          },
+          "mid": {
+            "replies": 10,
+            "asks_to_repeat": 1
+          },
+          "late": {
+            "replies": 10,
+            "asks_to_repeat": 0
+          }
+        }
+      },
+      "control": {
+        "replies": 30,
+        "asks_to_repeat": 1,
+        "by_timing": {
+          "early": {
+            "replies": 10,
+            "asks_to_repeat": 1
+          },
+          "mid": {
+            "replies": 10,
+            "asks_to_repeat": 0
+          },
+          "late": {
+            "replies": 10,
+            "asks_to_repeat": 0
+          }
+        }
+      },
+      "follow_up_cer_median_when_asking": 0.207,
+      "follow_up_cer_median_otherwise": 0.2
+    },
+    "gemma4_12b_qat_vllm_24gb": {
+      "runs_sha256": "5d62c9ef36b1862b97ac131b81548e0b70113e1781312c6e79d8790fe876bd42",
+      "telemetry_sha256": "6f6a2e873f6ab5e358b71c1621bc76b8a7436e79902a58ec83793b9c295b823d",
+      "interrupt": {
+        "replies": 30,
+        "asks_to_repeat": 8,
+        "by_timing": {
+          "early": {
+            "replies": 10,
+            "asks_to_repeat": 2
+          },
+          "mid": {
+            "replies": 10,
+            "asks_to_repeat": 2
+          },
+          "late": {
+            "replies": 10,
+            "asks_to_repeat": 4
+          }
+        }
+      },
+      "control": {
+        "replies": 30,
+        "asks_to_repeat": 6,
+        "by_timing": {
+          "early": {
+            "replies": 10,
+            "asks_to_repeat": 2
+          },
+          "mid": {
+            "replies": 10,
+            "asks_to_repeat": 3
+          },
+          "late": {
+            "replies": 10,
+            "asks_to_repeat": 1
+          }
+        }
+      },
+      "follow_up_cer_median_when_asking": 0.345,
+      "follow_up_cer_median_otherwise": 0.161
+    },
+    "gemma4_12b_qat_vllm_12gib_one_sequence": {
+      "runs_sha256": "c01313d7becc0313fbd2f1ba6132945e71f9618428e6e83128461b769b776f3d",
+      "telemetry_sha256": "10afae4dbc74c8555827cb372096734fb71c134ee532ba34f27f223935d41595",
+      "interrupt": {
+        "replies": 30,
+        "asks_to_repeat": 7,
+        "by_timing": {
+          "early": {
+            "replies": 10,
+            "asks_to_repeat": 2
+          },
+          "mid": {
+            "replies": 10,
+            "asks_to_repeat": 2
+          },
+          "late": {
+            "replies": 10,
+            "asks_to_repeat": 3
+          }
+        }
+      },
+      "control": {
+        "replies": 30,
+        "asks_to_repeat": 6,
+        "by_timing": {
+          "early": {
+            "replies": 10,
+            "asks_to_repeat": 2
+          },
+          "mid": {
+            "replies": 10,
+            "asks_to_repeat": 3
+          },
+          "late": {
+            "replies": 10,
+            "asks_to_repeat": 1
+          }
+        }
+      },
+      "follow_up_cer_median_when_asking": 0.351,
+      "follow_up_cer_median_otherwise": 0.146
+    },
+    "gemma4_12b_q5km_llamacpp_12gib": {
+      "runs_sha256": "8ec34c7c758ef64591aa5d835b5a3c50c7f91a3c675966524b07041cf8db80fb",
+      "telemetry_sha256": "0f028738acc005d22bf0d73bbe95cbe6d10c377ee7fccca65c5b7348b02ecb4d",
+      "interrupt": {
+        "replies": 30,
+        "asks_to_repeat": 7,
+        "by_timing": {
+          "early": {
+            "replies": 10,
+            "asks_to_repeat": 2
+          },
+          "mid": {
+            "replies": 10,
+            "asks_to_repeat": 2
+          },
+          "late": {
+            "replies": 10,
+            "asks_to_repeat": 3
+          }
+        }
+      },
+      "control": {
+        "replies": 30,
+        "asks_to_repeat": 4,
+        "by_timing": {
+          "early": {
+            "replies": 10,
+            "asks_to_repeat": 1
+          },
+          "mid": {
+            "replies": 10,
+            "asks_to_repeat": 2
+          },
+          "late": {
+            "replies": 10,
+            "asks_to_repeat": 1
+          }
+        }
+      },
+      "follow_up_cer_median_when_asking": 0.42,
+      "follow_up_cer_median_otherwise": 0.167
+    }
+  },
+  "text_retained": false
+}

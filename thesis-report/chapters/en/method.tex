@@ -288,7 +288,12 @@ recognition finished.
 
 The comparison of responder candidates and a ``speech-input'' path that removes
 recognition (Gemma~4~E4B, Section~\ref{sec:speechin}) did not reach the pre-registered
-replacement threshold, so this responder was kept.
+replacement threshold, so this responder was kept in the 12~GiB stack. A third comparison
+(Section~\ref{sec:res-resp-v3}) selected, for a 24~GB card, Gemma~4 12B with Google's 4-bit
+weights served by vLLM; the live server offers it as a separate preset with the same prompt for
+older users, the same Persian-only decoding and at most 96 new tokens. It failed one of the four
+checks of its deployment qualification (coherence after interruption), so it is opt-in and not the
+default.
 
 \subsection{Clause Chunking and Speech Generation}
 

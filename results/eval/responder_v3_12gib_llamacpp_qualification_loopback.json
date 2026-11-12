@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "evidence_class": "automated_browser_loopback",
+  "official_e2e_eligible": false,
+  "protocol": "docs/RESPONDER_SWITCH_PROTOCOL.md",
+  "note": "Responder v3 post-hoc addendum 3 (docs/RESPONDER_V3_PROTOCOL.md): Gemma 4 12B GGUF Q5_K_M (sha256 32c554c7...) on llama.cpp with --swa-full, two slots of 2048 tokens, elderly prompt v1, Persian-only grammar, otherwise the v2 live configuration; part 2 of docs/RESPONDER_SWITCH_PROTOCOL.md with the 12 GiB limit.",
+  "hardware": "shared NVIDIA H100 host (not a 12-24 GB device; memory budget emulated, compute not)",
+  "server_identity": {
+    "ok": true,
+    "mode": "live_streaming",
+    "sample_rate": 16000,
+    "asr_backend": "http",
+    "responder_model": "unsloth/gemma-4-12b-it-GGUF:gemma-4-12b-it-Q5_K_M.gguf",
+    "responder_revision": "sha256:32c554c7d1338a23837ae39b3db482213a4a642f96df3b2619f516a2375d16cd",
+    "responder_backend": "openai_compatible_stream",
+    "system_prompt_sha256": "ecaa1293680ecd0534b69b766001ea2dfd0cd3fd78b212f0e3722d0474d909b5",
+    "tts_model": "fa_IR-mana-medium.onnx",
+    "persian_only_decoding": true,
+    "streaming": true,
+    "bargein_confirm": "lexical_asr_with_echo_rejection",
+    "responder_preset": "gemma4_12b_q5km_llamacpp_elderly_v1",
+    "max_new_tokens": 96,
+    "live_config": {
+      "lexical_confirm": true,
+      "echo_margin_db": 12.0,
+      "dtd_margin_db": 14.0,
+      "initial_coupling_db": 0.0,
+      "lexical_matching": "v2",
+      "drop_function_words": true,
+      "duck_frames": 1,
+      "lexical_pre_roll_ms": 0.0,
+      "hangover_ms": 256.0,
+      "speculative_ms": 96.0,
+      "turn_end_threshold": 0.5,
+      "turn_end_hold_ms": 640.0,
+      "turn_end_gate": null
+    }
+  },
+  "conditions": {
+    "plain": {
+      "receipt_sha256": "b962c09b0b685af288b68272359c0a29ea04b22afb7db354b359dd58c25e2a23",
+      "fake_mic_sha256": "e20ac74b4f36507e0516964997c7d667e65ae3f0aa9a4383bda19bf5b5c5690c",
+      "planned_turns": 201,
+      "server_turn_records": 244,
+      "turns_without_first_audio": 0,
+      "t_first_audio_ms": {
+        "n": 201,
+        "mean": 480.13251244419354,
+        "median": 386.7374997138977,
+        "p90": 824.3375000956003,
+        "p95": 965.4375,
+        "max": 1137.1374998092651
+      },
+      "t_first_audio_p90_failures_as_late_ms": 824.3375000956003,
+      "t_first_audible_ms": {
+        "n": 201,
+        "mean": 522.1325124441936,
+        "median": 428.7374997138977,
+        "p90": 866.3375000956003,
+        "p95": 1007.4375,
+        "max": 1179.1374998092651
+      },
+      "share_le_500ms_of_planned": 0.7313432835820896,
+      "console_errors": 0
+    },
+    "elderly": {
+      "receipt_sha256": "fb8ba66a316e7974c0dc2c4c47b4dfe27da8c72fece20669a1690f389ea328bc",
+      "fake_mic_sha256": "b3b5074269dfae5c4bdd45b4517cfa7d02c19fa446902169acda04c177e12658",
+      "planned_turns": 80,
+      "server_turn_records": 104,
+      "turns_without_first_audio": 0,
+      "t_first_audio_ms": {
+        "n": 80,
+        "mean": 782.7400000214577,
+        "median": 767.2874999046326,
+        "p90": 1004.7974999904633,
+        "p95": 1020.0824999094009,
+        "max": 1057.4375
+      },
+      "t_first_audio_p90_failures_as_late_ms": 1004.7974999904633,
+      "t_first_audible_ms": {
+        "n": 80,
+        "mean": 824.7400000214577,
+        "median": 809.2874999046326,
+        "p90": 1046.7974999904634,
+        "p95": 1062.082499909401,
+        "max": 1099.4375
+      },
+      "share_le_500ms_of_planned": 0.05,
+      "console_errors": 0
+    }
+  },
+  "acceptance": {
+    "plain_mean_le_500ms": true,
+    "plain_p90_le_500ms_failures_counted": false,
+    "elderly_p90_le_500ms_failures_counted": false
+  },
+  "gpu_memory": {
+    "samples": 7225,
+    "peak_mib": {
+      "asr_nemo": 1610.0,
+      "llm_llamacpp": 10090.0
+    },
+    "peak_stack_mib": 11700.0,
+    "cpu_components": [
+      "Mana Piper TTS (ONNX Runtime, 8 threads)",
+      "Silero VAD (ONNX)"
+    ],
+    "note": "llama.cpp allocates its weights and KV cache at start-up; the peak is that allocation."
+  }
+}

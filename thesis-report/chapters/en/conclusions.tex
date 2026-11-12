@@ -90,16 +90,26 @@ after an interruption stayed as relevant as the reply to a normal turn
 (Section~\ref{sec:res-latency}). In the direct track, the change needed before any architectural
 change is the tokenizer.
 
-\textbf{Question 3: the trade-off between latency, size and quality.} In this project size did not buy
-quality (Table~\ref{tab:tradeoff}). The two smallest recognizers fine-tuned on Persian (115 and 117
+\textbf{Question 3: the trade-off between latency, size and quality.} For recognition and synthesis size
+did not buy quality (Table~\ref{tab:tradeoff}). The two smallest recognizers fine-tuned on Persian (115 and 117
 million parameters) were more accurate than every larger candidate but one, including a
 three-billion-parameter Persian fine-tune; the only more accurate model, itself fine-tuned on Persian,
-was more than ten times slower. Responders of 9 to 36 billion parameters, served at four bits where
-needed under a 22~GiB limit, gave no gain over the best 4B under both judges, and the largest dense one
-did not fit (Table~\ref{tab:resp-size}). The smallest synthesizer (15.7 million parameters) was both
-the most intelligible and the fastest, and the largest model, the 7.7-billion-parameter end-to-end
-model, did not reach intelligible speech. The best trade-off point for real-time Persian is small
-components specialized for Persian.
+was more than ten times slower. The smallest synthesizer (15.7 million parameters) was both the most
+intelligible and the fastest, and the largest model, the 7.7-billion-parameter end-to-end model, did
+not reach intelligible speech. For the responder the answer depends on who judges. Under a Qwen judge
+and Gemini, responders of 9 to 36 billion parameters gave no gain over the best 4B
+(Table~\ref{tab:resp-size}); under two judges from families with no candidate, a third comparison of
+15 models and their quantized builds found Gemma~4 12B at four bits 1.2 to 1.75 points (of 10) better
+than the best 4B and 3.5 points better than the deployed responder, with a 39~ms first token and
+10.9~GB of memory (Table~\ref{tab:resp-v3}). Larger models gained little more and cost latency, and
+with the compared serving settings no better responder fit a 12~GiB card within the latency gate
+(a llama.cpp setting found afterwards brought Gemma~4 12B within both). In the live stack, however,
+this model asked the user to repeat when the recognizer garbled a follow-up, and its replies after late
+interruptions fell short of the pre-registered coherence rule in all three configurations tested,
+so it was not qualified for deployment.
+The best trade-off point for real-time Persian is small recognizers and synthesizers specialized for
+Persian with the largest responder the memory profile allows at four bits, provided that it is
+checked in the live stack, where recognition errors change what a good reply is.
 
 \textbf{Question 4: the perception of older adults.} The instrument and protocol of the listening study
 are ready and pre-registered, but the participants' responses have not yet arrived; until then this
@@ -119,17 +129,25 @@ report makes no claim about the perception of older adults.
       adults.
 \item \textbf{Human labels.} A listening review of a sample of interruption events and dataset pairs by
       two independent reviewers, to validate the automatic Gemini labels and the extraction rules.
-\item \textbf{Human judging of the responder.} The two automatic judges disagree considerably about the
-      responders (Gemini rates the responders with the elderly prompt about one point better and the
-      Qwen judge does not). The replacement rule was registered before the listening study was sent,
-      and the configuration of Qwen3.5-4B with the elderly prompt has passed its deployment
-      qualification; the participants' preference therefore decides whether it replaces the deployed
-      responder.
+\item \textbf{Human judging of the responder.} The first two automatic judges disagreed considerably
+      about the responders (Gemini rated the responders with the elderly prompt about one point better
+      and the Qwen judge did not); two later judges from other families agree with each other and
+      prefer the larger Gemma models. The replacement rule for the 12~GiB stack was registered before
+      the listening study was sent, and the configuration of Qwen3.5-4B with the elderly prompt has
+      passed its deployment qualification; the participants' preference therefore decides whether it
+      replaces the deployed responder. Whether people share the automatic judges' preference for the
+      24~GB responder, and whether older users accept its requests to repeat after recognition
+      errors, has not been measured.
 \end{enumerate}
 
 \subsection{Improving the System}
 
 \begin{enumerate}
+\item \textbf{A responder that knows the recognizer can err.} The 24~GB responder asked the user
+      to repeat after most garbled follow-ups, and the 4B responders guessed. Giving the responder
+      the recognizer's confidence, or the instruction to answer the most likely request and confirm
+      briefly, could keep the larger model's quality in the live stack; it needs its own
+      pre-registered test.
 \item \textbf{More accurate lexical confirmation.} The first phoneme of short backchannels is sometimes
       clipped (\fa{«آره»} as \fa{«کار»}). Adding 200 ms of audio before the onset to the recognizer's
       input was tested and rejected: more interruptions were stopped (0.98 versus 0.95) but more

@@ -195,8 +195,9 @@ The limitations of this project, stated explicitly and listed, are:
 
 \item \textbf{Automatic labels and judging.} The interruption labels come from extraction rules,
       Gemini and a list of listener tokens, reply quality was measured with an LLM judge and speech
-      with an automatic recognizer; none of these is a human label. The two responder judges agree
-      exactly only 44.6\% of the time.
+      with an automatic recognizer; none of these is a human label. The first two responder judges
+      agree exactly only 44.6\% of the time; the two judges of the third comparison, from families with
+      no candidate, rank the configurations alike (rank correlation 0.88), but they are still models.
 
 \item \textbf{Interruption detection method.} The project definition asks for interruption detection
       with energy, pitch and MFCC features; a classifier based on these features alone reached only

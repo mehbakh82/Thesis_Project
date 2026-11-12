@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "evidence_class": "automated_browser_loopback",
+  "official_e2e_eligible": false,
+  "protocol": "docs/RESPONDER_SWITCH_PROTOCOL.md",
+  "note": "Responder v3 post-hoc 12 GiB check (docs/RESPONDER_V3_PROTOCOL.md, post-hoc addendum 2026-11-11; part 2 of docs/RESPONDER_SWITCH_PROTOCOL.md): Gemma 4 12B QAT w4a16 with elderly prompt v1, vLLM v0.30.0, context 2048, one sequence, profiled KV cache 749,197,135 bytes, otherwise the v2 live configuration.",
+  "hardware": "shared NVIDIA H100 host (not a 12-24 GB device; memory budget emulated, compute not)",
+  "server_identity": {
+    "ok": true,
+    "mode": "live_streaming",
+    "sample_rate": 16000,
+    "asr_backend": "http",
+    "responder_model": "google/gemma-4-12B-it-qat-w4a16-ct",
+    "responder_revision": "1d2c2d7f2466070e69d6fb3fd5ce9a7d75f2f6ee",
+    "responder_backend": "openai_compatible_stream",
+    "system_prompt_sha256": "ecaa1293680ecd0534b69b766001ea2dfd0cd3fd78b212f0e3722d0474d909b5",
+    "tts_model": "fa_IR-mana-medium.onnx",
+    "persian_only_decoding": true,
+    "streaming": true,
+    "bargein_confirm": "lexical_asr_with_echo_rejection",
+    "responder_preset": "gemma4_12b_qat_elderly_v1",
+    "max_new_tokens": 96,
+    "live_config": {
+      "lexical_confirm": true,
+      "echo_margin_db": 12.0,
+      "dtd_margin_db": 14.0,
+      "initial_coupling_db": 0.0,
+      "lexical_matching": "v2",
+      "drop_function_words": true,
+      "duck_frames": 1,
+      "lexical_pre_roll_ms": 0.0,
+      "hangover_ms": 256.0,
+      "speculative_ms": 96.0,
+      "turn_end_threshold": 0.5,
+      "turn_end_hold_ms": 640.0,
+      "turn_end_gate": null
+    }
+  },
+  "conditions": {
+    "plain": {
+      "receipt_sha256": "b106c2c8b53d2eaacb0a9b16168c8e705e5089b43cf6cd86dbdddafcce7e9a55",
+      "fake_mic_sha256": "e20ac74b4f36507e0516964997c7d667e65ae3f0aa9a4383bda19bf5b5c5690c",
+      "planned_turns": 201,
+      "server_turn_records": 237,
+      "turns_without_first_audio": 1,
+      "t_first_audio_ms": {
+        "n": 200,
+        "mean": 343.7084875469463,
+        "median": 341.4875001908513,
+        "p90": 382.2074999809265,
+        "p95": 393.81250019073485,
+        "max": 465.33750009536743
+      },
+      "t_first_audio_p90_failures_as_late_ms": 384.63749980926514,
+      "t_first_audible_ms": {
+        "n": 200,
+        "mean": 385.7084875469463,
+        "median": 383.4875001908513,
+        "p90": 424.2074999809265,
+        "p95": 435.81250019073485,
+        "max": 507.33750009536743
+      },
+      "share_le_500ms_of_planned": 0.9950248756218906,
+      "console_errors": 0
+    },
+    "elderly": {
+      "receipt_sha256": "0cd7b8b68f6dc3616719cbb279c485ab1a16d76d6e2553ce89022e69ce508c0b",
+      "fake_mic_sha256": "b3b5074269dfae5c4bdd45b4517cfa7d02c19fa446902169acda04c177e12658",
+      "planned_turns": 80,
+      "server_turn_records": 94,
+      "turns_without_first_audio": 0,
+      "t_first_audio_ms": {
+        "n": 80,
+        "mean": 341.44871881728534,
+        "median": 342.4375,
+        "p90": 387.40750007629396,
+        "p95": 391.5774999141693,
+        "max": 397.33750009536743
+      },
+      "t_first_audio_p90_failures_as_late_ms": 387.40750007629396,
+      "t_first_audible_ms": {
+        "n": 80,
+        "mean": 383.44871881728534,
+        "median": 384.4375,
+        "p90": 429.40750007629396,
+        "p95": 433.5774999141693,
+        "max": 439.33750009536743
+      },
+      "share_le_500ms_of_planned": 1.0,
+      "console_errors": 0
+    }
+  },
+  "acceptance": {
+    "plain_mean_le_500ms": true,
+    "plain_p90_le_500ms_failures_counted": true,
+    "elderly_p90_le_500ms_failures_counted": true
+  },
+  "gpu_memory": {
+    "samples": 7230,
+    "peak_mib": {
+      "asr_nemo": 1610.0,
+      "llm_vllm": 10158.0
+    },
+    "peak_stack_mib": 11768.0,
+    "cpu_components": [
+      "Mana Piper TTS (ONNX Runtime, 8 threads)",
+      "Silero VAD (ONNX)"
+    ],
+    "note": "vLLM reserves its whole --gpu-memory-utilization budget up front; the peak is that reservation, not the minimum need."
+  }
+}

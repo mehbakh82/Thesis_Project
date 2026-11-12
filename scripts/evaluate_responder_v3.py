@@ -20,6 +20,7 @@ Stages:
   finalists the finalist of each contender model and profile (Amendment 3);
   decide    stage 7: the test-panel decision under both judges;
   explore   the exploratory 12 GiB tuning summary (outside the decision);
+  explore12 exploratory addendum 2: Gemma 4 E4B and Qwen3.5-9B on the 12 GiB test panel;
   robustness  latency of every finalist against the GPU and host load (Amendment 5);
   effort    agreement of the judges with more reasoning on a subset (Amendment 5);
   receipt   write the write-once result receipt (results/eval/responder_v3_result.json).
@@ -1735,6 +1736,52 @@ def explore(work: Path, arm: str = EXPLORE_ARM, compared: tuple[str, ...] = EXPL
     return result
 
 
+EXPLORE12_ARMS = ("gemma-4-e4b__gguf-q8_0", "qwen3.5-9b__gguf-q4_k_m")
+EXPLORE12_ANCHOR = "gemma-4-12b__official_qat_w4a16"
+
+
+def beats_rule(gains: dict[str, dict[str, dict[str, Any]]]) -> bool:
+    """The stage 7 rule for beating a reference, given {judge: {score key: paired gain}} for both judges."""
+
+    return len(gains) == 2 and all(
+        g["overall"].get("mean_gain", -99) >= 0.5 and g["overall"]["ci95"][0] > 0
+        and all(g[k].get("mean_gain", -99) >= 0 for k in ("relevance", "coherence", "appropriateness")) for g in gains.values())
+
+
+def explore12(work: Path, arms: tuple[str, ...] = EXPLORE12_ARMS, anchor: str = EXPLORE12_ANCHOR,
+              references: tuple[str, ...] = REFERENCES) -> dict[str, Any]:
+    """Exploratory addendum 2: the next models that fit 12 GiB on the test panel, outside the pre-registered decision.
+    Each build and the anchor are compared with both references by the stage 7 rule; memory and latency are those of
+    the development run that selected the build and of the test-panel run."""
+
+    tables = {j: arm_scores(work, "explore12", j) for j in ("j1", "j2") if (work / f"judgments_explore12_{j}.jsonl").exists()}
+    runs = read_jsonl(work / "runs.jsonl")
+    result: dict[str, Any] = {"label": "exploratory (addendum 2), outside the pre-registered decision",
+                              "limit_mib": PROFILES_MIB["12gib"], "controls": {j: t[1] for j, t in tables.items()},
+                              "references": {ref: {j: means(t[0], ref) for j, t in tables.items()} for ref in references},
+                              "arms": {}}
+    for arm in (*arms, anchor):
+        record: dict[str, Any] = {"means": {j: means(t[0], arm) for j, t in tables.items()}, "versus": {}}
+        if arm != anchor:
+            dev = [r for r in runs if r["arm"] == arm and r.get("tag") == "run" and r.get("status") == "ok"]
+            test = [r for r in runs if r["arm"] == arm and r.get("tag") == "explore12" and r.get("status") == "ok"]
+            for name, chosen in (("development_run", dev), ("test_run", test)):
+                if chosen:
+                    ttft, decode = latency_point(chosen[-1].get("latency"))
+                    record[name] = {"peak_mib": chosen[-1].get("peak_mib"), "ttft_ms": ttft, "decode_tok_s": decode,
+                                    "fits_12gib": (chosen[-1].get("peak_mib") or 1e9) <= PROFILES_MIB["12gib"],
+                                    "meets_gate": ttft is not None and ttft <= 150 and (decode or 0) >= 30,
+                                    "latin_replies": chosen[-1].get("latin_replies"), "empty_replies": chosen[-1].get("empty_replies")}
+        for ref in references:
+            gains = {j: {k: paired_gain(t[0], arm, ref, k) for k in SCORE_KEYS} for j, t in tables.items()}
+            record["versus"][ref] = {"gains": gains, "decision_rule_met": beats_rule(gains)}
+        result["arms"][arm] = record
+    patterns = ("judgments_explore12_*.jsonl", *(f"replies/test__{a}__*.jsonl" for a in (*arms, anchor, *references)))
+    result["data_sha256"] = {path.relative_to(work).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+                             for pattern in patterns for path in sorted(work.glob(pattern))}
+    return result
+
+
 QUIET_SM = 10  # Amendment 5: a measurement is "quiet" if other processes' median SM utilization was at most this (%)
 
 
@@ -1887,7 +1934,7 @@ def receipt(work: Path) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--stage", required=True, choices=["plan", "arms", "fetch", "run", "kvprofile", "grid", "kvquality", "queue", "judge", "fits", "screen", "stage1",
-                                                         "contenders", "finalists", "decide", "explore", "robustness", "effort", "receipt"])
+                                                         "contenders", "finalists", "decide", "explore", "explore12", "robustness", "effort", "receipt"])
     parser.add_argument("--work", type=Path, required=True)
     parser.add_argument("--models", type=Path)
     parser.add_argument("--arm")
@@ -1945,9 +1992,10 @@ def main() -> int:
         queue(args.work, args.models, args.limit, args.only, tuple(args.stages.split(",")), args.arm_list, args.panel, args.tag,
               args.keep_models, repeat=args.repeat, spacing=args.spacing, generate=not args.latency_only)
         result = {"queue": "finished"}
-    elif args.stage in ("fits", "screen", "stage1", "contenders", "finalists", "decide", "explore", "robustness", "effort"):
+    elif args.stage in ("fits", "screen", "stage1", "contenders", "finalists", "decide", "explore", "explore12", "robustness", "effort"):
         result = {"fits": fits, "screen": screen, "stage1": stage1, "contenders": contenders, "finalists": finalists,
-                  "decide": decide, "explore": explore, "robustness": robustness, "effort": effort}[args.stage](args.work)
+                  "decide": decide, "explore": explore, "explore12": explore12, "robustness": robustness,
+                  "effort": effort}[args.stage](args.work)
         (args.work / f"{args.stage}.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     else:
         if args.groups == "stage1":

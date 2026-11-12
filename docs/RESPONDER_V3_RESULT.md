@@ -27,6 +27,20 @@ judgments; no reply or panel text).
   finalist with the GPU load recorded, and a rescoring with more judge
   reasoning, change no gate result and no ranking that matters for the
   decision.
+- **Deployment qualification of the 24 GB winner: not passed.** In the live
+  stack it met memory (12,466 MiB), latency (mean 372 ms, p90 468 ms) and
+  script (no Latin letter), but failed coherence after interruption: replies
+  after an interruption were 0.37 points less relevant than the controls under
+  both judges (the rule allows 0.25). It stays an opt-in preset, not the
+  default. See "Deployment" below.
+- **Post-hoc 12 GiB checks of Gemma 4 12B: neither passed.** vLLM with one
+  sequence fits (11,768 MiB) but missed one reply and failed coherence under
+  the Qwen3.8 judge. An exploratory diagnosis traced the slow llama.cpp first
+  token to context checkpoints of Gemma 4's sliding-window cache (24.8 ms with
+  `--swa-full`, at 10,088 MiB). That build then fit (11,700 MiB) but failed
+  latency under shared-host load and coherence under both judges. In all three
+  Gemma runs the model asks the user to repeat after a garbled follow-up
+  (11–14 of 60 follow-ups, against 3 for Qwen3.5-4B).
 
 ## What was compared
 
@@ -307,11 +321,128 @@ about 100–150 MiB.
 
 ## Deployment
 
-The 24 GB winner beats Qwen3.5-4B, so by the protocol it is qualified as the
-responder of a 24 GB preset with the measurements of part 2 of
-`docs/RESPONDER_SWITCH_PROTOCOL.md` (whole-stack memory within 22 GiB) and
-added to `serve-live`. The 12 GiB profile has no winner, so the 12 GiB stack
-keeps the responders the listening study decides between.
+The 24 GB winner beats Qwen3.5-4B, so by the protocol it was put through the
+measurements of part 2 of `docs/RESPONDER_SWITCH_PROTOCOL.md` (whole-stack
+memory within 22,528 MiB) as the responder of a `serve-live` preset
+(`--responder gemma4_12b_qat_elderly_v1`): the vLLM serving configuration of
+the decision (context 2,048, two sequences, the profiled KV cache of
+1,481,617,055 bytes), elderly prompt v1, at most 96 new tokens, otherwise the
+v2 live configuration. Receipts:
+`results/eval/responder_v3_24gb_qualification.json` (with its loopback and
+coherence receipts beside it).
+
+| Check | Result | Rule | |
+|---|---|---|---|
+| Q1 whole-stack memory | 12,466 MiB (recognizer 1,610, vLLM 10,856) | ≤ 22,528 MiB | pass |
+| Q2 latency, plain panel (201 turns) | no missing reply; mean 372 ms, p90 468 ms | mean and p90 ≤ 500 ms | pass |
+| Q2 latency, elderly panel (80 turns) | p90 373 ms | p90 ≤ 500 ms | pass |
+| Q3 relevance after interruption, Gemini | 2.37 vs control 2.73 (−0.37, 95% CI [−0.90, 0.13]) | at most 0.25 below | fail |
+| Q3 relevance after interruption, Qwen3.8-27B | 2.50 vs control 2.87 (−0.37, [−1.10, 0.37]) | at most 0.25 below | fail |
+| Q4 script | 0 of 419 replies with a Latin letter | none | pass |
+
+Part 2 is therefore **not passed**, and the preset is not qualified. It stays
+in `serve-live` as an opt-in configuration, and the default is unchanged. All
+30 interrupted replies were playing at the onset and all stopped. Both Q3
+intervals include zero, but the rule, frozen before this run, compares the
+point estimates.
+
+Where the deficit comes from (exploratory, after the outcome was known): it
+lies in the late interruptions (relevance 2.0 vs 2.9 under Gemini, 1.9 vs 3.2
+under Qwen3.8; early and mid are within 0.2). Reading the runs showed that
+Gemma 4 12B asks the user to repeat when the recognizer garbles the follow-up,
+where Qwen3.5-4B guesses. `scripts/count_clarification_requests.py` counts such
+replies with a fixed pattern (`results/eval/responder_v3_repeat_requests.json`):
+Gemma 4 12B asks in 14 of its 60 follow-up replies (4 of the 10 late
+interruptions), Qwen3.5-4B in 3 of 60 on the same scenarios. The follow-up
+transcripts Gemma asked about have a median character error rate of 0.345,
+against 0.161 for the others. The written-request comparison above had clean
+text input, so it could not show this. Asking to repeat may suit older users,
+but the judges, who see the intended follow-up and not the recognizer's
+transcript, score it as irrelevant. Whether people prefer it is a question for
+human evaluation.
+
+### 12 GiB: two post-hoc checks of Gemma 4 12B (neither passed)
+
+The 12 GiB profile has no winner. Two post-hoc addenda, written after that
+result and before their measurements, checked whether Gemma 4 12B could still
+serve the 12 GiB stack. Both ran the same four checks with the 12,288 MiB limit,
+on the same harness, panels and host.
+
+**vLLM QAT with one sequence** (post-hoc addendum of 2026-11-11; receipts
+`results/eval/responder_v3_12gib_one_sequence_qualification*.json`). One
+sequence with a KV cache of 749,197,135 bytes brings the vLLM build within the
+limit.
+
+| Check | Result | |
+|---|---|---|
+| Q1 memory | 11,768 MiB (recognizer 1,610, vLLM 10,158) | pass |
+| Q2 latency | plain: 1 of 201 turns without a reply; mean 344 ms, p90 385 ms; elderly p90 387 ms | fail |
+| Q3 relevance after interruption | Gemini −0.10 ([−0.63, 0.43]), Qwen3.8 −0.27 ([−1.07, 0.53]) | fail (Qwen3.8) |
+| Q4 script | 0 of 416 replies with a Latin letter | pass |
+
+The turn without a reply is a 1.2 s utterance for which the server recorded no
+turn at all: the end-of-speech detector, which runs before the responder, never
+closed it. The same utterance was answered in the 24 GB run. The rule counts it.
+
+**llama.cpp diagnosis** (exploratory; `scripts/diagnose_llamacpp_first_token.py`,
+`results/eval/responder_v3_llamacpp_first_token_diagnosis*.json`). The
+llama.cpp builds fit 12 GiB but missed the latency gate. The diagnosis served
+Gemma 4 12B Q5_K_M with the harness settings on the first 40 development rows,
+changing one setting at a time. Median first token:
+
+| Setting | First pass (host load ≈ 2) | Second pass (host load 2–35) | GPU memory |
+|---|---|---|---|
+| harness settings | 184 ms | 280 ms | 9,766 MiB |
+| quieter log | 180 ms | 183 ms | 9,766 MiB |
+| no Persian-only grammar | 179 ms | 163 ms | 9,766 MiB |
+| micro-batch 2,048 | 178 ms | 176 ms | 10,460 MiB |
+| one slot | 177 ms | 175 ms | 9,254 MiB |
+| no prompt cache | 138 ms | 136 ms | 9,768 MiB |
+| no context checkpoints | | 59.5 ms | 9,766 MiB |
+| full window cache (`--swa-full`) | | 24.8 ms | 10,088 MiB |
+
+Gemma 4 uses sliding-window attention. With its defaults, llama.cpp saves and
+restores context checkpoints of the window cache (50–140 MiB each) around
+every reused prompt. That, not the model, the grammar or the GPU, cost the
+first token about 150 ms. A full-size window cache keeps prompt reuse without
+checkpoints.
+
+**llama.cpp Q5_K_M with `--swa-full`** (post-hoc addendum 3; receipts
+`results/eval/responder_v3_12gib_llamacpp_qualification*.json`; live preset
+`gemma4_12b_q5km_llamacpp_elderly_v1`, with the Persian-only constraint as the
+equivalent llama.cpp grammar).
+
+| Check | Result | |
+|---|---|---|
+| Q1 memory | 11,700 MiB (recognizer 1,610, llama.cpp 10,090) | pass |
+| Q2 latency | plain: no missing reply; mean 480 ms, p90 824 ms; elderly p90 1,005 ms | fail |
+| Q3 relevance after interruption | Gemini −0.33 ([−0.90, 0.20]), Qwen3.8 −0.33 ([−1.07, 0.40]) | fail |
+| Q4 script | 0 of 409 replies with a Latin letter | pass |
+
+The first 125 plain turns had a median of about 365 ms. From about turn 150
+every stage slowed at once, the recognizer too (55 → 75 ms, a separate
+process), the first token (105 → 180 ms) and the first clause (180 → 580 ms).
+That points to load from other users of the shared host, which this run did not
+record. As the rule is written, Q2 fails as measured. Q3 fails under both
+judges either way, so it was not repeated.
+
+**The common cause.** All three Gemma 4 12B runs lose relevance after late
+interruptions (Gemini 2.0, 2.5 and 1.9 against controls of 2.9 to 3.1), and in
+all three the model asks the user to repeat after a garbled follow-up
+(`results/eval/responder_v3_repeat_requests.json`, exploratory):
+
+| Run | Follow-ups asking to repeat (interrupt + control, of 60) | Follow-up CER when asking / otherwise |
+|---|---|---|
+| Qwen3.5-4B, vLLM (switch qualification) | 3 | 0.207 / 0.200 |
+| Gemma 4 12B QAT, vLLM, 24 GB | 14 | 0.345 / 0.161 |
+| Gemma 4 12B QAT, vLLM, 12 GiB one sequence | 13 | 0.351 / 0.146 |
+| Gemma 4 12B Q5_K_M, llama.cpp, 12 GiB | 11 | 0.420 / 0.167 |
+
+So no Gemma 4 12B configuration is qualified for either stack, and the 12 GiB
+stack keeps the responders the listening study decides between. Changing how
+the responder treats an uncertain transcript (the recognizer's confidence, or
+an instruction to answer the most likely request and confirm briefly) is the
+next step, and it needs its own pre-registered test.
 
 ## Claim boundary
 

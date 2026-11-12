@@ -55,11 +55,14 @@ the English tokenizer is the main obstacle. \textbf{2.} In the cascade,
 speculative end-of-speech detection with audio held until confirmation, streaming
 generation with a Persian-script constraint, clause chunking, a playback queue and
 two-stage interruption control with heard-only history brought the latency to a
-mean of 372 and a 90th percentile of 431 ms. \textbf{3.} Size did not buy quality:
-the smallest Persian-specialized recognizers and synthesizer gave the best
-trade-off, responders of 9 to 36 billion parameters (four bits where needed)
-gave no gain over the best 4B under both judges, and the 7.7-billion-parameter
-end-to-end model did not reach intelligible speech. \textbf{4.} The perception of older adults depends on the
+mean of 372 and a 90th percentile of 431 ms. \textbf{3.} For recognition and
+synthesis size did not buy quality: the smallest Persian-specialized recognizers and
+synthesizer gave the best trade-off, and the 7.7-billion-parameter end-to-end model did
+not reach intelligible speech. For the responder it did once the judges came from
+families with no candidate: Gemma~4 12B at four bits scored 1.2 to 1.75 points (of 10)
+above the best 4B with a 39~ms first token within 24~GB, but in the live stack its replies
+after late interruptions fell short of the coherence rule, so it is not qualified, and post-hoc
+12~GiB checks of the same model failed it too. \textbf{4.} The perception of older adults depends on the
 results of the listening study. The status of each requirement is in
 Table~\ref{tab:req-status}.
 
@@ -70,7 +73,10 @@ physical audio path; collecting the listening-study responses and a live
 interaction session with older adults; human review of a sample of the labels;
 and human judging of the responders (Qwen3.5-4B with the elderly prompt has passed
 the deployment qualification, and the participants' preference decides on its
-replacement). Improving the system: learned separation of listener words from
+replacement; whether people share the automatic judges' preference for the 24~GB
+responder has not been measured). Improving the system: a responder that knows the
+recognizer can err (the 24~GB responder asked users to repeat after garbled follow-ups);
+learned separation of listener words from
 content words with a clipped onset (a 200 ms pre-roll was tested and rejected),
 semantic end-of-turn detection for the pauses of elderly speech (tested in two
 rounds; the best gate split fewer utterances but delayed too many finished turns,

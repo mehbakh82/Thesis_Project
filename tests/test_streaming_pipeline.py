@@ -195,3 +195,37 @@ def test_openai_responder_sends_chat_template_kwargs(monkeypatch) -> None:
     assert list(responder.stream("سلام")) == ["سلام"]
     assert sent["chat_template_kwargs"] == {"enable_thinking": False}
     assert "structured_outputs" in sent
+
+
+def test_llamacpp_constraint_sends_the_equivalent_grammar(monkeypatch) -> None:
+    import io
+    import json
+    import re
+    import urllib.request
+
+    import pytest
+
+    from thesis_s2s.runtime.live import RESPONDER_PRESETS
+    from thesis_s2s.runtime.streaming import (
+        PERSIAN_ONLY_GBNF,
+        PERSIAN_ONLY_REGEX,
+        OpenAIStreamingResponder,
+    )
+
+    sent = {}
+
+    def fake_urlopen(request, timeout):
+        sent.update(json.loads(request.data))
+        return io.BytesIO(b"data: [DONE]\n")
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    preset = RESPONDER_PRESETS["gemma4_12b_q5km_llamacpp_elderly_v1"]
+    responder = OpenAIStreamingResponder(endpoint="http://llm", model="m", system_prompt="p", constraint=preset["constraint"])
+    list(responder.stream("سلام"))
+    assert sent["grammar"] == PERSIAN_ONLY_GBNF and "structured_outputs" not in sent
+    # the grammar's class admits exactly the characters of the vLLM regular expression
+    gbnf_class = re.compile("[" + PERSIAN_ONLY_GBNF.split("[", 1)[1].split("]", 1)[0].encode().decode("unicode_escape") + "]")
+    regex_class = re.compile(PERSIAN_ONLY_REGEX.split("{", 1)[0])
+    assert all(bool(gbnf_class.fullmatch(chr(c))) == bool(regex_class.fullmatch(chr(c))) for c in range(0x10000))
+    with pytest.raises(ValueError):
+        OpenAIStreamingResponder(endpoint="http://llm", model="m", system_prompt="p", constraint="json")

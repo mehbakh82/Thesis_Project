@@ -227,7 +227,30 @@ five larger models of 9 to 36 billion parameters, most at four bits, under a
 22~GiB limit. Gemma~4 31B did not fit, and none of the other four beat
 Qwen3.5-4B under both judges. Under the Qwen judge none gained more than 0.01
 in relevance. Under Gemini, Gemma~4 12B gained 0.26 but won only 26\% of the
-rows. On this panel, size did not buy reply quality. \textbf{Voice:} of the six Persian Piper voices,
+rows. On this panel, size did not buy reply quality. A third pre-registered
+comparison then covered 15 models of the Qwen3.5, Qwen3.6, Qwen3.8 and Gemma~4
+families (0.8 to 35 billion parameters) with every quantized build that vLLM and
+llama.cpp can run, for a 12~GiB and a 24~GB card (responder within 10,682 and
+22,528~MiB, a 2,048-token context and two concurrent requests, a median first token
+of at most 150~ms), scored from 0 to 10 on 252 new test rows by two judges from
+families with no candidate, Claude Opus~5.5 and GPT-6 Astra. For 24~GB, Gemma~4 12B
+with Google's 4-bit weights on vLLM won (6.47 and 7.09; first token 39~ms; 10.9~GB)
+and beat Qwen3.5-4B (5.27 and 5.34) by 1.20 and 1.75 points and the deployed
+responder (2.84 and 3.58) by 3.63 and 3.52, all with 95\% intervals above zero. In the
+live stack it met the memory (12.2~GiB) and latency limits (mean 372, 90th percentile
+468~ms) but not the coherence rule after interruption (0.37 points below the controls
+under both judges, limit 0.25): when the recognizer garbled a follow-up it asked the user
+to repeat (14 of 60 replies, against 3 of 60 for Qwen3.5-4B). It is not qualified. For
+12~GiB no configuration both fit and met the latency gate. Two post-hoc 12~GiB checks of
+the same model failed as well: vLLM with one sequence (one unanswered utterance, coherence
+under the Qwen judge) and llama.cpp after a diagnosis traced its slow first token to cache
+checkpoints of the sliding window (24.8~ms without them; it then failed latency under
+other users' load and coherence under both judges). The two judges agree
+with each other (rank correlation 0.88); more judge reasoning and repeated latency
+measurements with the GPU load recorded changed no result. A first decision, the FP8
+build of the same model with equal test quality, was revised after two builds the
+rules required were found unrun; both are reported. With judges from outside the
+candidate families, size did buy reply quality. \textbf{Voice:} of the six Persian Piper voices,
 Mana remained the most intelligible to two automatic listeners, with a mean
 character error rate of 5.82\%; ganji\_adabi was tied and had the best DNSMOS, and
 both went to the listening study. ParsVoice-XTTS with the ManaTTS voice was on par

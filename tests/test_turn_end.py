@@ -226,3 +226,22 @@ def test_the_24gb_preset_is_the_responder_v3_winner() -> None:
     preset = RESPONDER_PRESETS["gemma4_12b_qat_elderly_v1"]
     assert preset["model"] == "google/gemma-4-12B-it-qat-w4a16-ct" and preset["prompt"] == "ELDERLY_PROMPT_V1"
     assert preset["max_new_tokens"] == 96 and preset["chat_template_kwargs"] == {"enable_thinking": False}
+
+
+def test_loopback_memory_counts_a_llamacpp_responder(tmp_path) -> None:
+    import importlib.util
+    import sys
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location("score_loopback_formal", root / "scripts/score_loopback_formal.py")
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["score_loopback_formal"] = module
+    spec.loader.exec_module(module)
+    csv_path = tmp_path / "gpu.csv"
+    csv_path.write_text("t1, 10, 1610 MiB\nt1, 20, 10088 MiB\nt1, 30, 5000 MiB\nt2, 10, 1610 MiB\nt2, 20, 10090 MiB\n")
+    result = module.memory(csv_path, {"nemo_pid": 10, "llamacpp_pids": "20"})
+    assert result["peak_mib"] == {"asr_nemo": 1610.0, "llm_llamacpp": 10090.0} and result["peak_stack_mib"] == 11700.0
+    assert "llama.cpp" in result["note"]
+    assert module.memory(csv_path, {"nemo_pid": 10, "vllm_pids": "20 30"})["peak_mib"]["llm_vllm"] == 15088.0
