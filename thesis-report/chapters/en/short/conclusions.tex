@@ -44,8 +44,8 @@ interruption and data labels are automatic and have no human labels; the two
 automatic judges of the responder disagree considerably; elderly speech in the
 tests is simulated. Interruption detection relies on the speech recognizer, not
 on the acoustic features specified in the project definition. The dataset is
-derived from an internal archive and is not redistributable. The results of the
-listening study have not yet been received.
+derived from an internal archive and is not redistributable. The listening study
+was not conducted, as no participants were available.
 
 \section{Answers to the Research Questions}
 
@@ -62,18 +62,18 @@ not reach intelligible speech. For the responder it did once the judges came fro
 families with no candidate: Gemma~4 12B at four bits scored 1.2 to 1.75 points (of 10)
 above the best 4B with a 39~ms first token within 24~GB, but in the live stack its replies
 after late interruptions fell short of the coherence rule, so it is not qualified, and post-hoc
-12~GiB checks of the same model failed it too. \textbf{4.} The perception of older adults depends on the
-results of the listening study. The status of each requirement is in
+12~GiB checks of the same model failed it too. \textbf{4.} The perception of older adults was not measured,
+because the listening study was not conducted. The status of each requirement is in
 Table~\ref{tab:req-status}.
 
 \section{Future Work}
 
 Completing the evidence: running the same loopback test on a 12--24 GB card with a
-physical audio path; collecting the listening-study responses and a live
+physical audio path; running the registered listening study and a live
 interaction session with older adults; human review of a sample of the labels;
 and human judging of the responders (Qwen3.5-4B with the elderly prompt has passed
-the deployment qualification, and the participants' preference decides on its
-replacement; whether people share the automatic judges' preference for the 24~GB
+the deployment qualification, and only the participants' preference is missing
+for its replacement; whether people share the automatic judges' preference for the 24~GB
 responder has not been measured). Improving the system: a responder that knows the
 recognizer can err (the 24~GB responder asked users to repeat after garbled follow-ups);
 learned separation of listener words from

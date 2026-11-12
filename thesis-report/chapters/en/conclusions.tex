@@ -59,8 +59,8 @@ Part two: what can be proven with auditable evidence? The answer is in
 Table~\ref{tab:req-status}. R1 and R4 are met; R2, R3 and R5 are met with automatic evidence
 (browser loopback and simulation), R3 by the proposal's criterion and, for the main panel, even by
 the every-turn reading, and R5 by a method other than the specified acoustic features; R6 is a
-declared deviation (memory was measured, speed on target hardware was not); and R7 depends on the
-responses of the listening-study participants. The methodological contribution of this report lies
+declared deviation (memory was measured, speed on target hardware was not); and R7 is not met because
+the listening study could not be conducted. The methodological contribution of this report lies
 in this separation: for each measure the permitted claim boundary is stated, and negative results are
 reported as fully as positive ones.
 
@@ -112,8 +112,8 @@ Persian with the largest responder the memory profile allows at four bits, provi
 checked in the live stack, where recognition errors change what a good reply is.
 
 \textbf{Question 4: the perception of older adults.} The instrument and protocol of the listening study
-are ready and pre-registered, but the participants' responses have not yet arrived; until then this
-report makes no claim about the perception of older adults.
+are ready and pre-registered, but no participants were available, so the study was not conducted and
+this report makes no claim about the perception of older adults.
 
 \section{Future Work}
 \label{sec:future}
@@ -124,8 +124,8 @@ report makes no claim about the perception of older adults.
 \item \textbf{Target hardware and a physical path.} Running the same loopback protocol on a 12--24 GB
       card, and a test with a physical microphone and loudspeaker that includes real echo and the
       browser's echo cancellation.
-\item \textbf{Human study.} Collecting the responses of 5--10 participants (at least two aged over 60)
-      with the registered instrument; and as a next step, a short live interaction session with older
+\item \textbf{Human study.} Running the registered listening study with 5--10 participants (at least
+      two aged over 60); and as a next step, a short live interaction session with older
       adults.
 \item \textbf{Human labels.} A listening review of a sample of interruption events and dataset pairs by
       two independent reviewers, to validate the automatic Gemini labels and the extraction rules.
@@ -133,9 +133,9 @@ report makes no claim about the perception of older adults.
       about the responders (Gemini rated the responders with the elderly prompt about one point better
       and the Qwen judge did not); two later judges from other families agree with each other and
       prefer the larger Gemma models. The replacement rule for the 12~GiB stack was registered before
-      the listening study was sent, and the configuration of Qwen3.5-4B with the elderly prompt has
-      passed its deployment qualification; the participants' preference therefore decides whether it
-      replaces the deployed responder. Whether people share the automatic judges' preference for the
+      any participant could receive the listening study, and the configuration of Qwen3.5-4B with the elderly prompt has
+      passed its deployment qualification; only the participants' preference, which could not be
+      collected, is missing for it to replace the deployed responder. Whether people share the automatic judges' preference for the
       24~GB responder, and whether older users accept its requests to repeat after recognition
       errors, has not been measured.
 \end{enumerate}

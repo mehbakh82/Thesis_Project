@@ -54,6 +54,12 @@ approval is claimed.
 - **Human evaluation:** a minimal remote listening study (5–6 native Persian
   listeners, at least two aged 60+, about 15 minutes, no voice recording) is
   the planned human evidence for naturalness and perceived responsiveness.
+- **Human evaluation, outcome (2026-11-12):** no participants were available
+  before submission, so the listening study was not conducted and its page was
+  never sent. The student's own ratings are not used in its place (the student
+  knows which system produced each clip, and one rater cannot meet the
+  registered sample). The MOS criterion is reported as not met, and by the
+  pre-registered switch rule the deployed responder is unchanged.
 - **Latency criterion:** the formal browser-loopback runs are judged by the
   proposal's own two criteria — mean ≤ 500 ms (objective table) and 90th
   percentile ≤ 500 ms (problem statement) of end-of-speech-to-first-audio on

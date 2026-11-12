@@ -105,7 +105,11 @@ def _closeout_criteria(evidence: dict[str, Any], data_substantial: bool) -> dict
                 "aged_60_plus": study.get("participants_aged_60_plus"),
                 "tts_mana_mos": mana,
             },
-            "boundary": "human evidence from the minimal remote listening study (pending until codes are returned)",
+            "boundary": (
+                "human evidence from the minimal remote listening study; not conducted (no participants were available)"
+                if study.get("status") == "not_run"
+                else "human evidence from the minimal remote listening study (pending until codes are returned)"
+            ),
         },
     }
 

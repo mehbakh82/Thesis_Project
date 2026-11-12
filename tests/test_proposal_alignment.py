@@ -159,3 +159,7 @@ def test_closeout_criteria_never_promote_without_their_evidence() -> None:
     assert not rows["human_mos_3_5_elderly"]["met_under_automatic_evidence"]  # MOS below 3.5
     evidence["closeout_2026_10"]["browser_loopback"]["gpu_memory"]["peak_stack_mib"] = 20000.0
     assert not module._closeout_criteria(evidence, True)["streaming_latency_500_ms"]["met_under_automatic_evidence"]
+    evidence["closeout_2026_10"]["listening_study"] = {"status": "not_run"}
+    human = module._closeout_criteria(evidence, True)["human_mos_3_5_elderly"]
+    assert not human["met_under_automatic_evidence"]
+    assert "not conducted" in human["boundary"]

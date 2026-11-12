@@ -21,7 +21,7 @@ machine-readable receipt now also reports each criterion under the closeout's
 | Direct S2S, lower loss and intelligible Persian | Moshi v7a 6/9 but unintelligible (prefix CER 0.88); Gemma speech input below the cascade | **No** |
 | Streaming ≤ 500 ms on one 12–24 GB GPU | Real-browser loopback: mean 372 ms, p90 431 ms, max 491 ms, 0 unanswered of 201 (audible p90 473 ms); 11.1 GiB GPU stack | Yes (H100 compute, 12 GiB memory budget) |
 | Full duplex, ≥80% detection, ≤150 ms | Simulation 0.933 / 0.880, duck median 120 ms; browser 0.825 / 0.817 | Yes (automatic labels, no physical audio path) |
-| MOS ≥ 3.5, 5–10 speakers, ≥2 aged 60+ | Listening study frozen and distributed | Pending |
+| MOS ≥ 3.5, 5–10 speakers, ≥2 aged 60+ | Listening study frozen but not conducted: no participants were available (2026-11-12) | **No** |
 
 The architecture remains a cascade, not the proposal's direct model; the
 measured root cause of the direct failure (tokenizer fertility at 12.5 Hz) is
