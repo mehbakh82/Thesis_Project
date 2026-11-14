@@ -116,6 +116,7 @@ ARTIFACTS: dict[str, str] = {
     "closeout_listening_study_status": "results/eval/listening_study_status.json",
     "closeout_listening_study_author_pilot": "results/eval/listening_study_author_pilot.json",
     "closeout_asr_v3": "results/eval/asr_candidates_v3_psrb_human.json",
+    "closeout_asr_v4": "results/eval/asr_candidates_v4.json",
     "closeout_end_of_turn_v2_dev": "results/eval/end_of_turn_v2_dev.json",
     "closeout_loopback_v3": "results/eval/live_loopback_v3.json",
     "closeout_loopback_v3_splits": "results/eval/live_loopback_v3_splits.json",
@@ -1750,6 +1751,7 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
     switch_coherence = load("closeout_responder_switch_coherence")
     switch = load("closeout_responder_switch")
     asr_v3 = load("closeout_asr_v3")
+    asr_v4 = load("closeout_asr_v4")
     eot_v2 = load("closeout_end_of_turn_v2_dev")
     loopback_v3 = load("closeout_loopback_v3")
     loopback_v3_splits = load("closeout_loopback_v3_splits")
@@ -1903,6 +1905,14 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
             "evidence_class": "human_reference_transcripts_psrb_public",
             "selection": asr_v3.get("selection"),
             "micro_cer": {arm: row.get("micro_cer") for arm, row in (asr_v3.get("arms") or {}).items()},
+        },
+        "asr_v4": {
+            "status": status(asr_v4),
+            "evidence_class": "human_reference_transcripts_psrb_and_fleurs_public",
+            "selection": asr_v4.get("selection"),
+            "psrb_micro_cer": {a: r.get("micro_cer") for a, r in ((asr_v4.get("psrb") or {}).get("arms") or {}).items()},
+            "fleurs_micro_cer": {a: r.get("micro_cer") for a, r in ((asr_v4.get("fleurs") or {}).get("arms") or {}).items()},
+            "fleurs_nemo_v6_vs_v4_cer": (asr_v4.get("fleurs") or {}).get("nemo_v6_vs_v4_cer"),
         },
         "end_of_turn_gate_v2": {
             "status": status(eot_v2),

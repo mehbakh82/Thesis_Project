@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -530,6 +531,8 @@ def test_the_queue_deletes_a_downloaded_model_unless_asked_to_keep_it(tmp_path: 
     weights.write_bytes(b"x")
     monkeypatch.setattr(v3, "fetch", lambda models, arm: {"arm": arm["arm"]})
     monkeypatch.setattr(v3, "guarded_run", lambda work, models, arm, **kw: {"arm": arm["arm"], "kv": "auto", "status": "ok"})
+    # The queue waits for 8 GiB of free disk; do not depend on the free space of the machine running the tests.
+    monkeypatch.setattr(v3.shutil, "disk_usage", lambda path: shutil._ntuple_diskusage(1 << 50, 0, 1 << 50))
     v3.queue(tmp_path, tmp_path / "models", None, None, arm_list=tmp_path / "list.txt", keep=keep)
     assert weights.exists() is keep
 

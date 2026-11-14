@@ -157,7 +157,53 @@ class RadeBackend:
         return [str(t).strip() for t in texts]
 
 
+class NemotronStreamingBackend:
+    """Nemotron 3.5 ASR streaming (RNN-T) through transformers, one call per clip.
+
+    The model card's offline usage: the look-ahead (``set_num_lookahead_tokens``)
+    fixes the encoder's attention context, the ``fa-IR`` prompt selects Persian
+    and decoding is greedy RNN-T. ASR comparison v4 uses 13 tokens (1.12 s) and
+    3 tokens (0.32 s, the model default).
+    """
+
+    def __init__(self, checkpoint: Path, lookahead_tokens: int) -> None:
+        import torch
+        from transformers import AutoModelForRNNT, AutoProcessor
+
+        self.torch = torch
+        self.processor = AutoProcessor.from_pretrained(str(checkpoint))
+        self.processor.set_num_lookahead_tokens(lookahead_tokens)
+        self.model = AutoModelForRNNT.from_pretrained(str(checkpoint), device_map="cuda").eval()
+
+    def predict(self, paths: list[Path]) -> list[str]:
+        import wave
+
+        import numpy as np
+
+        rate = self.processor.feature_extractor.sampling_rate
+        outputs = []
+        for path in paths:
+            with wave.open(str(path), "rb") as handle:
+                if handle.getframerate() != rate:
+                    raise ValueError(f"nemotron backend expects {rate} Hz panels")
+                channels = handle.getnchannels()
+                frames = handle.readframes(handle.getnframes())
+            audio = np.frombuffer(frames, dtype="<i2").astype(np.float32) / 32768.0
+            if channels > 1:
+                audio = audio.reshape(-1, channels).mean(axis=1)
+            inputs = self.processor(audio, sampling_rate=rate, language="fa-IR")
+            inputs = inputs.to(self.model.device, dtype=self.model.dtype)
+            with self.torch.inference_mode():
+                output = self.model.generate(**inputs, return_dict_in_generate=True)
+            outputs.append(self.processor.decode(output.sequences, skip_special_tokens=True)[0].strip())
+        return outputs
+
+
 def load_backend(args: argparse.Namespace) -> Any:
+    if args.backend == "nemotron_la1120":
+        return NemotronStreamingBackend(args.checkpoint, 13)
+    if args.backend == "nemotron_la320":
+        return NemotronStreamingBackend(args.checkpoint, 3)
     if args.backend == "gemma4":
         return GemmaAudioBackend(args.checkpoint)
     if args.backend == "seamless_direct":

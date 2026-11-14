@@ -417,6 +417,11 @@ Whisper large-v3-turbo, Persian & 20.22\% & 39.21\% & 22.25\% & 484 ms \\
 Whisper large-v3, Persian v4 & 21.54\% & 41.86\% & 24.51\% & 1427 ms \\
 Whisper base, Persian & 23.30\% & 49.14\% & 28.21\% & 1027 ms \\
 NeuraSpeech 900h & 25.42\% & 48.73\% & 37.42\% & 79 ms \\
+\midrule
+\multicolumn{5}{l}{\emph{Third round (v4): models released or trained later}} \\
+Nemotron Persian, 1.12 s & 9.01\% & 24.69\% & 15.32\% & 268 ms \\
+Nemotron Persian, 0.32 s & 9.80\% & 25.98\% & 16.03\% & 218 ms \\
+NeMo v8 (epoch 0) & 10.18\% & 24.48\% & 16.18\% & 62 ms \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -440,6 +445,24 @@ Persian-specialized model, has a character error rate of 16.1\%; most of its err
 speech it leaves out (14.0\% of the characters, against 5.2\% for NeMo), especially at
 the start of clips and for older speakers (30.0\%). The results on its model card, on
 read speech, did not carry over to this mostly spontaneous panel.
+
+A third pre-registered round tested three models that the earlier rounds lacked: a Persian
+fine-tune of NVIDIA's Nemotron streaming recognizer (released before the second round but
+missed by its search), the best checkpoint of a later NeMo training run (v8), and, to check
+whether 344 clips are enough, a second panel with human transcripts: the 871 read sentences
+of the FLEURS Persian test set. The rule gained one condition: a replacement must also not
+be significantly worse on FLEURS. Nemotron with a 1.12-second look-ahead has a slightly
+lower error than NeMo version 4 (9.01\% against 9.44\%), but the gain is not significant
+($-1.00$ to $+0.15$), although it is on FLEURS (5.05\% against 5.28\%), and in the
+library it was run with it needs 215 ms per short clip, above the budget. NeMo version 8 is
+significantly worse on both panels. NeMo version 6 was significantly worse than version 4
+on PSRB ($+0.71$ points, $+0.40$ to $+1.02$; version 4 makes fewer errors on 111 clips and
+version 6 on 71) and the two are tied on FLEURS, so the second panel confirms that version
+6 is never the better choice. NeMo version 4 therefore stays. NVIDIA's large
+Nemotron-3.5-Transcribe model, the leading open model on English leaderboards, does not
+support Persian, and public ASR leaderboards rank English (and a few European languages),
+so they cannot settle the choice for Persian; the claim is ``best among the 24 arms
+tested on these two panels'', not best possible.
 
 \subsection{Responder with a Panel of Elderly Requests}
 
