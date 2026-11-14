@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-11-14T09:45:17.825108+00:00",
+  "generated_at": "2026-11-14T10:39:05.883038+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1165,6 +1165,32 @@
         "parsvoice_xtts": 0.13548462255358806
       }
     },
+    "tts_v4": {
+      "status": "present",
+      "evidence_class": "automatic_asr_listeners_and_dnsmos_proxy",
+      "deployment_possible": false,
+      "ranking_by_two_listener_cer": [
+        "piper_mana",
+        "chatterbox_fa",
+        "piper_ganji_adabi",
+        "gooya_v1",
+        "moss_tts_nano_fa"
+      ],
+      "cer_two_listener_mean": {
+        "piper_mana": 0.058247903075489285,
+        "piper_ganji_adabi": 0.06931500465983224,
+        "moss_tts_nano_fa": 0.2142357875116496,
+        "gooya_v1": 0.18219944082013048,
+        "chatterbox_fa": 0.06465517241379311
+      },
+      "first_four_words_ms_median": {
+        "piper_mana": 84.23628198215738,
+        "piper_ganji_adabi": 91.58696251688525,
+        "moss_tts_nano_fa": 3298.355691600591,
+        "gooya_v1": 2015.4887260869145,
+        "chatterbox_fa": 1981.2368941493332
+      }
+    },
     "interruption_coherence": {
       "status": "present",
       "evidence_class": "automated_browser_loopback_with_automatic_judges",
@@ -2088,8 +2114,8 @@
     "final_audit": {
       "path": "results/release/final_audit.json",
       "present": true,
-      "bytes": 16116,
-      "sha256": "b1430b52e8de7c9abafce0f7006b7566397ac5a9e8ab9ee8e82778c89319c342"
+      "bytes": 16258,
+      "sha256": "ab20a3f61cd7805e5b0e613674bfc00b735ff892b70d42dcb8412f0dfa7b700d"
     },
     "submission_tag_attestation": {
       "path": "results/release/submission_tag_attestation.json",
@@ -2126,6 +2152,12 @@
       "present": true,
       "bytes": 4859,
       "sha256": "ae3d1d00e8513482f38c29b422dc5730b02875207a34fb631e2cbece32538c06"
+    },
+    "closeout_tts_v4": {
+      "path": "results/eval/tts_candidates_v4.json",
+      "present": true,
+      "bytes": 9269,
+      "sha256": "005eb686f13fe5b6e0316a4ab312a4900fe3b6d07f28f0e8637bc630187d6075"
     },
     "closeout_tts_v3_lab_vits": {
       "path": "results/eval/tts_candidates_v3_with_lab_vits_pinned.json",

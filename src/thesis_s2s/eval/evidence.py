@@ -85,6 +85,7 @@ ARTIFACTS: dict[str, str] = {
     "closeout_responder_v2": "results/eval/responder_candidates_v2_two_judges.json",
     "closeout_tts_v2": "results/eval/tts_candidates_v2.json",
     "closeout_tts_v3": "results/eval/tts_candidates_v3.json",
+    "closeout_tts_v4": "results/eval/tts_candidates_v4.json",
     "closeout_tts_v3_lab_vits": "results/eval/tts_candidates_v3_with_lab_vits_pinned.json",
     "closeout_tts_lab_vits_serving_first": "results/eval/tts_lab_vits_dev_serving.json",
     "closeout_tts_lab_vits_serving": "results/eval/tts_lab_vits_dev_serving_v2.json",
@@ -1728,6 +1729,7 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
     responder = load("closeout_responder_v2")
     tts = load("closeout_tts_v2")
     tts_v3 = load("closeout_tts_v3")
+    tts_v4 = load("closeout_tts_v4")
     lab_serving = load("closeout_tts_lab_vits_serving")
     lab_dev = {step: load(f"closeout_tts_lab_vits_dev_{step}") for step in ("grid", "split", "punct", "tokenize")}
     lab_eval = load("closeout_tts_lab_vits_eval")
@@ -1799,6 +1801,18 @@ def _closeout_2026_10(project: Path) -> dict[str, Any]:
             "ranking_by_two_listener_cer": tts_v3.get("ranking_by_two_listener_cer"),
             "cer_two_listener_mean": {
                 arm: row.get("cer_two_listener_mean") for arm, row in (tts_v3.get("arms") or {}).items()
+            },
+        },
+        "tts_v4": {
+            "status": status(tts_v4),
+            "evidence_class": "automatic_asr_listeners_and_dnsmos_proxy",
+            "deployment_possible": False,  # the listening study the deployment rule needs was not conducted
+            "ranking_by_two_listener_cer": tts_v4.get("ranking_by_two_listener_cer"),
+            "cer_two_listener_mean": {
+                arm: row.get("cer_two_listener_mean") for arm, row in (tts_v4.get("arms") or {}).items()
+            },
+            "first_four_words_ms_median": {
+                arm: row.get("first_four_words_ms_median") for arm, row in (tts_v4.get("arms") or {}).items()
             },
         },
         "interruption_coherence": {
