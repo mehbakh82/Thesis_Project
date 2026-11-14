@@ -214,7 +214,9 @@ the 150 ms budget; NeMo version 4, with 9.44\% and 58 ms, was the best candidate
 within the budget and was retained (Whisper large-v3, Qwen3-ASR and Gemma~4 above
 20\%). A second round added eight Persian checkpoints: Shenava Koochik was 0.50
 points better, not significantly, and Rade-ASR-CTC-3B reached 16.1\%, mostly from
-speech it left out. \textbf{Responder:} on a panel of 60 elderly requests and 60 natural turns,
+speech it left out. A third round with a second human panel (871 FLEURS sentences) found
+no better recognizer within the budget: Nemotron Persian 9.01\%, not significantly better
+and 215 ms; NeMo v8 and v6 never better than v4. \textbf{Responder:} on a panel of 60 elderly requests and 60 natural turns,
 no candidate reached the replacement threshold (+0.25 relevance) under both
 judges. The judges disagree: under Gemini, Qwen3.5-4B and Gemma~4 with the elderly
 prompt are about one point better than the deployed system (3.36 and 3.54 versus

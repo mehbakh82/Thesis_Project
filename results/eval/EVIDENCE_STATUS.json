@@ -1,6 +1,6 @@
 {
   "schema_version": 17,
-  "generated_at": "2026-11-12T13:29:01.780041+00:00",
+  "generated_at": "2026-11-14T09:45:17.825108+00:00",
   "authoritative": true,
   "thesis_ready": false,
   "verdict": "not_thesis_ready_evidence_gates_pending",
@@ -1463,6 +1463,80 @@
         "nemo_v4_ctc_rerun": 0.09443675222778429
       }
     },
+    "asr_v4": {
+      "status": "present",
+      "evidence_class": "human_reference_transcripts_psrb_and_fleurs_public",
+      "selection": {
+        "latency_eligible_arms": [
+          "shenava_koochik",
+          "nemo_v4_ctc",
+          "nemo_v6_ctc",
+          "nemo_v8_ep00_ctc",
+          "nemo_v4_rnnt",
+          "omniasr_ctc_1b",
+          "rade_ctc_3b",
+          "nemo_v6_rnnt",
+          "nvidia_fa_fastconformer_ctc",
+          "neuraspeech_900h"
+        ],
+        "lowest_cer_eligible_arm": "shenava_koochik",
+        "paired_cer_difference": {
+          "point": -0.0049703553804096995,
+          "ci95_low": -0.010683188211654399,
+          "ci95_high": 0.000356506238859175
+        },
+        "significantly_better": false,
+        "senior_cer_not_higher": true,
+        "fleurs_paired_cer_difference": {
+          "point": -0.004317599707281378,
+          "ci95_low": -0.005657551035567053,
+          "ci95_high": -0.0029754314375584415
+        },
+        "fleurs_not_significantly_worse": true,
+        "replaces_nemo_v4": false
+      },
+      "psrb_micro_cer": {
+        "nemo_v4_ctc": 0.09443675222778429,
+        "nemo_v4_rnnt": 0.13402208257890438,
+        "nemo_v6_ctc": 0.10150175737565235,
+        "nemo_v6_rnnt": 0.16135903717115774,
+        "seamless_v5ft": 0.06919444740298931,
+        "seamless_v5ft_direct": 0.06919444740298931,
+        "seamless_v6_55000": 0.08985692477012107,
+        "seamless_v6_55000_direct": 0.09631838676465368,
+        "whisper_large_v3": 0.23019845918983206,
+        "qwen3_asr_1p7b": 0.2046721340575851,
+        "omniasr_ctc_1b": 0.14037703695814252,
+        "gemma4_e4b": 0.21035254020662478,
+        "rade_ctc_3b": 0.16111051940213725,
+        "nvidia_fa_fastconformer_ctc": 0.19217524052969787,
+        "neuraspeech_900h": 0.2541626726310931,
+        "buzzasr_persian": 0.15759576809741896,
+        "whisper_persian_v4": 0.21535839812546598,
+        "whisper_large_v3_turbo_fa": 0.20218695636738027,
+        "c1tech_whisper_base_fa": 0.2330031597259204,
+        "shenava_koochik": 0.08946639684737459,
+        "nemo_v4_ctc_rerun": 0.09443675222778429,
+        "nemotron_fa_la1120": 0.09010544253914154,
+        "nemotron_fa_la320": 0.09795150353250258,
+        "nemo_v8_ep00_ctc": 0.10175027514467284,
+        "nemo_v4_ctc_rerun_v4": 0.09443675222778429
+      },
+      "fleurs_micro_cer": {
+        "nemo_v4_ctc": 0.05275033540675692,
+        "nemotron_fa_la1120": 0.050518355897060614,
+        "nemotron_fa_la320": 0.05138431516038541,
+        "nemo_v8_ep00_ctc": 0.05394560312233199,
+        "nemo_v6_ctc": 0.053445542139285276,
+        "shenava_koochik": 0.048432735699475545,
+        "seamless_v5ft_direct": 0.03907793633369923
+      },
+      "fleurs_nemo_v6_vs_v4_cer": {
+        "point": 0.0006952067325283542,
+        "ci95_low": -0.00023440005921686324,
+        "ci95_high": 0.0016413522782949552
+      }
+    },
     "end_of_turn_gate_v2": {
       "status": "present",
       "evidence_class": "offline_replay_with_independent_automatic_clip_end_labels_then_automated_loopback",
@@ -2014,8 +2088,8 @@
     "final_audit": {
       "path": "results/release/final_audit.json",
       "present": true,
-      "bytes": 15926,
-      "sha256": "00e766dd5315f847c5530ab5a1a49e7a21dfc68ae1ff66c2caa85e737c585bd8"
+      "bytes": 16116,
+      "sha256": "b1430b52e8de7c9abafce0f7006b7566397ac5a9e8ab9ee8e82778c89319c342"
     },
     "submission_tag_attestation": {
       "path": "results/release/submission_tag_attestation.json",
@@ -2238,6 +2312,12 @@
       "present": true,
       "bytes": 43728,
       "sha256": "67ad9030b690c4480226dd505b9443faf13746614e97d36486f15309b3d25be0"
+    },
+    "closeout_asr_v4": {
+      "path": "results/eval/asr_candidates_v4.json",
+      "present": true,
+      "bytes": 69967,
+      "sha256": "93ccb71ad447585110145a96171f75738aae6891b57c00446f472ed5713adcf2"
     },
     "closeout_end_of_turn_v2_dev": {
       "path": "results/eval/end_of_turn_v2_dev.json",
