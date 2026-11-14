@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "experiment": "tts_candidates_v4",
+  "incumbent": "piper_mana",
+  "listeners": [
+    "nemo_v4_ctc",
+    "seamless_v5ft_direct"
+  ],
+  "normalizer": "fa-asr-score-v1",
+  "texts": 60,
+  "texts_sha256": "1981f1f1736c24f73885a9b85a0b2b071cc9d054ae34b47f27f67b039d4721e5",
+  "dnsmos_model_sha256": "269fbebdb513aa23cddfbb593542ecc540284a91849ac50516870e1ac78f6edd",
+  "dnsmos_note": "DNSMOS P.835 is an automatic signal-quality proxy trained on noisy-speech ratings; it is not a Persian naturalness MOS.",
+  "input_sha256": {
+    "panel_piper_mana": "e697fb7cebe1e91e681fb6578089971cc28ca8abc6487de4fae5627637167790",
+    "asr_nemo/piper_mana": "335e01fcdbfdf57ee5c11f732fc49f2a6baac14906935b066bfa76db1be88d91",
+    "asr_seamless/piper_mana": "ce7b29ad301032110361bb1fc689410491fc38ea5fe2697e80ebfcfd39dd2744",
+    "panel_piper_ganji_adabi": "9c73687f43d5be11e5ba6522960c0c14aa2ec36ec3d2359b4ae2e9ba2285e621",
+    "asr_nemo/piper_ganji_adabi": "71c0221607b937ae9922650db375d8e277d3cf4152c127a60573698b7053087f",
+    "asr_seamless/piper_ganji_adabi": "2d90d393f0ec41be496800d1fdc3dc426c85af046a7864745af60f78c956bc65",
+    "panel_moss_tts_nano_fa": "05466ad63b567f174766a8d52c7a480006af820f1e9faed033b8d75c29cb116b",
+    "asr_nemo/moss_tts_nano_fa": "d47d103a17fa956e0d7b714fafb019dc9f876a204f29efdce3c8a2b2040af978",
+    "asr_seamless/moss_tts_nano_fa": "00c2751370467a5ca098b84eefe289d84af5ff9c44d443a19b774049abc0da72",
+    "panel_gooya_v1": "0f98d5e5aec18e0008d59f67b4da5a0d6bb4799c628625e14f44a05db3ba7ac5",
+    "asr_nemo/gooya_v1": "6c1b80292934497dbd009c6da77382bbf1ae06f96ae42af819e0ac3b8783588b",
+    "asr_seamless/gooya_v1": "a4fbec11f25d97a72b4676d27229a152a7ad4a8480577a99402b921e4472c718",
+    "panel_chatterbox_fa": "134c17babeb9a4993afe000118ae936e56e06544a40ab85b054507657dbd7f64",
+    "asr_nemo/chatterbox_fa": "69333516b78bd441bca2bddc48ae84a0015f07b20253dc640cae90432ca2b7bd",
+    "asr_seamless/chatterbox_fa": "20bfe03442d6631ddd85acb94582af652173b965b35d3b04254469f7baf89a3c"
+  },
+  "arms": {
+    "piper_mana": {
+      "voice_sha256": "e390c0e74ba71fd97c49ba662ee0c6e1724b462ba2d4561698af4f564840f126",
+      "texts": 60,
+      "render_rtf_median": 0.05805895966562778,
+      "first_four_words_ms_median": 84.23628198215738,
+      "first_four_words_ms_p90": 131.7283830139786,
+      "dnsmos_sig": 3.4938436116683413,
+      "dnsmos_bak": 3.892586814859695,
+      "dnsmos_ovrl": 3.127256745046903,
+      "reused_from": "TTS v2 (deterministic, identical inputs)",
+      "device": "CPU",
+      "cer_nemo_v4_ctc": 0.06337371854613234,
+      "wer_nemo_v4_ctc": 0.13873873873873874,
+      "cer_seamless_v5ft_direct": 0.05312208760484623,
+      "wer_seamless_v5ft_direct": 0.11891891891891893,
+      "cer_two_listener_mean": 0.058247903075489285
+    },
+    "piper_ganji_adabi": {
+      "voice_sha256": "e9073b41ae65759dcf95778e569c8f3780406dac99549436f6ab8e7d2336ed72",
+      "texts": 60,
+      "render_rtf_median": 0.04210735728064939,
+      "first_four_words_ms_median": 91.58696251688525,
+      "first_four_words_ms_p90": 136.52762200217694,
+      "dnsmos_sig": 3.6244790704263052,
+      "dnsmos_bak": 4.139726495465499,
+      "dnsmos_ovrl": 3.4010064947589074,
+      "reused_from": "TTS v2 (deterministic, identical inputs)",
+      "device": "CPU",
+      "cer_nemo_v4_ctc": 0.05591798695246971,
+      "wer_nemo_v4_ctc": 0.12432432432432433,
+      "cer_seamless_v5ft_direct": 0.08271202236719478,
+      "wer_seamless_v5ft_direct": 0.1918918918918919,
+      "cer_two_listener_mean": 0.06931500465983224,
+      "clip_cer_minus_incumbent_mean": 0.012664402540280027,
+      "clip_cer_minus_incumbent_ci95": [
+        -0.010674798113557428,
+        0.04948643606011782
+      ]
+    },
+    "moss_tts_nano_fa": {
+      "arm": "moss_tts_nano_fa",
+      "model_sha256": "00648a0551d9a326355a38c2149fd5c35390e51d376f2b035f5be638e4e4e6b0",
+      "reference_sha256": [
+        "f0f085b7a61f94e35aabc0eefe851e8df768914a02858fd71d8e38e8d55d80fc"
+      ],
+      "device": "NVIDIA H100 NVL",
+      "dtype": "bfloat16",
+      "texts": 60,
+      "failed_texts": [],
+      "clause_chunking": "thesis_s2s.runtime.streaming.ClauseChunker defaults",
+      "sampling": {
+        "text_temperature": 1.0,
+        "text_top_p": 1.0,
+        "text_top_k": 50,
+        "audio_temperature": 0.8,
+        "audio_top_p": 0.95,
+        "audio_top_k": 25,
+        "audio_repetition_penalty": 1.2
+      },
+      "g2p_check": null,
+      "render_rtf_median": 0.747522885198435,
+      "first_four_words_ms_median": 3298.355691600591,
+      "first_four_words_ms_p90": 3829.953175969422,
+      "peak_gpu_gib": 0.77,
+      "seed": 20261017,
+      "dnsmos_sig": 3.3014268829279314,
+      "dnsmos_bak": 3.9728228622591475,
+      "dnsmos_ovrl": 3.00935096084638,
+      "cer_nemo_v4_ctc": 0.12465051258154707,
+      "wer_nemo_v4_ctc": 0.27927927927927926,
+      "cer_seamless_v5ft_direct": 0.3038210624417521,
+      "wer_seamless_v5ft_direct": 0.5648648648648649,
+      "cer_two_listener_mean": 0.2142357875116496,
+      "clip_cer_minus_incumbent_mean": 0.14860505929476903,
+      "clip_cer_minus_incumbent_ci95": [
+        0.04449138399425039,
+        0.2931783511060431
+      ]
+    },
+    "gooya_v1": {
+      "arm": "gooya_v1",
+      "model_sha256": "9ed3888926c8ad2ba91b6028e1cfecdc077d8219ac73978b0a00516ce3e0a032",
+      "reference_sha256": [
+        "f0f085b7a61f94e35aabc0eefe851e8df768914a02858fd71d8e38e8d55d80fc"
+      ],
+      "device": "NVIDIA H100 NVL",
+      "dtype": "bfloat16",
+      "texts": 60,
+      "failed_texts": [
+        {
+          "row_id": "eq12",
+          "error": "ValueError: Text prompt cannot be empty."
+        }
+      ],
+      "clause_chunking": "thesis_s2s.runtime.streaming.ClauseChunker defaults",
+      "sampling": {
+        "text_temperature": 1.0,
+        "text_top_p": 1.0,
+        "text_top_k": 50,
+        "audio_temperature": 0.6,
+        "audio_top_p": 0.9,
+        "audio_top_k": 25,
+        "audio_repetition_penalty": 1.2
+      },
+      "g2p_check": {
+        "manifest_v7_rows": 6,
+        "exact_matches": 6
+      },
+      "render_rtf_median": 0.8117856456094612,
+      "first_four_words_ms_median": 2015.4887260869145,
+      "first_four_words_ms_p90": 2465.3624701313674,
+      "peak_gpu_gib": 1.2,
+      "seed": 20261017,
+      "dnsmos_sig": 3.3334335083052653,
+      "dnsmos_bak": 4.006126192266576,
+      "dnsmos_ovrl": 3.056823058208799,
+      "cer_nemo_v4_ctc": 0.11113699906803355,
+      "wer_nemo_v4_ctc": 0.22792792792792793,
+      "cer_seamless_v5ft_direct": 0.2532618825722274,
+      "wer_seamless_v5ft_direct": 0.5072072072072072,
+      "cer_two_listener_mean": 0.18219944082013048,
+      "clip_cer_minus_incumbent_mean": 0.13097616410418178,
+      "clip_cer_minus_incumbent_ci95": [
+        0.02302024329291037,
+        0.2754919636929044
+      ]
+    },
+    "chatterbox_fa": {
+      "arm": "chatterbox_fa",
+      "model_sha256": {
+        "grapheme_mtl_merged_expanded_v1.json": "df81a7ca7c31796cbe97f7a7142d5a53b12e88e12417ebe98f66602cafaf0461",
+        "mtl_tokenizer.json": "e7f9364e2c279b2de19f417a83624d9887532a56daec2ddddac470cc71693253",
+        "s3gen.safetensors": "2b78103c654207393955e4900aac14a12de8ef25f4b09424f1ef91941f161d4e",
+        "t3_fa.safetensors": "723640dc2b1bbf8f54d471812fae3f8c72c3ed9123d8b5d5d5907d7c084bc207",
+        "ve.safetensors": "f0921cab452fa278bc25cd23ffd59d36f816d7dc5181dd1bef9751a7fb61f63c"
+      },
+      "manifest_upstream": {
+        "repo_id": "Thomcles/Chatterbox-TTS-Persian-Farsi",
+        "revision": "4e9f6b7043d30d8328bb842b6126676bead8d9de",
+        "license": "CC-BY-NC-4.0"
+      },
+      "reference_sha256": [
+        "f0f085b7a61f94e35aabc0eefe851e8df768914a02858fd71d8e38e8d55d80fc"
+      ],
+      "device": "NVIDIA H100 NVL",
+      "torch": "2.13.0+cu130",
+      "texts": 60,
+      "failed_texts": [],
+      "clause_chunking": "thesis_s2s.runtime.streaming.ClauseChunker defaults",
+      "settings": {
+        "language_id": null,
+        "exaggeration": 0.5,
+        "cfg_weight": 0.5,
+        "watermark": "Perth (built in)"
+      },
+      "render_rtf_median": 0.9700828430663513,
+      "first_four_words_ms_median": 1981.2368941493332,
+      "first_four_words_ms_p90": 2598.43344707042,
+      "peak_gpu_gib": 3.44,
+      "seed": 20261017,
+      "dnsmos_sig": 3.4668693719853274,
+      "dnsmos_bak": 3.9043126123282517,
+      "dnsmos_ovrl": 3.11641585428218,
+      "cer_nemo_v4_ctc": 0.06104380242311277,
+      "wer_nemo_v4_ctc": 0.14954954954954955,
+      "cer_seamless_v5ft_direct": 0.06826654240447344,
+      "wer_seamless_v5ft_direct": 0.1900900900900901,
+      "cer_two_listener_mean": 0.06465517241379311,
+      "clip_cer_minus_incumbent_mean": 0.004420999567404022,
+      "clip_cer_minus_incumbent_ci95": [
+        -0.022180184577253147,
+        0.032656353241925264
+      ]
+    }
+  },
+  "ranking_by_two_listener_cer": [
+    "piper_mana",
+    "chatterbox_fa",
+    "piper_ganji_adabi",
+    "gooya_v1",
+    "moss_tts_nano_fa"
+  ],
+  "ranking_by_dnsmos_ovrl": [
+    "piper_ganji_adabi",
+    "piper_mana",
+    "chatterbox_fa",
+    "gooya_v1",
+    "moss_tts_nano_fa"
+  ],
+  "text_retained": false,
+  "claim_boundary": "Round-trip ASR intelligibility and DNSMOS are automatic proxies; Persian naturalness is measured only by the listening study."
+}

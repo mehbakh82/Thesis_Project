@@ -64,7 +64,7 @@ and a direct speech-input alternative:
 | Direct S2S | Moshika 7B engineering baseline | No | Failed Persian runtime output; no same-panel comparison |
 | ASR | NeMo v4 CTC (fine-tuned Persian) | Yes | Most accurate of 10 model configurations (12 arms) within the latency budget on human-transcribed PSRB; Seamless is more accurate but too slow for streaming |
 | Responder | Qwen3-4B prompt-v2 | Yes | Retained by the responder-v2 two-judge rule; the cross-family judge prefers Qwen3.5-4B / Gemma 4 with the elderly prompt by about one point, the Qwen judge does not. A pre-registered switch rule left the decision to the listening study, which was not conducted (no participants), so Qwen3-4B stays; Qwen3.5-4B with the elderly prompt passed its deployment qualification (`docs/RESPONDER_SWITCH_PROTOCOL.md`, `docs/RESPONDER_SWITCH_RESULT.md`) |
-| TTS | Mana Persian Piper | Yes | Most intelligible of nine voices and configurations (six Piper voices, ParsVoice-XTTS, the lab VITS as served and optimized) under two ASR listeners; naturalness not measured (the listening study was not conducted) |
+| TTS | Mana Persian Piper | Yes | Most intelligible of twelve voices and configurations (six Piper voices, ParsVoice-XTTS, the lab VITS as served and optimized, and in TTS v4 Chatterbox Persian, Gooya v1 and MOSS-TTS-Nano-Persian) under two ASR listeners; Chatterbox is as intelligible but about 2 s to its first words (`docs/TTS_CANDIDATE_COMPARISON_V4_RESULT.md`); naturalness not measured (the listening study was not conducted) |
 
 The current direct shortlist is Moshika, PersonaPlex, Qwen3-Omni,
 MiniCPM-o 4.5, Covo-Audio-Chat-FD, BayLing-Duplex, DuplexOmni, Lychee-FD,
@@ -133,9 +133,10 @@ The highest-value component challengers are:
 3. **TTS:** the controlled automatic comparison is complete. Meta MMS-TTS
    Persian was mechanically valid but materially worse than Mana-Piper, so
    Piper is retained. Released Qwen3-TTS support still excludes Persian.
-   MOSS-TTS-Nano-Persian requires clean reference speech unavailable to this
-   project and documents a roughly five-second practical utterance limit, so a
-   fair like-for-like deployment comparison was not run.
+   MOSS-TTS-Nano-Persian was first left out for lack of clean reference speech;
+   TTS v4 ran it with the CC0 ManaTTS references and clause chunking, together
+   with Gooya v1 and Chatterbox Persian: none is as fast as Mana and only
+   Chatterbox is as intelligible (`docs/TTS_CANDIDATE_COMPARISON_V4_RESULT.md`).
 4. **Direct S2S:** retain Moshika only as the reproducible negative baseline.
    Do not start another full run until a candidate passes a 32-row Persian
    memorization and autoregressive-output gate.

@@ -765,6 +765,17 @@ significantly less intelligible than Mana (interval +0.8 to +8.1 percentage poin
 by the same rule, did not enter the listening study. The remaining gap comes from the
 acoustic model and the text front end it was trained with, not from inference settings.
 
+A fourth, pre-registered round measured three newer Persian voices with the same texts,
+listeners and Mana reference voice, each fed clause by clause as in the live system:
+Chatterbox Persian (500 million parameters, non-commercial licence), Gooya v1 and
+MOSS-TTS-Nano-Persian. Chatterbox is as intelligible as Mana (6.47\% against 5.82\%, interval
+$-2.2$ to $+3.3$ points) with a DNSMOS just below it (3.12 against 3.13), so by the rule it
+would not have entered the study, and it needs about 2 seconds on an H100 to synthesize four
+words, against 84 ms for Mana on a CPU. Gooya v1 (18.2\%) and MOSS (21.4\%) are significantly
+less intelligible and as slow. Because the listening study was not conducted, this round could
+not have changed the deployed voice; it shows that, among the twelve voices and configurations
+tested, none is both as intelligible and as fast as Mana.
+
 \section{Interruption Detection}
 \label{sec:res-bargein}
 
@@ -1453,6 +1464,7 @@ Responder$^{e}$ & Qwen3.5-4B, bf16 & 4.66B & 5.27 / 5.34 & 56 ms \\
 TTS & Piper Mana (deployed, CPU) & 15.7M & \textbf{CER 5.82\%} & 84 ms \\
  & Lab VITS, optimized (H100) & 36.3M & CER 9.19\% & 116 ms \\
  & ParsVoice-XTTS (H100) & -- & CER 13.55\% & 1751 ms \\
+ & Chatterbox Persian (H100) & 0.5B & CER 6.47\% & 1981 ms \\
 \midrule
 Direct S2S & Moshika LoRA (v7a) & 7.69B & unintelligible$^{c}$ & -- \\
 \bottomrule
