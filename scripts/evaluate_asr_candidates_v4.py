@@ -15,7 +15,7 @@ import json
 import subprocess
 import sys
 import tempfile
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -130,7 +130,7 @@ def main() -> int:
     fleurs_v6 = fleurs["arms"]["nemo_v6_ctc"]["paired_vs_incumbent"]["cer"]
     receipt = {
         "schema_version": 1,
-        "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
+        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "protocol": "docs/ASR_CANDIDATE_COMPARISON_V4_PROTOCOL.md",
         "protocol_sha256": sha256_file(PROTOCOL),
         "scorer": "scripts/evaluate_asr_candidates_v2.py (unchanged), wrapped by this script",

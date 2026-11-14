@@ -71,6 +71,10 @@ large enough to detect this 0.7-point difference.
   counted 852); every clip is used, as the protocol requires.
 - Nemotron ran in a separate environment with Transformers 5.23 and the
   project's torch 2.12 (the card asks for Transformers ≥ 5.18).
+- After scoring, `scripts/evaluate_asr_candidates_v4.py` was changed only to
+  replace `datetime.UTC` with `timezone.utc` (CI runs Python 3.10). The
+  receipt's `wrapper_sha256` is that of the scoring version, in commit
+  `10b2a79`.
 
 ## Claim boundary
 
